@@ -1,0 +1,17 @@
+{
+  "faces": 276280,
+  "vertices": 138136,
+  "geo.manifold.watertight": true,
+  "geo.manifold.winding_consistent": true,
+  "geo.islands.count": 1,
+  "geo.islands.tiny(<0.5% of largest)": 0,
+  "geo.scale_axes.extents_xyz": [
+    1.039,
+    1.957,
+    0.903
+  ],
+  "geo.scale_axes.tallest_axis": "y",
+  "geo.grounding.min_y": -0.998,
+  "geo.budget.vs_30k_game_preset": "9.2x over",
+  "geo.symmetry.x_mirror_err_pct_of_height": 1.34
+}

@@ -1,0 +1,6 @@
+Loaded as API: https://trellis-community-trellis.hf.space
+🧼 preprocessed (bg removed): /tmp/gradio/635024730135704f750ee141450818f37f9c2cdbf0b0474aa939a6c3731f524e/image.png
+🔎 ({'video': '/tmp/gradio/f553adef13c33616c7d38f2b5df2949a32d786151f78a089d77752d09872c172/sample.mp4', 'subtitles': None}, '/tmp/gradio/1d4a131bfb30abeb6c6cab01e5aa3b97ce8812c8361e6169b13c1b106fd8c730/sample.glb', '/tmp/gradio/1d4a131bfb30abeb6c6cab01e5aa3b97ce8812c8361e6169b13c1b106fd8c730/sample.glb')
+📦 preview: trellis_preview.mp4 (411 KB)
+📦 textured: trellis_textured.glb (1666 KB)
+⏱️ trellis done in 38s

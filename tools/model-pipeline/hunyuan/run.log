@@ -1,0 +1,27 @@
+Loaded as API: https://tencent-hunyuan3d-2.hf.space
+🦖 connected, submitting job…
+Traceback (most recent call last):
+  File "<scratch>/hunyuan/run_hunyuan.py", line 20, in <module>
+    result = client.predict(
+        caption=None,
+    ...<12 lines>...
+        api_name="/generation_all",
+    )
+  File "~/.cache/uv/environments-v2/run-hunyuan-49e440a0b5bd90f5/lib/python3.13/site-packages/gradio_client/client.py", line 606, in predict
+    ).result()
+      ~~~~~~^^
+  File "~/.cache/uv/environments-v2/run-hunyuan-49e440a0b5bd90f5/lib/python3.13/site-packages/gradio_client/client.py", line 1707, in result
+    return super().result(timeout=timeout)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/concurrent/futures/_base.py", line 460, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/concurrent/futures/_base.py", line 402, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "~/.cache/uv/environments-v2/run-hunyuan-49e440a0b5bd90f5/lib/python3.13/site-packages/gradio_client/client.py", line 1233, in _inner
+    predictions = _predict(*data, **kwargs)
+  File "~/.cache/uv/environments-v2/run-hunyuan-49e440a0b5bd90f5/lib/python3.13/site-packages/gradio_client/client.py", line 1356, in _predict
+    raise AppError(message=message, **result)
+gradio_client.exceptions.AppError: 'NameError'

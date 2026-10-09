@@ -1,0 +1,7 @@
+✅ A_front: 1 views, 29s
+✅ B_front_back: 2 views, 25s
+✅ C_front_side_back: 3 views, 32s
+    raise AppError(message=message, **result)
+gradio_client.exceptions.AppError: You have exceeded your free ZeroGPU quota (120s requested vs. 169s left). Try again in 4:34:36. Subscribe to Hugging Face PRO to get 25 min of ZeroGPU quota a day - https://huggingface.co/subscribe/pro?from=ZeroGPU
+    raise AppError(message=message, **result)
+gradio_client.exceptions.AppError: You have exceeded your free ZeroGPU quota (120s requested vs. 169s left). Try again in 4:33:19. Subscribe to Hugging Face PRO to get 25 min of ZeroGPU quota a day - https://huggingface.co/subscribe/pro?from=ZeroGPU

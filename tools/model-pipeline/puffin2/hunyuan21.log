@@ -1,0 +1,15 @@
+  File "~/.cache/uv/environments-v2/gen-textured-d47eed011cab1d4d/lib/python3.13/site-packages/gradio_client/client.py", line 1707, in result
+    return super().result(timeout=timeout)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/concurrent/futures/_base.py", line 460, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/concurrent/futures/_base.py", line 402, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "~/.cache/uv/environments-v2/gen-textured-d47eed011cab1d4d/lib/python3.13/site-packages/gradio_client/client.py", line 1233, in _inner
+    predictions = _predict(*data, **kwargs)
+  File "~/.cache/uv/environments-v2/gen-textured-d47eed011cab1d4d/lib/python3.13/site-packages/gradio_client/client.py", line 1356, in _predict
+    raise AppError(message=message, **result)
+gradio_client.exceptions.AppError: 'The requested GPU duration (270s) is larger than the maximum allowedSubscribe to Hugging Face PRO to allow GPU tasks up to 40 min - https://huggingface.co/subscribe/pro?from=ZeroGPU'
