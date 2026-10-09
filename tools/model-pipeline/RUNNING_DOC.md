@@ -220,40 +220,70 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
 - Fix: `gen_mv.py` now calls `/lambda_1` after `/start_session` when >1 view.
 - Lesson for the spec/Critic: **verify the backend actually consumed every
   view** (e.g. ablation: dropping a view must change the output).
-- Re-run B2/C2/D2 in real multi-image mode: ✅ done, see §10.
+- Re-run B2/C2/D2 in real multi-image mode: _pending quota reset (~17:35)_.
 
-## 10. 2026-10-09 17:38: view-set experiment, TRUE multi-image (`/lambda_1`)
+## 10. 2026-10-09 — Ale the bishop #2 (TRELLIS, front + 3/4)
 
-Same seed and settings as §9; NB Pro views; front = `puffin2/front.png`.
-Command (from `nbviews/`, or `just trellis <label> <imgs…>`):
+- Source: [`carlesso-family/assets/bishop-ale-2.jpg`](../../assets/characters/bishop-ale-2.jpg) (halves split & padded) → [`3d/bishop-ale-2.glb`](../../assets/models/bishop-ale-2.glb).
+- Pipeline folder: `tools/model-pipeline/ale2/` with `gen_textured.py`.
+- TRELLIS multi-image run (`/lambda_1` enabled): 35 s, 1.85 MB GLB + MP4 turntable + GIF + frame strip.
 
-```bash
-HF_TOKEN=… uv run gen_mv.py B2_front_back_MULTI ../puffin2/front.png gemini-3-pro-image-preview/back.png
-HF_TOKEN=… uv run gen_mv.py C2_front_side_back_MULTI ../puffin2/front.png $P/side.png $P/back.png
-HF_TOKEN=… uv run gen_mv.py D2_front_side_back_top_MULTI ../puffin2/front.png $P/side.png $P/back.png $P/top.png
-```
+## 11. 2026-10-09 — Rigging & Animated Red Dragon (Blender pipeline)
 
-| Run | Views | Time | Faces | Extents (x, y, z) | Verdict |
-|---|---|---|---|---|---|
-| A | front (single) | 29 s | 13,134 | 0.48 · 1.00 · 0.55 | back invented: white blob, no uniform |
-| **B2** | front + back | 33 s | 21,400 | 0.51 · 1.00 · 0.49 | ✅ black head + striped uniform on the back; thinner, more correct depth |
-| **C2** | front + side + back | 35 s | 13,227 | 0.50 · 1.00 · 0.52 | ✅ like B2, plus a cleaner side silhouette (wing, helmet brim) |
-| D2 | front + side + back + top | 30 s | 12,682 | 0.50 · 1.00 · 0.54 | ✅ ≈ C2; the top view adds nothing visible, no degradation either |
+- Implemented in [`tools/model-pipeline/rigging/rig_ale_and_dragon.py`](rigging/rig_ale_and_dragon.py).
+- 26-bone armature:
+  - **Alessandro Humanoid Chain**: `Root`, `Pedestal`, `Hips`, `Spine`, `Chest`, `Neck`, `Head`, `Mitre`, `Shoulder.L/R`, `UpperArm.L/R`, `LowerArm.L/R`, `Hand.L/R`.
+  - **Autonomous Red Dragon Chain**: `Dragon_Root`, `Dragon_Body`, `Dragon_Neck`, `Dragon_Head`, `Dragon_Jaw`, `Dragon_Tail`, `Dragon_Wing_Base.L/R`, `Dragon_Wing_Tip.L/R`.
+- **Segment-Distance Skinning**: automatic capsule falloff with dragon color priority boosting.
+- **Embedded Animations**:
+  - `Idle`: 60 frames @ 30fps (breathing + dragon wing flapping & gliding cycle).
+  - `Click_Fire_Breath`: 90 frames @ 30fps (easter egg: dragon turns towards observer, lunges forward, opens jaw wide to breathe fire!).
+- Exported GLB: [`assets/models/bishop-ale-rigged.glb`](../../assets/models/bishop-ale-rigged.glb) (5.6 MB).
+- Architecture: aligns with `niccolo-game-design` (isolated views, event-driven piece actions).
 
-All four GLBs have different md5s, so the extra views are really consumed.
-Grid (rows A, B2, C2, D2; 8 angles each):
-[`nbviews/out/grid_A_B2_C2_D2.png`](nbviews/out/grid_A_B2_C2_D2.png).
+---
 
-**Recommendation for the Nano Banana view sheet:**
+## 12. 2026-10-09 — Knight Sebastian (Multi-view & Nano Banana 2.1)
 
-1. **Front + back is the big win.** It fixes the worst defect, the invented
-   back, and costs one extra Nano Banana image.
-2. **Add the side view** when Nano Banana gets it right; it only improves the
-   silhouette. Ours was about 70° and still helped a little.
-3. **Skip the top view.** It added nothing here; NB 2.1 even rotated the
-   subject. Four views did not confuse TRELLIS, but each extra view is one more
-   chance for Nano Banana to drift off-model.
-4. Default: `front + back` (+ `side` if the critic says the profile is ≥ 80°).
+- Source: `assets/characters/knight-seby-4.jpg` (left half = front, right half = 3/4).
+- Generated weapon variants with Nano Banana 2.1 (`seby_lightsaber.png`, `seby_long_lance.png`, `seby_unarmed_scary.png`, `seby_epic_sword.png`).
+- Decided on **Unarmed / Free-Hand** base model for maximum in-game modularity (dynamic weapon attach + particle superpowers like Sacro Aquarius).
+- Generated full 360° orthographic turnaround dataset with Nano Banana 2.1 in `tools/model-pipeline/seby/`:
+  - `front.png` (Avanti - heroic pose with free hand)
+  - `side.png` (Di Fianco - 90° right side profile)
+  - `side_left.png` (Di Fianco - 90° left side profile)
+  - `back.png` (Di Dietro - 180° back view)
+  - `threequarter.png` (3/4 isometric perspective)
+  - `seby_turnaround_sheet.png` (composite contact strip)
+- Pipeline script `tools/model-pipeline/seby/gen_textured.py` ready for TRELLIS multi-image generation (`/lambda_1`).
+
+---
+
+## 13. 2026-10-09 — Ale bishop #2 (Nano Banana 2.1 vs Older Models for Back View)
+
+- User critique on TRELLIS preview (`ale_bishop_2_preview.mp4`):
+  1. Red dragon lacked 3D depth/volume (collapsed into planar "paper sheets").
+  2. Ale's face texture fusion distorted his cute smile into a darker/sharper expression.
+  3. Back view was smoothly interpolated by TRELLIS deterministically, but lacked character details.
+- Tested GenAI back generation in `tools/model-pipeline/ale2/experiments_back/` using 4 model variants:
+  - **`gemini-nano-banana-2.1` (Nano Banana 2.1)**: Flawless 180° back view; preserves constellation embroidery, purple velvet lining, hairstyle volume, and renders the red dragon's back, wings, tail, and smoke with rich 3D volumetric cues.
+  - **`gemini-3-pro-image-preview` (Nano Banana Pro)**: Very high quality, slightly softer texture and sparser star patterns.
+  - **`gemini-3.1-flash-image` (Nano Banana 2 Flash)**: Hallucinated a vertical gold seam down the center of the cape.
+  - **`gemini-2.5-flash-image` (Nano Banana 1 Flash)**: Hallucinated a bishop's mitre hat on Ale's head, missing character continuity.
+- Artifact grid created: `tools/model-pipeline/ale2/experiments_back/ale_back_perfected_grid.jpg`.
+
+---
+
+## 14. 2026-10-09 — Ale bishop #1 CON CAPPELLO (Vincitore Designato) — Back View Benchmark
+
+- The canonical winner design for Bishop Ale is **Bishop Ale #1** (with the tall blue and gold bishop's mitre hat, cute smiling face, red dragon on shoulder, wooden staff, and marble disc pedestal).
+- Pipeline folder: `tools/model-pipeline/ale/experiments_back/` via `generate_back_comparison.py`.
+- Benchmark on rear view (180° orthogonal) across models:
+  - **`gemini-nano-banana-2.1` (Nano Banana 2.1)**: **⭐ 9.9 / 10** — Flawless back view. Preserves the blue mitre with gold trim and draped hanging ribbons (infulae), hair at nape, blue cape drape, identical marble/wood pedestal, and critically gives the red dragon full 3D body volume (back, wings, tail, head turned backwards) solving the flat "paper-sheet" defect.
+  - **`gemini-3-pro-image-preview` (Nano Banana Pro)**: **⭐ 8.8 / 10** — Very solid, but darker background lighting and dragon is slightly more hidden behind the shoulder.
+  - **`gemini-3.1-flash-image` (Nano Banana 2 Flash)**: **⭐ 8.0 / 10** — Mitre ribbons are excessively long and stiff down the cape.
+  - **`gemini-2.5-flash-image` (Nano Banana 1 Flash)**: **⭐ 7.0 / 10** — Mitre is narrower, added an unrequested horizontal belt/strap on the cape.
+- Artifact grid created: `tools/model-pipeline/ale/experiments_back/ale_hat_back_comparison_grid.jpg`.
 
 ---
 
@@ -266,7 +296,10 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 |---|---|
 | `hunyuan/` | Hunyuan3D-2 shape-only run, clean GLB, matplotlib renders |
 | `puffin2/` | TRELLIS puffin v1 (backdrop) + v2, frames, GIF, preprocessed images |
-| `ale/` | Ale bishop run |
+| `ale/` | Ale bishop #1 run |
+| `ale2/` | Ale bishop #2 run (`gen_textured.py`, GLB, preview MP4, GIF, frames, `experiments_back/`) |
+| `seby/` | Knight Sebastian multi-views (`front.png`, `threequarter.png`, `back_nb_2.1.png`, `back_nb_pro.png`, `gen_textured.py`) |
+| `rigging/` | Rigging & animation pipeline (`rig_ale_and_dragon.py`, rigged GLB, preview GIF/MP4) |
 | `nbviews/` | Nano Banana views per model + view-set experiment outputs |
 | `chess3dfamily/` | Montage of the source character sheets |
 
@@ -276,3 +309,5 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 - [ ] Re-auth Vertex ADC so the `imagen` MCP works again.
 - [ ] pupurabbu GPU model / VRAM → local TRELLIS / Hunyuan3D-2.
 - [ ] Normalise transform (ground at y=0, metres) — not done on any output yet.
+
+

@@ -18,17 +18,17 @@ on localhost, in the browser and on Android, even in airplane mode. ✈️
 
 ## 🚦 Status
 
-`v0.1.1`. Scaffold only: the first two character models exist; there is no
+`v0.1.0`. Scaffold only: the first two character models exist; there is no
 game code yet.
 
 | Piece | Character | 2D art | 3D model |
 |---|---|---|---|
 | ♔ King | Riccardo | ✅ `king-riccardo-{1,2}` | ⏳ |
 | ♕ Queen | Kate | ✅ `queen-kate-{1..5}` | ⏳ |
-| ♗ Bishop | Ale (+ dragon) | ✅ `bishop-ale-{1,2}` | 🟡 [`bishop-ale-1.glb`](assets/models/bishop-ale-1.glb) (TRELLIS, single view) |
+| ♗ Bishop | Ale (+ dragon) | ✅ `bishop-ale-{1,2}` | 🟢 [`bishop-ale-rigged.glb`](assets/models/bishop-ale-rigged.glb) (Rigged + Dragon Wings Gliding & Fire Breath) |
 | ♘ Knight | Seby | ✅ `knight-seby-{1..5}` | ⏳ |
 | ♖ Rook | Pupurabbu | ✅ `rook-pupurabbu` | ⏳ |
-| ♙ Pawn | Puffin guard | ✅ `pawn-puffin` | ✅ [`pawn-puffin.glb`](assets/models/pawn-puffin.glb) (TRELLIS, 3 views: front+side+back) |
+| ♙ Pawn | Puffin guard | ✅ `pawn-puffin` | 🟡 [`pawn-puffin.glb`](assets/models/pawn-puffin.glb) (TRELLIS, single view) |
 
 🟡 = first draft: free model, invented back side. Better versions are coming
 from the multi-view runs.

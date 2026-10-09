@@ -25,3 +25,7 @@ trellis label +images:
 # extra views (back/side/top) with Nano Banana (needs GEMINI_API_KEY; NB_MODEL to pick the model)
 nb-views:
     cd tools/model-pipeline/nbviews && UV_INDEX_URL=https://pypi.org/simple timeout 600 uv run --quiet nb_views.py
+
+# open a GLB model in Blender from CLI with colors and textures enabled
+blender glb:
+    blender --background --python-expr "import bpy; [bpy.data.objects.remove(o) for o in list(bpy.data.objects)]; bpy.ops.import_scene.gltf(filepath='{{glb}}'); [setattr(o, 'hide_viewport', True) for o in bpy.data.objects if o.type == 'ARMATURE']; bpy.ops.wm.save_as_mainfile(filepath='/tmp/preview_carchess.blend')" 2>/dev/null && blender /tmp/preview_carchess.blend
