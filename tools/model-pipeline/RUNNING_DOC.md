@@ -1,11 +1,11 @@
 # Plastilina — Running Doc 🧱📓
 
 A chronological lab notebook of every experiment run for the
-[Plastilina spec](https://github.com/palladius/respec/blob/main/docs/llm-apps/plastilina/SPEC.md): tools, MCP calls, APIs, parameters, prompts,
+[Plastilina spec](https://github.com/palladius/respec/blob/main/specs/apps/plastilina/SPEC.md): tools, MCP calls, APIs, parameters, prompts,
 results and lessons. **The goal is that anyone (human or agent) can pick up
 the work from here and reproduce or extend it.**
 
-- Spec: [SPEC.md](https://github.com/palladius/respec/blob/main/docs/llm-apps/plastilina/SPEC.md) · Original idea + follow-ups: [input_prompt.md](https://github.com/palladius/respec/blob/main/docs/llm-apps/plastilina/input_prompt.md)
+- Spec: [SPEC.md](https://github.com/palladius/respec/blob/main/specs/apps/plastilina/SPEC.md) · Original idea + follow-ups: [input_prompt.md](https://github.com/palladius/respec/blob/main/specs/apps/plastilina/input_prompt.md)
 - Moved here from `palladius/respec` on 2026-10-09: the chess pieces are the
   first real customer of the pipeline. Scripts live **next to their inputs and
   outputs** in `hunyuan/`, `puffin2/`, `ale/`, `nbviews/` (relative paths such
@@ -47,7 +47,7 @@ ffmpeg -i X.mp4 -vf "crop=512:512:0:0,fps=15,scale=360:-1:flags=lanczos,split[a]
 
 ## 1. 2026-10-08 — Spec written
 
-- Created [SPEC.md](https://github.com/palladius/respec/blob/main/docs/llm-apps/plastilina/SPEC.md) + [input_prompt.md](https://github.com/palladius/respec/blob/main/docs/llm-apps/plastilina/input_prompt.md) by hand
+- Created [SPEC.md](https://github.com/palladius/respec/blob/main/specs/apps/plastilina/SPEC.md) + [input_prompt.md](https://github.com/palladius/respec/blob/main/specs/apps/plastilina/input_prompt.md) by hand
   (repo convention: frontmatter + Problem/Goals/Non-Goals/…).
 - Decisions from Riccardo (recorded in SPEC *Decisions*): local-first on
   pupurabbu (GPU) then Cloud Run + GPU; **€0 budget**, 10 min/project; v1
