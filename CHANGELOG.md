@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.1] - 2026-10-09
+
+- 🐧 `pawn-puffin.glb` upgraded to the **true multi-image** TRELLIS run (front + side + back, run C2): the back now has a black head and a striped uniform instead of an invented white blob.
+- 🧪 RUNNING_DOC §10: view-set results (A vs B2/C2/D2) and grid; recommendation: front + back, + side if accurate, skip top.
+
 ## [0.1.0] - 2026-10-09
 
 - 🎉 Repo created: the implementation home of the

@@ -220,7 +220,40 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
 - Fix: `gen_mv.py` now calls `/lambda_1` after `/start_session` when >1 view.
 - Lesson for the spec/Critic: **verify the backend actually consumed every
   view** (e.g. ablation: dropping a view must change the output).
-- Re-run B2/C2/D2 in real multi-image mode: _pending quota reset (~17:35)_.
+- Re-run B2/C2/D2 in real multi-image mode: ✅ done, see §10.
+
+## 10. 2026-10-09 17:38: view-set experiment, TRUE multi-image (`/lambda_1`)
+
+Same seed and settings as §9; NB Pro views; front = `puffin2/front.png`.
+Command (from `nbviews/`, or `just trellis <label> <imgs…>`):
+
+```bash
+HF_TOKEN=… uv run gen_mv.py B2_front_back_MULTI ../puffin2/front.png gemini-3-pro-image-preview/back.png
+HF_TOKEN=… uv run gen_mv.py C2_front_side_back_MULTI ../puffin2/front.png $P/side.png $P/back.png
+HF_TOKEN=… uv run gen_mv.py D2_front_side_back_top_MULTI ../puffin2/front.png $P/side.png $P/back.png $P/top.png
+```
+
+| Run | Views | Time | Faces | Extents (x, y, z) | Verdict |
+|---|---|---|---|---|---|
+| A | front (single) | 29 s | 13,134 | 0.48 · 1.00 · 0.55 | back invented: white blob, no uniform |
+| **B2** | front + back | 33 s | 21,400 | 0.51 · 1.00 · 0.49 | ✅ black head + striped uniform on the back; thinner, more correct depth |
+| **C2** | front + side + back | 35 s | 13,227 | 0.50 · 1.00 · 0.52 | ✅ like B2, plus a cleaner side silhouette (wing, helmet brim) |
+| D2 | front + side + back + top | 30 s | 12,682 | 0.50 · 1.00 · 0.54 | ✅ ≈ C2; the top view adds nothing visible, no degradation either |
+
+All four GLBs have different md5s, so the extra views are really consumed.
+Grid (rows A, B2, C2, D2; 8 angles each):
+[`nbviews/out/grid_A_B2_C2_D2.png`](nbviews/out/grid_A_B2_C2_D2.png).
+
+**Recommendation for the Nano Banana view sheet:**
+
+1. **Front + back is the big win.** It fixes the worst defect, the invented
+   back, and costs one extra Nano Banana image.
+2. **Add the side view** when Nano Banana gets it right; it only improves the
+   silhouette. Ours was about 70° and still helped a little.
+3. **Skip the top view.** It added nothing here; NB 2.1 even rotated the
+   subject. Four views did not confuse TRELLIS, but each extra view is one more
+   chance for Nano Banana to drift off-model.
+4. Default: `front + back` (+ `side` if the critic says the profile is ≥ 80°).
 
 ---
 
