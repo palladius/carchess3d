@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.18] - 2026-10-10
+
+- 🧪 Showcase: multiple 3D versions (Ale v1 / v2) are shown **side by side** again, inside the same-size 3D pane (labels instead of tabs; spacing and camera fit the real width of the loaded models). **Single click** on the 3D (not a drag) = fullscreen with all versions; the double-click handler is gone.
+
 ## [0.1.17] - 2026-10-10
 
 - 🧪 Showcase: every card has the same size again (no more full-width Ale card) and every 3D model is normalised to the **same height** (spin radius capped for wide props), so all characters render at the same scale. Multiple 3D versions → `v1 / v2` tabs inside the normal 3D pane.
