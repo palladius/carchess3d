@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.22] - 2026-10-10
+
+- 👑 **Queen Kate 3D Model (`queen-kate.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` using authentic 2016 wedding updo hairstyle concept (`kate_wedding_v2_nb21`), chic round navy glasses, emerald green eyes, royal purple velvet gown with gold embroidery, amethyst ring, and wooden carved pedestal with brass nameplate.
+- 🛠️ **3D Pipeline & Renders**: added `tools/model-pipeline/kate/gen_trellis2.py`, automated Blender EEVEE headless render script `render_preview.py` (`out/queen_kate_3d_preview.png`), and 36-frame 360° turntable animation script `render_turntable.py` (`out/queen_kate_turntable.gif` & `queen_kate_turntable_strip.png`). Copied canonical asset to `assets/models/queen-kate.glb` (3.7 MB, watertight).
+- 🔑 **HF Token Whereabouts**: configured authenticated token management in `.env` supporting `HF_RICC_PROVE3D_CARLESSO` / `palladius` work account with ZeroGPU quota.
+- 📓 **Documentation**: documented full generation run, endpoints, timings, and findings in `tools/model-pipeline/RUNNING_DOC.md` (§21).
+
 ## [0.1.21] - 2026-10-10
 
 - 🛤️ **Merged Conductor Tracks (`classic_default_pieces_20261010` & `swamp_family_pieces_20261010`)**: added declarative family contract (`assets/families/_contract.json`) and parallel-safe specs/plans for the Staunton-Wizard Classic Stone set and the 100% IP-safe *Famiglia della Palude* (*Orco Brontolo, Principessa Orchessa, Asinello Chiacchierone, Mago Focaccina, Draghessa della Palude, Guardia Re Tappo*).

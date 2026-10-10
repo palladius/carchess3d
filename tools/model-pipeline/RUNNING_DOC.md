@@ -358,6 +358,21 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
   - `just scores`: displays full ASCII table of all audited models.
   - `just shittest`: filters only models failing QA (< 6.0) and prints exact root-cause flaws.
 
+## 21. 2026-10-10 — Queen Kate (kate2016 wedding style) 3D Model via TRELLIS.2
+
+- **Concept & Likeness**: Winner `kate_wedding_v2_nb21` celebrating Kate's 2016 wedding updo hairstyle with chic round navy glasses, emerald green eyes, royal purple velvet gown with damask gold embroidery, gold ring with purple amethyst gem, and golden scepter.
+- **2D Multi-view Turnaround**: `front.png`, `threequarter.png`, `side.png`, `back.png`, and `kate_turnaround_sheet.png` in `tools/model-pipeline/kate/`.
+- **Pipeline Runner**: `tools/model-pipeline/kate/gen_trellis2.py` invoking `microsoft/TRELLIS.2` via `gradio_client` using authenticated token (`HF_RICC_PROVE3D_CARLESSO` / `palladius` work account).
+- **Execution & Output**:
+  - Preprocessing (bg removal): 1024² matte on front view.
+  - 3D Shape + Latent Structure: 36.7 s server time.
+  - GLB Mesh Extraction + Decimation: 16.3 s server time (`decimation_target=100000`, `texture_size=1024`).
+  - Output GLB: `tools/model-pipeline/kate/out/queen_kate.glb` (3.7 MB, watertight, textured).
+  - Production destination: copied to `assets/models/queen-kate.glb`.
+- **Renders & Verification**:
+  - Headless Blender EEVEE renderer: `render_preview.py` generating `out/queen_kate_3d_preview.png`.
+  - 36-frame 360° turntable animation: `render_turntable.py` producing `out/queen_kate_turntable.gif` (1.4 MB) and 9-view contact strip `out/queen_kate_turntable_strip.png`.
+
 ---
 
 ## Artifacts index (committed in `tools/model-pipeline/`)
@@ -367,6 +382,7 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 
 | Folder | Content |
 |---|---|
+| `kate/` | Queen Kate 3D pipeline (`front.png`, `threequarter.png`, `side.png`, `back.png`, `gen_trellis2.py`, `render_preview.py`, `render_turntable.py`, `out/queen_kate.glb`, turntable GIF & strip) |
 | `critic/` | Automated VLM & Geometric QA Critic (`critic_vlm.py`, `render_contact_sheet.py`, contact sheets, JSON reports) |
 | `dragon/` | Modular Red Baby Dragon pipeline (`generate_dragon_views.py`, `dragon_turnaround.png`, `texture_dragon.py`, `dragon_clean.glb`) |
 | `hunyuan/` | Hunyuan3D-2 shape-only run, clean GLB, matplotlib renders |
