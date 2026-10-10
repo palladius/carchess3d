@@ -35,7 +35,7 @@ def save(label, p):
 t0 = time.time()
 token = os.environ.get("HF_TOKEN") or os.environ.get("HF_RICC_PROVE3D_CARLESSO") or os.environ.get("HUGGING_FACE_RO_TRELLIS")
 if not token:
-    env_file = Path(__file__).resolve().parent.parent.parent / ".env"
+    env_file = Path(__file__).resolve().parents[2] / ".env"
     if env_file.exists():
         with open(env_file) as f:
             lines = [l.strip() for l in f if l.strip() and not l.strip().startswith("#")]

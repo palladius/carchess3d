@@ -66,7 +66,32 @@ for p in committable_files():
     if SECRET_RE.search(p.read_bytes()):
         failures.append(f"possible secret / internal path in {p.relative_to(ROOT)}")
 
-print(f"🧪 {len(glbs)} GLB, {len(chars)} character images checked")
+# 4. Provenance registry verification
+prov_file = ROOT / "docs/models-provenance.yaml"
+prov_count = 0
+if prov_file.exists():
+    import hashlib
+    current_target = None
+    expected_md5 = None
+    for line in prov_file.read_text().splitlines():
+        line = line.strip()
+        if line.startswith("target_path:"):
+            current_target = line.split(":", 1)[1].strip().strip('"\'')
+        elif line.startswith("md5:") and current_target:
+            expected_md5 = line.split(":", 1)[1].strip().strip('"\'')
+            t_path = ROOT / current_target
+            if not t_path.exists():
+                failures.append(f"provenance target missing: {current_target}")
+            else:
+                real_md5 = hashlib.md5(t_path.read_bytes()).hexdigest()
+                if real_md5 != expected_md5:
+                    failures.append(f"provenance MD5 mismatch for {current_target}: expected {expected_md5}, got {real_md5}")
+                else:
+                    prov_count += 1
+            current_target = None
+            expected_md5 = None
+
+print(f"🧪 {len(glbs)} GLB, {len(chars)} character images, {prov_count} provenance models checked")
 if failures:
     print("❌ " + "\n❌ ".join(failures))
     sys.exit(1)

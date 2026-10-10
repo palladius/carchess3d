@@ -59,3 +59,8 @@ scores:
 shittest:
     python3 tools/model-pipeline/critic/scoreboard.py --cagare
 
+# verify 3D models provenance and MD5 registry
+provenance:
+    python3 scripts/test_provenance.py
+
+

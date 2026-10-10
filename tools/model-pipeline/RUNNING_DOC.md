@@ -373,6 +373,19 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
   - Headless Blender EEVEE renderer: `render_preview.py` generating `out/queen_kate_3d_preview.png`.
   - 36-frame 360° turntable animation: `render_turntable.py` producing `out/queen_kate_turntable.gif` (1.4 MB) and 9-view contact strip `out/queen_kate_turntable_strip.png`.
 
+## 22. 2026-10-10 — King Riccardo 3D Model via TRELLIS.2
+
+- **Concept & Likeness**: King Riccardo (`assets/characters/king-riccardo-1.jpg`), imperial arched crown, blue ermine cloak, royal orb in left hand, golden scepter in right hand, authentic side profile without glasses (`tools/model-pipeline/king/side.png`).
+- **Pipeline Runner**: `tools/model-pipeline/king/gen_trellis2.py` invoking `microsoft/TRELLIS.2` with `palladius` token.
+- **Timing & Output**: 28.9s reconstruction + 19.9s GLB decimation/extraction. Output: `tools/model-pipeline/king/out/king_riccardo.glb` (4.0 MB), copied to `assets/models/king-riccardo.glb`.
+- **Render**: `tools/model-pipeline/king/render_preview.py` generating `out/king_riccardo_3d_preview.png`.
+
+## 23. 2026-10-10 — Queen Kate Young Stylized (4c) & Provenance Registry
+
+- **Kate Young 4c**: Wavy blonde hair falling over shoulders, purple frames, royal purple gown, golden crown and scepter (`queen-kate-4c.png`).
+- **Pipeline**: Processed 4c dual sheet into `front.png` and `threequarter.png` (`tools/model-pipeline/kate_young/`), generated with `microsoft/TRELLIS.2` (`gen_trellis2.py`). Output: `assets/models/queen-kate-young.glb` (3.6 MB).
+- **Provenance Registry**: Created `docs/models-provenance.yaml` mapping all 7 3D models to their MD5 checksums, target paths, source concept images and pipelines. Verified automatically with `scripts/test_provenance.py` and `just test` / `just provenance`.
+
 ---
 
 ## Artifacts index (committed in `tools/model-pipeline/`)

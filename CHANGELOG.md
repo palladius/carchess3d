@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.23] - 2026-10-10
+
+- 👑 **King Riccardo 3D Model (`king-riccardo.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` from turnaround concept (`king-riccardo-1.jpg`, front/side/back views) featuring imperial arched crown, blue ermine-trimmed cloak, golden royal orb, scepter, and authentic clean profile without glasses.
+- 👱‍♀️ **Queen Kate Young Stylized 3D Model (`queen-kate-young.glb`)**: generated secondary 3D variant from the 4c turnaround concept with wavy flowing hair, purple frames, and royal gown. Showcase updated with interactive dual tabs for both Queen Kate interpretations.
+- 📋 **Testable 3D Models Provenance Registry (`docs/models-provenance.yaml`)**: centralized registry documenting every 3D model, its MD5 checksum, target paths, source concept images, pipelines, and tools.
+- 🧪 **Automated Provenance Checks**: integrated stdlib MD5 validation into `scripts/check.py` (`just test`), added standalone `scripts/test_provenance.py` and recipe `just provenance`.
+- 🌐 **Web Showcase Live on Port 8080**: updated `showcase/index.html` with King Riccardo and Queen Kate (Nozze 2016 + Young 4c).
+
 ## [0.1.22] - 2026-10-10
 
 - 👑 **Queen Kate 3D Model (`queen-kate.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` using authentic 2016 wedding updo hairstyle concept (`kate_wedding_v2_nb21`), chic round navy glasses, emerald green eyes, royal purple velvet gown with gold embroidery, amethyst ring, and wooden carved pedestal with brass nameplate.
