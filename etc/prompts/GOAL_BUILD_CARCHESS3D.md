@@ -11,7 +11,7 @@
 
 STRICT GUARDRAILS:
 - Work ONLY in the current git worktree. NEVER modify files in any other worktree or touch `.env` / `.riccardo/`.
-- Every git commit MUST include the trailer `Co-authored-by: Gemini 4 Argon (Antigravity) <176961590+gemini-code-assist[bot]@users.noreply.github.com>` at the end of the commit message.
+- Every git commit MUST use `GIT_AUTHOR_EMAIL="132802+palladius@users.noreply.github.com" GIT_COMMITTER_EMAIL="132802+palladius@users.noreply.github.com"` (so GitHub links `palladius`) and include the trailer `Co-authored-by: Gemini 4 Argon (Antigravity) <176961590+gemini-code-assist[bot]@users.noreply.github.com>` at the end of the commit message.
 - Zero build step, 100% offline-capable Vanilla Three.js ES Modules (`vendor/three/`) + vendored `vendor/chess.js`.
 - Follow `.agents/skills/niccolo-game-design/SKILL.md` strictly:
   1. One Manager = One Responsibility (<= 300 LOC per file). No God Manager!
