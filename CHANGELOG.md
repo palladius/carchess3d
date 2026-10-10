@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.14] - 2026-10-10
+
+- 🐉 Modular Red Baby Dragon generation in `tools/model-pipeline/dragon/` (Nano Banana 2D turnaround views + Hunyuan3D-2 3D shape + procedural texturing).
+- ♟️ Modular assembly script `tools/model-pipeline/rigging/assemble_modular_bishop.py` mounting clean dragon to Bishop Ale rig with dual animations (`Idle` wing glide & `Click_Fire_Breath`).
+- 📸 Improved studio lighting and neutral background in `render_contact_sheet.py`.
+- 🔍 VLM Critic audit on modular bishop: face likeness increased from 4.0 to 6.8/10.
+
 ## [0.1.13] - 2026-10-10
 
 - 🤖 Added automated VLM & Geometric QA Critic in `tools/model-pipeline/critic/` (`critic_vlm.py`, `render_contact_sheet.py`).

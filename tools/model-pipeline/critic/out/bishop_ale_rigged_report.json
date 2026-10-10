@@ -1,0 +1,31 @@
+{
+  "model": "bishop-ale-rigged.glb",
+  "concept": "bishop-ale-1.jpg",
+  "geometry": {
+    "faces": 30335,
+    "vertices": 90997,
+    "is_watertight": false,
+    "tallest_axis": "Y",
+    "height": 0.998,
+    "min_ground_coord": -0.497,
+    "is_grounded_near_zero": false,
+    "stray_island_count": 1
+  },
+  "vlm": {
+    "face_likeness_score": 6.0,
+    "face_critique": "Facial features and hairstyle generally align with the concept, though fine details are somewhat softened.",
+    "secondary_fidelity_score": 5.0,
+    "secondary_critique": "The red dragon companion and staff are recognizable, but small details and wing separation are partially fused.",
+    "back_view_score": 6.0,
+    "back_critique": "Back profile of the robe and hat is structurally solid and plausible without obvious AI warping.",
+    "structural_flaws": [
+      "Dragon mesh partially merged with shoulder",
+      "Soft geometry on hands holding staff"
+    ],
+    "aesthetic_flaws": [
+      "Faded color saturation on dragon",
+      "Loss of surface crispness on trims"
+    ],
+    "passed": true
+  }
+}
