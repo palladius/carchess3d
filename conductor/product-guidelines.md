@@ -33,3 +33,14 @@
 
 - **100% Brand-Free:** Never use third-party trademarks, logos, or copyrighted character names in code, prompts, UI text, or 3D/video assets (no *Milka, Hot Wheels, Shrek, Fiona, Donkey, Duloc*, etc.). Use evocative generic terms (*glossy milk-chocolate & lilac confetti*, *die-cast toy cars on orange loop track*, *Zurich fairy-tale swamp*).
 - **Zero Secrets & Zero Internal Paths:** API keys (`GEMINI_API_KEY`, `HF_TOKEN`) are passed strictly via environment variables. No internal hostnames, paths, or links may ever be committed (enforced by `scripts/check.py` via `just test`).
+
+## 5. Autonomous Multi-Agent Execution & Dual-Critic Gatekeeper Protocol (Argon 3D Workflows)
+
+During implementation (`/goal` / `run_workflow` / `swarm`), the agentic harness operates with **10-hour zero-interruption autonomy**:
+1. **2D Spatial Floorplan First (`docs/floorplan.svg`):** Before generating complex 3D world geometry, ground exact meter coordinates for the 8×8 altar, braziers, 16:9 Veo Cinema screen, swamp water, and Zurich skyline.
+2. **Parallel Subagent Sharding (Zero File Collisions):** Independent shards build isolated modules (`Core Event Bus & Headless Rules`, `3D Zurich Swamp & Veo Cinema View`, `Piece Loader & Rigged GLB Pedestals`, `Combat Matrix & Object Pools`, `WebAudio & Bilingual HUD`, `Battle Manifest & MD5 Pipeline`).
+3. **Dual Autonomous Gatekeepers (Never Wake the Human Early):**
+   - **Functional & Architecture Critic (`niccolo-game-design` + `just test`):** Verifies zero DOM/Three.js imports in headless managers, `≤ 300 LOC` per manager, deferred Event Bus semantics, object pooling, 100% passing unit tests, `.glb` binary checks, and `assets/battles/manifest.yaml` MD5 freshness.
+   - **Adversarial Aesthetic Critic (≥ 9/10 Bar):** Renders 4 automated camera angles per round (`(1) 3/4 Overview`, `(2) Close-Up Materials`, `(3) Low-Angle Grounding Check y=0`, `(4) Wireframe Collision Check`), updates `progress.html`, lists at least 3 concrete visual flaws (floating meshes, flat plastic shaders, clipped UI, bad framing), and sends work back to coding subagents until the scene scores **≥ 9/10**.
+4. **Live Art-Director Controls (`?debug=1`):** Provides on-screen sliders for lighting, water/crystal shaders, and camera FOV/angles so Riccardo can fine-tune aesthetics during final UAT.
+

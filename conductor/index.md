@@ -12,3 +12,8 @@
 
 -   [Workflow](./workflow.md)
 -   [Code Style Guides](./code_styleguides/)
+
+## Capabilities
+
+-   [Agent Skills](../.agents/skills/)
+    -   [`niccolo-game-design`](../.agents/skills/niccolo-game-design/SKILL.md) — Managers + Typed Event Bus + Object Pools + Headless Simulation Rules

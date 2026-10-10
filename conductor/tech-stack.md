@@ -1,42 +1,53 @@
 # Technology Stack: CarChess3D
 
-> **Forged with Argon** ✨ — Zero-Build Offline PWA & Generative 3D/Video Pipeline Stack (Argon Edition).
+> **Forged with Argon** ✨ — Zero-Build Offline PWA, Niccolò Game Design Architecture & Multi-Agent 3D/Video Stack (Argon Edition).
 
-## 1. Frontend & 3D Web Application (Runtime)
+## 1. Game Architecture (`niccolo-game-design` Skill)
 
-- **Architecture:** Vanilla ES Modules (`<script type="module">` + `importmap`), **zero build step**, static file serving (`just serve` / `python3 -m http.server`).
-- **3D Rendering Engine:** **Three.js** (vendored locally in `vendor/three/` for 100% offline execution):
-  - `GLTFLoader` for loading TRELLIS-generated `.glb` character meshes.
-  - `OrbitControls` for smooth mouse/touch camera rotation, zoom, and scripted capture-orbit choreography.
-  - `EffectComposer` + `RenderPass` + `UnrealBloomPass` for warm brazier glow, magic runes, and crystal shatter bloom.
-  - `MeshPhysicalMaterial` (transmission/iridescence for Ale's amethyst/ruby crystals and Kate's glossy chocolate) & `VideoTexture` for the **16:9 3D Veo Cinema Screen**.
-- **Chess Rules Engine:** **chess.js** (vendored locally in `vendor/chess.js`), wrapped in a pure, WebGL-independent `src/rules/` module for fast unit testing.
-- **CPU AI Engine:** **Web Worker (`src/ai/worker.js`)** so the UI and 3D animations never block:
-  - *Easy:* Random legal move weighted heavily toward captures (maximizes battle animations for kids!).
-  - *Medium:* Minimax (depth 2) with material evaluation.
-  - *Hard:* Alpha-Beta pruning with iterative deepening (depth ~4, <1.5s budget), move ordering (MVV-LVA), and piece-square tables.
+All game code strictly follows [`.agents/skills/niccolo-game-design/SKILL.md`](../.agents/skills/niccolo-game-design/SKILL.md) (distilled from Niccolò's code-review feedback and Robert Nystrom's *Game Programming Patterns*):
+- **7 Core Rules:**
+  1. **One Manager = One Responsibility (≤ 300 LOC):** No God-object `GameManager` or 400-line `animate()` loop.
+  2. **Top-Level Loop is Boring:** Fixed-timestep `update(STEP)` + `bus.flush()` + `lateUpdate(frameDt)` + `renderer.render()`.
+  3. **Rules Live with the Data They Inspect:** `BoardMapManager` owns check, checkmate, stalemate, draw, and legal moves and emits `GAME_OVER` / `CHECKMATE`.
+  4. **Talk via Typed Event Bus, Query via `GameContext`:** Deferred event queue (`emit()` enqueues, `flush()` delivers once per tick in past tense: `PIECE_SELECTED`, `MOVE_EXECUTED`, `PIECE_CAPTURED`, `CHECKMATE`, `FLOW_STATE_CHANGED`). Managers never call another manager's mutating methods directly.
+  5. **Listeners, Not Callers:** `AudioListener`, `HudListener`, `ProfileStorageListener`, and `CinemaListener` subscribe to events. Gameplay code never calls `Sound.play()` or mutates DOM directly.
+  6. **Headless Simulation Logic:** Core managers (`GameFlowManager`, `BoardMapManager`, `AIPlayerManager`) import zero DOM and zero Three.js modules — 100% unit-testable in Node/CLI. Visuals live in `*View` adapters (`BoardView`, `PieceView`, `ZurichSwampView`, `VeoCinemaView`).
+  7. **Data-Driven Registries & Object Pools:** Attack signatures, victim reactions, and Easter Egg overrides (`Seby ↔ Pupurabbu`) live in declarative lookup tables (`BATTLE_MATRIX[attacker][defender]`), not `if/else` ladders. Debris shards, toy cars, and particles use pre-allocated **Object Pools** (`VFXPoolManager`).
+
+### Canonical CarChess3D Managers
+| Manager | Responsibility | Key Events Emitted |
+|---|---|---|
+| `GameFlowManager` | State machine: `Boot → Mode1_Chess ⇄ Mode2_WowArena → CaptureCutscene → Checkmate` | `FLOW_STATE_CHANGED` |
+| `BoardMapManager` | Headless 8×8 rules wrapper (`chess.js`), legal moves, check/mate/draw detection | `PIECE_SELECTED`, `MOVE_EXECUTED`, `PIECE_CAPTURED`, `CHECK_DETECTED`, `CHECKMATE`, `DRAW` |
+| `PieceManager` | Tracks 32 piece entities, GLB cache (`bishop-ale-rigged.glb`, `pawn-puffin.glb`), skeletal animation clips (`Idle`, `Click_Fire_Breath`), procedural pedestal + 2D medallion fallback | `PIECE_MODEL_READY`, `PIECE_ANIM_FINISHED` |
+| `CombatAnimationManager` | Resolves `(attacker, defender)` in the 6×6 + Easter Egg registry, orchestrates foreground 3D clash + background 16:9 Veo Cinema + orbiting camera | `BATTLE_STARTED`, `BATTLE_SKIPPED`, `BATTLE_COMPLETED` |
+| `VFXPoolManager` | Object-pooled particles, amethyst/ruby shards, toy cars, chocolate droplets, stone shrapnel | — |
+| `AIWorkerManager` | Bridges the non-blocking Web Worker CPU (*Easy / Medium / Hard*) to the Event Bus | `AI_THINKING`, `AI_MOVE_READY` |
+
+## 2. Frontend & 3D Web Application (Runtime)
+
+- **Runtime:** Vanilla ES Modules (`<script type="module">` + `importmap`), **zero build step**, static file serving (`just serve` / `python3 -m http.server`).
+- **3D Rendering Engine:** **Three.js** (vendored locally in `vendor/three/`):
+  - `GLTFLoader` + `AnimationMixer` (supports skeletal animations like Ale's 26-bone dragon rig).
+  - `OrbitControls` + scripted camera spline/orbit choreographer.
+  - `EffectComposer` + `RenderPass` + `UnrealBloomPass`.
+  - `MeshPhysicalMaterial` (crystal transmission) & `VideoTexture` (16:9 Veo 3D Cinema screen).
 - **Audio Engine:**
-  - **Lyria 3 (`musicgen-lyria3`)** pre-generated MP3 theme songs in `assets/audio/` (*"Ale & Seby, Eroi della Scacchiera"* IT 🇮🇹 & *"Ale & Seby, Heroes of the Board"* EN 🇬🇧).
-  - **WebAudio API Synthesizer (`src/audio/`)** for zero-dependency procedural sound effects and chiptune/orchestral fallback music.
-- **Offline & Mobile Delivery:**
-  - **Progressive Web App (PWA):** `manifest.webmanifest` + Service Worker (`sw.js`) precaching all HTML/CSS/JS, `.glb` models, character portraits, audio, and available battle videos for full airplane-mode play on Android and desktop.
-  - **Persistence:** `localStorage` per-profile autosave + FEN/PGN import/export.
+  - **Lyria 3 (`musicgen-lyria3`)** bilingual MP3 theme songs (*"Ale & Seby, Eroi della Scacchiera"* IT 🇮🇹 & *"Ale & Seby, Heroes of the Board"* EN 🇬🇧).
+  - **WebAudio API Synthesizer** (`AudioListener`) for procedural SFX and fallback music.
+- **Offline PWA:** `manifest.webmanifest` + Service Worker (`sw.js`) precaching all assets for airplane-mode play on Android and desktop.
 
-## 2. Offline Generative Asset Pipelines (`tools/`)
+## 3. Offline Generative Asset Pipelines & Multi-Agent Harness
 
-All generative AI pipelines run offline during development via Python (`uv` with `UV_INDEX_URL="https://pypi.org/simple"`) and commit their static outputs into `assets/`:
-
-1. **2D Multi-View Character Pipeline (`tools/model-pipeline/nbviews/`):**
-   - **Nano Banana Pro / 2.1 (`google-genai` SDK):** Generates consistent `front`, `back`, and `side` views from canonical character sheets in `assets/characters/`.
-2. **Image → 3D Mesh Pipeline (`tools/model-pipeline/`):**
-   - **TRELLIS Multi-Image (`gradio_client` on HF ZeroGPU, `/lambda_1` enabled):** Converts `front + side + back` views into watertight textured `.glb` figurines in `assets/models/`.
-   - **Geometry Critic (`critic_geo.py` / `trimesh`):** Checks face budgets, degenerate triangles, watertightness, and backdrop artifacts.
-3. **Battle Composite & Veo 3D Cinema Pipeline (`tools/battle-pipeline/` & `assets/battles/manifest.yaml`):**
-   - **Step 1 (Composite Keyframe):** Combines `attacker_img` + `defender_img` via Nano Banana into a dramatic 16:9 battle keyframe (`composite_img`).
-   - **Step 2 (Veo Video Generation):** Animates the composite keyframe into a 2–4s 16:9 `.mp4` battle clip via **Veo (`veo_i2v` / `veo_ingredients_to_video`)** stored in `assets/battles/videos/`.
-   - **Step 3 (Declarative MD5 Freshness Check):** `assets/battles/manifest.yaml` stores the MD5 hashes of `attacker_img`, `defender_img`, and `composite_img`. `scripts/check.py` (`just test`) verifies every hash and flags any battle whose input image changed so stale videos are immediately detected.
-
-## 3. Quality Assurance & Task Runner
-
-- **Task Runner:** `justfile` (`just list`, `just test`, `just serve`, `just trellis`, `just nb-views`, `just battle-video`).
-- **Automated Verification (`scripts/check.py`):** Stdlib-only Python suite checking `.glb` binary headers, character asset naming, secret/path hygiene, and `assets/battles/manifest.yaml` MD5 freshness, plus Node/Python unit tests for the chess rules and AI worker.
+1. **2D Multi-View & 3D Mesh Pipeline (`tools/model-pipeline/`):**
+   - **Nano Banana Pro / 2.1 (`nb_views.py`):** Multi-angle turnarounds (`front`, `side`, `back`, `threequarter`) + seamless surface textures.
+   - **TRELLIS Multi-Image (`gen_mv.py` with `/lambda_1`):** Watertight textured `.glb` generation.
+   - **Headless Blender Rigging & Sculpting (`/usr/bin/blender -b -P ...`):** Automated bone rigging, skinning, and animation baking (e.g. `bishop-ale-rigged.glb` with 26-bone dragon wing/jaw chains).
+2. **Battle Composite & Veo 3D Cinema Pipeline (`assets/battles/manifest.yaml`):**
+   - `attacker_img` + `defender_img` → Nano Banana 16:9 composite keyframe → Veo `.mp4` battle video.
+   - Declarative MD5 hashes verified by `scripts/check.py` (`just test`) to detect stale battle videos whenever source character art changes.
+3. **Autonomous Multi-Agent Harness & Adversarial Critics:**
+   - **2D SVG Spatial Floorplan (`docs/floorplan.svg`):** Grounds exact meter coordinates of the 8×8 altar, braziers, 16:9 Cinema screen, and Zurich skyline before 3D placement.
+   - **Headless 4-Angle Screenshot Harness & `progress.html`:** Captures `(1) 3/4 Overview`, `(2) Close-Up Materials`, `(3) Low-Angle Grounding Check (y=0)`, and `(4) Wireframe Collision Check` at every milestone.
+   - **Live Art-Director Control Panel (`?debug=1`):** On-screen sliders for lighting, water/crystal shaders, and camera FOV.
+   - **Dual Autonomous Gatekeepers (Functional Verifier + Adversarial Aesthetic Critic ≥ 9/10):** Subagents iterate autonomously until all unit tests, `niccolo-game-design` checks, `just test`, and the 4-angle visual critique pass ≥ 9/10 before waking the human user.
