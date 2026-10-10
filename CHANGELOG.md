@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.17] - 2026-10-10
+
+- 🧪 Showcase: every card has the same size again (no more full-width Ale card) and every 3D model is normalised to the **same height** (spin radius capped for wide props), so all characters render at the same scale. Multiple 3D versions → `v1 / v2` tabs inside the normal 3D pane.
+
 ## [0.1.16] - 2026-10-10
 
 - ♗ Ale 1 (con cappello) 3D **v2** via TRELLIS multi-image (front + 3/4 + NB 2.1 back, 39 s, seed 42) → `tools/model-pipeline/ale/out/ale1_hat_f_tq_back.glb`. **Rejected by Riccardo**: the dragon came out as two half-dragons. `assets/models/bishop-ale-1.glb` stays v1.

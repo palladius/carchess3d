@@ -49,18 +49,11 @@
     .tabs button { font: inherit; font-size: .75rem; padding: 3px 10px; border-radius: 6px; cursor: pointer;
                    border: 1px solid var(--line); background: #000b; color: var(--text); }
     .tabs button[aria-pressed="true"] { background: var(--gold); color: #1a1300; border-color: var(--gold); }
-    /* Several 3D versions: full-width card, 3D pane twice as wide, versions side by side */
-    .card.multi { grid-column: 1 / -1; }
-    .card.multi .media { grid-template-columns: 1fr 2fr; }
-    .card.multi .pane[data-3d] { aspect-ratio: 2 / 1; }
-    .captions { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; pointer-events: none; }
-    .captions span { flex: 1; text-align: center; font-size: .85rem; }
-    .captions b { background: #000b; padding: 3px 10px; border-radius: 6px; }
+    /* Every card has the same layout; several 3D versions = tabs inside the 3D pane (same size as the others) */
     .fs { position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 1.1rem; line-height: 1; padding: 4px 8px;
           border-radius: 6px; border: 1px solid var(--line); background: #000b; color: var(--text); cursor: pointer; }
     .pane[data-3d]:fullscreen { aspect-ratio: auto; width: 100vw; height: 100vh; background: #0d1016; }
-    .pane[data-3d]:fullscreen .captions { bottom: 24px; }
-    .pane[data-3d]:fullscreen .captions span { font-size: 1.3rem; }
+    .pane[data-3d]:fullscreen .tabs { bottom: 24px; left: 24px; }
     dl { margin: 0; padding: 12px 16px 16px; display: grid; grid-template-columns: max-content 1fr;
          gap: 4px 12px; font-size: .85rem; }
     dt { color: var(--muted); }
@@ -139,7 +132,7 @@
         : c.defaultConfirmed ? '<span class="badge">default</span>'
         : '<span class="badge guess">default da confermare</span>';
       return `
-        <article class="card ${c.winner ? 'winner' : ''} ${models.length > 1 ? 'multi' : ''}">
+        <article class="card ${c.winner ? 'winner' : ''}">
           <h2>${c.glyph} ${c.name} ${badge}</h2>
           <div class="sub">${c.piece}${c.tagline ? ' · ' + c.tagline : ''}</div>
           <div class="media">
@@ -156,8 +149,8 @@
               ${models.length ? `<button class="fs" data-fs="${i}" title="Schermo intero (o doppio click)">⛶</button>` : ''}
               ${models.length ? '<div class="placeholder">⏳ carico il GLB…</div>'
                               : '<div class="placeholder">3D non ancora generato ⏳</div>'}
-              ${models.length > 1 ? `<div class="captions">${models.map((m) =>
-                `<span><b>${m.label}</b></span>`).join('')}</div>` : ''}
+              ${models.length > 1 ? `<div class="tabs">${models.map((m, k) =>
+                `<button aria-pressed="${k === 0}" data-ver="${k}" data-card="${i}">${m.label}</button>`).join('')}</div>` : ''}
             </div>
           </div>
           <dl>
@@ -175,30 +168,37 @@
     root.innerHTML = CHARACTERS.map(cardHTML).join('');
     const views = {}; // card index -> 3D view
 
-    // 2D front/back toggle + 3D fullscreen button
+    // 2D front/back toggle, 3D version toggle, 3D fullscreen button
     root.addEventListener('click', (e) => {
       const fsBtn = e.target.closest('button[data-fs]');
       if (fsBtn) return toggleFullscreen(fsBtn.closest('.pane'));
-      const btn = e.target.closest('button[data-side]');
+      const btn = e.target.closest('button[data-side], button[data-ver]');
       if (!btn) return;
       const i = btn.dataset.card;
-      const c = CHARACTERS[i];
-      root.querySelector(`img[data-img="${i}"]`).src = btn.dataset.side === 'back' ? c.back : c.front;
+      if (btn.dataset.ver !== undefined) views[i]?.show(Number(btn.dataset.ver));
+      else {
+        const c = CHARACTERS[i];
+        root.querySelector(`img[data-img="${i}"]`).src = btn.dataset.side === 'back' ? c.back : c.front;
+      }
       btn.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b === btn));
     });
     root.addEventListener('dblclick', (e) => {
       const pane = e.target.closest('.pane[data-3d]');
-      if (pane && pane.querySelector('canvas')) toggleFullscreen(pane);
+      if (pane && pane.querySelector('canvas') && !e.target.closest('button')) toggleFullscreen(pane);
     });
     function toggleFullscreen(pane) {
       if (document.fullscreenElement) document.exitFullscreen();
       else pane.requestFullscreen();
     }
 
-    // ── 3D view adapter: one renderer per card; every version side by side, spinning in sync ──
+    // ── 3D view adapter: one renderer per card, one model visible at a time ──
+    // Every model is normalised to the SAME height (MODEL_H), with its spin radius capped so wide
+    // pieces (halberd, staff, wings) still fit: all characters look the same size across cards.
     const loader = new GLTFLoader();
-    const SPACING = 2.4;   // world units between versions (each model is normalised to size 2)
     const FOV = 30;
+    const MODEL_H = 2;        // world units, every piece
+    const MAX_RADIUS = 1.1;   // max horizontal half-extent while spinning
+    const MARGIN = 1.15;
 
     function makeView(pane, models) {
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -212,20 +212,22 @@
 
       const slots = models.map((_, k) => {
         const g = new THREE.Group();
-        g.position.x = (k - (models.length - 1) / 2) * SPACING;
+        g.visible = k === 0;
         scene.add(g);
         return g;
       });
-      const view = { pane, renderer, scene, camera, slots, n: models.length, angle: 0,
-                     visible: false, dragging: false, lastX: 0, idleAt: 0 };
+      const view = { pane, renderer, scene, camera, slots, angle: 0,
+                     visible: false, dragging: false, lastX: 0, idleAt: 0,
+                     show: (k) => slots.forEach((g, j) => { g.visible = j === k; }) };
 
       models.forEach((m, k) => loader.load(m.url, (gltf) => {
         const obj = gltf.scene;
         const box = new THREE.Box3().setFromObject(obj);
         const size = box.getSize(new THREE.Vector3());
         obj.position.sub(box.getCenter(new THREE.Vector3()));
+        const radius = Math.hypot(size.x, size.z) / 2;
         const holder = new THREE.Group();
-        holder.scale.setScalar(2 / Math.max(size.x, size.y, size.z));
+        holder.scale.setScalar(Math.min(MODEL_H / size.y, MAX_RADIUS / radius));
         holder.add(obj);
         slots[k].add(holder);
         if (!renderer.domElement.isConnected) {
@@ -249,15 +251,15 @@
       return view;
     }
 
-    // Pull the camera back just enough to fit all versions (width) and a whole model (height).
+    // Same framing for every card: fit MODEL_H (height) and the spin diameter (width).
     function resize(v) {
       const w = v.pane.clientWidth, h = v.pane.clientHeight;
       if (!w || !h) return;
       v.renderer.setSize(w, h, false);
       v.camera.aspect = w / h;
       const t = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
-      const needH = 2.3, needW = (v.n - 1) * SPACING + 2.3;
-      const dist = Math.max(needH / 2 / t, needW / 2 / (t * v.camera.aspect));
+      const needH = MODEL_H * MARGIN, needW = 2 * MAX_RADIUS * MARGIN;
+      const dist = Math.max(needH / 2 / t, needW / 2 / (t * v.camera.aspect)) + MAX_RADIUS;
       v.camera.position.set(0, 0.25, dist);
       v.camera.lookAt(0, 0, 0);
       v.camera.updateProjectionMatrix();
