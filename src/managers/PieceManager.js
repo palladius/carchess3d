@@ -101,27 +101,37 @@ export class PieceManager {
 
   handlePieceCaptured(e) {
     const victimColor = e.victimColor || (e.color === 'w' ? 'b' : 'w');
-    const capturedSq = e.capturedSquare || e.to;
+    const capturedSq = e.capturedSquare || e.to || 'e4';
+    const defType = String(e.defender || this.livingBySquare.get(capturedSq)?.type || 'p').toLowerCase();
     const existing = this.livingBySquare.get(capturedSq);
-    if (existing && existing.color === victimColor) {
+    const isRealBoardMove = Boolean(e.move) || e.removeLiving === true;
+    if (isRealBoardMove && existing && existing.color === victimColor) {
       this.livingBySquare.delete(capturedSq);
     }
 
     const trayList = this.capturedTrays[victimColor] || this.capturedTrays.b;
     const slotIndex = trayList.length;
+    const captureId = e.id || (isRealBoardMove
+      ? `${existing?.id || `captured_${victimColor}_${defType}_${capturedSq}`}_${slotIndex}`
+      : `swamp_${victimColor}_${defType}_${capturedSq}`);
+
+    if (trayList.some((item) => item.id === captureId)) {
+      return false;
+    }
+
     const sideSign = victimColor === 'w' ? -1 : 1;
     const colRing = slotIndex % 2;
     const rowSlot = Math.floor(slotIndex / 2);
-    // Place captured pieces in the Enchanted Swamp Moat ("Palude di Shrek", r = 6.2m..8.2m, y = -0.28m)
+    // Place captured pieces in the Enchanted Swamp Moat (r = 6.2m..8.2m, y = -0.28m)
     const trayX = sideSign * (6.25 + colRing * 0.95);
     const trayY = -0.28;
     const trayZ = rowSlot * 1.05 - 2.65;
 
     const desc = this.resolveDescriptor({
-      type: e.defender || existing?.type || 'p',
+      type: defType,
       color: victimColor,
       square: capturedSq,
-      id: existing?.id || `captured_${victimColor}_${e.defender}_${slotIndex}`,
+      id: captureId,
     });
     trayList.push({
       ...desc,
@@ -132,6 +142,24 @@ export class PieceManager {
       trayY,
       trayZ,
     });
+    return true;
+  }
+
+  seedSwampParty() {
+    const swimmers = [
+      { defender: 'b', victimColor: 'w', capturedSquare: 'c1', attacker: 'n' },
+      { defender: 'n', victimColor: 'w', capturedSquare: 'g1', attacker: 'r' },
+      { defender: 'p', victimColor: 'w', capturedSquare: 'e2', attacker: 'q' },
+      { defender: 'n', victimColor: 'b', capturedSquare: 'b8', attacker: 'b' },
+      { defender: 'b', victimColor: 'b', capturedSquare: 'f8', attacker: 'k' },
+      { defender: 'r', victimColor: 'b', capturedSquare: 'h8', attacker: 'n' },
+    ];
+    let added = 0;
+    for (const s of swimmers) {
+      if (this.handlePieceCaptured(s)) added++;
+    }
+    if (added > 0) this.emitPiecesSynced('swamp_party_demo');
+    return added;
   }
 
   handleCastling(e) {

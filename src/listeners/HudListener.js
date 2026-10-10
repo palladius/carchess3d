@@ -43,15 +43,20 @@ export class HudListener {
     this.pendingPromotion = null;
     this.wowSubMode = 'inspector';
     this.wowChar = 'b';
-    this.wowBishopVariant = 'rigged';
+    this.wowBishopVariant = 'hat';
     this.wowCardSide = 'front';
     this.wowAutoRotate = true;
     this.wowAttacker = 'b';
     this.wowDefender = 'n';
     this.wowGoldenCrit = false;
     this.topDownCamera = false;
+    this.cameraFlipped = false;
+    this.hintPending = false;
     this.musicPlaying = false;
     this.sfxEnabled = true;
+    /** @type {Array<{ id: number, text: string, tone: string }>} */
+    this.miniLog = [];
+    this._logSeq = 0;
 
     this.rootEl = null;
     this.els = {};
@@ -75,6 +80,7 @@ export class HudListener {
     if (typeof document !== 'undefined' && !this.rootEl) {
       this.buildDom();
       window.addEventListener('keydown', this._boundKeyDown);
+      this.pushMiniLog(this._formatTurnLabel(), 'turn');
     }
 
     if (bus && this.offs.length === 0) {
@@ -106,13 +112,31 @@ export class HudListener {
     return I18N[this.lang]?.[key] || I18N.it[key] || key;
   }
 
+  _activeProfileName() {
+    const found = PROFILES.find((p) => p.id === this.activeProfile);
+    return found ? found.name : 'Riccardo 👑';
+  }
+
+  _formatTurnLabel() {
+    if (this.turn === 'w') {
+      const who = this._activeProfileName();
+      return this.lang === 'it' ? `⚪ Turno di ${who}` : `⚪ ${who}'s turn`;
+    }
+    if (this.opponentMode !== 'hotseat') {
+      return this.lang === 'it' ? '⚫ Turno CPU 🤖' : '⚫ CPU Turn 🤖';
+    }
+    return `⚫ ${this.t('turnBlack')}`;
+  }
+
   // ===========================================================================
-  // 1. DOM OVERLAY CONSTRUCTION (Dark Obsidian & Gold Wizard Chess Theme)
+  // 1. DOM OVERLAY CONSTRUCTION (Minimal Obsidian & Gold Desktop UX)
   // ===========================================================================
 
   buildDom() {
     const existing = document.getElementById('carchess-hud-root');
     if (existing) existing.remove();
+    const existingStyle = document.getElementById('carchess-hud-styles');
+    if (existingStyle) existingStyle.remove();
 
     const style = document.createElement('style');
     style.id = 'carchess-hud-styles';
@@ -134,64 +158,57 @@ export class HudListener {
         pointer-events: auto;
       }
       .hud-glass {
-        background: rgba(14, 18, 27, 0.78);
-        border: 1.5px solid rgba(255, 213, 79, 0.55);
-        box-shadow: 0 6px 22px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 236, 179, 0.15);
+        background: rgba(12, 16, 24, 0.76);
+        border: 1px solid rgba(255, 213, 79, 0.45);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
         backdrop-filter: blur(8px);
-        border-radius: 12px;
+        border-radius: 10px;
       }
       .hud-topbar {
         position: absolute;
         top: 6px;
-        left: 12px;
-        right: 12px;
+        left: 10px;
+        right: 10px;
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        padding: 5px 12px;
+        gap: 6px;
+        padding: 4px 10px;
       }
       .hud-brand {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         white-space: nowrap;
       }
       .hud-brand-title {
         font-weight: 800;
-        font-size: 14.5px;
+        font-size: 13.5px;
         color: #ffe082;
         letter-spacing: 0.2px;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-      }
-      .hud-brand-sub {
-        font-size: 10.5px;
-        color: #9be7c4;
-        display: block;
       }
       .hud-controls-row {
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
       }
       .hud-btn {
-        font: 600 11.5px/1.15 system-ui, sans-serif;
-        padding: 5px 10px;
-        border-radius: 9px;
-        border: 1px solid rgba(255, 213, 79, 0.45);
+        font: 600 11px/1.1 system-ui, sans-serif;
+        padding: 4px 8px;
+        border-radius: 7px;
+        border: 1px solid rgba(255, 213, 79, 0.4);
         background: linear-gradient(180deg, #22293a 0%, #151a26 100%);
         color: #f5efe0;
         cursor: pointer;
-        transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+        transition: border-color 0.15s ease, background 0.15s ease;
         display: inline-flex;
         align-items: center;
         gap: 4px;
         white-space: nowrap;
       }
       .hud-btn:hover {
-        transform: translateY(-1px);
         border-color: #ffe082;
         background: linear-gradient(180deg, #2d374f 0%, #1c2333 100%);
       }
@@ -202,10 +219,10 @@ export class HudListener {
         font-weight: 800;
       }
       .hud-select {
-        font: 600 11.5px/1.15 system-ui, sans-serif;
-        padding: 5px 8px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 213, 79, 0.45);
+        font: 600 11px/1.1 system-ui, sans-serif;
+        padding: 4px 6px;
+        border-radius: 7px;
+        border: 1px solid rgba(255, 213, 79, 0.4);
         background: #171d2b;
         color: #ffe082;
         cursor: pointer;
@@ -213,18 +230,19 @@ export class HudListener {
       .hud-bottombar {
         position: absolute;
         bottom: 6px;
-        left: 12px;
-        right: 12px;
+        left: 10px;
+        right: 10px;
         display: flex;
         flex-wrap: wrap;
         align-items: flex-end;
         justify-content: space-between;
         gap: 8px;
       }
+      /* Compact Bottom Mini-Log (Turn + Move/Event feed + Luck bar) */
       .hud-status-card {
-        padding: 7px 12px;
-        min-width: 245px;
-        max-width: 320px;
+        padding: 6px 10px;
+        min-width: 250px;
+        max-width: 360px;
         display: flex;
         flex-direction: column;
         gap: 4px;
@@ -235,130 +253,130 @@ export class HudListener {
         justify-content: space-between;
         gap: 8px;
         font-weight: 700;
-        font-size: 12.5px;
+        font-size: 12px;
       }
       .hud-check-badge {
         display: none;
-        padding: 3px 8px;
+        padding: 2px 6px;
         border-radius: 999px;
         background: linear-gradient(90deg, #d50000, #ff5252);
         color: #fff;
         font-weight: 800;
-        font-size: 11px;
+        font-size: 10.5px;
         animation: hudPulse 0.8s infinite alternate;
       }
-      .hud-luck-wrap {
+      .hud-luck-inline {
         display: flex;
-        flex-direction: column;
-        gap: 3px;
-      }
-      .hud-luck-header {
-        display: flex;
-        justify-content: space-between;
-        font-size: 11px;
+        align-items: center;
+        gap: 6px;
+        font-size: 10.5px;
         color: #b8f5d8;
         font-weight: 600;
       }
       .hud-luck-track {
-        height: 9px;
+        flex: 1;
+        height: 6px;
         border-radius: 999px;
         background: rgba(0, 0, 0, 0.55);
         border: 1px solid rgba(76, 217, 162, 0.45);
         overflow: hidden;
-        position: relative;
       }
       .hud-luck-fill {
         height: 100%;
         width: 0%;
         background: linear-gradient(90deg, #00c853 0%, #64dd17 55%, #ffd600 100%);
         transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-        box-shadow: 0 0 12px rgba(100, 221, 23, 0.8);
       }
       .hud-luck-track.hot {
         border-color: #ffd600;
         animation: hudPulse 0.55s infinite alternate;
       }
+      .hud-minilog-entries {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        max-height: 46px;
+        overflow: hidden;
+        border-top: 1px solid rgba(255, 213, 79, 0.18);
+        padding-top: 3px;
+        font-size: 11px;
+        line-height: 1.25;
+        color: #cfd8e6;
+      }
+      .hud-minilog-line {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        opacity: 0.78;
+      }
+      .hud-minilog-line:last-child {
+        opacity: 1;
+        color: #9be7c4;
+        font-weight: 600;
+      }
       .hud-stickers-row {
         display: none;
         gap: 4px;
         flex-wrap: wrap;
-        font-size: 13px;
+        font-size: 11px;
       }
       .hud-actions-dock {
-        padding: 6px 9px;
+        padding: 5px 8px;
         display: flex;
         flex-wrap: wrap;
-        gap: 5px;
+        gap: 4px;
         align-items: center;
       }
-      /* Comic Impact Banner & Skip Cutscene (docked at bottom so 16:9 Cinema Screen is 100% clear) */
       .hud-comic-banner {
         position: absolute;
-        bottom: 62px;
+        bottom: 68px;
         left: 50%;
-        transform: translateX(-50%) scale(0.9);
-        padding: 8px 20px;
+        transform: translateX(-50%) scale(0.95);
+        padding: 5px 14px;
         border-radius: 999px;
         background: linear-gradient(135deg, #ffca28 0%, #ff6f00 100%);
-        border: 3px solid #fff8e1;
+        border: 2px solid #fff8e1;
         color: #1a0f00;
-        font-weight: 900;
-        font-size: 18px;
-        letter-spacing: 0.6px;
-        box-shadow: 0 12px 35px rgba(255, 111, 0, 0.65);
+        font-weight: 800;
+        font-size: 13.5px;
+        box-shadow: 0 8px 24px rgba(255, 111, 0, 0.5);
         display: none;
         align-items: center;
-        gap: 14px;
+        gap: 10px;
         z-index: 860;
-        animation: hudPopIn 0.24s cubic-bezier(0.18, 1.25, 0.4, 1) forwards;
       }
-      /* Toast & Hint Bubble */
       .hud-toast {
-        position: absolute;
-        top: 138px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 8px 16px;
-        border-radius: 12px;
-        background: rgba(20, 32, 48, 0.94);
-        border: 1.5px solid #4cd9a2;
-        color: #e8fff5;
-        font-weight: 700;
-        font-size: 13px;
         display: none;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
       }
-      /* Lyria Karaoke Caption Pill */
       .hud-lyria-caption {
         position: absolute;
-        bottom: 92px;
+        bottom: 72px;
         left: 50%;
         transform: translateX(-50%);
-        padding: 6px 16px;
+        padding: 4px 12px;
         border-radius: 999px;
-        background: rgba(26, 18, 48, 0.88);
-        border: 1.5px solid #ffd54f;
+        background: rgba(26, 18, 48, 0.85);
+        border: 1px solid #ffd54f;
         color: #ffe082;
-        font-weight: 700;
-        font-size: 13px;
+        font-weight: 600;
+        font-size: 11.5px;
         display: none;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.5);
       }
-      /* Mode 2 WOW Inspector & Arena Side/Bottom Drawer */
+      /* Mode 2 WOW Compact Drawer */
       .hud-wow-panel {
         position: absolute;
-        top: 72px;
-        left: 12px;
-        width: 310px;
-        padding: 12px;
+        top: 46px;
+        left: 10px;
+        width: 248px;
+        padding: 9px;
         display: none;
         flex-direction: column;
-        gap: 10px;
+        gap: 7px;
       }
       .hud-char-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 5px;
+        gap: 4px;
       }
       /* Modals (Promotion, Checkmate, FEN/PGN) */
       .hud-modal-backdrop {
@@ -371,48 +389,43 @@ export class HudListener {
         z-index: 920;
       }
       .hud-modal-card {
-        width: min(92vw, 500px);
-        padding: 20px 22px;
+        width: min(92vw, 440px);
+        padding: 16px 18px;
         text-align: center;
       }
       .hud-promo-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-top: 14px;
+        gap: 10px;
+        margin-top: 12px;
       }
       .hud-promo-btn {
-        padding: 10px;
-        border-radius: 14px;
-        border: 2px solid #e6b84a;
+        padding: 8px;
+        border-radius: 12px;
+        border: 1.5px solid #e6b84a;
         background: #1a2130;
         color: #ffe082;
         cursor: pointer;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
         font-weight: 800;
-        font-size: 14px;
+        font-size: 13px;
       }
       .hud-promo-btn:hover {
         background: #2b354d;
-        box-shadow: 0 0 18px rgba(255, 224, 130, 0.55);
       }
       .hud-promo-btn img {
-        width: 78px;
-        height: 78px;
+        width: 68px;
+        height: 68px;
         object-fit: cover;
         border-radius: 50%;
         border: 2px solid #ffe082;
       }
       @keyframes hudPulse {
         from { transform: scale(1); }
-        to { transform: scale(1.05); }
-      }
-      @keyframes hudPopIn {
-        from { opacity: 0; transform: translateX(-50%) scale(0.75); }
-        to { opacity: 1; transform: translateX(-50%) scale(1); }
+        to { transform: scale(1.04); }
       }
     `;
     document.head.appendChild(style);
@@ -420,63 +433,58 @@ export class HudListener {
     const root = document.createElement('div');
     root.id = 'carchess-hud-root';
     root.innerHTML = `
-      <!-- TOP BAR -->
+      <!-- COMPACT TOP BAR -->
       <header class="hud-topbar hud-glass hud-interactive">
         <div class="hud-brand">
-          <span style="font-size:24px;">🏰🚽</span>
-          <div>
-            <span id="hud-title" class="hud-brand-title">${this.t('title')}</span>
-            <span id="hud-subtitle" class="hud-brand-sub">${this.t('subtitle')}</span>
-          </div>
+          <span style="font-size:17px;">🏰🚽</span>
+          <span id="hud-title" class="hud-brand-title">${this.t('title')}</span>
         </div>
 
         <div class="hud-controls-row">
           <button id="hud-mode1-btn" class="hud-btn active">${this.t('mode1Btn')}</button>
           <button id="hud-mode2-btn" class="hud-btn">${this.t('mode2Btn')}</button>
 
-          <label style="font-size:11px;color:#b0bac9;margin-left:4px;" id="hud-who-label">${this.t('whoPlays')}</label>
-          <select id="hud-profile-select" class="hud-select" aria-label="Chi gioca">
-            ${PROFILES.map((p) => `<option value="${p.id}">${p.name}</option>`).join('')}
+          <select id="hud-profile-select" class="hud-select" aria-label="Player">
+            ${PROFILES.map((p) => `<option value="${p.id}" ${p.id === this.activeProfile ? 'selected' : ''}>${p.name}</option>`).join('')}
           </select>
 
-          <select id="hud-opponent-select" class="hud-select" aria-label="Avversario">
+          <select id="hud-opponent-select" class="hud-select" aria-label="Opponent">
             <option value="hotseat">${this.t('hotseat')}</option>
             <option value="easy">${this.t('cpuEasy')}</option>
             <option value="medium">${this.t('cpuMed')}</option>
             <option value="hard">${this.t('cpuHard')}</option>
           </select>
 
-          <select id="hud-rival-select" class="hud-select" aria-label="Set Nero">
+          <select id="hud-rival-select" class="hud-select" aria-label="Rival Set">
             <option value="family">${this.t('setFamily')}</option>
             <option value="stone">${this.t('setStone')}</option>
           </select>
 
-          <button id="hud-lang-btn" class="hud-btn" title="Italiano / English">🇮🇹 IT | 🇬🇧 EN</button>
+          <button id="hud-lang-btn" class="hud-btn" title="IT / EN">🇮🇹/🇬🇧</button>
         </div>
       </header>
 
-      <!-- COMIC IMPACT BANNER & SKIP BUTTON -->
+      <!-- COMPACT CUTSCENE BANNER & SKIP -->
       <div id="hud-comic-banner" class="hud-comic-banner hud-interactive">
-        <span id="hud-comic-text">STECCHITO! ✨</span>
+        <span id="hud-comic-text">⚡</span>
         <button id="hud-skip-btn" class="hud-btn gold">${this.t('skipBtn')}</button>
       </div>
 
-      <!-- HINT & STICKER TOAST -->
+      <!-- HIDDEN TOAST (kept for compatibility, routed to mini-log) -->
       <div id="hud-toast" class="hud-toast"></div>
 
-      <!-- LYRIA THEME KARAOKE CAPTION -->
+      <!-- LYRIA CAPTION -->
       <div id="hud-lyria-caption" class="hud-lyria-caption"></div>
 
-      <!-- MODE 2: 3D WOW MODE & BATTLE CINEMA CONTROL PANEL -->
+      <!-- MODE 2: COMPACT WOW PANEL -->
       <aside id="hud-wow-panel" class="hud-wow-panel hud-glass hud-interactive">
-        <div style="display:flex;gap:6px;">
+        <div style="display:flex;gap:4px;">
           <button id="hud-wow-tab-inspector" class="hud-btn active" style="flex:1;justify-content:center;">${this.t('wowInspectorTab')}</button>
           <button id="hud-wow-tab-arena" class="hud-btn" style="flex:1;justify-content:center;">${this.t('wowArenaTab')}</button>
         </div>
 
-        <!-- Sub-mode A: 360° Inspector Controls -->
-        <div id="hud-wow-inspector-box" style="display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:12px;color:#ffe082;font-weight:700;">🦸 Scegli l’Eroe della Famiglia:</div>
+        <!-- Sub-mode A: 360° Inspector -->
+        <div id="hud-wow-inspector-box" style="display:flex;flex-direction:column;gap:6px;">
           <div class="hud-char-grid">
             ${Object.values(CHARACTER_REGISTRY)
               .map(
@@ -486,96 +494,91 @@ export class HudListener {
               .join('')}
           </div>
 
-          <div id="hud-ale-variant-row" style="display:flex;gap:5px;">
-            <button id="hud-ale-rigged-btn" class="hud-btn active" style="flex:1;justify-content:center;">🐉 Ale #2 (Drago Rigged)</button>
-            <button id="hud-ale-hat-btn" class="hud-btn" style="flex:1;justify-content:center;">🎩 Ale #1 (Cappello)</button>
+          <div id="hud-ale-variant-row" style="display:flex;gap:4px;">
+            <button id="hud-ale-hat-btn" class="hud-btn active" style="flex:1;justify-content:center;">🎩 Ale #1</button>
+            <button id="hud-ale-rigged-btn" class="hud-btn" style="flex:1;justify-content:center;">🐉 Ale #2</button>
           </div>
 
-          <div style="display:flex;gap:5px;">
-            <button id="hud-card-flip-btn" class="hud-btn" style="flex:1;justify-content:center;">🖼️ Carta 2D: Fronte/Retro</button>
-            <button id="hud-autorotate-btn" class="hud-btn active" style="flex:1;justify-content:center;">🔄 Auto-Gira</button>
+          <div style="display:flex;gap:4px;">
+            <button id="hud-card-flip-btn" class="hud-btn" style="flex:1;justify-content:center;">🖼️ Carta</button>
+            <button id="hud-autorotate-btn" class="hud-btn active" style="flex:1;justify-content:center;">🔄 360°</button>
           </div>
 
-          <div style="font-size:12px;color:#9be7c4;font-weight:700;">🎬 Animazioni 3D & Soffio Drago:</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
-            <button class="hud-btn" data-wow-anim="Idle">✨ Idle (Ali)</button>
-            <button class="hud-btn gold" data-wow-anim="Click_Fire_Breath">🔥 Soffio di Fuoco!</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <button class="hud-btn" data-wow-anim="Idle">✨ Idle</button>
+            <button class="hud-btn gold" data-wow-anim="Click_Fire_Breath">🔥 Fuoco</button>
             <button class="hud-btn" data-wow-anim="attack">⚔️ Attacco</button>
-            <button class="hud-btn" data-wow-anim="victory">🏆 Vittoria!</button>
+            <button class="hud-btn" data-wow-anim="victory">🏆 Vittoria</button>
           </div>
         </div>
 
-        <!-- Sub-mode B: 6x6 Battle Cinema Launcher -->
-        <div id="hud-wow-arena-box" style="display:none;flex-direction:column;gap:8px;">
-          <div style="font-size:12px;color:#ffe082;font-weight:700;">⚔️ Sfida 6×6 & Specchio Cinema Veo:</div>
-          <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
-            <span>Attaccante (Bianco):</span>
-            <select id="hud-wow-atk" class="hud-select">
+        <!-- Sub-mode B: 6x6 Battle & 16:9 Video Launcher -->
+        <div id="hud-wow-arena-box" style="display:none;flex-direction:column;gap:6px;">
+          <div style="display:flex;gap:4px;align-items:center;">
+            <select id="hud-wow-atk" class="hud-select" style="flex:1;">
               ${Object.values(CHARACTER_REGISTRY)
-                .map((c) => `<option value="${c.type}" ${c.type === 'b' ? 'selected' : ''}>${c.glyph} ${c.name}</option>`)
+                .map((c) => `<option value="${c.type}" ${c.type === 'b' ? 'selected' : ''}>⚔️ ${c.glyph} ${c.name}</option>`)
                 .join('')}
             </select>
-          </label>
-          <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
-            <span>Difensore (Nero):</span>
-            <select id="hud-wow-def" class="hud-select">
+            <span style="font-size:11px;color:#ffe082;font-weight:800;">VS</span>
+            <select id="hud-wow-def" class="hud-select" style="flex:1;">
               ${Object.values(CHARACTER_REGISTRY)
-                .map((c) => `<option value="${c.type}" ${c.type === 'n' ? 'selected' : ''}>${c.glyph} ${c.name}</option>`)
+                .map((c) => `<option value="${c.type}" ${c.type === 'n' ? 'selected' : ''}>🛡️ ${c.glyph} ${c.name}</option>`)
                 .join('')}
             </select>
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#ffe082;cursor:pointer;">
-            <input id="hud-wow-crit" type="checkbox">
-            <span>🌟 Forza Colpo Critico Dorato (Golden Crit!)</span>
-          </label>
-          <button id="hud-wow-clash-btn" class="hud-btn gold" style="justify-content:center;padding:10px;">
-            ${this.t('triggerBattleBtn')}
-          </button>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#ffe082;cursor:pointer;">
+              <input id="hud-wow-crit" type="checkbox">
+              <span>🌟 Crit</span>
+            </label>
+            <button id="hud-wow-clash-btn" class="hud-btn gold" style="flex:1;justify-content:center;">
+              ${this.t('triggerBattleBtn')}
+            </button>
+          </div>
 
-          <div style="font-size:11.5px;color:#9be7c4;font-weight:700;margin-top:4px;">🎬 Test Rapidi Video 16:9 (Ale & Seby MP4):</div>
-          <div style="display:flex;flex-direction:column;gap:4px;">
-            <button class="hud-btn" data-quick-clash="b_n" style="justify-content:center;">🎬 1. Ale 🐉 vs Seby 🏎️ (Cristallo MP4)</button>
-            <button class="hud-btn" data-quick-clash="n_b" style="justify-content:center;">🎬 2. Seby 🏎️ vs Ale 🐉 (Pista Turbo MP4)</button>
-            <button class="hud-btn" data-quick-clash="n_r" style="justify-content:center;">🎬 3. Seby 🏎️ 💜 Pupurabbu (Abbraccio MP4)</button>
+          <div style="display:flex;flex-direction:column;gap:3px;">
+            <button class="hud-btn" data-quick-clash="b_n" style="justify-content:center;">🎬 Ale 🐉 × Seby 🏎️</button>
+            <button class="hud-btn" data-quick-clash="n_b" style="justify-content:center;">🎬 Seby 🏎️ × Ale 🐉</button>
+            <button class="hud-btn" data-quick-clash="n_r" style="justify-content:center;">🎬 Seby 🏎️ 💜 Pupurabbu</button>
           </div>
         </div>
       </aside>
 
-      <!-- BOTTOM STATUS & ACTION DOCK -->
+      <!-- BOTTOM MINI-LOG & ICON ACTION DOCK -->
       <footer class="hud-bottombar">
-        <div class="hud-status-card hud-glass hud-interactive">
+        <div id="hud-minilog" class="hud-status-card hud-glass hud-interactive">
           <div class="hud-turn-pill">
-            <span id="hud-turn-text">⚪ ${this.t('turnWhite')}</span>
+            <span id="hud-turn-text">${this._formatTurnLabel()}</span>
             <span id="hud-check-badge" class="hud-check-badge">${this.t('checkAlert')}</span>
-          </div>
-          <div class="hud-luck-wrap">
-            <div class="hud-luck-header">
+            <div class="hud-luck-inline" title="Luck Meter">
               <span id="hud-luck-label">${this.t('luckBar')}</span>
-              <span id="hud-luck-val">0 / 12 ✨</span>
-            </div>
-            <div id="hud-luck-track" class="hud-luck-track">
-              <div id="hud-luck-fill" class="hud-luck-fill"></div>
+              <div id="hud-luck-track" class="hud-luck-track" style="width:52px;">
+                <div id="hud-luck-fill" class="hud-luck-fill"></div>
+              </div>
+              <span id="hud-luck-val">0/12</span>
             </div>
           </div>
-          <div id="hud-stickers-row" class="hud-stickers-row" title="Sticker Collezionabili Sbloccati"></div>
+          <div id="hud-minilog-entries" class="hud-minilog-entries" aria-live="polite"></div>
+          <div id="hud-stickers-row" class="hud-stickers-row"></div>
         </div>
 
         <div class="hud-actions-dock hud-glass hud-interactive">
-          <button id="hud-hint-btn" class="hud-btn gold">${this.t('hintBtn')}</button>
-          <button id="hud-swamp-btn" class="hud-btn" title="Fai sguazzare i pezzi catturati nella Palude di Shrek!">🐸 Palude Shrek</button>
-          <button id="hud-flip-btn" class="hud-btn">${this.t('flipCamBtn')}</button>
-          <button id="hud-top-btn" class="hud-btn">${this.t('topCamBtn')}</button>
-          <button id="hud-new-btn" class="hud-btn">${this.t('newGameBtn')}</button>
-          <button id="hud-fen-btn" class="hud-btn">${this.t('fenBtn')}</button>
-          <button id="hud-music-btn" class="hud-btn">${this.t('musicBtn')}</button>
-          <button id="hud-sfx-btn" class="hud-btn active">${this.t('sfxBtn')}</button>
+          <button id="hud-hint-btn" class="hud-btn gold" title="Hint">${this.t('hintBtn')}</button>
+          <button id="hud-swamp-btn" class="hud-btn" title="Palude">🐸 Palude</button>
+          <button id="hud-flip-btn" class="hud-btn" title="Flip camera">${this.t('flipCamBtn')}</button>
+          <button id="hud-top-btn" class="hud-btn" title="Top-down view">${this.t('topCamBtn')}</button>
+          <button id="hud-new-btn" class="hud-btn" title="New match">${this.t('newGameBtn')}</button>
+          <button id="hud-fen-btn" class="hud-btn" title="FEN / PGN">${this.t('fenBtn')}</button>
+          <button id="hud-music-btn" class="hud-btn" title="Music">${this.t('musicBtn')}</button>
+          <button id="hud-sfx-btn" class="hud-btn active" title="SFX">${this.t('sfxBtn')}</button>
         </div>
       </footer>
 
-      <!-- MODAL 1: CUTIE PAWN PROMOTION -->
+      <!-- MODAL 1: PAWN PROMOTION -->
       <div id="hud-promo-modal" class="hud-modal-backdrop hud-interactive">
         <div class="hud-modal-card hud-glass">
-          <h3 id="hud-promo-title" style="margin:0;color:#ffe082;font-size:18px;">${this.t('promoTitle')}</h3>
+          <h3 id="hud-promo-title" style="margin:0;color:#ffe082;font-size:16px;">${this.t('promoTitle')}</h3>
           <div class="hud-promo-grid">
             ${['q', 'r', 'b', 'n']
               .map((k) => {
@@ -592,31 +595,31 @@ export class HudListener {
         </div>
       </div>
 
-      <!-- MODAL 2: CHECKMATE / DRAW CELEBRATION -->
+      <!-- MODAL 2: CHECKMATE / DRAW -->
       <div id="hud-gameover-modal" class="hud-modal-backdrop hud-interactive">
         <div class="hud-modal-card hud-glass">
-          <h2 id="hud-gameover-title" style="margin:0 0 8px;color:#ffe082;font-size:24px;">🏆 SCACCO MATTO!</h2>
-          <p id="hud-gameover-sub" style="margin:0 0 16px;color:#d6e4f0;font-size:15px;"></p>
-          <button id="hud-play-again-btn" class="hud-btn gold" style="font-size:15px;padding:10px 22px;">
-            ✨ Gioca Ancora! / Play Again!
+          <h2 id="hud-gameover-title" style="margin:0 0 8px;color:#ffe082;font-size:21px;">🏆 SCACCO MATTO!</h2>
+          <p id="hud-gameover-sub" style="margin:0 0 14px;color:#d6e4f0;font-size:14px;"></p>
+          <button id="hud-play-again-btn" class="hud-btn gold" style="font-size:14px;padding:8px 18px;">
+            ✨ ${this.t('newGameBtn')}
           </button>
         </div>
       </div>
 
-      <!-- MODAL 3: FEN / PGN IMPORT-EXPORT -->
+      <!-- MODAL 3: FEN / PGN -->
       <div id="hud-fen-modal" class="hud-modal-backdrop hud-interactive">
         <div class="hud-modal-card hud-glass" style="text-align:left;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <strong style="color:#ffe082;font-size:16px;">📋 FEN & PGN Scacchiera</strong>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <strong style="color:#ffe082;font-size:14px;">📋 FEN & PGN</strong>
             <button id="hud-fen-close" class="hud-btn">✕</button>
           </div>
-          <label style="font-size:12px;color:#9be7c4;display:block;margin-bottom:4px;">FEN:</label>
-          <input id="hud-fen-input" type="text" style="width:100%;padding:7px;border-radius:8px;border:1px solid #445;background:#0e131d;color:#fff;margin-bottom:10px;">
-          <label style="font-size:12px;color:#9be7c4;display:block;margin-bottom:4px;">PGN:</label>
-          <textarea id="hud-pgn-input" rows="4" style="width:100%;padding:7px;border-radius:8px;border:1px solid #445;background:#0e131d;color:#fff;margin-bottom:10px;"></textarea>
-          <div style="display:flex;gap:8px;justify-content:flex-end;">
-            <button id="hud-fen-load-btn" class="hud-btn gold">📥 Carica FEN</button>
-            <button id="hud-pgn-load-btn" class="hud-btn">📥 Carica PGN</button>
+          <label style="font-size:11px;color:#9be7c4;display:block;margin-bottom:3px;">FEN:</label>
+          <input id="hud-fen-input" type="text" style="width:100%;padding:6px;border-radius:7px;border:1px solid #445;background:#0e131d;color:#fff;margin-bottom:8px;">
+          <label style="font-size:11px;color:#9be7c4;display:block;margin-bottom:3px;">PGN:</label>
+          <textarea id="hud-pgn-input" rows="3" style="width:100%;padding:6px;border-radius:7px;border:1px solid #445;background:#0e131d;color:#fff;margin-bottom:8px;"></textarea>
+          <div style="display:flex;gap:6px;justify-content:flex-end;">
+            <button id="hud-fen-load-btn" class="hud-btn gold">📥 FEN</button>
+            <button id="hud-pgn-load-btn" class="hud-btn">📥 PGN</button>
           </div>
         </div>
       </div>
@@ -627,11 +630,34 @@ export class HudListener {
     this._bindDomActions(root);
   }
 
+  _applyBoardCameraPose() {
+    if (!this.ctx?.camera) return;
+    if (this.topDownCamera) {
+      const zTilt = this.cameraFlipped ? -0.01 : 0.01;
+      this.ctx.camera.position.set(0, 12.8, zTilt);
+      this.ctx.controls?.target?.set?.(0, 0.3, 0);
+    } else if (this.cameraFlipped) {
+      // Stay in front of the z = -10.2 cinema mirror so the board is never occluded
+      this.ctx.camera.position.set(0, 6.2, -8.2);
+      this.ctx.controls?.target?.set?.(0, 0.4, 0.4);
+    } else {
+      this.ctx.camera.position.set(0, 5.85, 12.6);
+      this.ctx.controls?.target?.set?.(0, 2.15, -2.2);
+    }
+    this.ctx.controls?.update?.();
+    if (this.rootEl) {
+      this.rootEl.querySelector('#hud-flip-btn')?.classList.toggle('active', this.cameraFlipped);
+      this.rootEl.querySelector('#hud-top-btn')?.classList.toggle('active', this.topDownCamera);
+    }
+  }
+
   _bindDomActions(root) {
     const q = (sel) => root.querySelector(sel);
 
-    // Mode 1 <-> Mode 2 Switcher
+    // Mode 1 <-> Mode 2 Switcher (idempotent)
     q('#hud-mode1-btn')?.addEventListener('click', () => {
+      if (this.flowState === 'Mode1_Chess') return;
+      this.skipActiveCutscene();
       if (this.ctx?.flow?.startChessMode) {
         this.ctx.flow.startChessMode();
       } else {
@@ -641,6 +667,8 @@ export class HudListener {
     });
 
     q('#hud-mode2-btn')?.addEventListener('click', () => {
+      if (this.flowState === 'Mode2_WowArena') return;
+      this.skipActiveCutscene();
       if (this.ctx?.flow?.startWowMode) {
         this.ctx.flow.startWowMode();
       } else {
@@ -651,14 +679,20 @@ export class HudListener {
 
     // Profile selector
     q('#hud-profile-select')?.addEventListener('change', (e) => {
-      this.activeProfile = e.target.value;
+      const nextProfile = e.target.value;
+      if (this.activeProfile === nextProfile) return;
+      this.activeProfile = nextProfile;
       this.ctx?.bus?.emit({ type: 'PROFILE_CHANGED', profileId: this.activeProfile });
       this.ctx?.bus?.flush?.();
+      this.updateTurnAndCheckUi();
+      this.pushMiniLog(this._formatTurnLabel(), 'turn');
     });
 
     // Opponent selector (2P vs CPU Easy/Med/Hard)
     q('#hud-opponent-select')?.addEventListener('change', (e) => {
-      this.opponentMode = e.target.value;
+      const nextMode = e.target.value;
+      if (this.opponentMode === nextMode) return;
+      this.opponentMode = nextMode;
       const enabled = this.opponentMode !== 'hotseat';
       const difficulty = enabled ? this.opponentMode : 'easy';
       this.ctx?.ai?.configure?.({ enabled, cpuColor: 'b', difficulty });
@@ -670,6 +704,7 @@ export class HudListener {
         difficulty,
       });
       this.ctx?.bus?.flush?.();
+      this.updateTurnAndCheckUi();
       if (enabled && this.ctx?.board?.turn?.() === 'b' && !this.ctx?.board?.isGameOver?.()) {
         this.ctx?.ai?.requestMove?.(this.ctx.board.fen(), difficulty);
       }
@@ -677,7 +712,9 @@ export class HudListener {
 
     // Rival Set selector (Carlesso Family vs Classic Stone Warriors)
     q('#hud-rival-select')?.addEventListener('change', (e) => {
-      this.rivalSet = e.target.value;
+      const nextSet = e.target.value;
+      if (this.rivalSet === nextSet) return;
+      this.rivalSet = nextSet;
       const pm = this.ctx?.pieces || this.ctx?.pieceManager;
       pm?.setRivalSetMode?.(this.rivalSet);
       this.ctx?.bus?.flush?.();
@@ -690,11 +727,17 @@ export class HudListener {
       this.ctx?.bus?.flush?.();
     });
 
-    // Action dock buttons
+    // Action dock buttons (idempotent)
     q('#hud-hint-btn')?.addEventListener('click', () => {
+      if (this.hintPending) return;
       const fen = this.ctx?.board?.fen?.();
       if (this.ctx?.ai?.requestHint && fen) {
-        this.ctx.ai.requestHint(fen).then(() => this.ctx?.bus?.flush?.());
+        this.hintPending = true;
+        Promise.resolve(this.ctx.ai.requestHint(fen))
+          .finally(() => {
+            this.hintPending = false;
+            this.ctx?.bus?.flush?.();
+          });
       } else {
         this.ctx?.bus?.emit({ type: 'HINT_REQUESTED' });
         this.ctx?.bus?.flush?.();
@@ -702,26 +745,19 @@ export class HudListener {
     });
 
     q('#hud-flip-btn')?.addEventListener('click', () => {
-      if (this.ctx?.camera) {
-        this.ctx.camera.position.x *= -1;
-        this.ctx.camera.position.z *= -1;
-        this.ctx.controls?.update?.();
-      }
-      this.ctx?.bus?.emit({ type: 'CAMERA_VIEW_REQUESTED', view: 'flip' });
+      this.cameraFlipped = !this.cameraFlipped;
+      this._applyBoardCameraPose();
+      this.ctx?.bus?.emit({
+        type: 'CAMERA_VIEW_REQUESTED',
+        view: 'flip',
+        flipped: this.cameraFlipped,
+      });
       this.ctx?.bus?.flush?.();
     });
 
     q('#hud-top-btn')?.addEventListener('click', () => {
       this.topDownCamera = !this.topDownCamera;
-      if (this.ctx?.camera) {
-        if (this.topDownCamera) {
-          this.ctx.camera.position.set(0, 12.8, 0.01);
-        } else {
-          this.ctx.camera.position.set(0, 7.2, 9.8);
-        }
-        this.ctx.controls?. target?.set?.(0, 0.3, 0);
-        this.ctx.controls?.update?.();
-      }
+      this._applyBoardCameraPose();
       this.ctx?.bus?.emit({
         type: 'CAMERA_VIEW_REQUESTED',
         view: this.topDownCamera ? 'top' : 'default',
@@ -730,6 +766,7 @@ export class HudListener {
     });
 
     q('#hud-new-btn')?.addEventListener('click', () => {
+      this.skipActiveCutscene();
       this.ctx?.board?.reset?.();
       this.ctx?.bus?.flush?.();
     });
@@ -754,7 +791,7 @@ export class HudListener {
           this.ctx?.bus?.flush?.();
           q('#hud-fen-modal').style.display = 'none';
         } catch {
-          this.showToast('⚠️ FEN non valido / Invalid FEN');
+          this.showToast('⚠️ FEN non valido');
         }
       }
     });
@@ -767,7 +804,7 @@ export class HudListener {
           this.ctx?.bus?.flush?.();
           q('#hud-fen-modal').style.display = 'none';
         } catch {
-          this.showToast('⚠️ PGN non valido / Invalid PGN');
+          this.showToast('⚠️ PGN non valido');
         }
       }
     });
@@ -818,8 +855,9 @@ export class HudListener {
       });
     });
 
-    // Mode 2 WOW Controls
+    // Mode 2 WOW Controls (strictly idempotent)
     q('#hud-wow-tab-inspector')?.addEventListener('click', () => {
+      if (this.wowSubMode === 'inspector') return;
       this.wowSubMode = 'inspector';
       this._syncWowPanelTabs();
       this.ctx?.bus?.emit({
@@ -831,6 +869,7 @@ export class HudListener {
     });
 
     q('#hud-wow-tab-arena')?.addEventListener('click', () => {
+      if (this.wowSubMode === 'arena') return;
       this.wowSubMode = 'arena';
       this._syncWowPanelTabs();
       this.ctx?.bus?.emit({
@@ -843,7 +882,9 @@ export class HudListener {
 
     root.querySelectorAll('button[data-wow-char]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        this.wowChar = btn.dataset.wowChar || 'b';
+        const nextChar = btn.dataset.wowChar || 'b';
+        if (this.wowChar === nextChar && this.wowSubMode === 'inspector') return;
+        this.wowChar = nextChar;
         root.querySelectorAll('button[data-wow-char]').forEach((b) =>
           b.classList.toggle('active', b === btn),
         );
@@ -860,6 +901,7 @@ export class HudListener {
     });
 
     q('#hud-ale-rigged-btn')?.addEventListener('click', () => {
+      if (this.wowBishopVariant === 'rigged') return;
       this.wowBishopVariant = 'rigged';
       q('#hud-ale-rigged-btn')?.classList.add('active');
       q('#hud-ale-hat-btn')?.classList.remove('active');
@@ -872,6 +914,7 @@ export class HudListener {
     });
 
     q('#hud-ale-hat-btn')?.addEventListener('click', () => {
+      if (this.wowBishopVariant === 'hat') return;
       this.wowBishopVariant = 'hat';
       q('#hud-ale-hat-btn')?.classList.add('active');
       q('#hud-ale-rigged-btn')?.classList.remove('active');
@@ -952,22 +995,17 @@ export class HudListener {
       });
     });
 
+    // Idempotent Palude button: populates the 6 demo swamp swimmers at most once
     q('#hud-swamp-btn')?.addEventListener('click', () => {
       const pm = this.ctx?.pieces || this.ctx?.pieceManager;
-      if (pm) {
-        for (const [color, victimColor, atk, def, sq] of [
-          ['b', 'w', 'n', 'b', 'c1'],
-          ['b', 'w', 'b', 'n', 'g1'],
-          ['b', 'w', 'r', 'p', 'e2'],
-          ['w', 'b', 'b', 'n', 'b8'],
-          ['w', 'b', 'n', 'b', 'f8'],
-          ['w', 'b', 'q', 'r', 'h8'],
-        ]) {
-          pm.handlePieceCaptured({ color, victimColor, attacker: atk, defender: def, capturedSquare: sq });
-        }
-        pm.emitPiecesSynced('swamp_party');
-        this.ctx?.bus?.flush?.();
-        this.showToast('🐸 Splash! I pezzi catturati sguazzano nella Palude di Shrek! 💦');
+      if (!pm) return;
+      const added = typeof pm.seedSwampParty === 'function' ? pm.seedSwampParty() : 0;
+      this.ctx?.bus?.flush?.();
+      q('#hud-swamp-btn')?.classList.add('active');
+      if (added > 0) {
+        this.showToast('🐸 Palude: 6 eroi in ammollo 💦');
+      } else {
+        this.showToast('🐸 Palude già attiva');
       }
     });
   }
@@ -1005,20 +1043,21 @@ export class HudListener {
     this.turn = e.turn || 'w';
     this.inCheck = false;
     this.pendingPromotion = null;
+    this.onBattleEnded();
     this.updateTurnAndCheckUi();
+    this.pushMiniLog(`✨ ${this._formatTurnLabel()}`, 'reset');
     if (this.rootEl) {
       this.rootEl.querySelector('#hud-gameover-modal').style.display = 'none';
       this.rootEl.querySelector('#hud-promo-modal').style.display = 'none';
+      this.rootEl.querySelector('#hud-swamp-btn')?.classList.remove('active');
     }
   }
 
   onPieceSelected(e) {
     const char = CHARACTER_REGISTRY[e.piece?.type];
     if (char) {
-      const msg =
-        this.lang === 'it'
-          ? `${char.glyph} ${char.name} (${e.square}) — ${e.legalMoves?.length || 0} mosse possibili`
-          : `${char.glyph} ${char.name} (${e.square}) — ${e.legalMoves?.length || 0} legal moves`;
+      const count = e.legalMoves?.length || 0;
+      const msg = `${char.glyph} ${char.name} (${e.square}) · ${count}`;
       this.showToast(msg, 1800);
     }
   }
@@ -1027,48 +1066,47 @@ export class HudListener {
     this.turn = e.turn || 'w';
     this.inCheck = false;
     this.updateTurnAndCheckUi();
+    const mv = e.move;
+    if (mv) {
+      const sideIcon = mv.color === 'b' ? '⚫' : '⚪';
+      const san = mv.san || `${mv.from}→${mv.to}`;
+      const capIcon = e.captured ? ' ⚔️' : '';
+      this.pushMiniLog(`${sideIcon} ${san}${capIcon} · ${this._formatTurnLabel()}`, 'move');
+    } else {
+      this.pushMiniLog(this._formatTurnLabel(), 'turn');
+    }
   }
 
   onCheckDetected(e) {
     this.inCheck = true;
     this.turn = e.color || this.turn;
     this.updateTurnAndCheckUi();
+    this.pushMiniLog(`${this.t('checkAlert')} (${this._formatTurnLabel()})`, 'check');
   }
 
   onCheckmate(e) {
+    const winnerName = e.winner === 'w' ? this._activeProfileName() : 'Nero ⚔️';
+    this.pushMiniLog(`${this.t('checkmateTitle')} · ${winnerName}`, 'gameover');
     if (!this.rootEl) return;
     const modal = this.rootEl.querySelector('#hud-gameover-modal');
     const title = this.rootEl.querySelector('#hud-gameover-title');
     const sub = this.rootEl.querySelector('#hud-gameover-sub');
     if (title) title.textContent = this.t('checkmateTitle');
     if (sub) {
-      const winnerName =
-        e.winner === 'w'
-          ? this.lang === 'it'
-            ? 'Squadra Bianca (Avorio & Oro) 👑'
-            : 'White Team (Ivory & Gold) 👑'
-          : this.lang === 'it'
-            ? 'Squadra Nera (Ossidiana & Argento) ⚔️'
-            : 'Black Team (Obsidian & Silver) ⚔️';
-      sub.textContent =
-        this.lang === 'it'
-          ? `Vittoria epica per: ${winnerName}!`
-          : `Epic victory for: ${winnerName}!`;
+      sub.textContent = `👑 ${winnerName}`;
     }
     if (modal) modal.style.display = 'grid';
   }
 
   onDraw(e) {
+    this.pushMiniLog(`${this.t('drawTitle')} (${e.reason || '='})`, 'gameover');
     if (!this.rootEl) return;
     const modal = this.rootEl.querySelector('#hud-gameover-modal');
     const title = this.rootEl.querySelector('#hud-gameover-title');
     const sub = this.rootEl.querySelector('#hud-gameover-sub');
     if (title) title.textContent = this.t('drawTitle');
     if (sub) {
-      sub.textContent =
-        this.lang === 'it'
-          ? `Partita patta (${e.reason || 'equilibrio magico'}) 🤝`
-          : `Match drawn (${e.reason || 'magical balance'}) 🤝`;
+      sub.textContent = `🤝 ${e.reason || 'Draw'}`;
     }
     if (modal) modal.style.display = 'grid';
   }
@@ -1092,7 +1130,7 @@ export class HudListener {
       this.unlockedStickers.add(e.sticker.id);
       this.renderStickersUi();
       const stickerLabel = e.sticker.name?.[this.lang] || e.sticker.name?.it || e.sticker.id;
-      this.showToast(`🌟 STICKER SBLOCCATO: ${stickerLabel}!`, 3600);
+      this.showToast(`🌟 ${stickerLabel}`, 3000);
     }
   }
 
@@ -1104,8 +1142,9 @@ export class HudListener {
 
   onBattleStarted(e) {
     const bannerObj = e.banner || BATTLE_MATRIX[e.attacker]?.[e.defender]?.banner;
-    const text = bannerObj?.[this.lang] || bannerObj?.it || 'STECCHITO! ✨';
+    const text = bannerObj?.[this.lang] || bannerObj?.it || '⚔️✨';
     this.activeBanner = text;
+    this.pushMiniLog(`🎬 ${text}`, 'battle');
 
     if (!this.rootEl) return;
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
@@ -1138,6 +1177,7 @@ export class HudListener {
       const sel = this.rootEl.querySelector('#hud-profile-select');
       if (sel) sel.value = this.activeProfile;
     }
+    this.updateTurnAndCheckUi();
   }
 
   onProfileRestored(e) {
@@ -1176,23 +1216,42 @@ export class HudListener {
     const combat = this.ctx?.combat || this.ctx?.combatManager;
     if (combat?.skip) {
       combat.skip('user_skip');
-    } else {
+    } else if (this.activeBanner || this.flowState === 'CaptureCutscene') {
       this.ctx?.bus?.emit({ type: 'BATTLE_SKIPPED', reason: 'user_skip' });
     }
     this.ctx?.bus?.flush?.();
   }
 
   // ===========================================================================
-  // 3. UI HELPERS & BILINGUAL REFRESH
+  // 3. UI HELPERS, MINI-LOG & BILINGUAL REFRESH
   // ===========================================================================
+
+  pushMiniLog(text, tone = 'info') {
+    if (!text) return;
+    const prev = this.miniLog[this.miniLog.length - 1];
+    if (prev && prev.text === text) return;
+    this.miniLog.push({ id: ++this._logSeq, text, tone });
+    if (this.miniLog.length > 3) {
+      this.miniLog.splice(0, this.miniLog.length - 3);
+    }
+    if (!this.rootEl) return;
+    const container = this.rootEl.querySelector('#hud-minilog-entries');
+    if (!container) return;
+    container.innerHTML = '';
+    for (const item of this.miniLog) {
+      const div = document.createElement('div');
+      div.className = 'hud-minilog-line';
+      div.textContent = item.text;
+      container.appendChild(div);
+    }
+  }
 
   updateTurnAndCheckUi() {
     if (!this.rootEl) return;
     const turnEl = this.rootEl.querySelector('#hud-turn-text');
     const checkEl = this.rootEl.querySelector('#hud-check-badge');
     if (turnEl) {
-      turnEl.textContent =
-        this.turn === 'w' ? `⚪ ${this.t('turnWhite')}` : `⚫ ${this.t('turnBlack')}`;
+      turnEl.textContent = this._formatTurnLabel();
     }
     if (checkEl) {
       checkEl.textContent = this.t('checkAlert');
@@ -1209,7 +1268,7 @@ export class HudListener {
     const valEl = this.rootEl.querySelector('#hud-luck-val');
     const fillEl = this.rootEl.querySelector('#hud-luck-fill');
     const trackEl = this.rootEl.querySelector('#hud-luck-track');
-    if (valEl) valEl.textContent = `${val} / ${max} ✨`;
+    if (valEl) valEl.textContent = `${val}/${max}`;
     if (fillEl) fillEl.style.width = `${pct}%`;
     if (trackEl) trackEl.classList.toggle('hot', val >= 9);
   }
@@ -1220,22 +1279,15 @@ export class HudListener {
     if (!row) return;
     const badges = FAMILY_STICKERS.filter((s) => this.unlockedStickers.has(s.id)).map((s) => {
       const label = s.name[this.lang] || s.name.it;
-      return `<span style="background:#263248;border:1px solid #ffd54f;border-radius:999px;padding:2px 7px;font-size:11px;color:#ffe082;">${label}</span>`;
+      return `<span style="background:#263248;border:1px solid #ffd54f;border-radius:999px;padding:1px 6px;font-size:10px;color:#ffe082;">${label}</span>`;
     });
+    row.style.display = badges.length > 0 ? 'flex' : 'none';
     row.innerHTML = badges.join('');
   }
 
-  showToast(message, durationMs = 2600) {
+  showToast(message, _durationMs = 2600) {
     this.lastToast = message;
-    if (!this.rootEl) return;
-    const el = this.rootEl.querySelector('#hud-toast');
-    if (!el) return;
-    el.textContent = message;
-    el.style.display = 'block';
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => {
-      el.style.display = 'none';
-    }, durationMs);
+    this.pushMiniLog(message, 'toast');
   }
 
   refreshTranslations() {
@@ -1245,10 +1297,8 @@ export class HudListener {
       if (el) el.textContent = this.t(key);
     };
     setTxt('#hud-title', 'title');
-    setTxt('#hud-subtitle', 'subtitle');
     setTxt('#hud-mode1-btn', 'mode1Btn');
     setTxt('#hud-mode2-btn', 'mode2Btn');
-    setTxt('#hud-who-label', 'whoPlays');
     setTxt('#hud-luck-label', 'luckBar');
     setTxt('#hud-hint-btn', 'hintBtn');
     setTxt('#hud-flip-btn', 'flipCamBtn');

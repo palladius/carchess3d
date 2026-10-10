@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.4] - 2026-10-10
+
+- 🧹 **Minimal Desktop UI & Bottom Mini-Log (`src/listeners/HudListener.js`, `src/core/Registry.js`)**:
+  - Stripped verbose labels and text walls from the top bar, bottom bar, and WOW Mode drawer in favor of compact icon-first controls.
+  - Added a compact **Bottom Mini-Log (`#hud-minilog`)** that displays the active player's turn (`⚪ Turno di Riccardo 👑` / `⚪ Riccardo 👑's turn`, `Ale 🐉`, `Seby 🏎️`, `Kate 💜`, or `⚫ Turno CPU 🤖`), inline Luck meter (`🍀 0/12`), and a live 3-line move/event feed instead of full-screen turn banners or floating mid-screen toasts.
+- 🎬 **16:9 Magic Cinema Mirror Dedicated to WOW Videos (`src/views/VeoCinemaView.js`, `src/core/Registry.js`)**:
+  - Fixed `BATTLE_MATRIX` `videoUrl` resolution to point to existing 16:9 `.mp4`/`.webm` clips (`b_x_n.mp4`, `n_x_b.mp4`, `n_x_r.mp4`) instead of non-existent `${pairId}.mp4` paths.
+  - Updated `VeoCinemaView` so the 16:9 mirror continuously cycles and plays the 16:9 WOW battle videos in `idle` mode as well as `battle` mode, removing the full-screen `"Turno del Bianco"` / `"Ultima mossa"` text slide.
+- 🐛 **Idempotent UI Clicks & State Bug Fixes**:
+  - **Idempotent `🐸 Palude` (`PieceManager.seedSwampParty` / `handlePieceCaptured`)**: Clicking `🐸 Palude` no longer spawns 6 duplicate dead pieces on every click or deletes living pieces (`c1, g1, e2, b8, f8, h8`) from the 3D board.
+  - **CPU AI non-capture move fix (`CombatAnimationManager.isBusy`, `src/main.js`)**: Fixed `combat.isBusy is not a function` TypeError after non-capture human moves against CPU.
+  - **Camera Flip & Top-Down idempotency (`HudListener._applyBoardCameraPose`)**: Flipping the camera now stays at `z = -8.2m` in front of the `z = -10.2m` 16:9 cinema mirror instead of clipping behind it, and toggling Top-Down restores the exact canonical overview pose.
+  - **WOW Mode & Highlight fixes (`WowModeView.js`, `PieceView.js`, `ZurichSwampView.js`)**: Made WOW character/variant buttons idempotent with an async GLTF load token guard, prevented `WowModeView.onArenaClash` from mutating Mode 1 `pieceView.pieceBySquare`, added `PieceView.playClipOnSquare`, and removed duplicate selection/check rings from `ZurichSwampView`.
+
 ## [0.2.3] - 2026-10-10
 
 - 🎛️ **Showcase Multi-Family Selector & Live 3D Faction Material Tinting (`showcase/index.html`)**:

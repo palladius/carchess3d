@@ -1003,6 +1003,19 @@ export class PieceView {
   }
 
   /**
+   * Plays a clip or procedural emote on the piece occupying `square`.
+   * @param {string} square
+   * @param {string} [clipKey='Idle']
+   */
+  playClipOnSquare(square, clipKey = 'Idle') {
+    if (!square) return;
+    const pieceGroup = this.pieceBySquare.get(square);
+    if (pieceGroup) {
+      this.playClip(pieceGroup, clipKey);
+    }
+  }
+
+  /**
    * Animates a moving piece along a parabolic jump arc:
    * `y = 4 * h_peak * t * (1 - t)` (`h_peak = 1.2m`, `0.42s`) followed by
    * a squash-and-stretch landing (`scale(1.22, 0.78, 1.22) -> 1.0`).
