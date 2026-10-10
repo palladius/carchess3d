@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.3] - 2026-10-10
+
+- 🍌📺 **Wire Nano Banana 16:9 Keyframes & `1.65×` Veo Playback (`BattleMatrix36.js`, `VeoCinemaView.js`, `battles.html`)**:
+  - Added `keyframeUrl: assets/battles/keyframes/<id>.png` across all 36 entries in [`src/core/BattleMatrix36.js`](src/core/BattleMatrix36.js) and wired `poster="assets/battles/keyframes/<id>.png"` into the 6×6 video player in [`battles.html`](battles.html).
+  - Updated [`src/views/VeoCinemaView.js`](src/views/VeoCinemaView.js) to preload and render the Nano Banana 16:9 Initial Battle Keyframe as Tier-2 fallback on the 16:9 Magic Cinema Mirror while the video buffers, and set `videoEl.playbackRate = 1.65` so the full 6–8s Veo 3.1 battle movie plays within the 4.0s 3D Scazzottata cutscene.
+
 ## [0.3.2] - 2026-10-10
 
 - 🍌🎬 **2-Stage Generative AI Battle Cinema Pipeline (`Nano Banana 2.1` Keyframe → `Veo 3.1` I2V Video) (`scripts/generate_nb_veo_battle.py`, `assets/battles/keyframes/{b_x_n,n_x_b}.png`, `assets/battles/videos/{b_x_n,n_x_b}.{mp4,webm}`)**:
