@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.26] - 2026-10-10
+
+- 👑👱‍♀️ **Canonical Queen Kate Young 4c (`queen-kate.glb`)**: designated the Young 4c wavy-hair model (chosen by Kate & Riccardo) as the default canonical piece (`assets/models/queen-kate.glb`, MD5 `86cee880f66da2ed2c3c7ccf514d032d`), preserving the 2016 wedding updo as an alternative piece (`assets/models/queen-kate-wedding2016.glb`, MD5 `d5ba37e0d5d5622d2265f6a7f7031395`).
+- ♗ **Canonical Bishop Ale Confirmed**: confirmed Bishop Ale v1 with mitre hat (`bishop-ale-1.glb`, MD5 `6b423e6daf1ed71f001c8912cc9035f7`) as canonical piece.
+- 📋 **Provenance Registry 10/10**: updated `docs/models-provenance.yaml` with all 10 3D models and 27 source views with MD5 checksums; verified via `just test` and `just provenance`.
+- 🌐 **Web Showcase Updated**: showcase updated to highlight Kate Young 4c as default winner with tab to compare Nozze 2016.
+
 ## [0.1.25] - 2026-10-10
 
 - 🏰👾 **Rook Pupurabbu 3D Model (`rook-pupurabbu.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` from 360° turnaround dataset (`tools/model-pipeline/rook/`), featuring the adorable fluffy purple mascot leaning out and smiling from the crenellated purple stone tower. All default chess pieces of the Carlesso family now have complete 3D models!

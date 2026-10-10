@@ -399,7 +399,11 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
 - **Pipeline Runner**: `tools/model-pipeline/rook/gen_trellis2.py` invoking `microsoft/TRELLIS.2` with `palladius` token.
 - **Timing & Output**: 35.2s reconstruction + 23.1s GLB extraction (`decimation_target=100000`, `texture_size=1024`). Output: `tools/model-pipeline/rook/out/rook_pupurabbu.glb` (3.77 MB), copied to `assets/models/rook-pupurabbu.glb`.
 - **Render**: `tools/model-pipeline/rook/render_preview.py` generating `out/rook_pupurabbu_3d_preview.png`.
-- **Full Family Set Milestone**: All default chess pieces for the Carlesso family (King Riccardo, Queen Kate, Bishop Ale, Knight Sebastian, Rook Pupurabbu, Pawn Puffin) now have complete textured 3D models!
+## 26. 2026-10-10 — Canonical Piece Selections (Kate Young 4c & Ale v1)
+
+- **Queen Kate Decision**: Riccardo & Kate chose the Young 4c interpretation (`assets/models/queen-kate.glb`, MD5 `86cee880f66da2ed2c3c7ccf514d032d`) as the canonical default piece for gameplay. The Wedding 2016 interpretation is retained in `assets/models/queen-kate-wedding2016.glb` (MD5 `d5ba37e0d5d5622d2265f6a7f7031395`) as an alternative skin.
+- **Bishop Ale Decision**: Ale v1 with mitre hat (`assets/models/bishop-ale-1.glb`, MD5 `6b423e6daf1ed71f001c8912cc9035f7`) confirmed as the canonical piece; modular rigged version available in `bishop-ale-rigged.glb`.
+- **Registry Update**: `docs/models-provenance.yaml` updated with 10 total models and 27 source views, validated by `just test` and `scripts/test_provenance.py`.
 
 ---
 

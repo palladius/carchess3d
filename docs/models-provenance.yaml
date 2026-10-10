@@ -27,8 +27,12 @@ models:
         md5: "c9fb2c8e68bad0ef27e872e1621eb145"
       - role: "front"
         path: "tools/model-pipeline/ale/front.png"
+        size_bytes: 846739
+        md5: "65ad2f86c0913af3f982c575afe91540"
       - role: "threequarter"
         path: "tools/model-pipeline/ale/threequarter.png"
+        size_bytes: 830157
+        md5: "25e60f623d17abae37adbd1336ea077e"
 
   - id: "bishop-ale-2"
     name: "Bishop Ale #2 (Senza Cappello / Astrolabio)"
@@ -124,11 +128,41 @@ models:
         md5: "afb263618bc824edc7169dfffe4aaf70"
 
   - id: "queen-kate"
-    name: "Queen Kate (Wedding 2016 Style / Canonico)"
+    name: "Queen Kate (Young 4c Stylized / Canonico - Scelta da Kate 🏆)"
     piece: "queen"
     character: "Kate"
     status: "CANONICAL"
     target_path: "assets/models/queen-kate.glb"
+    size_bytes: 3713968
+    md5: "86cee880f66da2ed2c3c7ccf514d032d"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/kate_young/gen_trellis2.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "tools/model-pipeline/kate/queen-kate-4c.png"
+        size_bytes: 1299055
+        md5: "57a5f0897cfac55af49c80a37c6b255e"
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/kate_young/front.png"
+        size_bytes: 681894
+        md5: "4f73adddf04756422986997dcbb43d53"
+      - role: "turnaround_threequarter"
+        path: "tools/model-pipeline/kate_young/threequarter.png"
+        size_bytes: 679363
+        md5: "9666f201e809a3d4858d7936ff209cee"
+
+  - id: "queen-kate-wedding2016"
+    name: "Queen Kate (Wedding 2016 Style / Alternativo)"
+    piece: "queen"
+    character: "Kate"
+    status: "ALTERNATIVE"
+    target_path: "assets/models/queen-kate-wedding2016.glb"
     size_bytes: 3836504
     md5: "d5ba37e0d5d5622d2265f6a7f7031395"
     pipeline:
@@ -154,7 +188,7 @@ models:
         md5: "8ec1d143a5e8756d7dc036dd7de6a395"
 
   - id: "queen-kate-young"
-    name: "Queen Kate Young (Stylized 4c / Alternativo)"
+    name: "Queen Kate Young (Standalone / Alias)"
     piece: "queen"
     character: "Kate"
     status: "ALTERNATIVE"
@@ -176,8 +210,12 @@ models:
         md5: "57a5f0897cfac55af49c80a37c6b255e"
       - role: "turnaround_front"
         path: "tools/model-pipeline/kate_young/front.png"
+        size_bytes: 681894
+        md5: "4f73adddf04756422986997dcbb43d53"
       - role: "turnaround_threequarter"
         path: "tools/model-pipeline/kate_young/threequarter.png"
+        size_bytes: 679363
+        md5: "9666f201e809a3d4858d7936ff209cee"
 
   - id: "knight-seby"
     name: "Knight Sebastian (Unarmed Golden Armor / Canonico)"
@@ -228,6 +266,8 @@ models:
     concept_sources:
       - role: "concept_reference"
         path: "assets/characters/rook-pupurabbu.jpg"
+        size_bytes: 297570
+        md5: "43e631dd18e673e4aa97c19de7a51532"
       - role: "turnaround_front"
         path: "tools/model-pipeline/rook/front.png"
         size_bytes: 611163
