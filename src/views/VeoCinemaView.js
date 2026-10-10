@@ -290,6 +290,10 @@ export class VeoCinemaView {
       defenderCounter: e.defenderCounter || matrix36Entry.defenderCounter || null,
       videoUrl: e.videoUrl || matrix36Entry.videoUrl || baseEntry.videoUrl,
       webmUrl: e.webmUrl || matrix36Entry.webmUrl || null,
+      keyframeUrl:
+        e.keyframeUrl ||
+        matrix36Entry.keyframeUrl ||
+        `assets/battles/keyframes/${atkKey}_x_${defKey}.png`,
       attacker: atkKey,
       defender: defKey,
     };
@@ -298,9 +302,12 @@ export class VeoCinemaView {
     this.mode = 'battle';
     this.battleElapsed = 0;
 
-    // Preload portraits & optional SVG composite keyframe
+    // Preload portraits, Nano Banana 16:9 initial battle keyframe, & optional SVG composite
     this.getOrLoadImage(choreo.attackerImg);
     this.getOrLoadImage(choreo.defenderImg);
+    if (choreo.keyframeUrl) {
+      this.getOrLoadImage(choreo.keyframeUrl);
+    }
     if (choreo.compositeUrl) {
       this.getOrLoadImage(choreo.compositeUrl);
     }
@@ -322,6 +329,7 @@ export class VeoCinemaView {
     try {
       this.videoEl.src = videoUrl;
       this.videoEl.currentTime = 0;
+      this.videoEl.playbackRate = 1.65;
       const playPromise = this.videoEl.play();
       if (playPromise && typeof playPromise.then === 'function') {
         playPromise
@@ -594,6 +602,38 @@ export class VeoCinemaView {
       ctx.stroke();
       ctx.fillStyle = '#ffeb3b';
       ctx.font = 'bold 34px system-ui, sans-serif';
+      ctx.fillText(bannerText, w / 2, h - 52);
+      ctx.restore();
+      return;
+    }
+
+    // TIER 2: If the Nano Banana 16:9 Initial Battle Keyframe (`assets/battles/keyframes/<id>.png`) is loaded, draw it!
+    const nbKeyframe = this.getOrLoadImage(choreo.keyframeUrl);
+    if (nbKeyframe) {
+      ctx.drawImage(nbKeyframe, 0, 0, w, h);
+      ctx.save();
+      ctx.fillStyle = 'rgba(14, 18, 32, 0.85)';
+      ctx.strokeStyle = '#ffd54f';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(26, 20, 780, 52, 24);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ffe082';
+      ctx.font = 'bold 24px system-ui, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`🍌 ${titleText}`.slice(0, 52), 48, 54);
+
+      ctx.fillStyle = 'rgba(14, 18, 32, 0.86)';
+      ctx.strokeStyle = '#ffd54f';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(80, h - 102, w - 160, 78, 18);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ffeb3b';
+      ctx.font = 'bold 34px system-ui, sans-serif';
+      ctx.textAlign = 'center';
       ctx.fillText(bannerText, w / 2, h - 52);
       ctx.restore();
       return;

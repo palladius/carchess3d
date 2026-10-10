@@ -853,6 +853,7 @@ function buildBattleMatrix36() {
         easterEgg: raw.easterEgg || null,
         nonLethalCuddle: Boolean(raw.nonLethalCuddle),
         compositeUrl: `assets/battles/keyframes/${pairSlug}.svg`,
+        keyframeUrl: `assets/battles/keyframes/${id}.png`,
         videoUrl: `assets/battles/videos/${id}.mp4`,
         webmUrl: `assets/battles/videos/${id}.webm`,
       });
