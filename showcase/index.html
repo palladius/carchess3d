@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CarChess3D · Character showcase (throwaway)</title>
+  <!--
+    🧪 THROWAWAY SHOWCASE — not the game.
+    One card per default character: 2D art (front / back) + auto-rotating 3D GLB when one exists.
+    Serve the repo root (`just serve`) and open http://localhost:8000/showcase/
+    To change a default, edit the CHARACTERS table below (data-driven, no if/else per character).
+  -->
+  <script type="importmap">
+    { "imports": { "three": "../vendor/three/three.module.js" } }
+  </script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #11141b; --card: #1a1f2b; --line: #2a3142; --text: #e8eaf0; --muted: #9aa3b5;
+      --gold: #e6b84a; --blue: #2d4a8a;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.45 system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    header { padding: 24px 28px 8px; }
+    header h1 { margin: 0 0 4px; font-size: 1.6rem; }
+    header p { margin: 0; color: var(--muted); }
+    .warn { display: inline-block; margin-top: 10px; padding: 4px 10px; border-radius: 999px;
+            background: #3a2a10; color: var(--gold); font-size: .85rem; }
+    main { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr));
+           gap: 20px; padding: 20px 28px 40px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+            display: flex; flex-direction: column; }
+    .card.winner { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 8px 30px #e6b84a22; }
+    .card h2 { margin: 0; padding: 14px 16px 4px; font-size: 1.15rem; }
+    .card .sub { padding: 0 16px 10px; color: var(--muted); font-size: .9rem; }
+    .badge { font-size: .72rem; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: middle;
+             background: var(--blue); }
+    .badge.gold { background: var(--gold); color: #1a1300; }
+    .badge.guess { background: #444b5c; }
+    .media { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); }
+    .pane { background: #0d1016; position: relative; aspect-ratio: 1; }
+    .pane img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .pane canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+    .pane .label { position: absolute; top: 8px; left: 8px; font-size: .75rem; padding: 2px 8px;
+                   border-radius: 6px; background: #000a; }
+    .pane .placeholder { position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+                         color: var(--muted); padding: 20px; }
+    .tabs { position: absolute; bottom: 8px; left: 8px; display: flex; gap: 4px; }
+    .tabs button { font: inherit; font-size: .75rem; padding: 3px 10px; border-radius: 6px; cursor: pointer;
+                   border: 1px solid var(--line); background: #000b; color: var(--text); }
+    .tabs button[aria-pressed="true"] { background: var(--gold); color: #1a1300; border-color: var(--gold); }
+    dl { margin: 0; padding: 12px 16px 16px; display: grid; grid-template-columns: max-content 1fr;
+         gap: 4px 12px; font-size: .85rem; }
+    dt { color: var(--muted); }
+    dd { margin: 0; word-break: break-word; }
+    dd a { color: #9cc3ff; }
+    code { font-size: .8rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🏰🚽 CarChess3D — Character showcase</h1>
+    <p>Personaggi di default: una card per pezzo, 2D (fronte / retro) + 3D in autorotazione (trascina per girarlo).</p>
+    <span class="warn">🧪 Throwaway showcase, NON il gioco vero e proprio</span>
+  </header>
+  <main id="cards"></main>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from '../vendor/three/addons/loaders/GLTFLoader.js';
+
+    // ── Data: one row per piece. `defaultConfirmed: false` = my guess, Riccardo hasn't picked yet. ──
+    const CHARACTERS = [
+      {
+        glyph: '♗', piece: 'Bishop', name: 'Ale 1 — CON CAPPELLO', winner: true, defaultConfirmed: true,
+        tagline: 'Il Vincitore Designato per la scacchiera',
+        front: '../assets/characters/bishop-ale-1.jpg',
+        back: '../tools/model-pipeline/ale/experiments_back/back_nb_2.1.png',
+        backGrid: '../tools/model-pipeline/ale/experiments_back/ale_hat_back_comparison_grid.jpg',
+        model: '../assets/models/bishop-ale-1.glb',
+        details: 'Mitria vescovile blu e oro, occhioni verdi sorridenti, bastoncino pastorale in legno, basamento marmo + legno.',
+        modelNote: 'TRELLIS da sola vista frontale (pre-fix /lambda_1): il retro NB 2.1 non è ancora stato usato nel 3D.',
+      },
+      {
+        glyph: '♔', piece: 'King', name: 'Riccardo', defaultConfirmed: false,
+        front: '../assets/characters/king-riccardo-1.jpg',
+        back: '../tools/model-pipeline/king/back.png',
+        model: null, details: 'Re della famiglia.',
+      },
+      {
+        glyph: '♕', piece: 'Queen', name: 'Kate', defaultConfirmed: false,
+        front: '../assets/characters/queen-kate-4.jpg',
+        back: null, model: null, details: 'Base usata dalle edit NB in tools/model-pipeline/kate/.',
+      },
+      {
+        glyph: '♘', piece: 'Knight', name: 'Seby', defaultConfirmed: false,
+        front: '../assets/characters/knight-seby-4.jpg',
+        back: '../tools/model-pipeline/seby/back_nb_2.1.png',
+        model: null, details: 'Cavaliere (concept #4, usato nella pipeline multi-view).',
+      },
+      {
+        glyph: '♖', piece: 'Rook', name: 'Pupurabbu', defaultConfirmed: false,
+        front: '../assets/characters/rook-pupurabbu.jpg',
+        back: '../tools/model-pipeline/rook/back.png',
+        model: null, details: 'Torre.',
+      },
+      {
+        glyph: '♙', piece: 'Pawn', name: 'Puffin Swiss Guard', defaultConfirmed: true,
+        front: '../assets/characters/pawn-puffin.jpg',
+        back: '../tools/model-pipeline/nbviews/gemini-nano-banana-2.1/back.png',
+        model: '../assets/models/pawn-puffin.glb',
+        details: 'Pulcinella di mare in uniforme da Guardia Svizzera, alabarda.',
+        modelNote: 'TRELLIS single-view: retro inventato (bianco).',
+      },
+    ];
+
+    const link = (p) => p ? `<a href="${p}" target="_blank"><code>${p.replace('../', '')}</code></a>` : '—';
+
+    function cardHTML(c, i) {
+      const badge = c.winner ? '<span class="badge gold">🏆 vincitore</span>'
+        : c.defaultConfirmed ? '<span class="badge">default</span>'
+        : '<span class="badge guess">default da confermare</span>';
+      return `
+        <article class="card ${c.winner ? 'winner' : ''}">
+          <h2>${c.glyph} ${c.name} ${badge}</h2>
+          <div class="sub">${c.piece}${c.tagline ? ' · ' + c.tagline : ''}</div>
+          <div class="media">
+            <div class="pane">
+              <span class="label">2D</span>
+              <img src="${c.front}" alt="${c.name} — 2D fronte" loading="lazy" data-img="${i}">
+              <div class="tabs">
+                <button aria-pressed="true" data-side="front" data-card="${i}">Fronte</button>
+                ${c.back ? `<button aria-pressed="false" data-side="back" data-card="${i}">Retro</button>` : ''}
+              </div>
+            </div>
+            <div class="pane" data-3d="${i}">
+              <span class="label">3D</span>
+              ${c.model ? '<div class="placeholder">⏳ carico il GLB…</div>'
+                        : '<div class="placeholder">3D non ancora generato ⏳</div>'}
+            </div>
+          </div>
+          <dl>
+            <dt>Source</dt><dd>${link(c.front)}</dd>
+            <dt>Dettagli</dt><dd>${c.details}</dd>
+            ${c.backGrid ? `<dt>Retro GenAI</dt><dd>${link(c.backGrid)}</dd>` : ''}
+            <dt>Vista posteriore</dt><dd>${link(c.back)}</dd>
+            <dt>Modello 3D</dt><dd>${link(c.model)}${c.modelNote ? `<br><small>${c.modelNote}</small>` : ''}</dd>
+          </dl>
+        </article>`;
+    }
+
+    const root = document.getElementById('cards');
+    root.innerHTML = CHARACTERS.map(cardHTML).join('');
+
+    // 2D front/back toggle
+    root.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-side]');
+      if (!btn) return;
+      const c = CHARACTERS[btn.dataset.card];
+      root.querySelector(`img[data-img="${btn.dataset.card}"]`).src = btn.dataset.side === 'back' ? c.back : c.front;
+      btn.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b === btn));
+    });
+
+    // ── 3D view adapter: one small renderer per card that has a model ──
+    const loader = new GLTFLoader();
+    const views = [];
+
+    function makeView(pane, url) {
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      const scene = new THREE.Scene();
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 3.2));
+      const key = new THREE.DirectionalLight(0xffffff, 2.5);
+      key.position.set(2, 3, 4);
+      scene.add(key);
+      const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 100);
+      camera.position.set(0, 0.3, 5.2);
+      camera.lookAt(0, 0, 0);
+      const pivot = new THREE.Group();
+      scene.add(pivot);
+
+      const view = { pane, renderer, scene, camera, pivot, visible: false, dragging: false, lastX: 0, idleAt: 0 };
+
+      loader.load(url, (gltf) => {
+        const obj = gltf.scene;
+        const box = new THREE.Box3().setFromObject(obj);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        obj.position.sub(center);
+        pivot.scale.setScalar(2 / Math.max(size.x, size.y, size.z));
+        pivot.add(obj);
+        pane.querySelector('.placeholder')?.remove();
+        pane.appendChild(renderer.domElement);
+        resize(view);
+      }, undefined, (err) => {
+        pane.querySelector('.placeholder').textContent = '❌ GLB non caricato: ' + err.message;
+      });
+
+      const el = renderer.domElement;
+      el.addEventListener('pointerdown', (e) => { view.dragging = true; view.lastX = e.clientX; el.setPointerCapture(e.pointerId); });
+      el.addEventListener('pointermove', (e) => {
+        if (!view.dragging) return;
+        pivot.rotation.y += (e.clientX - view.lastX) * 0.01;
+        view.lastX = e.clientX;
+      });
+      el.addEventListener('pointerup', () => { view.dragging = false; view.idleAt = performance.now(); });
+      return view;
+    }
+
+    function resize(v) {
+      const w = v.pane.clientWidth, h = v.pane.clientHeight;
+      v.renderer.setSize(w, h, false);
+      v.camera.aspect = w / h;
+      v.camera.updateProjectionMatrix();
+    }
+
+    CHARACTERS.forEach((c, i) => {
+      if (c.model) views.push(makeView(root.querySelector(`[data-3d="${i}"]`), c.model));
+    });
+
+    // Pause offscreen canvases
+    const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+      const v = views.find((x) => x.pane === en.target);
+      if (v) v.visible = en.isIntersecting;
+    }));
+    views.forEach((v) => io.observe(v.pane));
+    new ResizeObserver(() => views.forEach(resize)).observe(root);
+
+    const clock = new THREE.Clock();
+    function tick() {
+      const dt = clock.getDelta();
+      const now = performance.now();
+      for (const v of views) {
+        if (!v.visible) continue;
+        if (!v.dragging && now - v.idleAt > 1500) v.pivot.rotation.y += dt * 0.6; // auto-rotate
+        v.renderer.render(v.scene, v.camera);
+      }
+      requestAnimationFrame(tick);
+    }
+    tick();
+  </script>
+</body>
+</html>
