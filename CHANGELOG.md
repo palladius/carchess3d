@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.5] - 2026-10-10
+
+- 🌐📖 **GitHub Pages Live Banner in `README.md` & GitHub Issues `#10`–`#16`**:
+  - Added prominent live GitHub Pages links (`https://palladius.github.io/carchess3d/`, WOW Mode, 3D Brawl demo, Shrek Swamp demo, 3-Family Showcase, and Visual Progress Gallery) at the top of [`README.md`](README.md).
+  - Created 7 tracked GitHub Issues (`#10`–`#16`) for every single gameplay/3D/UX requirement and launched the Adversarial Swarm to implement all 36 (`6×6`) bespoke 3D combat animations, all 36 `.mp4`/`.webm` 16:9 videos, the interactive 6×6 Battle Matrix Explorer, and visible 3D skeletal rigs.
+
 ## [0.2.4] - 2026-10-10
 
 - 🥊⚔️ **3D Scazzottata / Real 3D Character Brawl (`VFXPoolView.js` + `CombatAnimationManager.js` + `PieceView.js`)**:

@@ -1,5 +1,14 @@
 # 🏰🚽 CarChess3D: *Carlesso al Cesso* ♟️
 
+> ### 🌐🚀 **[GIOCA SUBITO LIVE SU GITHUB PAGES → `https://palladius.github.io/carchess3d/`](https://palladius.github.io/carchess3d/)**
+> - 🎮 **Partita 3D & Scazzottata**: [https://palladius.github.io/carchess3d/](https://palladius.github.io/carchess3d/)
+> - 🌟 **WOW Mode & Arena 6×6**: [https://palladius.github.io/carchess3d/?mode=wow](https://palladius.github.io/carchess3d/?mode=wow)
+> - 🥊 **Demo Scazzottata 3D + Video 16:9 (Ale vs Seby)**: [https://palladius.github.io/carchess3d/?clash=b_n](https://palladius.github.io/carchess3d/?clash=b_n)
+> - 🐸 **Demo Palude di Shrek (Pezzi Catturati)**: [https://palladius.github.io/carchess3d/?swamp_party=1](https://palladius.github.io/carchess3d/?swamp_party=1)
+> - 🏛️ **Showcase 3 Famiglie (18 Pezzi 3D `.glb`)**: [https://palladius.github.io/carchess3d/showcase/](https://palladius.github.io/carchess3d/showcase/)
+> - 📸 **Visual Progress & Critic Gallery**: [https://palladius.github.io/carchess3d/progress.html](https://palladius.github.io/carchess3d/progress.html)
+> - ✍️ **Articolo ("Come ho generato CarChess3D in 2 giorni")**: [`docs/ARTICLE.md`](docs/ARTICLE.md)
+
 <p align="center">
   <img src="docs/logo/logo.png" alt="Carlesso al Cesso: a cartoon chess king on a golden toilet-throne" width="320">
 </p>
@@ -18,20 +27,16 @@ on localhost, in the browser and on Android, even in airplane mode. ✈️
 
 ## 🚦 Status
 
-`v0.1.0`. Scaffold only: the first two character models exist; there is no
-game code yet.
+`v0.2.5`. Playable 3D Chess + WOW Mode + 16:9 Magic Cinema Mirror + Shrek Swamp Party + 18 3D `.glb` models across 3 families (`carlesso`, `classic`, `swamp`).
 
-| Piece | Character | 2D art | 3D model |
+| Piece | Character | 2D art | 3D model (`assets/models/`) |
 |---|---|---|---|
-| ♔ King | Riccardo | ✅ `king-riccardo-{1,2}` | ⏳ |
-| ♕ Queen | Kate | ✅ `queen-kate-{1..5}` | ⏳ |
-| ♗ Bishop | Ale (+ dragon) | ✅ `bishop-ale-{1,2}` | 🟢 [`bishop-ale-rigged.glb`](assets/models/bishop-ale-rigged.glb) (Rigged + Dragon Wings Gliding & Fire Breath) |
-| ♘ Knight | Seby | ✅ `knight-seby-{1..5}` | ⏳ |
-| ♖ Rook | Pupurabbu | ✅ `rook-pupurabbu` | ⏳ |
-| ♙ Pawn | Puffin guard | ✅ `pawn-puffin` | 🟡 [`pawn-puffin.glb`](assets/models/pawn-puffin.glb) (TRELLIS, single view) |
-
-🟡 = first draft: free model, invented back side. Better versions are coming
-from the multi-view runs.
+| ♔ King | Riccardo | ✅ `king-riccardo-{1,2}` | 🟢 [`king-riccardo.glb`](assets/models/king-riccardo.glb) |
+| ♕ Queen | Kate | ✅ `queen-kate-{1..5}` | 🟢 [`queen-kate.glb`](assets/models/queen-kate.glb) + [`queen-kate-wedding2016.glb`](assets/models/queen-kate-wedding2016.glb) |
+| ♗ Bishop | Ale (+ dragon) | ✅ `bishop-ale-{1,2}` | 🟢 [`bishop-ale-rigged.glb`](assets/models/bishop-ale-rigged.glb) + [`bishop-ale-1.glb`](assets/models/bishop-ale-1.glb) |
+| ♘ Knight | Seby | ✅ `knight-seby-{1..5}` | 🟢 [`knight-seby.glb`](assets/models/knight-seby.glb) |
+| ♖ Rook | Pupurabbu | ✅ `rook-pupurabbu` | 🟢 [`rook-pupurabbu.glb`](assets/models/rook-pupurabbu.glb) |
+| ♙ Pawn | Puffin guard | ✅ `pawn-puffin` | 🟢 [`pawn-puffin.glb`](assets/models/pawn-puffin.glb) |
 
 ## 🚀 Quickstart
 
