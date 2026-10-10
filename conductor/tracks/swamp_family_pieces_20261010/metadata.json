@@ -1,10 +1,10 @@
 {
   "track_id": "swamp_family_pieces_20261010",
   "type": "feature",
-  "status": "new",
+  "status": "completed",
   "title": "Swamp Parody Chess Family (Orco Brontolo, Principessa Orchessa, Asinello Chiacchierone, Mago Focaccina, Draghessa & Guardia Tappo)",
   "created_at": "2026-10-10T11:04:05+02:00",
-  "updated_at": "2026-10-10T11:13:00+02:00",
+  "updated_at": "2026-10-10T12:42:00+02:00",
   "depends_on": [
     "v1_carchess3d#3.2 (only for runtime PieceView integration; Phases 1-2 & family JSON manifest are 100% standalone)"
   ],

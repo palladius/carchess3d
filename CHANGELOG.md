@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.20] - 2026-10-10
+
+- 🛤️ **Parallel Conductor Tracks (`classic_default_pieces_20261010` & `swamp_family_pieces_20261010`) + Fable 5.1 Adversarial Review & Art Critic Loop**:
+  - Reviewed specs/plans and audited 2D/3D outputs with `fable-5.1-high` (`fable-reviewer` + `art-critic`) in a multi-agent Swarm with zero file collisions (`assets/families/_contract.json`, `CHANGELOG.d/`, per-family `docs/qa-scores.<family>.yaml`, and per-family `RUNNING_DOC.md`).
+- 🗿🚽 **Carlessian Classic Family (`classic`)**:
+  - Generated 6 Nano Banana 2.1 (`gemini-nano-banana-2.1`) 2D character portraits (`assets/characters/{king-classic-cesso,queen-classic-ciocco,bishop-classic-drago,knight-classic-turbo,rook-classic-puffo,pawn-classic-puffin}.jpg`, `art-critic` 2D avg **8.6/10 🟢**).
+  - Sculpted 6 watertight, floor-grounded (`min.y = 0.0`, `0.95m → 1.80m`) 3D `.glb` models in `assets/models/classic/` with `faction_primary` / `faction_trim` material slots, 6×4 turntable contact sheet (`tools/model-pipeline/classic/classic_contact_sheet.png`), declarative manifest `assets/families/classic.json`, and `tests/test_classic_family.py`.
+- 🐸🧅 **Swamp Parody Family (`swamp`)**:
+  - Generated 6 IP-differentiated Nano Banana 2.1 (`gemini-nano-banana-2.1`) 2D character portraits (`assets/characters/{king-swamp-orco,queen-swamp-orchessa,bishop-swamp-focaccina,knight-swamp-asinello,rook-swamp-draghessa,pawn-swamp-tappo}.jpg`, `art-critic` 2D avg **8.7/10 🟢**).
+  - Sculpted 6 watertight, floor-grounded (`min.y = 0.0`, `0.95m → 1.80m`) Chibi 3D `.glb` models in `assets/models/swamp/`, 6×4 turntable contact sheet (`tools/model-pipeline/swamp/swamp_contact_sheet.png`), declarative manifest `assets/families/swamp.json`, and `tests/test_swamp_family.py`.
+
 ## [0.1.19] - 2026-10-10
 
 - 🔀 Merged `origin/vlm-critic` (branch commits `47c6c04` "v0.1.14" + `bbb28ea` "v0.1.15", renumbered here because `main` already used those numbers). Kept `UV_INDEX_URL` in `just critic`; branch RUNNING_DOC sections renumbered §18/§19 → §19/§20.
