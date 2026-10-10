@@ -19,14 +19,14 @@ This document logs the end-to-end 2D and 3D asset generation pipeline for the **
 
 All 6 portraits were generated with `model="gemini-nano-banana-2.1"` and `ImageConfig(aspect_ratio="16:9")`:
 
-| Piece | Slug | Output File | Resolution | Signature Easter Egg Prompt Highlights |
+| Piece | Slug | Output File | Resolution | Signature Design Highlights |
 | :--- | :--- | :--- | :--- | :--- |
-| ♔ King | `king-classic-cesso` | `assets/characters/king-classic-cesso.jpg` | `1376×768` | Polished ivory marble & gold Staunton King, rune-engraved base, miniature **Golden Royal Toilet-Throne finial** with porcelain seat, cistern, armrests & mini crown |
-| ♕ Queen | `queen-classic-ciocco` | `assets/characters/queen-classic-ciocco.jpg` | `1376×768` | Fluted ivory marble & gold Staunton Queen, sleek tortoise-shell eyeglasses, **Swiss dark-chocolate wave coronet** with 8 golden truffle pearls |
-| ♗ Bishop | `bishop-classic-drago` | `assets/characters/bishop-classic-drago.jpg` | `1376×768` | Pointed ivory marble Bishop mitre with diagonal scroll slit, cute **ruby-scarlet dragon head, golden horns, wing & scaly tail** emerging from slit, **purple amethyst crystal finial** |
-| ♘ Knight | `knight-classic-turbo` | `assets/characters/knight-classic-turbo.jpg` | `1376×768` | Carved ivory marble Staunton horse head & scalloped mane, **brass & glowing cyan racing goggles**, twin chrome/gold **side turbo exhausts**, **hot-orange loop-track base rim** |
-| ♖ Rook | `rook-classic-puffo` | `assets/characters/rook-classic-puffo.jpg` | `1376×768` | Carved ivory marble Grossmünster masonry castle tower with gold rings & battlements, cute **purple monster ('Puffo / Pupurabbu')** peeking out with big blue eyes & paws on merlons |
-| ♙ Pawn | `pawn-classic-puffin` | `assets/characters/pawn-classic-puffin.jpg` | `1376×768` | Ivory marble & gold Staunton Pawn, spherical head with **striped orange puffin beak**, **silver-steel & gold Swiss Guard morion helmet**, and **crimson feather plume** |
+| ♔ King | `king-classic-re` | `assets/characters/king-classic-re.jpg` | `1376×768` | Pure Staunton King in fluted ivory marble & royal gold, crimson velvet crown dome, golden **Cross Pattee** finial |
+| ♕ Queen | `queen-classic-regina` | `assets/characters/queen-classic-regina.jpg` | `1376×768` | Pure fluted Staunton Queen in ivory marble & gold, **8-spike royal gold coronet** with 8 ivory pearls & central golden orb |
+| ♗ Bishop | `bishop-classic-vescovo` | `assets/characters/bishop-classic-vescovo.jpg` | `1376×768` | **Busto di San Gennaro** (Patron Saint of Naples) reliquary bust in crimson-and-gold brocade cope, glowing ruby **Ampolla del Sangue** medallion on chest, jewel-encrusted Baroque mitre & golden pastoral crosier |
+| ♘ Knight | `knight-classic-cavallo` | `assets/characters/knight-classic-cavallo.jpg` | `1376×768` | Pure sculpted **Staunton Warhorse** with arched neck, crisp jaw break, scalloped marble mane & brushed gold bridle |
+| ♖ Rook | `rook-classic-torre` | `assets/characters/rook-classic-torre.jpg` | `1376×768` | **Torre Matildea / Rocca Estense** (Ferrara & Lidi Ferraresi) in warm terracotta brickwork, ivory marble corner quoins, overhanging corbel machicolations (`beccatelli e caditoie`), battlements & octagonal roof lantern |
+| ♙ Pawn | `pawn-classic-pedone` | `assets/characters/pawn-classic-pedone.jpg` | `1376×768` | Pure iconic **Staunton Pawn** with stepped pedestal, concave baluster shaft, double gold collar & smooth ivory sphere top |
 
 ---
 
@@ -36,16 +36,16 @@ All 6 `.glb` models strictly satisfy `assets/families/_contract.json`:
 - Pedestal diameter: `0.75m`
 - Grounding: `min.y == 0.0000m` (`abs(min.y) < 1e-3`)
 - Watertight manifold: `is_watertight == True`, `stray_island_count == 0`
-- Required named PBR material slots present on every piece: `faction_primary` (`#f5f0e6`) and `faction_trim` (`#d4af37`), plus character accent materials (`accent_porcelain`, `accent_choco`, `accent_ruby`, `accent_amethyst`, `accent_cyan`, `accent_orange`, `accent_steel`, `accent_puffo`, `accent_crimson`, `accent_obsidian`).
+- Required named PBR material slots present on every piece: `faction_primary` (`#f5f0e6`) and `faction_trim` (`#d4af37`), plus accent materials (`accent_crimson`, `accent_emerald`, `accent_terracotta`, `accent_porcelain`, `accent_obsidian`).
 
 | Piece | Model File | Height (`Y`) | Min `Y` | Triangles | Watertight | Stray Islands |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| ♔ King | `assets/models/classic/king-classic-cesso.glb` | `1.800m` | `0.0000m` | `15,736` | `True` | `0` |
-| ♕ Queen | `assets/models/classic/queen-classic-ciocco.glb` | `1.650m` | `0.0000m` | `17,040` | `True` | `0` |
-| ♗ Bishop | `assets/models/classic/bishop-classic-drago.glb` | `1.450m` | `0.0000m` | `12,156` | `True` | `0` |
-| ♘ Knight | `assets/models/classic/knight-classic-turbo.glb` | `1.350m` | `0.0000m` | `11,208` | `True` | `0` |
-| ♖ Rook | `assets/models/classic/rook-classic-puffo.glb` | `1.300m` | `0.0000m` | `12,960` | `True` | `0` |
-| ♙ Pawn | `assets/models/classic/pawn-classic-puffin.glb` | `0.950m` | `0.0000m` | `12,400` | `True` | `0` |
+| ♔ King | `assets/models/classic/king-classic-re.glb` | `1.800m` | `0.0000m` | `17,072` | `True` | `0` |
+| ♕ Queen | `assets/models/classic/queen-classic-regina.glb` | `1.650m` | `0.0000m` | `14,832` | `True` | `0` |
+| ♗ Bishop | `assets/models/classic/bishop-classic-vescovo.glb` | `1.450m` | `0.0000m` | `19,744` | `True` | `0` |
+| ♘ Knight | `assets/models/classic/knight-classic-cavallo.glb` | `1.350m` | `0.0000m` | `11,008` | `True` | `0` |
+| ♖ Rook | `assets/models/classic/rook-classic-torre.glb` | `1.300m` | `0.0000m` | `20,784` | `True` | `0` |
+| ♙ Pawn | `assets/models/classic/pawn-classic-pedone.glb` | `0.950m` | `0.0000m` | `9,648` | `True` | `0` |
 
 ---
 

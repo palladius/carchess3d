@@ -333,8 +333,21 @@ function bootstrapCarChess3D() {
   bus.flush();
   bus.flush();
 
-  // Re-apply URL camera preset after initial board sync
+  // Re-apply URL camera preset & family selectors after initial board sync
   const urlParams = new URLSearchParams(window.location.search);
+  const familyParam = urlParams.get('family');
+  const whiteParam = urlParams.get('white') || familyParam;
+  const blackParam = urlParams.get('black') || urlParams.get('rival') || familyParam;
+  if (whiteParam) {
+    pieces.setWhiteFamily(whiteParam);
+  }
+  if (blackParam) {
+    pieces.setRivalSetMode(blackParam);
+  }
+  if (whiteParam || blackParam) {
+    bus.flush();
+    bus.flush();
+  }
   if (urlParams.get('mode') === 'wow') {
     flow.startWowMode({
       submode: urlParams.get('submode') || 'turntable',

@@ -778,28 +778,45 @@ export class PieceView {
                 ? child.material.map((m) => m.clone())
                 : [child.material.clone()];
               for (const mat of mats) {
-                // Fix glTF 2.0 omitted metallicFactor=1.0 trap: restore full diffuse albedo!
-                mat.metalness = 0.04;
-                mat.metalnessMap = null;
-                mat.roughness = 0.52;
-                mat.roughnessMap = null;
-                if (isWhite) {
-                  if (mat.color) {
-                    mat.color.setHex(0xffffff);
-                  }
-                  if (mat.emissive) {
-                    mat.emissiveMap = mat.map || null;
-                    mat.emissive.setHex(mat.map ? 0xffffff : 0x453318);
-                    mat.emissiveIntensity = mat.map ? 0.32 : 0.28;
+                if (mat.map) {
+                  // Single-texture UV-mapped Carlesso models: restore full diffuse albedo!
+                  mat.metalness = 0.04;
+                  mat.metalnessMap = null;
+                  mat.roughness = 0.52;
+                  mat.roughnessMap = null;
+                  if (isWhite) {
+                    if (mat.color) mat.color.setHex(0xffffff);
+                    if (mat.emissive) {
+                      mat.emissiveMap = mat.map;
+                      mat.emissive.setHex(0xffffff);
+                      mat.emissiveIntensity = 0.32;
+                    }
+                  } else {
+                    if (mat.color) mat.color.setHex(0xb8c6f0);
+                    if (mat.emissive) {
+                      mat.emissiveMap = mat.map;
+                      mat.emissive.setHex(0x7c90e8);
+                      mat.emissiveIntensity = 0.22;
+                    }
                   }
                 } else {
-                  if (mat.color) {
-                    mat.color.setHex(0xb8c6f0);
+                  // Multi-material untextured PBR models (Swamp & Classic families):
+                  // Preserve native character/material colors and tint faction_primary / faction_trim!
+                  if (mat.name === 'faction_primary' && mat.color) {
+                    mat.color.setHex(isWhite ? 0xf5f0e6 : 0x232a3a);
+                    mat.roughness = isWhite ? 0.26 : 0.24;
+                    mat.metalness = isWhite ? 0.06 : 0.22;
+                  } else if (mat.name === 'faction_trim' && mat.color) {
+                    mat.color.setHex(isWhite ? 0xd4af37 : 0xc0cce0);
+                    mat.roughness = 0.24;
+                    mat.metalness = 0.78;
+                  } else {
+                    mat.metalness = Math.min(0.75, mat.metalness ?? 0.12);
+                    mat.roughness = Math.max(0.22, mat.roughness ?? 0.45);
                   }
-                  if (mat.emissive) {
-                    mat.emissiveMap = mat.map || null;
-                    mat.emissive.setHex(mat.map ? 0x7c90e8 : 0x22184a);
-                    mat.emissiveIntensity = mat.map ? 0.22 : 0.28;
+                  if (mat.emissive && mat.color) {
+                    mat.emissive.copy(mat.color);
+                    mat.emissiveIntensity = isWhite ? 0.22 : 0.16;
                   }
                 }
                 if (isWireframe) {

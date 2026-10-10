@@ -74,9 +74,19 @@ MATERIALS_LIBRARY: dict[str, dict] = {
         "roughnessFactor": 0.45,
     },
     "accent_obsidian": {
-        "baseColorFactor": [0.10, 0.11, 0.14, 1.0],  # Pupils / Glasses Frame Dark Obsidian
+        "baseColorFactor": [0.10, 0.11, 0.14, 1.0],  # Pupils / Embrasures Dark Obsidian
         "metallicFactor": 0.20,
         "roughnessFactor": 0.20,
+    },
+    "accent_emerald": {
+        "baseColorFactor": [0.08, 0.65, 0.36, 1.0],  # San Gennaro Mitre Emerald Jewel
+        "metallicFactor": 0.20,
+        "roughnessFactor": 0.16,
+    },
+    "accent_terracotta": {
+        "baseColorFactor": [0.76, 0.36, 0.24, 1.0],  # Torre Matildea / Estense Ferrarese Terracotta Brick
+        "metallicFactor": 0.05,
+        "roughnessFactor": 0.52,
     },
 }
 

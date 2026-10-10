@@ -32,6 +32,7 @@ export class HudListener {
     this.lang = 'it';
     this.activeProfile = 'ale';
     this.opponentMode = 'hotseat';
+    this.whiteFamily = 'carlesso';
     this.rivalSet = 'family';
     this.flowState = 'Mode1_Chess';
     this.turn = 'w';
@@ -98,6 +99,7 @@ export class HudListener {
         bus.on('PROFILE_CHANGED', (e) => this.onProfileChanged(e)),
         bus.on('PROFILE_RESTORED', (e) => this.onProfileRestored(e)),
         bus.on('LYRIA_CAPTION', (e) => this.onLyriaCaption(e)),
+        bus.on('PIECE_SET_CHANGED', (e) => this.onPieceSetChanged(e)),
       );
     }
   }
@@ -446,10 +448,20 @@ export class HudListener {
             <option value="hard">${this.t('cpuHard')}</option>
           </select>
 
-          <select id="hud-rival-select" class="hud-select" aria-label="Set Nero">
+          <select id="hud-white-select" class="hud-select" aria-label="Set Bianco" title="Famiglia Bianco (Sud)">
+            <option value="carlesso">${this.t('setWhiteCarlesso')}</option>
+            <option value="swamp">${this.t('setWhiteSwamp')}</option>
+            <option value="classic">${this.t('setWhiteClassic')}</option>
+          </select>
+
+          <select id="hud-rival-select" class="hud-select" aria-label="Set Nero" title="Famiglia Nero (Nord)">
             <option value="family">${this.t('setFamily')}</option>
+            <option value="swamp">${this.t('setSwamp')}</option>
+            <option value="classic">${this.t('setClassic')}</option>
             <option value="stone">${this.t('setStone')}</option>
           </select>
+
+          <a href="showcase/" class="hud-btn" style="text-decoration:none;" title="Apri la Galleria 3D dei 18 Pezzi (Carlesso, Classici & Palude)">🎨 Galleria</a>
 
           <button id="hud-lang-btn" class="hud-btn" title="Italiano / English">🇮🇹 IT | 🇬🇧 EN</button>
         </div>
@@ -678,7 +690,15 @@ export class HudListener {
       }
     });
 
-    // Rival Set selector (Carlesso Family vs Classic Stone Warriors)
+    // White Set selector (Carlesso vs Swamp vs Classic)
+    q('#hud-white-select')?.addEventListener('change', (e) => {
+      this.whiteFamily = e.target.value;
+      const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+      pm?.setWhiteFamily?.(this.whiteFamily);
+      this.ctx?.bus?.flush?.();
+    });
+
+    // Rival Set selector (Carlesso vs Swamp vs Classic vs Stone)
     q('#hud-rival-select')?.addEventListener('change', (e) => {
       this.rivalSet = e.target.value;
       const pm = this.ctx?.pieces || this.ctx?.pieceManager;
@@ -1202,6 +1222,17 @@ export class HudListener {
     }
   }
 
+  onPieceSetChanged(e) {
+    if (e.whiteFamily) this.whiteFamily = e.whiteFamily;
+    if (e.rivalSetMode) this.rivalSet = e.rivalSetMode;
+    if (this.rootEl) {
+      const wSel = this.rootEl.querySelector('#hud-white-select');
+      if (wSel && this.whiteFamily) wSel.value = this.whiteFamily;
+      const bSel = this.rootEl.querySelector('#hud-rival-select');
+      if (bSel && this.rivalSet) bSel.value = this.rivalSet;
+    }
+  }
+
   onKeyDown(e) {
     if (e.code === 'Space' || e.code === 'Escape') {
       if (this.activeBanner || this.flowState === 'CaptureCutscene') {
@@ -1301,6 +1332,13 @@ export class HudListener {
     setTxt('#hud-wow-tab-inspector', 'wowInspectorTab');
     setTxt('#hud-wow-tab-arena', 'wowArenaTab');
     setTxt('#hud-wow-clash-btn', 'triggerBattleBtn');
+    setTxt('#hud-white-select option[value="carlesso"]', 'setWhiteCarlesso');
+    setTxt('#hud-white-select option[value="swamp"]', 'setWhiteSwamp');
+    setTxt('#hud-white-select option[value="classic"]', 'setWhiteClassic');
+    setTxt('#hud-rival-select option[value="family"]', 'setFamily');
+    setTxt('#hud-rival-select option[value="swamp"]', 'setSwamp');
+    setTxt('#hud-rival-select option[value="classic"]', 'setClassic');
+    setTxt('#hud-rival-select option[value="stone"]', 'setStone');
     this.updateTurnAndCheckUi();
     this.renderStickersUi();
   }

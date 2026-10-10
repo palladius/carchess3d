@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.6] - 2026-10-10
+
+- ♔🏛️ **Pure Vanilla Classic Chess Family (`classic`) with San Gennaro Bishop & Torre Matildea Rook**:
+  - Replaced the Carlessian-hybrid Classic pieces with a 100% pure traditional Staunton & Italian heritage chess set (`assets/characters/*-classic-{re,regina,vescovo,cavallo,torre,pedone}.jpg` via `gemini-nano-banana-2.1` + watertight 3D `.glb` models in `assets/models/classic/`):
+    - **♔ Re Classico (`king-classic-re.glb`, `1.80m`)**: Fluted ivory marble & royal gold Staunton King with crimson velvet crown cushion & Cross Pattee finial.
+    - **♕ Regina Classica (`queen-classic-regina.glb`, `1.65m`)**: Fluted Staunton Queen with 8-spike gold coronet, 8 ivory pearls & central golden orb.
+    - **♗ San Gennaro (`bishop-classic-vescovo.glb`, `1.45m`)**: Neapolitan Baroque reliquary bust of St. Januarius (`Busto del Tesoro di San Gennaro`) with crimson-and-gold brocade cope, glowing ruby **Ampolla del Sangue** medallion on the chest, jewel-encrusted Baroque mitre (rubies, emeralds, pearls, cross), and golden pastoral crosier.
+    - **♘ Destriero Classico (`knight-classic-cavallo.glb`, `1.35m`)**: Sculpted Staunton warhorse head with arched neck, scalloped marble mane & golden bridle.
+    - **♖ Torre Matildea (`rook-classic-torre.glb`, `1.30m`)**: Renaissance fortress tower inspired by the **Torre Matildea / Castello Estense** of Ferrara & Lidi Ferraresi in warm terracotta brickwork, ivory marble corner quoins, overhanging corbel machicolations (`beccatelli e caditoie`), battlements & octagonal roof lantern.
+    - **♙ Pedone Classico (`pawn-classic-pedone.glb`, `0.95m`)**: Pure turned Staunton Pawn with baluster shaft, double gold collar & smooth ivory sphere.
+- 🐸♟️ **Playable Multi-Family Selector on the 3D Chessboard (`index.html`, `Registry.js`, `PieceManager.js`, `PieceView.js`, `HudListener.js`)**:
+  - Wired all 3 piece families (`carlesso`, `swamp`, `classic`) + `stone` directly into the playable 3D chessboard via HUD topbar selectors (`#hud-white-select` for White, `#hud-rival-select` for Black) and URL query parameters (`?family=swamp`, `?family=classic`, `?white=...`, `?black=...`).
+  - Updated `PieceView.attachGlbToPiece` to preserve multi-material untextured PBR colors on `swamp` and `classic` `.glb` models while dynamically tinting `faction_primary` and `faction_trim` slots by team color (White Ivory & Gold vs Black Obsidian & Silver).
+
 ## [0.2.5] - 2026-10-10
 
 - 🌐📖 **GitHub Pages Live Banner in `README.md` & GitHub Issues `#10`–`#16`**:
