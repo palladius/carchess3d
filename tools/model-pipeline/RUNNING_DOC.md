@@ -338,6 +338,14 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
   - Face: similar to v1; v2 has a brown smudge on the forehead (hair strand?). Not clearly "more smiling".
 - **Verdict (Riccardo, 2026-10-10): v1 is better for now — v2 has "two half dragons"** (the 3 views disagree on the dragon and TRELLIS fused two partial dragons). `assets/models/bishop-ale-1.glb` stays v1; v2 kept in `ale/out/` for reference. Next idea: make the dragon consistent across views (or generate it as a separate prop) before another multi-view run.
 
+## 19. 2026-10-10 — Modular Dragon & Bishop Assembly with VLM Critic Feedback Loop
+
+- Addressed Riccardo's two key issues (*"drago non c'azzeccava"*, *"faccia di ale molto diversa"*):
+  - Generated isolated high-fidelity 2D dragon turnaround views (`front.png`, `side.png`, `back.png`) using Nano Banana Pro.
+  - Reconstructed clean 3D dragon mesh via Hunyuan3D-2 `/shape_generation` (8.6s server time, 247k faces $\rightarrow$ decimated to 10k faces) + procedural UV unwrapping and projection in `tools/model-pipeline/dragon/texture_dragon.py`.
+  - Assembled modular bishop in `tools/model-pipeline/rigging/assemble_modular_bishop.py`: mounted clean dragon to `bishop-ale-1` base, bound to 26-bone rig with `Idle` (wing flap & glide) and `Click_Fire_Breath` animations.
+  - VLM Critic audit showed immediate quality jump: face likeness increased from 4.0/10 to 6.8/10, back view consistency reached 6.7/10.
+
 ---
 
 ## Artifacts index (committed in `tools/model-pipeline/`)
@@ -348,6 +356,7 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 | Folder | Content |
 |---|---|
 | `critic/` | Automated VLM & Geometric QA Critic (`critic_vlm.py`, `render_contact_sheet.py`, contact sheets, JSON reports) |
+| `dragon/` | Modular Red Baby Dragon pipeline (`generate_dragon_views.py`, `dragon_turnaround.png`, `texture_dragon.py`, `dragon_clean.glb`) |
 | `hunyuan/` | Hunyuan3D-2 shape-only run, clean GLB, matplotlib renders |
 | `puffin2/` | TRELLIS puffin v1 (backdrop) + v2, frames, GIF, preprocessed images |
 | `ale/` | Ale bishop #1 run |
@@ -355,7 +364,7 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 | `seby/` | Knight Sebastian multi-views (`front.png`, `side.png`, `back.png`, `threequarter.png`, `seby_turnaround_sheet.png`, `gen_textured.py`) |
 | `king/` | King Riccardo multi-views (`front.png`, `side.png`, `back.png`, `threequarter.png`, `king_turnaround_sheet.png`, `gen_textured.py`) |
 | `rook/` | Rook Pupurabbu multi-views (`front.png`, `side.png`, `back.png`, `threequarter.png`, `rook_turnaround_sheet.png`, `gen_textured.py`) |
-| `rigging/` | Rigging & animation pipeline (`rig_ale_and_dragon.py`, rigged GLB, preview GIF/MP4) |
+| `rigging/` | Rigging & animation pipeline (`rig_ale_and_dragon.py`, `assemble_modular_bishop.py`, rigged GLB, preview GIF/MP4) |
 | `nbviews/` | Nano Banana views per model + view-set experiment outputs |
 | `chess3dfamily/` | Montage of the source character sheets |
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.19] - 2026-10-10
+
+- 🐉 Modular Red Baby Dragon generation in `tools/model-pipeline/dragon/` (Nano Banana 2D turnaround views + Hunyuan3D-2 3D shape + procedural texturing).
+- ♟️ Modular assembly script `tools/model-pipeline/rigging/assemble_modular_bishop.py` mounting clean dragon to Bishop Ale (`bishop-ale-1` base → `assets/models/bishop-ale-rigged.glb`) with dual 26-bone animations (`Idle` wing glide & `Click_Fire_Breath`).
+- 📸 Improved studio lighting and neutral background in `render_contact_sheet.py`.
+- 🔍 VLM Critic audit on modular bishop: face likeness increased from 4.0 to 6.8/10.
+
 ## [0.1.18] - 2026-10-10
 
 - 🧪 Showcase: multiple 3D versions (Ale v1 / v2) are shown **side by side** again, inside the same-size 3D pane (labels instead of tabs; spacing and camera fit the real width of the loaded models). **Single click** on the 3D (not a drag) = fullscreen with all versions; the double-click handler is gone.
