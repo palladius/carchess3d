@@ -3,14 +3,19 @@
 # requires-python = ">=3.10"
 # dependencies = ["google-genai>=1.0.0", "pillow>=10.0.0", "python-dotenv>=1.0.0"]
 # ///
-"""Generate the 6 Nano Banana 2.1 2D portraits for the Carlessian Classic Chess Family (`classic`).
+"""Generate the 6 Nano Banana 2.1 2D portraits for the Vanilla Classic Chess Family (`classic`).
+
+Pure, authentic classic Staunton / medieval chess pieces with ZERO Carlesso family references:
+- King (`king-classic-re`): Regal Staunton King with 8-point crown and classic golden Cross Pattee finial
+- Queen (`queen-classic-regina`): Elegant fluted Staunton Queen with 8-point royal coronet and pearls
+- Bishop (`bishop-classic-vescovo`): Typical medieval churchman / ecclesiastical Bishop in clerical robes, golden stole, episcopal mitre with Latin cross, holding a golden pastoral crosier
+- Knight (`knight-classic-cavallo`): Noble sculpted Staunton Warhorse head & arched mane with golden bridle
+- Rook (`rook-classic-torre`): Pure medieval stone/marble crenellated castle fortress tower with battlements
+- Pawn (`pawn-classic-pedone`): Pure classic turned Staunton Pawn with baluster shaft, gold collar, and polished sphere top
 
 Usage:
     UV_INDEX_URL=https://pypi.org/simple UV_CACHE_DIR=/tmp/uv-cache UV_LINK_MODE=copy \
         uv run tools/model-pipeline/classic/gen_classic_portraits.py [piece ...]
-
-Reads GEMINI_API_KEY from env or $GIC/.env or $GIC/.bashrc (never printed).
-Saves flat JPEGs in assets/characters/<piece>-classic-<slug>.jpg.
 """
 
 import io
@@ -54,85 +59,87 @@ def load_api_key() -> str:
 
 
 COMMON_STYLE = (
-    "Side-by-side character turnaround sheet showing two views of the EXACT SAME collectible 3D chess piece "
+    "Side-by-side turnaround sheet showing two views of the EXACT SAME classic luxury 3D chess piece "
     "figurine: the FRONT VIEW on the left and the 3/4 ISOMETRIC VIEW on the right. "
-    "Crafted in polished warm ivory marble (#f5f0e6) with gleaming brushed royal gold (#d4af37) collar rings "
+    "Crafted in polished warm ivory marble (#f5f0e6) with gleaming brushed royal gold (#d4af37) accents "
     "and a round turned ivory-and-gold Staunton chess pedestal base (diameter 0.75x of square). "
-    "High-end collectible designer vinyl/marble toy render aesthetic, soft three-point studio photography lighting, "
-    "subtle subsurface scattering on marble, crisp specular highlights on gold and gems, clean neutral warm-grey "
-    "seamless studio background, shallow depth of field, centered whole figurine from base bottom to finial top. "
-    "Strictly NO text, NO labels, NO captions, NO watermarks."
+    "High-end museum-grade luxury chess set render aesthetic, soft three-point studio photography lighting, "
+    "subtle subsurface scattering on marble, crisp specular highlights on gold, clean neutral warm-grey "
+    "seamless studio background, centered whole piece from base bottom to finial top. "
+    "Strictly NO animals, NO monsters, NO dragons, NO birds, NO modern gadgets, NO text, NO labels, NO watermarks."
 )
 
 CLASSIC_PIECES = {
     "king": {
-        "slug": "king-classic-cesso",
+        "slug": "king-classic-re",
         "prompt": (
-            "A majestic Classic Staunton Chess KING piece (tallest piece, 1.80m scale) carved in polished warm "
-            "ivory marble with royal gold pedestal and collar rings, storage of ancient runes carved around the base. "
-            "At the very top of the scalloped royal gold King's crown, instead of a normal cross, sits an unmistakable, "
-            "gleaming miniature GOLDEN ROYAL TOILET-THRONE FINIAL (ornate solid-gold royal toilet bowl with porcelain "
-            "white inner rim, raised tank, royal crown-shaped flush handle, and tiny throne armrests — a humorous "
-            "nod to 'Carlesso al Cesso!'). The silhouette is unmistakably a grand Staunton King chess piece topped "
-            "with a glorious golden royal toilet-throne finial. " + COMMON_STYLE
+            "A majestic, traditional Vanilla Staunton Chess KING piece (tallest piece, 1.80m scale) carved in "
+            "polished warm ivory marble with brushed royal gold pedestal and triple collar rings. "
+            "Features a stately fluted marble column, an ornate 8-point scalloped royal gold King's crown wrapping "
+            "a crimson-and-ivory royal cushion dome, and topped at the apex with a classic, noble, gleaming solid-gold "
+            "CROSS PATTEE FINIAL (traditional royal Christian cross of a classic Staunton chess King). "
+            "100% pure, timeless, regal vanilla chess King silhouette. " + COMMON_STYLE
         ),
     },
     "queen": {
-        "slug": "queen-classic-ciocco",
+        "slug": "queen-classic-regina",
         "prompt": (
-            "An elegant Classic Staunton Chess QUEEN piece (1.65m scale) with a fluted ivory marble gown-like shaft "
-            "and brushed gold collar rings. Perched cleanly on the front of the upper marble dome just below the "
-            "coronet is a pair of sleek dark tortoise-shell and gold-rimmed eyeglasses. The Queen's multi-pointed "
-            "coronet crown is sculpted from rich, glossy dark Swiss chocolate waves topped with shimmering golden "
-            "chocolate-truffle pearls on each spike and a central gold-and-cocoa orb finial. Unmistakable Staunton "
-            "Queen chess piece silhouette with stylish glasses and a chocolate-wave pearl coronet. " + COMMON_STYLE
+            "An elegant, traditional Vanilla Staunton Chess QUEEN piece (1.65m scale) carved in polished warm "
+            "ivory marble with brushed royal gold pedestal and triple collar rings. "
+            "Features a gracefully fluted ivory marble column shaft, a smooth spherical marble dome, and a classic "
+            "multi-pointed royal gold Queen's coronet crown with 8 sharp diadem peaks, each tipped with a gleaming "
+            "ivory pearl, and a polished golden orb finial at the center apex. "
+            "100% pure, timeless, regal vanilla chess Queen silhouette with zero glasses or modern props. " + COMMON_STYLE
         ),
     },
     "bishop": {
-        "slug": "bishop-classic-drago",
+        "slug": "bishop-classic-vescovo",
         "prompt": (
-            "A Classic Staunton Chess BISHOP piece (1.45m scale) carved in polished warm ivory marble with brushed "
-            "royal gold pedestal and collar rings. The tall pointed ivory marble Bishop's mitre has a wide diagonal "
-            "scroll slit, and poking boldly OUT of the mitre slit is a cute, vivid bright ruby-scarlet miniature "
-            "dragon HEAD with expressive golden eyes, little golden horns, and one sculpted ruby-red dragon wing "
-            "and coiled scaly tail resting on the mitre edge. At the top apex of the mitre sits a glowing faceted "
-            "purple amethyst crystal finial orb set in gold. Unmistakable Staunton Bishop chess piece silhouette "
-            "with a cute bright scarlet-red dragon head & wing peeking out of the mitre slit and a purple amethyst "
-            "finial. Plain background at bottom edge with zero text, zero words, zero view titles. " + COMMON_STYLE
+            "A classic luxury Chess BISHOP piece inspired by the iconic Neapolitan Baroque reliquary bust of "
+            "SAN GENNARO ('Busto di San Gennaro', 1.45m scale), mounted on a turned warm ivory marble and royal "
+            "gold Staunton chess pedestal. He is sculpted as a noble, serene patron saint bishop bust in warm "
+            "ivory marble and gilded gold, wearing an ornate crimson-and-gold brocade liturgical cope ('piviale') "
+            "clasped at the center of his chest with the famous glowing ruby-red GLASS AMPOULE RELIQUARY OF SAN GENNARO'S "
+            "BLOOD ('Ampolla del Sangue di San Gennaro' set in an ornate golden reliquary medallion). On his head sits "
+            "a magnificent tall Baroque EPISCOPAL MITRE encrusted with gold filigree, red rubies, green emeralds, "
+            "ivory pearls, and a golden Latin cross. Beside his right shoulder rises a gleaming golden PASTORAL CROSIER "
+            "staff with a baroque spiral crook. 100% noble San Gennaro Bishop chess piece — NO dragon, NO monsters. "
+            + COMMON_STYLE
         ),
     },
     "knight": {
-        "slug": "knight-classic-turbo",
+        "slug": "knight-classic-cavallo",
         "prompt": (
-            "A Classic Staunton Chess KNIGHT piece (1.35m scale): an expressive, nobly carved warm ivory marble "
-            "horse head and arched sculpted mane mounted on a turned ivory-and-gold chess pedestal. The marble "
-            "horse wears sleek vintage brass racing goggles with glowing cyan-blue lenses strapped over its forehead "
-            "and eyes, twin polished gold-and-chrome turbo exhaust pipes jutting symmetrically from both sides of its "
-            "neck, and a vibrant glossy hot-orange racing loop-track trim ring encircling the pedestal base. "
-            "Unmistakable Staunton Knight horse chess piece with racing goggles, side turbo pipes, and orange track trim. "
+            "A noble, traditional Vanilla Staunton Chess KNIGHT piece (1.35m scale): a masterfully carved warm "
+            "ivory marble warhorse head, arched muscular neck, and flowing scalloped marble mane mounted on a turned "
+            "ivory-and-gold Staunton chess pedestal. The warhorse features alert pointed ears, expressive carved eyes, "
+            "flared nostrils, a defined jawline, and a classic medieval brushed-gold bridle and reins strap with golden "
+            "rosette bosses. 100% pure, timeless Staunton warhorse Knight with zero goggles and zero pipes. "
             + COMMON_STYLE
         ),
     },
     "rook": {
-        "slug": "rook-classic-puffo",
+        "slug": "rook-classic-torre",
         "prompt": (
-            "A Classic Staunton Chess ROOK castle turret piece (1.30m scale) carved in warm ivory marble and carved "
-            "stone masonry blocks, inspired by Zurich's Grossmünster tower, with brushed gold base and collar trim rings. "
-            "Peeking playfully right out of the top castle battlements between the stone merlons is a cute, fuzzy "
-            "purple-blue monster head ('Puffo / Pupurabbu') with two big expressive sky-blue eyes, a cheerful toothy "
-            "grin, and two little purple paws gripping the front stone crenelations. Unmistakable Staunton Rook castle "
-            "tower silhouette with the cute purple monster peeking out of the top battlements. " + COMMON_STYLE
+            "A stately Italian Renaissance Chess ROOK castle tower piece inspired by the historic TORRE MATILDEA / "
+            "ROCCA ESTENSE of Ferrara and the Lidi Ferraresi (1.30m scale), mounted on a turned warm ivory marble and "
+            "brushed royal gold Staunton chess pedestal. The tower is crafted in warm ivory marble and subtle warm "
+            "terracotta-rose Renaissance ashlar stone courses, featuring arched Italian Renaissance embrasure windows, "
+            "a bold overhanging corbelled machicolation gallery ('beccatelli e caditoie estensi') trimmed in gold, "
+            "classic notched Italian Ghibelline swallowtail battlements ('merli ghibellini a coda di rondine'), and a "
+            "stepped octagonal Ferrarese Renaissance roof turret lantern at the top. 100% pure Italian architectural "
+            "fortress tower chess Rook — NO monsters, NO creatures. " + COMMON_STYLE
         ),
     },
     "pawn": {
-        "slug": "pawn-classic-puffin",
+        "slug": "pawn-classic-pedone",
         "prompt": (
-            "A Classic Staunton Chess PAWN piece (shortest piece, 0.95m scale) with a turned warm ivory marble "
-            "pedestal, tapered column shaft, and golden collar ring. The classic spherical Pawn top knob is sculpted "
-            "as a cute round Puffin-Guard head with a bright orange-and-gold striped triangular puffin beak and glossy "
-            "dark eyes, wearing a gleaming silver-and-gold Swiss Guard morion helmet with a curved brim, central crest, "
-            "and a vibrant crimson-red feather plume on top. Unmistakable Staunton Pawn silhouette topped with the "
-            "Swiss Guard morion helmet, red plume, and orange puffin beak. " + COMMON_STYLE
+            "A pure, iconic Vanilla Staunton Chess PAWN piece (shortest piece, 0.95m scale) crafted in polished "
+            "warm ivory marble with brushed royal gold trim rings. Features a turned stepped circular marble-and-gold "
+            "pedestal base, a smooth concave-tapered baluster column shaft, a crisp double golden collar ring at the "
+            "neck, and a perfectly smooth, unadorned spherical ivory marble ball head topped with a tiny golden finial "
+            "bead. 100% pure, timeless, classic Staunton chess Pawn — NO face, NO beak, NO helmet, NO bird. "
+            + COMMON_STYLE
         ),
     },
 }

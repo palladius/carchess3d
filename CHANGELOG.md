@@ -16,6 +16,29 @@
   - **Issue `#13` & `#16` (`@explorer6x6-ux` & `@adversarial-critic`) — Mac Trackpad `_customWheelEvent` Fix, Legal Dots Hover Preview & Full Adversarial Audit**:
     - Fixed Three.js `OrbitControls._customWheelEvent` stripping `deltaX` & `ctrlKey` in [`src/views/BoardInteractionView.js`](src/views/BoardInteractionView.js) (caught by `@adversarial-critic`), added 3D floating capture hover preview badges (`"⚔️ ♙ Puffin vs ♙ Puffin"`), and added [`scripts/adversarial_swarm_audit.py`](scripts/adversarial_swarm_audit.py) verifying all 7 GitHub Issues (`#10`–`#16`) end-to-end.
 
+## [0.2.7] - 2026-10-10
+
+- ♔🏛️ **Pure Vanilla Classic Chess Family (`classic`) with San Gennaro Bishop & Torre Matildea Rook**:
+  - Replaced the Carlessian-hybrid Classic pieces with a 100% pure traditional Staunton & Italian heritage chess set (`assets/characters/*-classic-{re,regina,vescovo,cavallo,torre,pedone}.jpg` via `gemini-nano-banana-2.1` + watertight 3D `.glb` models in `assets/models/classic/`):
+    - **♔ Re Classico (`king-classic-re.glb`, `1.80m`)**: Fluted ivory marble & royal gold Staunton King with crimson velvet crown cushion & Cross Pattee finial.
+    - **♕ Regina Classica (`queen-classic-regina.glb`, `1.65m`)**: Fluted Staunton Queen with 8-spike gold coronet, 8 ivory pearls & central golden orb.
+    - **♗ San Gennaro (`bishop-classic-vescovo.glb`, `1.45m`)**: Neapolitan Baroque reliquary bust of St. Januarius (`Busto del Tesoro di San Gennaro`) with crimson-and-gold brocade cope, glowing ruby **Ampolla del Sangue** medallion on the chest, jewel-encrusted Baroque mitre (rubies, emeralds, pearls, cross), and golden pastoral crosier.
+    - **♘ Destriero Classico (`knight-classic-cavallo.glb`, `1.35m`)**: Sculpted Staunton warhorse head with arched neck, scalloped marble mane & golden bridle.
+    - **♖ Torre Matildea (`rook-classic-torre.glb`, `1.30m`)**: Renaissance fortress tower inspired by the **Torre Matildea / Castello Estense** of Ferrara & Lidi Ferraresi in warm terracotta brickwork, ivory marble corner quoins, overhanging corbel machicolations (`beccatelli e caditoie`), battlements & octagonal roof lantern.
+    - **♙ Pedone Classico (`pawn-classic-pedone.glb`, `0.95m`)**: Pure turned Staunton Pawn with baluster shaft, double gold collar & smooth ivory sphere.
+- 🐸♟️ **Playable Multi-Family Selector on the 3D Chessboard (`index.html`, `Registry.js`, `PieceManager.js`, `PieceView.js`, `HudListener.js`)**:
+  - Wired all 3 piece families (`carlesso`, `swamp`, `classic`) + `stone` directly into the playable 3D chessboard via HUD topbar selectors (`#hud-white-select` for White, `#hud-rival-select` for Black) and URL query parameters (`?family=swamp`, `?family=classic`, `?white=...`, `?black=...`).
+  - Updated `PieceView.attachGlbToPiece` to preserve multi-material untextured PBR colors on `swamp` and `classic` `.glb` models while dynamically tinting `faction_primary` and `faction_trim` slots by team color (White Ivory & Gold vs Black Obsidian & Silver).
+
+## [0.2.6] - 2026-10-10
+
+- 🐛🤖 **Fix: CPU opponent only moved once** (`src/main.js`, `src/managers/AIWorkerManager.js`, `src/managers/BoardMapManager.js`, `src/listeners/HudListener.js`):
+  - Root cause: the ad-hoc CPU wiring in `main.js` called the non-existent `combat.isBusy()` inside the `MOVE_EXECUTED` handler, throwing `TypeError` during `bus.flush()` on every CPU turn. The first move only worked because the HUD called `ai.requestMove()` directly; afterwards the user had to re-select the CPU to force each move.
+  - Per Niccolò rule #2/#3/#4, the "it is the CPU's turn → think → move" rule now lives in `AIWorkerManager` (reacts to `OPPONENT_CHANGED`, `MOVE_EXECUTED`, `BOARD_RESET`, `BATTLE_COMPLETED`, `BATTLE_SKIPPED`; queries `board`/`flow`/`combat.isActive()` read-only via `ctx`; generation-guarded timer, no double-think). `BoardMapManager` now applies `AI_MOVE_READY` itself (ignoring stale replies). `main.js` and `HudListener` no longer call the AI directly.
+  - Spec drift fixed in `docs/spec/SPEC.md` (§Architecture › `ai/`): CPU turn-taking ownership is now documented.
+  - TDD: added `tests/cpu-opponent.test.mjs` (5 headless regression tests: replies to every human move, takes a pending turn right after being enabled, stops on hotseat, waits for the capture cutscene, board ignores stale AI moves). Verified end-to-end in headless Chromium (3 consecutive CPU replies, zero page errors).
+- 📐🏠 **Self-sufficient spec**: `docs/spec/SPEC.md` + `docs/spec/input_prompt.md` imported from `palladius/respec` (`carlesso-family/chess3d`, last respec commit `9c5c2a7`). `respec` is no longer a dependency: `AGENTS.md`/`GEMINI.md`, `README.md` and the `justfile` (`sync-assets` → `spec`) now point to the in-repo spec, which may be edited together with the code.
+
 ## [0.2.5] - 2026-10-10
 
 - 🌐📖 **GitHub Pages Live Banner in `README.md` & GitHub Issues `#10`–`#16`**:

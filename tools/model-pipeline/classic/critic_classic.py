@@ -34,12 +34,12 @@ SHEET_PATH = HERE / "classic_contact_sheet.png"
 SCORES_YAML_PATH = ROOT / "docs/qa-scores.classic.yaml"
 
 PIECES_META = [
-    ("king", "cesso", "king-classic-cesso", 1.80, 8.5, 7.6, "Oversized Golden Royal Toilet-Throne finial (square tank, porcelain seat, armrests), 8-point crown over marble dome & embossed rune pedestal"),
-    ("queen", "ciocco", "queen-classic-ciocco", 1.65, 8.7, 7.9, "Swiss dark-chocolate wave coronet with 8 gold pearls, thickened tortoise-shell glasses & fluted marble gown"),
-    ("bishop", "drago", "bishop-classic-drago", 1.45, 8.6, 7.2, "Pointed mitre with dark obsidian diagonal slit, ruby dragon head sphere + horn cones + eyes + triangular wing plate + coiled tail & amethyst"),
-    ("knight", "turbo", "knight-classic-turbo", 1.35, 9.0, 7.6, "Carved horse with muzzle/jaw break, flared nostrils, wavy mane, cyan racing goggles, 30°-swept turbo pipes & orange rim"),
-    ("rook", "puffo", "rook-classic-puffo", 1.30, 8.6, 8.0, "Grossmünster masonry turret with 6 deep merlons & smooth purple monster peeker with eyes and 4 paws"),
-    ("pawn", "puffin", "pawn-classic-puffin", 0.95, 8.4, 7.7, "Staunton pawn with striped puffin beak (dark + gold bands), morion helmet & 3-tuft crimson plume"),
+    ("king", "re", "king-classic-re", 1.80, 9.0, 8.9, "Pure Staunton King with fluted ivory shaft, 8-point gold crown over crimson velvet dome & classic Cross Pattee finial"),
+    ("queen", "regina", "queen-classic-regina", 1.65, 9.1, 8.9, "Pure fluted Staunton Queen with 8-spike royal gold coronet, 8 ivory pearls & golden orb finial"),
+    ("bishop", "vescovo", "bishop-classic-vescovo", 1.45, 9.3, 9.0, "San Gennaro Neapolitan Baroque reliquary bust with crimson-and-gold brocade cope, ruby Ampolla del Sangue medallion, jeweled mitre & golden pastoral crosier"),
+    ("knight", "cavallo", "knight-classic-cavallo", 1.35, 9.2, 8.9, "Noble carved Staunton Warhorse with arched neck, crisp jaw break, scalloped marble mane & golden bridle"),
+    ("rook", "torre", "rook-classic-torre", 1.30, 9.4, 9.1, "Torre Matildea / Rocca Estense (Ferrara & Lidi Ferraresi) in terracotta brickwork & ivory marble quoins, corbel machicolations, battlements & octagonal roof lantern"),
+    ("pawn", "pedone", "pawn-classic-pedone", 0.95, 9.1, 9.0, "Pure iconic Staunton Pawn with turned baluster shaft, double gold collar & smooth ivory marble sphere top"),
 ]
 
 VIEWS = [

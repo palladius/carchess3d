@@ -286,35 +286,8 @@ function bootstrapCarChess3D() {
   ctx.profileStorage = profileStorage;
   const hud = new HudListener(ctx);
 
-  // 6. Wire CPU AI Move Orchestration
-  let aiMovePendingAfterCutscene = false;
-  const maybeTriggerCpuMove = () => {
-    if (!ai.enabled || board.isGameOver()) return;
-    if (board.turn() !== ai.cpuColor) return;
-    if (flow.state() === FLOW_STATES.CAPTURE_CUTSCENE || combat.isBusy()) {
-      aiMovePendingAfterCutscene = true;
-      return;
-    }
-    aiMovePendingAfterCutscene = false;
-    setTimeout(() => {
-      if (ai.enabled && board.turn() === ai.cpuColor && !board.isGameOver()) {
-        ai.requestMove(board.fen(), ai.difficulty).then(() => bus.flush());
-      }
-    }, 260);
-  };
-
-  bus.on('MOVE_EXECUTED', () => maybeTriggerCpuMove());
-  bus.on('BATTLE_COMPLETED', () => {
-    if (aiMovePendingAfterCutscene) maybeTriggerCpuMove();
-  });
-  bus.on('BATTLE_SKIPPED', () => {
-    if (aiMovePendingAfterCutscene) maybeTriggerCpuMove();
-  });
-  bus.on('AI_MOVE_READY', (e) => {
-    if (e.move && board.turn() === e.color && !board.isGameOver()) {
-      board.move(e.move.from, e.move.to, e.move.promotion || 'q');
-    }
-  });
+  // 6. CPU AI Move Orchestration lives in AIWorkerManager (reacts to MOVE_EXECUTED /
+  //    OPPONENT_CHANGED / BATTLE_*), and BoardMapManager applies AI_MOVE_READY.
 
   // 7. Art Director Live Control Panel (?debug=1 & ?cam=...)
   const debugPanel = new DebugPanelView({
@@ -333,8 +306,21 @@ function bootstrapCarChess3D() {
   bus.flush();
   bus.flush();
 
-  // Re-apply URL camera preset after initial board sync
+  // Re-apply URL camera preset & family selectors after initial board sync
   const urlParams = new URLSearchParams(window.location.search);
+  const familyParam = urlParams.get('family');
+  const whiteParam = urlParams.get('white') || familyParam;
+  const blackParam = urlParams.get('black') || urlParams.get('rival') || familyParam;
+  if (whiteParam) {
+    pieces.setWhiteFamily(whiteParam);
+  }
+  if (blackParam) {
+    pieces.setRivalSetMode(blackParam);
+  }
+  if (whiteParam || blackParam) {
+    bus.flush();
+    bus.flush();
+  }
   if (urlParams.get('mode') === 'wow') {
     flow.startWowMode({
       submode: urlParams.get('submode') || 'turntable',

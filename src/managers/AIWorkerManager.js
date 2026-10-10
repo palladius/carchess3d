@@ -9,8 +9,11 @@
 import { chooseBestMove } from '../ai/worker.js';
 import { CHARACTER_REGISTRY } from '../core/Registry.js';
 
+/** Small "thinking" pause so the CPU reply does not feel instantaneous. */
+export const CPU_REPLY_DELAY_MS = 260;
+
 export class AIWorkerManager {
-  constructor() {
+  constructor({ replyDelayMs = CPU_REPLY_DELAY_MS } = {}) {
     this.ctx = null;
     this.worker = null;
     this.reqSeq = 0;
@@ -19,6 +22,11 @@ export class AIWorkerManager {
     this.enabled = false;
     this.cpuColor = 'b';
     this.difficulty = 'easy';
+    this.replyDelayMs = replyDelayMs;
+    /** Bumped whenever the CPU turn is (re)scheduled so stale timers become no-ops. */
+    this.turnGeneration = 0;
+    this.turnTimer = null;
+    this.thinking = false;
     this.offs = [];
   }
 
@@ -44,12 +52,69 @@ export class AIWorkerManager {
         this.worker = null;
       }
     }
+
+    const bus = ctx?.bus;
+    if (bus?.on) {
+      this.offs.push(
+        bus.on('OPPONENT_CHANGED', (e) => {
+          this.configure({ enabled: e.enabled, cpuColor: e.cpuColor, difficulty: e.difficulty });
+        }),
+        bus.on('MOVE_EXECUTED', () => this.scheduleCpuTurn()),
+        bus.on('BOARD_RESET', () => this.scheduleCpuTurn()),
+        bus.on('BATTLE_COMPLETED', () => this.scheduleCpuTurn()),
+        bus.on('BATTLE_SKIPPED', () => this.scheduleCpuTurn()),
+      );
+    }
   }
 
   configure({ enabled = false, cpuColor = 'b', difficulty = 'easy' } = {}) {
     this.enabled = Boolean(enabled);
     this.cpuColor = cpuColor;
     this.difficulty = difficulty;
+    this.scheduleCpuTurn();
+  }
+
+  /** True when the board says it is the CPU's turn and the game is still running. */
+  isCpuTurn() {
+    const board = this.ctx?.board;
+    if (!this.enabled || !board) return false;
+    if (board.isGameOver?.()) return false;
+    return board.turn?.() === this.cpuColor;
+  }
+
+  /** True while a capture cutscene / combat choreography is running: the CPU waits. */
+  isCutsceneRunning() {
+    const flowState = this.ctx?.flow?.state?.();
+    if (flowState === 'CaptureCutscene') return true;
+    return Boolean(this.ctx?.combat?.isActive?.());
+  }
+
+  /**
+   * (Re)evaluates whether the CPU should move now. Called on every relevant fact.
+   * Safe to call often: a pending timer is replaced, in-flight thinking is not duplicated.
+   */
+  scheduleCpuTurn() {
+    this.cancelScheduledTurn();
+    if (!this.isCpuTurn() || this.isCutsceneRunning() || this.thinking) return;
+    const generation = ++this.turnGeneration;
+    this.turnTimer = setTimeout(() => {
+      this.turnTimer = null;
+      if (generation !== this.turnGeneration) return;
+      if (!this.isCpuTurn() || this.isCutsceneRunning() || this.thinking) return;
+      this.thinking = true;
+      this.requestMove(this.ctx.board.fen(), this.difficulty)
+        .catch(() => null)
+        .finally(() => {
+          this.thinking = false;
+        });
+    }, this.replyDelayMs);
+  }
+
+  cancelScheduledTurn() {
+    if (this.turnTimer) {
+      clearTimeout(this.turnTimer);
+      this.turnTimer = null;
+    }
   }
 
   /**
@@ -119,6 +184,8 @@ export class AIWorkerManager {
   }
 
   dispose() {
+    this.cancelScheduledTurn();
+    this.turnGeneration++;
     for (const off of this.offs) off();
     this.offs = [];
     if (this.worker) {
