@@ -1,12 +1,8 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["google-genai", "pillow", "pydantic", "trimesh", "numpy", "networkx", "scipy"]
+# dependencies = ["google-genai", "pillow", "pydantic", "trimesh", "numpy", "networkx", "scipy", "pyyaml"]
 # ///
-"""Automated VLM + Geometric Critic for 3D chess pieces against 2D concept art.
-
-Usage:
-  uv run critic_vlm.py --glb path/to/model.glb --concept path/to/concept.jpg
-"""
+"""Automated VLM & Geometric QA Critic for 3D chess pieces against 2D concept art."""
 
 import argparse
 import json
@@ -20,8 +16,11 @@ from PIL import Image
 from pydantic import BaseModel, Field
 import numpy as np
 import trimesh
+import yaml
 
 HERE = Path(__file__).parent
+ROOT = HERE.parent.parent.parent
+SCORES_YAML = ROOT / "docs/qa-scores.yaml"
 
 
 class VlmCritique(BaseModel):
@@ -37,14 +36,11 @@ class VlmCritique(BaseModel):
 
 
 def check_geometry(glb_path: Path) -> dict:
-    """Run fast deterministic geometry sanity checks with trimesh."""
     m = trimesh.load(str(glb_path), force="mesh")
-    # In standard glTF, Y is up, but could be Z if Blender coordinates
     ext = m.extents
     tallest_axis_idx = int(np.argmax(ext))
     min_ground = float(m.bounds[0][tallest_axis_idx])
     
-    # Check stray small islands
     unique_coords, inverse = np.unique(np.round(m.vertices, 4), axis=0, return_inverse=True)
     new_faces = inverse[m.faces]
     valid_faces = (new_faces[:, 0] != new_faces[:, 1]) & (new_faces[:, 1] != new_faces[:, 2]) & (new_faces[:, 0] != new_faces[:, 2])
@@ -66,7 +62,6 @@ def check_geometry(glb_path: Path) -> dict:
 
 
 def render_sheet(glb_path: Path, sheet_path: Path):
-    """Render 4-view contact sheet using Blender script."""
     render_script = HERE / "render_contact_sheet.py"
     cmd = [
         "blender", "-b", "--python", str(render_script), "--",
@@ -77,7 +72,6 @@ def render_sheet(glb_path: Path, sheet_path: Path):
 
 
 def evaluate_vlm(concept_path: Path, sheet_path: Path) -> VlmCritique:
-    """Query Gemini Vision API with structured evaluation."""
     client = genai.Client()
     prompt = """You are a Lead QA Character Artist inspecting a generated 3D collectible piece against 2D concept art.
 Audit the 3D model (Front, 3/4, Profile, Back views) compared to the 2D original concept art.
@@ -108,6 +102,48 @@ Provide fair, rigorous ratings from 1 to 10."""
     return response.parsed
 
 
+def update_scoreboard(report_dict: dict):
+    if not SCORES_YAML.exists():
+        return
+    data = yaml.safe_load(SCORES_YAML.read_text()) or {}
+    models = data.get("models", [])
+    
+    glb_name = report_dict["model"]
+    vlm = report_dict["vlm"]
+    tot = (vlm["face_likeness_score"] + vlm["secondary_fidelity_score"] + vlm["back_view_score"]) / 3.0
+    tier = "TOP_QUALITY 🟢" if tot >= 8.0 else ("ACCEPTABLE 🟡" if tot >= 6.0 else "FA_CAGARE 💩")
+    
+    new_entry = {
+        "piece": glb_name.split("-")[0] if "-" in glb_name else "piece",
+        "character": glb_name.split("-")[1].split(".")[0] if "-" in glb_name else "character",
+        "model_name": glb_name,
+        "concept_file": report_dict["concept"],
+        "model_file": f"assets/models/{glb_name}",
+        "evaluated_at": "2026-10-10",
+        "scores": {
+            "face_likeness": round(float(vlm["face_likeness_score"]), 1),
+            "companion_fidelity": round(float(vlm["secondary_fidelity_score"]), 1),
+            "back_view": round(float(vlm["back_view_score"]), 1),
+            "overall": round(float(tot), 1),
+        },
+        "tier": tier,
+        "passed": bool(vlm["passed"]),
+        "summary": vlm.get("face_critique", ""),
+        "structural_flaws": vlm.get("structural_flaws", []),
+        "aesthetic_flaws": vlm.get("aesthetic_flaws", []),
+    }
+    
+    idx = next((i for i, m in enumerate(models) if m.get("model_name") == glb_name), None)
+    if idx is not None:
+        models[idx] = new_entry
+    else:
+        models.append(new_entry)
+        
+    data["models"] = models
+    SCORES_YAML.write_text(yaml.dump(data, sort_keys=False, allow_unicode=True))
+    print(f"📋 Scoreboard updated in {SCORES_YAML}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Automated VLM & Geometry QA Critic")
     parser.add_argument("--glb", required=True, help="Path to 3D GLB model")
@@ -128,11 +164,9 @@ def main():
 
     print(f"🔍 Auditing {glb_p.name} against {concept_p.name}...")
     
-    # 1. Geometry check
     geo = check_geometry(glb_p)
     print(f"📐 Geometry: {geo['faces']} faces, watertight={geo['is_watertight']}, grounded={geo['is_grounded_near_zero']} (min={geo['min_ground_coord']})")
 
-    # 2. Render contact sheet
     out_dir = HERE / "out"
     out_dir.mkdir(exist_ok=True)
     sheet_p = out_dir / f"{glb_p.stem}_critic_sheet.png"
@@ -140,7 +174,6 @@ def main():
         print("📸 Rendering 4-view contact sheet...")
         render_sheet(glb_p, sheet_p)
 
-    # 3. VLM Evaluation
     print("🤖 Evaluating visual quality with Gemini VLM...")
     vlm = evaluate_vlm(concept_p, sheet_p)
 
@@ -151,7 +184,8 @@ def main():
         "vlm": vlm.model_dump(),
     }
 
-    # Print summary
+    update_scoreboard(report)
+
     print("\n" + "=" * 60)
     print(f"🎯 VLM CRITIC REPORT: {glb_p.name}")
     print("=" * 60)

@@ -65,33 +65,37 @@ scene.camera = cam_obj
 cam_data.type = 'PERSP'
 cam_data.lens = 55.0
 
-# Add Track To constraint
 tt = cam_obj.constraints.new(type='TRACK_TO')
 tt.target = target
 tt.track_axis = 'TRACK_NEGATIVE_Z'
 tt.up_axis = 'UP_Y'
 
-# Background & Lighting
+# Bright, balanced studio lighting
 world = bpy.data.worlds.new("World")
 scene.world = world
 world.use_nodes = True
 bg_node = world.node_tree.nodes.get("Background")
 if bg_node:
-    bg_node.inputs[0].default_value = (0.2, 0.2, 0.2, 1.0)  # neutral grey studio bg
-    bg_node.inputs[1].default_value = 1.0
+    bg_node.inputs[0].default_value = (0.75, 0.75, 0.75, 1.0)  # clean bright studio
+    bg_node.inputs[1].default_value = 1.2
 
-# Sunlight
-sun_data = bpy.data.lights.new("Sun", type='SUN')
-sun_data.energy = 4.0
-sun_obj = bpy.data.objects.new("Sun", sun_data)
-bpy.context.collection.objects.link(sun_obj)
-sun_obj.rotation_euler = (math.radians(45), math.radians(20), math.radians(35))
+# Key Sun
+key_sun = bpy.data.lights.new("KeySun", type='SUN')
+key_sun.energy = 5.0
+key_obj = bpy.data.objects.new("KeySun", key_sun)
+bpy.context.collection.objects.link(key_obj)
+key_obj.rotation_euler = (math.radians(45), math.radians(25), math.radians(30))
+
+# Fill Sun (from opposite side to eliminate harsh shadows on back/side)
+fill_sun = bpy.data.lights.new("FillSun", type='SUN')
+fill_sun.energy = 3.5
+fill_obj = bpy.data.objects.new("FillSun", fill_sun)
+bpy.context.collection.objects.link(fill_obj)
+fill_obj.rotation_euler = (math.radians(-35), math.radians(-30), math.radians(150))
 
 # Orbit distance
 dist = max_dim * 2.3
 
-# 4 camera positions around the model
-# 0: Front (-Y), 45: Three-quarter, 90: Profile, 180: Back (+Y)
 angles = [
     ("front", 0),
     ("threequarter", 45),
@@ -104,10 +108,9 @@ for name, deg in angles:
     rad = math.radians(deg)
     cx = center[0] + dist * math.sin(rad)
     cy = center[1] - dist * math.cos(rad)
-    cz = center[2] + max_dim * 0.20
+    cz = center[2] + max_dim * 0.18
     cam_obj.location = (cx, cy, cz)
     
-    # Force scene update so constraint updates camera orientation
     bpy.context.view_layer.update()
     
     frame_path = tmp_dir / f"{name}.png"
@@ -115,10 +118,9 @@ for name, deg in angles:
     bpy.ops.render.render(write_still=True)
     rendered_files.append(frame_path)
 
-# Glue 4 images into contact sheet
 images = [Image.open(p) for p in rendered_files]
 total_w = res * 4
-sheet = Image.new("RGB", (total_w, res), (35, 35, 35))
+sheet = Image.new("RGB", (total_w, res), (200, 200, 200))
 for idx, im in enumerate(images):
     sheet.paste(im, (idx * res, 0))
 
