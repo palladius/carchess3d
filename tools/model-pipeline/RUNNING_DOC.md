@@ -384,7 +384,14 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
 
 - **Kate Young 4c**: Wavy blonde hair falling over shoulders, purple frames, royal purple gown, golden crown and scepter (`queen-kate-4c.png`).
 - **Pipeline**: Processed 4c dual sheet into `front.png` and `threequarter.png` (`tools/model-pipeline/kate_young/`), generated with `microsoft/TRELLIS.2` (`gen_trellis2.py`). Output: `assets/models/queen-kate-young.glb` (3.6 MB).
-- **Provenance Registry**: Created `docs/models-provenance.yaml` mapping all 7 3D models to their MD5 checksums, target paths, source concept images and pipelines. Verified automatically with `scripts/test_provenance.py` and `just test` / `just provenance`.
+- **Provenance Registry**: Created `docs/models-provenance.yaml` mapping all 8 3D models to their MD5 checksums, target paths, source concept images and pipelines. Verified automatically with `scripts/test_provenance.py` and `just test` / `just provenance`.
+
+## 24. 2026-10-10 — Knight Sebastian (Unarmed Golden Armor) 3D Model via TRELLIS.2
+
+- **Concept**: Unarmed / Free-Hand Sebastian on golden-armored charger horse (`tools/model-pipeline/seby/`), golden plate armor, blue cape, raised left fist (modular weapon attach ready for Lightsaber, Halberd, or Sacro Aquarius).
+- **Pipeline Runner**: `tools/model-pipeline/seby/gen_trellis2.py` invoking `microsoft/TRELLIS.2` with `palladius` token.
+- **Timing & Output**: 43.1s reconstruction + 16.3s GLB decimation/extraction (`decimation_target=100000`, `texture_size=1024`). Output: `tools/model-pipeline/seby/out/knight_seby.glb` (3.65 MB), copied to `assets/models/knight-seby.glb`.
+- **Render**: `tools/model-pipeline/seby/render_preview.py` generating `out/knight_seby_3d_preview.png`.
 
 ---
 

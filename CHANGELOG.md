@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.24] - 2026-10-10
+
+- 🐴⚔️ **Knight Sebastian 3D Model (`knight-seby.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` from 360° turnaround dataset (`tools/model-pipeline/seby/`), featuring golden-armored charger steed, golden plate armor, blue royal cape, raised left fist (modular weapon/power ready), and turned wooden pedestal.
+- 📋 **Provenance Registry Expansion**: registered `knight-seby` in `docs/models-provenance.yaml` with target MD5 `c060099e14059ba7fc8fdb3e4403db94` and verified concept image MD5s across all views.
+- 🌐 **Showcase Updated**: linked `knight-seby.glb` in `showcase/index.html` on port 8080.
+- 📓 **Documentation**: documented Sebastian pipeline, parameters, and render results in `tools/model-pipeline/RUNNING_DOC.md` (§24).
+
 ## [0.1.23] - 2026-10-10
 
 - 👑 **King Riccardo 3D Model (`king-riccardo.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` from turnaround concept (`king-riccardo-1.jpg`, front/side/back views) featuring imperial arched crown, blue ermine-trimmed cloak, golden royal orb, scepter, and authentic clean profile without glasses.

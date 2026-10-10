@@ -178,3 +178,34 @@ models:
         path: "tools/model-pipeline/kate_young/front.png"
       - role: "turnaround_threequarter"
         path: "tools/model-pipeline/kate_young/threequarter.png"
+
+  - id: "knight-seby"
+    name: "Knight Sebastian (Unarmed Golden Armor / Canonico)"
+    piece: "knight"
+    character: "Sebastian"
+    status: "CANONICAL"
+    target_path: "assets/models/knight-seby.glb"
+    size_bytes: 3740440
+    md5: "c060099e14059ba7fc8fdb3e4403db94"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/seby/gen_trellis2.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/seby/front.png"
+        size_bytes: 952355
+        md5: "3a320635b6caccaa31e3e79357883425"
+      - role: "turnaround_threequarter"
+        path: "tools/model-pipeline/seby/threequarter.png"
+        size_bytes: 1114569
+        md5: "5cec089e104737a678dc1585605e82d2"
+      - role: "turnaround_back"
+        path: "tools/model-pipeline/seby/back.png"
+        size_bytes: 1001439
+        md5: "f2cc72a31d5fdcecc8f0e5916e761a63"
+
