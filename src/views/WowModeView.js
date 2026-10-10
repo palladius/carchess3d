@@ -415,9 +415,12 @@ export class WowModeView {
   }
 
   onInspectCharacter(e = {}) {
+    const prevKey = this.selectedKey;
+    const prevVariant = this.bishopVariant;
+
     if (e.subMode) {
       this.setSubMode(e.subMode);
-    } else {
+    } else if (!e.cardSide && typeof e.autoRotate !== 'boolean') {
       this.setSubMode('inspector');
     }
 
@@ -427,6 +430,9 @@ export class WowModeView {
 
     if (e.cardSide === 'front' || e.cardSide === 'back') {
       this.cardSide = e.cardSide;
+      if (this.cardGroup) {
+        this.cardGroup.rotation.y = this.cardSide === 'back' ? Math.PI + 0.28 : 0.28;
+      }
     }
 
     if (e.bishopVariant === 'hat' || e.bishopVariant === 'rigged') {
@@ -438,7 +444,12 @@ export class WowModeView {
     const rawKey = String(e.pieceType || e.character || this.selectedKey).toLowerCase();
     this.selectedKey = ROLE_OR_NAME_TO_KEY[rawKey] || 'b';
 
-    if (this.active) {
+    const heroChanged =
+      this.selectedKey !== prevKey ||
+      this.bishopVariant !== prevVariant ||
+      !this.currentHeroObject;
+
+    if (this.active && heroChanged) {
       this.loadSelectedHero();
     }
   }
@@ -448,6 +459,8 @@ export class WowModeView {
   // ===========================================================================
 
   loadSelectedHero() {
+    this._heroLoadToken = (this._heroLoadToken || 0) + 1;
+    const loadToken = this._heroLoadToken;
     const meta = CHARACTER_REGISTRY[this.selectedKey] || CHARACTER_REGISTRY.b;
 
     // 1. Update 2D Front & Back Reference Card Textures
@@ -527,7 +540,7 @@ export class WowModeView {
     if (glbUrl) {
       this._loadGltf(glbUrl)
         .then((gltf) => {
-          if (!gltf?.scene) return;
+          if (loadToken !== this._heroLoadToken || !gltf?.scene) return;
           let cloned;
           try {
             cloned = SkeletonUtils.clone(gltf.scene);
@@ -717,7 +730,7 @@ export class WowModeView {
     const fromSq = e.from || 'd4';
     const toSq = e.to || e.square || 'e5';
 
-    // Stage the Attacker & Defender 3D pieces on the altar so VFXPoolView can animate them
+    // Stage the Attacker & Defender 3D pieces on the altar without mutating Mode 1 pieceBySquare
     if (this.pieceView?.buildPieceGroup) {
       const pm = this.ctx?.pieces || this.ctx?.pieceManager;
       const atkDesc = pm?.resolveDescriptor
@@ -735,8 +748,6 @@ export class WowModeView {
       defMesh.position.set(pTo.x, 0, pTo.z);
 
       this.arenaGroup.add(atkMesh, defMesh);
-      this.pieceView.pieceBySquare?.set(fromSq, atkMesh);
-      this.pieceView.pieceBySquare?.set(toSq, defMesh);
     }
 
     // Fallback: if headless CombatAnimationManager is not wired into ctx, emit BATTLE_STARTED directly

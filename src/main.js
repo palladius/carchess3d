@@ -335,17 +335,7 @@ function bootstrapCarChess3D() {
     controls.update();
   }
   if (urlParams.get('swamp_party') === '1') {
-    for (const [color, victimColor, atk, def, sq] of [
-      ['b', 'w', 'n', 'b', 'c1'],
-      ['b', 'w', 'b', 'n', 'g1'],
-      ['b', 'w', 'r', 'p', 'e2'],
-      ['w', 'b', 'b', 'n', 'b8'],
-      ['w', 'b', 'n', 'b', 'f8'],
-      ['w', 'b', 'q', 'r', 'h8'],
-    ]) {
-      pieces.handlePieceCaptured({ color, victimColor, attacker: atk, defender: def, capturedSquare: sq });
-    }
-    pieces.emitPiecesSynced('swamp_party');
+    pieces.seedSwampParty();
     bus.flush();
     bus.flush();
   }

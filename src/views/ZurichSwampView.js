@@ -1013,16 +1013,14 @@ export class ZurichSwampView {
   bindEvents() {
     if (!this.bus) return;
     this.offs.push(
-      this.bus.on('PIECE_SELECTED', (e) => this.renderSelectionHighlights(e)),
-      this.bus.on('SELECTION_CLEARED', () => this.clearHighlights()),
       this.bus.on('MOVE_EXECUTED', (e) => {
         this.clearHighlights();
         if (e.move) this.renderLastMoveHighlight(e.move.from, e.move.to);
       }),
-      this.bus.on('CHECK_DETECTED', (e) => {
-        if (e.kingSquare) this.renderCheckHighlight(e.kingSquare);
-      }),
       this.bus.on('BOARD_RESET', () => this.clearHighlights()),
+      this.bus.on('FLOW_STATE_CHANGED', (e) => {
+        if (e.to === 'Mode2_WowArena') this.clearHighlights();
+      }),
     );
   }
 

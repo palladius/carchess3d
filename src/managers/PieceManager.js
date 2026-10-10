@@ -59,32 +59,23 @@ export class PieceManager {
     const color = raw.color === 'b' ? 'b' : 'w';
     const square = raw.square || 'e4';
     const isStoneSet = color === 'b' && this.rivalSetMode === 'stone';
-    const activeFamily =
-      color === 'w'
-        ? this.whiteFamily
-        : isStoneSet
-          ? 'carlesso'
-          : this.rivalSetMode === 'family'
-            ? 'carlesso'
-            : this.rivalSetMode;
+    const activeFamily = color === 'w'
+      ? this.whiteFamily
+      : (isStoneSet || this.rivalSetMode === 'family' ? 'carlesso' : this.rivalSetMode);
     const reg = FAMILY_REGISTRIES[activeFamily] || CHARACTER_REGISTRY;
     const meta = reg[type] || CHARACTER_REGISTRY[type] || CHARACTER_REGISTRY.p;
 
     let glbUrl = null;
     if (!isStoneSet) {
-      if (activeFamily === 'carlesso' && type === 'b') {
-        glbUrl = BISHOP_GLB_VARIANTS[this.bishopVariant] || meta.glbUrl;
-      } else {
-        glbUrl = meta.glbUrl || null;
-      }
+      glbUrl = activeFamily === 'carlesso' && type === 'b'
+        ? (BISHOP_GLB_VARIANTS[this.bishopVariant] || meta.glbUrl)
+        : (meta.glbUrl || null);
     }
 
     const pos = squareToWorld(square);
     return {
       id: raw.id || `${color}_${type}_${square}`,
-      square,
-      type,
-      color,
+      square, type, color,
       family: isStoneSet ? 'stone' : activeFamily,
       role: meta.role,
       name: isStoneSet ? `Stone ${meta.role[0].toUpperCase()}${meta.role.slice(1)}` : meta.name,
@@ -98,9 +89,7 @@ export class PieceManager {
       accentColor: meta.accentColor,
       isStoneSet,
       animations: { ...meta.animations },
-      x: pos.x,
-      y: 0,
-      z: pos.z,
+      x: pos.x, y: 0, z: pos.z,
     };
   }
 
@@ -115,37 +104,52 @@ export class PieceManager {
 
   handlePieceCaptured(e) {
     const victimColor = e.victimColor || (e.color === 'w' ? 'b' : 'w');
-    const capturedSq = e.capturedSquare || e.to;
+    const capturedSq = e.capturedSquare || e.to || 'e4';
+    const defType = String(e.defender || this.livingBySquare.get(capturedSq)?.type || 'p').toLowerCase();
     const existing = this.livingBySquare.get(capturedSq);
-    if (existing && existing.color === victimColor) {
+    const isRealBoardMove = Boolean(e.move) || e.removeLiving === true;
+    if (isRealBoardMove && existing && existing.color === victimColor) {
       this.livingBySquare.delete(capturedSq);
     }
 
     const trayList = this.capturedTrays[victimColor] || this.capturedTrays.b;
     const slotIndex = trayList.length;
-    const sideSign = victimColor === 'w' ? -1 : 1;
-    const colRing = slotIndex % 2;
-    const rowSlot = Math.floor(slotIndex / 2);
-    // Place captured pieces in the Enchanted Swamp Moat ("Palude di Shrek", r = 6.2m..8.2m, y = -0.28m)
-    const trayX = sideSign * (6.25 + colRing * 0.95);
-    const trayY = -0.28;
-    const trayZ = rowSlot * 1.05 - 2.65;
+    const captureId = e.id || (isRealBoardMove
+      ? `${existing?.id || `captured_${victimColor}_${defType}_${capturedSq}`}_${slotIndex}`
+      : `swamp_${victimColor}_${defType}_${capturedSq}`);
+    if (trayList.some((item) => item.id === captureId)) return false;
 
-    const desc = this.resolveDescriptor({
-      type: e.defender || existing?.type || 'p',
-      color: victimColor,
-      square: capturedSq,
-      id: existing?.id || `captured_${victimColor}_${e.defender}_${slotIndex}`,
-    });
+    const sideSign = victimColor === 'w' ? -1 : 1;
+    const trayX = sideSign * (6.25 + (slotIndex % 2) * 0.95);
+    const trayY = -0.28;
+    const trayZ = Math.floor(slotIndex / 2) * 1.05 - 2.65;
+
+    const desc = this.resolveDescriptor({ type: defType, color: victimColor, square: capturedSq, id: captureId });
     trayList.push({
       ...desc,
       capturedFromSquare: capturedSq,
       capturedBy: e.attacker || 'p',
       trayIndex: slotIndex,
-      trayX,
-      trayY,
-      trayZ,
+      trayX, trayY, trayZ,
     });
+    return true;
+  }
+
+  seedSwampParty() {
+    const swimmers = [
+      { defender: 'b', victimColor: 'w', capturedSquare: 'c1', attacker: 'n' },
+      { defender: 'n', victimColor: 'w', capturedSquare: 'g1', attacker: 'r' },
+      { defender: 'p', victimColor: 'w', capturedSquare: 'e2', attacker: 'q' },
+      { defender: 'n', victimColor: 'b', capturedSquare: 'b8', attacker: 'b' },
+      { defender: 'b', victimColor: 'b', capturedSquare: 'f8', attacker: 'k' },
+      { defender: 'r', victimColor: 'b', capturedSquare: 'h8', attacker: 'n' },
+    ];
+    let added = 0;
+    for (const s of swimmers) {
+      if (this.handlePieceCaptured(s)) added++;
+    }
+    if (added > 0) this.emitPiecesSynced('swamp_party_demo');
+    return added;
   }
 
   handleCastling(e) {
@@ -184,11 +188,7 @@ export class PieceManager {
     this.emitPiecesSynced('move_executed', move);
   }
 
-  setWhiteFamily(family) {
-    const valid = ['carlesso', 'swamp', 'classic'];
-    const normalized = valid.includes(family) ? family : 'carlesso';
-    if (this.whiteFamily === normalized) return;
-    this.whiteFamily = normalized;
+  _applySetChange(reason) {
     this.reResolveAll();
     this.ctx?.bus?.emit({
       type: 'PIECE_SET_CHANGED',
@@ -196,7 +196,14 @@ export class PieceManager {
       rivalSetMode: this.rivalSetMode,
       bishopVariant: this.bishopVariant,
     });
-    this.emitPiecesSynced('white_family_changed');
+    this.emitPiecesSynced(reason);
+  }
+
+  setWhiteFamily(family) {
+    const normalized = ['carlesso', 'swamp', 'classic'].includes(family) ? family : 'carlesso';
+    if (this.whiteFamily === normalized) return;
+    this.whiteFamily = normalized;
+    this._applySetChange('white_family_changed');
   }
 
   setRivalSetMode(mode) {
@@ -204,28 +211,14 @@ export class PieceManager {
     const normalized = mode === 'carlesso' ? 'family' : (valid.includes(mode) ? mode : 'family');
     if (this.rivalSetMode === normalized) return;
     this.rivalSetMode = normalized;
-    this.reResolveAll();
-    this.ctx?.bus?.emit({
-      type: 'PIECE_SET_CHANGED',
-      whiteFamily: this.whiteFamily,
-      rivalSetMode: this.rivalSetMode,
-      bishopVariant: this.bishopVariant,
-    });
-    this.emitPiecesSynced('rival_set_changed');
+    this._applySetChange('rival_set_changed');
   }
 
   setBishopVariant(variant) {
     const normalized = variant === 'hat' ? 'hat' : 'rigged';
     if (this.bishopVariant === normalized) return;
     this.bishopVariant = normalized;
-    this.reResolveAll();
-    this.ctx?.bus?.emit({
-      type: 'PIECE_SET_CHANGED',
-      whiteFamily: this.whiteFamily,
-      rivalSetMode: this.rivalSetMode,
-      bishopVariant: this.bishopVariant,
-    });
-    this.emitPiecesSynced('bishop_variant_changed');
+    this._applySetChange('bishop_variant_changed');
   }
 
   reResolveAll() {

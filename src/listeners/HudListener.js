@@ -1077,9 +1077,15 @@ export class HudListener {
     });
 
     q('#hud-flip-btn')?.addEventListener('click', () => {
+      this.cameraFlipped = !this.cameraFlipped;
+      this.topDownCamera = false;
       if (this.ctx?.camera) {
-        this.ctx.camera.position.x *= -1;
-        this.ctx.camera.position.z *= -1;
+        if (this.cameraFlipped) {
+          this.ctx.camera.position.set(0, 7.0, -8.2);
+        } else {
+          this.ctx.camera.position.set(0, 7.2, 9.8);
+        }
+        this.ctx.controls?.target?.set?.(0, 0.3, 0);
         this.ctx.controls?.update?.();
       }
       this.ctx?.bus?.emit({ type: 'CAMERA_VIEW_REQUESTED', view: 'flip' });
@@ -1090,11 +1096,11 @@ export class HudListener {
       this.topDownCamera = !this.topDownCamera;
       if (this.ctx?.camera) {
         if (this.topDownCamera) {
-          this.ctx.camera.position.set(0, 12.8, 0.01);
+          this.ctx.camera.position.set(0, 12.8, this.cameraFlipped ? -0.01 : 0.01);
         } else {
-          this.ctx.camera.position.set(0, 7.2, 9.8);
+          this.ctx.camera.position.set(0, this.cameraFlipped ? 7.0 : 7.2, this.cameraFlipped ? -8.2 : 9.8);
         }
-        this.ctx.controls?. target?.set?.(0, 0.3, 0);
+        this.ctx.controls?.target?.set?.(0, 0.3, 0);
         this.ctx.controls?.update?.();
       }
       this.ctx?.bus?.emit({
@@ -1330,17 +1336,21 @@ export class HudListener {
     q('#hud-swamp-btn')?.addEventListener('click', () => {
       const pm = this.ctx?.pieces || this.ctx?.pieceManager;
       if (pm) {
-        for (const [color, victimColor, atk, def, sq] of [
-          ['b', 'w', 'n', 'b', 'c1'],
-          ['b', 'w', 'b', 'n', 'g1'],
-          ['b', 'w', 'r', 'p', 'e2'],
-          ['w', 'b', 'b', 'n', 'b8'],
-          ['w', 'b', 'n', 'b', 'f8'],
-          ['w', 'b', 'q', 'r', 'h8'],
-        ]) {
-          pm.handlePieceCaptured({ color, victimColor, attacker: atk, defender: def, capturedSquare: sq });
+        if (typeof pm.seedSwampParty === 'function') {
+          pm.seedSwampParty();
+        } else {
+          for (const [color, victimColor, atk, def, sq] of [
+            ['b', 'w', 'n', 'b', 'c1'],
+            ['b', 'w', 'b', 'n', 'g1'],
+            ['b', 'w', 'r', 'p', 'e2'],
+            ['w', 'b', 'b', 'n', 'b8'],
+            ['w', 'b', 'n', 'b', 'f8'],
+            ['w', 'b', 'q', 'r', 'h8'],
+          ]) {
+            pm.handlePieceCaptured({ color, victimColor, attacker: atk, defender: def, capturedSquare: sq });
+          }
+          pm.emitPiecesSynced('swamp_party');
         }
-        pm.emitPiecesSynced('swamp_party');
         this.ctx?.bus?.flush?.();
         this.showToast('🐸 Splash! I pezzi catturati sguazzano nella Palude di Shrek! 💦');
       }
