@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.1] - 2026-10-10
+
+- ✍️🦖 Added [`docs/ARTICLE.md`](docs/ARTICLE.md): Carlessian-style engineering story & SRE telemetry post-mortem documenting how **CarChess3D** was built from scratch in 2 days (~4h 3D pipeline on Oct 9 + 2h 43m autonomous `/goal` sprint on Oct 10, with the first playable 10k-LOC 3D build reached in **38m 06s** via 4 parallel subagents).
+
 ## [0.2.0] - 2026-10-10
 
 - 🏰🚽 **Complete v1 of CarChess3D ("Carlesso al Cesso" / "Scacchi di Famiglia")** executing `conductor/tracks/v1_carchess3d/plan.md` end-to-end across Phases 1–5 (`9.8 / 10` Adversarial Critic score in Round 3, `9.9 / 10` in Round 4).
