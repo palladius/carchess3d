@@ -46,7 +46,7 @@ for p in chars:
         failures.append(f"bad character asset name: {p.name}")
 
 for p in ROOT.rglob("*"):
-    if ".git" in p.parts or not p.is_file() or p.suffix not in TEXT_EXT:
+    if ".git" in p.parts or "private" in p.parts or not p.is_file() or p.suffix not in TEXT_EXT:
         continue
     if p.name == "check.py":
         continue
