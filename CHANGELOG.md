@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.20] - 2026-10-10
+
+- 🎼 **Conductor Plan Refinements (`/roastme` pre-flight, Forged with Argon ✨)**: updated `conductor/product.md` with canonical character variants (`bishop-ale-1.glb` + `bishop-ale-rigged.glb`, `kate_final_v1_nb21.png`, Seby 4-weapon HUD switcher), Bicolor Royal Pedestal + Rim Tint shader for mirror-match readability, 5-track adaptive Lyria 3 soundtrack (IT/EN vocal themes, calm swamp loop, dark combat loop, rare medieval heraldic Castling fanfare), CLI-only `docs/qa-scores.yaml` policy, and Mode 2 WOW Arena superseding `showcase/index.html`.
+- 📦 Vendored offline runtime addons (`OrbitControls`, `EffectComposer`, `RenderPass`, `UnrealBloomPass`, `OutputPass`, `MaskPass`, `ShaderPass`) under `vendor/three/addons/` and `chess.js` (`v1.0.0-beta.8` ESM) under `vendor/chess.js/`.
+- 🌳 Added `.worktrees/` to `.gitignore` for isolated multi-agent branch execution.
+
 ## [0.1.19] - 2026-10-10
 
 - 🔀 Merged `origin/vlm-critic` (branch commits `47c6c04` "v0.1.14" + `bbb28ea` "v0.1.15", renumbered here because `main` already used those numbers). Kept `UV_INDEX_URL` in `just critic`; branch RUNNING_DOC sections renumbered §18/§19 → §19/§20.
