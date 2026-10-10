@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.3] - 2026-10-10
+
+- 🎛️ **Showcase Multi-Family Selector & Live 3D Faction Material Tinting (`showcase/index.html`)**:
+  - Merged interactive family tabs (`Tutte le Famiglie (18)`, `Famiglia Carlesso (6)`, `Classici Carlessiani (6)`, `Famiglia della Palude (6)`) to inspect all 18 2D Nano Banana 2.1 portraits and 3D `.glb` models in one unified gallery, keeping all 6 canonical Carlesso `.glb` models (`king-riccardo.glb`, `queen-kate.glb` + `queen-kate-wedding2016.glb`, `bishop-ale-1.glb` + `bishop-ale-rigged.glb`, `knight-seby.glb`, `rook-pupurabbu.glb`, `pawn-puffin.glb`).
+  - Added live 3D faction material tinting controls (`Materiali Originali`, `Squadra Bianca (Avorio & Oro)`, `Squadra Nera (Ossidiana & Argento)`) that dynamically override `faction_primary` / `faction_trim` material slots (and apply fallback tinting + glTF PBR `metalness` clamping on textured TRELLIS.2 pieces).
+  - Added `fable-5.1-high` Adversarial Art Critic score badges (`🟢`/`🟡`) per piece and quick-access buttons to the 6×4 turntable contact sheets (`classic_contact_sheet.png`, `swamp_contact_sheet.png`).
+- 📦 **Carlesso Family Manifest (`assets/families/carlesso.json`)**:
+  - Added declarative manifest for the primary `carlesso` family alongside `classic.json` and `swamp.json` under `assets/families/_contract.json`, wired to all 6 canonical `.glb` models.
+
 ## [0.2.2] - 2026-10-10
 
 - 🌐🚀 **GitHub Pages Deployment**: added `.nojekyll` so GitHub Pages serves all static `.glb`, `.mp4`, `.webm`, and `_contract.json` assets directly without Jekyll filtering, and updated `sw.js` (`carchess3d-offline-v2`) to precache all 6 canonical 3D `.glb` family models.
