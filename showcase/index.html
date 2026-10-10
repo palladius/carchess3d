@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CarChess3D · Character showcase (throwaway)</title>
+  <title>CarChess3D · Multi-Family 2D & 3D Character Showcase</title>
   <!--
     🧪 THROWAWAY SHOWCASE — not the game.
-    One card per default character: 2D art (front / back) + auto-rotating 3D GLB when one exists.
-    Serve the repo root (`just serve`) and open http://localhost:8000/showcase/
-    To change a default, edit the CHARACTERS table below (data-driven, no if/else per character).
+    Displays all 3 chess families (Carlesso, Classic Carlessiano, Swamp Palude = 18 pieces):
+    2D Nano Banana 2.1 art + auto-rotating 3D GLB + live White/Black faction tinting.
+    Serve the repo root (`just showcase`) and open http://localhost:8000/showcase/
   -->
   <script type="importmap">
     { "imports": { "three": "../vendor/three/three.module.js" } }
@@ -17,40 +17,59 @@
     :root {
       color-scheme: dark;
       --bg: #11141b; --card: #1a1f2b; --line: #2a3142; --text: #e8eaf0; --muted: #9aa3b5;
-      --gold: #e6b84a; --blue: #2d4a8a;
+      --gold: #e6b84a; --blue: #2d4a8a; --green: #236b48; --purple: #5b388c;
     }
     * { box-sizing: border-box; }
     body { margin: 0; font: 15px/1.45 system-ui, sans-serif; background: var(--bg); color: var(--text); }
-    header { padding: 24px 28px 8px; }
+    header { padding: 22px 28px 12px; border-bottom: 1px solid var(--line); background: #141821; }
     header h1 { margin: 0 0 4px; font-size: 1.6rem; }
     header p { margin: 0; color: var(--muted); }
-    .warn { display: inline-block; margin-top: 10px; padding: 4px 10px; border-radius: 999px;
-            background: #3a2a10; color: var(--gold); font-size: .85rem; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; margin-top: 14px; }
+    .btn-group { display: inline-flex; flex-wrap: wrap; gap: 6px; background: #0d1016; padding: 5px;
+                 border-radius: 12px; border: 1px solid var(--line); }
+    .btn-group button { font: inherit; font-size: .86rem; font-weight: 600; padding: 6px 13px;
+                        border-radius: 8px; border: 1px solid transparent; background: transparent;
+                        color: var(--muted); cursor: pointer; transition: all .15s ease; }
+    .btn-group button:hover { color: var(--text); background: #1f2636; }
+    .btn-group button[aria-pressed="true"] { background: var(--gold); color: #1a1300; border-color: var(--gold); }
+    .warn { display: inline-block; padding: 4px 10px; border-radius: 999px;
+            background: #3a2a10; color: var(--gold); font-size: .82rem; }
+    .family-banner { margin: 18px 28px 0; padding: 14px 18px; border-radius: 14px;
+                     background: #161b26; border: 1px solid var(--line);
+                     display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+    .family-banner h2 { margin: 0; font-size: 1.2rem; }
+    .family-banner p { margin: 2px 0 0; color: var(--muted); font-size: .9rem; }
+    .family-links { display: flex; flex-wrap: wrap; gap: 8px; font-size: .82rem; }
+    .family-links a { color: #9cc3ff; background: #0d1016; padding: 5px 10px; border-radius: 8px;
+                      border: 1px solid var(--line); text-decoration: none; }
+    .family-links a:hover { border-color: var(--gold); }
     main { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr));
-           gap: 20px; padding: 20px 28px 40px; }
+           gap: 20px; padding: 18px 28px 40px; }
     .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
             display: flex; flex-direction: column; }
+    .card[hidden] { display: none !important; }
     .card.winner { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 8px 30px #e6b84a22; }
-    .card h2 { margin: 0; padding: 14px 16px 4px; font-size: 1.15rem; }
+    .card h2 { margin: 0; padding: 14px 16px 4px; font-size: 1.15rem; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
     .card .sub { padding: 0 16px 10px; color: var(--muted); font-size: .9rem; }
-    .badge { font-size: .72rem; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: middle;
-             background: var(--blue); }
+    .badge { font-size: .72rem; padding: 2px 8px; border-radius: 999px; vertical-align: middle;
+             background: var(--blue); color: #fff; font-weight: 600; }
     .badge.gold { background: var(--gold); color: #1a1300; }
+    .badge.green { background: var(--green); color: #eafff3; }
+    .badge.purple { background: var(--purple); color: #f3eaff; }
     .badge.guess { background: #444b5c; }
     .media { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); }
     .pane { background: #0d1016; position: relative; aspect-ratio: 1; }
     .pane img { width: 100%; height: 100%; object-fit: contain; display: block; }
     .pane canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
-    .pane .label { position: absolute; top: 8px; left: 8px; font-size: .75rem; padding: 2px 8px;
+    .pane .label { position: absolute; top: 8px; left: 8px; z-index: 2; font-size: .75rem; padding: 2px 8px;
                    border-radius: 6px; background: #000a; }
     .pane .placeholder { position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
                          color: var(--muted); padding: 20px; }
-    .tabs { position: absolute; bottom: 8px; left: 8px; display: flex; gap: 4px; }
+    .tabs { position: absolute; bottom: 8px; left: 8px; z-index: 2; display: flex; gap: 4px; }
     .tabs button { font: inherit; font-size: .75rem; padding: 3px 10px; border-radius: 6px; cursor: pointer;
                    border: 1px solid var(--line); background: #000b; color: var(--text); }
     .tabs button[aria-pressed="true"] { background: var(--gold); color: #1a1300; border-color: var(--gold); }
-    /* Every card has the same layout; several 3D versions = side by side inside the same 3D pane, labelled */
-    .captions { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; pointer-events: none; }
+    .captions { position: absolute; left: 0; right: 0; bottom: 8px; z-index: 2; display: flex; pointer-events: none; }
     .captions span { flex: 1; text-align: center; font-size: .75rem; }
     .captions b { background: #000b; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
     .pane[data-3d] canvas { cursor: zoom-in; }
@@ -70,62 +89,227 @@
 </head>
 <body>
   <header>
-    <h1>🏰🚽 CarChess3D — Character showcase</h1>
-    <p>Personaggi di default: una card per pezzo, 2D (fronte / retro) + 3D in autorotazione (trascina per girarlo, <b>click sul 3D o ⛶ = schermo intero</b>, Esc per uscire).</p>
-    <span class="warn">🧪 Throwaway showcase, NON il gioco vero e proprio</span>
+    <h1>🏰🚽🐸 CarChess3D — Multi-Family 2D & 3D Showcase (18 Pezzi)</h1>
+    <p>Esplora le 3 famiglie di scacchi: 2D Nano Banana 2.1 + 3D GLB in autorotazione (trascina per ruotare, <b>click sul 3D o ⛶ = schermo intero</b>, Esc per uscire).</p>
+    <div class="toolbar">
+      <div class="btn-group" id="family-tabs" role="tablist" aria-label="Famiglia di Scacchi">
+        <button type="button" data-family="all" aria-pressed="true">✨ Tutte le Famiglie (18)</button>
+        <button type="button" data-family="carlesso" aria-pressed="false">👨‍👩‍👦‍👦 Famiglia Carlesso (6)</button>
+        <button type="button" data-family="classic" aria-pressed="false">🗿🚽 Classici Carlessiani (6)</button>
+        <button type="button" data-family="swamp" aria-pressed="false">🐸🧅 Famiglia della Palude (6)</button>
+      </div>
+      <div class="btn-group" id="faction-tabs" role="group" aria-label="Colore Squadra 3D">
+        <button type="button" data-faction="original" aria-pressed="true">🎨 Materiali Originali</button>
+        <button type="button" data-faction="white" aria-pressed="false">⚪ Squadra Bianca (Avorio & Oro)</button>
+        <button type="button" data-faction="black" aria-pressed="false">⚫ Squadra Nera (Ossidiana & Argento)</button>
+      </div>
+      <span class="warn">🧪 Showcase 3D · Valutato da Adversarial Art Critic (<code>fable-5.1-high</code>)</span>
+    </div>
   </header>
+
+  <section class="family-banner" id="family-banner">
+    <div>
+      <h2 id="banner-title">✨ Tutte le 3 Famiglie — 18 Pezzi (Carlesso · Classici Carlessiani · Palude)</h2>
+      <p id="banner-desc">Confronta i concept 2D Nano Banana 2.1 e i modelli 3D .glb verificati da <code>fable-5.1-high</code> (0 💩 rimasti!).</p>
+    </div>
+    <div class="family-links">
+      <a href="../tools/model-pipeline/classic/classic_contact_sheet.png" target="_blank">📸 Contact Sheet Classici (6×4)</a>
+      <a href="../tools/model-pipeline/swamp/swamp_contact_sheet.png" target="_blank">📸 Contact Sheet Palude (6×4)</a>
+      <a href="../docs/qa-scores.classic.yaml" target="_blank">📋 QA Scores Classic</a>
+      <a href="../docs/qa-scores.swamp.yaml" target="_blank">📋 QA Scores Swamp</a>
+    </div>
+  </section>
+
   <main id="cards"></main>
 
   <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from '../vendor/three/addons/loaders/GLTFLoader.js';
 
-    // ── Data: one row per piece. `defaultConfirmed: false` = my guess, Riccardo hasn't picked yet. ──
+    const FAMILY_META = {
+      all: {
+        title: '✨ Tutte le 3 Famiglie — 18 Pezzi (Carlesso · Classici Carlessiani · Palude)',
+        desc: 'Tutte le 18 carte personaggio: 2D Nano Banana 2.1 + modelli 3D .glb con controllo colore squadra Bianco/Nero.',
+      },
+      carlesso: {
+        title: '👨‍👩‍👦‍👦 Famiglia Carlesso — Cast Principale',
+        desc: 'Riccardo, Kate, Ale (con drago rosso riggato a 26 ossa), Seby, Pupurabbu e la Guardia Svizzera Puffin.',
+      },
+      classic: {
+        title: '🗿🚽 Classici Carlessiani — Set Staunton con Easter Egg Carlessiani & Zurighesi',
+        desc: '6/6 ritratti Nano Banana 2.1 (media 8.6/10 🟢) + 6/6 modelli 3D .glb watertight a y=0 (media 7.67/10 🟡).',
+      },
+      swamp: {
+        title: '🐸🧅 Famiglia della Palude — Parodia Fiabesca 100% IP-Safe',
+        desc: 'Orco Brontolo, Principessa Orchessa, Mago Focaccina Ligure, Asinello Chiacchierone, Draghessa della Palude e Guardia Re Tappo (2D media 8.7/10 🟢 · 3D media 7.45/10 🟡).',
+      },
+    };
+
     const CHARACTERS = [
+      // ── 1. FAMIGLIA CARLESSO ──
       {
-        glyph: '♗', piece: 'Bishop', name: 'Ale 1 — CON CAPPELLO', winner: true, defaultConfirmed: true,
+        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
+        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Ale 1 — CON CAPPELLO + Drago Rosso', winner: true, defaultConfirmed: true,
         tagline: 'Il Vincitore Designato per la scacchiera',
         front: '../assets/characters/bishop-ale-1.jpg',
         back: '../tools/model-pipeline/ale/experiments_back/back_nb_2.1.png',
         backGrid: '../tools/model-pipeline/ale/experiments_back/ale_hat_back_comparison_grid.jpg',
         models: [
-          { label: 'v1 · 1 vista', url: '../assets/models/bishop-ale-1.glb',
-            note: 'v1 (canonico attuale): TRELLIS da sola vista frontale, retro inventato.' },
-          { label: 'v2 · 3 viste ❌', url: '../tools/model-pipeline/ale/out/ale1_hat_f_tq_back.glb',
-            note: 'v2 (scartata da Riccardo: 2 mezzi draghi): TRELLIS multi-image fronte + 3/4 + retro NB 2.1, seed 42.' },
+          { label: 'v1 · TRELLIS', url: '../assets/models/bishop-ale-1.glb',
+            note: 'v1 (TRELLIS single-view).' },
+          { label: 'v3 · Rigged 🐉', url: '../assets/models/bishop-ale-rigged.glb',
+            note: 'Assemblaggio modulare con drago 3D pulito e rig a 26 ossa (Idle + Click_Fire_Breath).' },
         ],
-        details: 'Mitria vescovile blu e oro, occhioni verdi sorridenti, bastoncino pastorale in legno, basamento marmo + legno.',
+        details: 'Mitria vescovile blu e oro, occhioni verdi sorridenti, drago rosso sulla spalla, bastone pastorale.',
       },
       {
-        glyph: '♔', piece: 'King', name: 'Riccardo', defaultConfirmed: false,
+        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
+        glyph: '♔', piece: 'King (1.80m)', name: 'Re Riccardo', defaultConfirmed: false,
         front: '../assets/characters/king-riccardo-1.jpg',
         back: '../tools/model-pipeline/king/back.png',
-        model: null, details: 'Re della famiglia.',
+        model: null, details: 'Re della famiglia Carlesso con corona, mantello d’ermellino, scettro e globo.',
       },
       {
-        glyph: '♕', piece: 'Queen', name: 'Kate', defaultConfirmed: false,
+        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
+        glyph: '♕', piece: 'Queen (1.65m)', name: 'Regina Kate', defaultConfirmed: false,
         front: '../assets/characters/queen-kate-4.jpg',
-        back: null, model: null, details: 'Base usata dalle edit NB in tools/model-pipeline/kate/.',
+        back: '../tools/model-pipeline/kate/final_queen_canonical/kate_final_v1_nb21.png',
+        model: null, details: 'Regina Kate con abito reale viola, occhiali tondi navy e attacco onda di cioccolato e coriandoli lilla.',
       },
       {
-        glyph: '♘', piece: 'Knight', name: 'Seby', defaultConfirmed: false,
+        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
+        glyph: '♘', piece: 'Knight (1.35m)', name: 'Cavaliere Seby', defaultConfirmed: false,
         front: '../assets/characters/knight-seby-4.jpg',
         back: '../tools/model-pipeline/seby/back_nb_2.1.png',
-        model: null, details: 'Cavaliere (concept #4, usato nella pipeline multi-view).',
+        model: null, details: 'Cavaliere Seby in armatura d’argento e mantello blu con pista loop arancione.',
       },
       {
-        glyph: '♖', piece: 'Rook', name: 'Pupurabbu', defaultConfirmed: false,
+        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
+        glyph: '♖', piece: 'Rook (1.30m)', name: 'Torre Pupurabbu', defaultConfirmed: false,
         front: '../assets/characters/rook-pupurabbu.jpg',
         back: '../tools/model-pipeline/rook/back.png',
-        model: null, details: 'Torre.',
+        model: null, details: 'Soffice mostro viola/indaco dagli occhioni dolci, migliore amico di Seby.',
       },
       {
-        glyph: '♙', piece: 'Pawn', name: 'Puffin Swiss Guard', defaultConfirmed: true,
+        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
+        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Puffin Swiss Guard', defaultConfirmed: true,
         front: '../assets/characters/pawn-puffin.jpg',
         back: '../tools/model-pipeline/nbviews/gemini-nano-banana-2.1/back.png',
         model: '../assets/models/pawn-puffin.glb',
-        details: 'Pulcinella di mare in uniforme da Guardia Svizzera, alabarda.',
-        modelNote: 'TRELLIS single-view: retro inventato (bianco).',
+        details: 'Pulcinella di mare in uniforme da Guardia Svizzera, elmo morione con piuma rossa e alabarda.',
+        modelNote: 'TRELLIS v2 watertight (13,142 facce).',
+      },
+
+      // ── 2. CLASSICI CARLESSIANI (Track classic_default_pieces_20261010) ──
+      {
+        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 8.5 · 🟡 3D 7.6',
+        glyph: '♔', piece: 'King (1.80m)', name: 'Re Cesso d’Oro (king-classic-cesso)', defaultConfirmed: true,
+        tagline: 'Corona Staunton a 8 punte + Trono-WC d’Oro Zecchino in cima',
+        front: '../assets/characters/king-classic-cesso.jpg',
+        model: '../assets/models/classic/king-classic-cesso.glb',
+        modelNote: '20,728 tris · watertight · min.y = 0.0 · 1.80m · attacco: royal_flush_quake',
+        details: 'Re Staunton in marmo d’avorio e oro con Trono-WC reale ("Carlesso al Cesso!") in cima alla corona e piedistallo runico.',
+      },
+      {
+        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 8.7 · 🟡 3D 7.9',
+        glyph: '♕', piece: 'Queen (1.65m)', name: 'Regina Ciocco-Kate (queen-classic-ciocco)', defaultConfirmed: true,
+        tagline: 'Coronet di cioccolato svizzero fondente, perle d’oro e occhialini',
+        front: '../assets/characters/queen-classic-ciocco.jpg',
+        model: '../assets/models/classic/queen-classic-ciocco.glb',
+        modelNote: '17,040 tris · watertight · min.y = 0.0 · 1.65m · attacco: marble_choco_crush',
+        details: 'Regina Staunton scanalata con corona a onda di cioccolato fondente, 8 perle dorate e occhiali tartarugati.',
+      },
+      {
+        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 8.6 · 🟡 3D 7.2',
+        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Alfiere Drago-Runa (bishop-classic-drago)', defaultConfirmed: true,
+        tagline: 'Mitria Staunton con testa, ala e coda di draghetto rubino + ametista',
+        front: '../assets/characters/bishop-classic-drago.jpg',
+        model: '../assets/models/classic/bishop-classic-drago.glb',
+        modelNote: '13,320 tris · watertight · min.y = 0.0 · 1.45m · attacco: rune_laser_cleave',
+        details: 'Alfiere Staunton con taglio diagonale in ossidiana da cui spuntano la testa cornuta, l’ala e la coda del drago rosso.',
+      },
+      {
+        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 9.0 · 🟡 3D 7.6',
+        glyph: '♘', piece: 'Knight (1.35m)', name: 'Cavallo Turbo-Goggles (knight-classic-turbo)', winner: true, defaultConfirmed: true,
+        tagline: 'Cavallo Staunton con occhialoni da corsa ciano, doppi scarichi turbo e pista arancione',
+        front: '../assets/characters/knight-classic-turbo.jpg',
+        model: '../assets/models/classic/knight-classic-turbo.glb',
+        modelNote: '12,840 tris · watertight · min.y = 0.0 · 1.35m · attacco: stone_hoon_charge',
+        details: 'Destriero Staunton scolpito con occhialoni da pilota in ottone e lenti ciano, marmitte laterali inclinate a 30° e anello pista loop.',
+      },
+      {
+        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 8.6 · 🟢 3D 8.0',
+        glyph: '♖', piece: 'Rook (1.30m)', name: 'Torre Grossmünster Puffo (rook-classic-puffo)', winner: true, defaultConfirmed: true,
+        tagline: 'Torre merlata con mostriciattolo viola che sbircia tra i merli',
+        front: '../assets/characters/rook-classic-puffo.jpg',
+        model: '../assets/models/classic/rook-classic-puffo.glb',
+        modelNote: '12,320 tris · watertight · min.y = 0.0 · 1.30m · TOP_QUALITY 🟢 (8.0/10)',
+        details: 'Torre in pietra ispirata al Grossmünster di Zurigo con 6 merli e un simpatico mostriciattolo viola con zampe e occhioni.',
+      },
+      {
+        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 8.4 · 🟡 3D 7.7',
+        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Pedone Guardia Puffin (pawn-classic-puffin)', defaultConfirmed: true,
+        tagline: 'Pedone Staunton con becco da pulcinella di mare, elmo morione e piuma cremisi',
+        front: '../assets/characters/pawn-classic-puffin.jpg',
+        model: '../assets/models/classic/pawn-classic-puffin.glb',
+        modelNote: '12,660 tris · watertight · min.y = 0.0 · 0.95m · attacco: pike_bonk',
+        details: 'Pedone classico con becco arancione/nero striato, elmo da Guardia Svizzera in acciaio e oro e triplo pennacchio rosso.',
+      },
+
+      // ── 3. FAMIGLIA DELLA PALUDE (Track swamp_family_pieces_20261010) ──
+      {
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 8.9 · 🟡 3D 7.5',
+        glyph: '♔', piece: 'King (1.80m)', name: 'Orco Brontolo (king-swamp-orco)', defaultConfirmed: true,
+        tagline: 'Re orco con corona di radici di quercia, spallacci in corteccia e scettro-cipolla d’oro',
+        front: '../assets/characters/king-swamp-orco.jpg',
+        model: '../assets/models/swamp/king-swamp-orco.glb',
+        modelNote: '24,180 tris · watertight · min.y = 0.0 · 1.80m · attacco: swamp_onion_burp',
+        details: 'Orco della palude con orecchie cadenti da cinghiale, farsetto reale prugna e muschio, mantello e scettro-cipolla germogliata.',
+      },
+      {
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 8.6 · 🟡 3D 7.3',
+        glyph: '♕', piece: 'Queen (1.65m)', name: 'Principessa Orchessa (queen-swamp-orchessa)', defaultConfirmed: true,
+        tagline: 'Regina orchessa guerriera con chignon alto ramato, abito bordeaux/oro e posa Kung-Fu',
+        front: '../assets/characters/queen-swamp-orchessa.jpg',
+        model: '../assets/models/swamp/queen-swamp-orchessa.glb',
+        modelNote: '22,216 tris · watertight · min.y = 0.0 · 1.65m · attacco: kungfu_slowmo_kick',
+        details: 'Principessa guerriera della palude con tiara dorata a punte, chignon alto con anello d’oro e abito rinascimentale bordeaux e senape.',
+      },
+      {
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 8.3 · 🟡 3D 7.7',
+        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Mago Focaccina Ligure (bishop-swamp-focaccina)', winner: true, defaultConfirmed: true,
+        tagline: 'Alfiere di focaccia ligure dorata con olive taggiasche, rosmarino e pastorale di grissino al sesamo',
+        front: '../assets/characters/bishop-swamp-focaccina.jpg',
+        model: '../assets/models/swamp/bishop-swamp-focaccina.glb',
+        modelNote: '16,032 tris · watertight · min.y = 0.0 · 1.45m · attacco: focaccina_crumb_bonk',
+        details: 'Mago di focaccia ligure appena sfornata con 3 bottoni di oliva nera taggiasca, aghi di rosmarino, mitria di crosta salata e bastone grissino.',
+      },
+      {
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.0 · 🟡 3D 7.4',
+        glyph: '♘', piece: 'Knight (1.35m)', name: 'Asinello Chiacchierone (knight-swamp-asinello)', winner: true, defaultConfirmed: true,
+        tagline: 'Destriero asinello baio maculato con ghigno furbo, sella da torneo e scudo-cipolla',
+        front: '../assets/characters/knight-swamp-asinello.jpg',
+        model: '../assets/models/swamp/knight-swamp-asinello.glb',
+        modelNote: '16,120 tris · watertight · min.y = 0.0 · 1.35m · attacco: asinello_back_kick',
+        details: 'Simpatico asinello castano maculato con orecchie dritte, sella in quercia e oro, gualdrappa cremisi, pennacchio e brocchiero-cipolla.',
+      },
+      {
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 8.8 · 🟡 3D 7.6',
+        glyph: '♖', piece: 'Rook (1.30m)', name: 'Draghessa della Palude (rook-swamp-draghessa)', defaultConfirmed: true,
+        tagline: 'Torre muschiosa a 6 merli abbracciata dalla draghessa rubino/smeraldo con coda a cuore',
+        front: '../assets/characters/rook-swamp-draghessa.jpg',
+        model: '../assets/models/swamp/rook-swamp-draghessa.glb',
+        modelNote: '20,824 tris · watertight · min.y = 0.0 · 1.30m · attacco: dragon_heart_smoke',
+        details: 'Torre di guardia in pietra muschiosa avvolta da una draghessa rubino con pancia smeraldo, corna dorate, ali spiegate e punta della coda a cuore.',
+      },
+      {
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 8.7 · 🟡 3D 7.2',
+        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Guardia Re Tappo (pawn-swamp-tappo)', defaultConfirmed: true,
+        tagline: 'Pomposo araldo in livrea blu zaffiro in piedi su una pila di 3 tomi di decreti reali',
+        front: '../assets/characters/pawn-swamp-tappo.jpg',
+        model: '../assets/models/swamp/pawn-swamp-tappo.glb',
+        modelNote: '16,468 tris · watertight · min.y = 0.0 · 0.95m · attacco: decree_scroll_flatten',
+        details: 'Piccolo araldo pomposo dai boccoli biondi in piedi su 3 grossi volumi di leggi reali per sembrare più alto, con cappello blu zaffiro e pergamena.',
       },
     ];
 
@@ -134,16 +318,19 @@
 
     function cardHTML(c, i) {
       const models = modelsOf(c);
-      const badge = c.winner ? '<span class="badge gold">🏆 vincitore</span>'
-        : c.defaultConfirmed ? '<span class="badge">default</span>'
-        : '<span class="badge guess">default da confermare</span>';
+      const famClass = c.family === 'swamp' ? 'green' : c.family === 'classic' ? 'purple' : '';
+      const famTag = `<span class="badge ${famClass}">${c.familyBadge}</span>`;
+      const criticTag = c.criticScore ? `<span class="badge gold">${c.criticScore}</span>` : '';
+      const statusBadge = c.winner ? '<span class="badge gold">🏆 top</span>'
+        : c.defaultConfirmed ? '<span class="badge">pronto</span>'
+        : '<span class="badge guess">3D in coda</span>';
       return `
-        <article class="card ${c.winner ? 'winner' : ''}">
-          <h2>${c.glyph} ${c.name} ${badge}</h2>
+        <article class="card ${c.winner ? 'winner' : ''}" data-family-card="${c.family}">
+          <h2>${c.glyph} ${c.name} ${famTag} ${criticTag} ${statusBadge}</h2>
           <div class="sub">${c.piece}${c.tagline ? ' · ' + c.tagline : ''}</div>
           <div class="media">
             <div class="pane">
-              <span class="label">2D</span>
+              <span class="label">2D Nano Banana 2.1</span>
               <img src="${c.front}" alt="${c.name} — 2D fronte" loading="lazy" data-img="${i}">
               <div class="tabs">
                 <button aria-pressed="true" data-side="front" data-card="${i}">Fronte</button>
@@ -151,19 +338,19 @@
               </div>
             </div>
             <div class="pane" data-3d="${i}">
-              <span class="label">3D</span>
+              <span class="label">3D GLB</span>
               ${models.length ? `<button class="fs" data-fs="${i}" title="Schermo intero (o click sul 3D)">⛶</button>` : ''}
               ${models.length ? '<div class="placeholder">⏳ carico il GLB…</div>'
-                              : '<div class="placeholder">3D non ancora generato ⏳</div>'}
+                              : '<div class="placeholder">3D Carlesso in generazione sull’altro PC ⏳</div>'}
               ${models.length > 1 ? `<div class="captions">${models.map((m) =>
                 `<span><b>${m.label}</b></span>`).join('')}</div>` : ''}
             </div>
           </div>
           <dl>
-            <dt>Source</dt><dd>${link(c.front)}</dd>
+            <dt>Concept 2D</dt><dd>${link(c.front)}</dd>
             <dt>Dettagli</dt><dd>${c.details}</dd>
             ${c.backGrid ? `<dt>Retro GenAI</dt><dd>${link(c.backGrid)}</dd>` : ''}
-            <dt>Vista posteriore</dt><dd>${link(c.back)}</dd>
+            ${c.back ? `<dt>Vista posteriore</dt><dd>${link(c.back)}</dd>` : ''}
             <dt>Modello 3D</dt><dd>${models.length ? models.map((m) =>
               `${link(m.url)}${m.note ? `<br><small>${m.note}</small>` : ''}`).join('<br>') : '—'}</dd>
           </dl>
@@ -174,7 +361,6 @@
     root.innerHTML = CHARACTERS.map(cardHTML).join('');
     const views = {}; // card index -> 3D view
 
-    // 2D front/back toggle, 3D version toggle, 3D fullscreen button
     root.addEventListener('click', (e) => {
       const fsBtn = e.target.closest('button[data-fs]');
       if (fsBtn) return toggleFullscreen(fsBtn.closest('.pane'));
@@ -190,14 +376,33 @@
       else pane.requestFullscreen();
     }
 
-    // ── 3D view adapter: one renderer per card, one model visible at a time ──
-    // Every model is normalised to the SAME height (MODEL_H), with its spin radius capped so wide
-    // pieces (halberd, staff, wings) still fit: all characters look the same size across cards.
     const loader = new GLTFLoader();
     const FOV = 30;
-    const MODEL_H = 2;        // world units, every piece
-    const MAX_RADIUS = 1.1;   // max horizontal half-extent while spinning
+    const MODEL_H = 2;
+    const MAX_RADIUS = 1.1;
     const MARGIN = 1.15;
+
+    const FACTION_COLORS = {
+      white: {
+        faction_primary: new THREE.Color('#f5f0e6'),
+        faction_trim: new THREE.Color('#d4af37'),
+      },
+      black: {
+        faction_primary: new THREE.Color('#1c1e24'),
+        faction_trim: new THREE.Color('#c0c8d2'),
+      },
+    };
+    let activeFaction = 'original';
+
+    function applyFactionToView(view, mode) {
+      for (const matRec of view.factionMaterials) {
+        if (mode === 'original') {
+          matRec.mat.color.copy(matRec.origColor);
+        } else if (FACTION_COLORS[mode] && FACTION_COLORS[mode][matRec.slot]) {
+          matRec.mat.color.copy(FACTION_COLORS[mode][matRec.slot]);
+        }
+      }
+    }
 
     function makeView(pane, models) {
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -209,16 +414,34 @@
       scene.add(key);
       const camera = new THREE.PerspectiveCamera(FOV, 1, 0.01, 100);
 
-      const slots = models.map((_, k) => {
+      const slots = models.map(() => {
         const g = new THREE.Group();
         scene.add(g);
         return g;
       });
-      const view = { pane, renderer, scene, camera, slots, n: models.length, radii: [], maxR: MAX_RADIUS, angle: 0,
-                     visible: false, dragging: false, lastX: 0, downX: 0, idleAt: 0 };
+      const view = {
+        pane, renderer, scene, camera, slots, n: models.length, radii: [], maxR: MAX_RADIUS, angle: 0,
+        visible: false, dragging: false, lastX: 0, downX: 0, idleAt: 0, factionMaterials: [],
+      };
 
       models.forEach((m, k) => loader.load(m.url, (gltf) => {
         const obj = gltf.scene;
+        obj.traverse((node) => {
+          if (node.isMesh && node.material) {
+            const mats = Array.isArray(node.material) ? node.material : [node.material];
+            mats.forEach((mat) => {
+              if (mat.name === 'faction_primary' || mat.name === 'faction_trim') {
+                view.factionMaterials.push({
+                  mat,
+                  slot: mat.name,
+                  origColor: mat.color.clone(),
+                });
+              }
+            });
+          }
+        });
+        applyFactionToView(view, activeFaction);
+
         const box = new THREE.Box3().setFromObject(obj);
         const size = box.getSize(new THREE.Vector3());
         obj.position.sub(box.getCenter(new THREE.Vector3()));
@@ -251,12 +474,11 @@
       });
       el.addEventListener('pointerup', (e) => {
         view.dragging = false; view.idleAt = performance.now();
-        if (Math.abs(e.clientX - view.downX) < 5) toggleFullscreen(pane); // click (not drag) = fullscreen
+        if (Math.abs(e.clientX - view.downX) < 5) toggleFullscreen(pane);
       });
       return view;
     }
 
-    // Versions side by side, spaced by the real spin diameter of the widest loaded model.
     function layout(v) {
       v.maxR = Math.max(...v.radii.filter(Boolean), 0.3);
       const spacing = 2 * v.maxR * 1.05;
@@ -265,7 +487,6 @@
       resize(v);
     }
 
-    // Same framing rule for every card: fit MODEL_H (height) and the versions' spin diameters (width).
     function resize(v) {
       const w = v.pane.clientWidth, h = v.pane.clientHeight;
       if (!w || !h) return;
@@ -285,7 +506,6 @@
     });
     const viewList = Object.values(views);
 
-    // Pause offscreen canvases (a fullscreen pane always counts as visible)
     const io = new IntersectionObserver((entries) => entries.forEach((en) => {
       const v = viewList.find((x) => x.pane === en.target);
       if (v) v.visible = en.isIntersecting;
@@ -296,13 +516,48 @@
     }));
     viewList.forEach((v) => { io.observe(v.pane); ro.observe(v.pane); });
 
+    // Family Tab Filtering
+    function selectFamily(fam) {
+      const validFam = FAMILY_META[fam] ? fam : 'all';
+      document.querySelectorAll('#family-tabs button').forEach((b) => {
+        b.setAttribute('aria-pressed', b.dataset.family === validFam);
+      });
+      document.getElementById('banner-title').textContent = FAMILY_META[validFam].title;
+      document.getElementById('banner-desc').textContent = FAMILY_META[validFam].desc;
+      root.querySelectorAll('.card').forEach((card) => {
+        const show = validFam === 'all' || card.dataset.familyCard === validFam;
+        card.hidden = !show;
+      });
+      requestAnimationFrame(() => viewList.forEach((v) => resize(v)));
+    }
+
+    document.getElementById('family-tabs').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-family]');
+      if (!btn) return;
+      history.replaceState(null, '', `#${btn.dataset.family}`);
+      selectFamily(btn.dataset.family);
+    });
+
+    document.getElementById('faction-tabs').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-faction]');
+      if (!btn) return;
+      activeFaction = btn.dataset.faction;
+      document.querySelectorAll('#faction-tabs button').forEach((b) => {
+        b.setAttribute('aria-pressed', b === btn);
+      });
+      viewList.forEach((v) => applyFactionToView(v, activeFaction));
+    });
+
+    const initialHash = location.hash.replace('#', '');
+    if (initialHash && FAMILY_META[initialHash]) selectFamily(initialHash);
+
     const clock = new THREE.Clock();
     function tick() {
       const dt = clock.getDelta();
       const now = performance.now();
       for (const v of viewList) {
         if (!v.visible && document.fullscreenElement !== v.pane) continue;
-        if (!v.dragging && now - v.idleAt > 1500) v.angle += dt * 0.6; // auto-rotate
+        if (!v.dragging && now - v.idleAt > 1500) v.angle += dt * 0.6;
         v.slots.forEach((g) => { g.rotation.y = v.angle; });
         v.renderer.render(v.scene, v.camera);
       }

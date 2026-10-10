@@ -1,0 +1,120 @@
+{
+  "$schema": "./_contract.json",
+  "id": "carlesso",
+  "contract_version": "1.0.0",
+  "label": {
+    "it": "Famiglia Carlesso 👨‍👩‍👦‍👦🏰",
+    "en": "Carlesso Family 👨‍👩‍👦‍👦🏰"
+  },
+  "description": {
+    "it": "Il cast principale della famiglia Carlesso (Riccardo, Kate, Ale col drago rosso, Seby, Pupurabbu e la Guardia Svizzera Puffin).",
+    "en": "The primary Carlesso family cast (Riccardo, Kate, Ale with his red baby dragon, Seby, Pupurabbu, and Swiss-Guard Puffin)."
+  },
+  "board_square_size_m": 1.0,
+  "pedestal_diameter_m": 0.75,
+  "grounding_y_m": 0.0,
+  "max_triangles_per_piece": 25000,
+  "required_material_slots": [
+    "faction_primary",
+    "faction_trim"
+  ],
+  "veo_cinema_enabled": true,
+  "factions": {
+    "white": {
+      "label": {
+        "it": "Avorio & Oro Reale",
+        "en": "Ivory & Royal Gold"
+      },
+      "faction_primary": "#f5f0e6",
+      "faction_trim": "#d4af37"
+    },
+    "black": {
+      "label": {
+        "it": "Ossidiana & Argento",
+        "en": "Obsidian & Silver"
+      },
+      "faction_primary": "#1c1e24",
+      "faction_trim": "#c0c8d2"
+    }
+  },
+  "pieces": {
+    "king": {
+      "slug": "king-riccardo-1",
+      "name": {
+        "it": "Re Riccardo",
+        "en": "King Riccardo"
+      },
+      "model": null,
+      "portrait": "assets/characters/king-riccardo-1.jpg",
+      "back_view": "tools/model-pipeline/king/back.png",
+      "height_m": 1.80,
+      "attack_sig": "rune_lightning_sceptre",
+      "victim_reaction": "levitate_sparkle_dissolve"
+    },
+    "queen": {
+      "slug": "queen-kate-4",
+      "name": {
+        "it": "Regina Kate",
+        "en": "Queen Kate"
+      },
+      "model": null,
+      "portrait": "assets/characters/queen-kate-4.jpg",
+      "back_view": null,
+      "height_m": 1.65,
+      "attack_sig": "milk_chocolate_lilac_wave",
+      "victim_reaction": "chocolate_puddle_melt"
+    },
+    "bishop": {
+      "slug": "bishop-ale-1",
+      "name": {
+        "it": "Alfiere Ale (+ Drago Rosso)",
+        "en": "Bishop Ale (+ Red Dragon)"
+      },
+      "model": "assets/models/bishop-ale-rigged.glb",
+      "portrait": "assets/characters/bishop-ale-1.jpg",
+      "back_view": "tools/model-pipeline/ale/experiments_back/back_nb_2.1.png",
+      "height_m": 1.45,
+      "attack_sig": "amethyst_ruby_crystal_shatter",
+      "victim_reaction": "dragon_smoke_mitre_spin"
+    },
+    "knight": {
+      "slug": "knight-seby-4",
+      "name": {
+        "it": "Cavaliere Seby",
+        "en": "Knight Seby"
+      },
+      "model": null,
+      "portrait": "assets/characters/knight-seby-4.jpg",
+      "back_view": "tools/model-pipeline/seby/back_nb_2.1.png",
+      "height_m": 1.35,
+      "attack_sig": "loop_track_toy_cars",
+      "victim_reaction": "wooden_horse_wheel_spin"
+    },
+    "rook": {
+      "slug": "rook-pupurabbu",
+      "name": {
+        "it": "Torre Pupurabbu",
+        "en": "Rook Pupurabbu"
+      },
+      "model": null,
+      "portrait": "assets/characters/rook-pupurabbu.jpg",
+      "back_view": "tools/model-pipeline/rook/back.png",
+      "height_m": 1.30,
+      "attack_sig": "fluffy_ground_pound",
+      "victim_reaction": "plushie_indigo_poof"
+    },
+    "pawn": {
+      "slug": "pawn-puffin",
+      "name": {
+        "it": "Pedone Guardia Svizzera Puffin",
+        "en": "Swiss-Guard Puffin Pawn"
+      },
+      "model": "assets/models/pawn-puffin.glb",
+      "portrait": "assets/characters/pawn-puffin.jpg",
+      "back_view": "tools/model-pipeline/nbviews/gemini-nano-banana-2.1/back.png",
+      "height_m": 0.95,
+      "attack_sig": "halberd_fish_slap",
+      "victim_reaction": "morion_helmet_pop"
+    }
+  }
+}

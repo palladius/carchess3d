@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.21] - 2026-10-10
+
+- 🎛️ **Showcase Multi-Family Selector & Live 3D Faction Material Tinting (`showcase/index.html`)**:
+  - Added interactive family tabs (`Tutte le Famiglie (18)`, `Famiglia Carlesso (6)`, `Classici Carlessiani (6)`, `Famiglia della Palude (6)`) to inspect all 18 2D Nano Banana 2.1 portraits and 3D `.glb` models in one unified gallery.
+  - Added live 3D faction material tinting controls (`Materiali Originali`, `Squadra Bianca (Avorio & Oro)`, `Squadra Nera (Ossidiana & Argento)`) that dynamically override the `faction_primary` and `faction_trim` material slots on every loaded 3D piece.
+  - Added `fable-5.1-high` Adversarial Art Critic score badges (`🟢`/`🟡`) per piece and quick-access buttons to the 6×4 turntable contact sheets (`classic_contact_sheet.png`, `swamp_contact_sheet.png`).
+- 📦 **Carlesso Family Manifest (`assets/families/carlesso.json`)**:
+  - Added declarative manifest for the primary `carlesso` family alongside `classic.json` and `swamp.json` under `assets/families/_contract.json`.
+
 ## [0.1.20] - 2026-10-10
 
 - 🛤️ **Parallel Conductor Tracks (`classic_default_pieces_20261010` & `swamp_family_pieces_20261010`) + Fable 5.1 Adversarial Review & Art Critic Loop**:
