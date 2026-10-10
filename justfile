@@ -39,3 +39,11 @@ blender glb:
 critic glb concept:
     UV_CACHE_DIR=/tmp/uv-cache UV_LINK_MODE=copy uv run tools/model-pipeline/critic/critic_vlm.py --glb {{glb}} --concept {{concept}}
 
+# show 3D model QA scoreboard
+scores:
+    python3 tools/model-pipeline/critic/scoreboard.py
+
+# filter models that suck / fail QA (< 6.0)
+shittest:
+    python3 tools/model-pipeline/critic/scoreboard.py --cagare
+
