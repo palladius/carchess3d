@@ -405,6 +405,12 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
 - **Bishop Ale Decision**: Ale v1 with mitre hat (`assets/models/bishop-ale-1.glb`, MD5 `6b423e6daf1ed71f001c8912cc9035f7`) confirmed as the canonical piece; modular rigged version available in `bishop-ale-rigged.glb`.
 - **Registry Update**: `docs/models-provenance.yaml` updated with 10 total models and 27 source views, validated by `just test` and `scripts/test_provenance.py`.
 
+## 27. 2026-10-10 — Parallel Side Tracks: `classic` & `swamp` Families (Nano Banana 2.1 + Adversarial `fable-5.1-high` Art Critic)
+
+- Executed in parallel via isolated per-track lab notebooks:
+  - **🗿🚽 Carlessian Classic Family (`classic_default_pieces_20261010`)**: see [`tools/model-pipeline/classic/RUNNING_DOC.md`](classic/RUNNING_DOC.md) and `docs/qa-scores.classic.yaml` (2D NB 2.1 avg **8.6/10 🟢**, 3D avg **7.67/10 🟡**, 0 `💩`).
+  - **🐸🧅 Swamp Parody Family (`swamp_family_pieces_20261010`)**: see [`tools/model-pipeline/swamp/RUNNING_DOC.md`](swamp/RUNNING_DOC.md) and `docs/qa-scores.swamp.yaml` (2D NB 2.1 avg **8.7/10 🟢**, 3D avg **7.45/10 🟡**, 0 `💩`).
+
 ---
 
 ## Artifacts index (committed in `tools/model-pipeline/`)
@@ -427,6 +433,8 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 | `rigging/` | Rigging & animation pipeline (`rig_ale_and_dragon.py`, `assemble_modular_bishop.py`, rigged GLB, preview GIF/MP4) |
 | `nbviews/` | Nano Banana views per model + view-set experiment outputs |
 | `chess3dfamily/` | Montage of the source character sheets |
+| `classic/` | **Carlessian Classic Family** pipeline (`gen_classic_portraits.py`, `build_classic_pieces.py`, `critic_classic.py`, `classic_contact_sheet.png`, [`classic/RUNNING_DOC.md`](classic/RUNNING_DOC.md)) |
+| `swamp/` | **Swamp Parody Family** pipeline (`gen_swamp_views.py`, `build_swamp_models.py`, `critic_swamp.py`, `swamp_contact_sheet.png`, [`swamp/RUNNING_DOC.md`](swamp/RUNNING_DOC.md)) |
 
 ## Open items
 

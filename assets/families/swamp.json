@@ -1,0 +1,113 @@
+{
+  "$schema": "./_contract.json",
+  "id": "swamp",
+  "version": "1.0.0",
+  "label": {
+    "it": "Famiglia della Palude 🐸🧅",
+    "en": "Swamp Family 🐸🧅"
+  },
+  "description": {
+    "it": "Parodia fiabesca della palude 100% originale: orchi gentili con scettro-cipolla, principesse guerriere, maghi focaccina ligure, asinelli da torneo e draghesse sulle torri.",
+    "en": "100% original fairy-tale swamp parody set: lovable ogres with onion sceptres, martial-arts ogress queens, Ligurian focaccia mages, tournament pack-burros, and watchtower dragons."
+  },
+  "veo_cinema": false,
+  "default_victim_reaction": "swamp_mud_poof",
+  "pedestal_diameter_m": 0.75,
+  "grounding_y_m": 0.0,
+  "required_material_slots": [
+    "faction_primary",
+    "faction_trim"
+  ],
+  "factions": {
+    "white": {
+      "faction_primary": "#f5f0e6",
+      "faction_trim": "#d4af37",
+      "label": {
+        "it": "Palude Dorata",
+        "en": "Sunlit Bog"
+      }
+    },
+    "black": {
+      "faction_primary": "#1c1e24",
+      "faction_trim": "#c0c8d2",
+      "label": {
+        "it": "Palude Ombrosa",
+        "en": "Moonlit Bog"
+      }
+    }
+  },
+  "pieces": {
+    "king": {
+      "slug": "king-swamp-orco",
+      "name": {
+        "it": "Orco Brontolo",
+        "en": "Orco Brontolo (Swamp Ogre King)"
+      },
+      "model": "assets/models/swamp/king-swamp-orco.glb",
+      "portrait": "assets/characters/king-swamp-orco.jpg",
+      "height_m": 1.80,
+      "attack_sig": "swamp_onion_burp",
+      "victim_reaction": "swamp_mud_poof"
+    },
+    "queen": {
+      "slug": "queen-swamp-orchessa",
+      "name": {
+        "it": "Principessa Orchessa",
+        "en": "Principessa Orchessa (Warrior Ogress Queen)"
+      },
+      "model": "assets/models/swamp/queen-swamp-orchessa.glb",
+      "portrait": "assets/characters/queen-swamp-orchessa.jpg",
+      "height_m": 1.65,
+      "attack_sig": "kungfu_slowmo_kick",
+      "victim_reaction": "swamp_mud_poof"
+    },
+    "bishop": {
+      "slug": "bishop-swamp-focaccina",
+      "name": {
+        "it": "Mago Focaccina",
+        "en": "Mago Focaccina (Ligurian Bread Mage)"
+      },
+      "model": "assets/models/swamp/bishop-swamp-focaccina.glb",
+      "portrait": "assets/characters/bishop-swamp-focaccina.jpg",
+      "height_m": 1.45,
+      "attack_sig": "focaccina_crumb_bonk",
+      "victim_reaction": "swamp_mud_poof"
+    },
+    "knight": {
+      "slug": "knight-swamp-asinello",
+      "name": {
+        "it": "Asinello Chiacchierone",
+        "en": "Asinello Chiacchierone (Pack-Burro Knight)"
+      },
+      "model": "assets/models/swamp/knight-swamp-asinello.glb",
+      "portrait": "assets/characters/knight-swamp-asinello.jpg",
+      "height_m": 1.35,
+      "attack_sig": "asinello_back_kick",
+      "victim_reaction": "swamp_mud_poof"
+    },
+    "rook": {
+      "slug": "rook-swamp-draghessa",
+      "name": {
+        "it": "Draghessa della Palude",
+        "en": "Draghessa della Palude (Watchtower Dragon)"
+      },
+      "model": "assets/models/swamp/rook-swamp-draghessa.glb",
+      "portrait": "assets/characters/rook-swamp-draghessa.jpg",
+      "height_m": 1.30,
+      "attack_sig": "dragon_heart_smoke",
+      "victim_reaction": "swamp_mud_poof"
+    },
+    "pawn": {
+      "slug": "pawn-swamp-tappo",
+      "name": {
+        "it": "Guardia Re Tappo",
+        "en": "Guardia Re Tappo (Tiny Stool Guard)"
+      },
+      "model": "assets/models/swamp/pawn-swamp-tappo.glb",
+      "portrait": "assets/characters/pawn-swamp-tappo.jpg",
+      "height_m": 0.95,
+      "attack_sig": "decree_scroll_flatten",
+      "victim_reaction": "swamp_mud_poof"
+    }
+  }
+}

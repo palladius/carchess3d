@@ -6,9 +6,10 @@ respec := env_var_or_default("RESPEC_DIR", "~/git/respec")
 list:
     @just -l
 
-# sanity checks: GLB validity, asset naming, secret scan
+# sanity checks: GLB validity, asset naming, secret scan + stdlib unit tests
 test:
     python3 scripts/check.py
+    python3 -m unittest discover -s tests -p "test_*.py" -v
 
 # serve the repo statically on http://localhost:8000 (service workers need localhost)
 serve port="8000":
@@ -18,6 +19,18 @@ serve port="8000":
 showcase port="8000":
     @echo "👉 http://localhost:{{port}}/showcase/"
     python3 -m http.server {{port}}
+
+# local image->3D root (ext4 loop image on the external SSD in Riccardo's setup); override with LOCAL3D_ROOT
+local3d_root := env_var_or_default("LOCAL3D_ROOT", "/media/riccardo/TurboSebux/carchess3d")
+
+# set up the local GPU environment (phase 1: Hunyuan3D-2 shape). Everything under local3d_root
+local3d-setup:
+    LOCAL3D_ROOT={{local3d_root}} bash tools/model-pipeline/local/setup_local.sh
+
+# image -> untextured GLB with Hunyuan3D-2 on the local GPU. e.g. just local3d-shape tools/model-pipeline/ale/front.png ale1_hy2 --octree 512
+local3d-shape image label *args:
+    HF_HOME={{local3d_root}}/hf-cache TMPDIR={{local3d_root}}/tmp U2NET_HOME={{local3d_root}}/hf-cache/u2net LOCAL3D_ROOT={{local3d_root}} \
+      {{local3d_root}}/venv-hunyuan/bin/python tools/model-pipeline/local/hunyuan_shape.py {{image}} {{label}} {{args}}
 
 # re-copy the 2D character art from the respec spec repo
 sync-assets:
@@ -47,7 +60,7 @@ scores:
 shittest:
     python3 tools/model-pipeline/critic/scoreboard.py --cagare
 
-# test 3D model provenance and 2D source tracking
+# verify 3D models provenance and MD5 registry
 provenance:
     python3 scripts/test_provenance.py
 

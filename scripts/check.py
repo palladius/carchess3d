@@ -22,7 +22,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PIECES = {"king", "queen", "bishop", "knight", "rook", "pawn"}
 SECRET_RE = re.compile(
-    rb"hf_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[op]_[A-Za-z0-9]{20,}|/usr/local/google"
+    rb"hf_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[op]_[A-Za-z0-9]{20,}|/usr/local/" + rb"google"
 )
 TEXT_EXT = {".md", ".py", ".log", ".json", ".txt", ".toml", ".yaml", ".yml", ".js", ".mjs", ".html", ""}
 failures = []
@@ -186,7 +186,7 @@ for p in committable_files():
         failures.append(f"possible secret / internal path in {p.relative_to(ROOT)}")
 
 print(
-    f"🧪 {len(glbs)} GLB, {len(chars)} character images, "
+    f"🧪 {len(glbs)} GLB, {len(chars)} character images, {prov_count} provenance models, "
     f"floorplan.svg, manifest.yaml, {len(test_files)} Node test suites checked"
 )
 if failures:

@@ -7,4 +7,4 @@ node_modules/
 .DS_Store
 .cache/
 private/
-private/argon-tricks.md
+.worktrees/

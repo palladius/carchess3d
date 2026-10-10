@@ -14,8 +14,8 @@ The application runs everywhere without requiring a network connection after fir
    - Full 32 pieces on the 8×8 board (White/Ivory-Gold team vs Black/Obsidian-Silver team).
    - 360° orbit camera, pinch/scroll zoom, board orientation flip, top-down toggle, and parabolic jump arcs with *squash-and-stretch* landing physics.
    - Dual-layer capture spectacle (3D on-board battle + 16:9 background Veo Cinema) with comic pop-ups (*"BAM!"*, *"STECCHITO!"*, *"PUFFIN SLAP! 🐟"*).
-2. **Mode 2: 3D WOW Mode (Interactive Character Gallery & Battle Arena):**
-   - **Turntable Character Inspector:** Close-up 360° inspection of all family characters (`Ale`, `Seby`, `Puffin`, `Riccardo`, `Kate`, `Pupurabbu`) on rotating pedestals with manual drag rotation and animation triggers (*Idle*, *Attack*, *Dragon Wing Glide*, *Click_Fire_Breath*, *Victory Emote*).
+2. **Mode 2: 3D WOW Mode (Interactive Character Gallery & Battle Arena — supersedes `showcase/index.html`):**
+   - **Turntable Character Inspector:** Close-up 360° inspection of all family characters (`Ale`, `Seby`, `Puffin`, `Riccardo`, `Kate`, `Pupurabbu`) on rotating pedestals with manual drag rotation and animation triggers (*Idle*, *Attack*, *Dragon Wing Glide*, *Click_Fire_Breath*, *Victory Emote*). Replaces the temporary `showcase/index.html` viewer directly inside the game's Mode 2 (while `docs/qa-scores.yaml` remains a CLI-only QA tool via `just scores` / `just shittest`).
    - **Action Arena (Battle Cinema Stage):** Pick any `Attacker × Defender` combination and trigger the 3D clash + 16:9 Veo video on demand without waiting for that capture in a live chess match.
 
 ## 3. 3D Environment: The Enchanted Swamp of Zurich ("Swamp-on-the-Limmat")
@@ -35,12 +35,15 @@ To prevent a quadratic explosion of battle combinations ($12 \times 12 = 144$), 
 ### 👨‍👩‍👦‍👦 Carlesso Family Cast & Current 3D Asset Status
 | Piece | Character | 3D / 2D Asset Status | Base Attack Signature |
 |---|---|---|---|
-| ♔ King | **Riccardo** | `king-riccardo-{1,2}.jpg` (3D pedestal + portrait medallion until GLB) | Glowing rune circle under the victim; Riccardo raises his sceptre, magic orbs/lightning strike; victim levitates, spins, and dissolves into sparkles. |
-| ♕ Queen | **Kate** | `queen-kate-{1..5}.jpg` (3D pedestal + portrait medallion until GLB) | A glossy milk-chocolate wave (brown/lilac palette, zero brand marks) coats the victim amid lilac confetti, melting them into a sweet puddle. |
-| ♗ Bishop ×2 | **Ale (+ red dragon)** | ✅ `bishop-ale-1.glb` & rigged `bishop-ale-rigged.glb` (26 bones, `Idle` wing flap, `Click_Fire_Breath`) | Encases the victim in a purple crystal display case and turns them into a translucent gem (amethyst or ruby) that **shatters into hundreds of physics shards** (*Wizard Chess* style). |
-| ♘ Knight ×2 | **Seby** | 360° turnaround views + 4 weapon variants ready in `tools/model-pipeline/seby/` | A rain of colourful generic die-cast toy cars on an orange loop-track ring zooms around the victim, bowling them over flat ("stecchito!") with cartoon stars ✨. |
-| ♖ Rook ×2 | **Pupurabbu** | `rook-pupurabbu.jpg` (3D pedestal + portrait medallion until GLB) | Huge leap and ground-pound shockwave ring, squashing the victim flat like a pancake inside a fluffy purple poof cloud. |
+| ♔ King | **Riccardo** | `king-riccardo-{1,2}.jpg` + turnaround in `tools/model-pipeline/king/` (3D pedestal + portrait medallion until GLB) | Glowing rune circle under the victim; Riccardo raises his sceptre, magic orbs/lightning strike; victim levitates, spins, and dissolves into sparkles. |
+| ♕ Queen | **Kate** | Canonical `tools/model-pipeline/kate/final_queen_canonical/kate_final_v1_nb21.png` (emerald eyes, navy glasses, royal purple gown) | A glossy milk-chocolate wave (brown/lilac palette, zero brand marks) coats the victim amid lilac confetti, melting them into a sweet puddle. |
+| ♗ Bishop ×2 | **Ale (+ red dragon)** | ✅ `bishop-ale-1.glb` (with mitre hat 🏆 on board) + `bishop-ale-rigged.glb` (26-bone animated dragon for Mode 2 WOW Turntable & fire-breath attack) | Encases the victim in a purple crystal display case and turns them into a translucent gem (amethyst or ruby) that **shatters into hundreds of physics shards** (*Wizard Chess* style). |
+| ♘ Knight ×2 | **Seby** | 360° turnaround views + **HUD 4-Weapon Switcher** (`👊 Scary Unarmed`, `⚔️ Epic Excalibur`, `🔵 Lightsaber`, `🚩 Long Lance`) in `tools/model-pipeline/seby/` | A rain of colourful generic die-cast toy cars on an orange loop-track ring zooms around the victim, bowling them over flat ("stecchito!") with cartoon stars ✨. |
+| ♖ Rook ×2 | **Pupurabbu** | `rook-pupurabbu.jpg` + turnaround in `tools/model-pipeline/rook/` (3D pedestal + portrait medallion until GLB) | Huge leap and ground-pound shockwave ring, squashing the victim flat like a pancake inside a fluffy purple poof cloud. |
 | ♙ Pawn ×8 | **Swiss-Guard Puffin** | ✅ `pawn-puffin.glb` (TRELLIS multi-view C2: front + side + back) | Charges with the halberd followed by a cartoon "fish-slap" 🐟 that sends the victim spinning off the board with a *pling*! |
+
+### 🎨 Faction Readability (White vs Black on Textured GLBs)
+Every piece keeps its natural cutie facial colours while sitting on a **Bicolor Royal Pedestal** (**Ivory & Gold** for White vs **Obsidian & Silver** for Black) with a **glowing ground ring** and a subtle **faction rim/outfit tint shader** (warm gold vs deep obsidian-violet), making even *Carlesso vs Carlesso* mirror matches unambiguous at a glance.
 
 ## 5. Dual-Layer Capture System: 3D Board Choreography + 16:9 Veo 3D Cinema
 
@@ -56,22 +59,28 @@ Every capture combines two synchronized visual layers orchestrated by `CombatAni
    - **Temporary Physics Debris:** Shards, toy cars, chocolate drops, feathers, and stone shrapnel bounce on the board and gently fade after 3–4 seconds.
 
 2. **Background (The 16:9 Veo 3D Cinema & MD5 Asset Pipeline):**
-   - Behind the chessboard, a 16:9 3D screen (`THREE.VideoTexture`) projects a pre-generated **Veo battle movie** for that specific `(attacker, defender)` pair, providing cinematic redundancy right behind the 3D pieces.
+   - Behind the chessboard, a 16:9 3D screen (`THREE.VideoTexture`) projects a pre-generated **Veo battle movie** for that specific `(attacker, defender)` pair, providing cinematic redundancy right behind the 3D pieces (with a procedural Magic Mirror shader fallback for pairs awaiting Veo rendering).
    - **Reproducible Pipeline (`Nano Banana Composite → Veo Video`):**
-     - Input 1 (`attacker_img`) + Input 2 (`defender_img`) → **Nano Banana** generates a composite battle keyframe (`composite_img`) → **Veo** animates the battle into an `.mp4` clip.
+     - Input 1 (`attacker_img`) + Input 2 (`defender_img`) → **Nano Banana** generates a composite battle keyframe (`composite_img`) → **Veo** animates the battle into an `.mp4` clip (starting with flagship battles: `Seby vs Ale`, `Ale vs Seby`, `Seby ↔ Pupurabbu`).
    - **Declarative MD5 Tracking (`assets/battles/manifest.yaml`):**
      - Tracks every `(attacker, defender)` pair with `attacker_img`, `attacker_md5`, `defender_img`, `defender_md5`, `composite_img`, `composite_md5`, `prompt`, `veo_video`, and `status`.
      - **`just test` Validation (`scripts/check.py`):** Automatically hashes the source images and verifies them against `manifest.yaml`. If a character's starting image changes, `just test` flags the affected battle videos as `stale` ("Hey, the source image changed — regenerate the battle video!").
 
-## 6. UX, Game Modes & Audio
+## 6. UX, Game Modes & 5-Track Dynamic Lyria 3 Soundtrack
 
 - **Special Moves & Kid-Friendly UX:**
+  - **Seby Weapon Switcher (`⚔️ Arma di Seby`):** Toggle between *Scary Unarmed*, *Epic Excalibur*, *Lightsaber*, and *Long Lance* right from the HUD/WOW Mode.
   - **Magical Puffin Promotion:** Golden beam transformation with cutie portrait picker.
-  - **Special Castling:** Riccardo (King) and Pupurabbu (Rook) high-five / belly-bounce swap.
+  - **Special Castling (Arrocco):** Riccardo (King) and Pupurabbu (Rook) high-five / belly-bounce swap accompanied by the rare medieval heraldic fanfare.
   - **Magic Hint Bulb:** One-tap move suggestion for kids.
 - **Profiles & Game Modes:**
   - **2P Hot-Seat** and **vs CPU** (Web Worker: *Easy* capture-loving, *Medium* minimax d=2, *Hard* alpha-beta d=4).
   - Passwordless **"Chi gioca?"** profile selector (*Riccardo, Kate, Ale, Seby, Ospite*) with `localStorage` autosave and FEN/PGN export/import.
-- **WebAudio SFX & Dual-Language Theme Song (IT 🇮🇹 / EN 🇬🇧):**
+- **WebAudio SFX & 5-Track Adaptive Lyria 3 Soundtrack (`assets/audio/`):**
   - Procedural WebAudio SFX + comic impact bubbles (*"STECCHITO!"*, *"PUFFIN SLAP! 🐟"*, *"SUPER HUG! 💜"*).
-  - **Lyria 3 Theme Song ("Ale & Seby, Eroi della Scacchiera / Heroes of the Board"):** Two loopable MP3 tracks (Italian and English vocals celebrating Ale, his red dragon, Seby, his race cars, and Pupurabbu) with a procedural WebAudio fallback.
+  - **5 Lyria 3 Generated Tracks (switched dynamically by `AudioListener` on game events, with WebAudio fallback):**
+    1. 🇮🇹 **`theme-it.mp3` ("Ale & Seby, Eroi della Scacchiera"):** Heroic Italian vocal anthem for Ale (red dragon) & Seby (race cars + Pupurabbu).
+    2. 🇬🇧 **`theme-en.mp3` ("Ale & Seby, Heroes of the Board"):** Heroic English vocal anthem.
+    3. 🌿 **`bgm-calm-swamp.mp3` (Calm Match Loop):** Relaxing, magical fairy-tale lute/harp/flute background loop played while thinking on the Zurich Swamp board.
+    4. ⚔️ **`bgm-battle-clash.mp3` (Combat Capture Theme):** Dark, fast-paced cinematic orchestral percussion track that crossfades in whenever a capture animation begins!
+    5. 🎺 **`jingle-castling-heraldic.mp3` (Rare Medieval Castling Fanfare):** Super-rare royal heraldic medieval trumpet & timpani fanfare triggered exclusively when Castling (*Arrocco*) is performed!

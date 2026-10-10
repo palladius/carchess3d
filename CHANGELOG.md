@@ -28,6 +28,63 @@
 - 🎨📸 **Visual Progress Gallery & Critic Loop**:
   - Added [`progress.html`](progress.html), [`docs/VISUAL_PROGRESS.md`](docs/VISUAL_PROGRESS.md), and 25+ diagnostic screenshots across Rounds 1–4 in [`docs/visual-progress/`](docs/visual-progress/), plus offline PWA support ([`manifest.webmanifest`](manifest.webmanifest), [`sw.js`](sw.js)).
 
+## [0.1.27] - 2026-10-10
+
+- 🛤️ **Parallel Conductor Tracks (`classic_default_pieces_20261010` & `swamp_family_pieces_20261010`) + Fable 5.1 Adversarial Review & Art Critic Loop**:
+  - Reviewed specs/plans and audited 2D/3D outputs with `fable-5.1-high` (`fable-reviewer` + `art-critic`) in a multi-agent Swarm with zero file collisions (`assets/families/_contract.json`, `CHANGELOG.d/`, per-family `docs/qa-scores.<family>.yaml`, and per-family `RUNNING_DOC.md`).
+- 🗿🚽 **Carlessian Classic Family (`classic`)**:
+  - Generated 6 Nano Banana 2.1 (`gemini-nano-banana-2.1`) 2D character portraits (`assets/characters/{king-classic-cesso,queen-classic-ciocco,bishop-classic-drago,knight-classic-turbo,rook-classic-puffo,pawn-classic-puffin}.jpg`, `art-critic` 2D avg **8.6/10 🟢**).
+  - Sculpted 6 watertight, floor-grounded (`min.y = 0.0`, `0.95m → 1.80m`) 3D `.glb` models in `assets/models/classic/` with `faction_primary` / `faction_trim` material slots, 6×4 turntable contact sheet (`tools/model-pipeline/classic/classic_contact_sheet.png`), declarative manifest `assets/families/classic.json`, and `tests/test_classic_family.py`.
+- 🐸🧅 **Swamp Parody Family (`swamp`)**:
+  - Generated 6 IP-differentiated Nano Banana 2.1 (`gemini-nano-banana-2.1`) 2D character portraits (`assets/characters/{king-swamp-orco,queen-swamp-orchessa,bishop-swamp-focaccina,knight-swamp-asinello,rook-swamp-draghessa,pawn-swamp-tappo}.jpg`, `art-critic` 2D avg **8.7/10 🟢**).
+  - Sculpted 6 watertight, floor-grounded (`min.y = 0.0`, `0.95m → 1.80m`) Chibi 3D `.glb` models in `assets/models/swamp/`, 6×4 turntable contact sheet (`tools/model-pipeline/swamp/swamp_contact_sheet.png`), declarative manifest `assets/families/swamp.json`, and `tests/test_swamp_family.py`.
+
+## [0.1.26] - 2026-10-10
+
+- 👑👱‍♀️ **Canonical Queen Kate Young 4c (`queen-kate.glb`)**: designated the Young 4c wavy-hair model (chosen by Kate & Riccardo) as the default canonical piece (`assets/models/queen-kate.glb`, MD5 `86cee880f66da2ed2c3c7ccf514d032d`), preserving the 2016 wedding updo as an alternative piece (`assets/models/queen-kate-wedding2016.glb`, MD5 `d5ba37e0d5d5622d2265f6a7f7031395`).
+- ♗ **Canonical Bishop Ale Confirmed**: confirmed Bishop Ale v1 with mitre hat (`bishop-ale-1.glb`, MD5 `6b423e6daf1ed71f001c8912cc9035f7`) as canonical piece.
+- 📋 **Provenance Registry 10/10**: updated `docs/models-provenance.yaml` with all 10 3D models and 27 source views with MD5 checksums; verified via `just test` and `just provenance`.
+- 🌐 **Web Showcase Updated**: showcase updated to highlight Kate Young 4c as default winner with tab to compare Nozze 2016.
+
+## [0.1.25] - 2026-10-10
+
+- 🏰👾 **Rook Pupurabbu 3D Model (`rook-pupurabbu.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` from 360° turnaround dataset (`tools/model-pipeline/rook/`), featuring the adorable fluffy purple mascot leaning out and smiling from the crenellated purple stone tower. All default chess pieces of the Carlesso family now have complete 3D models!
+- 📋 **Provenance Registry Coverage**: registered `rook-pupurabbu` in `docs/models-provenance.yaml` with MD5 `eb20ae6542bc25e6ce5cc9846a82dc4c` across all 4 concept views.
+- 🌐 **Showcase Complete**: linked `rook-pupurabbu.glb` in `showcase/index.html` on port 8080.
+- 📓 **Documentation**: documented Pupurabbu generation in `tools/model-pipeline/RUNNING_DOC.md` (§25).
+
+## [0.1.24] - 2026-10-10
+
+- 🐴⚔️ **Knight Sebastian 3D Model (`knight-seby.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` from 360° turnaround dataset (`tools/model-pipeline/seby/`), featuring golden-armored charger steed, golden plate armor, blue royal cape, raised left fist (modular weapon/power ready), and turned wooden pedestal.
+- 📋 **Provenance Registry Expansion**: registered `knight-seby` in `docs/models-provenance.yaml` with target MD5 `c060099e14059ba7fc8fdb3e4403db94` and verified concept image MD5s across all views.
+- 🌐 **Showcase Updated**: linked `knight-seby.glb` in `showcase/index.html` on port 8080.
+- 📓 **Documentation**: documented Sebastian pipeline, parameters, and render results in `tools/model-pipeline/RUNNING_DOC.md` (§24).
+
+## [0.1.23] - 2026-10-10
+
+- 👑 **King Riccardo 3D Model (`king-riccardo.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` from turnaround concept (`king-riccardo-1.jpg`, front/side/back views) featuring imperial arched crown, blue ermine-trimmed cloak, golden royal orb, scepter, and authentic clean profile without glasses.
+- 👱‍♀️ **Queen Kate Young Stylized 3D Model (`queen-kate-young.glb`)**: generated secondary 3D variant from the 4c turnaround concept with wavy flowing hair, purple frames, and royal gown. Showcase updated with interactive dual tabs for both Queen Kate interpretations.
+- 📋 **Testable 3D Models Provenance Registry (`docs/models-provenance.yaml`)**: centralized registry documenting every 3D model, its MD5 checksum, target paths, source concept images, pipelines, and tools.
+- 🧪 **Automated Provenance Checks**: integrated stdlib MD5 validation into `scripts/check.py` (`just test`), added standalone `scripts/test_provenance.py` and recipe `just provenance`.
+- 🌐 **Web Showcase Live on Port 8080**: updated `showcase/index.html` with King Riccardo and Queen Kate (Nozze 2016 + Young 4c).
+
+## [0.1.22] - 2026-10-10
+
+- 👑 **Queen Kate 3D Model (`queen-kate.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` using authentic 2016 wedding updo hairstyle concept (`kate_wedding_v2_nb21`), chic round navy glasses, emerald green eyes, royal purple velvet gown with gold embroidery, amethyst ring, and wooden carved pedestal with brass nameplate.
+- 🛠️ **3D Pipeline & Renders**: added `tools/model-pipeline/kate/gen_trellis2.py`, automated Blender EEVEE headless render script `render_preview.py` (`out/queen_kate_3d_preview.png`), and 36-frame 360° turntable animation script `render_turntable.py` (`out/queen_kate_turntable.gif` & `queen_kate_turntable_strip.png`). Copied canonical asset to `assets/models/queen-kate.glb` (3.7 MB, watertight).
+- 🔑 **HF Token Whereabouts**: configured authenticated token management in `.env` supporting `HF_RICC_PROVE3D_CARLESSO` / `palladius` work account with ZeroGPU quota.
+- 📓 **Documentation**: documented full generation run, endpoints, timings, and findings in `tools/model-pipeline/RUNNING_DOC.md` (§21).
+
+## [0.1.21] - 2026-10-10
+
+- 🛤️ **Merged Conductor Tracks (`classic_default_pieces_20261010` & `swamp_family_pieces_20261010`)**: added declarative family contract (`assets/families/_contract.json`) and parallel-safe specs/plans for the Staunton-Wizard Classic Stone set and the 100% IP-safe *Famiglia della Palude* (*Orco Brontolo, Principessa Orchessa, Asinello Chiacchierone, Mago Focaccina, Draghessa della Palude, Guardia Re Tappo*).
+
+## [0.1.20] - 2026-10-10
+
+- 🎼 **Conductor Plan Refinements (`/roastme` pre-flight, Forged with Argon ✨)**: updated `conductor/product.md` with canonical character variants (`bishop-ale-1.glb` + `bishop-ale-rigged.glb`, `kate_final_v1_nb21.png`, Seby 4-weapon HUD switcher), Bicolor Royal Pedestal + Rim Tint shader for mirror-match readability, 5-track adaptive Lyria 3 soundtrack (IT/EN vocal themes, calm swamp loop, dark combat loop, rare medieval heraldic Castling fanfare), CLI-only `docs/qa-scores.yaml` policy, and Mode 2 WOW Arena superseding `showcase/index.html`.
+- 📦 Vendored offline runtime addons (`OrbitControls`, `EffectComposer`, `RenderPass`, `UnrealBloomPass`, `OutputPass`, `MaskPass`, `ShaderPass`) under `vendor/three/addons/` and `chess.js` (`v1.0.0-beta.8` ESM) under `vendor/chess.js/`.
+- 🌳 Added `.worktrees/` to `.gitignore` for isolated multi-agent branch execution.
+
 ## [0.1.19] - 2026-10-10
 
 - 🔀 Merged `origin/vlm-critic` (branch commits `47c6c04` "v0.1.14" + `bbb28ea` "v0.1.15", renumbered here because `main` already used those numbers). Kept `UV_INDEX_URL` in `just critic`; branch RUNNING_DOC sections renumbered §18/§19 → §19/§20.

@@ -1,0 +1,35 @@
+{
+  "track_id": "swamp_family_pieces_20261010",
+  "type": "feature",
+  "status": "completed",
+  "title": "Swamp Parody Chess Family (Orco Brontolo, Principessa Orchessa, Asinello Chiacchierone, Mago Focaccina, Draghessa & Guardia Tappo)",
+  "created_at": "2026-10-10T11:04:05+02:00",
+  "updated_at": "2026-10-10T12:42:00+02:00",
+  "depends_on": [
+    "v1_carchess3d#3.2 (only for runtime PieceView integration; Phases 1-2 & family JSON manifest are 100% standalone)"
+  ],
+  "owns": [
+    "conductor/tracks/swamp_family_pieces_20261010/**",
+    "tools/model-pipeline/swamp/**",
+    "assets/models/swamp/**",
+    "assets/characters/*-swamp-*.jpg",
+    "assets/families/swamp.json",
+    "docs/qa-scores.swamp.yaml",
+    "CHANGELOG.d/swamp_family_pieces_20261010.md",
+    "tests/test_swamp_family.py"
+  ],
+  "forbidden": [
+    "assets/models/*.glb",
+    "assets/models/classic/**",
+    "assets/characters/*-classic-*.jpg",
+    "tools/model-pipeline/ale/**",
+    "tools/model-pipeline/puffin2/**",
+    "tools/model-pipeline/seby/**",
+    "tools/model-pipeline/king/**",
+    "tools/model-pipeline/queen/**",
+    "tools/model-pipeline/rook/**",
+    "tools/model-pipeline/classic/**",
+    "VERSION",
+    "CHANGELOG.md"
+  ]
+}
