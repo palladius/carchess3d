@@ -5,6 +5,34 @@
 
 ---
 
+## 🥊🐎 Round 5 (v0.2.3) — Scazzottata 3D Reale (`Piece A` vs `Piece B`) + Camminata/Cavalcata Scheletrica 2.0s + Trackpad Mac 2-Dita + Bianchi vs Neri Frontali
+
+### 5.1 Bianchi Fronteggiano i Neri (`yaw = π` vs `yaw = 0`)
+Tutti i 16 pezzi Bianchi (`Avorio & Oro`) guardano ora verso Nord (`-Z`, `rotation.y = Math.PI`), fronteggiando faccia a faccia i 16 pezzi Neri (`Ossidiana & Argento`, `rotation.y = 0`). Quando un pezzo cammina o combatte, si orienta nella direzione del moto e poi torna al suo orientamento di schieramento!
+
+![Round 5 White Facing Black](./visual-progress/round5_1_white_facing_black.png)
+
+### 5.2 Camminata dei Pedoni (`2.0s`) & Cavalcata di Seby (`2.2s`) con Shader Scheletrico Procedurale
+Ogni mossa dura ora **`2.0s`** (`2.2s` per la cavalcata di Cavaliere Seby) con deformazione scheletrica real-time degli arti (`injectLocomotionShader` su `MeshStandardMaterial.onBeforeCompile`):
+- **Pedone Puffin (`c2 → c4`)**: marcia svizzera in 8 passi con oscillazione alternata delle zampe, alabarda brandita in avanti e nuvolette di polvere ad ogni passo.
+- **Cavaliere Seby (`g1 → f3`)**: impennata iniziale del cavallo (`t = 0..0.18`) seguita da 4 falcate di galoppo lungo la traiettoria curva a L con zampe anteriori/posteriori snodate.
+
+![Round 5 Pawn Walk c2 to c4](./visual-progress/round5_2_pawn_walk_c2_c4.png)
+
+![Round 5 Knight Seby Gallop g1 to f3](./visual-progress/round5_4_seby_gallop_g1_f3.png)
+
+### 5.3 Scazzottata 3D Automatica tra `Pezzo A` e `Pezzo B` (`4.0s`)
+Ad ogni cattura sulla scacchiera (o nella WOW Arena), i **due veri modelli 3D `.glb`** dell'Attaccante e del Difensore si affrontano faccia a faccia in una **Scazzottata 3D in 3 Atti (`4.0s`)**:
+1. **Atto 1 (`0.0s–1.0s`)**: Carica a piedi/galoppo verso il centro dello scontro e guardia incrociata.
+2. **Atto 2 (`1.0s–3.0s`)**: 5 scambi fisici ravvicinati (affondo dell'attaccante, contrattacco di testata/spada del difensore, rissa vorticosa dentro la **nuvola di polvere 3D fumetto**, montante + piroetta di stordimento, e colpo finale).
+3. **Atto 3 (`3.0s–4.0s`)**: Volo parabolico del pezzo sconfitto direttamente nella **Palude di Shrek** con posa di vittoria del vincitore!
+
+![Round 5 Pawn vs Pawn 3D Brawl](./visual-progress/round5_3_brawl_pawn_vs_pawn.png)
+
+![Round 5 Ale vs Seby 3D Brawl](./visual-progress/round5_5_brawl_ale_vs_seby.png)
+
+---
+
 ## 🐸🎬 Round 4 (v0.2.0) — Pezzi Catturati nella Palude di Shrek + 3 Video 16:9 Reali (`.mp4`/`.webm`) + Puntini Colorati Mosse Legali
 
 ### 4.1 I Pezzi Catturati Sguazzano nella Palude di Shrek (`?swamp_party=1`)

@@ -464,11 +464,66 @@ export class VFXPoolView {
     this.props.skyBeam.visible = false;
     this.rootGroup.add(this.props.skyBeam);
 
-    // 8. Pre-allocated Victim & Attacker Stage Figurines (so squashes, melts, fish-slaps,
-    //    and Seby <-> Pupurabbu cuddles always animate visibly on the clash square)
+    // 8. 3D Scazzottata Brawl Stage & Cartoon Brawl Cloud + Starburst
+    this.brawlStageGroup = new THREE.Group();
+    this.brawlStageGroup.name = 'BrawlStageFighters';
+    this.rootGroup.add(this.brawlStageGroup);
+    this.attackerFighter = null;
+    this.defenderFighter = null;
+
+    this.props.brawlCloud = this.createBrawlCloudProp();
+    this.rootGroup.add(this.props.brawlCloud);
+
+    // 9. Fallback Stage Figurines (used only in headless unit tests where PieceView is not mounted)
     this.victimProxy = this.createStageFigurine(0xd7ccc8);
     this.cuddlePartnerProxy = this.createStageFigurine(0x9575cd);
     this.rootGroup.add(this.victimProxy, this.cuddlePartnerProxy);
+  }
+
+  /**
+   * Builds a pre-allocated 3D cartoon brawl dust cloud + comic impact starburst (`KAPOW!`)
+   * that swirls between Attacker A and Defender B during Act 2 of the 3D Scazzottata.
+   */
+  createBrawlCloudProp() {
+    const cloudGroup = new THREE.Group();
+    cloudGroup.name = 'CartoonBrawlCloud';
+    const dustMat = new THREE.MeshStandardMaterial({
+      color: 0xf5f0e6,
+      emissive: 0xffe0b2,
+      emissiveIntensity: 0.35,
+      roughness: 0.78,
+      metalness: 0.05,
+      transparent: true,
+      opacity: 0.82,
+    });
+    const puffGeo = new THREE.SphereGeometry(0.19, 10, 10);
+    for (let i = 0; i < 8; i++) {
+      const ang = (i * Math.PI * 2) / 8;
+      const puff = new THREE.Mesh(puffGeo, dustMat);
+      puff.position.set(
+        Math.cos(ang) * 0.26,
+        (i % 2 === 0 ? 0.08 : -0.06),
+        Math.sin(ang) * 0.26,
+      );
+      puff.scale.setScalar(0.85 + (i % 3) * 0.22);
+      cloudGroup.add(puff);
+    }
+
+    // Comic orange-gold & crimson impact spikes ("SCAZZOTTATA!")
+    const spikeGeo = new THREE.ConeGeometry(0.08, 0.36, 5);
+    const goldSpikeMat = new THREE.MeshBasicMaterial({ color: 0xffea00 });
+    const redSpikeMat = new THREE.MeshBasicMaterial({ color: 0xff3d00 });
+    for (let i = 0; i < 6; i++) {
+      const ang = (i * Math.PI * 2) / 6 + 0.25;
+      const spike = new THREE.Mesh(spikeGeo, i % 2 === 0 ? goldSpikeMat : redSpikeMat);
+      spike.position.set(Math.cos(ang) * 0.32, 0.05, Math.sin(ang) * 0.32);
+      spike.rotation.z = -Math.sin(ang) * 1.2;
+      spike.rotation.x = Math.cos(ang) * 1.2;
+      cloudGroup.add(spike);
+    }
+
+    cloudGroup.visible = false;
+    return cloudGroup;
   }
 
   createStageFigurine(defaultColor) {
@@ -492,8 +547,24 @@ export class VFXPoolView {
     return g;
   }
 
+  clearBrawlFighters() {
+    if (this.brawlStageGroup) {
+      if (this.pieceView?.clearGroup) {
+        this.pieceView.clearGroup(this.brawlStageGroup);
+      } else {
+        while (this.brawlStageGroup.children.length > 0) {
+          this.brawlStageGroup.remove(this.brawlStageGroup.children[0]);
+        }
+      }
+    }
+    this.attackerFighter = null;
+    this.defenderFighter = null;
+  }
+
   /**
-   * Triggered on `BATTLE_STARTED`: activates pooled particles, stage props, and orbiting camera.
+   * Triggered on `BATTLE_STARTED`: mounts the two real 3D `.glb` characters (`attackerFighter` &
+   * `defenderFighter`) for the 3-Act 3D Scazzottata, activates pooled particles/stage props,
+   * and starts the close-up Orbiting Capture Camera.
    * @param {object} e
    */
   onBattleStarted(e) {
@@ -502,7 +573,12 @@ export class VFXPoolView {
     this.clashElapsed = 0;
 
     const toPos = squareToWorld(e.square || e.to || 'd5');
-    const fromPos = squareToWorld(e.from || 'e4');
+    const rawFrom = squareToWorld(e.from || 'e4');
+    const sameSq = Math.hypot(toPos.x - rawFrom.x, toPos.z - rawFrom.z) < 0.15;
+    const fromPos = sameSq ? { x: toPos.x, y: 0, z: toPos.z + 1.45 } : rawFrom;
+    this.activeFromPos = fromPos;
+    this.activeToPos = toPos;
+
     const isCrit = e.tier === 'golden_crit';
     const isShiny = e.tier === 'shiny' || isCrit;
     const countMult = isCrit ? 2.0 : isShiny ? 1.35 : 1.0;
@@ -512,13 +588,26 @@ export class VFXPoolView {
     const defChar = CHARACTER_REGISTRY[e.defender] || CHARACTER_REGISTRY.p;
     if (this.clashLight) {
       this.clashLight.color.setHex(isCrit ? 0xffd700 : atkChar.accentColor);
-      this.clashLight.intensity = isCrit ? 6.5 : 4.2;
+      this.clashLight.intensity = isCrit ? 6.5 : 4.6;
       this.clashLight.position.set(toPos.x, 1.8, toPos.z);
       this.clashLight.visible = true;
     }
 
-    // Configure victim proxy figurine on the clash square
-    if (this.victimProxy) {
+    // Spawn the TWO REAL 3D GLB COMBATANTS (Attacker A vs Defender B) on the battle stage!
+    const atkColor = e.playerId || 'w';
+    const defColor = e.victimColor || (atkColor === 'w' ? 'b' : 'w');
+    if (this.pieceView?.createStandalonePiece && this.brawlStageGroup) {
+      this.attackerFighter = this.pieceView.createStandalonePiece(e.attacker || 'p', atkColor);
+      this.defenderFighter = this.pieceView.createStandalonePiece(e.defender || 'p', defColor);
+      this.attackerFighter.position.set(fromPos.x, 0, fromPos.z);
+      this.defenderFighter.position.set(toPos.x, 0, toPos.z);
+      this.brawlStageGroup.add(this.attackerFighter, this.defenderFighter);
+
+      if (e.attacker === 'b') {
+        this.pieceView.playClip?.(this.attackerFighter, 'FireBreath_Track');
+      }
+    } else if (this.victimProxy) {
+      // Headless fallback when PieceView is not wired
       this.victimProxy.visible = true;
       this.victimProxy.position.set(toPos.x, 0, toPos.z);
       this.victimProxy.rotation.set(0, 0, 0);
@@ -527,19 +616,23 @@ export class VFXPoolView {
       this.victimProxy.userData.mat.opacity = 1;
     }
 
-    // Trigger Ale's `FireBreath_Track` or attacker animation on PieceView if available
-    if (this.pieceView?.playClipOnSquare) {
-      const clipName = e.attacker === 'b' ? 'FireBreath_Track' : atkChar.animations?.attack;
-      if (clipName) this.pieceView.playClipOnSquare(e.to || e.square, clipName);
-    }
-
     // Golden Crit Sky-Beam Overdrive
     if (isCrit && this.props.skyBeam) {
       this.props.skyBeam.position.set(toPos.x, 2.75, toPos.z);
       this.props.skyBeam.visible = true;
     }
 
-    // Spawn signature particle bursts from pre-allocated pools
+    // Spawn initial clash sparks when the first blow of the 3D Scazzottata lands (delayS: 0.95s)
+    this.spawnFromPool('golden_sparks', toPos, Math.round(18 * countMult), {
+      speedMin: 1.4,
+      speedMax: 3.6,
+      upMin: 2.2,
+      upMax: 4.5,
+      restitution: 0.65,
+      delayS: 0.95,
+    });
+
+    // Spawn signature particle bursts from pre-allocated pools timed with Act 2 Brawl
     const effect = e.effect;
     if (effect === 'sceptre_lightning' || effect === 'golden_toilet_throne') {
       this.props.runeCircle.position.set(toPos.x, 0.03, toPos.z);
@@ -556,6 +649,7 @@ export class VFXPoolView {
         upMin: 2.8,
         upMax: 5.6,
         restitution: 0.65,
+        delayS: 1.6,
       });
     } else if (effect === 'chocolate_wave') {
       this.props.chocoWave.position.set(toPos.x, 0.14, toPos.z);
@@ -567,19 +661,19 @@ export class VFXPoolView {
         upMin: 3.0,
         upMax: 5.5,
         restitution: 0.45,
+        delayS: 1.5,
       });
     } else if (effect === 'crystal_shatter') {
       this.props.crystalCase.position.set(toPos.x, 0.65, toPos.z);
       this.props.crystalCase.scale.setScalar(1);
       this.props.crystalCase.visible = true;
-      // Pre-schedule 50+ gem shards bursting at 0.9s (plus immediate spark shards)
       this.spawnFromPool('amethyst_ruby_shards', toPos, Math.round(52 * countMult), {
         speedMin: 1.8,
         speedMax: 4.8,
         upMin: 2.5,
         upMax: 5.8,
         restitution: 0.72,
-        delayS: 0.85,
+        delayS: 1.8,
       });
     } else if (effect === 'loop_track_cars') {
       this.props.loopTrack.position.set(toPos.x, 0.68, toPos.z);
@@ -591,17 +685,13 @@ export class VFXPoolView {
       this.props.shockwaveRing.position.set(toPos.x, 0.04, toPos.z);
       this.props.shockwaveRing.scale.setScalar(0.4);
       this.props.shockwaveRing.visible = true;
-      if (this.cuddlePartnerProxy) {
-        this.cuddlePartnerProxy.visible = true;
-        this.cuddlePartnerProxy.userData.mat.color.setHex(atkChar.accentColor);
-        this.cuddlePartnerProxy.position.set(fromPos.x, 0, fromPos.z);
-      }
       this.spawnFromPool('purple_poof_clouds', toPos, Math.round(32 * countMult), {
         speedMin: 1.2,
         speedMax: 3.4,
         upMin: 1.8,
         upMax: 4.2,
         restitution: 0.55,
+        delayS: 1.5,
       });
     } else if (effect === 'halberd_fish_slap') {
       this.props.puffinFish.position.set(fromPos.x, 0.75, fromPos.z);
@@ -612,13 +702,9 @@ export class VFXPoolView {
         upMin: 2.4,
         upMax: 5.0,
         restitution: 0.5,
+        delayS: 1.4,
       });
     } else if (effect === 'mega_cuddle_bounce') {
-      // Seby <-> Pupurabbu non-lethal cuddle hop!
-      if (this.cuddlePartnerProxy) {
-        this.cuddlePartnerProxy.visible = true;
-        this.cuddlePartnerProxy.userData.mat.color.setHex(atkChar.accentColor);
-      }
       this.spawnFromPool('floating_purple_hearts', toPos, Math.round(36 * countMult), {
         speedMin: 0.8,
         speedMax: 2.4,
@@ -704,8 +790,7 @@ export class VFXPoolView {
   }
 
   /**
-   * Saves the player's camera pose and prepares smooth orbital framing around `targetPos`
-   * angled toward `-Z` so both the 3D board clash AND the Veo Cinema Mirror (`z = -10m`) are visible.
+   * Saves the player's camera pose and prepares smooth close-up orbital framing around `targetPos`.
    */
   startCameraOrbit(targetPos) {
     if (!this.camera) return;
@@ -715,12 +800,12 @@ export class VFXPoolView {
         target: this.controls?.target ? this.controls.target.clone() : new THREE.Vector3(0, 0, 0),
       };
     }
-    this.camOrbitCenter = new THREE.Vector3(targetPos.x, 0.6, targetPos.z);
+    this.camOrbitCenter = new THREE.Vector3(targetPos.x, 0.7, targetPos.z);
     this.camRestoreTimer = 0;
   }
 
   /**
-   * Triggered on `BATTLE_COMPLETED` or `BATTLE_SKIPPED`: hides stage props and restores camera.
+   * Triggered on `BATTLE_COMPLETED` or `BATTLE_SKIPPED`: clears stage fighters/props and restores camera.
    */
   onBattleEnded(_e) {
     this.activeClash = null;
@@ -734,6 +819,7 @@ export class VFXPoolView {
     for (const prop of Object.values(this.props)) {
       if (prop) prop.visible = false;
     }
+    this.clearBrawlFighters();
     if (this.victimProxy) this.victimProxy.visible = false;
     if (this.cuddlePartnerProxy) this.cuddlePartnerProxy.visible = false;
     if (this.clashLight) this.clashLight.visible = false;
@@ -749,7 +835,7 @@ export class VFXPoolView {
   }
 
   /**
-   * Advances all active pooled particles, stage prop animations, victim reactions,
+   * Advances all active pooled particles, 3D Scazzottata character brawl, stage prop animations,
    * and the Orbiting Capture Camera.
    * @param {number} dt - Delta time in seconds
    */
@@ -757,10 +843,10 @@ export class VFXPoolView {
     if (!(dt > 0)) return;
     const step = Math.min(dt, 0.1);
 
-    // 1. Update active 6x6 stage props & victim reaction
+    // 1. Update active 3-Act 3D Scazzottata & stage props
     if (this.activeClash) {
       this.clashElapsed += step;
-      const durationS = (this.activeClash.durationMs || 2800) / 1000;
+      const durationS = (this.activeClash.durationMs || 4000) / 1000;
       const t = Math.min(1, this.clashElapsed / durationS);
       this.updateActiveChoreography(this.activeClash, t, this.clashElapsed);
       this.updateCameraOrbit(t, step);
@@ -791,7 +877,9 @@ export class VFXPoolView {
         p.delayS -= step;
         if (p.delayS <= 0) {
           p.mesh.visible = true;
-          if (this.props.crystalCase) this.props.crystalCase.visible = false;
+          if (this.props.crystalCase && this.activeClash?.effect === 'crystal_shatter') {
+            this.props.crystalCase.visible = false;
+          }
         }
         continue;
       }
@@ -841,29 +929,40 @@ export class VFXPoolView {
   }
 
   /**
-   * Animates the 6 signature props + Easter Eggs + victim figurine reactions over `t in [0, 1]`.
+   * Animates the 3-Act 3D Scazzottata between the two real `.glb` fighters (`attackerFighter` & `defenderFighter`)
+   * plus the 6 signature props & Easter Eggs over `t in [0, 1]` (`4.0s`):
+   * - Act 1 (`t = 0.00 .. 0.25`): Walk/Gallop Charge & Combat Guard Stance
+   * - Act 2 (`t = 0.25 .. 0.74`): La Scazzottata 3D! (5 physical clashes, lunges, counter-attacks, cartoon dust cloud & signature finisher)
+   * - Act 3 (`t = 0.74 .. 1.00`): Knockout Launch toward Shrek's Swamp & Victory Pose!
    */
   updateActiveChoreography(clash, t, elapsedS) {
-    const toPos = squareToWorld(clash.square || clash.to || 'd5');
-    const fromPos = squareToWorld(clash.from || 'e4');
-    const v = this.victimProxy;
+    const toPos = this.activeToPos || squareToWorld(clash.square || clash.to || 'd5');
+    const fromPos = this.activeFromPos || squareToWorld(clash.from || 'e4');
+    const dx = toPos.x - fromPos.x;
+    const dz = toPos.z - fromPos.z;
+    const dist = Math.hypot(dx, dz) || 1.0;
+    const dirX = dx / dist;
+    const dirZ = dz / dist;
+    const atkYaw = Math.atan2(dirX, dirZ);
+    const defYaw = Math.atan2(-dirX, -dirZ);
 
+    // 1. Animate Signature Stage Props
     if (this.props.runeCircle?.visible) {
       this.props.runeCircle.rotation.y = elapsedS * 4.2;
       this.props.runeCircle.scale.setScalar(1 + Math.sin(elapsedS * 10) * 0.15);
     }
     if (this.props.lightningBolts?.visible) {
       this.props.lightningBolts.rotation.y = elapsedS * 8.0;
-      this.props.lightningBolts.visible = t < 0.75;
+      this.props.lightningBolts.visible = t > 0.25 && t < 0.85;
     }
     if (this.props.goldenThrone?.visible) {
-      // Descends from y = 2.8m to y = 0.05m in a beam of royal light!
-      const dropT = Math.min(1, t * 2.2);
+      const dropT = Math.min(1, Math.max(0, (t - 0.35) * 2.5));
       this.props.goldenThrone.position.y = (1 - dropT) * 2.6 + 0.05;
       this.props.goldenThrone.rotation.y = elapsedS * 3.2;
     }
     if (this.props.chocoWave?.visible) {
-      this.props.chocoWave.scale.setScalar(0.5 + t * 2.4);
+      const waveT = Math.max(0, (t - 0.25) / 0.75);
+      this.props.chocoWave.scale.setScalar(0.4 + waveT * 2.5);
       this.props.chocoWave.rotation.z = elapsedS * 2.5;
     }
     if (this.props.crystalCase?.visible) {
@@ -873,98 +972,280 @@ export class VFXPoolView {
       this.props.dizzyStars.rotation.y = elapsedS * 6.5;
     }
     if (this.props.shockwaveRing?.visible) {
-      this.props.shockwaveRing.scale.setScalar(0.4 + t * 3.2);
+      const ringT = Math.max(0, (t - 0.32) / 0.68);
+      this.props.shockwaveRing.scale.setScalar(0.35 + ringT * 3.4);
     }
     if (this.props.puffinFish?.visible) {
-      // Fish charges from attacker square to victim square and slaps!
-      const slapT = Math.min(1, t * 2.4);
+      const slapT = Math.min(1, Math.max(0, (t - 0.22) * 2.2));
       this.props.puffinFish.position.set(
         fromPos.x + (toPos.x - fromPos.x) * slapT,
-        0.65 + Math.sin(slapT * Math.PI) * 0.45,
+        0.65 + Math.sin(slapT * Math.PI) * 0.48,
         fromPos.z + (toPos.z - fromPos.z) * slapT,
       );
-      this.props.puffinFish.rotation.y = elapsedS * 9.0;
+      this.props.puffinFish.rotation.y = elapsedS * 9.5;
     }
 
-    // Victim & Partner Figurine Reactions
-    if (!v || !v.visible) return;
+    // 2. Animate Real 3D GLB Combatants (Attacker A vs Defender B)!
+    const atk = this.attackerFighter;
+    const def = this.defenderFighter;
     const reaction = clash.victimReaction;
 
+    if (atk && def) {
+      const scale = this.pieceView?.globalPieceScale || 1.0;
+
+      if (reaction === 'happy_cuddle_hop' || clash.effect === 'mega_cuddle_bounce') {
+        // Seby <-> Pupurabbu Easter Egg: Synchronized Mega Cuddle Bounce!
+        if (this.props.brawlCloud) this.props.brawlCloud.visible = false;
+        const hop = Math.abs(Math.sin(elapsedS * 8.5)) * 0.65;
+        atk.position.set(toPos.x - dirX * 0.24, hop, toPos.z - dirZ * 0.24);
+        def.position.set(toPos.x + dirX * 0.24, hop, toPos.z + dirZ * 0.24);
+        atk.rotation.set(0, atkYaw + Math.sin(elapsedS * 6) * 0.35, 0);
+        def.rotation.set(0, defYaw - Math.sin(elapsedS * 6) * 0.35, 0);
+        this.pieceView?.applyPoseToPiece(atk, {
+          walkPhase: elapsedS * 18,
+          walkAmp: 1.2,
+          bodyY: 0.1,
+          rollZ: Math.sin(elapsedS * 9) * 0.16,
+        });
+        this.pieceView?.applyPoseToPiece(def, {
+          walkPhase: elapsedS * 18,
+          walkAmp: 1.2,
+          bodyY: 0.1,
+          rollZ: -Math.sin(elapsedS * 9) * 0.16,
+        });
+        return;
+      }
+
+      if (t < 0.25) {
+        // ACT 1 (0..25%): Walk/Gallop Charge toward Defender B!
+        if (this.props.brawlCloud) this.props.brawlCloud.visible = false;
+        const u = t / 0.25;
+        const stopX = toPos.x - dirX * 0.42;
+        const stopZ = toPos.z - dirZ * 0.42;
+        const stepHop = Math.abs(Math.sin(u * Math.PI * 4));
+
+        atk.position.set(
+          fromPos.x + (stopX - fromPos.x) * u,
+          stepHop * 0.10,
+          fromPos.z + (stopZ - fromPos.z) * u,
+        );
+        atk.rotation.set(0, atkYaw, 0);
+        atk.scale.setScalar(scale);
+        this.pieceView?.applyPoseToPiece(atk, {
+          walkPhase: elapsedS * 20,
+          walkAmp: 1.45,
+          combatPhase: elapsedS * 10,
+          combatAmp: 0.45,
+          bodyY: stepHop * 0.18,
+          pitchX: 0.20,
+          rollZ: Math.sin(u * Math.PI * 4) * 0.18,
+        });
+
+        // Defender B braces in an aggressive guard stance facing Attacker A!
+        def.position.set(toPos.x + dirX * 0.16, 0, toPos.z + dirZ * 0.16);
+        def.rotation.set(0, defYaw, 0);
+        def.scale.setScalar(scale);
+        this.pieceView?.applyPoseToPiece(def, {
+          walkPhase: elapsedS * 14,
+          walkAmp: 0.85,
+          combatPhase: elapsedS * 12,
+          combatAmp: 0.55,
+          bodyY: Math.abs(Math.sin(elapsedS * 10)) * 0.09,
+          pitchX: 0.12,
+          rollZ: Math.sin(elapsedS * 10) * 0.12,
+        });
+      } else if (t < 0.74) {
+        // ACT 2 (25..74%): LA SCAZZOTTATA 3D! (5-Hit Back-and-Forth 3D Character Brawl!)
+        const brawlU = (t - 0.25) / 0.49;
+        const exchange = brawlU * 5.0; // 5 rapid physical combat exchanges
+        const exIdx = Math.floor(exchange);
+        const exFrac = exchange - exIdx;
+        const strike = Math.sin(exFrac * Math.PI);
+
+        // Swirl the 3D Cartoon Brawl Cloud & Starburst between the two fighters!
+        if (this.props.brawlCloud) {
+          this.props.brawlCloud.visible = true;
+          this.props.brawlCloud.position.set(toPos.x, 0.46 + strike * 0.14, toPos.z);
+          this.props.brawlCloud.rotation.y = elapsedS * 11.0;
+          this.props.brawlCloud.rotation.z = elapsedS * 7.5;
+          const cScale = 0.68 + strike * 0.48;
+          this.props.brawlCloud.scale.setScalar(cScale);
+        }
+
+        let atkOffset = -0.34;
+        let defOffset = 0.20;
+        let atkY = 0;
+        let defY = 0;
+        let atkPitch = 0;
+        let defPitch = 0;
+        let atkRoll = 0;
+        let defRoll = 0;
+        let atkYawOff = 0;
+        let defYawOff = 0;
+
+        if (exIdx === 0) {
+          // Exchange 1: Attacker A lunges & slashes into Defender B!
+          atkOffset = -0.36 + strike * 0.34;
+          defOffset = 0.18 + strike * 0.26;
+          atkY = strike * 0.18;
+          atkPitch = 0.36 * strike;
+          defPitch = -0.38 * strike;
+          defRoll = 0.24 * strike;
+        } else if (exIdx === 1) {
+          // Exchange 2: Defender B counter-attacks with a fierce headbutt/slash!
+          atkOffset = -0.34 - strike * 0.24;
+          defOffset = 0.20 - strike * 0.34;
+          defY = strike * 0.20;
+          defPitch = 0.36 * strike;
+          atkPitch = -0.34 * strike;
+          atkRoll = -0.22 * strike;
+        } else if (exIdx === 2) {
+          // Exchange 3: Mid-air Whirlwind Scazzottata Clash at the center!
+          atkOffset = -0.16 + Math.cos(exFrac * Math.PI * 2) * 0.14;
+          defOffset = 0.16 - Math.cos(exFrac * Math.PI * 2) * 0.14;
+          atkY = strike * 0.45;
+          defY = strike * 0.42;
+          atkYawOff = exFrac * Math.PI * 2;
+          defYawOff = -exFrac * Math.PI * 2;
+          atkRoll = Math.sin(exFrac * Math.PI * 4) * 0.25;
+          defRoll = -Math.sin(exFrac * Math.PI * 4) * 0.25;
+        } else if (exIdx === 3) {
+          // Exchange 4: Attacker A delivers a heavy uppercut, spinning Defender B!
+          atkOffset = -0.28 + strike * 0.28;
+          defOffset = 0.20 + strike * 0.24;
+          atkY = strike * 0.32;
+          defY = strike * 0.38;
+          atkPitch = -0.26 * strike;
+          defYawOff = exFrac * Math.PI * 4;
+          defRoll = 0.30 * strike;
+        } else {
+          // Exchange 5: Signature Finishing Slam!
+          const jumpH = clash.effect === 'plush_ground_pound' ? 1.85 : 0.72;
+          atkOffset = -0.30 * (1 - exFrac);
+          defOffset = 0.18;
+          atkY = Math.sin(exFrac * Math.PI) * jumpH;
+          atkPitch = Math.cos(exFrac * Math.PI) * 0.35;
+          defPitch = -0.32 * strike;
+        }
+
+        atk.position.set(toPos.x + dirX * atkOffset, atkY, toPos.z + dirZ * atkOffset);
+        def.position.set(toPos.x + dirX * defOffset, defY, toPos.z + dirZ * defOffset);
+        atk.rotation.set(0, atkYaw, 0);
+        def.rotation.set(0, defYaw, 0);
+
+        this.pieceView?.applyPoseToPiece(atk, {
+          walkPhase: elapsedS * 26,
+          walkAmp: 1.5,
+          combatPhase: elapsedS * 28,
+          combatAmp: 1.75,
+          bodyY: Math.abs(Math.sin(elapsedS * 18)) * 0.14,
+          pitchX: atkPitch,
+          rollZ: atkRoll,
+          yawOffset: atkYawOff,
+        });
+        this.pieceView?.applyPoseToPiece(def, {
+          walkPhase: elapsedS * 24,
+          walkAmp: 1.4,
+          combatPhase: elapsedS * 26 + Math.PI,
+          combatAmp: 1.65,
+          bodyY: Math.abs(Math.cos(elapsedS * 18)) * 0.12,
+          pitchX: defPitch,
+          rollZ: defRoll,
+          yawOffset: defYawOff,
+        });
+      } else {
+        // ACT 3 (74..100%): Knockout Launch toward Shrek's Swamp & Attacker Victory Pose!
+        if (this.props.brawlCloud) this.props.brawlCloud.visible = false;
+        const koU = (t - 0.74) / 0.26;
+        const vicBounce = Math.abs(Math.sin(koU * Math.PI * 2));
+
+        // Attacker A claims the square and celebrates!
+        atk.position.set(toPos.x, vicBounce * 0.18, toPos.z);
+        atk.rotation.set(0, atkYaw + Math.sin(koU * Math.PI) * 0.35, 0);
+        atk.scale.setScalar(scale);
+        this.pieceView?.applyPoseToPiece(atk, {
+          walkPhase: elapsedS * 16,
+          walkAmp: 0.95,
+          combatPhase: koU * Math.PI * 2,
+          combatAmp: 1.1,
+          bodyY: vicBounce * 0.18,
+          pitchX: -0.15 * vicBounce,
+          rollZ: Math.sin(koU * Math.PI * 2) * 0.14,
+        });
+
+        // Defender B suffers its signature knockout + flies spinning toward Shrek's Swamp!
+        const sideSign = (clash.victimColor || 'b') === 'w' ? -1 : 1;
+        if (reaction === 'sweet_melt') {
+          def.scale.set(
+            scale * (1 + koU * 0.65),
+            scale * Math.max(0.10, 1 - koU * 0.90),
+            scale * (1 + koU * 0.65),
+          );
+          def.position.set(toPos.x + dirX * 0.22, 0, toPos.z + dirZ * 0.22);
+        } else if (reaction === 'bowled_flat_stars' || reaction === 'pancake_squash') {
+          def.scale.set(
+            scale * (1 + koU * 0.55),
+            scale * Math.max(0.11, 1 - koU * 0.89),
+            scale * (1 + koU * 0.55),
+          );
+          def.position.set(toPos.x + dirX * 0.20, 0, toPos.z + dirZ * 0.20);
+        } else {
+          // High spinning knockout arc toward the Swamp moat!
+          def.position.set(
+            toPos.x + sideSign * koU * 3.4,
+            Math.sin(koU * Math.PI) * 2.25,
+            toPos.z - koU * 1.4,
+          );
+          def.rotation.set(koU * 12, defYaw + koU * 10, koU * 11);
+          const shrink = Math.max(0.25, 1 - koU * 0.45);
+          def.scale.setScalar(scale * shrink);
+        }
+      }
+      return;
+    }
+
+    // 3. Fallback Victim Proxy Reactions (used only in headless tests without PieceView)
+    const v = this.victimProxy;
+    if (!v || !v.visible) return;
     if (reaction === 'levitate_dissolve' || reaction === 'royal_throne_whirl') {
       v.position.y = Math.min(1.6, t * 1.8);
       v.rotation.y = elapsedS * 9.5;
-      const shrink = Math.max(0.08, 1 - t * 0.85);
-      v.scale.setScalar(shrink);
+      v.scale.setScalar(Math.max(0.08, 1 - t * 0.85));
     } else if (reaction === 'sweet_melt') {
-      // Melts into a glossy puddle: scale.y -> 0.08, scale.x/z -> 1.6
       const melt = Math.min(1, t * 1.4);
       v.scale.set(1 + melt * 0.6, Math.max(0.08, 1 - melt * 0.92), 1 + melt * 0.6);
     } else if (reaction === 'crystallize_shatter') {
-      if (t < 0.32) {
-        v.scale.setScalar(1.05);
-      } else {
-        v.scale.setScalar(Math.max(0.01, 1 - (t - 0.32) * 3.0));
-      }
-    } else if (reaction === 'bowled_flat_stars') {
-      // Bowled flat ("STECCHITO! ✨"): scale.y -> 0.12
+      v.scale.setScalar(t < 0.32 ? 1.05 : Math.max(0.01, 1 - (t - 0.32) * 3.0));
+    } else if (reaction === 'bowled_flat_stars' || reaction === 'pancake_squash') {
       const flat = Math.min(1, Math.max(0, (t - 0.2) * 2.0));
-      v.scale.set(1 + flat * 0.45, Math.max(0.12, 1 - flat * 0.88), 1 + flat * 0.45);
-    } else if (reaction === 'pancake_squash') {
-      // Pupurabbu leaps to y = 2.6m and slams down at t = 0.4!
-      if (this.cuddlePartnerProxy?.visible) {
-        const jumpT = Math.min(1, t * 2.5);
-        this.cuddlePartnerProxy.position.set(
-          fromPos.x + (toPos.x - fromPos.x) * jumpT,
-          Math.sin(jumpT * Math.PI) * 2.6,
-          fromPos.z + (toPos.z - fromPos.z) * jumpT,
-        );
-      }
-      const squash = Math.min(1, Math.max(0, (t - 0.36) * 2.5));
-      v.scale.set(1 + squash * 0.55, Math.max(0.09, 1 - squash * 0.91), 1 + squash * 0.55);
+      v.scale.set(1 + flat * 0.5, Math.max(0.1, 1 - flat * 0.9), 1 + flat * 0.5);
     } else if (reaction === 'spin_off_board') {
-      // Sent spinning along a high arc off the board after fish-slap!
       const flyT = Math.max(0, (t - 0.32) / 0.68);
-      v.position.set(
-        toPos.x + flyT * 2.8,
-        Math.sin(flyT * Math.PI) * 2.4 + flyT * 0.6,
-        toPos.z - flyT * 2.2,
-      );
+      v.position.set(toPos.x + flyT * 2.8, Math.sin(flyT * Math.PI) * 2.4, toPos.z - flyT * 2.2);
       v.rotation.set(flyT * 14, flyT * 10, flyT * 12);
-    } else if (reaction === 'happy_cuddle_hop') {
-      // Seby <-> Pupurabbu synchronized Mega Cuddle Bounce! Never hurt each other!
-      const hop = Math.abs(Math.sin(elapsedS * 8.5)) * 0.85;
-      const midX = (fromPos.x + toPos.x) * 0.5;
-      const midZ = (fromPos.z + toPos.z) * 0.5;
-      v.position.set(midX + 0.22, hop, midZ);
-      v.rotation.y = Math.sin(elapsedS * 6) * 0.4;
-      v.scale.set(1 + Math.sin(elapsedS * 12) * 0.08, 1 + Math.cos(elapsedS * 12) * 0.08, 1);
-      if (this.cuddlePartnerProxy?.visible) {
-        this.cuddlePartnerProxy.position.set(midX - 0.22, hop, midZ);
-        this.cuddlePartnerProxy.rotation.y = -Math.sin(elapsedS * 6) * 0.4;
-      }
     }
   }
 
   /**
-   * Smoothly orbits the camera around the clash square at distance `4.8m..6.2m, y = 2.6m..3.6m`,
-   * angled from `+Z` looking toward `-Z` so both the 3D clash and the 16:9 Veo Mirror (`z = -10m`) stay in frame.
+   * Smoothly orbits the camera close around the clashing 3D characters (`dist = 3.9m..4.6m, y = 2.2m..2.5m`),
+   * angled from `+Z` looking toward `-Z` so BOTH the close-up 3D Scazzottata AND the 16:9 Veo Mirror stay in frame!
    */
   updateCameraOrbit(t, step) {
     if (!this.camera || !this.camOrbitCenter) return;
     const c = this.camOrbitCenter;
-    const orbitAngle = (t - 0.5) * 0.55; // Sweeps smoothly across the Southern arc
-    const dist = 7.4 - Math.sin(t * Math.PI) * 0.45; // 6.95m .. 7.4m
-    const camY = 3.35 + Math.sin(t * Math.PI) * 0.35; // 3.35m .. 3.7m
+    const orbitAngle = (t - 0.5) * 0.62; // Sweeps dynamically around the 3D brawl
+    const dist = 4.65 - Math.sin(t * Math.PI) * 0.65; // Zooms in close (4.0m .. 4.65m) for the 3D Scazzottata!
+    const camY = 2.25 + Math.sin(t * Math.PI) * 0.28; // Heroic low-medium brawl angle
 
     const desiredPos = new THREE.Vector3(
       c.x + Math.sin(orbitAngle) * dist,
       camY,
       c.z + Math.cos(orbitAngle) * dist,
     );
-    // Look toward -Z/upward to frame BOTH the 3D board clash AND the entire z=-10.2m 16:9 Magic Cinema Mirror
-    const desiredTarget = new THREE.Vector3(c.x * 0.5, 2.15, c.z * 0.4 - 3.8);
+    // Focus directly on the two brawling 3D characters while keeping the 16:9 Cinema Mirror in the upper background
+    const desiredTarget = new THREE.Vector3(c.x * 0.82, 1.05, c.z * 0.75 - 1.15);
 
-    const alpha = Math.min(1, step * 5.5);
+    const alpha = Math.min(1, step * 6.0);
     this.camera.position.lerp(desiredPos, alpha);
     if (this.controls?.target) {
       this.controls.target.lerp(desiredTarget, alpha);

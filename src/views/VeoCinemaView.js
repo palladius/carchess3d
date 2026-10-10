@@ -298,6 +298,7 @@ export class VeoCinemaView {
   tryPlayVeoVideo(videoUrl, triedWebm = false) {
     this.stopVideoPlayback();
     if (!videoUrl || !this.videoEl) return;
+    if (!/(b_x_n|n_x_b|n_x_r)\.(mp4|webm)$/i.test(videoUrl)) return;
 
     try {
       this.videoEl.src = videoUrl;

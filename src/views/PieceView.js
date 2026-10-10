@@ -98,6 +98,7 @@ export class PieceView {
       this.offs.push(
         bus.on('BOARD_RESET', () => {
           this.activeTweens = [];
+          this.pendingCaptureHandoff = null;
           this.syncPiecesFromManager();
         }),
         bus.on('PIECES_SYNCED', (e) => {
@@ -111,6 +112,26 @@ export class PieceView {
         }),
         bus.on('CASTLING_EXECUTED', (e) => {
           this.animateCastlingBellyBounce(e);
+        }),
+        bus.on('BATTLE_STARTED', (e) => {
+          if (e.source === 'board_capture' && this.pendingCaptureHandoff) {
+            const h = this.pendingCaptureHandoff;
+            // Hide board destination piece & swamp swimmer while VFXPoolView stages the 3D Scazzottata!
+            if (h.movingGroup) {
+              h.movingGroup.visible = false;
+              this.activeTweens = this.activeTweens.filter((tw) => tw.group !== h.movingGroup);
+            }
+            if (h.newestSwimmer) {
+              h.newestSwimmer.visible = false;
+              this.activeTweens = this.activeTweens.filter((tw) => tw.group !== h.newestSwimmer);
+            }
+          }
+        }),
+        bus.on('BATTLE_COMPLETED', () => {
+          this.completePendingCaptureHandoff();
+        }),
+        bus.on('BATTLE_SKIPPED', () => {
+          this.completePendingCaptureHandoff();
         }),
         bus.on('PIECE_ANIM_REQUESTED', (e) => {
           if (e.animType === 'clip') {
@@ -295,6 +316,15 @@ export class PieceView {
   buildPieceGroup(desc) {
     const group = new THREE.Group();
     group.name = `Piece_${desc.color}_${desc.type}_${desc.square || 'standalone'}`;
+    // White pieces (South, Ranks 1-2, z > 0) face North (-Z -> Math.PI) to confront Black pieces (North, Ranks 7-8, z < 0) facing South (+Z -> 0)!
+    const homeYaw = desc.color === 'w' ? Math.PI : 0;
+    const locomotionUniforms = {
+      uWalkPhase: { value: 0.0 },
+      uWalkAmp: { value: 0.0 },
+      uCombatPhase: { value: 0.0 },
+      uCombatAmp: { value: 0.0 },
+      uGaitMode: { value: desc.type === 'n' ? 1.0 : 0.0 },
+    };
     group.userData = {
       isChessPiece: true,
       pieceId: desc.id,
@@ -305,8 +335,11 @@ export class PieceView {
       name: desc.name,
       descriptor: desc,
       baseScale: this.globalPieceScale,
+      homeYaw,
+      locomotionUniforms,
       emotePhase: 0,
     };
+    group.rotation.y = homeYaw;
 
     // 1. Sculpted 3D Faction Pedestal (y = 0.00m .. 0.22m, Ø 0.75m)
     const pedestal = this.buildFactionPedestal(desc.color, desc.accentColor);
@@ -772,6 +805,11 @@ export class PieceView {
                 if (isWireframe) {
                   mat.wireframe = true;
                 }
+                this.injectLocomotionShader(
+                  mat,
+                  desc.type,
+                  pieceGroup.userData.locomotionUniforms,
+                );
                 mat.needsUpdate = true;
               }
               child.material = Array.isArray(child.material) ? mats : mats[0];
@@ -786,8 +824,8 @@ export class PieceView {
           desc.type,
           { baseElevation: PEDESTAL_HEIGHT, maxRadius: 0.36 },
         );
-        // Subtle heroic 3/4 turn so both armies show their expressive faces & shoulder dragon
-        holder.rotation.y = isWhite ? 0.16 : -0.16;
+        // Face straight along pieceGroup's forward axis (White=Math.PI North, Black=0 South)
+        holder.rotation.y = 0;
 
         // Remove fallback medallion figure and mount the grounded 3D GLB
         bodyContainer.clear();
@@ -815,6 +853,107 @@ export class PieceView {
       .catch(() => {
         // Keep luxury double-sided medallion fallback if GLB fails to load
       });
+  }
+
+  /**
+   * Injects a real-time procedural skeletal limb & horse-gallop vertex shader into `.glb` materials
+   * so every character's legs, feet, horse hooves, arms, and weapons visibly walk, gallop, and brawl!
+   */
+  injectLocomotionShader(mat, pieceType, uniforms) {
+    if (!mat || !uniforms) return;
+    mat.customProgramCacheKey = () =>
+      `carchess_loco_v2_${pieceType}_${mat.wireframe ? 'w' : 's'}_${mat.map ? 't' : 'u'}`;
+    mat.onBeforeCompile = (shader) => {
+      shader.uniforms.uWalkPhase = uniforms.uWalkPhase;
+      shader.uniforms.uWalkAmp = uniforms.uWalkAmp;
+      shader.uniforms.uCombatPhase = uniforms.uCombatPhase;
+      shader.uniforms.uCombatAmp = uniforms.uCombatAmp;
+      shader.uniforms.uGaitMode = uniforms.uGaitMode;
+
+      shader.vertexShader =
+        `
+uniform float uWalkPhase;
+uniform float uWalkAmp;
+uniform float uCombatPhase;
+uniform float uCombatAmp;
+uniform float uGaitMode;
+` +
+        shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          `#include <begin_vertex>
+float normY = clamp(position.y + 0.5, 0.0, 1.0);
+float side = clamp(position.x * 6.5, -1.0, 1.0);
+if (uWalkAmp > 0.001) {
+  if (uGaitMode > 0.5) {
+    // Knight Seby Horse Gallop: front legs (z > 0) and hind legs (z < 0) scissor & bound!
+    float legMask = smoothstep(0.48, 0.04, normY);
+    float frontBack = clamp(position.z * 4.5, -1.0, 1.0);
+    float hoofPhase = uWalkPhase + side * 0.45;
+    float gallopSwing = sin(hoofPhase) * frontBack;
+    transformed.z += gallopSwing * uWalkAmp * 0.25 * legMask;
+    transformed.y += max(0.0, cos(hoofPhase) * frontBack) * uWalkAmp * 0.16 * legMask;
+    float riderMask = smoothstep(0.45, 0.88, normY);
+    transformed.z += sin(uWalkPhase) * uWalkAmp * 0.09 * riderMask;
+    transformed.x += cos(uWalkPhase * 0.5) * uWalkAmp * 0.045 * riderMask;
+  } else {
+    // Biped Walk / March (Puffin, Riccardo, Kate, Ale, Pupurabbu): alternating left/right leg stride!
+    float legMask = smoothstep(0.46, 0.04, normY);
+    float stride = sin(uWalkPhase) * side;
+    float lift = max(0.0, cos(uWalkPhase) * side);
+    transformed.z += stride * uWalkAmp * 0.26 * legMask;
+    transformed.y += lift * uWalkAmp * 0.16 * legMask;
+    // Counter-swinging arms, halberd, sword, wings & torso twist
+    float armMask = smoothstep(0.36, 0.68, normY) * (0.35 + 0.65 * abs(side));
+    transformed.z -= stride * uWalkAmp * 0.21 * armMask;
+    transformed.x += sin(uWalkPhase) * uWalkAmp * 0.05 * smoothstep(0.30, 0.82, normY);
+  }
+}
+if (uCombatAmp > 0.001) {
+  // 3D Scazzottata Combat: aggressive weapon slash, upper-body punch/lunge & torso twist!
+  float upperMask = smoothstep(0.26, 0.80, normY);
+  float slash = sin(uCombatPhase);
+  float punch = cos(uCombatPhase * 1.5);
+  transformed.z += slash * uCombatAmp * 0.28 * upperMask;
+  transformed.x += punch * side * uCombatAmp * 0.16 * upperMask;
+  transformed.y += abs(slash) * uCombatAmp * 0.09 * upperMask;
+}
+`,
+        );
+    };
+  }
+
+  /**
+   * Drives both the vertex-shader skeletal limb uniforms AND the `bodyContainer` pose
+   * on any piece group (used during 2.0s board locomotion AND during 3D Scazzottata combat!).
+   */
+  applyPoseToPiece(
+    pieceGroup,
+    {
+      walkPhase = 0,
+      walkAmp = 0,
+      combatPhase = 0,
+      combatAmp = 0,
+      bodyY = 0,
+      pitchX = 0,
+      rollZ = 0,
+      yawOffset = 0,
+    } = {},
+  ) {
+    if (!pieceGroup) return;
+    const u = pieceGroup.userData?.locomotionUniforms;
+    if (u) {
+      u.uWalkPhase.value = walkPhase;
+      u.uWalkAmp.value = walkAmp;
+      u.uCombatPhase.value = combatPhase;
+      u.uCombatAmp.value = combatAmp;
+    }
+    const body = pieceGroup.userData?.bodyContainer;
+    if (body) {
+      body.position.y = bodyY;
+      body.rotation.x = pitchX;
+      body.rotation.z = rollZ;
+      body.rotation.y = yawOffset;
+    }
   }
 
   loadGltfCached(url) {
@@ -1003,9 +1142,45 @@ export class PieceView {
   }
 
   /**
-   * Animates a moving piece along a parabolic jump arc:
-   * `y = 4 * h_peak * t * (1 - t)` (`h_peak = 1.2m`, `0.42s`) followed by
-   * a squash-and-stretch landing (`scale(1.22, 0.78, 1.22) -> 1.0`).
+   * Completes the capture handoff when `BATTLE_COMPLETED` or `BATTLE_SKIPPED` fires:
+   * reveals the victorious attacker on `toPos` and launches the defeated piece into Shrek's Swamp!
+   */
+  completePendingCaptureHandoff() {
+    if (!this.pendingCaptureHandoff) return;
+    const h = this.pendingCaptureHandoff;
+    this.pendingCaptureHandoff = null;
+
+    if (h.movingGroup) {
+      h.movingGroup.visible = true;
+      h.movingGroup.position.set(h.toX, 0, h.toZ);
+      h.movingGroup.rotation.set(0, h.movingGroup.userData.homeYaw ?? 0, 0);
+      this.applyPoseToPiece(h.movingGroup, {});
+      this.triggerSquashLanding(h.movingGroup);
+    }
+
+    if (h.newestSwimmer) {
+      h.newestSwimmer.visible = true;
+      h.newestSwimmer.userData.isDivingToSwamp = true;
+      this.activeTweens.push({
+        kind: 'swamp_splash_dive',
+        group: h.newestSwimmer,
+        fromX: h.capWorld.x,
+        fromY: 0,
+        fromZ: h.capWorld.z,
+        toX: h.destX,
+        toY: h.destY,
+        toZ: h.destZ,
+        hPeak: 2.35,
+        elapsed: 0,
+        duration: 0.85,
+      });
+    }
+  }
+
+  /**
+   * Animates a moving piece over `2.0s` (`2.2s` for Knight Seby) with character-specific
+   * skeletal limb locomotion (Pawn Puffin march, Seby horse rear-up & gallop, Ale winged glide,
+   * Pupurabbu heavy bounds, Kate royal twirl, Riccardo pompous swagger).
    */
   animateMove(move, updatedLiving, updatedCaptured) {
     const isCastle = move.flags && (move.flags.includes('k') || move.flags.includes('q'));
@@ -1040,17 +1215,32 @@ export class PieceView {
     this._tagRaycastHierarchy(movingGroup);
     this.renderCapturedTrays(updatedCaptured);
 
-    // If a piece was captured, launch its new swamp swimmer along a high splash arc into Shrek's Swamp!
+    const startPos = squareToWorld(move.from);
+    const endPos = squareToWorld(move.to);
+    const pieceType = String(move.piece || movingGroup.userData.type || 'p').toLowerCase();
+
+    // If a piece was captured, prepare handoff for BATTLE_STARTED (or immediate dive if no battle listener)
+    let newestSwimmer = null;
     if (move.captured && this.trayGroup.children.length > 0) {
       const victimColor = move.color === 'w' ? 'b' : 'w';
       const swimmersForVictim = this.trayGroup.children.filter((c) => c.userData?.color === victimColor);
-      const newestSwimmer = swimmersForVictim[swimmersForVictim.length - 1];
+      newestSwimmer = swimmersForVictim[swimmersForVictim.length - 1] || null;
       if (newestSwimmer) {
         const capWorld = squareToWorld(capturedSq);
         const destX = newestSwimmer.position.x;
         const destY = newestSwimmer.userData.baseSwampY ?? -0.28;
         const destZ = newestSwimmer.position.z;
         newestSwimmer.userData.isDivingToSwamp = true;
+        this.pendingCaptureHandoff = {
+          movingGroup,
+          newestSwimmer,
+          toX: endPos.x,
+          toZ: endPos.z,
+          capWorld,
+          destX,
+          destY,
+          destZ,
+        };
         this.activeTweens.push({
           kind: 'swamp_splash_dive',
           group: newestSwimmer,
@@ -1067,19 +1257,33 @@ export class PieceView {
       }
     }
 
-    const startPos = squareToWorld(move.from);
-    const endPos = squareToWorld(move.to);
+    // Remove any previous locomotion tween on this piece
+    this.activeTweens = this.activeTweens.filter((tw) => tw.group !== movingGroup);
+
+    const duration = pieceType === 'n' ? 2.2 : 2.0;
+    const dx = endPos.x - startPos.x;
+    const dz = endPos.z - startPos.z;
+    const travelYaw = Math.atan2(dx, dz);
+    const homeYaw = movingGroup.userData.homeYaw ?? (movingGroup.userData.color === 'w' ? Math.PI : 0);
+
+    // For Knight Seby ('n'), compute the L-shaped corner midpoint so the horse gallops along the L!
+    const cornerX = Math.abs(dx) > Math.abs(dz) ? endPos.x : startPos.x;
+    const cornerZ = Math.abs(dx) > Math.abs(dz) ? startPos.z : endPos.z;
 
     this.activeTweens.push({
-      kind: 'parabolic_jump',
+      kind: 'character_locomotion',
       group: movingGroup,
+      pieceType,
       fromX: startPos.x,
       fromZ: startPos.z,
       toX: endPos.x,
       toZ: endPos.z,
-      hPeak: 1.2,
+      cornerX,
+      cornerZ,
+      travelYaw,
+      homeYaw,
       elapsed: 0,
-      duration: 0.42,
+      duration,
     });
   }
 
@@ -1123,7 +1327,7 @@ export class PieceView {
       midX,
       midZ,
       elapsed: 0,
-      duration: 0.68,
+      duration: 1.6,
       bounced: false,
     });
   }
@@ -1133,12 +1337,12 @@ export class PieceView {
       kind: 'squash_landing',
       group,
       elapsed: 0,
-      duration: 0.22,
+      duration: 0.28,
     });
   }
 
   /**
-   * Creates a standalone 3D piece Group for Mode 2 WOW 360° Turntable Inspector & Battle Arena.
+   * Creates a standalone 3D piece Group for Mode 2 WOW 360° Turntable Inspector & 3D Scazzottata Stage.
    * @param {string} type - 'k'|'q'|'b'|'n'|'r'|'p'
    * @param {'w'|'b'} [color='w']
    * @param {{ isStoneSet?: boolean, bishopVariant?: 'rigged'|'hat' }} [opts]
@@ -1158,6 +1362,8 @@ export class PieceView {
     }
     const group = this.buildPieceGroup(desc);
     group.position.set(0, 0, 0);
+    group.rotation.y = 0;
+    group.userData.homeYaw = 0;
     return group;
   }
 
@@ -1198,7 +1404,7 @@ export class PieceView {
   }
 
   /**
-   * Advances all `AnimationMixer` instances and active parabolic/castling/squash tweens.
+   * Advances all `AnimationMixer` instances and active character locomotion / castling / squash tweens.
    * @param {number} dt - Delta time in seconds
    */
   update(dt = 1 / 60) {
@@ -1211,6 +1417,7 @@ export class PieceView {
     if (this.trayGroup.children.length > 0) {
       for (let i = 0; i < this.trayGroup.children.length; i++) {
         const swimmer = this.trayGroup.children[i];
+        if (swimmer.userData.isDivingToSwamp) continue;
         const phase = swimmer.userData.swampPhase ?? i * 1.3;
         const baseY = swimmer.userData.baseSwampY ?? -0.28;
         const baseYaw = swimmer.userData.baseSwampYaw ?? 0;
@@ -1253,7 +1460,172 @@ export class PieceView {
       tw.elapsed += dt;
       const t = Math.min(1, tw.elapsed / Math.max(0.001, tw.duration));
 
-      if (tw.kind === 'parabolic_jump') {
+      if (tw.kind === 'character_locomotion') {
+        const {
+          group,
+          pieceType,
+          fromX,
+          fromZ,
+          toX,
+          toZ,
+          cornerX,
+          cornerZ,
+          travelYaw,
+          homeYaw,
+        } = tw;
+        const s = this.globalPieceScale;
+        const env = Math.sin(t * Math.PI);
+
+        // Smooth S-curve progress so acceleration & deceleration feel weighty
+        const smoothT = t * t * (3 - 2 * t);
+
+        // Turn toward travel direction during walk, returning smoothly to homeYaw at landing (t > 0.86)
+        let currentYaw = travelYaw;
+        if (t > 0.86) {
+          const returnAlpha = (t - 0.86) / 0.14;
+          let diff = homeYaw - travelYaw;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          currentYaw = travelYaw + diff * returnAlpha;
+        }
+        group.rotation.y = currentYaw;
+
+        if (pieceType === 'n') {
+          // KNIGHT SEBY ("Cavalcata di Seby", 2.2s):
+          // Phase 1 (t = 0..0.18): Horse rears up heroically on its hind legs!
+          // Phase 2 (t = 0.18..1.0): 4 galloping bounds along the curved L-path!
+          if (t < 0.18) {
+            const rearU = t / 0.18;
+            const rearArc = Math.sin(rearU * Math.PI);
+            group.position.set(fromX, rearArc * 0.08, fromZ);
+            this.applyPoseToPiece(group, {
+              walkPhase: rearU * Math.PI * 3,
+              walkAmp: 1.25 * rearArc,
+              bodyY: rearArc * 0.24,
+              pitchX: -0.46 * rearArc,
+              rollZ: Math.sin(rearU * Math.PI * 2) * 0.08,
+            });
+          } else {
+            const gallopU = (t - 0.18) / 0.82;
+            const inv = 1 - gallopU;
+            // Quadratic Bezier curve through the L-corner so Seby gallops along the L!
+            const x = inv * inv * fromX + 2 * inv * gallopU * cornerX + gallopU * gallopU * toX;
+            const z = inv * inv * fromZ + 2 * inv * gallopU * cornerZ + gallopU * gallopU * toZ;
+
+            const bounds = 4;
+            const boundCycle = gallopU * bounds;
+            const boundFrac = boundCycle % 1;
+            const hopY = Math.sin(boundFrac * Math.PI) * 0.52;
+            const pitchX = Math.cos(boundFrac * Math.PI) * 0.34;
+            const rollZ = Math.sin(boundCycle * Math.PI) * 0.10;
+
+            group.position.set(x, hopY * 0.35, z);
+            this.applyPoseToPiece(group, {
+              walkPhase: boundCycle * Math.PI * 2,
+              walkAmp: 1.45,
+              bodyY: hopY * 0.65,
+              pitchX,
+              rollZ,
+            });
+          }
+        } else if (pieceType === 'p') {
+          // PAWN PUFFIN ("Camminata di Puffin", 2.0s):
+          // 8 brisk Swiss-Guard marching steps with alternating feet & cute waddle!
+          const steps = 8;
+          const stepPhase = t * Math.PI * steps;
+          const stepBounce = Math.abs(Math.sin(stepPhase));
+          const x = fromX + (toX - fromX) * smoothT;
+          const z = fromZ + (toZ - fromZ) * smoothT;
+
+          group.position.set(x, stepBounce * 0.05, z);
+          this.applyPoseToPiece(group, {
+            walkPhase: stepPhase * 2,
+            walkAmp: 1.35 * Math.min(1, env * 1.8),
+            bodyY: stepBounce * 0.16,
+            pitchX: 0.16 * env + Math.cos(stepPhase * 2) * 0.06,
+            rollZ: Math.sin(stepPhase) * 0.21,
+          });
+        } else if (pieceType === 'b') {
+          // BISHOP ALE ("Volo col Draghetto di Ale", 2.0s):
+          // Swooping diagonal flight with 6 wing-beats & banking turn!
+          const wingBeats = 6;
+          const beatPhase = t * Math.PI * wingBeats;
+          const x = fromX + (toX - fromX) * smoothT;
+          const z = fromZ + (toZ - fromZ) * smoothT;
+          const flightY = env * 0.38 + Math.abs(Math.sin(beatPhase)) * 0.12;
+
+          group.position.set(x, flightY * 0.4, z);
+          this.applyPoseToPiece(group, {
+            walkPhase: beatPhase * 2,
+            walkAmp: 1.15 * Math.min(1, env * 1.6),
+            bodyY: flightY * 0.6,
+            pitchX: 0.22 * env,
+            rollZ: Math.sin(beatPhase) * 0.15,
+          });
+        } else if (pieceType === 'r') {
+          // ROOK PUPURABBU ("Balzi di Pupurabbu", 2.0s):
+          // 5 heavy plushie bounds with squash-and-stretch on each bounce!
+          const hops = 5;
+          const hopPhase = t * Math.PI * hops;
+          const hopSin = Math.abs(Math.sin(hopPhase));
+          const x = fromX + (toX - fromX) * smoothT;
+          const z = fromZ + (toZ - fromZ) * smoothT;
+
+          group.position.set(x, hopSin * 0.14, z);
+          const squash = 1 + (hopSin - 0.4) * 0.16;
+          group.scale.set(s / Math.sqrt(squash), s * squash, s / Math.sqrt(squash));
+          this.applyPoseToPiece(group, {
+            walkPhase: hopPhase * 2,
+            walkAmp: 1.25,
+            bodyY: hopSin * 0.26,
+            pitchX: Math.cos(hopPhase * 2) * 0.18,
+            rollZ: Math.sin(hopPhase) * 0.16,
+          });
+        } else if (pieceType === 'q') {
+          // QUEEN KATE ("Passo Reale & Pirouette di Kate", 2.0s):
+          const steps = 7;
+          const stepPhase = t * Math.PI * steps;
+          const x = fromX + (toX - fromX) * smoothT;
+          const z = fromZ + (toZ - fromZ) * smoothT;
+          const twirlYaw = Math.sin(t * Math.PI) * Math.PI * 2;
+
+          group.position.set(x, Math.abs(Math.sin(stepPhase)) * 0.06, z);
+          this.applyPoseToPiece(group, {
+            walkPhase: stepPhase * 2,
+            walkAmp: 1.2 * Math.min(1, env * 1.7),
+            bodyY: Math.abs(Math.sin(stepPhase)) * 0.15,
+            pitchX: 0.12 * env,
+            rollZ: Math.sin(stepPhase) * 0.14,
+            yawOffset: twirlYaw,
+          });
+        } else {
+          // KING RICCARDO ("Marcia Solenne di Riccardo", 2.0s):
+          const steps = 6;
+          const stepPhase = t * Math.PI * steps;
+          const stepBounce = Math.abs(Math.sin(stepPhase));
+          const x = fromX + (toX - fromX) * smoothT;
+          const z = fromZ + (toZ - fromZ) * smoothT;
+
+          group.position.set(x, stepBounce * 0.05, z);
+          this.applyPoseToPiece(group, {
+            walkPhase: stepPhase * 2,
+            walkAmp: 1.3 * Math.min(1, env * 1.8),
+            bodyY: stepBounce * 0.15,
+            pitchX: 0.12 * env,
+            rollZ: Math.sin(stepPhase) * 0.18,
+          });
+        }
+
+        if (t < 1) {
+          remaining.push(tw);
+        } else {
+          group.position.set(toX, 0, toZ);
+          group.rotation.set(0, homeYaw, 0);
+          group.scale.setScalar(s);
+          this.applyPoseToPiece(group, {});
+          this.triggerSquashLanding(group);
+        }
+      } else if (tw.kind === 'parabolic_jump') {
         const { group, fromX, fromZ, toX, toZ, hPeak } = tw;
         const x = fromX + (toX - fromX) * t;
         const z = fromZ + (toZ - fromZ) * t;
@@ -1294,6 +1666,8 @@ export class PieceView {
           const y = Math.sin(u * Math.PI * 0.5) * 1.15;
           kingGroup.position.set(kStart.x + (midX - 0.28 - kStart.x) * u, y, midZ);
           rookGroup.position.set(rStart.x + (midX + 0.28 - rStart.x) * u, y, midZ);
+          this.applyPoseToPiece(kingGroup, { walkPhase: u * 12, walkAmp: 1.2 });
+          this.applyPoseToPiece(rookGroup, { walkPhase: u * 12, walkAmp: 1.2 });
         } else {
           if (!tw.bounced) {
             tw.bounced = true;
@@ -1312,6 +1686,8 @@ export class PieceView {
         } else {
           kingGroup.position.set(kEnd.x, 0, kEnd.z);
           rookGroup.position.set(rEnd.x, 0, rEnd.z);
+          this.applyPoseToPiece(kingGroup, {});
+          this.applyPoseToPiece(rookGroup, {});
           this.triggerSquashLanding(kingGroup);
           this.triggerSquashLanding(rookGroup);
         }
