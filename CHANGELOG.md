@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.16] - 2026-10-10
+
+- ♗ Ale 1 (con cappello) 3D **v2** via TRELLIS multi-image (front + 3/4 + NB 2.1 back, 39 s, seed 42) → `tools/model-pipeline/ale/out/ale1_hat_f_tq_back.glb`. **Rejected by Riccardo**: the dragon came out as two half-dragons. `assets/models/bishop-ale-1.glb` stays v1.
+- 🧪 Showcase: 3D versions side by side (v1 left, v2 right, spinning in sync) in a full-width card; double click or ⛶ = fullscreen (Esc to exit); camera auto-fits the pane.
+- 🔐 `scripts/check.py`: secret scan only covers committable files (`git ls-files --cached --others --exclude-standard`), so a gitignored `.env` no longer fails `just test`.
+- 🧹 CHANGELOG: merged a duplicated `[0.1.11]` heading; this entry renumbered 0.1.14 → 0.1.16 when rebased onto `origin/main` (parallel sessions bumped the same numbers).
+
 ## [0.1.15] - 2026-10-10
 
 - 🎯 Added ready-to-run autonomous `/goal` prompt in [`etc/prompts/GOAL_BUILD_CARCHESS3D.md`](etc/prompts/GOAL_BUILD_CARCHESS3D.md) combining `niccolo-game-design` (Managers + Queued Event Bus + `DropManager` 🍀 Luck Meter) with Geneviève's 5 Argon 3D Workflows (`floorplan.svg`, parallel subagents, `progress.html` + `?debug=1` sliders, and 4-angle Adversarial Critic loop ≥ 9/10).

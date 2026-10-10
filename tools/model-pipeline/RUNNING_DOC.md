@@ -326,6 +326,20 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
 
 ---
 
+## 18. 2026-10-10 — Ale bishop #1 (con cappello) 3D v2: TRELLIS with the NB 2.1 back
+
+- Naming reminder: `bishop-ale-1` = concept #1 **with** the mitre, `bishop-ale-2` = concept #2 **without** hat (astrolabe). The number is the concept, not the model version (verified with `cmp`: `assets/models/bishop-ale-1.glb` == `ale/out/ale_bishop.glb`).
+- Run: `gen_mv.py ale1_hat_f_tq_back ../ale/front.png ../ale/threequarter.png ../ale/experiments_back/back_nb_2.1.png` (multi-image via `/lambda_1`, seed 42, same settings as §5) → 39 s, 1.9 MB GLB. HF token read at runtime from an env file outside the repo, never written anywhere.
+- Gotcha: `uv run` failed on this host (`failed to symlink … Operation not permitted`); used a plain `python3 -m venv` with `gradio_client` 2.7.2 instead.
+- Outputs in `ale/out/`: `ale1_hat_f_tq_back.{glb,mp4,gif}`, `_frames.png`, `ale1_v1_vs_v2.png` (top row v1, bottom row v2; frames 0/10/50/60/100 of 120).
+- v1 vs v2 (agent's reading of the turntable, to be confirmed by Riccardo):
+  - Back: v2 now has the mitre's back cross and the two hanging ribbons from the NB back view → the back view **was consumed** (unlike §9).
+  - Dragon: in the side profile (frame 100) v1 shows **no dragon at all**; v2 shows it with wings. Bigger and more readable from behind.
+  - Face: similar to v1; v2 has a brown smudge on the forehead (hair strand?). Not clearly "more smiling".
+- **Verdict (Riccardo, 2026-10-10): v1 is better for now — v2 has "two half dragons"** (the 3 views disagree on the dragon and TRELLIS fused two partial dragons). `assets/models/bishop-ale-1.glb` stays v1; v2 kept in `ale/out/` for reference. Next idea: make the dragon consistent across views (or generate it as a separate prop) before another multi-view run.
+
+---
+
 ## Artifacts index (committed in `tools/model-pipeline/`)
 
 Duplicated GLBs (B/C/E were identical to A) and the raw 468k-face Hunyuan

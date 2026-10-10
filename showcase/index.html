@@ -49,6 +49,18 @@
     .tabs button { font: inherit; font-size: .75rem; padding: 3px 10px; border-radius: 6px; cursor: pointer;
                    border: 1px solid var(--line); background: #000b; color: var(--text); }
     .tabs button[aria-pressed="true"] { background: var(--gold); color: #1a1300; border-color: var(--gold); }
+    /* Several 3D versions: full-width card, 3D pane twice as wide, versions side by side */
+    .card.multi { grid-column: 1 / -1; }
+    .card.multi .media { grid-template-columns: 1fr 2fr; }
+    .card.multi .pane[data-3d] { aspect-ratio: 2 / 1; }
+    .captions { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; pointer-events: none; }
+    .captions span { flex: 1; text-align: center; font-size: .85rem; }
+    .captions b { background: #000b; padding: 3px 10px; border-radius: 6px; }
+    .fs { position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 1.1rem; line-height: 1; padding: 4px 8px;
+          border-radius: 6px; border: 1px solid var(--line); background: #000b; color: var(--text); cursor: pointer; }
+    .pane[data-3d]:fullscreen { aspect-ratio: auto; width: 100vw; height: 100vh; background: #0d1016; }
+    .pane[data-3d]:fullscreen .captions { bottom: 24px; }
+    .pane[data-3d]:fullscreen .captions span { font-size: 1.3rem; }
     dl { margin: 0; padding: 12px 16px 16px; display: grid; grid-template-columns: max-content 1fr;
          gap: 4px 12px; font-size: .85rem; }
     dt { color: var(--muted); }
@@ -60,7 +72,7 @@
 <body>
   <header>
     <h1>🏰🚽 CarChess3D — Character showcase</h1>
-    <p>Personaggi di default: una card per pezzo, 2D (fronte / retro) + 3D in autorotazione (trascina per girarlo).</p>
+    <p>Personaggi di default: una card per pezzo, 2D (fronte / retro) + 3D in autorotazione (trascina per girarlo, <b>doppio click o ⛶ = schermo intero</b>, Esc per uscire).</p>
     <span class="warn">🧪 Throwaway showcase, NON il gioco vero e proprio</span>
   </header>
   <main id="cards"></main>
@@ -77,9 +89,13 @@
         front: '../assets/characters/bishop-ale-1.jpg',
         back: '../tools/model-pipeline/ale/experiments_back/back_nb_2.1.png',
         backGrid: '../tools/model-pipeline/ale/experiments_back/ale_hat_back_comparison_grid.jpg',
-        model: '../assets/models/bishop-ale-1.glb',
+        models: [
+          { label: 'v1 · 1 vista', url: '../assets/models/bishop-ale-1.glb',
+            note: 'v1 (canonico attuale): TRELLIS da sola vista frontale, retro inventato.' },
+          { label: 'v2 · 3 viste ❌', url: '../tools/model-pipeline/ale/out/ale1_hat_f_tq_back.glb',
+            note: 'v2 (scartata da Riccardo: 2 mezzi draghi): TRELLIS multi-image fronte + 3/4 + retro NB 2.1, seed 42.' },
+        ],
         details: 'Mitria vescovile blu e oro, occhioni verdi sorridenti, bastoncino pastorale in legno, basamento marmo + legno.',
-        modelNote: 'TRELLIS da sola vista frontale (pre-fix /lambda_1): il retro NB 2.1 non è ancora stato usato nel 3D.',
       },
       {
         glyph: '♔', piece: 'King', name: 'Riccardo', defaultConfirmed: false,
@@ -115,13 +131,15 @@
     ];
 
     const link = (p) => p ? `<a href="${p}" target="_blank"><code>${p.replace('../', '')}</code></a>` : '—';
+    const modelsOf = (c) => c.models ?? (c.model ? [{ label: 'v1', url: c.model, note: c.modelNote }] : []);
 
     function cardHTML(c, i) {
+      const models = modelsOf(c);
       const badge = c.winner ? '<span class="badge gold">🏆 vincitore</span>'
         : c.defaultConfirmed ? '<span class="badge">default</span>'
         : '<span class="badge guess">default da confermare</span>';
       return `
-        <article class="card ${c.winner ? 'winner' : ''}">
+        <article class="card ${c.winner ? 'winner' : ''} ${models.length > 1 ? 'multi' : ''}">
           <h2>${c.glyph} ${c.name} ${badge}</h2>
           <div class="sub">${c.piece}${c.tagline ? ' · ' + c.tagline : ''}</div>
           <div class="media">
@@ -135,8 +153,11 @@
             </div>
             <div class="pane" data-3d="${i}">
               <span class="label">3D</span>
-              ${c.model ? '<div class="placeholder">⏳ carico il GLB…</div>'
-                        : '<div class="placeholder">3D non ancora generato ⏳</div>'}
+              ${models.length ? `<button class="fs" data-fs="${i}" title="Schermo intero (o doppio click)">⛶</button>` : ''}
+              ${models.length ? '<div class="placeholder">⏳ carico il GLB…</div>'
+                              : '<div class="placeholder">3D non ancora generato ⏳</div>'}
+              ${models.length > 1 ? `<div class="captions">${models.map((m) =>
+                `<span><b>${m.label}</b></span>`).join('')}</div>` : ''}
             </div>
           </div>
           <dl>
@@ -144,28 +165,42 @@
             <dt>Dettagli</dt><dd>${c.details}</dd>
             ${c.backGrid ? `<dt>Retro GenAI</dt><dd>${link(c.backGrid)}</dd>` : ''}
             <dt>Vista posteriore</dt><dd>${link(c.back)}</dd>
-            <dt>Modello 3D</dt><dd>${link(c.model)}${c.modelNote ? `<br><small>${c.modelNote}</small>` : ''}</dd>
+            <dt>Modello 3D</dt><dd>${models.length ? models.map((m) =>
+              `${link(m.url)}${m.note ? `<br><small>${m.note}</small>` : ''}`).join('<br>') : '—'}</dd>
           </dl>
         </article>`;
     }
 
     const root = document.getElementById('cards');
     root.innerHTML = CHARACTERS.map(cardHTML).join('');
+    const views = {}; // card index -> 3D view
 
-    // 2D front/back toggle
+    // 2D front/back toggle + 3D fullscreen button
     root.addEventListener('click', (e) => {
+      const fsBtn = e.target.closest('button[data-fs]');
+      if (fsBtn) return toggleFullscreen(fsBtn.closest('.pane'));
       const btn = e.target.closest('button[data-side]');
       if (!btn) return;
-      const c = CHARACTERS[btn.dataset.card];
-      root.querySelector(`img[data-img="${btn.dataset.card}"]`).src = btn.dataset.side === 'back' ? c.back : c.front;
+      const i = btn.dataset.card;
+      const c = CHARACTERS[i];
+      root.querySelector(`img[data-img="${i}"]`).src = btn.dataset.side === 'back' ? c.back : c.front;
       btn.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b === btn));
     });
+    root.addEventListener('dblclick', (e) => {
+      const pane = e.target.closest('.pane[data-3d]');
+      if (pane && pane.querySelector('canvas')) toggleFullscreen(pane);
+    });
+    function toggleFullscreen(pane) {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else pane.requestFullscreen();
+    }
 
-    // ── 3D view adapter: one small renderer per card that has a model ──
+    // ── 3D view adapter: one renderer per card; every version side by side, spinning in sync ──
     const loader = new GLTFLoader();
-    const views = [];
+    const SPACING = 2.4;   // world units between versions (each model is normalised to size 2)
+    const FOV = 30;
 
-    function makeView(pane, url) {
+    function makeView(pane, models) {
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
       const scene = new THREE.Scene();
@@ -173,66 +208,86 @@
       const key = new THREE.DirectionalLight(0xffffff, 2.5);
       key.position.set(2, 3, 4);
       scene.add(key);
-      const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 100);
-      camera.position.set(0, 0.3, 5.2);
-      camera.lookAt(0, 0, 0);
-      const pivot = new THREE.Group();
-      scene.add(pivot);
+      const camera = new THREE.PerspectiveCamera(FOV, 1, 0.01, 100);
 
-      const view = { pane, renderer, scene, camera, pivot, visible: false, dragging: false, lastX: 0, idleAt: 0 };
+      const slots = models.map((_, k) => {
+        const g = new THREE.Group();
+        g.position.x = (k - (models.length - 1) / 2) * SPACING;
+        scene.add(g);
+        return g;
+      });
+      const view = { pane, renderer, scene, camera, slots, n: models.length, angle: 0,
+                     visible: false, dragging: false, lastX: 0, idleAt: 0 };
 
-      loader.load(url, (gltf) => {
+      models.forEach((m, k) => loader.load(m.url, (gltf) => {
         const obj = gltf.scene;
         const box = new THREE.Box3().setFromObject(obj);
         const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        obj.position.sub(center);
-        pivot.scale.setScalar(2 / Math.max(size.x, size.y, size.z));
-        pivot.add(obj);
-        pane.querySelector('.placeholder')?.remove();
-        pane.appendChild(renderer.domElement);
-        resize(view);
+        obj.position.sub(box.getCenter(new THREE.Vector3()));
+        const holder = new THREE.Group();
+        holder.scale.setScalar(2 / Math.max(size.x, size.y, size.z));
+        holder.add(obj);
+        slots[k].add(holder);
+        if (!renderer.domElement.isConnected) {
+          pane.querySelector('.placeholder')?.remove();
+          pane.prepend(renderer.domElement);
+          resize(view);
+        }
       }, undefined, (err) => {
-        pane.querySelector('.placeholder').textContent = '❌ GLB non caricato: ' + err.message;
-      });
+        const ph = pane.querySelector('.placeholder');
+        if (ph) ph.textContent = `❌ ${m.label}: ${err.message}`;
+      }));
 
       const el = renderer.domElement;
       el.addEventListener('pointerdown', (e) => { view.dragging = true; view.lastX = e.clientX; el.setPointerCapture(e.pointerId); });
       el.addEventListener('pointermove', (e) => {
         if (!view.dragging) return;
-        pivot.rotation.y += (e.clientX - view.lastX) * 0.01;
+        view.angle += (e.clientX - view.lastX) * 0.01;
         view.lastX = e.clientX;
       });
       el.addEventListener('pointerup', () => { view.dragging = false; view.idleAt = performance.now(); });
       return view;
     }
 
+    // Pull the camera back just enough to fit all versions (width) and a whole model (height).
     function resize(v) {
       const w = v.pane.clientWidth, h = v.pane.clientHeight;
+      if (!w || !h) return;
       v.renderer.setSize(w, h, false);
       v.camera.aspect = w / h;
+      const t = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+      const needH = 2.3, needW = (v.n - 1) * SPACING + 2.3;
+      const dist = Math.max(needH / 2 / t, needW / 2 / (t * v.camera.aspect));
+      v.camera.position.set(0, 0.25, dist);
+      v.camera.lookAt(0, 0, 0);
       v.camera.updateProjectionMatrix();
     }
 
     CHARACTERS.forEach((c, i) => {
-      if (c.model) views.push(makeView(root.querySelector(`[data-3d="${i}"]`), c.model));
+      const models = modelsOf(c);
+      if (models.length) views[i] = makeView(root.querySelector(`[data-3d="${i}"]`), models);
     });
+    const viewList = Object.values(views);
 
-    // Pause offscreen canvases
+    // Pause offscreen canvases (a fullscreen pane always counts as visible)
     const io = new IntersectionObserver((entries) => entries.forEach((en) => {
-      const v = views.find((x) => x.pane === en.target);
+      const v = viewList.find((x) => x.pane === en.target);
       if (v) v.visible = en.isIntersecting;
     }));
-    views.forEach((v) => io.observe(v.pane));
-    new ResizeObserver(() => views.forEach(resize)).observe(root);
+    const ro = new ResizeObserver((entries) => entries.forEach((en) => {
+      const v = viewList.find((x) => x.pane === en.target);
+      if (v) resize(v);
+    }));
+    viewList.forEach((v) => { io.observe(v.pane); ro.observe(v.pane); });
 
     const clock = new THREE.Clock();
     function tick() {
       const dt = clock.getDelta();
       const now = performance.now();
-      for (const v of views) {
-        if (!v.visible) continue;
-        if (!v.dragging && now - v.idleAt > 1500) v.pivot.rotation.y += dt * 0.6; // auto-rotate
+      for (const v of viewList) {
+        if (!v.visible && document.fullscreenElement !== v.pane) continue;
+        if (!v.dragging && now - v.idleAt > 1500) v.angle += dt * 0.6; // auto-rotate
+        v.slots.forEach((g) => { g.rotation.y = v.angle; });
         v.renderer.render(v.scene, v.camera);
       }
       requestAnimationFrame(tick);

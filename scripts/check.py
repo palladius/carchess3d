@@ -8,6 +8,7 @@
 import pathlib
 import re
 import struct
+import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -45,8 +46,20 @@ for p in chars:
     if not m or m["piece"] not in PIECES:
         failures.append(f"bad character asset name: {p.name}")
 
-for p in ROOT.rglob("*"):
-    if ".git" in p.parts or "private" in p.parts or not p.is_file() or p.suffix not in TEXT_EXT:
+def committable_files():
+    """Tracked + untracked-but-not-ignored files: what could end up in a commit."""
+    try:
+        out = subprocess.run(
+            ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+            cwd=ROOT, capture_output=True, check=True,
+        ).stdout
+        return [ROOT / f for f in out.decode().split("\0") if f]
+    except (OSError, subprocess.CalledProcessError):  # no git: fall back to everything
+        return [p for p in ROOT.rglob("*") if ".git" not in p.parts and "private" not in p.parts]
+
+
+for p in committable_files():
+    if not p.is_file() or p.suffix not in TEXT_EXT:
         continue
     if p.name == "check.py":
         continue
