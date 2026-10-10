@@ -563,6 +563,9 @@ export class HudListener {
         <div class="hud-actions-dock hud-glass hud-interactive">
           <button id="hud-hint-btn" class="hud-btn gold">${this.t('hintBtn')}</button>
           <button id="hud-swamp-btn" class="hud-btn" title="Fai sguazzare i pezzi catturati nella Palude di Shrek!">🐸 Palude Shrek</button>
+          <button id="hud-zoom-in-btn" class="hud-btn" title="Zoom In (+)">🔍+</button>
+          <button id="hud-zoom-out-btn" class="hud-btn" title="Zoom Out (-)">🔍−</button>
+          <button id="hud-trackpad-btn" class="hud-btn active" title="Mac Trackpad 2 dita: Ruota (Alto/Basso/Sx/Dx) + Pizzica o Cmd per Zoom">🖐️ 2-Dita: Ruota</button>
           <button id="hud-flip-btn" class="hud-btn">${this.t('flipCamBtn')}</button>
           <button id="hud-top-btn" class="hud-btn">${this.t('topCamBtn')}</button>
           <button id="hud-new-btn" class="hud-btn">${this.t('newGameBtn')}</button>
@@ -696,6 +699,42 @@ export class HudListener {
         this.ctx?.bus?.emit({ type: 'HINT_REQUESTED' });
         this.ctx?.bus?.flush?.();
       }
+    });
+
+    q('#hud-zoom-in-btn')?.addEventListener('click', () => {
+      if (this.ctx?.controls?._dollyOut) {
+        this.ctx.controls._dollyOut(0.84);
+        this.ctx.controls.update?.();
+      } else if (this.ctx?.camera) {
+        this.ctx.camera.position.multiplyScalar(0.85);
+        this.ctx.controls?.update?.();
+      }
+    });
+
+    q('#hud-zoom-out-btn')?.addEventListener('click', () => {
+      if (this.ctx?.controls?._dollyIn) {
+        this.ctx.controls._dollyIn(0.84);
+        this.ctx.controls.update?.();
+      } else if (this.ctx?.camera) {
+        this.ctx.camera.position.multiplyScalar(1.18);
+        this.ctx.controls?.update?.();
+      }
+    });
+
+    q('#hud-trackpad-btn')?.addEventListener('click', () => {
+      if (!this.ctx?.controls) return;
+      const next = !this.ctx.controls.trackpadTwoFingerRotate;
+      this.ctx.controls.trackpadTwoFingerRotate = next;
+      const btn = q('#hud-trackpad-btn');
+      if (btn) {
+        btn.classList.toggle('active', next);
+        btn.textContent = next ? '🖐️ 2-Dita: Ruota' : '🔍 2-Dita: Zoom';
+      }
+      this.showToast(
+        next
+          ? '🖐️ Mac Trackpad: 2 dita ruotano alto/basso & sx/dx (Pizzica o Cmd+scroll per Zoom!)'
+          : '🔍 Mac Trackpad: 2 dita fanno Zoom (Trascina con 1 dito per ruotare!)',
+      );
     });
 
     q('#hud-flip-btn')?.addEventListener('click', () => {

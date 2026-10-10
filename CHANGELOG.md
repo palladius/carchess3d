@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.4] - 2026-10-10
+## [0.2.6] - 2026-10-10
 
 - 🐛🤖 **Fix: CPU opponent only moved once** (`src/main.js`, `src/managers/AIWorkerManager.js`, `src/managers/BoardMapManager.js`, `src/listeners/HudListener.js`):
   - Root cause: the ad-hoc CPU wiring in `main.js` called the non-existent `combat.isBusy()` inside the `MOVE_EXECUTED` handler, throwing `TypeError` during `bus.flush()` on every CPU turn. The first move only worked because the HUD called `ai.requestMove()` directly; afterwards the user had to re-select the CPU to force each move.
@@ -8,6 +8,26 @@
   - Spec drift fixed in `docs/spec/SPEC.md` (§Architecture › `ai/`): CPU turn-taking ownership is now documented.
   - TDD: added `tests/cpu-opponent.test.mjs` (5 headless regression tests: replies to every human move, takes a pending turn right after being enabled, stops on hotseat, waits for the capture cutscene, board ignores stale AI moves). Verified end-to-end in headless Chromium (3 consecutive CPU replies, zero page errors).
 - 📐🏠 **Self-sufficient spec**: `docs/spec/SPEC.md` + `docs/spec/input_prompt.md` imported from `palladius/respec` (`carlesso-family/chess3d`, last respec commit `9c5c2a7`). `respec` is no longer a dependency: `AGENTS.md`/`GEMINI.md`, `README.md` and the `justfile` (`sync-assets` → `spec`) now point to the in-repo spec, which may be edited together with the code.
+## [0.2.5] - 2026-10-10
+
+- 🌐📖 **GitHub Pages Live Banner in `README.md` & GitHub Issues `#10`–`#16`**:
+  - Added prominent live GitHub Pages links (`https://palladius.github.io/carchess3d/`, WOW Mode, 3D Brawl demo, Shrek Swamp demo, 3-Family Showcase, and Visual Progress Gallery) at the top of [`README.md`](README.md).
+  - Created 7 tracked GitHub Issues (`#10`–`#16`) for every single gameplay/3D/UX requirement and launched the Adversarial Swarm to implement all 36 (`6×6`) bespoke 3D combat animations, all 36 `.mp4`/`.webm` 16:9 videos, the interactive 6×6 Battle Matrix Explorer, and visible 3D skeletal rigs.
+
+## [0.2.4] - 2026-10-10
+
+- 🥊⚔️ **3D Scazzottata / Real 3D Character Brawl (`VFXPoolView.js` + `CombatAnimationManager.js` + `PieceView.js`)**:
+  - Replaced untextured stage proxy cones with the **two actual 3D `.glb` combatant statues** (`attackerFighter` vs `defenderFighter`) staged directly on the capture square across a `4.0s` 3-Act 3D Brawl:
+    1. *Act 1 (Walk/Gallop Charge & Guard Stance)*: Attacker A charges in from `fromSquare` while Defender B turns to face them in a combat guard stance.
+    2. *Act 2 (La Scazzottata 3D — 5 Physical Combat Exchanges)*: Attacker A and Defender B trade 5 rapid back-and-forth lunges, counter-attacks, mid-air whirlwind clashes, uppercuts, and signature finishers inside a swirling 3D cartoon brawl dust cloud + comic impact starburst (`KAPOW!`), framed by a close-up orbiting camera (`dist = 4.0m..4.6m`).
+    3. *Act 3 (Knockout Launch into Shrek's Swamp & Victory Pose)*: Defender B is flattened/melted or launched spinning into the Enchanted Swamp moat while Attacker A celebrates on the captured square.
+- 🏃‍♂️🐎 **2.0-Second Articulated Skeletal Piece Locomotion (`PieceView.js`)**:
+  - Injected a real-time procedural skeletal limb & horse-gallop vertex shader (`injectLocomotionShader` on `MeshStandardMaterial.onBeforeCompile`) so every `.glb` statue's left/right legs, feet, horse hooves, arms, and weapons visibly stride and swing during movement and combat.
+  - Upgraded board moves (`c2 -> c4`, `g1 -> f3`, etc.) to **`2.0s` (`2.2s` for Knight Seby)** with distinct character gaits: Pawn Puffin's 8-step Swiss-Guard waddle-march (`Camminata di Puffin`), Knight Seby's horse rear-up + 4-bound curved L-gallop (`Cavalcata di Seby`), Bishop Ale's 6-beat winged diagonal glide, Rook Pupurabbu's 5 squash-and-stretch plushie bounds, Queen Kate's royal stride & pirouette, and King Riccardo's solemn swagger.
+- 🖐️🍎 **Mac Trackpad 2-Finger Rotate & Pinch Zoom Controls (`src/main.js` + `HudListener.js`)**:
+  - Upgraded `OrbitControls._handleMouseWheel` so a two-finger swipe on the Mac trackpad (`deltaX`, `deltaY`) smoothly rotates the 3D camera left/right and up/down, while two-finger pinch (`ctrlKey` / Safari `gesturechange`) or `Cmd/Option/Ctrl + scroll` (plus keyboard `+`/`-` and new HUD `🔍+`, `🔍−`, `🖐️ 2-Dita: Ruota` buttons) zooms in and out.
+- ♟️🧭 **White vs Black Army Facing Orientation (`PieceView.js`)**:
+  - Oriented all 16 White pieces (`homeYaw = Math.PI`, facing North `-Z`) to directly confront all 16 Black pieces (`homeYaw = 0`, facing South `+Z`) across the chessboard.
 
 ## [0.2.3] - 2026-10-10
 

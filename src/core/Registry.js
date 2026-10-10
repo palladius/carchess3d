@@ -236,7 +236,7 @@ function buildBattleMatrix() {
         banner: baseSig.banner,
         easterEgg: null,
         nonLethalCuddle: false,
-        videoUrl: `assets/battles/videos/${pairId}.mp4`,
+        videoUrl: `assets/battles/videos/${atk}_x_${def}.mp4`,
         compositeUrl: `assets/battles/keyframes/${pairId}.svg`,
         attackerImg: atkChar.frontPortrait,
         defenderImg: defChar.frontPortrait,
@@ -248,6 +248,7 @@ function buildBattleMatrix() {
   for (const [a, d] of [['n', 'r'], ['r', 'n']]) {
     matrix[a][d] = {
       ...matrix[a][d],
+      videoUrl: 'assets/battles/videos/n_x_r.mp4',
       effect: 'mega_cuddle_bounce',
       debrisType: 'floating_purple_hearts',
       victimReaction: 'happy_cuddle_hop',

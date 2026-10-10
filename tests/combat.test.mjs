@@ -92,7 +92,7 @@ test('CombatAnimationManager: Easter Egg overrides (Seby <-> Pupurabbu cuddle & 
   assert.equal(events[events.length - 1].easterEgg, 'brothers_dragon_vs_turbo');
 });
 
-test('CombatAnimationManager: update(dt) completes cutscene after 2800ms and skip() aborts immediately', () => {
+test('CombatAnimationManager: update(dt) completes cutscene after 4000ms and skip() aborts immediately', () => {
   const bus = new GameEventBus();
   const flow = new GameFlowManager();
   const combat = new CombatAnimationManager();
@@ -120,15 +120,15 @@ test('CombatAnimationManager: update(dt) completes cutscene after 2800ms and ski
   assert.equal(combat.isActive(), true);
   assert.equal(flow.state(), FLOW_STATES.CAPTURE_CUTSCENE);
 
-  // Advance 1.4 seconds (halfway)
-  combat.update(1.4);
+  // Advance 2.0 seconds (halfway)
+  combat.update(2.0);
   bus.flush();
   assert.equal(combat.isActive(), true);
   assert.equal(completed, null);
   assert.ok(Math.abs(combat.getProgress() - 0.5) < 0.01);
 
-  // Advance another 1.5 seconds (total 2.9s >= 2.8s)
-  combat.update(1.5);
+  // Advance another 2.1 seconds (total 4.1s >= 4.0s)
+  combat.update(2.1);
   bus.flush(); // delivers BATTLE_COMPLETED
   bus.flush(); // delivers FLOW_STATE_CHANGED
 
