@@ -671,12 +671,12 @@ export class HudListener {
       this.ctx?.bus?.flush?.();
     });
 
-    // Opponent selector (2P vs CPU Easy/Med/Hard)
+    // Opponent selector (2P vs CPU Easy/Med/Hard). HUD only announces the fact;
+    // AIWorkerManager reacts to OPPONENT_CHANGED and takes its turn when due.
     q('#hud-opponent-select')?.addEventListener('change', (e) => {
       this.opponentMode = e.target.value;
       const enabled = this.opponentMode !== 'hotseat';
       const difficulty = enabled ? this.opponentMode : 'easy';
-      this.ctx?.ai?.configure?.({ enabled, cpuColor: 'b', difficulty });
       this.ctx?.bus?.emit({
         type: 'OPPONENT_CHANGED',
         mode: this.opponentMode,
@@ -685,9 +685,6 @@ export class HudListener {
         difficulty,
       });
       this.ctx?.bus?.flush?.();
-      if (enabled && this.ctx?.board?.turn?.() === 'b' && !this.ctx?.board?.isGameOver?.()) {
-        this.ctx?.ai?.requestMove?.(this.ctx.board.fen(), difficulty);
-      }
     });
 
     // White Set selector (Carlesso vs Swamp vs Classic)

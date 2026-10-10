@@ -19,8 +19,9 @@ family and their pets: Riccardo is the king, Kate the queen, Ale the bishop
 are the pawns. Every capture plays a cartoon animation. Plain Three.js PWA: runs
 on localhost, in the browser and on Android, even in airplane mode. ✈️
 
-- 📐 **Spec** (source of truth):
-  [`palladius/respec` → `carlesso-family/chess3d/SPEC.md`](https://github.com/palladius/respec/blob/main/carlesso-family/chess3d/SPEC.md)
+- 📐 **Spec** (source of truth, lives in this repo):
+  [`docs/spec/SPEC.md`](docs/spec/SPEC.md) — originally drafted in
+  [`palladius/respec`](https://github.com/palladius/respec), now self-contained here.
 - 🧱 **Image → 3D pipeline** (shared with the *Plastilina* spec):
   [`tools/model-pipeline/`](tools/model-pipeline/) with its
   [lab notebook](tools/model-pipeline/RUNNING_DOC.md)

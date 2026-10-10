@@ -1,7 +1,5 @@
 set dotenv-load := false
 
-respec := env_var_or_default("RESPEC_DIR", "~/git/respec")
-
 # list recipes
 list:
     @just -l
@@ -32,9 +30,9 @@ local3d-shape image label *args:
     HF_HOME={{local3d_root}}/hf-cache TMPDIR={{local3d_root}}/tmp U2NET_HOME={{local3d_root}}/hf-cache/u2net LOCAL3D_ROOT={{local3d_root}} \
       {{local3d_root}}/venv-hunyuan/bin/python tools/model-pipeline/local/hunyuan_shape.py {{image}} {{label}} {{args}}
 
-# re-copy the 2D character art from the respec spec repo
-sync-assets:
-    cp -v {{respec}}/carlesso-family/assets/*.jpg assets/characters/
+# show where the spec lives (it is in-repo now: no external respec dependency)
+spec:
+    @echo "📐 Spec = docs/spec/SPEC.md (idea: docs/spec/input_prompt.md)"
 
 # image -> 3D with TRELLIS on HF ZeroGPU (needs HF_TOKEN). e.g. just trellis my_run ../puffin2/front.png back.png
 trellis label +images:

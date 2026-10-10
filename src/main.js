@@ -286,35 +286,8 @@ function bootstrapCarChess3D() {
   ctx.profileStorage = profileStorage;
   const hud = new HudListener(ctx);
 
-  // 6. Wire CPU AI Move Orchestration
-  let aiMovePendingAfterCutscene = false;
-  const maybeTriggerCpuMove = () => {
-    if (!ai.enabled || board.isGameOver()) return;
-    if (board.turn() !== ai.cpuColor) return;
-    if (flow.state() === FLOW_STATES.CAPTURE_CUTSCENE || combat.isBusy()) {
-      aiMovePendingAfterCutscene = true;
-      return;
-    }
-    aiMovePendingAfterCutscene = false;
-    setTimeout(() => {
-      if (ai.enabled && board.turn() === ai.cpuColor && !board.isGameOver()) {
-        ai.requestMove(board.fen(), ai.difficulty).then(() => bus.flush());
-      }
-    }, 260);
-  };
-
-  bus.on('MOVE_EXECUTED', () => maybeTriggerCpuMove());
-  bus.on('BATTLE_COMPLETED', () => {
-    if (aiMovePendingAfterCutscene) maybeTriggerCpuMove();
-  });
-  bus.on('BATTLE_SKIPPED', () => {
-    if (aiMovePendingAfterCutscene) maybeTriggerCpuMove();
-  });
-  bus.on('AI_MOVE_READY', (e) => {
-    if (e.move && board.turn() === e.color && !board.isGameOver()) {
-      board.move(e.move.from, e.move.to, e.move.promotion || 'q');
-    }
-  });
+  // 6. CPU AI Move Orchestration lives in AIWorkerManager (reacts to MOVE_EXECUTED /
+  //    OPPONENT_CHANGED / BATTLE_*), and BoardMapManager applies AI_MOVE_READY.
 
   // 7. Art Director Live Control Panel (?debug=1 & ?cam=...)
   const debugPanel = new DebugPanelView({
