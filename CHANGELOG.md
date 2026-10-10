@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.25] - 2026-10-10
+
+- 🏰👾 **Rook Pupurabbu 3D Model (`rook-pupurabbu.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` from 360° turnaround dataset (`tools/model-pipeline/rook/`), featuring the adorable fluffy purple mascot leaning out and smiling from the crenellated purple stone tower. All default chess pieces of the Carlesso family now have complete 3D models!
+- 📋 **Provenance Registry Coverage**: registered `rook-pupurabbu` in `docs/models-provenance.yaml` with MD5 `eb20ae6542bc25e6ce5cc9846a82dc4c` across all 4 concept views.
+- 🌐 **Showcase Complete**: linked `rook-pupurabbu.glb` in `showcase/index.html` on port 8080.
+- 📓 **Documentation**: documented Pupurabbu generation in `tools/model-pipeline/RUNNING_DOC.md` (§25).
+
 ## [0.1.24] - 2026-10-10
 
 - 🐴⚔️ **Knight Sebastian 3D Model (`knight-seby.glb`)**: generated textured 3D mesh via `microsoft/TRELLIS.2` from 360° turnaround dataset (`tools/model-pipeline/seby/`), featuring golden-armored charger steed, golden plate armor, blue royal cape, raised left fist (modular weapon/power ready), and turned wooden pedestal.

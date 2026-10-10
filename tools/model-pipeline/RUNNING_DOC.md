@@ -393,6 +393,14 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
 - **Timing & Output**: 43.1s reconstruction + 16.3s GLB decimation/extraction (`decimation_target=100000`, `texture_size=1024`). Output: `tools/model-pipeline/seby/out/knight_seby.glb` (3.65 MB), copied to `assets/models/knight-seby.glb`.
 - **Render**: `tools/model-pipeline/seby/render_preview.py` generating `out/knight_seby_3d_preview.png`.
 
+## 25. 2026-10-10 — Rook Pupurabbu 3D Model via TRELLIS.2
+
+- **Concept**: Adorable fluffy purple mascot leaning over and smiling from the crenellated purple stone tower (`tools/model-pipeline/rook/`).
+- **Pipeline Runner**: `tools/model-pipeline/rook/gen_trellis2.py` invoking `microsoft/TRELLIS.2` with `palladius` token.
+- **Timing & Output**: 35.2s reconstruction + 23.1s GLB extraction (`decimation_target=100000`, `texture_size=1024`). Output: `tools/model-pipeline/rook/out/rook_pupurabbu.glb` (3.77 MB), copied to `assets/models/rook-pupurabbu.glb`.
+- **Render**: `tools/model-pipeline/rook/render_preview.py` generating `out/rook_pupurabbu_3d_preview.png`.
+- **Full Family Set Milestone**: All default chess pieces for the Carlesso family (King Riccardo, Queen Kate, Bishop Ale, Knight Sebastian, Rook Pupurabbu, Pawn Puffin) now have complete textured 3D models!
+
 ---
 
 ## Artifacts index (committed in `tools/model-pipeline/`)

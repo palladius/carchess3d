@@ -209,3 +209,40 @@ models:
         size_bytes: 1001439
         md5: "f2cc72a31d5fdcecc8f0e5916e761a63"
 
+  - id: "rook-pupurabbu"
+    name: "Rook Pupurabbu (Canonico)"
+    piece: "rook"
+    character: "Pupurabbu"
+    status: "CANONICAL"
+    target_path: "assets/models/rook-pupurabbu.glb"
+    size_bytes: 3864216
+    md5: "eb20ae6542bc25e6ce5cc9846a82dc4c"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/rook/gen_trellis2.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_reference"
+        path: "assets/characters/rook-pupurabbu.jpg"
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/rook/front.png"
+        size_bytes: 611163
+        md5: "3ab8136e6d0d7e70e0f9536e575af150"
+      - role: "turnaround_threequarter"
+        path: "tools/model-pipeline/rook/threequarter.png"
+        size_bytes: 645484
+        md5: "52aedd0c4233c9c36e0112ff6f28231a"
+      - role: "turnaround_side"
+        path: "tools/model-pipeline/rook/side.png"
+        size_bytes: 924288
+        md5: "b5eef0487d36b4167394c291db44eb62"
+      - role: "turnaround_back"
+        path: "tools/model-pipeline/rook/back.png"
+        size_bytes: 930566
+        md5: "792d084fd7ea6e9f6cc92b7e8440febb"
+
+
