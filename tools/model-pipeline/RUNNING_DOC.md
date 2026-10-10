@@ -346,6 +346,18 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
   - Assembled modular bishop in `tools/model-pipeline/rigging/assemble_modular_bishop.py`: mounted clean dragon to `bishop-ale-1` base, bound to 26-bone rig with `Idle` (wing flap & glide) and `Click_Fire_Breath` animations.
   - VLM Critic audit showed immediate quality jump: face likeness increased from 4.0/10 to 6.8/10, back view consistency reached 6.7/10.
 
+## 20. 2026-10-10 — YAML QA Scoreboard & "Fa Cagare" Detection Engine
+
+- Structured central YAML scoreboard `docs/qa-scores.yaml` storing:
+  - Model and concept reference paths.
+  - Scores: face likeness, companion/prop fidelity, back view plausibility, overall.
+  - Tiers: `TOP_QUALITY 🟢` ($\ge 8.0$), `ACCEPTABLE 🟡` ($6.0 - 7.9$), `FA_CAGARE 💩` ($< 6.0$).
+  - Structural flaws (e.g. non-watertight, submerged below Y=0, fused meshes) and aesthetic critiques.
+- Integrated auto-sync into `critic_vlm.py`: every audit run automatically updates or inserts the piece evaluation in `docs/qa-scores.yaml`.
+- Created CLI inspector `tools/model-pipeline/critic/scoreboard.py` and `just` recipes:
+  - `just scores`: displays full ASCII table of all audited models.
+  - `just shittest`: filters only models failing QA (< 6.0) and prints exact root-cause flaws.
+
 ---
 
 ## Artifacts index (committed in `tools/model-pipeline/`)
