@@ -6,9 +6,10 @@ respec := env_var_or_default("RESPEC_DIR", "~/git/respec")
 list:
     @just -l
 
-# sanity checks: GLB validity, asset naming, secret scan
+# sanity checks: GLB validity, asset naming, secret scan + stdlib unit tests
 test:
     python3 scripts/check.py
+    python3 -m unittest discover -s tests -p "test_*.py" -v
 
 # serve the repo statically on http://localhost:8000 (service workers need localhost)
 serve port="8000":

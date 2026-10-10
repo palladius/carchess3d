@@ -1,0 +1,198 @@
+family: classic
+evaluated_by: heuristic-self
+models:
+- piece: king
+  character: cesso
+  model_name: king-classic-cesso.glb
+  concept_file: assets/characters/king-classic-cesso.jpg
+  model_file: assets/models/classic/king-classic-cesso.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  geometry:
+    faces: 20728
+    vertices: 10418
+    is_watertight: true
+    tallest_axis: Y
+    height: 1.8
+    min_ground_coord: 0.0
+    is_grounded_near_zero: true
+    stray_island_count: 0
+    materials:
+    - faction_primary
+    - faction_trim
+    - accent_porcelain
+  scores:
+    critic_2d: 8.5
+    critic_overall: 7.6
+    overall: 7.6
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: 'Watertight Staunton king (1.80m): Oversized Golden Royal Toilet-Throne
+    finial (square tank, porcelain seat, armrests), 8-point crown over marble dome
+    & embossed rune pedestal.'
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: queen
+  character: ciocco
+  model_name: queen-classic-ciocco.glb
+  concept_file: assets/characters/queen-classic-ciocco.jpg
+  model_file: assets/models/classic/queen-classic-ciocco.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  geometry:
+    faces: 17040
+    vertices: 8558
+    is_watertight: true
+    tallest_axis: Y
+    height: 1.65
+    min_ground_coord: 0.0
+    is_grounded_near_zero: true
+    stray_island_count: 0
+    materials:
+    - faction_primary
+    - faction_trim
+    - accent_obsidian
+    - accent_choco
+  scores:
+    critic_2d: 8.7
+    critic_overall: 7.9
+    overall: 7.9
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: 'Watertight Staunton queen (1.65m): Swiss dark-chocolate wave coronet with
+    8 gold pearls, thickened tortoise-shell glasses & fluted marble gown.'
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: bishop
+  character: drago
+  model_name: bishop-classic-drago.glb
+  concept_file: assets/characters/bishop-classic-drago.jpg
+  model_file: assets/models/classic/bishop-classic-drago.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  geometry:
+    faces: 13320
+    vertices: 6694
+    is_watertight: true
+    tallest_axis: Y
+    height: 1.45
+    min_ground_coord: 0.0
+    is_grounded_near_zero: true
+    stray_island_count: 0
+    materials:
+    - faction_primary
+    - faction_trim
+    - accent_obsidian
+    - accent_ruby
+    - accent_amethyst
+  scores:
+    critic_2d: 8.6
+    critic_overall: 7.2
+    overall: 7.2
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: 'Watertight Staunton bishop (1.45m): Pointed mitre with dark obsidian diagonal
+    slit, ruby dragon head sphere + horn cones + eyes + triangular wing plate + coiled
+    tail & amethyst.'
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: knight
+  character: turbo
+  model_name: knight-classic-turbo.glb
+  concept_file: assets/characters/knight-classic-turbo.jpg
+  model_file: assets/models/classic/knight-classic-turbo.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  geometry:
+    faces: 12840
+    vertices: 6468
+    is_watertight: true
+    tallest_axis: Y
+    height: 1.35
+    min_ground_coord: 0.0
+    is_grounded_near_zero: true
+    stray_island_count: 0
+    materials:
+    - faction_primary
+    - faction_trim
+    - accent_orange
+    - accent_obsidian
+    - accent_cyan
+    - accent_steel
+  scores:
+    critic_2d: 9.0
+    critic_overall: 7.6
+    overall: 7.6
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: 'Watertight Staunton knight (1.35m): Carved horse with muzzle/jaw break,
+    flared nostrils, wavy mane, cyan racing goggles, 30°-swept turbo pipes & orange
+    rim.'
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: rook
+  character: puffo
+  model_name: rook-classic-puffo.glb
+  concept_file: assets/characters/rook-classic-puffo.jpg
+  model_file: assets/models/classic/rook-classic-puffo.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  geometry:
+    faces: 12320
+    vertices: 6194
+    is_watertight: true
+    tallest_axis: Y
+    height: 1.3
+    min_ground_coord: 0.0
+    is_grounded_near_zero: true
+    stray_island_count: 0
+    materials:
+    - faction_primary
+    - faction_trim
+    - accent_puffo
+    - accent_porcelain
+    - accent_cyan
+    - accent_obsidian
+  scores:
+    critic_2d: 8.6
+    critic_overall: 8.0
+    overall: 8.0
+  tier: TOP_QUALITY 🟢
+  passed: true
+  summary: 'Watertight Staunton rook (1.30m): Grossmünster masonry turret with 6 deep
+    merlons & smooth purple monster peeker with eyes and 4 paws.'
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: pawn
+  character: puffin
+  model_name: pawn-classic-puffin.glb
+  concept_file: assets/characters/pawn-classic-puffin.jpg
+  model_file: assets/models/classic/pawn-classic-puffin.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  geometry:
+    faces: 12660
+    vertices: 6360
+    is_watertight: true
+    tallest_axis: Y
+    height: 0.95
+    min_ground_coord: 0.0
+    is_grounded_near_zero: true
+    stray_island_count: 0
+    materials:
+    - faction_primary
+    - faction_trim
+    - accent_obsidian
+    - accent_orange
+    - accent_steel
+    - accent_crimson
+  scores:
+    critic_2d: 8.4
+    critic_overall: 7.7
+    overall: 7.7
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: 'Watertight Staunton pawn (0.95m): Staunton pawn with striped puffin beak
+    (dark + gold bands), morion helmet & 3-tuft crimson plume.'
+  structural_flaws: []
+  aesthetic_flaws: []

@@ -1,0 +1,121 @@
+{
+  "$schema": "./_contract.json",
+  "id": "classic",
+  "contract_version": "1.0.0",
+  "label": {
+    "it": "Classici Carlessiani 🗿🚽",
+    "en": "Carlessian Classic 🗿🚽"
+  },
+  "description": {
+    "it": "Set Staunton scolpito in marmo d'avorio e oro con esilaranti easter egg Carlessiani e zurighesi.",
+    "en": "Sculpted ivory-marble and royal-gold Staunton chess set infused with Carlessian and Zurich easter eggs."
+  },
+  "board_square_size_m": 1.0,
+  "pedestal_diameter_m": 0.75,
+  "grounding_y_m": 0.0,
+  "max_triangles_per_piece": 25000,
+  "required_material_slots": [
+    "faction_primary",
+    "faction_trim"
+  ],
+  "victim_reaction": "stone_shrapnel_shatter",
+  "veo_cinema_enabled": false,
+  "factions": {
+    "white": {
+      "label": {
+        "it": "Marmo d'Avorio & Oro Reale",
+        "en": "Ivory Marble & Royal Gold"
+      },
+      "faction_primary": "#f5f0e6",
+      "faction_trim": "#d4af37"
+    },
+    "black": {
+      "label": {
+        "it": "Basalto d'Ossidiana & Argento",
+        "en": "Obsidian Basalt & Silver"
+      },
+      "faction_primary": "#1c1e24",
+      "faction_trim": "#c0c8d2"
+    }
+  },
+  "pieces": {
+    "king": {
+      "slug": "king-classic-cesso",
+      "name": {
+        "it": "Re Cesso d'Oro",
+        "en": "Golden Throne King"
+      },
+      "model": "assets/models/classic/king-classic-cesso.glb",
+      "portrait": "assets/characters/king-classic-cesso.jpg",
+      "height_m": 1.80,
+      "attack_sig": "royal_flush_quake",
+      "victim_reaction": "stone_shrapnel_shatter",
+      "easter_egg": "Golden Royal Toilet-Throne crown finial ('Carlesso al Cesso!') & rune-carved pedestal"
+    },
+    "queen": {
+      "slug": "queen-classic-ciocco",
+      "name": {
+        "it": "Regina Ciocco-Kate",
+        "en": "Choco-Crown Queen"
+      },
+      "model": "assets/models/classic/queen-classic-ciocco.glb",
+      "portrait": "assets/characters/queen-classic-ciocco.jpg",
+      "height_m": 1.65,
+      "attack_sig": "marble_choco_crush",
+      "victim_reaction": "stone_shrapnel_shatter",
+      "easter_egg": "Swiss dark-chocolate wave coronet with golden truffle pearls & tortoise-shell glasses"
+    },
+    "bishop": {
+      "slug": "bishop-classic-drago",
+      "name": {
+        "it": "Alfiere Drago-Runa",
+        "en": "Dragon-Scroll Bishop"
+      },
+      "model": "assets/models/classic/bishop-classic-drago.glb",
+      "portrait": "assets/characters/bishop-classic-drago.jpg",
+      "height_m": 1.45,
+      "attack_sig": "rune_laser_cleave",
+      "victim_reaction": "stone_shrapnel_shatter",
+      "easter_egg": "Ruby dragon head & wing peeking out of the mitre slit + glowing amethyst crystal finial"
+    },
+    "knight": {
+      "slug": "knight-classic-turbo",
+      "name": {
+        "it": "Cavallo Turbo-Goggles",
+        "en": "Turbo-Goggle Knight"
+      },
+      "model": "assets/models/classic/knight-classic-turbo.glb",
+      "portrait": "assets/characters/knight-classic-turbo.jpg",
+      "height_m": 1.35,
+      "attack_sig": "stone_hoon_charge",
+      "victim_reaction": "stone_shrapnel_shatter",
+      "easter_egg": "Vintage brass & cyan racing goggles, twin side turbo exhausts & orange loop-track base rim"
+    },
+    "rook": {
+      "slug": "rook-classic-puffo",
+      "name": {
+        "it": "Torre Grossmünster Puffo",
+        "en": "Grossmünster Puffo Rook"
+      },
+      "model": "assets/models/classic/rook-classic-puffo.glb",
+      "portrait": "assets/characters/rook-classic-puffo.jpg",
+      "height_m": 1.30,
+      "attack_sig": "fortress_slam",
+      "victim_reaction": "stone_shrapnel_shatter",
+      "easter_egg": "Zurich Grossmünster masonry battlements with purple monster peeking from crenelations"
+    },
+    "pawn": {
+      "slug": "pawn-classic-puffin",
+      "name": {
+        "it": "Pedone Guardia Puffin",
+        "en": "Swiss-Helm Puffin Pawn"
+      },
+      "model": "assets/models/classic/pawn-classic-puffin.glb",
+      "portrait": "assets/characters/pawn-classic-puffin.jpg",
+      "height_m": 0.95,
+      "attack_sig": "pike_bonk",
+      "victim_reaction": "stone_shrapnel_shatter",
+      "easter_egg": "Carved puffin beak with dark stripe, Swiss Guard morion helmet & crimson feather plume"
+    }
+  }
+}

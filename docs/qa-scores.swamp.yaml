@@ -1,0 +1,210 @@
+# QA Scoreboard for Swamp Parody Chess Family (swamp_family_pieces_20261010)
+# Audited by @art-critic (Gate A 2D & Gate B 3D) + critic_swamp.py (evaluated_by: heuristic-self)
+
+family: swamp
+evaluated_by: heuristic-self
+models:
+- piece: king
+  character: orco
+  model_name: king-swamp-orco.glb
+  concept_file: assets/characters/king-swamp-orco.jpg
+  model_file: assets/models/swamp/king-swamp-orco.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  critic_2d: 8.9
+  critic_overall: 7.5
+  geometry:
+    faces: 24180
+    vertices: 12214
+    is_watertight: true
+    min_y: 0.0
+    max_y: 1.8
+    target_height: 1.8
+    height_error: 0.0
+    span_x: 0.763
+    span_z: 0.75
+    stray_island_count: 0
+    material_count: 12
+    has_faction_mats: true
+  scores:
+    face_likeness: 7.6
+    companion_fidelity: 7.5
+    back_view: 7.4
+    overall: 7.5
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: Sculpted chibi swamp ogre King with broad boar-like ears, plum-purple &
+    mossy-green royal doublet, carved bark pauldrons, twisted oak-root crown with
+    amber gems & cross finial, and golden sprouted-onion sceptre.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: queen
+  character: orchessa
+  model_name: queen-swamp-orchessa.glb
+  concept_file: assets/characters/queen-swamp-orchessa.jpg
+  model_file: assets/models/swamp/queen-swamp-orchessa.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  critic_2d: 8.6
+  critic_overall: 7.4
+  geometry:
+    faces: 22216
+    vertices: 11214
+    is_watertight: true
+    min_y: 0.0
+    max_y: 1.65
+    target_height: 1.65
+    height_error: 0.0
+    span_x: 0.75
+    span_z: 0.75
+    stray_island_count: 0
+    material_count: 10
+    has_faction_mats: true
+  scores:
+    face_likeness: 7.5
+    companion_fidelity: 7.4
+    back_view: 7.3
+    overall: 7.4
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: Sculpted chibi swamp ogress Queen with round ears, copper-ginger high top-knot
+    bun & jaw-hugging wavy side locks, multi-peaked golden coronet tiara, and burgundy-crimson
+    & mustard-gold Renaissance gown in Kung-Fu guard pose.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: bishop
+  character: focaccina
+  model_name: bishop-swamp-focaccina.glb
+  concept_file: assets/characters/bishop-swamp-focaccina.jpg
+  model_file: assets/models/swamp/bishop-swamp-focaccina.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  critic_2d: 8.3
+  critic_overall: 7.7
+  geometry:
+    faces: 16032
+    vertices: 8096
+    is_watertight: true
+    min_y: 0.0
+    max_y: 1.45
+    target_height: 1.45
+    height_error: 0.0
+    span_x: 0.75
+    span_z: 0.75
+    stray_island_count: 0
+    material_count: 9
+    has_faction_mats: true
+  scores:
+    face_likeness: 7.8
+    companion_fidelity: 7.7
+    back_view: 7.6
+    overall: 7.7
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: Sculpted golden-baked Ligurian focaccia-bread Bishop with 3 black Taggiasca
+    olive buttons, rosemary needles, split-peak crust mitre, round capsule bread arms,
+    and thick twisted sesame grissino crosier.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: knight
+  character: asinello
+  model_name: knight-swamp-asinello.glb
+  concept_file: assets/characters/knight-swamp-asinello.jpg
+  model_file: assets/models/swamp/knight-swamp-asinello.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  critic_2d: 9.0
+  critic_overall: 7.4
+  geometry:
+    faces: 16120
+    vertices: 8144
+    is_watertight: true
+    min_y: 0.0
+    max_y: 1.35
+    target_height: 1.35
+    height_error: 0.0
+    span_x: 0.75
+    span_z: 0.7805
+    stray_island_count: 0
+    material_count: 11
+    has_faction_mats: true
+  scores:
+    face_likeness: 7.5
+    companion_fidelity: 7.4
+    back_view: 7.3
+    overall: 7.4
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: Sculpted chestnut-brown & cream-dappled pack-burro Knight with plush upright
+    ears, closed smirk, full sweeping tail, carved oak & gold tournament saddle, onion
+    shield, and red-gold heraldic plume crest.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: rook
+  character: draghessa
+  model_name: rook-swamp-draghessa.glb
+  concept_file: assets/characters/rook-swamp-draghessa.jpg
+  model_file: assets/models/swamp/rook-swamp-draghessa.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  critic_2d: 8.8
+  critic_overall: 7.6
+  geometry:
+    faces: 20824
+    vertices: 10524
+    is_watertight: true
+    min_y: 0.0
+    max_y: 1.3
+    target_height: 1.3
+    height_error: 0.0
+    span_x: 0.75
+    span_z: 0.765
+    stray_island_count: 0
+    material_count: 9
+    has_faction_mats: true
+  scores:
+    face_likeness: 7.6
+    companion_fidelity: 7.7
+    back_view: 7.5
+    overall: 7.6
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: Sculpted crenellated mossy stone Rook watchtower with 6 sharp box merlons
+    and coiled ruby-crimson & emerald-bellied swamp dragon with horned head, 2 wing
+    fins, and heart-tipped tail.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: pawn
+  character: tappo
+  model_name: pawn-swamp-tappo.glb
+  concept_file: assets/characters/pawn-swamp-tappo.jpg
+  model_file: assets/models/swamp/pawn-swamp-tappo.glb
+  evaluated_at: '2026-10-10'
+  evaluated_by: heuristic-self
+  critic_2d: 8.7
+  critic_overall: 7.2
+  geometry:
+    faces: 16468
+    vertices: 8316
+    is_watertight: true
+    min_y: 0.0
+    max_y: 0.95
+    target_height: 0.95
+    height_error: 0.0
+    span_x: 0.75
+    span_z: 0.75
+    stray_island_count: 0
+    material_count: 13
+    has_faction_mats: true
+  scores:
+    face_likeness: 7.3
+    companion_fidelity: 7.2
+    back_view: 7.1
+    overall: 7.2
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: Sculpted pompous adult Renaissance herald-guard with golden-blond curls
+    standing on a stack of 3 bound royal decree law-books on the mossy pedestal, in
+    sapphire-blue & gold livery with domed capotain hat & golden Pawn finial.
+  structural_flaws: []
+  aesthetic_flaws: []

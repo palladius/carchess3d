@@ -1,10 +1,10 @@
 {
   "track_id": "classic_default_pieces_20261010",
   "type": "feature",
-  "status": "new",
+  "status": "completed",
   "title": "Carlessian Classic Chess Family (Procedural/Blender Staunton + Carlessian/Zurich Easter Eggs & Nano Banana Portraits)",
   "created_at": "2026-10-10T11:04:00+02:00",
-  "updated_at": "2026-10-10T11:13:00+02:00",
+  "updated_at": "2026-10-10T12:38:00+02:00",
   "depends_on": [
     "v1_carchess3d#3.2 (only for runtime PieceView integration; Phases 1-2 & family JSON manifest are 100% standalone)"
   ],
