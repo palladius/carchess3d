@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.3] - 2026-10-10
+## [0.2.4] - 2026-10-10
 
 - 🥊⚔️ **3D Scazzottata / Real 3D Character Brawl (`VFXPoolView.js` + `CombatAnimationManager.js` + `PieceView.js`)**:
   - Replaced untextured stage proxy cones with the **two actual 3D `.glb` combatant statues** (`attackerFighter` vs `defenderFighter`) staged directly on the capture square across a `4.0s` 3-Act 3D Brawl:
@@ -14,6 +14,15 @@
   - Upgraded `OrbitControls._handleMouseWheel` so a two-finger swipe on the Mac trackpad (`deltaX`, `deltaY`) smoothly rotates the 3D camera left/right and up/down, while two-finger pinch (`ctrlKey` / Safari `gesturechange`) or `Cmd/Option/Ctrl + scroll` (plus keyboard `+`/`-` and new HUD `🔍+`, `🔍−`, `🖐️ 2-Dita: Ruota` buttons) zooms in and out.
 - ♟️🧭 **White vs Black Army Facing Orientation (`PieceView.js`)**:
   - Oriented all 16 White pieces (`homeYaw = Math.PI`, facing North `-Z`) to directly confront all 16 Black pieces (`homeYaw = 0`, facing South `+Z`) across the chessboard.
+
+## [0.2.3] - 2026-10-10
+
+- 🎛️ **Showcase Multi-Family Selector & Live 3D Faction Material Tinting (`showcase/index.html`)**:
+  - Merged interactive family tabs (`Tutte le Famiglie (18)`, `Famiglia Carlesso (6)`, `Classici Carlessiani (6)`, `Famiglia della Palude (6)`) to inspect all 18 2D Nano Banana 2.1 portraits and 3D `.glb` models in one unified gallery, keeping all 6 canonical Carlesso `.glb` models (`king-riccardo.glb`, `queen-kate.glb` + `queen-kate-wedding2016.glb`, `bishop-ale-1.glb` + `bishop-ale-rigged.glb`, `knight-seby.glb`, `rook-pupurabbu.glb`, `pawn-puffin.glb`).
+  - Added live 3D faction material tinting controls (`Materiali Originali`, `Squadra Bianca (Avorio & Oro)`, `Squadra Nera (Ossidiana & Argento)`) that dynamically override `faction_primary` / `faction_trim` material slots (and apply fallback tinting + glTF PBR `metalness` clamping on textured TRELLIS.2 pieces).
+  - Added `fable-5.1-high` Adversarial Art Critic score badges (`🟢`/`🟡`) per piece and quick-access buttons to the 6×4 turntable contact sheets (`classic_contact_sheet.png`, `swamp_contact_sheet.png`).
+- 📦 **Carlesso Family Manifest (`assets/families/carlesso.json`)**:
+  - Added declarative manifest for the primary `carlesso` family alongside `classic.json` and `swamp.json` under `assets/families/_contract.json`, wired to all 6 canonical `.glb` models.
 
 ## [0.2.2] - 2026-10-10
 
