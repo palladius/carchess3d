@@ -5,3 +5,14 @@
 | Track ID | Title | Status | Plan | Spec |
 | :--- | :--- | :--- | :--- | :--- |
 | `v1_carchess3d` | **v1 Playable 3D Chess + Mode 2 WOW Arena + Zurich Swamp & 16:9 Veo Cinema** | `[ ]` Pending | [plan.md](./tracks/v1_carchess3d/plan.md) | [spec.md](./tracks/v1_carchess3d/spec.md) |
+| `classic_default_pieces_20261010` | **Carlessian Classic Chess Family (Staunton + Quirky Carlessian/Zurich Touches & Nano Banana Portraits)** | `[ ]` Pending | [plan.md](./tracks/classic_default_pieces_20261010/plan.md) | [spec.md](./tracks/classic_default_pieces_20261010/spec.md) |
+| `swamp_family_pieces_20261010` | **Swamp Parody Chess Family (Orco Brontolo, Principessa Orchessa, Asinello, Mago Focaccina, Draghessa & Guardia Tappo)** | `[ ]` Pending | [plan.md](./tracks/swamp_family_pieces_20261010/plan.md) | [spec.md](./tracks/swamp_family_pieces_20261010/spec.md) |
+
+---
+
+- [ ] **Track: v1 Playable 3D Chess + Mode 2 WOW Arena (`v1_carchess3d`)**
+  *Link: [./tracks/v1_carchess3d/spec.md](./tracks/v1_carchess3d/spec.md)*
+- [ ] **Track: Carlessian Classic Chess Family (`classic_default_pieces_20261010`)**
+  *Link: [./tracks/classic_default_pieces_20261010/index.md](./tracks/classic_default_pieces_20261010/index.md)*
+- [ ] **Track: Swamp Parody Chess Family (`swamp_family_pieces_20261010`)**
+  *Link: [./tracks/swamp_family_pieces_20261010/index.md](./tracks/swamp_family_pieces_20261010/index.md)*
