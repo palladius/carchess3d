@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.2] - 2026-10-10
+
+- 🍌🎬 **2-Stage Generative AI Battle Cinema Pipeline (`Nano Banana 2.1` Keyframe → `Veo 3.1` I2V Video) (`scripts/generate_nb_veo_battle.py`, `assets/battles/keyframes/{b_x_n,n_x_b}.png`, `assets/battles/videos/{b_x_n,n_x_b}.{mp4,webm}`)**:
+  - Added [`scripts/generate_nb_veo_battle.py`](scripts/generate_nb_veo_battle.py): composes the clean front portraits of Attacker (Left) + Defender (Right) + 16:9 side-by-side layout guide (`assets/battles/refs/<pair>_ref.png`) into a cohesive 16:9 Pixar-style starting frame via `gemini-nano-banana-2.1`, then animates that exact frame into a 16:9 `.mp4` + `.webm` battle movie via `veo-3.1-fast-generate-preview`.
+  - Generated full-fidelity 16:9 Nano Banana 2.1 keyframes and Veo 3.1 I2V movies for **`b_x_n` (Bishop Ale & Red Dragon vs Knight Seby)** and **`n_x_b` (Knight Seby & Hot-Wheels Loop-Track vs Bishop Ale)**.
+
 ## [0.3.1] - 2026-10-10
 
 - 🐛🧹 **Merge `refactor_ui_cleanup_ux` — Idempotent UI Clicks, Async GLTF Load-Token Guard & Mirror-Safe Camera Flip (`PieceManager.js`, `WowModeView.js`, `ZurichSwampView.js`, `CombatAnimationManager.js`, `HudListener.js`, `main.js`, `tests/pieces.test.mjs`)**:
