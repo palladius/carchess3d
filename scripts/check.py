@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """Stdlib-only sanity checks for carchess3d (run by `just test`).
 
-1. Every .glb is a valid glTF 2.0 binary (magic, version, declared length).
+1. Every .glb is a valid glTF 2.0 binary (magic, version, declared length, VEC3 bounds).
 2. Every character image follows <piece>-<character>[-N].jpg.
-3. No secrets or internal paths are committed.
+3. docs/floorplan.svg exists and defines canonical metric coordinates.
+4. assets/battles/manifest.yaml MD5 hashes match current character art.
+5. Headless core & Niccolò architecture gates (zero DOM/Three.js in src/{core,managers,ai}, <=300 LOC per manager).
+6. Node unit test suite (`node --test tests/*.test.mjs`) passes 100%.
+7. No secrets or internal paths are committed.
 """
+import hashlib
+import json
+import os
 import pathlib
 import re
+import shutil
 import struct
 import subprocess
 import sys
@@ -16,13 +24,13 @@ PIECES = {"king", "queen", "bishop", "knight", "rook", "pawn"}
 SECRET_RE = re.compile(
     rb"hf_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[op]_[A-Za-z0-9]{20,}|/usr/local/google"
 )
-TEXT_EXT = {".md", ".py", ".log", ".json", ".txt", ".toml", ".yaml", ".yml", ".js", ".html", ""}
+TEXT_EXT = {".md", ".py", ".log", ".json", ".txt", ".toml", ".yaml", ".yml", ".js", ".mjs", ".html", ""}
 failures = []
 
 
 def check_glb(path):
     data = path.read_bytes()
-    if len(data) < 12:
+    if len(data) < 20:
         return "too short"
     magic, version, length = struct.unpack("<4sII", data[:12])
     if magic != b"glTF":
@@ -31,6 +39,19 @@ def check_glb(path):
         return f"glTF version {version}"
     if length != len(data):
         return f"declared {length} B != actual {len(data)} B"
+    chunk_len, chunk_type = struct.unpack("<II", data[12:20])
+    if chunk_type != 0x4E4F534A:  # JSON
+        return "missing JSON chunk"
+    try:
+        gltf = json.loads(data[20 : 20 + chunk_len].decode("utf-8"))
+    except Exception as exc:
+        return f"invalid JSON chunk: {exc}"
+    has_bounds = any(
+        acc.get("type") == "VEC3" and "min" in acc and "max" in acc
+        for acc in gltf.get("accessors", [])
+    )
+    if not has_bounds:
+        return "no VEC3 min/max bounds for y=0 grounding"
     return None
 
 
@@ -46,15 +67,89 @@ for p in chars:
     if not m or m["piece"] not in PIECES:
         failures.append(f"bad character asset name: {p.name}")
 
+# Check floorplan.svg
+floorplan = ROOT / "docs/floorplan.svg"
+if not floorplan.exists():
+    failures.append("missing docs/floorplan.svg")
+else:
+    fp_text = floorplan.read_text()
+    for token in ("8.0m", "-10.0m", "-25.0m", "y = 0.0m"):
+        if token not in fp_text:
+            failures.append(f"docs/floorplan.svg missing canonical metric token: {token}")
+
+# Check assets/battles/manifest.yaml MD5 hashes
+manifest_path = ROOT / "assets/battles/manifest.yaml"
+if manifest_path.exists():
+    manifest_text = manifest_path.read_text()
+    pairs = re.findall(
+        r'attacker_img:\s*"([^"]+)"\s*\n\s*attacker_md5:\s*"([a-f0-9]{32})"\s*\n\s*defender_img:\s*"([^"]+)"\s*\n\s*defender_md5:\s*"([a-f0-9]{32})"',
+        manifest_text,
+    )
+    if len(pairs) < 36:
+        failures.append(f"assets/battles/manifest.yaml has {len(pairs)} pairs (expected 36)")
+    for atk_img, atk_md5, def_img, def_md5 in pairs:
+        for rel_img, expected_md5 in ((atk_img, atk_md5), (def_img, def_md5)):
+            img_p = ROOT / rel_img
+            if not img_p.exists():
+                failures.append(f"manifest.yaml references missing image: {rel_img}")
+            else:
+                actual_md5 = hashlib.md5(img_p.read_bytes()).hexdigest()
+                if actual_md5 != expected_md5:
+                    failures.append(f"stale battle MD5 for {rel_img}: expected {expected_md5}, got {actual_md5}")
+
+# Check Niccolò headless core & <= 300 LOC manager rule
+for folder in ("src/core", "src/managers", "src/ai"):
+    dir_path = ROOT / folder
+    if not dir_path.exists():
+        continue
+    for js_file in sorted(dir_path.glob("*.js")):
+        content = js_file.read_text()
+        lines = content.splitlines()
+        if folder == "src/managers" and len(lines) > 300:
+            failures.append(f"Manager {js_file.relative_to(ROOT)} exceeds 300 LOC ({len(lines)} lines)")
+        if re.search(r"\bfrom\s+['\"]three['\"]|\bdocument\.(getElementById|querySelector|createElement)\b", content):
+            failures.append(f"Headless module {js_file.relative_to(ROOT)} imports Three.js or mutates DOM directly")
+
+
+def find_node():
+    if path := shutil.which("node"):
+        return path
+    nvm_dir = pathlib.Path.home() / ".nvm/versions/node"
+    if nvm_dir.exists():
+        candidates = sorted(nvm_dir.glob("*/bin/node"))
+        if candidates:
+            return str(candidates[-1])
+    return None
+
+
+tests_dir = ROOT / "tests"
+test_files = sorted(tests_dir.glob("*.test.mjs")) if tests_dir.exists() else []
+if test_files:
+    node_bin = find_node()
+    if not node_bin:
+        failures.append("node binary not found to run tests/*.test.mjs")
+    else:
+        res = subprocess.run(
+            [node_bin, "--test", *[str(p.relative_to(ROOT)) for p in test_files]],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        if res.returncode != 0:
+            failures.append(f"Node unit tests failed:\n{res.stdout}\n{res.stderr}")
+
+
 def committable_files():
     """Tracked + untracked-but-not-ignored files: what could end up in a commit."""
     try:
         out = subprocess.run(
             ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
-            cwd=ROOT, capture_output=True, check=True,
+            cwd=ROOT,
+            capture_output=True,
+            check=True,
         ).stdout
         return [ROOT / f for f in out.decode().split("\0") if f]
-    except (OSError, subprocess.CalledProcessError):  # no git: fall back to everything
+    except (OSError, subprocess.CalledProcessError):
         return [p for p in ROOT.rglob("*") if ".git" not in p.parts and "private" not in p.parts]
 
 
@@ -66,7 +161,10 @@ for p in committable_files():
     if SECRET_RE.search(p.read_bytes()):
         failures.append(f"possible secret / internal path in {p.relative_to(ROOT)}")
 
-print(f"🧪 {len(glbs)} GLB, {len(chars)} character images checked")
+print(
+    f"🧪 {len(glbs)} GLB, {len(chars)} character images, "
+    f"floorplan.svg, manifest.yaml, {len(test_files)} Node test suites checked"
+)
 if failures:
     print("❌ " + "\n❌ ".join(failures))
     sys.exit(1)

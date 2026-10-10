@@ -6,9 +6,9 @@
 
 ## Phase 1: Spatial Blueprint (`floorplan.svg`), Concept Mocks & GLB Grounding (Geneviève §1 & §5)
 
-- [ ] **Task 1.1:** Generate 2D spatial blueprint `docs/floorplan.svg` (top-down + side elevation in meters: `8m × 8m` rune altar at `y=0`, square size `1.0m`, pedestal Ø `0.75m`, piece height hierarchy `0.9m..1.8m`, 4 corner braziers, emerald swamp moat `r=6..18m`, 16:9 Veo Magic Cinema Mirror `8m × 4.5m` at `z=-10m, y=4.5m` between Grossmünster towers, Zurich skyline backdrop at `z=-25m`).
-- [ ] **Task 1.2:** Generate Nano Banana 2D concept renders (`docs/concepts/zurich_swamp_overview.png` & `docs/concepts/board_closeup.png`) to lock in the *Wizard Chess* lighting + cutie character aesthetic.
-- [ ] **Task 1.3:** Vendor `vendor/chess.js` + Three.js addons (`OrbitControls.js`, post-processing bloom passes) and add GLB grounding/normalization utility (`y=0` floor alignment, uniform piece height scaling) with unit check in `scripts/check.py`.
+- [x] **Task 1.1:** Generate 2D spatial blueprint `docs/floorplan.svg` (top-down + side elevation in meters: `8m × 8m` rune altar at `y=0`, square size `1.0m`, pedestal Ø `0.75m`, piece height hierarchy `0.9m..1.8m`, 4 corner braziers, emerald swamp moat `r=6..18m`, 16:9 Veo Magic Cinema Mirror `8m × 4.5m` at `z=-10m, y=4.5m` between Grossmünster towers, Zurich skyline backdrop at `z=-25m`).
+- [x] **Task 1.2:** Generate Nano Banana 2D concept renders (`docs/concepts/zurich_swamp_overview.png` & `docs/concepts/board_closeup.png`) to lock in the *Wizard Chess* lighting + cutie character aesthetic.
+- [x] **Task 1.3:** Vendor `vendor/chess.js` + Three.js addons (`OrbitControls.js`, post-processing bloom passes) and add GLB grounding/normalization utility (`y=0` floor alignment, uniform piece height scaling) with unit check in `scripts/check.py`.
 
 ## Phase 2: Headless Core & Niccolò Managers (`src/core/`, `src/managers/`, `src/ai/`)
 
