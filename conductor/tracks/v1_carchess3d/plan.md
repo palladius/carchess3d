@@ -12,10 +12,10 @@
 
 ## Phase 2: Headless Core & Niccolò Managers (`src/core/`, `src/managers/`, `src/ai/`)
 
-- [ ] **Task 2.1:** Implement `src/core/EventBus.js` (deferred queue `emit()` + once-per-tick `flush()`), `src/core/Rng.js` (`mulberry32` seeded PRNG), and `src/core/GameLoop.js` (fixed `1/30s` simulation step + `lateUpdate` + `render`), with unit tests (`tests/core.test.mjs`).
-- [ ] **Task 2.2:** Implement `src/managers/GameFlowManager.js` (`Boot → Mode1_Chess ⇄ Mode2_WowArena → CaptureCutscene → Checkmate/Draw`) and `src/managers/BoardMapManager.js` (wrapping `chess.js`: legal moves, check, checkmate, stalemate, draw, FEN/PGN, castling, en passant, promotion; owns Game Over / Victory rules), with unit tests (`tests/board-map.test.mjs`).
-- [ ] **Task 2.3:** Implement Niccolò's `src/managers/DropManager.js` (kid-friendly **🍀 Luck Meter / Pity Timer**: `L += pieceWeight` on capture, `L_max = 12`, soft/hard pity rolling `normal | shiny | golden_crit` capture spectacle tiers + collectible stickers, resetting on `golden_crit`), with 10,000-capture Monte-Carlo unit test (`tests/drop-manager.test.mjs`).
-- [ ] **Task 2.4:** Implement `src/ai/worker.js` and `src/managers/AIWorkerManager.js` (*Easy* capture-chaser, *Medium* minimax d=2, *Hard* alpha-beta iterative deepening d=4 with MVV-LVA and piece-square tables), with unit tests (`tests/ai.test.mjs`).
+- [x] **Task 2.1:** Implement `src/core/EventBus.js` (deferred queue `emit()` + once-per-tick `flush()`), `src/core/Rng.js` (`mulberry32` seeded PRNG), and `src/core/GameLoop.js` (fixed `1/30s` simulation step + `lateUpdate` + `render`), with unit tests (`tests/core.test.mjs`).
+- [x] **Task 2.2:** Implement `src/managers/GameFlowManager.js` (`Boot → Mode1_Chess ⇄ Mode2_WowArena → CaptureCutscene → Checkmate/Draw`) and `src/managers/BoardMapManager.js` (wrapping `chess.js`: legal moves, check, checkmate, stalemate, draw, FEN/PGN, castling, en passant, promotion; owns Game Over / Victory rules), with unit tests (`tests/board-map.test.mjs`).
+- [x] **Task 2.3:** Implement Niccolò's `src/managers/DropManager.js` (kid-friendly **🍀 Luck Meter / Pity Timer**: `L += pieceWeight` on capture, `L_max = 12`, soft/hard pity rolling `normal | shiny | golden_crit` capture spectacle tiers + collectible stickers, resetting on `golden_crit`), with 10,000-capture Monte-Carlo unit test (`tests/drop-manager.test.mjs`).
+- [x] **Task 2.4:** Implement `src/ai/worker.js` and `src/managers/AIWorkerManager.js` (*Easy* capture-chaser, *Medium* minimax d=2, *Hard* alpha-beta iterative deepening d=4 with MVV-LVA and piece-square tables), with unit tests (`tests/ai.test.mjs`).
 
 ## Phase 3: Parallel Subagents — 3D World ("Swamp-on-the-Limmat") & Hybrid `PieceManager` (Geneviève §2)
 
