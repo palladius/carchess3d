@@ -269,7 +269,7 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
   - **`gemini-nano-banana-2.1` (Nano Banana 2.1)**: Flawless 180° back view; preserves constellation embroidery, purple velvet lining, hairstyle volume, and renders the red dragon's back, wings, tail, and smoke with rich 3D volumetric cues.
   - **`gemini-3-pro-image-preview` (Nano Banana Pro)**: Very high quality, slightly softer texture and sparser star patterns.
   - **`gemini-3.1-flash-image` (Nano Banana 2 Flash)**: Hallucinated a vertical gold seam down the center of the cape.
-  - **`gemini-2.5-flash-image` (Nano Banana 1 Flash)**: Hallucinated a bishop's mitre hat on Ale's head, missing character continuity.
+  - **`gemini-2.5-flash-image` (Nano Banana 1 Flash)**: drew a mitre on Ale #2. ⚠️ Correction (2026-10-10): not a hallucination. This image (`back_nb_v1_flash.png`) came from the first script `generate_back_comparison.py`, whose prompt asked for a mitre; Flash 2.5 was never re-run with the corrected no-hat prompt. The grid compares different prompts for that cell.
 - Artifact grid created: `tools/model-pipeline/ale2/experiments_back/ale_back_perfected_grid.jpg`.
 
 ---
@@ -280,10 +280,41 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
 - Pipeline folder: `tools/model-pipeline/ale/experiments_back/` via `generate_back_comparison.py`.
 - Benchmark on rear view (180° orthogonal) across models:
   - **`gemini-nano-banana-2.1` (Nano Banana 2.1)**: **⭐ 9.9 / 10** — Flawless back view. Preserves the blue mitre with gold trim and draped hanging ribbons (infulae), hair at nape, blue cape drape, identical marble/wood pedestal, and critically gives the red dragon full 3D body volume (back, wings, tail, head turned backwards) solving the flat "paper-sheet" defect.
+    - ⚠️ Caveat: with the script's prompt (which names "Alessandro, a cute, handsome, smiling boy…") NB 2.1 returned `finish_reason=PROHIBITED_CONTENT` (the script logged it as `'NoneType' object is not iterable`). It was re-run by hand with a prompt that drops the name and the "boy" description ("collectible 3D chess bishop figurine…"); the other 3 models used the original prompt. So it is not a like-for-like comparison. The scores are the agent's opinion, not Riccardo's rating; the "solves the paper-sheet dragon" claim is untested until a TRELLIS run actually uses this view.
   - **`gemini-3-pro-image-preview` (Nano Banana Pro)**: **⭐ 8.8 / 10** — Very solid, but darker background lighting and dragon is slightly more hidden behind the shoulder.
   - **`gemini-3.1-flash-image` (Nano Banana 2 Flash)**: **⭐ 8.0 / 10** — Mitre ribbons are excessively long and stiff down the cape.
   - **`gemini-2.5-flash-image` (Nano Banana 1 Flash)**: **⭐ 7.0 / 10** — Mitre is narrower, added an unrequested horizontal belt/strap on the cape.
 - Artifact grid created: `tools/model-pipeline/ale/experiments_back/ale_hat_back_comparison_grid.jpg`.
+
+---
+
+## 15. 2026-10-10 — King Riccardo & Rook Pupurabbu (Multi-view datasets via Nano Banana 2.1)
+
+- **King Riccardo (Re 👑)**:
+  - Source: `assets/characters/king-riccardo-1.jpg` preprocessed to 1024×1024 (`front.png`, `threequarter.png`).
+  - Generated orthographic views with Nano Banana 2.1 in `tools/model-pipeline/king/`:
+    - `back.png`: 180° rear view with royal crimson velvet cape trimmed with ermine fur, golden crown, and dark wooden pedestal.
+    - `side.png`: 90° side profile showing crown, glasses, beard, and ceremonial sceptre.
+    - `king_turnaround_sheet.png`: composite 4-view contact strip.
+  - Pipeline script: `tools/model-pipeline/king/gen_textured.py`.
+
+- **Rook Pupurabbu (Torre 🏰)**:
+  - Source: `assets/characters/rook-pupurabbu.jpg` preprocessed to 1024×1024 (`front.png`, `threequarter.png`).
+  - Generated orthographic views with Nano Banana 2.1 in `tools/model-pipeline/rook/`:
+    - `back.png`: 180° rear view of the living fantasy stone tower, battlements, and wooden pedestal.
+    - `side.png`: 90° side profile showing masonry blocks, ramparts, and friendly proportions.
+    - `rook_turnaround_sheet.png`: composite 4-view contact strip.
+  - Pipeline script: `tools/model-pipeline/rook/gen_textured.py`.
+
+## 16. 2026-10-10 — Queen Kate (Edits 4a-4c, Real Face Alternatives & Final Canonical Winner)
+
+- Source: `assets/characters/queen-kate-4.jpg`.
+- Selected face: Option 3 (round navy glasses & authentic smiling face from `kate_alt6_round_navy_glasses.png`).
+- Requested dress & details: restore royal purple/violet velvet gown from version 4, gold ring on finger, emerald green eyes, and navy round spectacles.
+- Generated final canonical candidates in `tools/model-pipeline/kate/final_queen_canonical/`:
+  - `kate_final_v1_nb21.png`
+  - `kate_final_v2_nb21.png`
+  - `kate_final_v3_pro.png`
 
 ---
 
@@ -298,7 +329,9 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 | `puffin2/` | TRELLIS puffin v1 (backdrop) + v2, frames, GIF, preprocessed images |
 | `ale/` | Ale bishop #1 run |
 | `ale2/` | Ale bishop #2 run (`gen_textured.py`, GLB, preview MP4, GIF, frames, `experiments_back/`) |
-| `seby/` | Knight Sebastian multi-views (`front.png`, `threequarter.png`, `back_nb_2.1.png`, `back_nb_pro.png`, `gen_textured.py`) |
+| `seby/` | Knight Sebastian multi-views (`front.png`, `side.png`, `back.png`, `threequarter.png`, `seby_turnaround_sheet.png`, `gen_textured.py`) |
+| `king/` | King Riccardo multi-views (`front.png`, `side.png`, `back.png`, `threequarter.png`, `king_turnaround_sheet.png`, `gen_textured.py`) |
+| `rook/` | Rook Pupurabbu multi-views (`front.png`, `side.png`, `back.png`, `threequarter.png`, `rook_turnaround_sheet.png`, `gen_textured.py`) |
 | `rigging/` | Rigging & animation pipeline (`rig_ale_and_dragon.py`, rigged GLB, preview GIF/MP4) |
 | `nbviews/` | Nano Banana views per model + view-set experiment outputs |
 | `chess3dfamily/` | Montage of the source character sheets |

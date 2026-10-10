@@ -14,6 +14,11 @@ test:
 serve port="8000":
     python3 -m http.server {{port}}
 
+# throwaway character showcase (2D + auto-rotating 3D) on http://localhost:8000/showcase/
+showcase port="8000":
+    @echo "👉 http://localhost:{{port}}/showcase/"
+    python3 -m http.server {{port}}
+
 # re-copy the 2D character art from the respec spec repo
 sync-assets:
     cp -v {{respec}}/carlesso-family/assets/*.jpg assets/characters/
