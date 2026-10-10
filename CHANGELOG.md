@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.0] - 2026-10-10
+
+- 🐝🎬 **Adversarial Swarm Complete — All 36 (`6×6`) Bespoke 3D Brawls, 72 16:9 Videos (`36 .mp4` + `36 .webm`), Interactive 6×6 Matrix Explorer & Visible 3D Skeletons (GitHub Issues `#10`–`#16` ✅)**:
+  - **Issue `#11` (`@matrix36-choreo` & `@explorer6x6-ux`) — All 36 (`6 vs 6`) Animations & Videos + `battles.html` Explorer**:
+    - Added [`src/core/BattleMatrix36.js`](src/core/BattleMatrix36.js) defining all 36 (`6 × 6`) combinations with bespoke bilingual titles, comic banners, attacker 3D weapons, Act 2 defender counter-attack moves (`defenderCounter`), and finisher reactions, plus [`tests/matrix36.test.mjs`](tests/matrix36.test.mjs).
+    - Upgraded [`scripts/render_battle_videos.py`](scripts/render_battle_videos.py) and generated **all 36 `.mp4` and all 36 `.webm` 16:9 3-Act videos** (`assets/battles/videos/k_x_k.mp4` .. `p_x_p.mp4`, 72 video files total).
+    - Built the standalone **[`battles.html`](battles.html) 6×6 Battle Matrix Explorer** (`https://palladius.github.io/carchess3d/battles.html`) and the in-game **`🎬 Matrice 6×6 (36 Scontri)`** modal in [`src/listeners/HudListener.js`](src/listeners/HudListener.js) with 1-click **`🥊 Scazzottata 3D + Cinema`**, built-in 16:9 `<video>` preview player, and **`▶️ Maratona 36 Scontri`**.
+  - **Issue `#10` & `#15` (`@brawl3d-vfx`) — 3D Weapons, Defender Counter-Attacks, Floating 3D Comic Words & Shrek Swamp Splash**:
+    - Attached 3D weapons & props (`buildFighterWeaponProp`) to both fighters in [`src/views/VFXPoolView.js`](src/views/VFXPoolView.js) (Puffin's Halberd + 3D Silver Fish, Ale's Amethyst Staff + Dragon Fireball stream, Seby's Twin Orange Turbo Boosters + orbiting race car, Pupurabbu's Giant Purple Plushie Boxing Gloves + Belly Aura, Kate's Golden-Lilac Choco Wand + Magic Shield, Riccardo's Lightning Sceptre + Golden Plunger-Crown).
+    - Added active **Defender Counter-Attacks in Act 2** (`horse_rear_hoof_kick`, `dragon_flame_puff`, `halberd_fish_parry`, `plush_belly_bounce`, `lilac_choco_shield_spin`, `royal_sceptre_zap`), floating 3D comic impact words (`CHARGE!` → `CLANG! ⚔️` → `CONTRATTACCO! 💥` → `KAPOW! 🌪️` → `K.O.! 🐸💦`), hit-pulse camera shake, and a 3D emerald water-column splash (`swampKoSplash`) in Shrek's Swamp.
+    - Updated [`src/views/VeoCinemaView.js`](src/views/VeoCinemaView.js) to play all 36 `<atk>_x_<def>.mp4`/`.webm` videos and render pair-specific titles & Act 2 counter-attack badges.
+  - **Issue `#12` & `#14` (`@skeletons-locomotion`) — Visible 23-Joint 3D Articulated Skeletons & Footprints/Hoofprints**:
+    - Added [`src/views/SkeletonRigHelper.js`](src/views/SkeletonRigHelper.js) and integrated it into [`src/views/PieceView.js`](src/views/PieceView.js) and [`src/views/WowModeView.js`](src/views/WowModeView.js): 23 articulated 3D bone/joint pivots (including Knight Seby's 4-legged warhorse skeleton and Bishop Ale's dragon wing skeleton), glowing footprint/hoofprint trails along `2.0s–2.2s` moves, **`🦴 Scheletri 3D`** HUD toggle, and sculpted 3D notched lily-pad leaves + pink lotus flowers under every Shrek Swamp swimmer.
+  - **Issue `#13` & `#16` (`@explorer6x6-ux` & `@adversarial-critic`) — Mac Trackpad `_customWheelEvent` Fix, Legal Dots Hover Preview & Full Adversarial Audit**:
+    - Fixed Three.js `OrbitControls._customWheelEvent` stripping `deltaX` & `ctrlKey` in [`src/views/BoardInteractionView.js`](src/views/BoardInteractionView.js) (caught by `@adversarial-critic`), added 3D floating capture hover preview badges (`"⚔️ ♙ Puffin vs ♙ Puffin"`), and added [`scripts/adversarial_swarm_audit.py`](scripts/adversarial_swarm_audit.py) verifying all 7 GitHub Issues (`#10`–`#16`) end-to-end.
+
 ## [0.2.5] - 2026-10-10
 
 - 🌐📖 **GitHub Pages Live Banner in `README.md` & GitHub Issues `#10`–`#16`**:

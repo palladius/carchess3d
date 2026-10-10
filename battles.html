@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0f18">
+  <meta name="description" content="CarChess3D — Matrice Interattiva 6x6 (36 Scontri 3D & Video 16:9) della Famiglia Carlesso.">
+  <title>CarChess3D · Matrice 6×6 (36 Scontri & Video 16:9) 🏰🚽🎬</title>
+  <link rel="icon" href="./docs/logo/logo.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --bg-obsidian: #090d15;
+      --bg-card: rgba(18, 24, 38, 0.94);
+      --gold: #ffd54f;
+      --gold-bright: #ffe082;
+      --emerald: #00e676;
+      --emerald-soft: #9be7c4;
+      --text-main: #f5efe0;
+      --text-muted: #b8c6db;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 50% 0%, #17223b 0%, var(--bg-obsidian) 70%);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+    .page-wrap {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 18px 20px 48px;
+    }
+    /* Top Header */
+    .hero-header {
+      background: rgba(14, 18, 28, 0.88);
+      border: 1.5px solid rgba(255, 213, 79, 0.55);
+      border-radius: 16px;
+      padding: 16px 22px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+      margin-bottom: 18px;
+    }
+    .hero-title-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .hero-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--gold-bright);
+      letter-spacing: 0.3px;
+    }
+    .hero-sub {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--emerald-soft);
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
+      font: 700 13px/1.2 system-ui, sans-serif;
+      padding: 9px 15px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255, 213, 79, 0.5);
+      background: linear-gradient(180deg, #242d42 0%, #151b29 100%);
+      color: var(--text-main);
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 16px rgba(255, 213, 79, 0.35);
+    }
+    .btn.gold {
+      background: linear-gradient(135deg, #ffe082 0%, #d49b27 100%);
+      color: #1a1100;
+      border-color: #fff8e1;
+      font-weight: 800;
+    }
+    .btn.emerald {
+      background: linear-gradient(135deg, #ffd54f 0%, #00c853 100%);
+      color: #08180f;
+      border-color: #fff8e1;
+      font-weight: 800;
+    }
+
+    /* Interactive 6x6 Overview Matrix Table */
+    .matrix-overview-box {
+      background: rgba(14, 18, 28, 0.84);
+      border: 1px solid rgba(255, 213, 79, 0.42);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 18px;
+      overflow-x: auto;
+    }
+    .matrix-overview-grid {
+      display: grid;
+      grid-template-columns: 130px repeat(6, minmax(110px, 1fr));
+      gap: 6px;
+      min-width: 820px;
+    }
+    .matrix-hdr {
+      background: rgba(26, 34, 52, 0.95);
+      border: 1px solid rgba(255, 213, 79, 0.4);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--gold-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+    }
+    .matrix-hdr img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--gold);
+    }
+    .quick-matrix-cell {
+      background: rgba(20, 27, 42, 0.92);
+      border: 1px solid rgba(255, 213, 79, 0.3);
+      border-radius: 8px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      color: var(--text-main);
+      text-decoration: none;
+      transition: border-color 0.14s ease, transform 0.12s ease, background 0.14s ease;
+    }
+    .quick-matrix-cell:hover {
+      border-color: var(--emerald);
+      background: rgba(28, 42, 62, 0.98);
+      transform: translateY(-1px);
+    }
+    .quick-matrix-code {
+      font-size: 11.5px;
+      font-weight: 900;
+      color: var(--gold-bright);
+    }
+    .quick-matrix-sub {
+      font-size: 10px;
+      color: var(--emerald-soft);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* Filter Tabs Bar */
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+      align-items: center;
+    }
+    .filter-tab {
+      font: 700 13px/1.2 system-ui, sans-serif;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255, 213, 79, 0.45);
+      background: rgba(20, 26, 40, 0.9);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .filter-tab:hover {
+      border-color: var(--gold-bright);
+    }
+    .filter-tab.active {
+      background: linear-gradient(135deg, #ffe082 0%, #d49b27 100%);
+      color: #1a1100;
+      border-color: #fff8e1;
+      font-weight: 900;
+      box-shadow: 0 0 14px rgba(255, 213, 79, 0.45);
+    }
+
+    /* 36 Battle Cards Grid */
+    .battles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 16px;
+    }
+    .battle-card {
+      background: var(--bg-card);
+      border: 1.5px solid rgba(255, 213, 79, 0.42);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      transition: transform 0.14s ease, border-color 0.15s ease;
+    }
+    .battle-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--gold-bright);
+    }
+    .battle-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .battle-fighters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .battle-fighters img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--gold);
+    }
+    .battle-pair-badge {
+      font-weight: 900;
+      font-size: 13px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 213, 79, 0.18);
+      border: 1px solid var(--gold);
+      color: var(--gold-bright);
+    }
+    .battle-egg-pill {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(171, 71, 188, 0.28);
+      border: 1px solid #ce93d8;
+      color: #f3e5f5;
+    }
+    .battle-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--gold-bright);
+    }
+    .battle-video-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #05070c;
+      border: 1.5px solid rgba(255, 213, 79, 0.5);
+    }
+    .battle-video-wrap video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+    .battle-banner {
+      font-size: 12.5px;
+      font-weight: 900;
+      color: #ffca28;
+      background: rgba(255, 193, 7, 0.12);
+      border: 1px solid rgba(255, 213, 79, 0.35);
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+    .battle-acts {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: rgba(10, 14, 22, 0.65);
+      padding: 8px 10px;
+      border-radius: 8px;
+    }
+    .battle-acts strong {
+      color: var(--emerald-soft);
+    }
+    .battle-card-footer {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+    .battle-card-footer a, .battle-card-footer button {
+      flex: 1;
+      justify-content: center;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <!-- Top Hero Header -->
+    <header class="hero-header">
+      <div class="hero-title-group">
+        <span style="font-size:36px;">🏰🚽🎬</span>
+        <div>
+          <h1 class="hero-title">CarChess3D · Matrice Interattiva 6×6 (Tutti i 36 Scontri & Video 16:9)</h1>
+          <p class="hero-sub">6 Attaccanti × 6 Difensori = 36 Coreografie 3D & Video 16:9 con Armi, Contrattacchi Atto 2 ed Easter Egg di Famiglia</p>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <button id="marathon-play-btn" class="btn emerald">▶️ Riproduci Tutti i 36 Scontri (Maratona 6×6)</button>
+        <a href="./index.html" class="btn gold">♟️ Torna alla Scacchiera 3D</a>
+      </div>
+    </header>
+
+    <!-- 6x6 Interactive Quick-Jump Matrix -->
+    <section class="matrix-overview-box" aria-label="Matrice 6x6 Rapida">
+      <div id="quick-matrix-grid" class="matrix-overview-grid"></div>
+    </section>
+
+    <!-- Filter Tabs by Attacker -->
+    <nav class="filter-tabs" aria-label="Filtra per Attaccante">
+      <button class="filter-tab active" data-filter="all">Tutti (36)</button>
+      <button class="filter-tab" data-filter="k">♔ Riccardo (6)</button>
+      <button class="filter-tab" data-filter="q">♕ Kate (6)</button>
+      <button class="filter-tab" data-filter="b">♗ Ale (6)</button>
+      <button class="filter-tab" data-filter="n">♘ Seby (6)</button>
+      <button class="filter-tab" data-filter="r">♖ Pupurabbu (6)</button>
+      <button class="filter-tab" data-filter="p">♙ Puffin (6)</button>
+    </nav>
+
+    <!-- 36 Battle Cards Container -->
+    <main id="battles-grid" class="battles-grid" aria-label="Galleria 36 Video 16:9"></main>
+  </div>
+
+  <script>
+    // Synchronous initial render of all 36 (6x6) cards so DOM is 100% populated immediately on load
+    (function bootstrapInitialMatrix36() {
+      const PIECES = [
+        { key: 'k', role: 'king', glyph: '♔', name: 'Riccardo', title: 'Re Riccardo', img: 'assets/characters/king-riccardo-1.jpg', weapon: '⚡ Scettro Reale & Trono d’Oro', counter: '⚡ Lampo Reale di Scettro (ZAP!)' },
+        { key: 'q', role: 'queen', glyph: '♕', name: 'Kate', title: 'Regina Kate', img: 'assets/characters/queen-kate-4.jpg', weapon: '🍫 Bacchetta Ciocco-Onda Lilla', counter: '🛡️ Scudo Ciocco-Vortice Lilla (SCUDO!)' },
+        { key: 'b', role: 'bishop', glyph: '♗', name: 'Ale', title: 'Alfiere Ale', img: 'assets/characters/bishop-ale-1.jpg', weapon: '🐉 Draghetto & Cristallo Ametista', counter: '🔥 Soffio Difensivo del Draghetto (FIAMMA!)' },
+        { key: 'n', role: 'knight', glyph: '♘', name: 'Seby', title: 'Cavaliere Seby', img: 'assets/characters/knight-seby-4.jpg', weapon: '🏎️ Pista Loop Turbo & Destriero', counter: '🐴 Impennata e Doppio Calcio (IMPENNATA!)' },
+        { key: 'r', role: 'rook', glyph: '♖', name: 'Pupurabbu', title: 'Torre Pupurabbu', img: 'assets/characters/rook-pupurabbu.jpg', weapon: '💜 Guantoni Puffosi & Panciata', counter: '💜 Rimbalzo Pancia Gommoso (BOING!)' },
+        { key: 'p', role: 'pawn', glyph: '♙', name: 'Puffin', title: 'Pedone Puffin', img: 'assets/characters/pawn-puffin.jpg', weapon: '🐟 Alabarda Svizzera & Pesce', counter: '⚔️ Parata d’Alabarda & Slap (PARATA!)' },
+      ];
+      const BY_KEY = Object.fromEntries(PIECES.map((p) => [p.key, p]));
+
+      function getEasterEggBadge(atk, def) {
+        if ((atk === 'n' && def === 'r') || (atk === 'r' && def === 'n')) return '💜 Abbraccio Puffoso';
+        if ((atk === 'k' && def === 'q') || (atk === 'q' && def === 'k')) return "🚽 Trono d'Oro";
+        if ((atk === 'b' && def === 'n') || (atk === 'n' && def === 'b')) return '🐉 vs 🏎️ Fratelli';
+        if (atk === def) return '🪞 Sfida Specchio';
+        return '';
+      }
+
+      // 1. Render 6x6 Quick Matrix Overview
+      const quickGrid = document.getElementById('quick-matrix-grid');
+      if (quickGrid) {
+        let html = `<div class="matrix-hdr">⚔️ ATK \\ DEF 🛡️</div>`;
+        for (const def of PIECES) {
+          html += `<div class="matrix-hdr"><img src="${def.img}" alt="${def.name}"><span>${def.glyph} ${def.name}</span></div>`;
+        }
+        for (const atk of PIECES) {
+          html += `<div class="matrix-hdr"><img src="${atk.img}" alt="${atk.name}"><span>${atk.glyph} ${atk.name}</span></div>`;
+          for (const def of PIECES) {
+            const code = `${atk.key.toUpperCase()}×${def.key.toUpperCase()}`;
+            const egg = getEasterEggBadge(atk.key, def.key);
+            html += `
+              <a class="quick-matrix-cell" href="#card-${atk.key}_x_${def.key}" data-quick-jump="${atk.key}_x_${def.key}">
+                <span class="quick-matrix-code">${code}</span>
+                <span class="quick-matrix-sub">${egg || (atk.name + ' vs ' + def.name)}</span>
+              </a>
+            `;
+          }
+        }
+        quickGrid.innerHTML = html;
+      }
+
+      // 2. Render all 36 Battle Cards
+      const grid = document.getElementById('battles-grid');
+      if (grid) {
+        const cardsHtml = [];
+        for (const atk of PIECES) {
+          for (const def of PIECES) {
+            const pairId = `${atk.key}_x_${def.key}`;
+            const pairCode = `${atk.key.toUpperCase()}×${def.key.toUpperCase()}`;
+            const videoUrl = `assets/battles/videos/${atk.key}_x_${def.key}.mp4`;
+            const webmUrl = `assets/battles/videos/${atk.key}_x_${def.key}.webm`;
+            const egg = getEasterEggBadge(atk.key, def.key);
+            cardsHtml.push(`
+              <article id="card-${pairId}" class="battle-card" data-battle-id="${pairId}" data-attacker="${atk.key}" data-defender="${def.key}">
+                <div class="battle-card-header">
+                  <div class="battle-fighters">
+                    <img src="${atk.img}" alt="${atk.name}">
+                    <span class="battle-pair-badge">${pairCode}</span>
+                    <img src="${def.img}" alt="${def.name}">
+                  </div>
+                  ${egg ? `<span class="battle-egg-pill">${egg}</span>` : `<span class="battle-pair-badge">${atk.glyph} vs ${def.glyph}</span>`}
+                </div>
+                <h2 class="battle-title" data-role="title">${atk.glyph} ${atk.title} vs ${def.glyph} ${def.title}</h2>
+                <div class="battle-video-wrap">
+                  <video controls playsinline preload="metadata" src="${videoUrl}">
+                    <source src="${videoUrl}" type="video/mp4">
+                    <source src="${webmUrl}" type="video/webm">
+                  </video>
+                </div>
+                <div class="battle-banner" data-role="banner">${atk.name.toUpperCase()} vs ${def.name.toUpperCase()}! ✨</div>
+                <div class="battle-acts">
+                  <div>⚔️ <strong>Atto 1 (Attacco):</strong> <span data-role="weapon">${atk.weapon}</span></div>
+                  <div>🛡️ <strong>Atto 2 (Contrattacco Difensore):</strong> <span data-role="counter">${def.counter}</span></div>
+                  <div>🐸 <strong>Atto 3 (K.O. Palude):</strong> <span data-role="finisher">${def.name} vola nella Palude con splash!</span></div>
+                </div>
+                <div class="battle-card-footer">
+                  <a class="btn gold btn-launch-3d" href="./index.html?clash=${atk.key}_${def.key}">🥊 Scazzottata 3D + Cinema (${pairCode})</a>
+                </div>
+              </article>
+            `);
+          }
+        }
+        grid.innerHTML = cardsHtml.join('');
+      }
+
+      // 3. Filter Tabs interactivity
+      const tabs = document.querySelectorAll('.filter-tab[data-filter]');
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const filter = tab.dataset.filter || 'all';
+          tabs.forEach((t) => t.classList.toggle('active', t === tab));
+          document.querySelectorAll('.battle-card').forEach((card) => {
+            const match = filter === 'all' || card.dataset.attacker === filter;
+            card.style.display = match ? 'flex' : 'none';
+          });
+        });
+      });
+
+      // 4. Marathon button (cycles through all visible videos)
+      let marathonTimer = null;
+      let marathonIdx = 0;
+      const marathonBtn = document.getElementById('marathon-play-btn');
+      if (marathonBtn) {
+        marathonBtn.addEventListener('click', () => {
+          if (marathonTimer) {
+            clearInterval(marathonTimer);
+            marathonTimer = null;
+            marathonBtn.textContent = '▶️ Riproduci Tutti i 36 Scontri (Maratona 6×6)';
+            return;
+          }
+          const videos = Array.from(document.querySelectorAll('.battle-card video'));
+          marathonIdx = 0;
+          const playNext = () => {
+            if (marathonIdx >= videos.length) {
+              clearInterval(marathonTimer);
+              marathonTimer = null;
+              marathonBtn.textContent = '▶️ Riproduci Tutti i 36 Scontri (Maratona 6×6)';
+              return;
+            }
+            videos.forEach((v) => { try { v.pause(); } catch {} });
+            const v = videos[marathonIdx];
+            const card = v.closest('.battle-card');
+            marathonIdx++;
+            marathonBtn.textContent = `⏹️ Ferma Maratona (${marathonIdx}/36 · ${card?.dataset?.battleId?.toUpperCase() || ''})`;
+            card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            try {
+              v.currentTime = 0;
+              const p = v.play();
+              if (p && typeof p.catch === 'function') p.catch(() => {});
+            } catch {}
+          };
+          playNext();
+          marathonTimer = setInterval(playNext, 2800);
+        });
+      }
+    })();
+  </script>
+
+  <script type="module">
+    import { BATTLE_MATRIX_36, PIECE_KEYS_36 } from './src/core/BattleMatrix36.js';
+
+    for (const atk of PIECE_KEYS_36) {
+      for (const def of PIECE_KEYS_36) {
+        const entry = BATTLE_MATRIX_36?.[atk]?.[def];
+        if (!entry) continue;
+        const card = document.getElementById(`card-${atk}_x_${def}`);
+        if (!card) continue;
+        const titleEl = card.querySelector('[data-role="title"]');
+        const bannerEl = card.querySelector('[data-role="banner"]');
+        const counterEl = card.querySelector('[data-role="counter"]');
+        const finisherEl = card.querySelector('[data-role="finisher"]');
+        if (titleEl && entry.title?.it) titleEl.textContent = entry.title.it;
+        if (bannerEl && entry.banner?.it) bannerEl.textContent = entry.banner.it;
+        if (counterEl && entry.defenderCounter?.it) {
+          counterEl.textContent = `${entry.defenderCounter.it} (${entry.defenderCounter.sfxText || 'BAM!'})`;
+        }
+        if (finisherEl && entry.finisherReaction) {
+          finisherEl.textContent = `${entry.clashStyle} → ${entry.finisherReaction}`;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

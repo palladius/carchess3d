@@ -2,6 +2,7 @@
 
 > ### 🌐🚀 **[GIOCA SUBITO LIVE SU GITHUB PAGES → `https://palladius.github.io/carchess3d/`](https://palladius.github.io/carchess3d/)**
 > - 🎮 **Partita 3D & Scazzottata**: [https://palladius.github.io/carchess3d/](https://palladius.github.io/carchess3d/)
+> - 🎬 **Matrice Interattiva 6×6 (Tutti i 36 Scontri & Video 16:9)**: [https://palladius.github.io/carchess3d/battles.html](https://palladius.github.io/carchess3d/battles.html)
 > - 🌟 **WOW Mode & Arena 6×6**: [https://palladius.github.io/carchess3d/?mode=wow](https://palladius.github.io/carchess3d/?mode=wow)
 > - 🥊 **Demo Scazzottata 3D + Video 16:9 (Ale vs Seby)**: [https://palladius.github.io/carchess3d/?clash=b_n](https://palladius.github.io/carchess3d/?clash=b_n)
 > - 🐸 **Demo Palude di Shrek (Pezzi Catturati)**: [https://palladius.github.io/carchess3d/?swamp_party=1](https://palladius.github.io/carchess3d/?swamp_party=1)
@@ -27,7 +28,7 @@ on localhost, in the browser and on Android, even in airplane mode. ✈️
 
 ## 🚦 Status
 
-`v0.2.5`. Playable 3D Chess + WOW Mode + 16:9 Magic Cinema Mirror + Shrek Swamp Party + 18 3D `.glb` models across 3 families (`carlesso`, `classic`, `swamp`).
+`v0.3.0`. Complete 3D Chess + All 36 (`6×6`) Bespoke 3D Brawls & 16:9 Videos (`battles.html` + in-game `🎬 Matrice 6×6`) + Visible 3D Articulated Skeletons + Shrek Swamp Party + 18 3D `.glb` models across 3 families (`carlesso`, `classic`, `swamp`).
 
 | Piece | Character | 2D art | 3D model (`assets/models/`) |
 |---|---|---|---|
