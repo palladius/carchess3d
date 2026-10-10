@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CarChess3D · Art Director Visual Progress & Critic Gallery</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c1017;
+      --card: #151b26;
+      --line: #283246;
+      --gold: #e6b84a;
+      --gold-soft: #ffe082;
+      --emerald: #26a678;
+      --text: #eef1f7;
+      --muted: #9aa3b5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 15px/1.5 system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #172236 0%, var(--bg) 70%);
+      color: var(--text);
+      padding-bottom: 60px;
+    }
+    header {
+      padding: 28px 36px 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(15, 20, 30, 0.85);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    header h1 { margin: 0; font-size: 1.55rem; color: var(--gold-soft); }
+    header p { margin: 4px 0 0; color: var(--muted); font-size: 0.92rem; }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--gold);
+      background: #1d2536;
+      color: var(--gold-soft);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+    .btn:hover { background: var(--gold); color: #151000; }
+    main { max-width: 1440px; margin: 0 auto; padding: 28px 36px; display: grid; gap: 32px; }
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 22px 26px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    }
+    section.highlight { border-color: var(--gold); }
+    .sec-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+    .sec-head h2 { margin: 0; font-size: 1.25rem; color: var(--gold-soft); }
+    .badge {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: #1f3a2e;
+      color: #69f0ae;
+      border: 1px solid var(--emerald);
+    }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 18px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    figure {
+      margin: 0;
+      background: #0d1118;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    figure img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
+      background: #090c12;
+      display: block;
+      cursor: zoom-in;
+    }
+    figure.blueprint img { aspect-ratio: 1400 / 920; }
+    figcaption {
+      padding: 10px 14px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+    }
+    figcaption strong { color: var(--text); display: block; margin-bottom: 2px; }
+    .notes {
+      margin-top: 14px;
+      padding: 12px 16px;
+      background: rgba(12, 16, 23, 0.7);
+      border-left: 3px solid var(--gold);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #d5dce8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>🏰🚽 CarChess3D — Visual Progress & Adversarial Critic Gallery</h1>
+      <p>Live visual log of 2D blueprints, Nano Banana concept targets, and 4-angle WebGL Critic rounds (`docs/visual-progress/`).</p>
+    </div>
+    <div class="nav-links">
+      <a class="btn" href="./index.html">🎮 Gioca CarChess3D (Mode 1 & 2)</a>
+      <a class="btn" href="./index.html?debug=1">🎨 Apri con Sliders (?debug=1)</a>
+      <a class="btn" href="./showcase/index.html">🧪 Character Showcase</a>
+      <a class="btn" href="./docs/VISUAL_PROGRESS.md">📄 Markdown Log</a>
+    </div>
+  </header>
+
+  <main id="rounds-container">
+    <!-- MILESTONE 1: 2D Spatial Blueprint -->
+    <section>
+      <div class="sec-head">
+        <h2>📐 Milestone 1 — 2D Metric Spatial Blueprint (docs/floorplan.svg)</h2>
+        <span class="badge">✅ Grounded (y = 0.00m)</span>
+      </div>
+      <figure class="blueprint">
+        <a href="docs/visual-progress/00_floorplan.svg" target="_blank">
+          <img src="docs/visual-progress/00_floorplan.svg" alt="2D Spatial Floorplan SVG">
+        </a>
+        <figcaption>
+          <strong>Top-Down Plan + Side Elevation + Canonical Piece Hierarchy (1 unit = 1.0m)</strong>
+          8.0m × 8.0m carved stone rune altar at y = 0.0m · 4 corner braziers at (±5.2m, y = 1.2m, ±5.2m) · Emerald swamp moat r = 6m..18m at y = -0.45m · 16:9 Veo Magic Cinema Mirror (8.0m × 4.5m) at (0, y = 4.5m, z = -10.0m) framed by Grossmünster twin towers · St. Peter & Fraumünster at z = -16m · Swiss Alps at z = -25m.
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- MILESTONE 2: Nano Banana Concept Art Targets -->
+    <section>
+      <div class="sec-head">
+        <h2>🍌 Milestone 2 — Nano Banana 2D Concept Aesthetic Targets (docs/concepts/)</h2>
+        <span class="badge">✅ Locked Aesthetic Reference</span>
+      </div>
+      <div class="grid-2">
+        <figure>
+          <a href="docs/visual-progress/01_concept_zurich_swamp_overview.png" target="_blank">
+            <img src="docs/visual-progress/01_concept_zurich_swamp_overview.png" alt="Zurich Swamp Overview Concept">
+          </a>
+          <figcaption>
+            <strong>1. Enchanted Swamp of Zurich Overview (01_concept_zurich_swamp_overview.png)</strong>
+            Starry twilight Zurich skyline, Grossmünster twin towers framing the golden 16:9 Magic Cinema Mirror, 4 flaming Wizard Chess braziers, glowing golden runes on the stone altar, and emerald swamp moat with lily pads and fireflies.
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/02_concept_board_closeup.png" target="_blank">
+            <img src="docs/visual-progress/02_concept_board_closeup.png" alt="Board Close-up Concept">
+          </a>
+          <figcaption>
+            <strong>2. Board & Hybrid Pedestal Close-Up (02_concept_board_closeup.png)</strong>
+            Bishop Ale (blue-gold mitre + friendly red shoulder dragon) and Swiss-Guard Puffin (morion helmet + halberd) on ornate Ivory-Gold pedestals facing dark Obsidian-Silver stone warriors.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- MILESTONE 3+: Dynamic 4-Angle Critic Rounds will be appended here -->
+    <div id="critic-rounds-slot"></div>
+  </main>
+</body>
+</html>

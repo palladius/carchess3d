@@ -1,0 +1,1414 @@
+/**
+ * @fileoverview ZurichSwampView — "Enchanted Swamp of Zurich (Swamp-on-the-Limmat)" 3D Diorama.
+ *
+ * Canonical metric layout aligned with `docs/floorplan.svg` (1 unit = 1.0m, board surface y = 0.0m):
+ * 1. 8x8 Carved Stone & Marble Altar (`y = 0.0m`):
+ *    - 64 bevelled & gold-trimmed squares (`1.0m x 1.0m`, top strictly at `y = 0.0m`,
+ *      square `(col, row)` at `(col - 3.5, 0, row - 3.5)`).
+ *    - Warm veined ivory-cream marble (`0xf3ebd9`, roughness 0.28, metalness 0.08) and
+ *      polished dark slate-obsidian (`0x232938`, roughness 0.22, metalness 0.18).
+ *    - Carved dark stone altar border (`9.6m x 9.6m`, depth `y = -0.65m .. 0.0m`) with
+ *      glowing golden Nordic/Carlesso family runes and mossy corner stones.
+ * 2. 4 Corner Wizard Chess Flaming Braziers at `(±5.2m, y = 1.2m, ±5.2m)`:
+ *    - Carved stone pedestals grounded from `y = -0.5m` to iron fire bowls at `y = 1.2m`.
+ *    - Multi-layered animated flame cones (`0xff6d00`, `0xffca28`, `0xfff176`) +
+ *      4 warm `THREE.PointLight`s (`0xff8f24`, intensity 3.2, distance 18) + rising embers.
+ * 3. Foreground Enchanted Swamp Emerald Moat (`r = 6m .. 22m`, `y = -0.45m`):
+ *    - Shimmering emerald water plane (`y = -0.45m`) with sunken glowing runes.
+ *    - 20 sculpted 3D lily pads with pink/lilac lotus blossoms, cattails/reeds, and
+ *      twisted mossy swamp tree roots framing `x = ±7.5m .. ±11m`.
+ *    - 64 floating bioluminescent golden-green fireflies (`r = 5.5m .. 15m, y = 0.2m .. 3.5m`).
+ * 4. Background Fairy-Tale Zurich Skyline & Limmat (`z = -10.5m .. -26m`):
+ *    - Grossmünster Twin Towers at `x = ±5.8m, z = -10.5m` (`h = 11.0m`), framing the 16:9 Cinema Mirror.
+ *    - St. Peter Spire at `x = -11.5m, z = -16.0m` (`h = 13.0m`) with giant `Ø 2.4m` golden clock face.
+ *    - Fraumünster Spire at `x = +11.5m, z = -16.0m` (`h = 12.5m`) with slender verdigris-emerald spire.
+ *    - Old town guild houses along the Limmat (`z = -14m .. -18m`), arched stone bridge, Zurich & Swiss banners.
+ *    - Snow-capped Swiss Alps panorama at `z = -25.0m` (`width = 65m, height = 17m`) + starry twilight sky.
+ */
+
+import * as THREE from 'three';
+import { FILES, squareToWorld } from '../core/Registry.js';
+
+const LIGHT_SQUARE_HEX = 0xf3ebd9;
+const DARK_SQUARE_HEX = 0x232938;
+const SELECT_HIGHLIGHT_HEX = 0xffeb3b;
+const LEGAL_MOVE_HEX = 0x4cd9a2;
+const CAPTURE_MOVE_HEX = 0xff5252;
+const CHECK_ALERT_HEX = 0xff1744;
+
+export class ZurichSwampView {
+  /**
+   * @param {THREE.Scene} scene
+   * @param {import('../core/EventBus.js').GameEventBus} [bus]
+   */
+  constructor(scene, bus = null) {
+    this.scene = scene;
+    this.bus = bus;
+    this.time = 0;
+
+    this.root = new THREE.Group();
+    this.root.name = 'ZurichSwampDiorama';
+    this.scene.add(this.root);
+
+    /** @type {Array<THREE.Mesh>} 64 raycastable square meshes */
+    this.squareMeshes = [];
+    /** @type {Map<string, THREE.Mesh>} Algebraic square -> mesh */
+    this.squaresByName = new Map();
+    /** @type {THREE.Group} Dynamic board highlights (selection, legal moves, check) */
+    this.highlightGroup = new THREE.Group();
+    this.highlightGroup.name = 'BoardHighlights';
+    this.root.add(this.highlightGroup);
+
+    /** @type {Array<THREE.PointLight>} */
+    this.brazierLights = [];
+    /** @type {Array<object>} */
+    this.braziers = [];
+    /** @type {Array<THREE.Mesh>} */
+    this.banners = [];
+    /** @type {Array<THREE.Material>} */
+    this.runeMaterials = [];
+    /** @type {Array<() => void>} */
+    this.offs = [];
+
+    this.debugConfig = {
+      sunIntensity: 1.55,
+      brazierIntensity: 3.2,
+      brazierWarmth: 0.65,
+      waterRoughness: 0.16,
+    };
+
+    this.buildLightingAndSky();
+    this.buildCarvedStoneAltar();
+    this.buildCornerBraziers();
+    this.buildEnchantedSwampMoat();
+    this.buildFireflies();
+    this.buildZurichSkylineAndAlps();
+    this.bindEvents();
+  }
+
+  // ===========================================================================
+  // 0. LIGHTING & TWILIGHT SKY DOME
+  // ===========================================================================
+
+  buildLightingAndSky() {
+    if (!this.scene.fog) {
+      this.scene.fog = new THREE.FogExp2(0x0b1524, 0.016);
+    }
+    if (!this.scene.background) {
+      this.scene.background = new THREE.Color(0x091020);
+    }
+
+    // Hemisphere twilight fill (deep alpine sky above, emerald swamp bounce below)
+    this.hemiLight = new THREE.HemisphereLight(0x9ec5ff, 0x134e3a, 0.85);
+    this.hemiLight.position.set(0, 22, 0);
+    this.root.add(this.hemiLight);
+
+    // Moonlight / Alpine twilight directional light casting crisp piece shadows on y = 0.0m
+    this.sunLight = new THREE.DirectionalLight(0xdbeafe, this.debugConfig.sunIntensity);
+    this.sunLight.position.set(8.5, 16.0, 9.5);
+    this.sunLight.castShadow = true;
+    this.sunLight.shadow.mapSize.set(2048, 2048);
+    this.sunLight.shadow.camera.near = 2.0;
+    this.sunLight.shadow.camera.far = 42.0;
+    const d = 11.0;
+    this.sunLight.shadow.camera.left = -d;
+    this.sunLight.shadow.camera.right = d;
+    this.sunLight.shadow.camera.top = d;
+    this.sunLight.shadow.camera.bottom = -d;
+    this.sunLight.shadow.bias = -0.0005;
+    this.root.add(this.sunLight);
+
+    // Subtle cool rim light from the North (-Z) so dark obsidian pieces pop against the swamp
+    this.rimLight = new THREE.DirectionalLight(0x64b5f6, 0.55);
+    this.rimLight.position.set(-6, 9, -12);
+    this.root.add(this.rimLight);
+
+    // Starry Twilight Sky Dome + Crescent Moon over Zurich
+    const skyGeo = new THREE.SphereGeometry(52, 32, 20);
+    const skyTex = this.createStarrySkyTexture();
+    const skyMat = new THREE.MeshBasicMaterial({
+      map: skyTex,
+      color: skyTex ? 0xffffff : 0x0d172a,
+      side: THREE.BackSide,
+      depthWrite: false,
+    });
+    this.skyDome = new THREE.Mesh(skyGeo, skyMat);
+    this.skyDome.name = 'TwilightSkyDome';
+    this.root.add(this.skyDome);
+
+    // Glowing Alpine Full/Crescent Moon at (-16, 17, -28)
+    const moonGroup = new THREE.Group();
+    moonGroup.position.set(-16.5, 16.8, -28.0);
+    const moonMat = new THREE.MeshBasicMaterial({ color: 0xfff6d6 });
+    const moonMesh = new THREE.Mesh(new THREE.CircleGeometry(2.1, 32), moonMat);
+    moonGroup.add(moonMesh);
+
+    const haloMat = new THREE.MeshBasicMaterial({
+      color: 0x9ec5ff,
+      transparent: true,
+      opacity: 0.22,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const haloMesh = new THREE.Mesh(new THREE.CircleGeometry(4.4, 32), haloMat);
+    haloMesh.position.z = -0.05;
+    moonGroup.add(haloMesh);
+    this.root.add(moonGroup);
+  }
+
+  // ===========================================================================
+  // 1. 8x8 CARVED STONE & MARBLE ALTAR (y = 0.0m)
+  // ===========================================================================
+
+  buildCarvedStoneAltar() {
+    const altarGroup = new THREE.Group();
+    altarGroup.name = 'CarvedStoneAltar';
+    this.root.add(altarGroup);
+
+    // Stone Sanctuary Island (r = 6.5m, y = -0.55m .. -0.14m)
+    const islandGeo = new THREE.CylinderGeometry(6.35, 6.85, 0.42, 24);
+    islandGeo.translate(0, -0.35, 0);
+    const islandMat = new THREE.MeshStandardMaterial({
+      color: 0x242c35,
+      roughness: 0.88,
+      metalness: 0.08,
+    });
+    const islandMesh = new THREE.Mesh(islandGeo, islandMat);
+    islandMesh.receiveShadow = true;
+    altarGroup.add(islandMesh);
+
+    // Carved dark stone altar border (9.6m x 9.6m, depth y = -0.65m .. 0.0m)
+    // Outer slab goes from y = -0.65m up to y = -0.02m underneath the 8x8 squares,
+    // plus 4 raised 0.8m border beams framing the 8.0m x 8.0m board flush at y = 0.0m!
+    const foundationGeo = new THREE.BoxGeometry(9.6, 0.58, 9.6);
+    foundationGeo.translate(0, -0.36, 0); // y = -0.65m .. -0.07m
+    const runeFriezeTex = this.createRuneFriezeTexture();
+    const foundationMat = new THREE.MeshStandardMaterial({
+      color: 0x2c2520,
+      roughness: 0.72,
+      metalness: 0.16,
+      map: runeFriezeTex,
+      emissive: new THREE.Color(0xffca28),
+      emissiveMap: runeFriezeTex,
+      emissiveIntensity: 0.35,
+    });
+    this.runeMaterials.push(foundationMat);
+    const foundationMesh = new THREE.Mesh(foundationGeo, foundationMat);
+    foundationMesh.receiveShadow = true;
+    foundationMesh.castShadow = true;
+    altarGroup.add(foundationMesh);
+
+    // 4 Carved Rune Border Rim Beams (0.8m wide around the 8.0m x 8.0m board, top at y = 0.0m)
+    const topRuneTexH = this.createBorderTopTexture('horizontal');
+    const topRuneTexV = this.createBorderTopTexture('vertical');
+
+    const borderMatH = new THREE.MeshStandardMaterial({
+      color: 0x332b24,
+      roughness: 0.55,
+      metalness: 0.22,
+      map: topRuneTexH,
+      emissive: new THREE.Color(0xffd54f),
+      emissiveMap: topRuneTexH,
+      emissiveIntensity: 0.42,
+    });
+    const borderMatV = new THREE.MeshStandardMaterial({
+      color: 0x332b24,
+      roughness: 0.55,
+      metalness: 0.22,
+      map: topRuneTexV,
+      emissive: new THREE.Color(0xffd54f),
+      emissiveMap: topRuneTexV,
+      emissiveIntensity: 0.42,
+    });
+    this.runeMaterials.push(borderMatH, borderMatV);
+
+    // North & South rims (9.6m x 0.08m x 0.8m, centered at z = ±4.4m, top at y = 0.0m)
+    const nsGeo = new THREE.BoxGeometry(9.6, 0.08, 0.8);
+    nsGeo.translate(0, -0.04, 0);
+    for (const zPos of [-4.4, 4.4]) {
+      const rim = new THREE.Mesh(nsGeo, borderMatH);
+      rim.position.set(0, 0, zPos);
+      rim.receiveShadow = true;
+      altarGroup.add(rim);
+    }
+
+    // West & East rims (0.8m x 0.08m x 8.0m, centered at x = ±4.4m, top at y = 0.0m)
+    const weGeo = new THREE.BoxGeometry(0.8, 0.08, 8.0);
+    weGeo.translate(0, -0.04, 0);
+    for (const xPos of [-4.4, 4.4]) {
+      const rim = new THREE.Mesh(weGeo, borderMatV);
+      rim.position.set(xPos, 0, 0);
+      rim.receiveShadow = true;
+      altarGroup.add(rim);
+    }
+
+    // Outer Golden Bevel Molding framing the 8.0m x 8.0m board & 9.6m x 9.6m altar
+    const goldTrimMat = new THREE.MeshStandardMaterial({
+      color: 0xe6b84a,
+      roughness: 0.26,
+      metalness: 0.82,
+      emissive: 0x4a3205,
+      emissiveIntensity: 0.25,
+    });
+    this.goldTrimMat = goldTrimMat;
+
+    //Mossy Corner Stones & Stepped Buttresses grounded at y = -0.5m .. 0.0m
+    const mossStoneMat = new THREE.MeshStandardMaterial({
+      color: 0x3b4d3e,
+      roughness: 0.85,
+      metalness: 0.06,
+    });
+    const cornerOffsets = [
+      [-4.65, -4.65],
+      [4.65, -4.65],
+      [-4.65, 4.65],
+      [4.65, 4.65],
+    ];
+    for (const [cx, cz] of cornerOffsets) {
+      const cornerGeo = new THREE.BoxGeometry(0.62, 0.52, 0.62);
+      cornerGeo.translate(0, -0.25, 0); // y = -0.51m .. +0.01m
+      const cornerStone = new THREE.Mesh(cornerGeo, mossStoneMat);
+      cornerStone.position.set(cx, 0, cz);
+      cornerStone.receiveShadow = true;
+      cornerStone.castShadow = true;
+      altarGroup.add(cornerStone);
+
+      // Golden corner cap medallion at y = 0.015m
+      const capGeo = new THREE.CylinderGeometry(0.22, 0.26, 0.03, 8);
+      const cap = new THREE.Mesh(capGeo, goldTrimMat);
+      cap.position.set(cx, 0.015, cz);
+      altarGroup.add(cap);
+    }
+
+    // Marble textures for light & dark squares
+    const lightMarbleTex = this.createMarbleTexture('#f3ebd9', '#dfd2b5', '#c8b48a');
+    const darkMarbleTex = this.createMarbleTexture('#232938', '#181d28', '#3c465c');
+
+    // 64 Bevelled / Framed Chess Squares (1.0m x 1.0m, top surface strictly at y = 0.0m)
+    // Translate geometry down by half its thickness so mesh.position.y === 0 AND top face === 0.0m!
+    const tileThickness = 0.08;
+    const squareGeo = new THREE.BoxGeometry(0.965, tileThickness, 0.965);
+    squareGeo.translate(0, -tileThickness / 2, 0);
+
+    // Thin golden inlay frame around each square at y = 0.001m
+    const inlayFrameGeo = new THREE.RingGeometry(0.468, 0.495, 4);
+    inlayFrameGeo.rotateZ(Math.PI / 4);
+    inlayFrameGeo.rotateX(-Math.PI / 2);
+
+    const squaresContainer = new THREE.Group();
+    squaresContainer.name = 'ChessSquares64';
+    altarGroup.add(squaresContainer);
+
+    const inlayContainer = new THREE.Group();
+    inlayContainer.name = 'GoldenSquareInlays';
+    altarGroup.add(inlayContainer);
+
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const isLight = (col + row) % 2 === 0;
+        const baseColor = isLight ? LIGHT_SQUARE_HEX : DARK_SQUARE_HEX;
+        const rank = 8 - row;
+        const square = `${FILES[col]}${rank}`;
+
+        const mat = new THREE.MeshStandardMaterial({
+          color: baseColor,
+          map: isLight ? lightMarbleTex : darkMarbleTex,
+          roughness: isLight ? 0.28 : 0.22,
+          metalness: isLight ? 0.08 : 0.18,
+        });
+
+        const sqMesh = new THREE.Mesh(squareGeo, mat);
+        sqMesh.position.set(col - 3.5, 0, row - 3.5);
+        sqMesh.receiveShadow = true;
+        sqMesh.name = `Square_${square}`;
+        sqMesh.userData = {
+          square,
+          col,
+          row,
+          baseColor,
+          isLight,
+        };
+
+        squaresContainer.add(sqMesh);
+        this.squareMeshes.push(sqMesh);
+        this.squaresByName.set(square, sqMesh);
+
+        // Golden trim inlay at y = 0.001m
+        const inlay = new THREE.Mesh(inlayFrameGeo, goldTrimMat);
+        inlay.position.set(col - 3.5, 0.001, row - 3.5);
+        inlay.receiveShadow = true;
+        inlayContainer.add(inlay);
+      }
+    }
+  }
+
+  // ===========================================================================
+  // 2. 4 CORNER WIZARD CHESS FLAMING BRAZIERS (±5.2m, y = 1.2m, ±5.2m)
+  // ===========================================================================
+
+  buildCornerBraziers() {
+    const brazierGroup = new THREE.Group();
+    brazierGroup.name = 'WizardCornerBraziers';
+    this.root.add(brazierGroup);
+
+    const stonePedestalMat = new THREE.MeshStandardMaterial({
+      color: 0x3b332b,
+      roughness: 0.76,
+      metalness: 0.14,
+    });
+    const ironBowlMat = new THREE.MeshStandardMaterial({
+      color: 0x1e2229,
+      roughness: 0.42,
+      metalness: 0.78,
+    });
+    const coalMat = new THREE.MeshBasicMaterial({
+      color: 0xff5722,
+    });
+
+    const outerFlameMat = new THREE.MeshBasicMaterial({
+      color: 0xff6d00,
+      transparent: true,
+      opacity: 0.86,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const midFlameMat = new THREE.MeshBasicMaterial({
+      color: 0xffca28,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const coreFlameMat = new THREE.MeshBasicMaterial({
+      color: 0xfff176,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+
+    const corners = [
+      { id: 'NW', x: -5.2, z: -5.2, phase: 0.0 },
+      { id: 'NE', x: 5.2, z: -5.2, phase: 1.7 },
+      { id: 'SW', x: -5.2, z: 5.2, phase: 3.1 },
+      { id: 'SE', x: 5.2, z: 5.2, phase: 4.8 },
+    ];
+
+    for (const c of corners) {
+      const unit = new THREE.Group();
+      unit.name = `Brazier_${c.id}`;
+      unit.position.set(c.x, 0, c.z);
+
+      // 1. Stepped stone pedestal base grounded at y = -0.5m up to y = 1.05m
+      const plinthGeo = new THREE.BoxGeometry(0.92, 0.35, 0.92);
+      plinthGeo.translate(0, -0.325, 0); // y = -0.50m .. -0.15m
+      const plinth = new THREE.Mesh(plinthGeo, stonePedestalMat);
+      plinth.castShadow = true;
+      plinth.receiveShadow = true;
+      unit.add(plinth);
+
+      const shaftGeo = new THREE.CylinderGeometry(0.28, 0.38, 1.15, 10);
+      shaftGeo.translate(0, 0.425, 0); // y = -0.15m .. +1.00m
+      const shaft = new THREE.Mesh(shaftGeo, stonePedestalMat);
+      shaft.castShadow = true;
+      shaft.receiveShadow = true;
+      unit.add(shaft);
+
+      // Ornate golden rune collar at y = 0.96m
+      const collarGeo = new THREE.TorusGeometry(0.31, 0.045, 8, 16);
+      collarGeo.rotateX(Math.PI / 2);
+      const collar = new THREE.Mesh(collarGeo, this.goldTrimMat);
+      collar.position.y = 0.96;
+      unit.add(collar);
+
+      // 2. Forged iron fire bowl centered at y = 1.2m
+      const bowlGeo = new THREE.CylinderGeometry(0.52, 0.24, 0.32, 12);
+      const bowl = new THREE.Mesh(bowlGeo, ironBowlMat);
+      bowl.position.y = 1.14;
+      bowl.castShadow = true;
+      unit.add(bowl);
+
+      const coalBed = new THREE.Mesh(new THREE.CircleGeometry(0.44, 12), coalMat);
+      coalBed.rotation.x = -Math.PI / 2;
+      coalBed.position.y = 1.29;
+      unit.add(coalBed);
+
+      // 3. Multi-layered animated flame cones at y = 1.2m+
+      const flameRoot = new THREE.Group();
+      flameRoot.position.y = 1.25;
+      unit.add(flameRoot);
+
+      const outerGeo = new THREE.ConeGeometry(0.38, 0.88, 9);
+      outerGeo.translate(0, 0.42, 0);
+      const outerCone = new THREE.Mesh(outerGeo, outerFlameMat);
+      flameRoot.add(outerCone);
+
+      const midGeo = new THREE.ConeGeometry(0.26, 0.68, 8);
+      midGeo.translate(0, 0.34, 0);
+      const midCone = new THREE.Mesh(midGeo, midFlameMat);
+      flameRoot.add(midCone);
+
+      const coreGeo = new THREE.ConeGeometry(0.14, 0.46, 8);
+      coreGeo.translate(0, 0.22, 0);
+      const coreCone = new THREE.Mesh(coreGeo, coreFlameMat);
+      flameRoot.add(coreCone);
+
+      // Rising ember orbs
+      const embers = [];
+      const emberGeo = new THREE.SphereGeometry(0.035, 6, 6);
+      for (let i = 0; i < 6; i++) {
+        const ember = new THREE.Mesh(emberGeo, i % 2 === 0 ? midFlameMat : coreFlameMat);
+        ember.position.set(
+          Math.cos(i * 1.05) * 0.16,
+          0.3 + i * 0.18,
+          Math.sin(i * 1.05) * 0.16,
+        );
+        flameRoot.add(ember);
+        embers.push({ mesh: ember, seed: i * 1.3 + c.phase });
+      }
+
+      // 4. Warm PointLight (0xff8f24, intensity 3.2, distance 18)
+      const light = new THREE.PointLight(0xff8f24, this.debugConfig.brazierIntensity, 18, 1.5);
+      light.position.set(0, 1.65, 0);
+      unit.add(light);
+
+      brazierGroup.add(unit);
+      this.brazierLights.push(light);
+      this.braziers.push({
+        unit,
+        flameRoot,
+        outerCone,
+        midCone,
+        coreCone,
+        embers,
+        light,
+        phase: c.phase,
+      });
+    }
+  }
+
+  // ===========================================================================
+  // 3. FOREGROUND ENCHANTED SWAMP EMERALD MOAT (r = 6m .. 22m, y = -0.45m)
+  // ===========================================================================
+
+  buildEnchantedSwampMoat() {
+    const swampGroup = new THREE.Group();
+    swampGroup.name = 'EnchantedSwampMoat';
+    this.root.add(swampGroup);
+
+    // Emerald water plane at y = -0.45m (outer radius 24m)
+    const waterTex = this.createSwampWaterTexture();
+    this.waterTexture = waterTex;
+    this.waterMaterial = new THREE.MeshStandardMaterial({
+      color: 0x0e4d3a,
+      map: waterTex,
+      roughness: this.debugConfig.waterRoughness,
+      metalness: 0.65,
+      emissive: new THREE.Color(0x0b3d2e),
+      emissiveMap: waterTex,
+      emissiveIntensity: 0.45,
+    });
+    const waterGeo = new THREE.CircleGeometry(25.0, 64);
+    waterGeo.rotateX(-Math.PI / 2);
+    this.waterMesh = new THREE.Mesh(waterGeo, this.waterMaterial);
+    this.waterMesh.position.y = -0.45;
+    this.waterMesh.receiveShadow = true;
+    swampGroup.add(this.waterMesh);
+
+    // Glowing Sunken Magic Rune Ring beneath the water surface (y = -0.445m, r = 7.2m .. 8.1m)
+    const sunkenRingGeo = new THREE.RingGeometry(7.1, 7.85, 48);
+    sunkenRingGeo.rotateX(-Math.PI / 2);
+    this.sunkenRuneMat = new THREE.MeshBasicMaterial({
+      color: 0x4cd9a2,
+      transparent: true,
+      opacity: 0.26,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const sunkenRing = new THREE.Mesh(sunkenRingGeo, this.sunkenRuneMat);
+    sunkenRing.position.y = -0.442;
+    swampGroup.add(sunkenRing);
+
+    // 20 Sculpted 3D Lily Pads + Pink/Lilac Lotus Blossoms (r = 6.5m .. 15.5m)
+    const padMat = new THREE.MeshStandardMaterial({
+      color: 0x1f7a4c,
+      roughness: 0.62,
+      metalness: 0.08,
+    });
+    const petalPinkMat = new THREE.MeshStandardMaterial({
+      color: 0xf48fb1,
+      roughness: 0.4,
+      emissive: 0x880e4f,
+      emissiveIntensity: 0.25,
+    });
+    const petalLilacMat = new THREE.MeshStandardMaterial({
+      color: 0xce93d8,
+      roughness: 0.4,
+      emissive: 0x4a148c,
+      emissiveIntensity: 0.25,
+    });
+    const lotusCoreMat = new THREE.MeshBasicMaterial({ color: 0xffeb3b });
+
+    this.lilyPads = [];
+    for (let i = 0; i < 20; i++) {
+      const angle = (i / 20) * Math.PI * 2 + (i % 3) * 0.14;
+      const radius = 6.8 + ((i * 37) % 100) * 0.082; // 6.8m .. 15.0m
+      const lx = Math.cos(angle) * radius;
+      const lz = Math.sin(angle) * radius;
+      const padRadius = 0.42 + (i % 4) * 0.11;
+
+      const padGroup = new THREE.Group();
+      padGroup.position.set(lx, -0.435, lz);
+      padGroup.rotation.y = angle * 1.7;
+
+      // Notched lily pad cylinder (pacman slice 0 .. 1.88*PI)
+      const padGeo = new THREE.CylinderGeometry(padRadius, padRadius * 0.95, 0.03, 18, 1, false, 0, Math.PI * 1.86);
+      const padMesh = new THREE.Mesh(padGeo, padMat);
+      padMesh.receiveShadow = true;
+      padGroup.add(padMesh);
+
+      // Add sculpted lotus flower on every second or third pad
+      if (i % 2 === 0) {
+        const lotus = new THREE.Group();
+        lotus.position.y = 0.02;
+        const pMat = i % 4 === 0 ? petalPinkMat : petalLilacMat;
+        const petalGeo = new THREE.ConeGeometry(0.08, 0.22, 5);
+        petalGeo.translate(0, 0.09, 0);
+        for (let p = 0; p < 6; p++) {
+          const petal = new THREE.Mesh(petalGeo, pMat);
+          petal.rotation.y = (p / 6) * Math.PI * 2;
+          petal.rotation.z = 0.42;
+          lotus.add(petal);
+        }
+        const center = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), lotusCoreMat);
+        center.position.y = 0.05;
+        lotus.add(center);
+        padGroup.add(lotus);
+      }
+
+      swampGroup.add(padGroup);
+      this.lilyPads.push({ group: padGroup, baseY: -0.435, phase: i * 0.85 });
+    }
+
+    // Cattails / Swamp Reeds clusters + Twisted Mossy Swamp Tree Roots (x = ±7.5m .. ±11.5m)
+    const reedStemMat = new THREE.MeshStandardMaterial({ color: 0x2e6b3e, roughness: 0.75 });
+    const reedHeadMat = new THREE.MeshStandardMaterial({ color: 0x4e342e, roughness: 0.85 });
+    const rootWoodMat = new THREE.MeshStandardMaterial({ color: 0x3b2d22, roughness: 0.88 });
+
+    const rootClusters = [
+      { x: -8.4, z: 3.6, rot: 0.4 },
+      { x: 8.4, z: 3.6, rot: -0.4 },
+      { x: -9.6, z: -2.5, rot: 0.9 },
+      { x: 9.6, z: -2.5, rot: -0.9 },
+      { x: -7.8, z: -6.8, rot: 1.2 },
+      { x: 7.8, z: -6.8, rot: -1.2 },
+    ];
+
+    for (const rc of rootClusters) {
+      const cluster = new THREE.Group();
+      cluster.position.set(rc.x, -0.45, rc.z);
+      cluster.rotation.y = rc.rot;
+
+      // Twisted gnarled swamp root arch
+      const archGeo = new THREE.TorusGeometry(1.15, 0.18, 8, 18, Math.PI);
+      const arch = new THREE.Mesh(archGeo, rootWoodMat);
+      arch.castShadow = true;
+      cluster.add(arch);
+
+      // Cattail reeds around the root base
+      for (let r = 0; r < 5; r++) {
+        const rx = (r - 2) * 0.28;
+        const rz = (r % 2 === 0 ? 1 : -1) * 0.22;
+        const h = 1.1 + (r % 3) * 0.28;
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.03, h, 6), reedStemMat);
+        stem.position.set(rx, h / 2, rz);
+        stem.rotation.z = (r - 2) * 0.06;
+        cluster.add(stem);
+
+        const spike = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.24, 8), reedHeadMat);
+        spike.position.set(rx, h - 0.18, rz);
+        cluster.add(spike);
+      }
+
+      swampGroup.add(cluster);
+    }
+  }
+
+  // ===========================================================================
+  // 3B. 64 FLOATING BIOLUMINESCENT FIREFLIES (r = 5.5m .. 15m, y = 0.2m .. 3.5m)
+  // ===========================================================================
+
+  buildFireflies() {
+    const count = 68;
+    this.fireflyData = [];
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+
+    const colGold = new THREE.Color(0xffe082);
+    const colEmerald = new THREE.Color(0x69f0ae);
+
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2 + (i % 5) * 0.3;
+      const radius = 5.6 + ((i * 29) % 100) * 0.095; // 5.6m .. 15.1m
+      const baseY = 0.35 + ((i * 43) % 100) * 0.031; // 0.35m .. 3.45m
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = baseY;
+      positions[i * 3 + 2] = z;
+
+      const c = i % 3 === 0 ? colGold : colEmerald;
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
+
+      this.fireflyData.push({
+        baseX: x,
+        baseY,
+        baseZ: z,
+        speed: 0.8 + (i % 7) * 0.22,
+        phase: i * 0.65,
+      });
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    this.fireflyMaterial = new THREE.PointsMaterial({
+      size: 0.24,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+
+    this.fireflyPoints = new THREE.Points(geo, this.fireflyMaterial);
+    this.fireflyPoints.name = 'SwampFireflies';
+    this.root.add(this.fireflyPoints);
+  }
+
+  // ===========================================================================
+  // 4. BACKGROUND FAIRY-TALE ZURICH SKYLINE & LIMMAT (z = -10.5m .. -26m)
+  // ===========================================================================
+
+  buildZurichSkylineAndAlps() {
+    const skyline = new THREE.Group();
+    skyline.name = 'ZurichSkylineAndAlps';
+    this.root.add(skyline);
+
+    const sandstoneMat = new THREE.MeshStandardMaterial({
+      color: 0x4a4035,
+      roughness: 0.78,
+      metalness: 0.1,
+    });
+    const darkRoofMat = new THREE.MeshStandardMaterial({
+      color: 0x2c3545,
+      roughness: 0.65,
+      metalness: 0.2,
+    });
+    const copperDomeMat = new THREE.MeshStandardMaterial({
+      color: 0x9c3d2b,
+      roughness: 0.38,
+      metalness: 0.55,
+    });
+    const verdigrisMat = new THREE.MeshStandardMaterial({
+      color: 0x2e9e82,
+      roughness: 0.35,
+      metalness: 0.48,
+      emissive: 0x0d3b2e,
+      emissiveIntensity: 0.25,
+    });
+    const warmWindowMat = new THREE.MeshBasicMaterial({
+      color: 0xffd54f,
+    });
+
+    // -------------------------------------------------------------------------
+    // A. GROSSMÜNSTER TWIN TOWERS at x = ±5.8m, z = -10.5m (h = 11.0m, grounded y = -0.5m)
+    //    Framing the 16:9 Veo Magic Cinema Mirror at (0, y = 4.5m, z = -10.0m)
+    // -------------------------------------------------------------------------
+    for (const side of [-1, 1]) {
+      const tx = side * 5.8;
+      const tz = -10.5;
+      const tower = new THREE.Group();
+      tower.name = side < 0 ? 'Grossmunster_West_Tower' : 'Grossmunster_East_Tower';
+      tower.position.set(tx, -0.5, tz); // grounded at y = -0.5m
+
+      // Lower & middle Romanesque square shaft (h = 7.4m -> y = -0.5m .. 6.9m)
+      const shaftGeo = new THREE.BoxGeometry(2.15, 7.4, 2.15);
+      shaftGeo.translate(0, 3.7, 0);
+      const shaft = new THREE.Mesh(shaftGeo, sandstoneMat);
+      shaft.castShadow = true;
+      shaft.receiveShadow = true;
+      tower.add(shaft);
+
+      // Golden cornice moldings at y = 3.8m and y = 7.4m
+      for (const cy of [3.8, 7.4]) {
+        const cornice = new THREE.Mesh(new THREE.BoxGeometry(2.32, 0.18, 2.32), this.goldTrimMat);
+        cornice.position.y = cy;
+        tower.add(cornice);
+      }
+
+      // Octagonal belfry drum (h = 1.6m -> y = 7.4m .. 9.0m)
+      const drumGeo = new THREE.CylinderGeometry(1.02, 1.08, 1.6, 8);
+      drumGeo.translate(0, 8.2, 0);
+      const drum = new THREE.Mesh(drumGeo, sandstoneMat);
+      tower.add(drum);
+
+      // Iconic Red-Copper Octagonal Dome + Golden Spire (y = 9.0m .. 11.5m, total h = 11.0m above board)
+      const domeGeo = new THREE.ConeGeometry(1.12, 2.1, 8);
+      domeGeo.translate(0, 10.05, 0);
+      const dome = new THREE.Mesh(domeGeo, copperDomeMat);
+      tower.add(dome);
+
+      const finialGeo = new THREE.ConeGeometry(0.12, 0.75, 8);
+      finialGeo.translate(0, 11.35, 0);
+      const finial = new THREE.Mesh(finialGeo, this.goldTrimMat);
+      tower.add(finial);
+
+      // Warm Romanesque arched windows on the front face (+Z)
+      for (const wy of [2.4, 4.9, 6.2]) {
+        for (const wx of [-0.42, 0.42]) {
+          const win = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.68), warmWindowMat);
+          win.position.set(wx, wy, 1.09);
+          tower.add(win);
+        }
+      }
+
+      skyline.add(tower);
+    }
+
+    // Grossmünster Romanesque Nave Bridge connecting the Twin Towers below the 16:9 Mirror (y = -0.5m .. 2.0m)
+    const naveGeo = new THREE.BoxGeometry(9.6, 2.45, 1.7);
+    naveGeo.translate(0, 0.725, 0);
+    const nave = new THREE.Mesh(naveGeo, sandstoneMat);
+    nave.position.set(0, 0, -10.65);
+    skyline.add(nave);
+
+    // -------------------------------------------------------------------------
+    // B. ST. PETER SPIRE at x = -11.5m, z = -16.0m (h = 13.0m) with Ø 2.4m Golden Clock
+    // -------------------------------------------------------------------------
+    const stPeter = new THREE.Group();
+    stPeter.name = 'StPeterClockSpire';
+    stPeter.position.set(-11.5, -0.5, -16.0);
+
+    const spShaftGeo = new THREE.BoxGeometry(2.6, 8.8, 2.6);
+    spShaftGeo.translate(0, 4.4, 0);
+    stPeter.add(new THREE.Mesh(spShaftGeo, sandstoneMat));
+
+    const spSpireGeo = new THREE.ConeGeometry(1.65, 4.7, 4);
+    spSpireGeo.rotateY(Math.PI / 4);
+    spSpireGeo.translate(0, 11.15, 0);
+    stPeter.add(new THREE.Mesh(spSpireGeo, darkRoofMat));
+
+    // Giant Ø 2.4m Golden Clock Face (Europe's largest church clock face!)
+    const clockTex = this.createClockFaceTexture();
+    const clockMat = new THREE.MeshBasicMaterial({
+      map: clockTex,
+      color: clockTex ? 0xffffff : 0xffd54f,
+    });
+    const clockDisc = new THREE.Mesh(new THREE.CircleGeometry(1.2, 32), clockMat);
+    clockDisc.position.set(0, 7.1, 1.33);
+    stPeter.add(clockDisc);
+
+    const clockRing = new THREE.Mesh(new THREE.RingGeometry(1.16, 1.28, 32), this.goldTrimMat);
+    clockRing.position.set(0, 7.1, 1.34);
+    stPeter.add(clockRing);
+    skyline.add(stPeter);
+
+    // -------------------------------------------------------------------------
+    // C. FRAUMÜNSTER SPIRE at x = +11.5m, z = -16.0m (h = 12.5m)
+    // -------------------------------------------------------------------------
+    const fraumunster = new THREE.Group();
+    fraumunster.name = 'FraumunsterVerdigrisSpire';
+    fraumunster.position.set(11.5, -0.5, -16.0);
+
+    const fmShaftGeo = new THREE.BoxGeometry(2.2, 7.5, 2.2);
+    fmShaftGeo.translate(0, 3.75, 0);
+    fraumunster.add(new THREE.Mesh(fmShaftGeo, sandstoneMat));
+
+    // Slender Verdigris-Emerald Spire (h = 5.5m -> total height 12.5m above y=0)
+    const fmSpireGeo = new THREE.ConeGeometry(1.05, 5.5, 8);
+    fmSpireGeo.translate(0, 10.25, 0);
+    fraumunster.add(new THREE.Mesh(fmSpireGeo, verdigrisMat));
+    skyline.add(fraumunster);
+
+    // -------------------------------------------------------------------------
+    // D. LIMMAT RIVER, MÜNSTERBRÜCKE ARCHED BRIDGE, GUILD HOUSES & BANNERS (z = -14m .. -18m)
+    // -------------------------------------------------------------------------
+    const bridgeGroup = new THREE.Group();
+    bridgeGroup.name = 'MunsterbruckeAndGuildHouses';
+    bridgeGroup.position.set(0, -0.35, -14.8);
+
+    const bridgeDeckGeo = new THREE.BoxGeometry(22.0, 0.65, 1.8);
+    const bridgeDeck = new THREE.Mesh(bridgeDeckGeo, sandstoneMat);
+    bridgeDeck.position.y = 0.55;
+    bridgeGroup.add(bridgeDeck);
+
+    // Bridge arches & warm river lanterns
+    for (let bx = -8; bx <= 8; bx += 4) {
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.2, 2.1), sandstoneMat);
+      pillar.position.set(bx, 0.1, 0);
+      bridgeGroup.add(pillar);
+
+      const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), warmWindowMat);
+      lantern.position.set(bx, 1.25, 0.85);
+      bridgeGroup.add(lantern);
+    }
+    skyline.add(bridgeGroup);
+
+    // Old Town Guild Houses (Zunfthäuser) along the Limmat quay (z = -17.2m)
+    const houseSpecs = [
+      { x: -16.0, w: 2.8, h: 4.6, c: 0x3b322c },
+      { x: -13.6, w: 2.2, h: 5.2, c: 0x453a30 },
+      { x: -8.6, w: 2.5, h: 4.8, c: 0x38404d },
+      { x: 8.6, w: 2.5, h: 4.9, c: 0x42382e },
+      { x: 13.6, w: 2.4, h: 5.1, c: 0x353e4a },
+      { x: 16.2, w: 2.8, h: 4.5, c: 0x473a32 },
+    ];
+    for (const hs of houseSpecs) {
+      const hGroup = new THREE.Group();
+      hGroup.position.set(hs.x, -0.5, -17.2);
+      const bodyGeo = new THREE.BoxGeometry(hs.w, hs.h, 2.4);
+      bodyGeo.translate(0, hs.h / 2, 0);
+      const bodyMat = new THREE.MeshStandardMaterial({ color: hs.c, roughness: 0.8 });
+      hGroup.add(new THREE.Mesh(bodyGeo, bodyMat));
+
+      const roofGeo = new THREE.ConeGeometry(hs.w * 0.78, 1.8, 4);
+      roofGeo.rotateY(Math.PI / 4);
+      roofGeo.translate(0, hs.h + 0.9, 0);
+      hGroup.add(new THREE.Mesh(roofGeo, darkRoofMat));
+
+      // Lit windows
+      for (let wy = 1.4; wy < hs.h - 0.6; wy += 1.2) {
+        for (const wx of [-0.55, 0.55]) {
+          const wMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.45), warmWindowMat);
+          wMesh.position.set(wx, wy, 1.22);
+          hGroup.add(wMesh);
+        }
+      }
+      skyline.add(hGroup);
+    }
+
+    // Blue-and-white Zurich & Red-and-white Swiss Banners flanking the Grossmünster
+    const zurichBannerTex = this.createBannerTexture('zurich');
+    const swissBannerTex = this.createBannerTexture('swiss');
+    const bannerSpecs = [
+      { x: -7.3, y: 4.2, z: -10.2, tex: zurichBannerTex, phase: 0.0 },
+      { x: 7.3, y: 4.2, z: -10.2, tex: swissBannerTex, phase: 1.6 },
+    ];
+    for (const bs of bannerSpecs) {
+      const bMat = new THREE.MeshStandardMaterial({
+        map: bs.tex,
+        color: bs.tex ? 0xffffff : 0x1e88e5,
+        roughness: 0.5,
+        side: THREE.DoubleSide,
+      });
+      const bGeo = new THREE.PlaneGeometry(0.85, 2.2, 4, 8);
+      const bMesh = new THREE.Mesh(bGeo, bMat);
+      bMesh.position.set(bs.x, bs.y, bs.z);
+      bMesh.userData.phase = bs.phase;
+      skyline.add(bMesh);
+      this.banners.push(bMesh);
+    }
+
+    // -------------------------------------------------------------------------
+    // E. SNOW-CAPPED SWISS ALPS PANORAMA at z = -25.0m (width = 65m, height = 17m)
+    // -------------------------------------------------------------------------
+    const alpsGroup = new THREE.Group();
+    alpsGroup.name = 'SwissAlpsPanorama';
+    alpsGroup.position.set(0, -0.5, -25.0);
+
+    const rockAlpsMat = new THREE.MeshStandardMaterial({
+      color: 0x24344d,
+      roughness: 0.85,
+      metalness: 0.12,
+    });
+    const snowCapMat = new THREE.MeshStandardMaterial({
+      color: 0xe6f0ff,
+      roughness: 0.45,
+      metalness: 0.1,
+      emissive: 0x3b5998,
+      emissiveIntensity: 0.22,
+    });
+
+    // 11 overlapping jagged alpine peaks spanning width = 65m (-32.5m .. +32.5m), up to height = 17m
+    const peaks = [
+      { x: -27.0, z: -1.0, r: 7.5, h: 13.5 },
+      { x: -20.5, z: 0.4, r: 6.8, h: 15.8 },
+      { x: -14.0, z: -0.6, r: 7.2, h: 14.2 },
+      { x: -7.5, z: 0.2, r: 7.8, h: 16.8 },
+      { x: 0.0, z: -0.8, r: 8.5, h: 17.2 },
+      { x: 7.5, z: 0.3, r: 7.6, h: 16.4 },
+      { x: 14.2, z: -0.5, r: 7.0, h: 14.6 },
+      { x: 20.8, z: 0.4, r: 6.9, h: 15.9 },
+      { x: 27.2, z: -0.9, r: 7.5, h: 13.8 },
+    ];
+
+    for (const pk of peaks) {
+      const mtnGeo = new THREE.ConeGeometry(pk.r, pk.h, 6);
+      mtnGeo.translate(0, pk.h / 2, 0);
+      const mtn = new THREE.Mesh(mtnGeo, rockAlpsMat);
+      mtn.position.set(pk.x, 0, pk.z);
+      mtn.rotation.y = (pk.x * 0.17) % Math.PI;
+      alpsGroup.add(mtn);
+
+      // Snow cap on upper 42% of each peak
+      const capH = pk.h * 0.44;
+      const capR = pk.r * 0.44;
+      const capGeo = new THREE.ConeGeometry(capR, capH, 6);
+      capGeo.translate(0, pk.h - capH / 2 + 0.05, 0);
+      const cap = new THREE.Mesh(capGeo, snowCapMat);
+      cap.position.set(pk.x, 0, pk.z);
+      cap.rotation.y = mtn.rotation.y;
+      alpsGroup.add(cap);
+    }
+
+    skyline.add(alpsGroup);
+  }
+
+  // ===========================================================================
+  // 5. EVENT BUS BINDINGS FOR BOARD HIGHLIGHTS
+  // ===========================================================================
+
+  bindEvents() {
+    if (!this.bus) return;
+    this.offs.push(
+      this.bus.on('PIECE_SELECTED', (e) => this.renderSelectionHighlights(e)),
+      this.bus.on('SELECTION_CLEARED', () => this.clearHighlights()),
+      this.bus.on('MOVE_EXECUTED', (e) => {
+        this.clearHighlights();
+        if (e.move) this.renderLastMoveHighlight(e.move.from, e.move.to);
+      }),
+      this.bus.on('CHECK_DETECTED', (e) => {
+        if (e.kingSquare) this.renderCheckHighlight(e.kingSquare);
+      }),
+      this.bus.on('BOARD_RESET', () => this.clearHighlights()),
+    );
+  }
+
+  clearHighlights() {
+    while (this.highlightGroup.children.length > 0) {
+      const child = this.highlightGroup.children.pop();
+      child.geometry?.dispose?.();
+      child.material?.dispose?.();
+    }
+  }
+
+  renderSelectionHighlights({ square, legalMoves = [] }) {
+    this.clearHighlights();
+    if (square) {
+      this.addSquareMarker(square, SELECT_HIGHLIGHT_HEX, 0.55, 'ring');
+    }
+    for (const m of legalMoves) {
+      const isCapture = Boolean(m.captured) || (m.flags && m.flags.includes('e'));
+      this.addSquareMarker(
+        m.to,
+        isCapture ? CAPTURE_MOVE_HEX : LEGAL_MOVE_HEX,
+        0.72,
+        isCapture ? 'ring' : 'dot',
+      );
+    }
+  }
+
+  renderLastMoveHighlight(from, to) {
+    if (from) this.addSquareMarker(from, 0xffca28, 0.32, 'ring');
+    if (to) this.addSquareMarker(to, 0xffca28, 0.42, 'ring');
+  }
+
+  renderCheckHighlight(kingSquare) {
+    this.addSquareMarker(kingSquare, CHECK_ALERT_HEX, 0.82, 'ring');
+  }
+
+  addSquareMarker(square, hexColor, opacity = 0.6, style = 'ring') {
+    const pos = squareToWorld(square);
+    const geo =
+      style === 'dot'
+        ? new THREE.CircleGeometry(0.18, 24)
+        : new THREE.RingGeometry(0.32, 0.45, 28);
+    geo.rotateX(-Math.PI / 2);
+    const mat = new THREE.MeshBasicMaterial({
+      color: hexColor,
+      transparent: true,
+      opacity,
+      depthWrite: false,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(pos.x, 0.006, pos.z);
+    this.highlightGroup.add(mesh);
+  }
+
+  getSquareMesh(square) {
+    return this.squaresByName.get(square) || null;
+  }
+
+  // ===========================================================================
+  // 6. ART DIRECTOR LIVE DEBUG CONTROLS (`?debug=1`) & FRAME UPDATE
+  // ===========================================================================
+
+  /**
+   * Live setter for Art Director `?debug=1` sliders.
+   * @param {{ sunIntensity?: number, brazierIntensity?: number, brazierWarmth?: number, waterRoughness?: number }} params
+   */
+  applyDebugParams(params = {}) {
+    if (typeof params.sunIntensity === 'number' && this.sunLight) {
+      this.debugConfig.sunIntensity = params.sunIntensity;
+      this.sunLight.intensity = params.sunIntensity;
+      if (this.hemiLight) {
+        this.hemiLight.intensity = Math.max(0.2, params.sunIntensity * 0.55);
+      }
+    }
+    if (typeof params.brazierIntensity === 'number') {
+      this.debugConfig.brazierIntensity = params.brazierIntensity;
+      for (const light of this.brazierLights) {
+        light.intensity = params.brazierIntensity;
+      }
+    }
+    if (params.brazierWarmth !== undefined && params.brazierWarmth !== null) {
+      this.debugConfig.brazierWarmth = params.brazierWarmth;
+      let warmColor;
+      if (typeof params.brazierWarmth === 'string') {
+        warmColor = new THREE.Color(params.brazierWarmth);
+      } else if (typeof params.brazierWarmth === 'number' && params.brazierWarmth > 1) {
+        warmColor = new THREE.Color(params.brazierWarmth);
+      } else if (typeof params.brazierWarmth === 'number') {
+        const w = Math.max(0, Math.min(1, params.brazierWarmth));
+        warmColor = new THREE.Color().setHSL(0.06 + (1 - w) * 0.06, 0.95, 0.56);
+      }
+      if (warmColor) {
+        for (const light of this.brazierLights) {
+          light.color.copy(warmColor);
+        }
+      }
+    }
+    if (typeof params.waterRoughness === 'number' && this.waterMaterial) {
+      this.debugConfig.waterRoughness = params.waterRoughness;
+      this.waterMaterial.roughness = Math.max(0.02, Math.min(1, params.waterRoughness));
+    }
+  }
+
+  /**
+   * Animates brazier flames/light flicker, fireflies, water shimmer, banners, and rune glow pulse.
+   * @param {number} dt
+   */
+  update(dt = 0.016) {
+    this.time += dt;
+    const t = this.time;
+
+    // 1. Animate 4 Corner Braziers (flame cones, embers, warm PointLight flicker)
+    const baseBrazierInt = this.debugConfig.brazierIntensity;
+    for (const b of this.braziers) {
+      const flicker =
+        Math.sin(t * 9.5 + b.phase) * 0.14 +
+        Math.cos(t * 15.2 + b.phase * 1.7) * 0.09 +
+        Math.sin(t * 23.0 + b.phase) * 0.05;
+
+      b.light.intensity = Math.max(0.2, baseBrazierInt * (1.0 + flicker));
+      b.outerCone.scale.set(1 + flicker * 0.35, 1 + flicker * 0.5, 1 - flicker * 0.25);
+      b.midCone.scale.set(1 - flicker * 0.25, 1 + flicker * 0.65, 1 + flicker * 0.3);
+      b.coreCone.scale.set(1 + flicker * 0.2, 1 - flicker * 0.3, 1 + flicker * 0.2);
+
+      for (const e of b.embers) {
+        const cycle = (t * 0.9 + e.seed) % 1.0;
+        e.mesh.position.y = 0.25 + cycle * 1.25;
+        e.mesh.position.x = Math.cos(t * 3.0 + e.seed) * (0.14 + cycle * 0.12);
+        e.mesh.position.z = Math.sin(t * 3.0 + e.seed) * (0.14 + cycle * 0.12);
+        const s = Math.sin(cycle * Math.PI);
+        e.mesh.scale.setScalar(Math.max(0.1, s));
+      }
+    }
+
+    // 2. Animate Bioluminescent Swamp Fireflies
+    if (this.fireflyPoints) {
+      const posAttr = this.fireflyPoints.geometry.getAttribute('position');
+      for (let i = 0; i < this.fireflyData.length; i++) {
+        const fd = this.fireflyData[i];
+        posAttr.setXYZ(
+          i,
+          fd.baseX + Math.sin(t * fd.speed + fd.phase) * 0.38,
+          fd.baseY + Math.cos(t * fd.speed * 1.3 + fd.phase) * 0.24,
+          fd.baseZ + Math.cos(t * fd.speed * 0.9 + fd.phase) * 0.38,
+        );
+      }
+      posAttr.needsUpdate = true;
+    }
+
+    // 3. Animate Lily Pads gentle bobbing & Sunken Rune shimmer
+    if (this.lilyPads) {
+      for (const lp of this.lilyPads) {
+        lp.group.position.y = lp.baseY + Math.sin(t * 1.4 + lp.phase) * 0.012;
+      }
+    }
+    if (this.sunkenRuneMat) {
+      this.sunkenRuneMat.opacity = 0.22 + Math.sin(t * 1.8) * 0.08;
+    }
+    if (this.waterTexture) {
+      this.waterTexture.offset.x = Math.sin(t * 0.18) * 0.03;
+      this.waterTexture.offset.y = Math.cos(t * 0.14) * 0.03;
+    }
+
+    // 4. Pulse Altar Golden Runes & Wave Zurich/Swiss Banners
+    const runePulse = 0.36 + Math.sin(t * 2.1) * 0.12;
+    for (const rm of this.runeMaterials) {
+      rm.emissiveIntensity = runePulse;
+    }
+    for (const banner of this.banners) {
+      banner.rotation.z = Math.sin(t * 2.4 + (banner.userData.phase || 0)) * 0.06;
+    }
+  }
+
+  dispose() {
+    for (const off of this.offs) off();
+    this.offs = [];
+    this.clearHighlights();
+    if (this.root.parent) {
+      this.root.parent.remove(this.root);
+    }
+  }
+
+  // ===========================================================================
+  // 7. PROCEDURAL CANVAS TEXTURE GENERATORS (SAFE IN HEADLESS NODE TOO)
+  // ===========================================================================
+
+  createMarbleTexture(baseHex, veinHex1, veinHex2) {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.fillStyle = baseHex;
+    ctx.fillRect(0, 0, 256, 256);
+
+    ctx.strokeStyle = veinHex1;
+    ctx.lineWidth = 2.2;
+    ctx.globalAlpha = 0.35;
+    for (let i = 0; i < 7; i++) {
+      ctx.beginPath();
+      ctx.moveTo(0, i * 38);
+      ctx.bezierCurveTo(85, i * 38 + 28, 170, i * 38 - 24, 256, i * 38 + 14);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = veinHex2;
+    ctx.lineWidth = 1.2;
+    ctx.globalAlpha = 0.25;
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * 52, 0);
+      ctx.bezierCurveTo(i * 52 - 20, 90, i * 52 + 30, 180, i * 52 + 10, 256);
+      ctx.stroke();
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  createRuneFriezeTexture() {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.fillStyle = '#241e19';
+    ctx.fillRect(0, 0, 1024, 128);
+
+    ctx.strokeStyle = '#ffd54f';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(8, 14, 1008, 100);
+
+    ctx.fillStyle = '#ffe082';
+    ctx.font = 'bold 42px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const runes = 'ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ♔ ♕ ♗ ♘ ♖ ♙ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ 🐉 🏎️ 💜 🐟 ᛇ ᛈ ᛉ ᛊ';
+    ctx.fillText(runes, 512, 64);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  createBorderTopTexture(orientation = 'horizontal') {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = orientation === 'horizontal' ? 1024 : 128;
+    canvas.height = orientation === 'horizontal' ? 128 : 1024;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.fillStyle = '#2b241d';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = '#e6b84a';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
+
+    ctx.fillStyle = '#ffe082';
+    ctx.font = 'bold 34px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    if (orientation === 'horizontal') {
+      for (let i = 0; i < 8; i++) {
+        const x = 85 + (i + 0.5) * ((1024 - 170) / 8);
+        ctx.fillText(FILES[i].toUpperCase(), x, 64);
+      }
+    } else {
+      for (let i = 0; i < 8; i++) {
+        const y = 85 + (i + 0.5) * ((1024 - 170) / 8);
+        ctx.fillText(String(8 - i), 64, y);
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  createSwampWaterTexture() {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const grad = ctx.createRadialGradient(256, 256, 30, 256, 256, 256);
+    grad.addColorStop(0, '#16694e');
+    grad.addColorStop(0.55, '#0d4232');
+    grad.addColorStop(1, '#062119');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Shimmering bioluminescent ripple rings
+    ctx.strokeStyle = 'rgba(105, 240, 174, 0.24)';
+    ctx.lineWidth = 2;
+    for (let r = 45; r < 250; r += 28) {
+      ctx.beginPath();
+      ctx.arc(256, 256, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  createClockFaceTexture() {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.fillStyle = '#12161f';
+    ctx.beginPath();
+    ctx.arc(128, 128, 122, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#ffd54f';
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    // Hour ticks
+    ctx.save();
+    ctx.translate(128, 128);
+    for (let i = 0; i < 12; i++) {
+      ctx.rotate(Math.PI / 6);
+      ctx.fillStyle = '#ffe082';
+      ctx.fillRect(-4, -108, 8, 22);
+    }
+    // Clock hands pointing to 10:10
+    ctx.strokeStyle = '#ffd54f';
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-48, -42);
+    ctx.stroke();
+
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(58, -54);
+    ctx.stroke();
+    ctx.restore();
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  createBannerTexture(type = 'zurich') {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    if (type === 'swiss') {
+      ctx.fillStyle = '#d32f2f';
+      ctx.fillRect(0, 0, 128, 256);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(50, 74, 28, 108);
+      ctx.fillRect(20, 114, 88, 28);
+    } else {
+      // Zurich diagonal blue & white crest
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 128, 256);
+      ctx.fillStyle = '#1976d2';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(128, 256);
+      ctx.lineTo(0, 256);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  createStarrySkyTexture() {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const grad = ctx.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0, '#060a17');
+    grad.addColorStop(0.55, '#131d38');
+    grad.addColorStop(1, '#0e2e26');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1024, 512);
+
+    // Deterministic twilight stars
+    ctx.fillStyle = '#ffffff';
+    for (let i = 0; i < 220; i++) {
+      const sx = (i * 173) % 1024;
+      const sy = (i * 97) % 340;
+      const r = i % 7 === 0 ? 1.8 : 1.1;
+      ctx.globalAlpha = 0.35 + (i % 5) * 0.15;
+      ctx.beginPath();
+      ctx.arc(sx, sy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+}
