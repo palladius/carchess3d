@@ -1,0 +1,27 @@
+{
+  "name": "CarChess3D · Carlesso al Cesso",
+  "short_name": "CarChess3D",
+  "description": "Scacchi Magici 3D della Famiglia Carlesso nella Palude Incantata di Zurigo (Offline PWA)",
+  "lang": "it",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d1118",
+  "theme_color": "#e6b84a",
+  "categories": ["games", "family", "kids", "strategy"],
+  "icons": [
+    {
+      "src": "docs/logo/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/characters/bishop-ale-1.jpg",
+      "sizes": "256x256",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

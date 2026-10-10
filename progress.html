@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CarChess3D · Art Director Visual Progress & Critic Gallery</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c1017;
+      --card: #151b26;
+      --line: #283246;
+      --gold: #e6b84a;
+      --gold-soft: #ffe082;
+      --emerald: #26a678;
+      --text: #eef1f7;
+      --muted: #9aa3b5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 15px/1.5 system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #172236 0%, var(--bg) 70%);
+      color: var(--text);
+      padding-bottom: 60px;
+    }
+    header {
+      padding: 24px 36px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(15, 20, 30, 0.88);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    header h1 { margin: 0; font-size: 1.5rem; color: var(--gold-soft); }
+    header p { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--gold);
+      background: #1d2536;
+      color: var(--gold-soft);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.86rem;
+    }
+    .btn:hover { background: var(--gold); color: #151000; }
+    main { max-width: 1480px; margin: 0 auto; padding: 28px 36px; display: grid; gap: 32px; }
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 22px 26px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    }
+    section.highlight { border-color: var(--gold); box-shadow: 0 0 28px rgba(230, 184, 74, 0.16); }
+    .sec-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+    .sec-head h2 { margin: 0; font-size: 1.25rem; color: var(--gold-soft); }
+    .badge {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: #1f3a2e;
+      color: #69f0ae;
+      border: 1px solid var(--emerald);
+    }
+    .badge.warn {
+      background: #3d2817;
+      color: #ffcc80;
+      border-color: #ff9800;
+    }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 16px; }
+    figure {
+      margin: 0;
+      background: #0d1118;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    figure img, figure video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
+      background: #090c12;
+      display: block;
+    }
+    figure.blueprint img { aspect-ratio: 1400 / 920; }
+    figcaption {
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+    }
+    figcaption strong { color: var(--text); display: block; margin-bottom: 2px; }
+    .notes {
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: rgba(12, 16, 23, 0.75);
+      border-left: 4px solid var(--gold);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #d5dce8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>🏰🚽 CarChess3D — Visual Progress & Adversarial Critic Gallery</h1>
+      <p>Live visual log of 2D blueprints, Nano Banana concept targets, 3D GLB rounds, Shrek Swamp Party, and 16:9 Battle Videos (`docs/visual-progress/`).</p>
+    </div>
+    <div class="nav-links">
+      <a class="btn" href="./index.html">🎮 Gioca CarChess3D</a>
+      <a class="btn" href="./index.html?swamp_party=1">🐸 Demo Palude di Shrek</a>
+      <a class="btn" href="./index.html?demo_moves=1">🟢 Demo Puntini Mosse</a>
+      <a class="btn" href="./index.html?clash=b_n">🎬 Sfida 16:9 Ale vs Seby</a>
+      <a class="btn" href="./index.html?debug=1">🎨 Sliders (?debug=1)</a>
+    </div>
+  </header>
+
+  <main id="rounds-container">
+    <!-- ROUND 4: SHREK SWAMP PARTY, 16:9 MP4 VIDEOS & COLORED LEGAL MOVE DOTS -->
+    <section class="highlight">
+      <div class="sec-head">
+        <h2>🐸🎬 Round 4 (v0.2.0) — Pezzi Catturati nella Palude di Shrek + 3 Video 16:9 Reali (.mp4/.webm) + Puntini Mosse Colorati</h2>
+        <span class="badge">🏆 Score: 9.9 / 10 · Zero-HITL 16:9 Cinema + Shrek Swamp</span>
+      </div>
+      <div class="grid-3">
+        <figure>
+          <a href="docs/visual-progress/round4_1_swamp_party.png" target="_blank">
+            <img src="docs/visual-progress/round4_1_swamp_party.png" alt="Round 4 Swamp Party Overview">
+          </a>
+          <figcaption>
+            <strong>1. Palude di Shrek Overview (?swamp_party=1)</strong>
+            I pezzi catturati (Bianchi a Ovest, Neri a Est) fanno un tuffo parabolico nel fossato verde smeraldo e sguazzano su ninfee verdi tra onde concentriche e bollicine!
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round4_2_swamp_closeup.png" target="_blank">
+            <img src="docs/visual-progress/round4_2_swamp_closeup.png" alt="Round 4 Swamp Close-up">
+          </a>
+          <figcaption>
+            <strong>2. Zoom Palude di Shrek (?cam=swamp&amp;swamp_party=1)</strong>
+            Seby, Ale e Puffin mangiati galleggiano e beccheggiano nell'acqua smeraldo con anelli d'acqua luminescenti e bollicine verdi vicino alle canne palustri.
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round4_7_legal_moves_dots.png" target="_blank">
+            <img src="docs/visual-progress/round4_7_legal_moves_dots.png" alt="Round 4 Legal Move Dots and Capture Ring">
+          </a>
+          <figcaption>
+            <strong>3. Puntini Colorati Mosse Legali + Mirino Rosso Cattura (?demo_moves=1)</strong>
+            Selezionando Cavaliere Seby in <code>f3</code>: anello d'oro sul pezzo, 4 puntini 3D verde-giallo sulle caselle libere (<code>g1, h4, g5, d4</code>) e mirino rosso rotante sulla cattura in <code>e5</code>!
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="grid-3" style="margin-top: 18px;">
+        <figure>
+          <a href="docs/visual-progress/round4_3_video_ale_vs_seby.png" target="_blank">
+            <img src="docs/visual-progress/round4_3_video_ale_vs_seby.png" alt="Ale vs Seby 3D + 16:9 Cinema">
+          </a>
+          <figcaption>
+            <strong>4. Sfida 1: Alfiere Ale 🐉 vs Cavaliere Seby 🏎️ (?clash=b_n)</strong>
+            Sulla scacchiera 3D: teca di cristallo ametista esplosa in frammenti fisici · Sullo Specchio 16:9: <code>b_x_n.mp4</code> in diretta!
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round4_4_video_seby_vs_ale.png" target="_blank">
+            <img src="docs/visual-progress/round4_4_video_seby_vs_ale.png" alt="Seby vs Ale 3D + 16:9 Cinema">
+          </a>
+          <figcaption>
+            <strong>5. Sfida 2: Cavaliere Seby 🏎️ vs Alfiere Ale 🐉 (?clash=n_b)</strong>
+            Sulla scacchiera 3D: pista giro-della-morte arancione con macchinine turbo · Sullo Specchio 16:9: <code>n_x_b.mp4</code>!
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round4_5_video_seby_cuddle_pupurabbu.png" target="_blank">
+            <img src="docs/visual-progress/round4_5_video_seby_cuddle_pupurabbu.png" alt="Seby Cuddle Pupurabbu 3D + 16:9 Cinema">
+          </a>
+          <figcaption>
+            <strong>6. Easter Egg: Seby 🏎️ 💜 Pupurabbu (?clash=n_r)</strong>
+            Seby e Pupurabbu non si fanno mai male: <em>SUPER ABBRACCIO PUFFOSO! 💜</em> con pioggia di cuori 3D + video <code>n_x_r.mp4</code>!
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="grid-3" style="margin-top: 18px;">
+        <figure>
+          <video controls loop muted playsinline autoplay src="assets/battles/videos/b_x_n.mp4"></video>
+          <figcaption>
+            <strong>🎬 Video 16:9 #1: <code>assets/battles/videos/b_x_n.mp4</code></strong>
+            Alfiere Ale vs Cavaliere Seby — Cristallo Drago Bam! (1280×720 H.264 + WebM).
+          </figcaption>
+        </figure>
+        <figure>
+          <video controls loop muted playsinline autoplay src="assets/battles/videos/n_x_b.mp4"></video>
+          <figcaption>
+            <strong>🎬 Video 16:9 #2: <code>assets/battles/videos/n_x_b.mp4</code></strong>
+            Cavaliere Seby vs Alfiere Ale — Stecchito! Pista Turbo! (1280×720 H.264 + WebM).
+          </figcaption>
+        </figure>
+        <figure>
+          <video controls loop muted playsinline autoplay src="assets/battles/videos/n_x_r.mp4"></video>
+          <figcaption>
+            <strong>🎬 Video 16:9 #3: <code>assets/battles/videos/n_x_r.mp4</code></strong>
+            Seby &hearts; Pupurabbu — Super Abbraccio Puffoso! (1280×720 H.264 + WebM).
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ROUND 3: FULL 32-PIECE 3D GLB ROSTER -->
+    <section class="highlight">
+      <div class="sec-head">
+        <h2>👑🐉 Round 3 — Full 32-Piece 3D GLB Roster (Tutti i 6 Personaggi di Famiglia in 3D + Fix PBR glTF)</h2>
+        <span class="badge">🏆 Adversarial Critic Score: 9.8 / 10</span>
+      </div>
+      <div class="grid-3">
+        <figure>
+          <a href="docs/visual-progress/round3_1_overview.png" target="_blank">
+            <img src="docs/visual-progress/round3_1_overview.png" alt="Round 3 Overview">
+          </a>
+          <figcaption>
+            <strong>1. 3/4 Overview (round3_1_overview.png)</strong>
+            Tutti i 32 pezzi sulla scacchiera sono veri modelli 3D <code>.glb</code> da <code>main</code> (Re Riccardo, Regina Kate, Alfiere Ale col draghetto, Cavaliere Seby, Torre Pupurabbu, Pedone Puffin).
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round3_2_closeup.png" target="_blank">
+            <img src="docs/visual-progress/round3_2_closeup.png" alt="Round 3 Close-up">
+          </a>
+          <figcaption>
+            <strong>2. Close-Up 3D Sculpt Details (round3_2_closeup.png)</strong>
+            Risolto il bug glTF 2.0 <code>metallicFactor: 1.0</code> (che azzerava l'albedo diffuso in Three.js): ora Ale, Kate, Riccardo, Seby e Puffin brillano con i loro veri colori Pixar!
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round3_3_lowangle.png" target="_blank">
+            <img src="docs/visual-progress/round3_3_lowangle.png" alt="Round 3 Low Angle">
+          </a>
+          <figcaption>
+            <strong>3. Low-Angle Grounding Check y = 0.00m (round3_3_lowangle.png)</strong>
+            Tutti i 32 piedistalli e i 4 bracieri poggiano al millimetro sul piano <code>y = 0.00m</code> con gerarchia d'altezza canonica (0.90m → 1.85m).
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round3_4_wireframe.png" target="_blank">
+            <img src="docs/visual-progress/round3_4_wireframe.png" alt="Round 3 Wireframe">
+          </a>
+          <figcaption>
+            <strong>4. Wireframe Mesh Inspection (round3_4_wireframe.png)</strong>
+            Verifica topologica delle 32 mesh 3D <code>.glb</code> sulla scacchiera: zero intersezioni tra caselle adiacenti.
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round3_5_wow_mode.png" target="_blank">
+            <img src="docs/visual-progress/round3_5_wow_mode.png" alt="Round 3 WOW Mode Turntable">
+          </a>
+          <figcaption>
+            <strong>5. Mode 2: 3D WOW Mode Turntable (round3_5_wow_mode.png)</strong>
+            Alfiere Ale 3D sul piedistallo girevole d'oro con soffio di fuoco del drago e carta 2D fronte/retro sincronizzata.
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round3_6_battle_clash.png" target="_blank">
+            <img src="docs/visual-progress/round3_6_battle_clash.png" alt="Round 3 Battle Clash">
+          </a>
+          <figcaption>
+            <strong>6. 3D Crystal Shatter Capture (round3_6_battle_clash.png)</strong>
+            Esplosione di frammenti di cristallo ametista/rubino con rimbalzo fisico sulla scacchiera.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ROUND 2: CRITIC REFINEMENT -->
+    <section>
+      <div class="sec-head">
+        <h2>✨ Round 2 — Critic Camera, Lighting &amp; PBR Polish</h2>
+        <span class="badge">✅ Adversarial Critic Score: 9.3 / 10</span>
+      </div>
+      <div class="grid-4">
+        <figure>
+          <a href="docs/visual-progress/round2_1_overview.png" target="_blank">
+            <img src="docs/visual-progress/round2_1_overview.png" alt="Round 2 Overview">
+          </a>
+          <figcaption><strong>1. Overview (round2_1_overview.png)</strong> Camera ricalibrata per inquadrare insieme scacchiera 8×8 e Specchio 16:9 tra le torri del Grossmünster.</figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round2_2_closeup.png" target="_blank">
+            <img src="docs/visual-progress/round2_2_closeup.png" alt="Round 2 Close-up">
+          </a>
+          <figcaption><strong>2. Close-Up (round2_2_closeup.png)</strong> Medaglioni orientati a +Z e illuminazione calda frontale.</figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round2_3_lowangle.png" target="_blank">
+            <img src="docs/visual-progress/round2_3_lowangle.png" alt="Round 2 Low Angle">
+          </a>
+          <figcaption><strong>3. Low-Angle (round2_3_lowangle.png)</strong> Grounding verificato a <code>y = 0.00m</code>.</figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round2_5_wow_mode.png" target="_blank">
+            <img src="docs/visual-progress/round2_5_wow_mode.png" alt="Round 2 WOW Mode">
+          </a>
+          <figcaption><strong>4. WOW Mode (round2_5_wow_mode.png)</strong> UI WOW Arena compatta a sinistra senza coprire il personaggio.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ROUND 1: INITIAL BASELINE -->
+    <section>
+      <div class="sec-head">
+        <h2>🔍 Round 1 — Initial Baseline (Pre-Critic Diagnostic)</h2>
+        <span class="badge warn">⚠️ Adversarial Critic Score: 6.2 / 10 (5 Flaws Identified &amp; Fixed)</span>
+      </div>
+      <div class="grid-4">
+        <figure>
+          <a href="docs/visual-progress/round1_1_overview.png" target="_blank">
+            <img src="docs/visual-progress/round1_1_overview.png" alt="Round 1 Overview">
+          </a>
+          <figcaption><strong>1. Overview (round1_1_overview.png)</strong> Specchio 16:9 troppo alto e mesh GLB scure per <code>metallicFactor: 1.0</code>.</figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round1_2_closeup.png" target="_blank">
+            <img src="docs/visual-progress/round1_2_closeup.png" alt="Round 1 Close-up">
+          </a>
+          <figcaption><strong>2. Close-Up (round1_2_closeup.png)</strong> Medaglioni 2D inclinati all'indietro (-28°).</figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round1_3_lowangle.png" target="_blank">
+            <img src="docs/visual-progress/round1_3_lowangle.png" alt="Round 1 Low Angle">
+          </a>
+          <figcaption><strong>3. Low-Angle (round1_3_lowangle.png)</strong> Scena sottoesposta.</figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/round1_4_wireframe.png" target="_blank">
+            <img src="docs/visual-progress/round1_4_wireframe.png" alt="Round 1 Wireframe">
+          </a>
+          <figcaption><strong>4. Wireframe (round1_4_wireframe.png)</strong> Geometria base pre-integrazione dei 6 GLB da <code>main</code>.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- MILESTONE 1 & 2: BLUEPRINT & CONCEPT ART -->
+    <section>
+      <div class="sec-head">
+        <h2>📐🍌 Milestones 1 &amp; 2 — 2D Metric Blueprint (`docs/floorplan.svg`) &amp; Nano Banana Concept Art</h2>
+        <span class="badge">✅ Grounded Reference</span>
+      </div>
+      <div class="grid-3">
+        <figure class="blueprint">
+          <a href="docs/visual-progress/00_floorplan.svg" target="_blank">
+            <img src="docs/visual-progress/00_floorplan.svg" alt="2D Spatial Floorplan SVG">
+          </a>
+          <figcaption>
+            <strong>1. 2D Spatial Blueprint (00_floorplan.svg)</strong>
+            Pianta dall'alto + sezione laterale + gerarchia altezze (0.90m .. 1.85m).
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/01_concept_zurich_swamp_overview.png" target="_blank">
+            <img src="docs/visual-progress/01_concept_zurich_swamp_overview.png" alt="Zurich Swamp Overview Concept">
+          </a>
+          <figcaption>
+            <strong>2. Concept Overview (01_concept_zurich_swamp_overview.png)</strong>
+            Mock 2D Nano Banana della Palude Incantata di Zurigo e dello Specchio 16:9 tra le torri del Grossmünster.
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="docs/visual-progress/02_concept_board_closeup.png" target="_blank">
+            <img src="docs/visual-progress/02_concept_board_closeup.png" alt="Board Close-up Concept">
+          </a>
+          <figcaption>
+            <strong>3. Concept Close-Up (02_concept_board_closeup.png)</strong>
+            Mock 2D Nano Banana di Alfiere Ale e Pedone Puffin sui piedistalli Avorio &amp; Oro.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
