@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.4] - 2026-10-10
+
+- 🐛🤖 **Fix: CPU opponent only moved once** (`src/main.js`, `src/managers/AIWorkerManager.js`, `src/managers/BoardMapManager.js`, `src/listeners/HudListener.js`):
+  - Root cause: the ad-hoc CPU wiring in `main.js` called the non-existent `combat.isBusy()` inside the `MOVE_EXECUTED` handler, throwing `TypeError` during `bus.flush()` on every CPU turn. The first move only worked because the HUD called `ai.requestMove()` directly; afterwards the user had to re-select the CPU to force each move.
+  - Per Niccolò rule #2/#3/#4, the "it is the CPU's turn → think → move" rule now lives in `AIWorkerManager` (reacts to `OPPONENT_CHANGED`, `MOVE_EXECUTED`, `BOARD_RESET`, `BATTLE_COMPLETED`, `BATTLE_SKIPPED`; queries `board`/`flow`/`combat.isActive()` read-only via `ctx`; generation-guarded timer, no double-think). `BoardMapManager` now applies `AI_MOVE_READY` itself (ignoring stale replies). `main.js` and `HudListener` no longer call the AI directly.
+  - Spec drift fixed in `docs/spec/SPEC.md` (§Architecture › `ai/`): CPU turn-taking ownership is now documented.
+  - TDD: added `tests/cpu-opponent.test.mjs` (5 headless regression tests: replies to every human move, takes a pending turn right after being enabled, stops on hotseat, waits for the capture cutscene, board ignores stale AI moves). Verified end-to-end in headless Chromium (3 consecutive CPU replies, zero page errors).
+- 📐🏠 **Self-sufficient spec**: `docs/spec/SPEC.md` + `docs/spec/input_prompt.md` imported from `palladius/respec` (`carlesso-family/chess3d`, last respec commit `9c5c2a7`). `respec` is no longer a dependency: `AGENTS.md`/`GEMINI.md`, `README.md` and the `justfile` (`sync-assets` → `spec`) now point to the in-repo spec, which may be edited together with the code.
+
 ## [0.2.3] - 2026-10-10
 
 - 🎛️ **Showcase Multi-Family Selector & Live 3D Faction Material Tinting (`showcase/index.html`)**:
