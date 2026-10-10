@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.13] - 2026-10-10
+
+- 🤖 Added automated VLM & Geometric QA Critic in `tools/model-pipeline/critic/` (`critic_vlm.py`, `render_contact_sheet.py`).
+- 📸 Blender headless 4-view contact sheet renderer with tracking camera.
+- 🎯 Multimodal Gemini VLM evaluator auditing face likeness drift, companion/prop deformation, and back plausibility.
+- 🛠️ Added `just critic <glb> <concept>` recipe.
+
 ## [0.1.12] - 2026-10-10
 
 - 👸 Generated Final Canonical Queen Kate with Nano Banana 2.1 in `tools/model-pipeline/kate/final_queen_canonical/` (Option 3 authentic face, emerald green eyes, navy round glasses, royal purple gown, gold ring).

@@ -1,0 +1,34 @@
+{
+  "model": "bishop-ale-2.glb",
+  "concept": "bishop-ale-2.jpg",
+  "geometry": {
+    "faces": 27295,
+    "vertices": 19581,
+    "is_watertight": false,
+    "tallest_axis": "Y",
+    "height": 0.999,
+    "min_ground_coord": -0.499,
+    "is_grounded_near_zero": false,
+    "stray_island_count": 1
+  },
+  "vlm": {
+    "face_likeness_score": 5.2,
+    "face_critique": "Chibi proportions are captured generally, but the face appears flattened in profile and the cheerful expression is lost to a sullen mouth.",
+    "secondary_fidelity_score": 4.4,
+    "secondary_critique": "The shoulder dragon lacks clean separation and merges into the silhouette, missing the smoke puff; the staff wheel is softened and blunt.",
+    "back_view_score": 4.1,
+    "back_critique": "The rear view is heavily underexposed in shadow, obscuring volume consistency and revealing somewhat blobby hair segmentation.",
+    "structural_flaws": [
+      "Dragon companion fused into hair and shoulder mesh",
+      "Missing smoke effect above dragon",
+      "Staff filigree collapsed into a solid disk",
+      "Flattened facial profile projection"
+    ],
+    "aesthetic_flaws": [
+      "Extremely dark, underexposed lighting setup",
+      "Muddied textures and loss of robe embroidery detail",
+      "Dull eye highlights compared to concept"
+    ],
+    "passed": false
+  }
+}

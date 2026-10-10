@@ -316,6 +316,14 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
   - `kate_final_v2_nb21.png`
   - `kate_final_v3_pro.png`
 
+## 17. 2026-10-10 — Automated VLM & Geometric Critic (`just critic`)
+
+- Built in `tools/model-pipeline/critic/` with:
+  - `render_contact_sheet.py`: Automated Blender Cycles CPU renderer generating properly lit 4-view contact sheets (Front, 3/4, Profile, Back).
+  - `critic_vlm.py`: Automated QA Critic combining deterministic `trimesh` geometry checks (watertightness, grounding, stray disconnected islands) with multimodal Gemini VLM auditing.
+  - Automatically identifies face likeness drift (e.g. Ale face score 4.0/10) and secondary companion/prop deformities (e.g. dragon fused into torso score 4.0/10).
+  - CLI recipe added to `justfile`: `just critic <glb_path> <concept_path>`.
+
 ---
 
 ## Artifacts index (committed in `tools/model-pipeline/`)
@@ -325,6 +333,7 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 
 | Folder | Content |
 |---|---|
+| `critic/` | Automated VLM & Geometric QA Critic (`critic_vlm.py`, `render_contact_sheet.py`, contact sheets, JSON reports) |
 | `hunyuan/` | Hunyuan3D-2 shape-only run, clean GLB, matplotlib renders |
 | `puffin2/` | TRELLIS puffin v1 (backdrop) + v2, frames, GIF, preprocessed images |
 | `ale/` | Ale bishop #1 run |
@@ -342,5 +351,6 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 - [ ] Re-auth Vertex ADC so the `imagen` MCP works again.
 - [ ] pupurabbu GPU model / VRAM → local TRELLIS / Hunyuan3D-2.
 - [ ] Normalise transform (ground at y=0, metres) — not done on any output yet.
+
 
 
