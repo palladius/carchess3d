@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.15] - 2026-10-10
+
+- 🎯 Added ready-to-run autonomous `/goal` prompt in [`etc/prompts/GOAL_BUILD_CARCHESS3D.md`](etc/prompts/GOAL_BUILD_CARCHESS3D.md) combining `niccolo-game-design` (Managers + Queued Event Bus + `DropManager` 🍀 Luck Meter) with Geneviève's 5 Argon 3D Workflows (`floorplan.svg`, parallel subagents, `progress.html` + `?debug=1` sliders, and 4-angle Adversarial Critic loop ≥ 9/10).
+- 🛤️ Created Conductor track `v1_carchess3d` (`conductor/tracks.md`, `conductor/tracks/v1_carchess3d/spec.md`, `conductor/tracks/v1_carchess3d/plan.md`) with locked `/roastme` decisions.
+
 ## [0.1.14] - 2026-10-10
 
 - 🔀 Merged `origin/vlm-critic` into `main` with `conductor/` SDD setup (Forged with Argon ✨), reconciling version history, adding `UV_INDEX_URL=https://pypi.org/simple` to `just critic` for Derek compatibility, and removing the superseded root `tools/model-pipeline/critic_vlm.py` draft in favor of `tools/model-pipeline/critic/critic_vlm.py`.
