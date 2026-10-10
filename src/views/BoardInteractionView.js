@@ -294,17 +294,39 @@ export class BoardInteractionView {
       if (isCapture) {
         // Rotating red segmented target ring (0xff3d00)
         const capRing = this.buildSegmentedCaptureRing(targetSq);
-        capRing.position.set(pos.x, INDICATOR_Y + 0.003, pos.z);
+        capRing.position.set(pos.x, INDICATOR_Y + 0.012, pos.z);
         this.legalMovesGroup.add(capRing);
         this.rotatingCaptureRings.push(capRing);
       } else {
-        // Pulsing yellow circle (0xffeb3b)
+        // Pulsing colored legal-move dot (glowing emerald-gold core + bright yellow halo ring)
         const circleGroup = new THREE.Group();
         circleGroup.name = `LegalMoveCircle_${targetSq}`;
-        circleGroup.position.set(pos.x, INDICATOR_Y, pos.z);
+        circleGroup.position.set(pos.x, INDICATOR_Y + 0.008, pos.z);
 
         const disc = new THREE.Mesh(
-          new THREE.CircleGeometry(0.19, 28),
+          new THREE.CircleGeometry(0.21, 32),
+          new THREE.MeshBasicMaterial({
+            color: 0x00e676,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.92,
+          }),
+        );
+        disc.rotation.x = -Math.PI * 0.5;
+
+        const innerDot = new THREE.Mesh(
+          new THREE.SphereGeometry(0.11, 16, 12),
+          new THREE.MeshBasicMaterial({
+            color: 0xffee58,
+            transparent: true,
+            opacity: 0.96,
+          }),
+        );
+        innerDot.scale.set(1, 0.38, 1);
+        innerDot.position.y = 0.02;
+
+        const halo = new THREE.Mesh(
+          new THREE.RingGeometry(0.23, 0.31, 32),
           new THREE.MeshBasicMaterial({
             color: 0xffeb3b,
             side: THREE.DoubleSide,
@@ -312,20 +334,9 @@ export class BoardInteractionView {
             opacity: 0.85,
           }),
         );
-        disc.rotation.x = -Math.PI * 0.5;
-
-        const halo = new THREE.Mesh(
-          new THREE.RingGeometry(0.21, 0.28, 28),
-          new THREE.MeshBasicMaterial({
-            color: 0xfff59d,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.55,
-          }),
-        );
         halo.rotation.x = -Math.PI * 0.5;
 
-        circleGroup.add(disc, halo);
+        circleGroup.add(disc, innerDot, halo);
         this.legalMovesGroup.add(circleGroup);
         this.pulsingCircles.push(circleGroup);
       }

@@ -358,6 +358,53 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
   - `just scores`: displays full ASCII table of all audited models.
   - `just shittest`: filters only models failing QA (< 6.0) and prints exact root-cause flaws.
 
+## 21. 2026-10-10 — Queen Kate (kate2016 wedding style) 3D Model via TRELLIS.2
+
+- **Concept & Likeness**: Winner `kate_wedding_v2_nb21` celebrating Kate's 2016 wedding updo hairstyle with chic round navy glasses, emerald green eyes, royal purple velvet gown with damask gold embroidery, gold ring with purple amethyst gem, and golden scepter.
+- **2D Multi-view Turnaround**: `front.png`, `threequarter.png`, `side.png`, `back.png`, and `kate_turnaround_sheet.png` in `tools/model-pipeline/kate/`.
+- **Pipeline Runner**: `tools/model-pipeline/kate/gen_trellis2.py` invoking `microsoft/TRELLIS.2` via `gradio_client` using authenticated token (`HF_RICC_PROVE3D_CARLESSO` / `palladius` work account).
+- **Execution & Output**:
+  - Preprocessing (bg removal): 1024² matte on front view.
+  - 3D Shape + Latent Structure: 36.7 s server time.
+  - GLB Mesh Extraction + Decimation: 16.3 s server time (`decimation_target=100000`, `texture_size=1024`).
+  - Output GLB: `tools/model-pipeline/kate/out/queen_kate.glb` (3.7 MB, watertight, textured).
+  - Production destination: copied to `assets/models/queen-kate.glb`.
+- **Renders & Verification**:
+  - Headless Blender EEVEE renderer: `render_preview.py` generating `out/queen_kate_3d_preview.png`.
+  - 36-frame 360° turntable animation: `render_turntable.py` producing `out/queen_kate_turntable.gif` (1.4 MB) and 9-view contact strip `out/queen_kate_turntable_strip.png`.
+
+## 22. 2026-10-10 — King Riccardo 3D Model via TRELLIS.2
+
+- **Concept & Likeness**: King Riccardo (`assets/characters/king-riccardo-1.jpg`), imperial arched crown, blue ermine cloak, royal orb in left hand, golden scepter in right hand, authentic side profile without glasses (`tools/model-pipeline/king/side.png`).
+- **Pipeline Runner**: `tools/model-pipeline/king/gen_trellis2.py` invoking `microsoft/TRELLIS.2` with `palladius` token.
+- **Timing & Output**: 28.9s reconstruction + 19.9s GLB decimation/extraction. Output: `tools/model-pipeline/king/out/king_riccardo.glb` (4.0 MB), copied to `assets/models/king-riccardo.glb`.
+- **Render**: `tools/model-pipeline/king/render_preview.py` generating `out/king_riccardo_3d_preview.png`.
+
+## 23. 2026-10-10 — Queen Kate Young Stylized (4c) & Provenance Registry
+
+- **Kate Young 4c**: Wavy blonde hair falling over shoulders, purple frames, royal purple gown, golden crown and scepter (`queen-kate-4c.png`).
+- **Pipeline**: Processed 4c dual sheet into `front.png` and `threequarter.png` (`tools/model-pipeline/kate_young/`), generated with `microsoft/TRELLIS.2` (`gen_trellis2.py`). Output: `assets/models/queen-kate-young.glb` (3.6 MB).
+- **Provenance Registry**: Created `docs/models-provenance.yaml` mapping all 8 3D models to their MD5 checksums, target paths, source concept images and pipelines. Verified automatically with `scripts/test_provenance.py` and `just test` / `just provenance`.
+
+## 24. 2026-10-10 — Knight Sebastian (Unarmed Golden Armor) 3D Model via TRELLIS.2
+
+- **Concept**: Unarmed / Free-Hand Sebastian on golden-armored charger horse (`tools/model-pipeline/seby/`), golden plate armor, blue cape, raised left fist (modular weapon attach ready for Lightsaber, Halberd, or Sacro Aquarius).
+- **Pipeline Runner**: `tools/model-pipeline/seby/gen_trellis2.py` invoking `microsoft/TRELLIS.2` with `palladius` token.
+- **Timing & Output**: 43.1s reconstruction + 16.3s GLB decimation/extraction (`decimation_target=100000`, `texture_size=1024`). Output: `tools/model-pipeline/seby/out/knight_seby.glb` (3.65 MB), copied to `assets/models/knight-seby.glb`.
+- **Render**: `tools/model-pipeline/seby/render_preview.py` generating `out/knight_seby_3d_preview.png`.
+
+## 25. 2026-10-10 — Rook Pupurabbu 3D Model via TRELLIS.2
+
+- **Concept**: Adorable fluffy purple mascot leaning over and smiling from the crenellated purple stone tower (`tools/model-pipeline/rook/`).
+- **Pipeline Runner**: `tools/model-pipeline/rook/gen_trellis2.py` invoking `microsoft/TRELLIS.2` with `palladius` token.
+- **Timing & Output**: 35.2s reconstruction + 23.1s GLB extraction (`decimation_target=100000`, `texture_size=1024`). Output: `tools/model-pipeline/rook/out/rook_pupurabbu.glb` (3.77 MB), copied to `assets/models/rook-pupurabbu.glb`.
+- **Render**: `tools/model-pipeline/rook/render_preview.py` generating `out/rook_pupurabbu_3d_preview.png`.
+## 26. 2026-10-10 — Canonical Piece Selections (Kate Young 4c & Ale v1)
+
+- **Queen Kate Decision**: Riccardo & Kate chose the Young 4c interpretation (`assets/models/queen-kate.glb`, MD5 `86cee880f66da2ed2c3c7ccf514d032d`) as the canonical default piece for gameplay. The Wedding 2016 interpretation is retained in `assets/models/queen-kate-wedding2016.glb` (MD5 `d5ba37e0d5d5622d2265f6a7f7031395`) as an alternative skin.
+- **Bishop Ale Decision**: Ale v1 with mitre hat (`assets/models/bishop-ale-1.glb`, MD5 `6b423e6daf1ed71f001c8912cc9035f7`) confirmed as the canonical piece; modular rigged version available in `bishop-ale-rigged.glb`.
+- **Registry Update**: `docs/models-provenance.yaml` updated with 10 total models and 27 source views, validated by `just test` and `scripts/test_provenance.py`.
+
 ---
 
 ## Artifacts index (committed in `tools/model-pipeline/`)
@@ -367,6 +414,7 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 
 | Folder | Content |
 |---|---|
+| `kate/` | Queen Kate 3D pipeline (`front.png`, `threequarter.png`, `side.png`, `back.png`, `gen_trellis2.py`, `render_preview.py`, `render_turntable.py`, `out/queen_kate.glb`, turntable GIF & strip) |
 | `critic/` | Automated VLM & Geometric QA Critic (`critic_vlm.py`, `render_contact_sheet.py`, contact sheets, JSON reports) |
 | `dragon/` | Modular Red Baby Dragon pipeline (`generate_dragon_views.py`, `dragon_turnaround.png`, `texture_dragon.py`, `dragon_clean.glb`) |
 | `hunyuan/` | Hunyuan3D-2 shape-only run, clean GLB, matplotlib renders |

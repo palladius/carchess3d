@@ -47,3 +47,8 @@ scores:
 shittest:
     python3 tools/model-pipeline/critic/scoreboard.py --cagare
 
+# test 3D model provenance and 2D source tracking
+provenance:
+    python3 scripts/test_provenance.py
+
+

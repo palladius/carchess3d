@@ -26,7 +26,7 @@ export class PieceManager {
     /** @type {'family'|'stone'} */
     this.rivalSetMode = 'family';
     /** @type {'rigged'|'hat'} */
-    this.bishopVariant = 'rigged';
+    this.bishopVariant = 'hat';
     /** @type {Map<string, object>} */
     this.livingBySquare = new Map();
     /** @type {{ w: Array<object>, b: Array<object> }} */
@@ -109,8 +109,13 @@ export class PieceManager {
 
     const trayList = this.capturedTrays[victimColor] || this.capturedTrays.b;
     const slotIndex = trayList.length;
-    const trayX = (victimColor === 'w' ? -5.4 : 5.4) + ((slotIndex % 2) * 0.48 - 0.24);
-    const trayZ = Math.floor(slotIndex / 2) * 0.78 - 2.75;
+    const sideSign = victimColor === 'w' ? -1 : 1;
+    const colRing = slotIndex % 2;
+    const rowSlot = Math.floor(slotIndex / 2);
+    // Place captured pieces in the Enchanted Swamp Moat ("Palude di Shrek", r = 6.2m..8.2m, y = -0.28m)
+    const trayX = sideSign * (6.25 + colRing * 0.95);
+    const trayY = -0.28;
+    const trayZ = rowSlot * 1.05 - 2.65;
 
     const desc = this.resolveDescriptor({
       type: e.defender || existing?.type || 'p',
@@ -124,7 +129,7 @@ export class PieceManager {
       capturedBy: e.attacker || 'p',
       trayIndex: slotIndex,
       trayX,
-      trayY: 0,
+      trayY,
       trayZ,
     });
   }

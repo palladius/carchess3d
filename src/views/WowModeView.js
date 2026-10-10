@@ -63,7 +63,7 @@ export class WowModeView {
     /** @type {'k'|'q'|'b'|'n'|'r'|'p'} */
     this.selectedKey = 'b';
     /** @type {'rigged'|'hat'} */
-    this.bishopVariant = 'rigged';
+    this.bishopVariant = 'hat';
     /** @type {'front'|'back'} */
     this.cardSide = 'front';
     this.autoRotate = true;
@@ -487,6 +487,25 @@ export class WowModeView {
             if (ch.isMesh) {
               ch.castShadow = true;
               ch.receiveShadow = true;
+              if (ch.material) {
+                const mats = Array.isArray(ch.material)
+                  ? ch.material.map((m) => m.clone())
+                  : [ch.material.clone()];
+                for (const mat of mats) {
+                  mat.metalness = 0.04;
+                  mat.metalnessMap = null;
+                  mat.roughness = 0.52;
+                  mat.roughnessMap = null;
+                  if (mat.color) mat.color.setHex(0xffffff);
+                  if (mat.emissive) {
+                    mat.emissiveMap = mat.map || null;
+                    mat.emissive.setHex(mat.map ? 0xffffff : 0x453318);
+                    mat.emissiveIntensity = mat.map ? 0.34 : 0.28;
+                  }
+                  mat.needsUpdate = true;
+                }
+                ch.material = Array.isArray(ch.material) ? mats : mats[0];
+              }
             }
           });
 
@@ -785,18 +804,38 @@ export class WowModeView {
     const tex = this._createCardFallbackTexture(label);
     this.textureCache.set(key, tex);
 
-    if (url && typeof document !== 'undefined') {
-      this.textureLoader.load(
-        url,
-        (loaded) => {
-          loaded.colorSpace = THREE.SRGBColorSpace;
-          tex.image = loaded.image;
-          tex.colorSpace = THREE.SRGBColorSpace;
-          tex.needsUpdate = true;
-        },
-        undefined,
-        () => {},
-      );
+    if (url && typeof Image !== 'undefined') {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const c = tex.userData?.ctx;
+        if (!c) return;
+        c.save();
+        c.fillStyle = '#182030';
+        c.fillRect(0, 0, 384, 512);
+        // Smart crop if 16:9 2-up sheet
+        let sx = 0;
+        let sy = 0;
+        let sw = img.width;
+        let sh = img.height;
+        if (img.width > img.height * 1.35) {
+          sw = Math.floor(img.width * 0.52);
+          sx = Math.floor(img.width * 0.01);
+        }
+        c.drawImage(img, sx, sy, sw, sh, 16, 16, 352, 430);
+        c.strokeStyle = '#e6b84a';
+        c.lineWidth = 8;
+        c.strokeRect(12, 12, 360, 488);
+        c.fillStyle = 'rgba(12, 16, 28, 0.88)';
+        c.fillRect(16, 444, 352, 52);
+        c.fillStyle = '#ffe082';
+        c.font = 'bold 22px system-ui, sans-serif';
+        c.textAlign = 'center';
+        c.fillText(label, 192, 477);
+        c.restore();
+        tex.needsUpdate = true;
+      };
+      img.src = url;
     }
     return tex;
   }
@@ -820,6 +859,7 @@ export class WowModeView {
     }
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
+    tex.userData = { canvas, ctx: c };
     return tex;
   }
 

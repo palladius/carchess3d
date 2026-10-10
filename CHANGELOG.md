@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.2.0] - 2026-10-10
+
+- 🏰🚽 **Complete v1 of CarChess3D ("Carlesso al Cesso" / "Scacchi di Famiglia")** executing `conductor/tracks/v1_carchess3d/plan.md` end-to-end across Phases 1–5 (`9.8 / 10` Adversarial Critic score in Round 3, `9.9 / 10` in Round 4).
+- 📐 **Phase 1 — 2D Metric Spatial Blueprint & GLB Grounding**:
+  - Generated [`docs/floorplan.svg`](docs/floorplan.svg) with exact meter coordinates (`8.0m × 8.0m` carved stone rune altar at `y = 0.00m`, `Ø 0.75m` pedestals, canonical piece hierarchy `0.90m..1.85m`, 4 corner braziers at `(±5.2m, 1.2m, ±5.2m)`, emerald swamp moat `r = 6..18m`, 16:9 Magic Cinema Mirror at `z = -10.2m, y = 3.65m` between the Grossmünster twin towers, St. Peter, Fraumünster, Limmat, and Swiss Alps at `z = -25m`).
+  - Added [`src/utils/glbGrounding.js`](src/utils/glbGrounding.js) to automatically normalize every loaded `.glb` so `bbox.min.y === 0.00m` and height matches its canonical chess rank.
+  - Vendored [`vendor/chess.js`](vendor/chess.js) + Three.js addons (`OrbitControls`, `SkeletonUtils`, `EffectComposer`, `RenderPass`, `UnrealBloomPass`, `OutputPass`).
+- 🧠 **Phase 2 — Headless Core & Niccolò Managers (`<= 300` LOC per file, zero DOM/Three.js in `src/core/`, `src/managers/`, `src/ai/`)**:
+  - Implemented deterministic queued [`GameEventBus`](src/core/EventBus.js), `mulberry32` seeded PRNG ([`src/core/Rng.js`](src/core/Rng.js)), fixed `1/30s` [`GameLoop`](src/core/GameLoop.js), [`GameFlowManager`](src/managers/GameFlowManager.js), [`BoardMapManager`](src/managers/BoardMapManager.js), [`PieceManager`](src/managers/PieceManager.js), [`CombatAnimationManager`](src/managers/CombatAnimationManager.js), [`DropManager`](src/managers/DropManager.js) (🍀 Barra della Fortuna / Pity Timer `L_max = 12` verified with a 10,000-capture Monte-Carlo test), and non-blocking Web Worker CPU [`AIWorkerManager`](src/managers/AIWorkerManager.js) (`Easy` capture-maximizer, `Medium` minimax d=2, `Hard` alpha-beta d=4 with MVV-LVA & PSTs).
+- 👑🐉 **Phase 3 — Full 32-Piece 3D `.glb` Carlesso Family Roster & glTF PBR Fix**:
+  - Integrated all 6 canonical 3D `.glb` models from `main` (`king-riccardo.glb`, `queen-kate.glb`, `bishop-ale-1.glb` + rigged `bishop-ale-rigged.glb`, `knight-seby.glb`, `rook-pupurabbu.glb`, `pawn-puffin.glb`) into [`src/core/Registry.js`](src/core/Registry.js), [`src/views/PieceView.js`](src/views/PieceView.js), and [`src/views/WowModeView.js`](src/views/WowModeView.js).
+  - Fixed the glTF 2.0 default `metallicFactor: 1.0` material darkening bug (`mat.metalness = 0.04; mat.roughness = 0.52; mat.emissiveMap = mat.map;`) so all 32 3D pieces display their vibrant Pixar colors.
+  - Added 3D colored legal-move dots (`#00e676` + `#ffee58`) and rotating crimson capture target rings (`#ff3d00`) in [`src/views/BoardInteractionView.js`](src/views/BoardInteractionView.js).
+- 🐸 **Shrek Swamp Splashing Captured Pieces ("Palude di Shrek")**:
+  - Captured pieces dive along a high parabolic arc into the West/East emerald swamp moats (`x = ±6.2m..±7.2m, y = -0.28m`) and continuously bob, tilt, and paddle on green lily-pad rings surrounded by glowing concentric water ripples and rising green swamp bubbles (`?swamp_party=1` + `🐸 Palude Shrek` HUD button).
+- 🎬 **Zero-HITL 16:9 Battle Cinema Videos (`assets/battles/videos/*.mp4` & `.webm`)**:
+  - Added [`scripts/render_battle_videos.py`](scripts/render_battle_videos.py) and generated 3 browser-native 16:9 `1280×720` `.mp4` + `.webm` battle videos for Ale & Seby (`b_x_n.mp4`, `n_x_b.mp4`, `n_x_r.mp4`), projected live onto the 3D Magic Cinema Mirror in [`src/views/VeoCinemaView.js`](src/views/VeoCinemaView.js) with automatic Tier 2/3 60fps canvas fallback for any unrendered pair.
+- 🎨📸 **Visual Progress Gallery & Critic Loop**:
+  - Added [`progress.html`](progress.html), [`docs/VISUAL_PROGRESS.md`](docs/VISUAL_PROGRESS.md), and 25+ diagnostic screenshots across Rounds 1–4 in [`docs/visual-progress/`](docs/visual-progress/), plus offline PWA support ([`manifest.webmanifest`](manifest.webmanifest), [`sw.js`](sw.js)).
+
 ## [0.1.19] - 2026-10-10
 
 - 🔀 Merged `origin/vlm-critic` (branch commits `47c6c04` "v0.1.14" + `bbb28ea` "v0.1.15", renumbered here because `main` already used those numbers). Kept `UV_INDEX_URL` in `just critic`; branch RUNNING_DOC sections renumbered §18/§19 → §19/§20.

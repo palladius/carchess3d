@@ -4,4 +4,4 @@
 
 | Track ID | Title | Status | Plan | Spec |
 | :--- | :--- | :--- | :--- | :--- |
-| `v1_carchess3d` | **v1 Playable 3D Chess + Mode 2 WOW Arena + Zurich Swamp & 16:9 Veo Cinema** | `[ ]` Pending | [plan.md](./tracks/v1_carchess3d/plan.md) | [spec.md](./tracks/v1_carchess3d/spec.md) |
+| `v1_carchess3d` | **v1 Playable 3D Chess + Mode 2 WOW Arena + Zurich Swamp & 16:9 Veo Cinema** | `[x]` Completed | [plan.md](./tracks/v1_carchess3d/plan.md) | [spec.md](./tracks/v1_carchess3d/spec.md) |

@@ -1,0 +1,288 @@
+# CarChess3D — 3D Models Provenance & Checksum Registry
+# Tracks exact concept sources, multi-view turnaround inputs, pipelines, and MD5 checksums.
+# Tested automatically via `python3 scripts/test_provenance.py` (and `just test`).
+
+version: "1.0.0"
+updated_at: "2026-10-10"
+
+models:
+  - id: "bishop-ale-1"
+    name: "Bishop Ale #1 (Con Cappello / Canonico)"
+    piece: "bishop"
+    character: "Alessandro"
+    status: "CANONICAL"
+    target_path: "assets/models/bishop-ale-1.glb"
+    size_bytes: 1804412
+    md5: "6b423e6daf1ed71f001c8912cc9035f7"
+    pipeline:
+      tool: "TRELLIS"
+      space: "trellis-community/TRELLIS"
+      script: "tools/model-pipeline/ale/gen_textured.py"
+      seed: 42
+      multi_image: true
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/bishop-ale-1.jpg"
+        size_bytes: 252083
+        md5: "c9fb2c8e68bad0ef27e872e1621eb145"
+      - role: "front"
+        path: "tools/model-pipeline/ale/front.png"
+        size_bytes: 846739
+        md5: "65ad2f86c0913af3f982c575afe91540"
+      - role: "threequarter"
+        path: "tools/model-pipeline/ale/threequarter.png"
+        size_bytes: 830157
+        md5: "25e60f623d17abae37adbd1336ea077e"
+
+  - id: "bishop-ale-2"
+    name: "Bishop Ale #2 (Senza Cappello / Astrolabio)"
+    piece: "bishop"
+    character: "Alessandro"
+    status: "ALTERNATIVE"
+    target_path: "assets/models/bishop-ale-2.glb"
+    size_bytes: 1894600
+    md5: "248d2422176f666bbb70822e2c9e55eb"
+    pipeline:
+      tool: "TRELLIS"
+      space: "trellis-community/TRELLIS"
+      script: "tools/model-pipeline/ale2/gen_textured.py"
+      seed: 42
+      multi_image: true
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/bishop-ale-2.jpg"
+        size_bytes: 322341
+        md5: "d37e425abd7a98d07c87f39b582a5e72"
+
+  - id: "bishop-ale-rigged"
+    name: "Bishop Ale Rigged (with Animated Baby Dragon)"
+    piece: "bishop"
+    character: "Alessandro"
+    status: "ANIMATED"
+    target_path: "assets/models/bishop-ale-rigged.glb"
+    size_bytes: 6482364
+    md5: "5e2b2c30c9d4fade729f5f879308f0c5"
+    pipeline:
+      tool: "Blender Armature Skinning & Assembly"
+      script: "tools/model-pipeline/rigging/assemble_modular_bishop.py"
+      base_model: "assets/models/bishop-ale-1.glb"
+      dragon_model: "tools/model-pipeline/dragon/dragon_clean.glb"
+      bones_count: 26
+      animations: ["Idle", "Click_Fire_Breath"]
+    concept_sources:
+      - role: "base_character"
+        path: "assets/models/bishop-ale-1.glb"
+        md5: "6b423e6daf1ed71f001c8912cc9035f7"
+
+  - id: "pawn-puffin"
+    name: "Puffin Swiss Guard"
+    piece: "pawn"
+    character: "Puffin"
+    status: "CANONICAL"
+    target_path: "assets/models/pawn-puffin.glb"
+    size_bytes: 1717016
+    md5: "ae6f370a6ec3c2718749a8b0b2dd6778"
+    pipeline:
+      tool: "TRELLIS"
+      space: "trellis-community/TRELLIS"
+      script: "tools/model-pipeline/nbviews/gen_mv.py"
+      seed: 42
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/pawn-puffin.jpg"
+        size_bytes: 295184
+        md5: "88610244971d8949a2e7d9890a03574c"
+
+  - id: "king-riccardo"
+    name: "King Riccardo"
+    piece: "king"
+    character: "Riccardo"
+    status: "CANONICAL"
+    target_path: "assets/models/king-riccardo.glb"
+    size_bytes: 4104704
+    md5: "95706df221b17d45795ea2f111d754ea"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/king/gen_trellis2.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_reference"
+        path: "assets/characters/king-riccardo-1.jpg"
+        size_bytes: 312829
+        md5: "cb498f98c461927ca9f162d8804ccb78"
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/king/front.png"
+        size_bytes: 625433
+        md5: "4d897d4daf0f0e12b1d1f033f9ca119e"
+      - role: "turnaround_side_noglasses"
+        path: "tools/model-pipeline/king/side.png"
+        size_bytes: 996309
+        md5: "15b0f914e14cb9899e3543aa0d3b605a"
+      - role: "turnaround_back"
+        path: "tools/model-pipeline/king/back.png"
+        size_bytes: 955543
+        md5: "afb263618bc824edc7169dfffe4aaf70"
+
+  - id: "queen-kate"
+    name: "Queen Kate (Young 4c Stylized / Canonico - Scelta da Kate 🏆)"
+    piece: "queen"
+    character: "Kate"
+    status: "CANONICAL"
+    target_path: "assets/models/queen-kate.glb"
+    size_bytes: 3713968
+    md5: "86cee880f66da2ed2c3c7ccf514d032d"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/kate_young/gen_trellis2.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "tools/model-pipeline/kate/queen-kate-4c.png"
+        size_bytes: 1299055
+        md5: "57a5f0897cfac55af49c80a37c6b255e"
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/kate_young/front.png"
+        size_bytes: 681894
+        md5: "4f73adddf04756422986997dcbb43d53"
+      - role: "turnaround_threequarter"
+        path: "tools/model-pipeline/kate_young/threequarter.png"
+        size_bytes: 679363
+        md5: "9666f201e809a3d4858d7936ff209cee"
+
+  - id: "queen-kate-wedding2016"
+    name: "Queen Kate (Wedding 2016 Style / Alternativo)"
+    piece: "queen"
+    character: "Kate"
+    status: "ALTERNATIVE"
+    target_path: "assets/models/queen-kate-wedding2016.glb"
+    size_bytes: 3836504
+    md5: "d5ba37e0d5d5622d2265f6a7f7031395"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/kate/gen_trellis2.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/kate/front.png"
+        size_bytes: 1236748
+        md5: "b01bab585fedce109ae3558ffb019aa5"
+      - role: "turnaround_threequarter"
+        path: "tools/model-pipeline/kate/threequarter.png"
+        size_bytes: 1280863
+        md5: "5bf7e360a893cdc04a942447b0cd3a4a"
+      - role: "turnaround_back"
+        path: "tools/model-pipeline/kate/back.png"
+        size_bytes: 1265720
+        md5: "8ec1d143a5e8756d7dc036dd7de6a395"
+
+  - id: "queen-kate-young"
+    name: "Queen Kate Young (Standalone / Alias)"
+    piece: "queen"
+    character: "Kate"
+    status: "ALTERNATIVE"
+    target_path: "assets/models/queen-kate-young.glb"
+    size_bytes: 3713968
+    md5: "86cee880f66da2ed2c3c7ccf514d032d"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/kate_young/gen_trellis2.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "tools/model-pipeline/kate/queen-kate-4c.png"
+        size_bytes: 1299055
+        md5: "57a5f0897cfac55af49c80a37c6b255e"
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/kate_young/front.png"
+        size_bytes: 681894
+        md5: "4f73adddf04756422986997dcbb43d53"
+      - role: "turnaround_threequarter"
+        path: "tools/model-pipeline/kate_young/threequarter.png"
+        size_bytes: 679363
+        md5: "9666f201e809a3d4858d7936ff209cee"
+
+  - id: "knight-seby"
+    name: "Knight Sebastian (Unarmed Golden Armor / Canonico)"
+    piece: "knight"
+    character: "Sebastian"
+    status: "CANONICAL"
+    target_path: "assets/models/knight-seby.glb"
+    size_bytes: 3740440
+    md5: "c060099e14059ba7fc8fdb3e4403db94"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/seby/gen_trellis2.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/seby/front.png"
+        size_bytes: 952355
+        md5: "3a320635b6caccaa31e3e79357883425"
+      - role: "turnaround_threequarter"
+        path: "tools/model-pipeline/seby/threequarter.png"
+        size_bytes: 1114569
+        md5: "5cec089e104737a678dc1585605e82d2"
+      - role: "turnaround_back"
+        path: "tools/model-pipeline/seby/back.png"
+        size_bytes: 1001439
+        md5: "f2cc72a31d5fdcecc8f0e5916e761a63"
+
+  - id: "rook-pupurabbu"
+    name: "Rook Pupurabbu (Canonico)"
+    piece: "rook"
+    character: "Pupurabbu"
+    status: "CANONICAL"
+    target_path: "assets/models/rook-pupurabbu.glb"
+    size_bytes: 3864216
+    md5: "eb20ae6542bc25e6ce5cc9846a82dc4c"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/rook/gen_trellis2.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_reference"
+        path: "assets/characters/rook-pupurabbu.jpg"
+        size_bytes: 297570
+        md5: "43e631dd18e673e4aa97c19de7a51532"
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/rook/front.png"
+        size_bytes: 611163
+        md5: "3ab8136e6d0d7e70e0f9536e575af150"
+      - role: "turnaround_threequarter"
+        path: "tools/model-pipeline/rook/threequarter.png"
+        size_bytes: 645484
+        md5: "52aedd0c4233c9c36e0112ff6f28231a"
+      - role: "turnaround_side"
+        path: "tools/model-pipeline/rook/side.png"
+        size_bytes: 924288
+        md5: "b5eef0487d36b4167394c291db44eb62"
+      - role: "turnaround_back"
+        path: "tools/model-pipeline/rook/back.png"
+        size_bytes: 930566
+        md5: "792d084fd7ea6e9f6cc92b7e8440febb"
+
+

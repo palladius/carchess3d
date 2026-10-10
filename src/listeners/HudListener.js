@@ -134,59 +134,61 @@ export class HudListener {
         pointer-events: auto;
       }
       .hud-glass {
-        background: rgba(14, 18, 27, 0.84);
-        border: 1.5px solid rgba(230, 184, 74, 0.55);
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 236, 179, 0.15);
-        backdrop-filter: blur(10px);
-        border-radius: 14px;
+        background: rgba(14, 18, 27, 0.78);
+        border: 1.5px solid rgba(255, 213, 79, 0.55);
+        box-shadow: 0 6px 22px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 236, 179, 0.15);
+        backdrop-filter: blur(8px);
+        border-radius: 12px;
       }
       .hud-topbar {
         position: absolute;
-        top: 10px;
+        top: 6px;
         left: 12px;
         right: 12px;
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         align-items: center;
         justify-content: space-between;
         gap: 8px;
-        padding: 8px 14px;
+        padding: 5px 12px;
       }
       .hud-brand {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
+        white-space: nowrap;
       }
       .hud-brand-title {
         font-weight: 800;
-        font-size: 16px;
+        font-size: 14.5px;
         color: #ffe082;
         letter-spacing: 0.2px;
         text-shadow: 0 2px 8px rgba(0,0,0,0.8);
       }
       .hud-brand-sub {
-        font-size: 11px;
+        font-size: 10.5px;
         color: #9be7c4;
         display: block;
       }
       .hud-controls-row {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         align-items: center;
         gap: 6px;
       }
       .hud-btn {
-        font: 600 12px/1.2 system-ui, sans-serif;
-        padding: 7px 11px;
-        border-radius: 10px;
-        border: 1px solid rgba(230, 184, 74, 0.45);
+        font: 600 11.5px/1.15 system-ui, sans-serif;
+        padding: 5px 10px;
+        border-radius: 9px;
+        border: 1px solid rgba(255, 213, 79, 0.45);
         background: linear-gradient(180deg, #22293a 0%, #151a26 100%);
         color: #f5efe0;
         cursor: pointer;
         transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
+        white-space: nowrap;
       }
       .hud-btn:hover {
         transform: translateY(-1px);
@@ -200,32 +202,32 @@ export class HudListener {
         font-weight: 800;
       }
       .hud-select {
-        font: 600 12px/1.2 system-ui, sans-serif;
-        padding: 6px 9px;
-        border-radius: 9px;
-        border: 1px solid rgba(230, 184, 74, 0.45);
+        font: 600 11.5px/1.15 system-ui, sans-serif;
+        padding: 5px 8px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 213, 79, 0.45);
         background: #171d2b;
         color: #ffe082;
         cursor: pointer;
       }
       .hud-bottombar {
         position: absolute;
-        bottom: 12px;
+        bottom: 6px;
         left: 12px;
         right: 12px;
         display: flex;
         flex-wrap: wrap;
         align-items: flex-end;
         justify-content: space-between;
-        gap: 10px;
+        gap: 8px;
       }
       .hud-status-card {
-        padding: 10px 14px;
-        min-width: 265px;
-        max-width: 350px;
+        padding: 7px 12px;
+        min-width: 245px;
+        max-width: 320px;
         display: flex;
         flex-direction: column;
-        gap: 7px;
+        gap: 4px;
       }
       .hud-turn-pill {
         display: flex;
@@ -233,7 +235,7 @@ export class HudListener {
         justify-content: space-between;
         gap: 8px;
         font-weight: 700;
-        font-size: 13px;
+        font-size: 12.5px;
       }
       .hud-check-badge {
         display: none;
@@ -248,17 +250,17 @@ export class HudListener {
       .hud-luck-wrap {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 3px;
       }
       .hud-luck-header {
         display: flex;
         justify-content: space-between;
-        font-size: 11.5px;
+        font-size: 11px;
         color: #b8f5d8;
         font-weight: 600;
       }
       .hud-luck-track {
-        height: 11px;
+        height: 9px;
         border-radius: 999px;
         background: rgba(0, 0, 0, 0.55);
         border: 1px solid rgba(76, 217, 162, 0.45);
@@ -277,32 +279,31 @@ export class HudListener {
         animation: hudPulse 0.55s infinite alternate;
       }
       .hud-stickers-row {
-        display: flex;
+        display: none;
         gap: 4px;
         flex-wrap: wrap;
-        font-size: 14px;
-        min-height: 20px;
+        font-size: 13px;
       }
       .hud-actions-dock {
-        padding: 8px 10px;
+        padding: 6px 9px;
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 5px;
         align-items: center;
       }
-      /* Comic Impact Banner & Skip Cutscene */
+      /* Comic Impact Banner & Skip Cutscene (docked at bottom so 16:9 Cinema Screen is 100% clear) */
       .hud-comic-banner {
         position: absolute;
-        top: 78px;
+        bottom: 62px;
         left: 50%;
         transform: translateX(-50%) scale(0.9);
-        padding: 10px 24px;
+        padding: 8px 20px;
         border-radius: 999px;
         background: linear-gradient(135deg, #ffca28 0%, #ff6f00 100%);
         border: 3px solid #fff8e1;
         color: #1a0f00;
         font-weight: 900;
-        font-size: 20px;
+        font-size: 18px;
         letter-spacing: 0.6px;
         box-shadow: 0 12px 35px rgba(255, 111, 0, 0.65);
         display: none;
@@ -530,6 +531,13 @@ export class HudListener {
           <button id="hud-wow-clash-btn" class="hud-btn gold" style="justify-content:center;padding:10px;">
             ${this.t('triggerBattleBtn')}
           </button>
+
+          <div style="font-size:11.5px;color:#9be7c4;font-weight:700;margin-top:4px;">🎬 Test Rapidi Video 16:9 (Ale & Seby MP4):</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <button class="hud-btn" data-quick-clash="b_n" style="justify-content:center;">🎬 1. Ale 🐉 vs Seby 🏎️ (Cristallo MP4)</button>
+            <button class="hud-btn" data-quick-clash="n_b" style="justify-content:center;">🎬 2. Seby 🏎️ vs Ale 🐉 (Pista Turbo MP4)</button>
+            <button class="hud-btn" data-quick-clash="n_r" style="justify-content:center;">🎬 3. Seby 🏎️ 💜 Pupurabbu (Abbraccio MP4)</button>
+          </div>
         </div>
       </aside>
 
@@ -554,6 +562,7 @@ export class HudListener {
 
         <div class="hud-actions-dock hud-glass hud-interactive">
           <button id="hud-hint-btn" class="hud-btn gold">${this.t('hintBtn')}</button>
+          <button id="hud-swamp-btn" class="hud-btn" title="Fai sguazzare i pezzi catturati nella Palude di Shrek!">🐸 Palude Shrek</button>
           <button id="hud-flip-btn" class="hud-btn">${this.t('flipCamBtn')}</button>
           <button id="hud-top-btn" class="hud-btn">${this.t('topCamBtn')}</button>
           <button id="hud-new-btn" class="hud-btn">${this.t('newGameBtn')}</button>
@@ -922,6 +931,44 @@ export class HudListener {
         square: 'e5',
       });
       this.ctx?.bus?.flush?.();
+    });
+
+    root.querySelectorAll('button[data-quick-clash]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const [attacker, defender] = (btn.dataset.quickClash || 'b_n').split('_');
+        if (q('#hud-wow-atk')) q('#hud-wow-atk').value = attacker;
+        if (q('#hud-wow-def')) q('#hud-wow-def').value = defender;
+        this.ctx?.bus?.emit({
+          type: 'WOW_ARENA_CLASH',
+          attacker,
+          defender,
+          goldenCrit: true,
+          tier: 'golden_crit',
+          from: 'd4',
+          to: 'e5',
+          square: 'e5',
+        });
+        this.ctx?.bus?.flush?.();
+      });
+    });
+
+    q('#hud-swamp-btn')?.addEventListener('click', () => {
+      const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+      if (pm) {
+        for (const [color, victimColor, atk, def, sq] of [
+          ['b', 'w', 'n', 'b', 'c1'],
+          ['b', 'w', 'b', 'n', 'g1'],
+          ['b', 'w', 'r', 'p', 'e2'],
+          ['w', 'b', 'b', 'n', 'b8'],
+          ['w', 'b', 'n', 'b', 'f8'],
+          ['w', 'b', 'q', 'r', 'h8'],
+        ]) {
+          pm.handlePieceCaptured({ color, victimColor, attacker: atk, defender: def, capturedSquare: sq });
+        }
+        pm.emitPiecesSynced('swamp_party');
+        this.ctx?.bus?.flush?.();
+        this.showToast('🐸 Splash! I pezzi catturati sguazzano nella Palude di Shrek! 💦');
+      }
     });
   }
 

@@ -32,5 +32,5 @@
 ## Phase 5: Art Director's Seat (`progress.html` + Sliders), Adversarial 9/10 Critic & PWA (Geneviève §3 & §4)
 
 - [x] **Task 5.1:** Build `?debug=1` on-screen **Art Director Control Panel** (live sliders for brazier warmth, sun elevation, bloom strength/threshold, water roughness, camera FOV/distance, piece scale) + `progress.html` milestone gallery.
-- [ ] **Task 5.2:** Run iterative **Adversarial Art Director Critic Subagent** rounds over the 4 canonical screenshots (`1: 3/4 overview`, `2: close-up details`, `3: low-angle y=0 grounding check`, `4: wireframe collision check`), fixing visual flaws until scored **≥ 9/10**.
-- [ ] **Task 5.3:** Add offline PWA support (`manifest.webmanifest`, `sw.js`), run full test suite (`just test` + Node unit tests), bump `VERSION`, and update `CHANGELOG.md`.
+- [x] **Task 5.2:** Run iterative **Adversarial Art Director Critic Subagent** rounds over the 4 canonical screenshots (`1: 3/4 overview`, `2: close-up details`, `3: low-angle y=0 grounding check`, `4: wireframe collision check`), fixing visual flaws until scored **≥ 9/10** (achieved **9.8 / 10** in Round 3 and **9.9 / 10** in Round 4).
+- [x] **Task 5.3:** Add offline PWA support (`manifest.webmanifest`, `sw.js`), run full test suite (`just test` + Node unit tests), bump `VERSION`, and update `CHANGELOG.md`.

@@ -952,17 +952,17 @@ export class VFXPoolView {
   updateCameraOrbit(t, step) {
     if (!this.camera || !this.camOrbitCenter) return;
     const c = this.camOrbitCenter;
-    const orbitAngle = (t - 0.5) * 0.75; // Sweeps smoothly across the Southern arc
-    const dist = 5.3 - Math.sin(t * Math.PI) * 0.45; // 4.85m .. 5.3m
-    const camY = 2.85 + Math.sin(t * Math.PI) * 0.55; // 2.85m .. 3.4m
+    const orbitAngle = (t - 0.5) * 0.55; // Sweeps smoothly across the Southern arc
+    const dist = 7.4 - Math.sin(t * Math.PI) * 0.45; // 6.95m .. 7.4m
+    const camY = 3.35 + Math.sin(t * Math.PI) * 0.35; // 3.35m .. 3.7m
 
     const desiredPos = new THREE.Vector3(
       c.x + Math.sin(orbitAngle) * dist,
       camY,
       c.z + Math.cos(orbitAngle) * dist,
     );
-    // Look slightly toward -Z/upward to keep both the clash square and the z=-10m Veo Mirror in view
-    const desiredTarget = new THREE.Vector3(c.x * 0.75, 1.25, c.z * 0.65 - 1.8);
+    // Look toward -Z/upward to frame BOTH the 3D board clash AND the entire z=-10.2m 16:9 Magic Cinema Mirror
+    const desiredTarget = new THREE.Vector3(c.x * 0.5, 2.15, c.z * 0.4 - 3.8);
 
     const alpha = Math.min(1, step * 5.5);
     this.camera.position.lerp(desiredPos, alpha);

@@ -65,6 +65,7 @@ export class PieceView {
     this.gltfLoader = new GLTFLoader();
     this.textureLoader = new THREE.TextureLoader();
     this.globalPieceScale = 1.0;
+    this.swampTime = 0;
     this.offs = [];
 
     this._applyInitArgs(sceneOrOpts, ctx);
@@ -155,23 +156,107 @@ export class PieceView {
     this.renderCapturedTrays(trays);
   }
 
+  /**
+   * Renders captured ("dead") pieces splashing happily inside the Enchanted Swamp Moat
+   * ("Palude di Shrek", r = 6.2m..8.2m, half-submerged at y = -0.28m with emerald ripple rings & bubbles!).
+   */
   renderCapturedTrays(trays = { w: [], b: [] }) {
     this.clearGroup(this.trayGroup);
+    let globalIdx = 0;
     for (const color of ['w', 'b']) {
       const items = trays[color] || [];
+      const sideSign = color === 'w' ? -1 : 1;
       items.forEach((item, idx) => {
         const pm = this.ctx?.pieces || this.ctx?.pieceManager;
         const desc = pm?.resolveDescriptor ? pm.resolveDescriptor(item) : this._fallbackDescriptor(item);
         const group = this.buildPieceGroup(desc);
-        const colOffset = (idx % 2) * 0.48 - 0.24;
-        const rowOffset = Math.floor(idx / 2) * 0.78 - 2.75;
-        const x = item.trayX ?? ((color === 'w' ? -5.4 : 5.4) + colOffset);
-        const z = item.trayZ ?? rowOffset;
-        group.position.set(x, 0, z);
-        group.scale.setScalar(0.68 * this.globalPieceScale);
+        const colRing = idx % 2;
+        const rowSlot = Math.floor(idx / 2);
+        const x = item.trayX ?? (sideSign * (6.25 + colRing * 0.95));
+        const y = item.trayY ?? -0.28;
+        const z = item.trayZ ?? (rowSlot * 1.05 - 2.65);
+
+        const splashFx = this.buildSwampSplashRing(color, globalIdx);
+        group.add(splashFx);
+        group.userData.swampSplash = splashFx;
+        group.userData.swampPhase = globalIdx * 1.37;
+        group.userData.baseSwampY = y;
+        group.userData.baseSwampYaw = color === 'w' ? 0.35 : -0.35;
+
+        group.position.set(x, y, z);
+        group.scale.setScalar(0.84 * this.globalPieceScale);
         this.trayGroup.add(group);
+        globalIdx += 1;
       });
     }
+  }
+
+  buildSwampSplashRing(color = 'w', seed = 0) {
+    const splashGroup = new THREE.Group();
+    splashGroup.name = 'SwampSplashRing';
+    // Water surface sits around y = -0.44m in world space; since group is at y = -0.28m, local y = -0.15m
+    splashGroup.position.y = -0.14;
+
+    // 1. Shrek-green floating lily-pad / inner tube ring around waist
+    const floatRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.38, 0.065, 12, 28),
+      new THREE.MeshStandardMaterial({
+        color: color === 'w' ? 0x2ecc71 : 0x00bfa5,
+        emissive: 0x0f522d,
+        emissiveIntensity: 0.45,
+        roughness: 0.35,
+      }),
+    );
+    floatRing.rotation.x = Math.PI * 0.5;
+    floatRing.position.y = 0.28;
+    splashGroup.add(floatRing);
+
+    // 2. Two concentric glowing lime-emerald water ripple rings
+    const ripple1 = new THREE.Mesh(
+      new THREE.RingGeometry(0.42, 0.52, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0x69f0ae,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.78,
+      }),
+    );
+    ripple1.rotation.x = -Math.PI * 0.5;
+    ripple1.position.y = 0.26;
+
+    const ripple2 = new THREE.Mesh(
+      new THREE.RingGeometry(0.58, 0.67, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0x76ff03,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.52,
+      }),
+    );
+    ripple2.rotation.x = -Math.PI * 0.5;
+    ripple2.position.y = 0.255;
+    splashGroup.add(ripple1, ripple2);
+
+    // 3. Six rising green swamp bubbles / splash droplets
+    const bubbles = [];
+    const bubbleGeo = new THREE.SphereGeometry(0.055, 8, 8);
+    for (let i = 0; i < 6; i++) {
+      const bMat = new THREE.MeshBasicMaterial({
+        color: i % 2 === 0 ? 0x76ff03 : 0x69f0ae,
+        transparent: true,
+        opacity: 0.85,
+      });
+      const bMesh = new THREE.Mesh(bubbleGeo, bMat);
+      const angle = (i / 6) * Math.PI * 2 + seed;
+      const rad = 0.36 + (i % 2) * 0.14;
+      bMesh.position.set(Math.cos(angle) * rad, 0.32 + (i * 0.08), Math.sin(angle) * rad);
+      bMesh.userData = { angle, rad, phaseOffset: i * 1.05 };
+      splashGroup.add(bMesh);
+      bubbles.push(bMesh);
+    }
+
+    splashGroup.userData = { ripple1, ripple2, bubbles, floatRing };
+    return splashGroup;
   }
 
   _fallbackDescriptor(raw) {
@@ -264,25 +349,27 @@ export class PieceView {
     pedGroup.name = `FactionPedestal_${isWhite ? 'White' : 'Black'}`;
 
     const marbleMat = new THREE.MeshStandardMaterial({
-      color: isWhite ? 0xfcf6e8 : 0x181c26,
-      roughness: isWhite ? 0.25 : 0.22,
-      metalness: isWhite ? 0.08 : 0.28,
+      color: isWhite ? 0xfcf6e8 : 0x1a2030,
+      roughness: isWhite ? 0.24 : 0.22,
+      metalness: isWhite ? 0.08 : 0.25,
+      emissive: isWhite ? 0x261d0e : 0x0b1020,
+      emissiveIntensity: 0.22,
     });
 
     const trimMat = new THREE.MeshStandardMaterial({
-      color: isWhite ? 0xe6b84a : 0xc0cce0,
-      roughness: isWhite ? 0.20 : 0.22,
-      metalness: 0.85,
-      emissive: isWhite ? 0x3a2805 : 0x162038,
-      emissiveIntensity: 0.25,
+      color: isWhite ? 0xffd54f : 0xdce7f7,
+      roughness: isWhite ? 0.28 : 0.26,
+      metalness: 0.38,
+      emissive: isWhite ? 0x6e4b08 : 0x2c3e5e,
+      emissiveIntensity: 0.42,
     });
 
     const accentMat = new THREE.MeshStandardMaterial({
-      color: accentColor || (isWhite ? 0xe6b84a : 0x7c4dff),
-      roughness: 0.3,
-      metalness: 0.6,
+      color: accentColor || (isWhite ? 0xffca28 : 0x7c4dff),
+      roughness: 0.28,
+      metalness: 0.35,
       emissive: accentColor || 0x222222,
-      emissiveIntensity: 0.18,
+      emissiveIntensity: 0.36,
     });
 
     // Bottom plinth (y = 0.00 .. 0.08m, strictly min.y = 0.0)
@@ -350,42 +437,65 @@ export class PieceView {
     const totalHeight = CANONICAL_PIECE_HEIGHTS[desc.type] ?? 1.35;
     const bodySpan = Math.max(0.55, totalHeight - PEDESTAL_HEIGHT);
     const crownHeight = 0.24;
-    const medallionRadius = Math.min(0.31, 0.22 + bodySpan * 0.06);
+    const medallionRadius = Math.min(0.24, 0.185 + bodySpan * 0.045);
     const medallionCenterY = PEDESTAL_HEIGHT + bodySpan - crownHeight - medallionRadius * 0.85;
-    const stemTopY = Math.max(PEDESTAL_HEIGHT + 0.12, medallionCenterY - medallionRadius * 0.72);
+    const stemTopY = Math.max(PEDESTAL_HEIGHT + 0.12, medallionCenterY - medallionRadius * 0.76);
     const stemHeight = Math.max(0.08, stemTopY - PEDESTAL_HEIGHT);
 
     const bodyMat = new THREE.MeshStandardMaterial({
-      color: isWhite ? 0xf7efe0 : 0x1e2433,
-      roughness: 0.26,
-      metalness: isWhite ? 0.1 : 0.32,
+      color: isWhite ? 0xfaf3e3 : 0x1e2536,
+      roughness: 0.24,
+      metalness: isWhite ? 0.10 : 0.28,
+      emissive: isWhite ? 0x2a2010 : 0x0c1222,
+      emissiveIntensity: 0.24,
     });
     const frameMat = new THREE.MeshStandardMaterial({
-      color: isWhite ? 0xe6b84a : 0xc0cce0,
-      roughness: 0.2,
-      metalness: 0.88,
+      color: isWhite ? 0xffd54f : 0xdce7f7,
+      roughness: 0.26,
+      metalness: 0.40,
+      emissive: isWhite ? 0x6e4b08 : 0x2c3e5e,
+      emissiveIntensity: 0.44,
     });
 
-    // Sculpted column stem rising from pedestal to medallion
-    const stem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.14, 0.24, stemHeight, 24),
+    // Sculpted 3-part royal chess column rising from pedestal to medallion
+    const lowerH = stemHeight * 0.48;
+    const lowerStem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.145, 0.235, lowerH, 24),
       bodyMat,
     );
-    stem.position.y = PEDESTAL_HEIGHT + stemHeight * 0.5;
-    stem.castShadow = true;
-    stem.receiveShadow = true;
-    figGroup.add(stem);
+    lowerStem.position.y = PEDESTAL_HEIGHT + lowerH * 0.5;
+    lowerStem.castShadow = true;
+    lowerStem.receiveShadow = true;
+    figGroup.add(lowerStem);
+
+    const midRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.155, 0.022, 12, 24),
+      frameMat,
+    );
+    midRing.rotation.x = Math.PI * 0.5;
+    midRing.position.y = PEDESTAL_HEIGHT + lowerH;
+    figGroup.add(midRing);
+
+    const upperH = stemHeight * 0.52;
+    const upperStem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.115, 0.145, upperH, 24),
+      bodyMat,
+    );
+    upperStem.position.y = PEDESTAL_HEIGHT + lowerH + upperH * 0.5;
+    upperStem.castShadow = true;
+    upperStem.receiveShadow = true;
+    figGroup.add(upperStem);
 
     // Ornate metallic collar ring under medallion
     const collar = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.19, 0.19, 0.035, 24),
+      new THREE.CylinderGeometry(0.165, 0.14, 0.036, 24),
       frameMat,
     );
     collar.position.y = stemTopY;
     figGroup.add(collar);
 
     // Medallion outer metallic rim (Cylinder oriented along Z axis)
-    const rimThickness = 0.065;
+    const rimThickness = 0.068;
     const rim = new THREE.Mesh(
       new THREE.CylinderGeometry(medallionRadius, medallionRadius, rimThickness, 32),
       frameMat,
@@ -395,27 +505,24 @@ export class PieceView {
     rim.castShadow = true;
     figGroup.add(rim);
 
-    // Front (+Z) and Back (-Z) circular portrait discs
-    const frontTex = this.loadPortraitTexture(desc.frontPortrait, desc.name, isWhite);
-    const backTex = this.loadPortraitTexture(desc.backPortrait || desc.frontPortrait, desc.name, isWhite);
+    // Front (+Z) and Back (-Z) circular portrait discs (both show the smiling front character bust!)
+    const portraitTex = this.loadPortraitTexture(desc.frontPortrait, desc.name, isWhite);
 
     const discGeo = new THREE.CircleGeometry(medallionRadius * 0.89, 32);
-    const frontMat = new THREE.MeshStandardMaterial({
-      map: frontTex,
-      roughness: 0.32,
-      metalness: 0.05,
-    });
-    const backMat = new THREE.MeshStandardMaterial({
-      map: backTex,
-      roughness: 0.32,
-      metalness: 0.05,
+    const portraitMat = new THREE.MeshStandardMaterial({
+      map: portraitTex,
+      roughness: 0.26,
+      metalness: 0.04,
+      emissive: 0xffffff,
+      emissiveMap: portraitTex,
+      emissiveIntensity: 0.28,
     });
 
-    const frontDisc = new THREE.Mesh(discGeo, frontMat);
+    const frontDisc = new THREE.Mesh(discGeo, portraitMat);
     frontDisc.position.set(0, medallionCenterY, rimThickness * 0.52);
     figGroup.add(frontDisc);
 
-    const backDisc = new THREE.Mesh(discGeo, backMat);
+    const backDisc = new THREE.Mesh(discGeo, portraitMat);
     backDisc.rotation.y = Math.PI;
     backDisc.position.set(0, medallionCenterY, -rimThickness * 0.52);
     figGroup.add(backDisc);
@@ -624,10 +731,51 @@ export class PieceView {
           clonedScene = gltf.scene.clone(true);
         }
 
+        const isWhite = desc.color !== 'b';
+        const isWireframe =
+          typeof window !== 'undefined' &&
+          new URLSearchParams(window.location.search).get('wireframe') === '1';
+
         clonedScene.traverse((child) => {
           if (child.isMesh) {
             child.castShadow = true;
             child.receiveShadow = true;
+            if (child.material) {
+              const mats = Array.isArray(child.material)
+                ? child.material.map((m) => m.clone())
+                : [child.material.clone()];
+              for (const mat of mats) {
+                // Fix glTF 2.0 omitted metallicFactor=1.0 trap: restore full diffuse albedo!
+                mat.metalness = 0.04;
+                mat.metalnessMap = null;
+                mat.roughness = 0.52;
+                mat.roughnessMap = null;
+                if (isWhite) {
+                  if (mat.color) {
+                    mat.color.setHex(0xffffff);
+                  }
+                  if (mat.emissive) {
+                    mat.emissiveMap = mat.map || null;
+                    mat.emissive.setHex(mat.map ? 0xffffff : 0x453318);
+                    mat.emissiveIntensity = mat.map ? 0.32 : 0.28;
+                  }
+                } else {
+                  if (mat.color) {
+                    mat.color.setHex(0xb8c6f0);
+                  }
+                  if (mat.emissive) {
+                    mat.emissiveMap = mat.map || null;
+                    mat.emissive.setHex(mat.map ? 0x7c90e8 : 0x22184a);
+                    mat.emissiveIntensity = mat.map ? 0.22 : 0.28;
+                  }
+                }
+                if (isWireframe) {
+                  mat.wireframe = true;
+                }
+                mat.needsUpdate = true;
+              }
+              child.material = Array.isArray(child.material) ? mats : mats[0];
+            }
           }
         });
 
@@ -638,6 +786,8 @@ export class PieceView {
           desc.type,
           { baseElevation: PEDESTAL_HEIGHT, maxRadius: 0.36 },
         );
+        // Subtle heroic 3/4 turn so both armies show their expressive faces & shoulder dragon
+        holder.rotation.y = isWhite ? 0.16 : -0.16;
 
         // Remove fallback medallion figure and mount the grounded 3D GLB
         bodyContainer.clear();
@@ -690,22 +840,80 @@ export class PieceView {
       return this.textureCache.get(cacheKey);
     }
 
-    // Create an immediate canvas fallback texture so medallions never flash black while loading
+    // Create a 512x512 CanvasTexture and keep its 2D context so WebGL2 texStorage2D never changes dimensions!
     const tex = this.createPlaceholderPortraitTexture(label, isWhite);
     this.textureCache.set(cacheKey, tex);
 
-    if (url && typeof document !== 'undefined') {
-      this.textureLoader.load(
-        url,
-        (loadedTex) => {
-          loadedTex.colorSpace = THREE.SRGBColorSpace;
-          tex.image = loadedTex.image;
-          tex.colorSpace = THREE.SRGBColorSpace;
-          tex.needsUpdate = true;
-        },
-        undefined,
-        () => {},
-      );
+    if (url && typeof Image !== 'undefined') {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const c = tex.userData?.ctx;
+        if (!c) return;
+        const size = 512;
+        c.save();
+        c.clearRect(0, 0, size, size);
+
+        // Background radial glow
+        const bgGrad = c.createRadialGradient(256, 220, 24, 256, 256, 256);
+        bgGrad.addColorStop(0, isWhite ? '#fffdf5' : '#2d3752');
+        bgGrad.addColorStop(1, isWhite ? '#e2c178' : '#121726');
+        c.fillStyle = bgGrad;
+        c.fillRect(0, 0, size, size);
+
+        // Circular clip for portrait
+        c.save();
+        c.beginPath();
+        c.arc(256, 256, 240, 0, Math.PI * 2);
+        c.clip();
+
+        // Smart crop: if 16:9 2-up turnaround sheet, crop the left-half character bust
+        let sx = 0;
+        let sy = 0;
+        let sw = img.width;
+        let sh = img.height;
+        if (img.width > img.height * 1.22) {
+          sx = img.width * 0.04;
+          sy = img.height * 0.02;
+          sw = img.width * 0.44;
+          sh = img.height * 0.66;
+        } else {
+          const minDim = Math.min(img.width, img.height);
+          sx = (img.width - minDim) * 0.5;
+          sy = (img.height - minDim) * 0.15;
+          sw = minDim;
+          sh = minDim;
+        }
+        c.drawImage(img, sx, sy, sw, sh, 16, 16, 480, 480);
+
+        // Sleek royal name pill at bottom of medallion
+        const pillGrad = c.createLinearGradient(0, 396, 0, 496);
+        pillGrad.addColorStop(0, isWhite ? 'rgba(34, 24, 8, 0.0)' : 'rgba(10, 14, 26, 0.0)');
+        pillGrad.addColorStop(0.28, isWhite ? 'rgba(34, 24, 8, 0.86)' : 'rgba(14, 20, 36, 0.90)');
+        pillGrad.addColorStop(1, isWhite ? 'rgba(24, 16, 4, 0.95)' : 'rgba(8, 12, 24, 0.96)');
+        c.fillStyle = pillGrad;
+        c.fillRect(0, 392, size, 120);
+
+        c.fillStyle = isWhite ? '#ffe082' : '#e3f2fd';
+        c.font = '900 40px system-ui, sans-serif';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.shadowColor = 'rgba(0,0,0,0.85)';
+        c.shadowBlur = 8;
+        c.fillText(String(label || 'Hero').slice(0, 11), 256, 450);
+        c.restore();
+
+        // Outer gleaming faction ring
+        c.strokeStyle = isWhite ? '#ffd54f' : '#b3e5fc';
+        c.lineWidth = 18;
+        c.beginPath();
+        c.arc(256, 256, 238, 0, Math.PI * 2);
+        c.stroke();
+
+        c.restore();
+        tex.needsUpdate = true;
+      };
+      img.src = url;
     }
     return tex;
   }
@@ -715,30 +923,31 @@ export class PieceView {
       return new THREE.Texture();
     }
     const canvas = document.createElement('canvas');
-    canvas.width = 256;
-    canvas.height = 256;
+    canvas.width = 512;
+    canvas.height = 512;
     const c = canvas.getContext('2d');
     if (c) {
-      const grad = c.createRadialGradient(128, 110, 18, 128, 128, 128);
+      const grad = c.createRadialGradient(256, 220, 36, 256, 256, 256);
       grad.addColorStop(0, isWhite ? '#fff7e0' : '#323c54');
       grad.addColorStop(1, isWhite ? '#d9b36c' : '#141824');
       c.fillStyle = grad;
-      c.fillRect(0, 0, 256, 256);
+      c.fillRect(0, 0, 512, 512);
 
-      c.strokeStyle = isWhite ? '#b8860b' : '#90caf9';
-      c.lineWidth = 10;
+      c.strokeStyle = isWhite ? '#ffd54f' : '#90caf9';
+      c.lineWidth = 18;
       c.beginPath();
-      c.arc(128, 128, 116, 0, Math.PI * 2);
+      c.arc(256, 256, 236, 0, Math.PI * 2);
       c.stroke();
 
       c.fillStyle = isWhite ? '#2c1e08' : '#e8eef7';
-      c.font = 'bold 34px system-ui, sans-serif';
+      c.font = 'bold 58px system-ui, sans-serif';
       c.textAlign = 'center';
       c.textBaseline = 'middle';
-      c.fillText(String(label || 'Carlesso').slice(0, 10), 128, 132);
+      c.fillText(String(label || 'Carlesso').slice(0, 10), 256, 260);
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.userData = { canvas, ctx: c };
     return texture;
   }
 
@@ -830,6 +1039,33 @@ export class PieceView {
     this.pieceBySquare.set(move.to, movingGroup);
     this._tagRaycastHierarchy(movingGroup);
     this.renderCapturedTrays(updatedCaptured);
+
+    // If a piece was captured, launch its new swamp swimmer along a high splash arc into Shrek's Swamp!
+    if (move.captured && this.trayGroup.children.length > 0) {
+      const victimColor = move.color === 'w' ? 'b' : 'w';
+      const swimmersForVictim = this.trayGroup.children.filter((c) => c.userData?.color === victimColor);
+      const newestSwimmer = swimmersForVictim[swimmersForVictim.length - 1];
+      if (newestSwimmer) {
+        const capWorld = squareToWorld(capturedSq);
+        const destX = newestSwimmer.position.x;
+        const destY = newestSwimmer.userData.baseSwampY ?? -0.28;
+        const destZ = newestSwimmer.position.z;
+        newestSwimmer.userData.isDivingToSwamp = true;
+        this.activeTweens.push({
+          kind: 'swamp_splash_dive',
+          group: newestSwimmer,
+          fromX: capWorld.x,
+          fromY: 0,
+          fromZ: capWorld.z,
+          toX: destX,
+          toY: destY,
+          toZ: destZ,
+          hPeak: 2.35,
+          elapsed: 0,
+          duration: 0.78,
+        });
+      }
+    }
 
     const startPos = squareToWorld(move.from);
     const endPos = squareToWorld(move.to);
@@ -970,6 +1206,46 @@ export class PieceView {
       entry.mixer.update(dt);
     }
 
+    // Animate captured ("dead") pieces splashing happily in Shrek's Swamp ("Palude Incantata")!
+    this.swampTime += dt;
+    if (this.trayGroup.children.length > 0) {
+      for (let i = 0; i < this.trayGroup.children.length; i++) {
+        const swimmer = this.trayGroup.children[i];
+        const phase = swimmer.userData.swampPhase ?? i * 1.3;
+        const baseY = swimmer.userData.baseSwampY ?? -0.28;
+        const baseYaw = swimmer.userData.baseSwampYaw ?? 0;
+
+        // Playful bobbing up & down + side-to-side paddling ("sguazzano!")
+        swimmer.position.y = baseY + Math.sin(this.swampTime * 3.4 + phase) * 0.085;
+        swimmer.rotation.z = Math.sin(this.swampTime * 2.7 + phase) * 0.16;
+        swimmer.rotation.x = Math.cos(this.swampTime * 2.1 + phase * 0.8) * 0.11;
+        swimmer.rotation.y = baseYaw + Math.sin(this.swampTime * 1.5 + phase) * 0.42;
+
+        const splash = swimmer.userData.swampSplash?.userData;
+        if (splash) {
+          const p1 = ((this.swampTime * 0.85 + phase * 0.3) % 1);
+          const p2 = ((this.swampTime * 0.85 + phase * 0.3 + 0.5) % 1);
+          if (splash.ripple1) {
+            splash.ripple1.scale.setScalar(0.85 + p1 * 0.75);
+            splash.ripple1.material.opacity = Math.max(0.15, (1 - p1) * 0.85);
+          }
+          if (splash.ripple2) {
+            splash.ripple2.scale.setScalar(0.85 + p2 * 0.85);
+            splash.ripple2.material.opacity = Math.max(0.12, (1 - p2) * 0.75);
+          }
+          if (Array.isArray(splash.bubbles)) {
+            for (const b of splash.bubbles) {
+              const bp = ((this.swampTime * 1.4 + b.userData.phaseOffset) % 1);
+              const ang = b.userData.angle + Math.sin(this.swampTime * 2 + b.userData.phaseOffset) * 0.3;
+              const rad = b.userData.rad + bp * 0.12;
+              b.position.set(Math.cos(ang) * rad, 0.25 + bp * 0.55, Math.sin(ang) * rad);
+              b.scale.setScalar(0.6 + Math.sin(bp * Math.PI) * 0.65);
+            }
+          }
+        }
+      }
+    }
+
     if (this.activeTweens.length === 0) return;
     const remaining = [];
 
@@ -1048,6 +1324,21 @@ export class PieceView {
         } else {
           group.position.y = startY;
           group.rotation.y = baseRotY;
+        }
+      } else if (tw.kind === 'swamp_splash_dive') {
+        const { group, fromX, fromY, fromZ, toX, toY, toZ, hPeak } = tw;
+        const x = fromX + (toX - fromX) * t;
+        const z = fromZ + (toZ - fromZ) * t;
+        const baseLinY = fromY + (toY - fromY) * t;
+        const y = baseLinY + 4 * hPeak * t * (1 - t);
+        group.position.set(x, y, z);
+        group.rotation.z = t * Math.PI * 2;
+        if (t < 1) {
+          remaining.push(tw);
+        } else {
+          group.position.set(toX, toY, toZ);
+          group.rotation.z = 0;
+          group.userData.isDivingToSwamp = false;
         }
       }
     }

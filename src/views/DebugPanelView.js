@@ -230,21 +230,25 @@ export class DebugPanelView {
     this.setWireframe(preset === 'wireframe');
 
     if (preset === 'overview') {
-      cam.fov = 42;
-      cam.position.set(0.0, 6.8, 10.6);
-      ctrl.target.set(0.0, 1.35, -1.5);
+      cam.fov = 46;
+      cam.position.set(0.0, 5.85, 12.6);
+      ctrl.target.set(0.0, 2.15, -2.2);
     } else if (preset === 'closeup') {
-      cam.fov = 35;
-      cam.position.set(-1.35, 2.15, 5.45);
-      ctrl.target.set(-0.5, 0.78, 2.8);
+      cam.fov = 34;
+      cam.position.set(-1.15, 1.95, 5.65);
+      ctrl.target.set(-0.35, 0.85, 2.95);
     } else if (preset === 'lowangle') {
       cam.fov = 36;
       cam.position.set(4.8, 0.62, 6.2);
-      ctrl.target.set(0.0, 0.52, 1.5);
+      ctrl.target.set(0.0, 0.58, 1.4);
     } else if (preset === 'wireframe') {
-      cam.fov = 40;
-      cam.position.set(5.4, 5.6, 7.8);
-      ctrl.target.set(0.0, 0.8, 0.0);
+      cam.fov = 42;
+      cam.position.set(5.4, 5.6, 8.4);
+      ctrl.target.set(0.0, 1.1, -0.5);
+    } else if (preset === 'swamp') {
+      cam.fov = 38;
+      cam.position.set(-9.2, 2.35, 3.8);
+      ctrl.target.set(-6.1, 0.25, -1.2);
     }
     cam.updateProjectionMatrix();
     ctrl.update();

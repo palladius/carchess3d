@@ -54,18 +54,18 @@ function bootstrapCarChess3D() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.12;
+  renderer.toneMappingExposure = 1.24;
 
   const scene = new THREE.Scene();
 
-  // Default player camera from docs/floorplan.svg: (0, y = 6.8..7.2m, z = +9.8..10.6m)
+  // Default player camera framing both the 8x8 altar + 4 braziers AND the 16:9 Cinema Mirror + Grossmünster
   const camera = new THREE.PerspectiveCamera(
-    42,
+    46,
     window.innerWidth / Math.max(1, window.innerHeight),
     0.1,
     120,
   );
-  camera.position.set(0.0, 6.8, 10.6);
+  camera.position.set(0.0, 5.85, 12.6);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -73,7 +73,7 @@ function bootstrapCarChess3D() {
   controls.minDistance = 3.2;
   controls.maxDistance = 24.0;
   controls.maxPolarAngle = Math.PI * 0.485; // Keep camera above the swamp water plane
-  controls.target.set(0.0, 1.15, -1.2);
+  controls.target.set(0.0, 2.15, -2.2);
   controls.update();
 
   // Post-processing bloom pipeline
@@ -247,6 +247,58 @@ function bootstrapCarChess3D() {
 
   // Re-apply URL camera preset after initial board sync
   const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('mode') === 'wow') {
+    flow.startWowMode({
+      submode: urlParams.get('submode') || 'turntable',
+      character: urlParams.get('char') || 'b',
+    });
+    bus.flush();
+    bus.flush();
+    camera.fov = 38;
+    camera.position.set(0.0, 2.35, 5.4);
+    controls.target.set(0.0, 1.05, 0.0);
+    camera.updateProjectionMatrix();
+    controls.update();
+  }
+  if (urlParams.get('swamp_party') === '1') {
+    for (const [color, victimColor, atk, def, sq] of [
+      ['b', 'w', 'n', 'b', 'c1'],
+      ['b', 'w', 'b', 'n', 'g1'],
+      ['b', 'w', 'r', 'p', 'e2'],
+      ['w', 'b', 'b', 'n', 'b8'],
+      ['w', 'b', 'n', 'b', 'f8'],
+      ['w', 'b', 'q', 'r', 'h8'],
+    ]) {
+      pieces.handlePieceCaptured({ color, victimColor, attacker: atk, defender: def, capturedSquare: sq });
+    }
+    pieces.emitPiecesSynced('swamp_party');
+    bus.flush();
+    bus.flush();
+  }
+  if (urlParams.get('clash')) {
+    const [atk, def] = urlParams.get('clash').split('_');
+    bus.emit({
+      type: 'WOW_ARENA_CLASH',
+      attacker: atk || 'b',
+      defender: def || 'p',
+      tier: urlParams.get('tier') || 'golden_crit',
+      square: 'e4',
+      durationMs: 12000,
+    });
+    bus.flush();
+    bus.flush();
+  }
+  if (urlParams.get('demo_moves') === '1') {
+    board.requestMove('g1', 'f3');
+    bus.flush();
+    board.requestMove('e7', 'e5');
+    bus.flush();
+    board.selectSquare(urlParams.get('select') || 'f3');
+    bus.flush();
+  } else if (urlParams.get('select')) {
+    board.selectSquare(urlParams.get('select'));
+    bus.flush();
+  }
   if (urlParams.get('cam')) {
     debugPanel.applyCameraPreset(urlParams.get('cam'));
   }

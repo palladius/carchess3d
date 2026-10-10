@@ -41,8 +41,9 @@ export class VeoCinemaView {
 
     this.root = new THREE.Group();
     this.root.name = 'VeoMagicCinemaMirror';
-    // Canonical coordinates from docs/floorplan.svg: (0, y = 4.5m, z = -10.0m)
-    this.root.position.set(0, 4.5, -10.0);
+    // Framed between Grossmünster Twin Towers and below top HUD bar
+    this.root.position.set(0, 3.65, -10.2);
+    this.root.scale.setScalar(0.86);
     this.scene.add(this.root);
 
     this.initCanvasAndVideo();
@@ -104,7 +105,7 @@ export class VeoCinemaView {
     this.haloMaterial = new THREE.MeshBasicMaterial({
       color: 0xffca28,
       transparent: true,
-      opacity: 0.18,
+      opacity: 0.22,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -118,19 +119,19 @@ export class VeoCinemaView {
     this.root.add(this.frameGroup);
 
     this.goldMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffcf52,
-      roughness: 0.24,
-      metalness: 0.86,
-      emissive: new THREE.Color(0x5c3c06),
-      emissiveIntensity: 0.35,
+      color: 0xffd54f,
+      roughness: 0.26,
+      metalness: 0.40,
+      emissive: new THREE.Color(0x6e4b08),
+      emissiveIntensity: 0.48,
     });
 
     this.runeBezelMaterial = new THREE.MeshStandardMaterial({
       color: 0x261d3a,
-      roughness: 0.4,
-      metalness: 0.5,
-      emissive: new THREE.Color(0x7e57c2),
-      emissiveIntensity: 0.45,
+      roughness: 0.35,
+      metalness: 0.45,
+      emissive: new THREE.Color(0x9575cd),
+      emissiveIntensity: 0.55,
     });
 
     // Dark backing plate (8.5m x 5.0m)
@@ -185,16 +186,16 @@ export class VeoCinemaView {
       this.frameGroup.add(rosette);
     }
 
-    // Top Center Royal Crown Crest Finial (y = +2.78m -> world y = 7.28m)
+    // Top Center Royal Crown Crest Finial
     const crestArch = new THREE.Mesh(
-      new THREE.TorusGeometry(0.65, 0.11, 8, 20, Math.PI),
+      new THREE.TorusGeometry(0.62, 0.10, 8, 20, Math.PI),
       this.goldMaterial,
     );
-    crestArch.position.set(0, 2.52, 0.08);
+    crestArch.position.set(0, 2.48, 0.08);
     this.frameGroup.add(crestArch);
 
-    const crownOrb = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 12), this.goldMaterial);
-    crownOrb.position.set(0, 3.22, 0.08);
+    const crownOrb = new THREE.Mesh(new THREE.SphereGeometry(0.20, 12, 12), this.goldMaterial);
+    crownOrb.position.set(0, 3.12, 0.08);
     this.frameGroup.add(crownOrb);
   }
 
@@ -208,7 +209,10 @@ export class VeoCinemaView {
       for (const url of [char.frontPortrait, char.altPortrait]) {
         if (url && !this.imageCache.has(url)) {
           const img = new Image();
-          img.decoding = 'async';
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            this.drawCanvasFrame();
+          };
           img.src = url;
           this.imageCache.set(url, img);
         }
@@ -291,12 +295,13 @@ export class VeoCinemaView {
     this.tryPlayVeoVideo(choreo.videoUrl);
   }
 
-  tryPlayVeoVideo(videoUrl) {
+  tryPlayVeoVideo(videoUrl, triedWebm = false) {
     this.stopVideoPlayback();
     if (!videoUrl || !this.videoEl) return;
 
     try {
       this.videoEl.src = videoUrl;
+      this.videoEl.currentTime = 0;
       const playPromise = this.videoEl.play();
       if (playPromise && typeof playPromise.then === 'function') {
         playPromise
@@ -305,28 +310,28 @@ export class VeoCinemaView {
               this.videoEl.pause();
               return;
             }
-            if (!this.videoTexture) {
-              this.videoTexture = new THREE.VideoTexture(this.videoEl);
-              this.videoTexture.colorSpace = THREE.SRGBColorSpace;
-            }
             this.usingVideoTexture = true;
-            this.screenMaterial.map = this.videoTexture;
-            this.screenMaterial.needsUpdate = true;
+            this.activeVideoUrl = videoUrl;
           })
           .catch(() => {
-            // Tier 1 .mp4 not yet rendered or autoplay blocked -> stay on Tier 2/3 CanvasTexture
+            if (!triedWebm && /\.mp4$/i.test(videoUrl)) {
+              this.tryPlayVeoVideo(videoUrl.replace(/\.mp4$/i, '.webm'), true);
+              return;
+            }
+            // Tier 1 video not yet rendered -> stay on Tier 2/3 CanvasTexture
             this.usingVideoTexture = false;
-            this.restoreCanvasTexture();
+            this.activeVideoUrl = null;
           });
       }
     } catch {
       this.usingVideoTexture = false;
-      this.restoreCanvasTexture();
+      this.activeVideoUrl = null;
     }
   }
 
   stopVideoPlayback() {
     this.usingVideoTexture = false;
+    this.activeVideoUrl = null;
     if (this.videoEl) {
       try {
         this.videoEl.pause();
@@ -334,7 +339,6 @@ export class VeoCinemaView {
         // Ignore pause errors in headless environments
       }
     }
-    this.restoreCanvasTexture();
   }
 
   restoreCanvasTexture() {
@@ -415,44 +419,97 @@ export class VeoCinemaView {
     // Royal Crest Title
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffe082';
-    ctx.font = 'bold 54px system-ui, sans-serif';
-    ctx.fillText('🏰 CarChess3D · Scacchi di Famiglia 🚽', w / 2, 145);
+    ctx.font = 'bold 50px system-ui, sans-serif';
+    ctx.fillText('🏰 CarChess3D · Scacchi di Famiglia 🚽', w / 2, 118);
 
     ctx.fillStyle = '#9ec5ff';
-    ctx.font = '600 28px system-ui, sans-serif';
-    ctx.fillText('Palude Incantata di Zurigo · Specchio Magico Veo 16:9', w / 2, 198);
+    ctx.font = '600 26px system-ui, sans-serif';
+    ctx.fillText('Palude Incantata di Zurigo · Specchio Magico Veo 16:9', w / 2, 166);
 
-    // Family Hero Icons Row
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 46px system-ui, sans-serif';
-    ctx.fillText('♔ Riccardo   ♕ Kate   ♗ Ale 🐉   ♘ Seby 🏎️   ♖ Pupurabbu 💜   ♙ Puffin 🐟', w / 2, 345);
+    // 6 Family Hero Circular Portrait Medallions across the center of the 16:9 screen
+    const heroKeys = ['k', 'q', 'b', 'n', 'r', 'p'];
+    const spacing = 186;
+    const startX = w / 2 - ((heroKeys.length - 1) * spacing) / 2;
+    const centerY = 308;
+    const radius = 68;
+
+    heroKeys.forEach((key, idx) => {
+      const charMeta = CHARACTER_REGISTRY[key];
+      const cx = startX + idx * spacing;
+      const img = this.getOrLoadImage(charMeta.frontPortrait);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, centerY, radius, 0, Math.PI * 2);
+      ctx.clip();
+
+      if (img) {
+        const { sx, sy, sw, sh } = this.computeBustCrop(img);
+        ctx.drawImage(img, sx, sy, sw, sh, cx - radius, centerY - radius, radius * 2, radius * 2);
+      } else {
+        ctx.fillStyle = '#26324d';
+        ctx.fillRect(cx - radius, centerY - radius, radius * 2, radius * 2);
+        ctx.fillStyle = '#ffe082';
+        ctx.font = 'bold 54px serif';
+        ctx.fillText(charMeta.glyph, cx, centerY + 18);
+      }
+      ctx.restore();
+
+      ctx.strokeStyle = '#ffd54f';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(cx, centerY, radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 23px system-ui, sans-serif';
+      ctx.fillText(`${charMeta.glyph} ${charMeta.name}`, cx, centerY + radius + 30);
+    });
 
     // Live Turn Status Pill
     const isWhite = this.turnColor === 'w';
-    ctx.fillStyle = isWhite ? 'rgba(255, 236, 179, 0.18)' : 'rgba(144, 202, 249, 0.18)';
+    ctx.fillStyle = isWhite ? 'rgba(255, 236, 179, 0.22)' : 'rgba(144, 202, 249, 0.22)';
     ctx.strokeStyle = isWhite ? '#ffd54f' : '#90caf9';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.roundRect(w / 2 - 340, 430, 680, 96, 22);
+    ctx.roundRect(w / 2 - 340, 456, 680, 88, 22);
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = isWhite ? '#ffe082' : '#bbdefb';
-    ctx.font = 'bold 38px system-ui, sans-serif';
+    ctx.font = 'bold 36px system-ui, sans-serif';
     const turnLabel = isWhite
       ? '♔ Turno del Bianco (Avorio & Oro)'
       : '♚ Turno del Nero (Ossidiana & Argento)';
-    ctx.fillText(turnLabel, w / 2, 490);
+    ctx.fillText(turnLabel, w / 2, 512);
 
     if (this.lastMoveSan) {
       ctx.fillStyle = '#8be8c2';
-      ctx.font = '600 26px system-ui, sans-serif';
-      ctx.fillText(`Ultima mossa: ${this.lastMoveSan} · Cattura un pezzo per il Cinema 3D!`, w / 2, 605);
+      ctx.font = '600 25px system-ui, sans-serif';
+      ctx.fillText(`Ultima mossa: ${this.lastMoveSan} · Cattura un pezzo per il Cinema 3D!`, w / 2, 616);
     } else {
       ctx.fillStyle = '#8be8c2';
-      ctx.font = '600 26px system-ui, sans-serif';
-      ctx.fillText('Cattura un pezzo o apri 🌟 WOW Mode per lanciare le sfide 3D!', w / 2, 605);
+      ctx.font = '600 25px system-ui, sans-serif';
+      ctx.fillText('Cattura un pezzo o apri 🌟 WOW Mode per lanciare le sfide 3D!', w / 2, 616);
     }
+  }
+
+  computeBustCrop(img) {
+    if (img.width > img.height * 1.22) {
+      return {
+        sx: img.width * 0.04,
+        sy: img.height * 0.02,
+        sw: img.width * 0.44,
+        sh: img.height * 0.66,
+      };
+    }
+    const minDim = Math.min(img.width, img.height);
+    return {
+      sx: (img.width - minDim) * 0.5,
+      sy: (img.height - minDim) * 0.12,
+      sw: minDim,
+      sh: minDim,
+    };
   }
 
   drawBattleFrame(ctx, w, h, choreo) {
@@ -460,10 +517,49 @@ export class VeoCinemaView {
     const atkChar = CHARACTER_REGISTRY[choreo.attacker] || CHARACTER_REGISTRY.b;
     const defChar = CHARACTER_REGISTRY[choreo.defender] || CHARACTER_REGISTRY.p;
 
+    const bannerText =
+      typeof choreo.banner === 'string'
+        ? choreo.banner
+        : choreo.banner?.it || choreo.banner?.en || 'SFIDA MAGICA 3D! ⚔️✨';
+
+    // TIER 1: If a Veo / 3D .mp4 video is loaded and playing, draw the live video frame!
+    if (this.usingVideoTexture && this.videoEl && this.videoEl.readyState >= 2) {
+      ctx.drawImage(this.videoEl, 0, 0, w, h);
+
+      // Sleek top-right Tier 1 MP4 indicator badge
+      const shortFile = (this.activeVideoUrl || '').split('/').pop() || 'battle.mp4';
+      ctx.save();
+      ctx.fillStyle = 'rgba(12, 28, 22, 0.88)';
+      ctx.strokeStyle = '#69f0ae';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(w - 430, 22, 404, 48, 24);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#69f0ae';
+      ctx.font = 'bold 21px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`🎬 TIER 1 · MP4 LIVE (${shortFile})`, w - 228, 53);
+
+      // Bottom comic impact banner overlay
+      ctx.fillStyle = 'rgba(14, 18, 32, 0.82)';
+      ctx.strokeStyle = '#ffd54f';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(140, h - 98, w - 280, 74, 18);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ffeb3b';
+      ctx.font = 'bold 38px system-ui, sans-serif';
+      ctx.fillText(bannerText, w / 2, h - 49);
+      ctx.restore();
+      return;
+    }
+
     const isCuddle = Boolean(choreo.nonLethalCuddle) || choreo.easterEgg === 'seby_pupurabbu_cuddle';
     const isThrone = choreo.easterEgg === 'carlesso_al_cesso_throne';
 
-    // 1. Dynamic Split-Screen Background
+    // 1. Dynamic Split-Screen Background (Tier 2/3 Fallback)
     const grad = ctx.createLinearGradient(0, 0, w, h);
     if (isCuddle) {
       grad.addColorStop(0, '#4a148c');
@@ -547,11 +643,6 @@ export class VeoCinemaView {
       72,
     );
 
-    const bannerText =
-      typeof choreo.banner === 'string'
-        ? choreo.banner
-        : choreo.banner?.it || choreo.banner?.en || 'SFIDA MAGICA 3D! ⚔️✨';
-
     ctx.fillStyle = 'rgba(14, 18, 32, 0.88)';
     ctx.strokeStyle = '#ffd54f';
     ctx.lineWidth = 4;
@@ -581,7 +672,8 @@ export class VeoCinemaView {
       ctx.beginPath();
       ctx.roundRect(x + 16, y + 16, cw - 32, ch - 115, 14);
       ctx.clip();
-      ctx.drawImage(img, x + 16, y + 16, cw - 32, ch - 115);
+      const { sx, sy, sw, sh } = this.computeBustCrop(img);
+      ctx.drawImage(img, sx, sy, sw, sh, x + 16, y + 16, cw - 32, ch - 115);
       ctx.restore();
     } else {
       // Stylized fallback emblem while image decodes
@@ -653,9 +745,7 @@ export class VeoCinemaView {
         : 0.32 + Math.sin(this.time * 2.0) * 0.08;
     }
 
-    if (!this.usingVideoTexture) {
-      this.drawCanvasFrame();
-    }
+    this.drawCanvasFrame();
   }
 
   dispose() {

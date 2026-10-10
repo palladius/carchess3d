@@ -92,19 +92,19 @@ export class ZurichSwampView {
 
   buildLightingAndSky() {
     if (!this.scene.fog) {
-      this.scene.fog = new THREE.FogExp2(0x0b1524, 0.016);
+      this.scene.fog = new THREE.FogExp2(0x0d1b2e, 0.011);
     }
     if (!this.scene.background) {
-      this.scene.background = new THREE.Color(0x091020);
+      this.scene.background = new THREE.Color(0x0b1528);
     }
 
     // Hemisphere twilight fill (deep alpine sky above, emerald swamp bounce below)
-    this.hemiLight = new THREE.HemisphereLight(0x9ec5ff, 0x134e3a, 0.85);
+    this.hemiLight = new THREE.HemisphereLight(0xbbe0ff, 0x1d6b52, 1.32);
     this.hemiLight.position.set(0, 22, 0);
     this.root.add(this.hemiLight);
 
     // Moonlight / Alpine twilight directional light casting crisp piece shadows on y = 0.0m
-    this.sunLight = new THREE.DirectionalLight(0xdbeafe, this.debugConfig.sunIntensity);
+    this.sunLight = new THREE.DirectionalLight(0xeef6ff, Math.max(2.15, this.debugConfig.sunIntensity));
     this.sunLight.position.set(8.5, 16.0, 9.5);
     this.sunLight.castShadow = true;
     this.sunLight.shadow.mapSize.set(2048, 2048);
@@ -118,8 +118,13 @@ export class ZurichSwampView {
     this.sunLight.shadow.bias = -0.0005;
     this.root.add(this.sunLight);
 
+    // Warm torch/hearth front-fill light from South-West (+Z) so hero faces & dragons glow warmly
+    this.frontFillLight = new THREE.DirectionalLight(0xfff0d4, 0.95);
+    this.frontFillLight.position.set(-4.5, 7.5, 13.0);
+    this.root.add(this.frontFillLight);
+
     // Subtle cool rim light from the North (-Z) so dark obsidian pieces pop against the swamp
-    this.rimLight = new THREE.DirectionalLight(0x64b5f6, 0.55);
+    this.rimLight = new THREE.DirectionalLight(0x82b1ff, 0.72);
     this.rimLight.position.set(-6, 9, -12);
     this.root.add(this.rimLight);
 
@@ -136,21 +141,21 @@ export class ZurichSwampView {
     this.skyDome.name = 'TwilightSkyDome';
     this.root.add(this.skyDome);
 
-    // Glowing Alpine Full/Crescent Moon at (-16, 17, -28)
+    // Glowing Alpine Full/Crescent Moon at (-14.5, 11.2, -26.0) framed in overview
     const moonGroup = new THREE.Group();
-    moonGroup.position.set(-16.5, 16.8, -28.0);
+    moonGroup.position.set(-14.5, 11.2, -26.0);
     const moonMat = new THREE.MeshBasicMaterial({ color: 0xfff6d6 });
-    const moonMesh = new THREE.Mesh(new THREE.CircleGeometry(2.1, 32), moonMat);
+    const moonMesh = new THREE.Mesh(new THREE.CircleGeometry(1.75, 32), moonMat);
     moonGroup.add(moonMesh);
 
     const haloMat = new THREE.MeshBasicMaterial({
       color: 0x9ec5ff,
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.28,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
-    const haloMesh = new THREE.Mesh(new THREE.CircleGeometry(4.4, 32), haloMat);
+    const haloMesh = new THREE.Mesh(new THREE.CircleGeometry(3.8, 32), haloMat);
     haloMesh.position.z = -0.05;
     moonGroup.add(haloMesh);
     this.root.add(moonGroup);
@@ -169,28 +174,26 @@ export class ZurichSwampView {
     const islandGeo = new THREE.CylinderGeometry(6.35, 6.85, 0.42, 24);
     islandGeo.translate(0, -0.35, 0);
     const islandMat = new THREE.MeshStandardMaterial({
-      color: 0x242c35,
-      roughness: 0.88,
-      metalness: 0.08,
+      color: 0x2c3844,
+      roughness: 0.82,
+      metalness: 0.10,
     });
     const islandMesh = new THREE.Mesh(islandGeo, islandMat);
     islandMesh.receiveShadow = true;
     altarGroup.add(islandMesh);
 
     // Carved dark stone altar border (9.6m x 9.6m, depth y = -0.65m .. 0.0m)
-    // Outer slab goes from y = -0.65m up to y = -0.02m underneath the 8x8 squares,
-    // plus 4 raised 0.8m border beams framing the 8.0m x 8.0m board flush at y = 0.0m!
     const foundationGeo = new THREE.BoxGeometry(9.6, 0.58, 9.6);
     foundationGeo.translate(0, -0.36, 0); // y = -0.65m .. -0.07m
     const runeFriezeTex = this.createRuneFriezeTexture();
     const foundationMat = new THREE.MeshStandardMaterial({
-      color: 0x2c2520,
-      roughness: 0.72,
-      metalness: 0.16,
+      color: 0x3b3129,
+      roughness: 0.65,
+      metalness: 0.18,
       map: runeFriezeTex,
-      emissive: new THREE.Color(0xffca28),
+      emissive: new THREE.Color(0xffd54f),
       emissiveMap: runeFriezeTex,
-      emissiveIntensity: 0.35,
+      emissiveIntensity: 0.88,
     });
     this.runeMaterials.push(foundationMat);
     const foundationMesh = new THREE.Mesh(foundationGeo, foundationMat);
@@ -203,22 +206,22 @@ export class ZurichSwampView {
     const topRuneTexV = this.createBorderTopTexture('vertical');
 
     const borderMatH = new THREE.MeshStandardMaterial({
-      color: 0x332b24,
-      roughness: 0.55,
+      color: 0x3d332a,
+      roughness: 0.50,
       metalness: 0.22,
       map: topRuneTexH,
       emissive: new THREE.Color(0xffd54f),
       emissiveMap: topRuneTexH,
-      emissiveIntensity: 0.42,
+      emissiveIntensity: 0.65,
     });
     const borderMatV = new THREE.MeshStandardMaterial({
-      color: 0x332b24,
-      roughness: 0.55,
+      color: 0x3d332a,
+      roughness: 0.50,
       metalness: 0.22,
       map: topRuneTexV,
       emissive: new THREE.Color(0xffd54f),
       emissiveMap: topRuneTexV,
-      emissiveIntensity: 0.42,
+      emissiveIntensity: 0.65,
     });
     this.runeMaterials.push(borderMatH, borderMatV);
 
@@ -244,19 +247,19 @@ export class ZurichSwampView {
 
     // Outer Golden Bevel Molding framing the 8.0m x 8.0m board & 9.6m x 9.6m altar
     const goldTrimMat = new THREE.MeshStandardMaterial({
-      color: 0xe6b84a,
-      roughness: 0.26,
-      metalness: 0.82,
-      emissive: 0x4a3205,
-      emissiveIntensity: 0.25,
+      color: 0xffd54f,
+      roughness: 0.28,
+      metalness: 0.38,
+      emissive: 0x6e4b08,
+      emissiveIntensity: 0.45,
     });
     this.goldTrimMat = goldTrimMat;
 
-    //Mossy Corner Stones & Stepped Buttresses grounded at y = -0.5m .. 0.0m
+    // Mossy Corner Stones & Stepped Buttresses grounded at y = -0.5m .. 0.0m
     const mossStoneMat = new THREE.MeshStandardMaterial({
       color: 0x3b4d3e,
-      roughness: 0.85,
-      metalness: 0.06,
+      roughness: 0.82,
+      metalness: 0.08,
     });
     const cornerOffsets = [
       [-4.65, -4.65],
@@ -285,7 +288,6 @@ export class ZurichSwampView {
     const darkMarbleTex = this.createMarbleTexture('#232938', '#181d28', '#3c465c');
 
     // 64 Bevelled / Framed Chess Squares (1.0m x 1.0m, top surface strictly at y = 0.0m)
-    // Translate geometry down by half its thickness so mesh.position.y === 0 AND top face === 0.0m!
     const tileThickness = 0.08;
     const squareGeo = new THREE.BoxGeometry(0.965, tileThickness, 0.965);
     squareGeo.translate(0, -tileThickness / 2, 0);
@@ -343,7 +345,7 @@ export class ZurichSwampView {
   }
 
   // ===========================================================================
-  // 2. 4 CORNER WIZARD CHESS FLAMING BRAZIERS (±5.2m, y = 1.2m, ±5.2m)
+  // 2. 4 CORNER WIZARD CHESS FLAMING BRAZIERS
   // ===========================================================================
 
   buildCornerBraziers() {
@@ -352,14 +354,14 @@ export class ZurichSwampView {
     this.root.add(brazierGroup);
 
     const stonePedestalMat = new THREE.MeshStandardMaterial({
-      color: 0x3b332b,
-      roughness: 0.76,
-      metalness: 0.14,
+      color: 0x453b32,
+      roughness: 0.72,
+      metalness: 0.16,
     });
     const ironBowlMat = new THREE.MeshStandardMaterial({
-      color: 0x1e2229,
-      roughness: 0.42,
-      metalness: 0.78,
+      color: 0x262c36,
+      roughness: 0.38,
+      metalness: 0.48,
     });
     const coalMat = new THREE.MeshBasicMaterial({
       color: 0xff5722,
@@ -368,30 +370,30 @@ export class ZurichSwampView {
     const outerFlameMat = new THREE.MeshBasicMaterial({
       color: 0xff6d00,
       transparent: true,
-      opacity: 0.86,
+      opacity: 0.88,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
     const midFlameMat = new THREE.MeshBasicMaterial({
       color: 0xffca28,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.92,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
     const coreFlameMat = new THREE.MeshBasicMaterial({
       color: 0xfff176,
       transparent: true,
-      opacity: 0.95,
+      opacity: 0.96,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
 
     const corners = [
-      { id: 'NW', x: -5.2, z: -5.2, phase: 0.0 },
-      { id: 'NE', x: 5.2, z: -5.2, phase: 1.7 },
-      { id: 'SW', x: -5.2, z: 5.2, phase: 3.1 },
-      { id: 'SE', x: 5.2, z: 5.2, phase: 4.8 },
+      { id: 'NW', x: -4.95, z: -4.85, phase: 0.0 },
+      { id: 'NE', x: 4.95, z: -4.85, phase: 1.7 },
+      { id: 'SW', x: -4.95, z: 4.75, phase: 3.1 },
+      { id: 'SE', x: 4.95, z: 4.75, phase: 4.8 },
     ];
 
     for (const c of corners) {
@@ -500,13 +502,13 @@ export class ZurichSwampView {
     const waterTex = this.createSwampWaterTexture();
     this.waterTexture = waterTex;
     this.waterMaterial = new THREE.MeshStandardMaterial({
-      color: 0x0e4d3a,
+      color: 0x156b52,
       map: waterTex,
-      roughness: this.debugConfig.waterRoughness,
-      metalness: 0.65,
-      emissive: new THREE.Color(0x0b3d2e),
+      roughness: 0.26,
+      metalness: 0.22,
+      emissive: new THREE.Color(0x0f4d3a),
       emissiveMap: waterTex,
-      emissiveIntensity: 0.45,
+      emissiveIntensity: 0.72,
     });
     const waterGeo = new THREE.CircleGeometry(25.0, 64);
     waterGeo.rotateX(-Math.PI / 2);
@@ -515,13 +517,13 @@ export class ZurichSwampView {
     this.waterMesh.receiveShadow = true;
     swampGroup.add(this.waterMesh);
 
-    // Glowing Sunken Magic Rune Ring beneath the water surface (y = -0.445m, r = 7.2m .. 8.1m)
-    const sunkenRingGeo = new THREE.RingGeometry(7.1, 7.85, 48);
+    // Glowing Sunken Magic Rune Ring beneath the water surface (y = -0.445m, r = 7.1m .. 7.9m)
+    const sunkenRingGeo = new THREE.RingGeometry(7.0, 7.85, 48);
     sunkenRingGeo.rotateX(-Math.PI / 2);
     this.sunkenRuneMat = new THREE.MeshBasicMaterial({
-      color: 0x4cd9a2,
+      color: 0x52ebb0,
       transparent: true,
-      opacity: 0.26,
+      opacity: 0.34,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -531,21 +533,23 @@ export class ZurichSwampView {
 
     // 20 Sculpted 3D Lily Pads + Pink/Lilac Lotus Blossoms (r = 6.5m .. 15.5m)
     const padMat = new THREE.MeshStandardMaterial({
-      color: 0x1f7a4c,
-      roughness: 0.62,
+      color: 0x268c55,
+      roughness: 0.56,
       metalness: 0.08,
+      emissive: 0x0b3820,
+      emissiveIntensity: 0.25,
     });
     const petalPinkMat = new THREE.MeshStandardMaterial({
       color: 0xf48fb1,
-      roughness: 0.4,
+      roughness: 0.35,
       emissive: 0x880e4f,
-      emissiveIntensity: 0.25,
+      emissiveIntensity: 0.35,
     });
     const petalLilacMat = new THREE.MeshStandardMaterial({
       color: 0xce93d8,
-      roughness: 0.4,
+      roughness: 0.35,
       emissive: 0x4a148c,
-      emissiveIntensity: 0.25,
+      emissiveIntensity: 0.35,
     });
     const lotusCoreMat = new THREE.MeshBasicMaterial({ color: 0xffeb3b });
 
@@ -555,7 +559,7 @@ export class ZurichSwampView {
       const radius = 6.8 + ((i * 37) % 100) * 0.082; // 6.8m .. 15.0m
       const lx = Math.cos(angle) * radius;
       const lz = Math.sin(angle) * radius;
-      const padRadius = 0.42 + (i % 4) * 0.11;
+      const padRadius = 0.44 + (i % 4) * 0.12;
 
       const padGroup = new THREE.Group();
       padGroup.position.set(lx, -0.435, lz);
@@ -572,7 +576,7 @@ export class ZurichSwampView {
         const lotus = new THREE.Group();
         lotus.position.y = 0.02;
         const pMat = i % 4 === 0 ? petalPinkMat : petalLilacMat;
-        const petalGeo = new THREE.ConeGeometry(0.08, 0.22, 5);
+        const petalGeo = new THREE.ConeGeometry(0.085, 0.24, 5);
         petalGeo.translate(0, 0.09, 0);
         for (let p = 0; p < 6; p++) {
           const petal = new THREE.Mesh(petalGeo, pMat);
@@ -580,7 +584,7 @@ export class ZurichSwampView {
           petal.rotation.z = 0.42;
           lotus.add(petal);
         }
-        const center = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), lotusCoreMat);
+        const center = new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 8), lotusCoreMat);
         center.position.y = 0.05;
         lotus.add(center);
         padGroup.add(lotus);
@@ -591,9 +595,14 @@ export class ZurichSwampView {
     }
 
     // Cattails / Swamp Reeds clusters + Twisted Mossy Swamp Tree Roots (x = ±7.5m .. ±11.5m)
-    const reedStemMat = new THREE.MeshStandardMaterial({ color: 0x2e6b3e, roughness: 0.75 });
-    const reedHeadMat = new THREE.MeshStandardMaterial({ color: 0x4e342e, roughness: 0.85 });
-    const rootWoodMat = new THREE.MeshStandardMaterial({ color: 0x3b2d22, roughness: 0.88 });
+    const reedStemMat = new THREE.MeshStandardMaterial({ color: 0x357a46, roughness: 0.72 });
+    const reedHeadMat = new THREE.MeshStandardMaterial({ color: 0x5c3d33, roughness: 0.82 });
+    const rootWoodMat = new THREE.MeshStandardMaterial({
+      color: 0x473628,
+      roughness: 0.82,
+      emissive: 0x142416,
+      emissiveIntensity: 0.22,
+    });
 
     const rootClusters = [
       { x: -8.4, z: 3.6, rot: 0.4 },
@@ -610,7 +619,7 @@ export class ZurichSwampView {
       cluster.rotation.y = rc.rot;
 
       // Twisted gnarled swamp root arch
-      const archGeo = new THREE.TorusGeometry(1.15, 0.18, 8, 18, Math.PI);
+      const archGeo = new THREE.TorusGeometry(0.95, 0.16, 8, 18, Math.PI);
       const arch = new THREE.Mesh(archGeo, rootWoodMat);
       arch.castShadow = true;
       cluster.add(arch);
@@ -619,13 +628,13 @@ export class ZurichSwampView {
       for (let r = 0; r < 5; r++) {
         const rx = (r - 2) * 0.28;
         const rz = (r % 2 === 0 ? 1 : -1) * 0.22;
-        const h = 1.1 + (r % 3) * 0.28;
-        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.03, h, 6), reedStemMat);
+        const h = 1.15 + (r % 3) * 0.28;
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.032, h, 6), reedStemMat);
         stem.position.set(rx, h / 2, rz);
         stem.rotation.z = (r - 2) * 0.06;
         cluster.add(stem);
 
-        const spike = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.24, 8), reedHeadMat);
+        const spike = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.25, 8), reedHeadMat);
         spike.position.set(rx, h - 0.18, rz);
         cluster.add(spike);
       }
@@ -635,8 +644,28 @@ export class ZurichSwampView {
   }
 
   // ===========================================================================
-  // 3B. 64 FLOATING BIOLUMINESCENT FIREFLIES (r = 5.5m .. 15m, y = 0.2m .. 3.5m)
+  // 3B. 68 FLOATING BIOLUMINESCENT FIREFLIES (Soft Circular Glow Orbs)
   // ===========================================================================
+
+  createFireflySpriteTexture() {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      const grad = ctx.createRadialGradient(32, 32, 2, 32, 32, 30);
+      grad.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
+      grad.addColorStop(0.32, 'rgba(255, 244, 180, 0.85)');
+      grad.addColorStop(0.7, 'rgba(105, 240, 174, 0.28)');
+      grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+    }
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
 
   buildFireflies() {
     const count = 68;
@@ -676,11 +705,13 @@ export class ZurichSwampView {
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
+    const fireflyTex = this.createFireflySpriteTexture();
     this.fireflyMaterial = new THREE.PointsMaterial({
-      size: 0.24,
+      size: 0.44,
+      map: fireflyTex,
       vertexColors: true,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.95,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -700,79 +731,83 @@ export class ZurichSwampView {
     this.root.add(skyline);
 
     const sandstoneMat = new THREE.MeshStandardMaterial({
-      color: 0x4a4035,
-      roughness: 0.78,
-      metalness: 0.1,
+      color: 0x5c4f42,
+      roughness: 0.72,
+      metalness: 0.12,
+      emissive: 0x1c1610,
+      emissiveIntensity: 0.24,
     });
     const darkRoofMat = new THREE.MeshStandardMaterial({
-      color: 0x2c3545,
-      roughness: 0.65,
-      metalness: 0.2,
+      color: 0x323d52,
+      roughness: 0.58,
+      metalness: 0.24,
     });
     const copperDomeMat = new THREE.MeshStandardMaterial({
-      color: 0x9c3d2b,
-      roughness: 0.38,
-      metalness: 0.55,
+      color: 0xb8432e,
+      roughness: 0.34,
+      metalness: 0.38,
+      emissive: 0x42150c,
+      emissiveIntensity: 0.32,
     });
     const verdigrisMat = new THREE.MeshStandardMaterial({
-      color: 0x2e9e82,
-      roughness: 0.35,
-      metalness: 0.48,
-      emissive: 0x0d3b2e,
-      emissiveIntensity: 0.25,
+      color: 0x33b596,
+      roughness: 0.34,
+      metalness: 0.38,
+      emissive: 0x114d3d,
+      emissiveIntensity: 0.36,
     });
     const warmWindowMat = new THREE.MeshBasicMaterial({
       color: 0xffd54f,
     });
 
     // -------------------------------------------------------------------------
-    // A. GROSSMÜNSTER TWIN TOWERS at x = ±5.8m, z = -10.5m (h = 11.0m, grounded y = -0.5m)
-    //    Framing the 16:9 Veo Magic Cinema Mirror at (0, y = 4.5m, z = -10.0m)
+    // A. GROSSMÜNSTER TWIN TOWERS at x = ±5.55m, z = -10.5m (grounded y = -0.5m)
+    //    Framing the 16:9 Veo Magic Cinema Mirror with iconic Red-Copper Domes
     // -------------------------------------------------------------------------
     for (const side of [-1, 1]) {
-      const tx = side * 5.8;
+      const tx = side * 5.55;
       const tz = -10.5;
       const tower = new THREE.Group();
       tower.name = side < 0 ? 'Grossmunster_West_Tower' : 'Grossmunster_East_Tower';
       tower.position.set(tx, -0.5, tz); // grounded at y = -0.5m
 
-      // Lower & middle Romanesque square shaft (h = 7.4m -> y = -0.5m .. 6.9m)
-      const shaftGeo = new THREE.BoxGeometry(2.15, 7.4, 2.15);
-      shaftGeo.translate(0, 3.7, 0);
+      // Lower & middle Romanesque square shaft (h = 5.3m -> y = -0.5m .. 4.8m)
+      const shaftGeo = new THREE.BoxGeometry(2.05, 5.3, 2.05);
+      shaftGeo.translate(0, 2.65, 0);
       const shaft = new THREE.Mesh(shaftGeo, sandstoneMat);
       shaft.castShadow = true;
       shaft.receiveShadow = true;
       tower.add(shaft);
 
-      // Golden cornice moldings at y = 3.8m and y = 7.4m
-      for (const cy of [3.8, 7.4]) {
-        const cornice = new THREE.Mesh(new THREE.BoxGeometry(2.32, 0.18, 2.32), this.goldTrimMat);
+      // Golden cornice moldings at y = 2.8m and y = 5.3m
+      for (const cy of [2.8, 5.3]) {
+        const cornice = new THREE.Mesh(new THREE.BoxGeometry(2.22, 0.16, 2.22), this.goldTrimMat);
         cornice.position.y = cy;
         tower.add(cornice);
       }
 
-      // Octagonal belfry drum (h = 1.6m -> y = 7.4m .. 9.0m)
-      const drumGeo = new THREE.CylinderGeometry(1.02, 1.08, 1.6, 8);
-      drumGeo.translate(0, 8.2, 0);
+      // Octagonal belfry drum (h = 1.25m -> y = 5.3m .. 6.55m)
+      const drumGeo = new THREE.CylinderGeometry(0.96, 1.02, 1.25, 8);
+      drumGeo.translate(0, 5.925, 0);
       const drum = new THREE.Mesh(drumGeo, sandstoneMat);
       tower.add(drum);
 
-      // Iconic Red-Copper Octagonal Dome + Golden Spire (y = 9.0m .. 11.5m, total h = 11.0m above board)
-      const domeGeo = new THREE.ConeGeometry(1.12, 2.1, 8);
-      domeGeo.translate(0, 10.05, 0);
+      // Iconic Red-Copper Octagonal Dome + Golden Spire (y = 6.55m .. 8.65m)
+      const domeGeo = new THREE.ConeGeometry(1.06, 1.75, 8);
+      domeGeo.translate(0, 7.425, 0);
       const dome = new THREE.Mesh(domeGeo, copperDomeMat);
       tower.add(dome);
 
-      const finialGeo = new THREE.ConeGeometry(0.12, 0.75, 8);
-      finialGeo.translate(0, 11.35, 0);
+      const finialGeo = new THREE.ConeGeometry(0.11, 0.65, 8);
+      finialGeo.translate(0, 8.6, 0);
       const finial = new THREE.Mesh(finialGeo, this.goldTrimMat);
       tower.add(finial);
 
       // Warm Romanesque arched windows on the front face (+Z)
-      for (const wy of [2.4, 4.9, 6.2]) {
-        for (const wx of [-0.42, 0.42]) {
-          const win = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.68), warmWindowMat);
-          win.position.set(wx, wy, 1.09);
+      for (const wy of [1.8, 3.4, 4.4]) {
+        for (const wx of [-0.38, 0.38]) {
+          const win = new THREE.Mesh(new THREE.PlaneGeometry(0.28, 0.56), warmWindowMat);
+          win.position.set(wx, wy, 1.04);
           tower.add(win);
         }
       }
@@ -780,58 +815,58 @@ export class ZurichSwampView {
       skyline.add(tower);
     }
 
-    // Grossmünster Romanesque Nave Bridge connecting the Twin Towers below the 16:9 Mirror (y = -0.5m .. 2.0m)
-    const naveGeo = new THREE.BoxGeometry(9.6, 2.45, 1.7);
-    naveGeo.translate(0, 0.725, 0);
+    // Grossmünster Romanesque Nave Bridge connecting the Twin Towers below the 16:9 Mirror
+    const naveGeo = new THREE.BoxGeometry(9.2, 2.1, 1.7);
+    naveGeo.translate(0, 0.55, 0);
     const nave = new THREE.Mesh(naveGeo, sandstoneMat);
     nave.position.set(0, 0, -10.65);
     skyline.add(nave);
 
     // -------------------------------------------------------------------------
-    // B. ST. PETER SPIRE at x = -11.5m, z = -16.0m (h = 13.0m) with Ø 2.4m Golden Clock
+    // B. ST. PETER SPIRE at x = -10.2m, z = -15.5m with Giant Golden Clock Face
     // -------------------------------------------------------------------------
     const stPeter = new THREE.Group();
     stPeter.name = 'StPeterClockSpire';
-    stPeter.position.set(-11.5, -0.5, -16.0);
+    stPeter.position.set(-10.2, -0.5, -15.5);
 
-    const spShaftGeo = new THREE.BoxGeometry(2.6, 8.8, 2.6);
-    spShaftGeo.translate(0, 4.4, 0);
+    const spShaftGeo = new THREE.BoxGeometry(2.4, 6.2, 2.4);
+    spShaftGeo.translate(0, 3.1, 0);
     stPeter.add(new THREE.Mesh(spShaftGeo, sandstoneMat));
 
-    const spSpireGeo = new THREE.ConeGeometry(1.65, 4.7, 4);
+    const spSpireGeo = new THREE.ConeGeometry(1.5, 3.5, 4);
     spSpireGeo.rotateY(Math.PI / 4);
-    spSpireGeo.translate(0, 11.15, 0);
+    spSpireGeo.translate(0, 7.95, 0);
     stPeter.add(new THREE.Mesh(spSpireGeo, darkRoofMat));
 
-    // Giant Ø 2.4m Golden Clock Face (Europe's largest church clock face!)
+    // Giant Golden Clock Face (Europe's largest church clock face!)
     const clockTex = this.createClockFaceTexture();
     const clockMat = new THREE.MeshBasicMaterial({
       map: clockTex,
       color: clockTex ? 0xffffff : 0xffd54f,
     });
-    const clockDisc = new THREE.Mesh(new THREE.CircleGeometry(1.2, 32), clockMat);
-    clockDisc.position.set(0, 7.1, 1.33);
+    const clockDisc = new THREE.Mesh(new THREE.CircleGeometry(1.1, 32), clockMat);
+    clockDisc.position.set(0, 4.8, 1.22);
     stPeter.add(clockDisc);
 
-    const clockRing = new THREE.Mesh(new THREE.RingGeometry(1.16, 1.28, 32), this.goldTrimMat);
-    clockRing.position.set(0, 7.1, 1.34);
+    const clockRing = new THREE.Mesh(new THREE.RingGeometry(1.06, 1.18, 32), this.goldTrimMat);
+    clockRing.position.set(0, 4.8, 1.23);
     stPeter.add(clockRing);
     skyline.add(stPeter);
 
     // -------------------------------------------------------------------------
-    // C. FRAUMÜNSTER SPIRE at x = +11.5m, z = -16.0m (h = 12.5m)
+    // C. FRAUMÜNSTER SPIRE at x = +10.2m, z = -15.5m
     // -------------------------------------------------------------------------
     const fraumunster = new THREE.Group();
     fraumunster.name = 'FraumunsterVerdigrisSpire';
-    fraumunster.position.set(11.5, -0.5, -16.0);
+    fraumunster.position.set(10.2, -0.5, -15.5);
 
-    const fmShaftGeo = new THREE.BoxGeometry(2.2, 7.5, 2.2);
-    fmShaftGeo.translate(0, 3.75, 0);
+    const fmShaftGeo = new THREE.BoxGeometry(2.1, 5.6, 2.1);
+    fmShaftGeo.translate(0, 2.8, 0);
     fraumunster.add(new THREE.Mesh(fmShaftGeo, sandstoneMat));
 
-    // Slender Verdigris-Emerald Spire (h = 5.5m -> total height 12.5m above y=0)
-    const fmSpireGeo = new THREE.ConeGeometry(1.05, 5.5, 8);
-    fmSpireGeo.translate(0, 10.25, 0);
+    // Slender Verdigris-Emerald Spire
+    const fmSpireGeo = new THREE.ConeGeometry(0.98, 4.2, 8);
+    fmSpireGeo.translate(0, 7.7, 0);
     fraumunster.add(new THREE.Mesh(fmSpireGeo, verdigrisMat));
     skyline.add(fraumunster);
 
@@ -919,32 +954,34 @@ export class ZurichSwampView {
     // -------------------------------------------------------------------------
     const alpsGroup = new THREE.Group();
     alpsGroup.name = 'SwissAlpsPanorama';
-    alpsGroup.position.set(0, -0.5, -25.0);
+    alpsGroup.position.set(0, -0.5, -24.5);
 
     const rockAlpsMat = new THREE.MeshStandardMaterial({
-      color: 0x24344d,
-      roughness: 0.85,
-      metalness: 0.12,
+      color: 0x2a3d5c,
+      roughness: 0.78,
+      metalness: 0.14,
+      emissive: 0x101c30,
+      emissiveIntensity: 0.25,
     });
     const snowCapMat = new THREE.MeshStandardMaterial({
-      color: 0xe6f0ff,
-      roughness: 0.45,
-      metalness: 0.1,
-      emissive: 0x3b5998,
-      emissiveIntensity: 0.22,
+      color: 0xf0f6ff,
+      roughness: 0.38,
+      metalness: 0.12,
+      emissive: 0x5c85d6,
+      emissiveIntensity: 0.38,
     });
 
-    // 11 overlapping jagged alpine peaks spanning width = 65m (-32.5m .. +32.5m), up to height = 17m
+    // Overlapping jagged alpine peaks framed cleanly in the 3/4 overview horizon
     const peaks = [
-      { x: -27.0, z: -1.0, r: 7.5, h: 13.5 },
-      { x: -20.5, z: 0.4, r: 6.8, h: 15.8 },
-      { x: -14.0, z: -0.6, r: 7.2, h: 14.2 },
-      { x: -7.5, z: 0.2, r: 7.8, h: 16.8 },
-      { x: 0.0, z: -0.8, r: 8.5, h: 17.2 },
-      { x: 7.5, z: 0.3, r: 7.6, h: 16.4 },
-      { x: 14.2, z: -0.5, r: 7.0, h: 14.6 },
-      { x: 20.8, z: 0.4, r: 6.9, h: 15.9 },
-      { x: 27.2, z: -0.9, r: 7.5, h: 13.8 },
+      { x: -24.0, z: -1.0, r: 7.0, h: 10.8 },
+      { x: -18.0, z: 0.4, r: 6.4, h: 12.6 },
+      { x: -12.5, z: -0.6, r: 6.8, h: 11.4 },
+      { x: -7.2, z: 0.2, r: 7.2, h: 13.4 },
+      { x: 0.0, z: -0.8, r: 8.0, h: 13.8 },
+      { x: 7.2, z: 0.3, r: 7.2, h: 13.2 },
+      { x: 12.6, z: -0.5, r: 6.6, h: 11.6 },
+      { x: 18.2, z: 0.4, r: 6.5, h: 12.5 },
+      { x: 24.2, z: -0.9, r: 7.0, h: 11.0 },
     ];
 
     for (const pk of peaks) {

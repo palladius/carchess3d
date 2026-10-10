@@ -22,23 +22,28 @@ test('PieceManager: resolves 32 initial pieces with canonical heights, GLBs, and
   const living = pieces.getLivingPieces();
   assert.equal(living.length, 32);
 
-  // Check King Riccardo on e1
+  // Check King Riccardo on e1 (canonical 3D GLB from main)
   const whiteKing = pieces.getPieceAt('e1');
   assert.ok(whiteKing);
   assert.equal(whiteKing.type, 'k');
   assert.equal(whiteKing.color, 'w');
   assert.equal(whiteKing.name, 'Riccardo');
   assert.equal(whiteKing.height, CANONICAL_PIECE_HEIGHTS.k);
-  assert.equal(whiteKing.glbUrl, null);
+  assert.equal(whiteKing.glbUrl, 'assets/models/king-riccardo.glb');
   assert.ok(whiteKing.frontPortrait.includes('king-riccardo'));
 
-  // Check Bishop Ale on c1 (defaults to rigged GLB)
+  // Check Queen Kate on d1, Knight Seby on b1, Rook Pupurabbu on a1
+  assert.equal(pieces.getPieceAt('d1').glbUrl, 'assets/models/queen-kate.glb');
+  assert.equal(pieces.getPieceAt('b1').glbUrl, 'assets/models/knight-seby.glb');
+  assert.equal(pieces.getPieceAt('a1').glbUrl, 'assets/models/rook-pupurabbu.glb');
+
+  // Check Bishop Ale on c1 (defaults to canonical hat GLB)
   const whiteBishop = pieces.getPieceAt('c1');
   assert.ok(whiteBishop);
   assert.equal(whiteBishop.type, 'b');
   assert.equal(whiteBishop.name, 'Ale');
   assert.equal(whiteBishop.height, CANONICAL_PIECE_HEIGHTS.b);
-  assert.equal(whiteBishop.glbUrl, BISHOP_GLB_VARIANTS.rigged);
+  assert.equal(whiteBishop.glbUrl, BISHOP_GLB_VARIANTS.hat);
 
   // Check Pawn Puffin on e2
   const whitePawn = pieces.getPieceAt('e2');
@@ -49,7 +54,7 @@ test('PieceManager: resolves 32 initial pieces with canonical heights, GLBs, and
   assert.equal(whitePawn.glbUrl, 'assets/models/pawn-puffin.glb');
 });
 
-test('PieceManager: toggles rival set mode (family vs stone) and Bishop Ale variant (rigged vs hat)', () => {
+test('PieceManager: toggles rival set mode (family vs stone) and Bishop Ale variant (hat vs rigged)', () => {
   const { bus, pieces } = createPieceSetup();
   const setEvents = [];
   bus.on('PIECE_SET_CHANGED', (e) => setEvents.push(e));
@@ -65,13 +70,14 @@ test('PieceManager: toggles rival set mode (family vs stone) and Bishop Ale vari
   assert.equal(blackKing.glbUrl, null);
   assert.equal(whiteKing.isStoneSet, false);
 
-  // Toggle Bishop Ale variant to 'hat' (bishop-ale-1.glb)
-  pieces.setBishopVariant('hat');
+  // Toggle Bishop Ale variant to 'rigged' (bishop-ale-rigged.glb)
+  pieces.setBishopVariant('rigged');
   bus.flush();
-  assert.equal(pieces.getBishopVariant(), 'hat');
-  assert.equal(pieces.getPieceAt('c1').glbUrl, BISHOP_GLB_VARIANTS.hat);
+  assert.equal(pieces.getBishopVariant(), 'rigged');
+  assert.equal(pieces.getPieceAt('c1').glbUrl, BISHOP_GLB_VARIANTS.rigged);
 
-  // Restore family set so Black Bishop also uses the hat variant
+  // Toggle back to canonical 'hat' (bishop-ale-1.glb) and restore family set
+  pieces.setBishopVariant('hat');
   pieces.setRivalSetMode('family');
   bus.flush();
   assert.equal(pieces.getPieceAt('c8').isStoneSet, false);

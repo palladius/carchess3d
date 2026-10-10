@@ -130,6 +130,7 @@ export class CombatAnimationManager {
       tier: e.tier || 'normal',
       spectacle: e.spectacle || 'WOW Arena Showcase Clash 🎬',
       sticker: e.sticker || null,
+      durationMs: e.durationMs,
       source: 'wow_arena',
     });
   }
