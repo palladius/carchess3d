@@ -6,11 +6,12 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v1';
+const CACHE_NAME = 'carchess3d-offline-v2';
 
 const PRECACHE_URLS = [
   './',
   './index.html',
+  './progress.html',
   './manifest.webmanifest',
   './vendor/chess.js',
   './vendor/three/three.module.js',
@@ -45,10 +46,14 @@ const PRECACHE_URLS = [
   './assets/characters/knight-seby-4.jpg',
   './assets/characters/rook-pupurabbu.jpg',
   './assets/characters/pawn-puffin.jpg',
+  './assets/models/king-riccardo.glb',
+  './assets/models/queen-kate.glb',
   './assets/models/bishop-ale-rigged.glb',
   './assets/models/bishop-ale-1.glb',
+  './assets/models/knight-seby.glb',
+  './assets/models/rook-pupurabbu.glb',
   './assets/models/pawn-puffin.glb',
-  './docs/logo/logo.png',
+  './docs/logo/logo.svg',
 ];
 
 self.addEventListener('install', (event) => {

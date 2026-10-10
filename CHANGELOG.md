@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.2] - 2026-10-10
+
+- 🌐🚀 **GitHub Pages Deployment**: added `.nojekyll` so GitHub Pages serves all static `.glb`, `.mp4`, `.webm`, and `_contract.json` assets directly without Jekyll filtering, and updated `sw.js` (`carchess3d-offline-v2`) to precache all 6 canonical 3D `.glb` family models.
+
 ## [0.2.1] - 2026-10-10
 
 - ✍️🦖 Added [`docs/ARTICLE.md`](docs/ARTICLE.md): Carlessian-style engineering story & SRE telemetry post-mortem documenting how **CarChess3D** was built from scratch in 2 days (~4h 3D pipeline on Oct 9 + 2h 43m autonomous `/goal` sprint on Oct 10, with the first playable 10k-LOC 3D build reached in **38m 06s** via 4 parallel subagents).
