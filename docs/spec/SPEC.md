@@ -300,6 +300,16 @@ is the "victim" and is removed at the end.
   - On mobile phones, the match starts in **Easy Top-Down (`Alto-Basso`)** camera mode (`topDownCamera = true`) so all 64 squares are large and effortless to tap for opening moves.
   - Upon the **very first capture (`BATTLE_STARTED` ➔ `BATTLE_COMPLETED`)**, the game plays the 3D brawl + 16:9 Veo cinema and **automatically unlocks and stays in full 3D panoramic mode** (`topDownCamera = false`), with a persistent 1-tap toggle (`📐 View: Top` ⇄ `🎬 View: 3D`) in the compact mobile dock.
 
+## Mobile & Tablet WebGL 3D Rendering Pipeline (`v0.3.31` — Pixel 10 & Galaxy Tab S10 Ultra)
+
+- **Direct `renderer.render` Bypass for `HalfFloatType` Bloom FBOs (`main.js`, `Registry.isMobileOrTabletDevice`)**:
+  - On smartphones and Android/iPadOS tablets (`isMobileOrTablet`), `EffectComposer` + `UnrealBloomPass` (which allocates 13 full-resolution `HalfFloatType` `RGBA16F` framebuffers that overflow to `NaN`/`Inf` white or trigger `webglcontextlost` on mobile GPUs such as Pixel 10's Tensor G5 / PowerVR DXT) is bypassed by default in favor of direct `renderer.render(scene, camera)` with `ACESFilmicToneMapping` and an explicit `#0b1528` clear color (overrideable via `?bloom=1`).
+- **Elimination of Hidden Transmission FBOs (`VFXPoolView.js`)**:
+  - Replaced `MeshPhysicalMaterial({ transmission: 0.65 })` on gem shards with `MeshStandardMaterial({ transparent: true, opacity: 0.84 })` so Three.js never spawns a hidden full-screen multisampled `HalfFloatType` `_transmissionRenderTarget` pass on mobile GPUs.
+- **Mobile Lite 3D Piece Mode (`PieceView.js`, `Registry.shouldUseMobileLite3D`)**:
+  - On smartphones (`isMobilePhone`), `PieceView` defaults to **Mobile Lite 3D Mode** (`mobileLite3D = true`, overrideable with `?glb=1` for full `.glb` models or `?lite3d=1` on any device): renders the sculpted 3D Faction Pedestals, 3D Columns, Double-Sided 2D Cutie Portrait Medallions, and 3D Role Crowns (plus 3D Stone Warriors for Classic/Stone sets) in `< 15 ms` without downloading or cloning `30 MB` / `850,000` vertices of `.glb` meshes.
+  - Custom `onBeforeCompile` vertex shaders (`injectLocomotionShader`) are skipped on mobile/tablet GPUs unless `?shaders=1`, and `syncPiecesFromManager()` deduplicates identical board/faction signatures so startup only builds the 32 pieces once.
+
 ## Open Questions
 
 - ~~Implementation repo~~ → **[palladius/carchess3d](https://github.com/palladius/carchess3d)** (public), deployed live on GitHub Pages at **https://palladius.github.io/carchess3d/**.
