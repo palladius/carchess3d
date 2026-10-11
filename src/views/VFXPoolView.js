@@ -200,6 +200,17 @@ export class VFXPoolView {
       bus.on('BATTLE_SKIPPED', (e) => this.onBattleEnded(e)),
       bus.on('CHECKMATE', (e) => this.onCheckmate(e)),
       bus.on('BOARD_RESET', () => this.clearAllActive()),
+      bus.on('CAMERA_VIEW_REQUESTED', (e) => {
+        if (e?.pos && this.camSaved) {
+          this.camSaved.pos.set(e.pos.x, e.pos.y, e.pos.z);
+          if (e.target) {
+            this.camSaved.target.set(e.target.x, e.target.y, e.target.z);
+          }
+          if (typeof e.fov === 'number') {
+            this.camSaved.fov = e.fov;
+          }
+        }
+      }),
     );
   }
 
@@ -1690,8 +1701,14 @@ export class VFXPoolView {
         delayS: 1.5,
       });
     } else if (effect === 'crystal_shatter') {
+      const isTanzaniteMom = e.easterEgg === 'ale_tanzanite_coffin_for_mom' || (e.attacker === 'b' && e.defender === 'q');
+      if (this.props.crystalCase.material) {
+        this.props.crystalCase.material.color.setHex(isTanzaniteMom ? 0x5e35b1 : 0x9c27b0);
+        this.props.crystalCase.material.emissive.setHex(isTanzaniteMom ? 0x00b0ff : 0x7b1fa2);
+        this.props.crystalCase.material.emissiveIntensity = isTanzaniteMom ? 0.62 : 0.4;
+      }
       this.props.crystalCase.position.set(toPos.x, 0.65, toPos.z);
-      this.props.crystalCase.scale.setScalar(1);
+      this.props.crystalCase.scale.set(isTanzaniteMom ? 1.05 : 1, isTanzaniteMom ? 1.45 : 1, isTanzaniteMom ? 1.05 : 1);
       this.props.crystalCase.visible = true;
       this.spawnFromPool('amethyst_ruby_shards', toPos, Math.round(52 * countMult), {
         speedMin: 1.8,
@@ -2200,6 +2217,20 @@ export class VFXPoolView {
     }
     if (this.props.crystalCase?.visible) {
       this.props.crystalCase.rotation.y = elapsedS * 2.2;
+      const isTanzaniteMom =
+        clash.easterEgg === 'ale_tanzanite_coffin_for_mom' || (clash.attacker === 'b' && clash.defender === 'q');
+      if (isTanzaniteMom && this.defenderFighter) {
+        this.props.crystalCase.position.set(
+          this.defenderFighter.position.x,
+          this.defenderFighter.position.y + 0.68,
+          this.defenderFighter.position.z,
+        );
+        if (this.props.crystalCase.material) {
+          const pulse = 0.5 + 0.5 * Math.sin(elapsedS * 6.0);
+          this.props.crystalCase.material.color.setHex(pulse > 0.5 ? 0x5e35b1 : 0x3949ab);
+          this.props.crystalCase.material.emissive.setHex(pulse > 0.5 ? 0x00b0ff : 0x7c4dff);
+        }
+      }
     }
     if (this.props.dizzyStars?.visible) {
       this.props.dizzyStars.rotation.y = elapsedS * 6.5;

@@ -173,10 +173,19 @@ export class BoardInteractionView {
   init(optsOrCtx = {}) {
     this._applyOpts(optsOrCtx);
 
+    if (!this._boundPointerCancel) {
+      this._boundPointerCancel = (e) => {
+        if (this.activePointers && e?.pointerId !== undefined) {
+          this.activePointers.delete(e.pointerId);
+        }
+        this.pointerDownPos.active = false;
+      };
+    }
     if (this.domElement && typeof this.domElement.addEventListener === 'function') {
       this.domElement.addEventListener('pointerdown', this._boundPointerDown);
       this.domElement.addEventListener('pointerup', this._boundPointerUp);
       this.domElement.addEventListener('pointermove', this._boundPointerMove);
+      this.domElement.addEventListener('pointercancel', this._boundPointerCancel);
     }
 
     const bus = this.ctx?.bus;
@@ -212,20 +221,38 @@ export class BoardInteractionView {
 
   onPointerDown(event) {
     if (event.button !== undefined && event.button !== 0) return;
+    if (!this.activePointers) this.activePointers = new Set();
+    if (event.pointerId !== undefined) {
+      this.activePointers.add(event.pointerId);
+    }
+    if (this.activePointers.size > 1) {
+      this.pointerDownPos.multiTouch = true;
+      this.pointerDownPos.active = false;
+      return;
+    }
     this.pointerDownPos = {
       x: event.clientX,
       y: event.clientY,
+      pointerId: event.pointerId,
+      multiTouch: false,
       active: true,
     };
   }
 
   onPointerUp(event) {
-    if (!this.pointerDownPos.active) return;
+    if (this.activePointers && event.pointerId !== undefined) {
+      this.activePointers.delete(event.pointerId);
+    }
+    if (!this.pointerDownPos.active || this.pointerDownPos.multiTouch) {
+      this.pointerDownPos.active = false;
+      return;
+    }
     this.pointerDownPos.active = false;
 
     const dx = event.clientX - this.pointerDownPos.x;
     const dy = event.clientY - this.pointerDownPos.y;
-    if (Math.hypot(dx, dy) > 8) {
+    const maxTapDist = event.pointerType === 'touch' ? 18 : 8;
+    if (Math.hypot(dx, dy) > maxTapDist) {
       // Ignore camera orbit drags
       return;
     }
