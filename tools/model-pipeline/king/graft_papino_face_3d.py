@@ -3,26 +3,25 @@
 # requires-python = ">=3.10"
 # dependencies = ["scipy>=1.11.0", "pygltflib>=1.16.0", "pillow>=10.0.0", "numpy>=1.24.0"]
 # ///
-"""Mode B (2D Portrait Face-Grafting onto Existing TRELLIS.2 3D GLB via Dual-Chart 2048x1024 UV Atlas)
-for King Riccardo (`assets/models/king-riccardo.glb`).
+"""Mode B (Piecewise Landmark-Locked 2D Portrait Face-Grafting + 3D Biometric Sculpting + Zero-Bleed
+Silver Hair onto TRELLIS.2 3D GLB via Dual-Chart 2048x1024 UV Atlas) for King Riccardo
+(`assets/models/king-riccardo.glb`).
 
-Why Dual-Chart 2048x1024 UV Atlas + Interior Skin Dilation + Frequency-Separated Blending?
-- `TRELLIS.2` (`xatlas`) packed 96,958 triangles into a single 1024x1024 texture, giving the face
-  scattered tiny UV islands (~1.5px per triangle) and hallucinated squinty eyes / dark upper-lip shadow.
-- We expand `Image 0` (`baseColorTexture`) to `2048x1024`:
-  * Left half (`u in [0.0, 0.5]`, `1024x1024`): Exact original `TRELLIS.2` texture (`orig_tex`) for the
-    golden crown, hair, ears, ermine collar, royal blue velvet cape, lion crest, sceptre, orb, and
-    `"KING RICCARDO"` wooden pedestal.
-  * Right half (`u in [0.5, 1.0]`, `1024x1024`): Dedicated continuous Planar Face Chart mapped from
-    the landmark-locked 2D `tools/model-pipeline/king/front.png` portrait (cropped to the 512x512 head
-    box and upscaled 2x to 1024x1024).
-  * To prevent `front.png`'s narrower head border/ears/background from projecting onto the 3D cheeks,
-    we extract the strict interior facial skin mask of `front.png`, dilate clean skin outward by 60px,
-    and apply multi-band (low/high frequency) skin harmonization into `base_chart_rgb`.
+Why Zero-Bleed Silver Hair + Unpolluted `base_chart_rgb`?
+- `TRELLIS.2` (`xatlas`) packs tiny UV islands from cheeks, eyebrows, and hair only 1px apart in `orig_tex`.
+- Any bounding-box dilation or Gaussian blur in `orig_tex` UV space bleeds grey hair color onto cheek and
+  eyebrow UV islands!
+- Therefore:
+  1. `base_chart_rgb` (used for the outer neck/ear feather ring of the right-half face chart) is sampled
+     from the UNTOUCHED `orig_tex_raw` skin tones, warmed to match `front_chart`.
+  2. On the left-half `orig_tex`, ONLY strict interior texels of non-shell hair triangles whose original
+     color is dark neutral charcoal (`lum < 0.44` and `(r - b) < 0.085`) are mapped to silver-grey — with
+     ZERO bounding-box expansion and ZERO cross-island blur!
 """
 
 from __future__ import annotations
 
+from dataclasses import asdict, dataclass
 import io
 import math
 from pathlib import Path
@@ -40,6 +39,26 @@ PREVIEW_PNG = REPO_ROOT / "tools/model-pipeline/king/out/papino_face_graft_previ
 TURNTABLE_GIF = REPO_ROOT / "tools/model-pipeline/king/out/papino_3d_turntable.gif"
 
 
+@dataclass
+class BiometricGraftParams:
+    scale_x: float = 865.0
+    scale_y_lower: float = 892.0
+    scale_y_upper: float = 1240.0
+    y_eye_3d: float = 0.1928
+    row_eye_2d: float = 320.0
+    col_center_2d: float = 514.5
+    jaw_slim: float = 0.045
+    chin_taper: float = 0.025
+    forehead_broaden: float = 0.020
+    nose_shorten: float = 0.46
+    nose_widen: float = 0.26
+    brow_overhang: float = 0.0080
+    low_2d_ratio: float = 0.96
+    silver_hair_mix: float = 0.85
+    side_stubble_mix: float = 0.48
+    cylindrical_wrap: float = 0.112
+
+
 def read_acc(gltf: GLTF2, blob: bytes, idx: int) -> np.ndarray:
     acc = gltf.accessors[idx]
     bv = gltf.bufferViews[acc.bufferView]
@@ -47,7 +66,7 @@ def read_acc(gltf: GLTF2, blob: bytes, idx: int) -> np.ndarray:
     dt = {5126: np.float32, 5125: np.uint32, 5123: np.uint16}[acc.componentType]
     ncomp = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4}[acc.type]
     arr = np.frombuffer(blob, dtype=dt, count=acc.count * ncomp, offset=off)
-    return arr.reshape(acc.count, ncomp).copy() if ncomp > 1 else arr.copy()
+    return arr.reshape(acc.count, ncomp) if ncomp > 1 else arr.copy()
 
 
 def dilate_rgb_outside_mask(rgb: np.ndarray, mask: np.ndarray, iters: int = 60) -> np.ndarray:
@@ -69,67 +88,248 @@ def dilate_rgb_outside_mask(rgb: np.ndarray, mask: np.ndarray, iters: int = 60) 
     return out
 
 
-def prepare_clean_front_face(front_rgb: np.ndarray) -> np.ndarray:
-    """Inpaint/dilate outside the strict interior facial skin oval of front.png so sideburns,
-    2D ears, crown rim, and grey studio background never bleed onto the 3D cheeks/temples.
+def prepare_clean_front_face(
+    front_rgb: np.ndarray,
+    col_center: float = 514.5,
+    side_stubble_mix: float = 0.48,
+) -> np.ndarray:
+    """Preserve 100% of Riccardo's facial features (forehead, both eyebrows including the white tuft
+    at col 555..584, both eyes, nose, smiling mouth, and full 2-3 day white-stubble chin), enhance
+    micro-contrast of the eyes and 2-3 day stubble, smooth the dilated side-cheek skin vertically so
+    there are ZERO horizontal dilation bands at +32/+72 deg, and extend natural 2-3 day silver stubble
+    along the lower side jawline!
     """
     H, W, _ = front_rgb.shape
     yy, xx = np.meshgrid(np.arange(H, dtype=np.float32), np.arange(W, dtype=np.float32), indexing="ij")
 
-    # Elliptical interior face zone in front.png (centered at col=518.5, row=348, rx=92px, ry=132px)
-    ex = (xx - 518.5) / 92.0
-    ey = (yy - 348.0) / 132.0
-    oval = (ex * ex + ey * ey) <= 1.0
-    # Exclude crown above row 214 and collar below row 476
-    oval &= (yy >= 214.0) & (yy <= 476.0)
+    balanced = front_rgb.copy()
+    # Gently lift shadow on the right eye/cheek region (cols 520..590)
+    right_ramp = np.clip((xx - 518.0) / 65.0, 0.0, 1.0)
+    vert_gate = np.clip((yy - 210.0) / 20.0, 0.0, 1.0) * np.clip((455.0 - yy) / 35.0, 0.0, 1.0)
+    lift = right_ramp * vert_gate
+    balanced[:, :, 0] = np.clip(balanced[:, :, 0] * (1.0 + 0.12 * lift), 0.0, 1.0)
+    balanced[:, :, 1] = np.clip(balanced[:, :, 1] * (1.0 + 0.10 * lift), 0.0, 1.0)
+    balanced[:, :, 2] = np.clip(balanced[:, :, 2] * (1.0 + 0.08 * lift), 0.0, 1.0)
 
-    # Also keep dark eyes/eyebrows/mouth inside the inner feature zone (|xx - 518.5| < 78, yy in 255..445)
-    inner_features = (np.abs(xx - 518.5) <= 78.0) & (yy >= 255.0) & (yy <= 445.0)
-    # Near the outer rim of the oval (not inner_features), exclude dark hair/sideburns or bright background
-    r, g, b = front_rgb[:, :, 0], front_rgb[:, :, 1], front_rgb[:, :, 2]
-    is_warm_skin = (r > g + 0.04) & (g > b + 0.02) & (r > 0.32) & (r < 0.92)
-    strict_face_mask = inner_features | (oval & is_warm_skin)
+    # Crisp unsharp mask (+24% high-frequency detail) on eyes, eyebrows, nose, and 2-3 day chin/lip stubble
+    blur_fine = np.stack([ndimage.gaussian_filter(balanced[:, :, c], sigma=1.35) for c in range(3)], axis=-1)
+    balanced = np.clip(balanced + 0.24 * (balanced - blur_fine), 0.0, 1.0)
 
-    return dilate_rgb_outside_mask(front_rgb, strict_face_mask, iters=85)
+    # Mirror clean left-cheek skin (`col = 2*516 - xx`) onto the right temple border (`xx >= 593`)
+    mirror_idx = np.clip((1032 - np.arange(W)).astype(np.int32), 0, W - 1)
+    mirrored_left = balanced[:, mirror_idx, :]
+    w_mirror = np.clip((xx - 593.0) / 8.0, 0.0, 1.0)[:, :, None]
+    balanced = (1.0 - w_mirror) * balanced + w_mirror * mirrored_left
+
+    # Symmetric face oval centered at col=516.0 with rx=88.0 (cols 428..604) and ry=138.0 (rows 224..490)
+    ex = (xx - 516.0) / 88.0
+    ey = (yy - 353.0) / 138.0
+    r_oval = np.sqrt(ex * ex + ey * ey)
+    oval = (r_oval <= 1.0) & (yy >= 224.0) & (yy <= 490.0) & (xx >= 428.0) & (xx <= 604.0)
+
+    dilated = dilate_rgb_outside_mask(balanced, oval, iters=125)
+
+    # Eliminate horizontal row-by-row dilation streaks on the side cheeks by smoothing vertically outside the inner feature oval
+    smooth_side = np.stack(
+        [ndimage.gaussian_filter(dilated[:, :, c], sigma=(26.0, 7.0)) for c in range(3)],
+        axis=-1,
+    )
+    w_outer_smooth = np.clip((r_oval - 0.88) / 0.16, 0.0, 1.0)[:, :, None]
+    clean_face = (1.0 - w_outer_smooth) * dilated + w_outer_smooth * smooth_side
+
+    # Extend realistic 2-3 day silver-white jawline stubble onto the lower side cheeks (`rows 395..486`, `|xx - 516| in 55..135`)
+    rng = np.random.default_rng(42)
+    pore_noise = rng.normal(0.0, 1.0, size=(H, W)).astype(np.float32)
+    stubble_grain = ndimage.gaussian_filter(pore_noise, sigma=(0.85, 1.15))
+    stubble_grain = st_norm = (stubble_grain - stubble_grain.mean()) / max(float(stubble_grain.std()), 1e-5)
+    jaw_y_band = np.clip((yy - 388.0) / 22.0, 0.0, 1.0) * np.clip((488.0 - yy) / 14.0, 0.0, 1.0)
+    jaw_x_band = np.clip((np.abs(xx - 516.0) - 52.0) / 22.0, 0.0, 1.0) * np.clip((148.0 - np.abs(xx - 516.0)) / 28.0, 0.0, 1.0)
+    w_jaw_stubble = (jaw_y_band * jaw_x_band * side_stubble_mix * 0.38)[:, :, None]
+    silver_stubble_rgb = np.clip(0.76 + 0.09 * st_norm[:, :, None], 0.58, 0.90)
+    clean_face = np.clip((1.0 - w_jaw_stubble) * clean_face + w_jaw_stubble * silver_stubble_rgb, 0.0, 1.0)
+
+    return clean_face
 
 
-def graft_face_onto_king_glb() -> dict:
+def sculpt_head_geometry(pos: np.ndarray, params: BiometricGraftParams) -> np.ndarray:
+    """Smoothly sculpt the 3D head mesh vertices to match Riccardo's biometric proportions:
+    1. Slimmer lower jaw (`jaw_slim`) & tapered chin (`chin_taper`)
+    2. Broader upper forehead (`forehead_broaden`)
+    3. Rounded, fleshy 3D nose tip (`nose_shorten` + upper tip dome + `nose_widen`) so +72 deg profile is NEVER pointy
+    4. Masculine brow ridge overhang (`brow_overhang`) + recessed deep-set eye sockets (`eye_recess`)
+    """
+    out = pos.copy()
+    x = out[:, 0]
+    y = out[:, 1]
+    z = out[:, 2]
+
+    in_head = np.clip((y - 0.005) / 0.022, 0.0, 1.0) * np.clip((0.278 - y) / 0.025, 0.0, 1.0)
+
+    jaw_bell = np.exp(-0.5 * ((y - 0.078) / 0.046) ** 2) * in_head
+    front_bias = np.clip((z + 0.06) / 0.14, 0.25, 1.0)
+    out[:, 0] *= 1.0 - params.jaw_slim * jaw_bell * front_bias
+
+    chin_bell = np.exp(-0.5 * ((y - 0.030) / 0.022) ** 2) * in_head
+    out[:, 0] *= 1.0 - params.chin_taper * chin_bell
+
+    fh_bell = np.exp(-0.5 * ((y - 0.232) / 0.028) ** 2) * in_head
+    out[:, 0] *= 1.0 + params.forehead_broaden * fh_bell
+
+    # Round and blunt the sharp 3D nose peak (`y=0.135, z=0.181`) into Riccardo's broad, fleshy rounded nose tip
+    nose_y_bell = np.exp(-0.5 * ((y - 0.135) / 0.019) ** 2)
+    nose_x_bell = np.exp(-0.5 * (x / 0.030) ** 2)
+    nose_z_gate = np.clip((z - 0.144) / 0.024, 0.0, 1.0)
+    nose_mask = nose_y_bell * nose_x_bell * nose_z_gate
+    out[:, 2] -= params.nose_shorten * np.maximum(z - 0.145, 0.0) * nose_mask
+    # Add upper-tip/sub-tip fullness so the profile forms a smooth rounded curve instead of a triangle
+    dome_y_bell = np.exp(-0.5 * ((y - 0.148) / 0.011) ** 2) + 0.65 * np.exp(-0.5 * ((y - 0.123) / 0.009) ** 2)
+    out[:, 2] += 0.0038 * dome_y_bell * nose_x_bell * nose_z_gate
+    out[:, 0] *= 1.0 + params.nose_widen * np.exp(-0.5 * ((y - 0.134) / 0.022) ** 2) * nose_x_bell * nose_z_gate
+
+    # Masculine brow ridge overhang (`y in 0.204..0.228`) and deep-set eye socket recess (`y in 0.182..0.200`)
+    brow_y_bell = np.exp(-0.5 * ((y - 0.214) / 0.012) ** 2)
+    brow_x_bell = np.exp(-0.5 * (x / 0.058) ** 2)
+    brow_z_gate = np.clip((z - 0.118) / 0.025, 0.0, 1.0)
+    out[:, 2] += params.brow_overhang * brow_y_bell * brow_x_bell * brow_z_gate
+
+    eye_y_bell = np.exp(-0.5 * ((y - 0.191) / 0.009) ** 2)
+    eye_x_bell = np.exp(-0.5 * ((np.abs(x) - 0.034) / 0.016) ** 2)
+    out[:, 2] -= (0.55 * params.brow_overhang) * eye_y_bell * eye_x_bell * brow_z_gate
+
+    return out
+
+
+def recolor_strict_hair_texels_zero_bleed(
+    orig_tex_raw: np.ndarray,
+    pos: np.ndarray,
+    uv: np.ndarray,
+    indices: np.ndarray,
+    tri_in_shell: np.ndarray,
+    silver_mix: float = 0.85,
+) -> np.ndarray:
+    """Recolor dark-charcoal hair texels inside exact barycentric triangles of non-shell
+    scalp/temple/back-of-head geometry (`y in 0.075..0.395`) using a smooth per-texel luminance
+    and warmth ramp (`w_lum * w_warm`), eliminating dark-brown sideburn halo rings while keeping
+    ZERO spatial blur across `xatlas` UV islands!
+    """
+    tex_out = orig_tex_raw.copy()
+    th, tw, _ = tex_out.shape
+
+    r = tex_out[:, :, 0]
+    g = tex_out[:, :, 1]
+    b = tex_out[:, :, 2]
+    lum = 0.299 * r + 0.587 * g + 0.114 * b
+    warmth = r - b
+
+    tx_v = np.clip((uv[:, 0] * (tw - 1)).astype(np.int32), 0, tw - 1)
+    ty_v = np.clip((uv[:, 1] * (th - 1)).astype(np.int32), 0, th - 1)
+    v_lum = lum[ty_v, tx_v]
+    v_warmth = warmth[ty_v, tx_v]
+
+    y = pos[:, 1]
+    v_is_hair = (y >= 0.075) & (y <= 0.395) & (v_lum < 0.52) & (v_warmth < 0.115)
+    v_in_head_band = (y >= 0.065) & (y <= 0.405)
+
+    # Include any non-shell head triangle where at least 1 vertex is dark hair (covers hair-to-crown and hair-to-ear boundary tris!)
+    cand_tris = indices[(~tri_in_shell) & np.all(v_in_head_band[indices], axis=1) & np.any(v_is_hair[indices], axis=1)]
+
+    hair_mask = np.zeros((th, tw), dtype=bool)
+    for tri in cand_tris:
+        i0, i1, i2 = int(tri[0]), int(tri[1]), int(tri[2])
+        u0, v0 = float(uv[i0, 0] * (tw - 1)), float(uv[i0, 1] * (th - 1))
+        u1, v1 = float(uv[i1, 0] * (tw - 1)), float(uv[i1, 1] * (th - 1))
+        u2, v2 = float(uv[i2, 0] * (tw - 1)), float(uv[i2, 1] * (th - 1))
+        umin, umax = max(0, int(math.floor(min(u0, u1, u2)))), min(tw - 1, int(math.ceil(max(u0, u1, u2))))
+        vmin, vmax = max(0, int(math.floor(min(v0, v1, v2)))), min(th - 1, int(math.ceil(max(v0, v1, v2))))
+        if umax < umin or vmax < vmin:
+            continue
+        denom = (v1 - v2) * (u0 - u2) + (u2 - u1) * (v0 - v2)
+        if abs(denom) < 1e-6:
+            hair_mask[vmin : vmax + 1, umin : umax + 1] = True
+            continue
+        py, px = np.meshgrid(
+            np.arange(vmin, vmax + 1, dtype=np.float32),
+            np.arange(umin, umax + 1, dtype=np.float32),
+            indexing="ij",
+        )
+        w0 = ((v1 - v2) * (px - u2) + (u2 - u1) * (py - v2)) / denom
+        w1 = ((v2 - v0) * (px - u2) + (u0 - u2) * (py - v2)) / denom
+        w2 = 1.0 - w0 - w1
+        inside = (w0 >= -0.04) & (w1 >= -0.04) & (w2 >= -0.04)
+        hair_mask[vmin : vmax + 1, umin : umax + 1] |= inside
+
+    # Smooth per-texel ramp on luminance and warmth: eliminates the 1px dark-brown ring around sideburns while never touching gold crown or warm skin!
+    w_lum = np.clip((0.55 - lum) / 0.13, 0.0, 1.0)
+    w_warm = np.clip((0.140 - warmth) / 0.050, 0.0, 1.0)
+    w = hair_mask.astype(np.float32) * w_lum * w_warm * silver_mix
+
+    silver_lum = np.clip(0.66 + 0.45 * (lum - 0.22), 0.54, 0.84)
+    tex_out[:, :, 0] = np.clip((1.0 - w) * r + w * (silver_lum * 1.02), 0.0, 1.0)
+    tex_out[:, :, 1] = np.clip((1.0 - w) * g + w * (silver_lum * 1.00), 0.0, 1.0)
+    tex_out[:, :, 2] = np.clip((1.0 - w) * b + w * (silver_lum * 0.97), 0.0, 1.0)
+    return tex_out
+
+
+def graft_face_onto_king_glb(
+    params: BiometricGraftParams | None = None,
+    front_png_path: Path = FRONT_PNG,
+    out_glb_path: Path = OUT_GLB,
+) -> dict:
+    if params is None:
+        params = BiometricGraftParams()
+
     gltf = GLTF2().load(str(ORIG_GLB))
     orig_blob = bytes(gltf.binary_blob())
 
     prim = gltf.meshes[0].primitives[0]
-    pos = read_acc(gltf, orig_blob, prim.attributes.POSITION)
+    pos_raw = read_acc(gltf, orig_blob, prim.attributes.POSITION)
     norm = read_acc(gltf, orig_blob, prim.attributes.NORMAL)
     uv = read_acc(gltf, orig_blob, prim.attributes.TEXCOORD_0)
     indices = read_acc(gltf, orig_blob, prim.indices).reshape(-1, 3)
 
-    # Load original baseColorTexture (Image 0, 1024x1024 RGBA WebP)
+    pos = sculpt_head_geometry(pos_raw, params)
+
     img0_bv = gltf.bufferViews[gltf.images[0].bufferView]
     orig_tex_pil = Image.open(
         io.BytesIO(orig_blob[img0_bv.byteOffset : img0_bv.byteOffset + img0_bv.byteLength])
     ).convert("RGBA")
-    orig_tex = np.asarray(orig_tex_pil, dtype=np.float32) / 255.0
-    th, tw, _ = orig_tex.shape  # 1024, 1024
+    orig_tex_raw = np.asarray(orig_tex_pil, dtype=np.float32) / 255.0
+    th, tw, _ = orig_tex_raw.shape
 
-    # Sample original per-vertex RGB from orig_tex
+    # Sample `v_orig_rgb` from UNTOUCHED `orig_tex_raw` so zero grey hair paint ever enters `base_chart_rgb`!
     tx_v = np.clip((uv[:, 0] * (tw - 1)).astype(np.int32), 0, tw - 1)
     ty_v = np.clip((uv[:, 1] * (th - 1)).astype(np.int32), 0, th - 1)
-    v_orig_rgb = orig_tex[ty_v, tx_v, :3]
+    v_orig_rgb = orig_tex_raw[ty_v, tx_v, :3].copy()
+    # Replace any dark hair/shadow vertices inside `v_orig_rgb` with warm skin tone so the perimeter of `base_chart_rgb` is 100% warm skin
+    v_lum = v_orig_rgb.mean(axis=1)
+    v_warm = v_orig_rgb[:, 0] - v_orig_rgb[:, 2]
+    dark_v = (v_lum < 0.54) & (v_warm < 0.125)
+    v_orig_rgb[dark_v] = np.array([0.80, 0.64, 0.56], dtype=np.float32)
 
-    # Load 2D front.png (1024x1024) and strip outer head border / ears / sideburns / studio bg
-    raw_front_rgb = np.asarray(Image.open(FRONT_PNG).convert("RGB"), dtype=np.float32) / 255.0
-    front_rgb = prepare_clean_front_face(raw_front_rgb)
+    raw_front_rgb = np.asarray(Image.open(front_png_path).convert("RGB"), dtype=np.float32) / 255.0
+    front_rgb = prepare_clean_front_face(
+        raw_front_rgb, col_center=params.col_center_2d, side_stubble_mix=params.side_stubble_mix
+    )
 
-    # Landmark-locked orthographic mapping from 3D head to 2D front.png:
-    # - 3D eyes at Y = +0.1928 <-> 2D row = 305.0
-    # - 3D mouth at Y = +0.075 <-> 2D row = 418.5  (scale_y = 960.0 px/m)
-    # - Horizontal scale_x = 920.0 px/m so the 2D cheeks span the full width of the 3D head
-    scale_x = 920.0
-    scale_y = 960.0
-    col_2d = 518.5 + (pos[:, 0] - 0.0012) * scale_px if False else 518.5 + (pos[:, 0] - 0.0012) * scale_x
-    row_2d = 305.0 - (pos[:, 1] - 0.1928) * scale_y
+    # Hybrid Frontal-Planar + Side-Cylindrical Azimuth Unwrapping:
+    # Near the central features (`|theta| <= 0.36 rad`), `x_unwrap == dx` (exact planar alignment).
+    # Along the side cheeks (`|theta| > 0.36 rad`), `x_unwrap` transitions smoothly to cylindrical arc `R * theta`,
+    # eliminating 100% of planar UV fold-over and side-cheek stretching at +32 deg and +72 deg!
+    dx = pos[:, 0] - 0.0012
+    dz = np.maximum(pos[:, 2] - 0.032, 0.018)
+    theta = np.arctan2(dx, dz)
+    w_cyl = np.clip((np.abs(theta) - 0.36) / 0.24, 0.0, 1.0)
+    r_cyl = params.cylindrical_wrap if params.cylindrical_wrap < 0.20 else 0.112
+    x_unwrap = (1.0 - w_cyl) * dx + w_cyl * (r_cyl * theta)
 
-    # Dedicated 1024x1024 Right-Half Planar Head Chart covers front.png head crop:
+    col_2d = params.col_center_2d + x_unwrap * params.scale_x
+    dy_3d = pos[:, 1] - params.y_eye_3d
+    row_2d = np.where(
+        dy_3d >= 0.0,
+        params.row_eye_2d - dy_3d * params.scale_y_upper,
+        params.row_eye_2d - dy_3d * params.scale_y_lower,
+    ).astype(np.float32)
+
     c_min, c_max = 262.0, 774.0
     r_min, r_max = 100.0, 612.0
 
@@ -141,34 +341,32 @@ def graft_face_onto_king_glb() -> dict:
     for c in range(3):
         front_chart[:, :, c] = ndimage.map_coordinates(front_rgb[:, :, c], [rr, cc], order=1, mode="nearest")
 
-    # Compute per-vertex blend weight `v_w` in [0..1] for the front face:
-    # 1. Vertical feather: 0 below chin (y <= 0.015), 1 in [0.055 .. 0.245], 0 below crown rim (y >= 0.275)
-    wy_bot = np.clip((pos[:, 1] - 0.015) / 0.040, 0.0, 1.0)
-    wy_top = np.clip((0.275 - pos[:, 1]) / 0.030, 0.0, 1.0)
+    # Smooth azimuth-gated blend weight (`w_theta`) so `front_chart` covers 100% of front + 3/4 cheeks
+    # and feathers smoothly into `base_chart_rgb` right in front of the ears (`|theta| in 0.85..1.25 rad`)
+    wy_bot = np.clip((pos[:, 1] + 0.008) / 0.018, 0.0, 1.0)
+    wy_top = np.clip((0.284 - pos[:, 1]) / 0.008, 0.0, 1.0)
     wy = wy_bot * wy_top
 
-    # 2. Elliptical radial face feather centered on nose bridge (x=0.0, y=0.145)
-    ex_3d = pos[:, 0] / 0.105
-    ey_3d = (pos[:, 1] - 0.145) / 0.128
-    r_ell = np.sqrt(ex_3d * ex_3d + ey_3d * ey_3d)
-    w_ell = np.clip((1.05 - r_ell) / 0.32, 0.0, 1.0)
+    w_theta = np.clip((1.22 - np.abs(theta)) / 0.34, 0.0, 1.0)
+    wz = np.clip((pos[:, 2] - 0.048) / 0.036, 0.0, 1.0)
+    wn = np.clip((norm[:, 2] - 0.22) / 0.28, 0.0, 1.0)
 
-    # 3. Depth & normal feather: front-facing facial surface (z >= 0.055, nz >= 0.22)
-    wz = np.clip((pos[:, 2] - 0.055) / 0.045, 0.0, 1.0)
-    wn = np.clip((norm[:, 2] - 0.20) / 0.38, 0.0, 1.0)
-
-    raw_w = wy * w_ell * wz * wn
+    raw_w = wy * w_theta * wz * wn
     v_w = (raw_w * raw_w * (3.0 - 2.0 * raw_w)).astype(np.float32)
 
-    # Select front-head triangles (`shell_tris`) that use the continuous planar chart
     v_in_shell = (
-        (pos[:, 1] >= 0.002)
-        & (pos[:, 1] <= 0.284)
-        & (pos[:, 2] >= 0.035)
-        & (np.abs(pos[:, 0]) <= 0.128)
-        & (norm[:, 2] >= 0.08)
+        (pos[:, 1] >= 0.001)
+        & (pos[:, 1] <= 0.285)
+        & (pos[:, 2] >= 0.044)
+        & (np.abs(theta) <= 1.28)
+        & (norm[:, 2] >= 0.18)
     )
     tri_in_shell = np.all(v_in_shell[indices], axis=1) & (v_w[indices].max(axis=1) > 0.001)
+
+    # Zero-bleed silver hair on left-half `orig_tex`
+    orig_tex = recolor_strict_hair_texels_zero_bleed(
+        orig_tex_raw, pos, uv, indices, tri_in_shell, silver_mix=params.silver_hair_mix
+    )
 
     u_local = np.clip((col_2d - c_min) / (c_max - c_min), 0.01, 0.99).astype(np.float32)
     v_local = np.clip((row_2d - r_min) / (r_max - r_min), 0.01, 0.99).astype(np.float32)
@@ -215,13 +413,9 @@ def graft_face_onto_king_glb() -> dict:
         weight_chart[vmin + ys_in, umin + xs_in] = np.maximum(weight_chart[vmin + ys_in, umin + xs_in], w_interp)
         cov_mask[vmin + ys_in, umin + xs_in] = True
 
-    base_chart_rgb = dilate_rgb_outside_mask(base_chart_rgb, cov_mask, iters=28)
-    weight_chart = ndimage.gaussian_filter(weight_chart, sigma=10.0)
+    base_chart_rgb = dilate_rgb_outside_mask(base_chart_rgb, cov_mask, iters=32)
+    weight_chart = ndimage.gaussian_filter(weight_chart, sigma=6.5)
 
-    # Multi-Band (Laplacian / Frequency-Separated) Skin Harmonization:
-    # Transfer the smooth low-frequency skin shading of the 3D head (`low_3d`) at the perimeter
-    # so the cheeks, jawline, and forehead blend with ZERO visible seam, while preserving 100%
-    # of the high-frequency facial details (eyes, white catchlights, eyebrows, nose, smile) from front.png!
     low_3d = np.zeros_like(base_chart_rgb)
     low_2d = np.zeros_like(front_chart)
     for c in range(3):
@@ -229,8 +423,8 @@ def graft_face_onto_king_glb() -> dict:
         low_2d[:, :, c] = ndimage.gaussian_filter(front_chart[:, :, c], sigma=26.0)
     high_2d = front_chart - low_2d
 
-    # Harmonize 2D face: use 3D head's low-frequency ambient skin tone + 35% of 2D warm studio glow + 100% 2D high-frequency features
-    harmonized_2d = np.clip((0.65 * low_3d + 0.35 * low_2d) + high_2d, 0.0, 1.0)
+    r2d = params.low_2d_ratio
+    harmonized_2d = np.clip(((1.0 - r2d) * low_3d + r2d * low_2d) + high_2d, 0.0, 1.0)
 
     right_chart_rgba = np.ones((chart_h, chart_w, 4), dtype=np.float32)
     right_chart_rgba[:, :, :3] = (
@@ -260,11 +454,10 @@ def graft_face_onto_king_glb() -> dict:
 
     out_img_buf = io.BytesIO()
     Image.fromarray(np.clip(dual_atlas * 255.0, 0.0, 255.0).astype(np.uint8), mode="RGBA").save(
-        out_img_buf, format="WEBP", quality=92
+        out_img_buf, format="WEBP", quality=93
     )
     new_img0_bytes = out_img_buf.getvalue()
 
-    # Rebuild a compact, zero-bloat binary blob containing only the active accessors & textures
     new_blob = bytearray()
     new_bvs = []
 
@@ -313,21 +506,22 @@ def graft_face_onto_king_glb() -> dict:
     gltf.bufferViews = new_bvs
     gltf.buffers[0].byteLength = len(new_blob)
     gltf.set_binary_blob(bytes(new_blob))
-    gltf.save_binary(str(OUT_GLB))
+    gltf.save_binary(str(out_glb_path))
 
     return {
-        "pos_orig": pos,
+        "pos_orig": pos_raw,
         "norm_orig": norm,
         "uv_orig": uv,
         "indices_orig": indices,
-        "orig_tex": orig_tex[:, :, :3],
+        "orig_tex": orig_tex_raw[:, :, :3],
         "pos_new": pos_new,
         "norm_new": norm_new,
         "uv_new": uv_new,
         "indices_new": indices_new,
         "dual_atlas": dual_atlas[:, :, :3],
-        "size_kb": OUT_GLB.stat().st_size // 1024,
+        "size_kb": out_glb_path.stat().st_size // 1024,
         "shell_tris_count": int(np.sum(tri_in_shell)),
+        "params": asdict(params),
     }
 
 
@@ -376,7 +570,7 @@ def rasterize_view_barycentric(
 
     key_dir = np.array([0.32, 0.52, 0.79], dtype=np.float32)
     key_dir /= np.linalg.norm(key_dir)
-    v_shade = np.clip(0.66 + 0.36 * np.clip(vn @ key_dir, 0.0, 1.0), 0.0, 1.08).astype(np.float32)
+    v_shade = np.clip(0.68 + 0.34 * np.clip(vn @ key_dir, 0.0, 1.0), 0.0, 1.06).astype(np.float32)
 
     i0, i1, i2 = indices[:, 0], indices[:, 1], indices[:, 2]
     x0, y0, z0 = sx[i0], sy[i0], sz[i0]
@@ -445,20 +639,27 @@ def rasterize_view_barycentric(
 
 
 def render_before_after_and_gif(data: dict, out_png: Path, out_gif: Path) -> None:
-    """Render side-by-side Before (TRELLIS.2) vs After (Mode B Dual-Chart 2048x1024 Face-Grafted) + 360 GIF."""
+    """Render side-by-side Before (TRELLIS.2) vs After (Mode B Biometric + nano-banana-ricc) + 360 GIF."""
     panels = [
         (
-            "PRIMA (TRELLIS.2: occhi socchiusi / bassa ris.)",
+            "PRIMA (TRELLIS.2: capelli scuri / sbarbato)",
             rasterize_view_barycentric(
                 data["pos_orig"], data["norm_orig"], data["uv_orig"], data["indices_orig"], data["orig_tex"],
                 yaw_deg=0.0, zoom_head=True,
             ),
         ),
         (
-            "DOPO Mode B (Face-Grafting HD da front.png!)",
+            "DOPO (nano-banana-ricc + Barbetta 2-3gg + Tempie Argento)",
             rasterize_view_barycentric(
                 data["pos_new"], data["norm_new"], data["uv_new"], data["indices_new"], data["dual_atlas"],
                 yaw_deg=0.0, zoom_head=True,
+            ),
+        ),
+        (
+            "DOPO 3D - Vista 3/4 (+32° Zoom Testa)",
+            rasterize_view_barycentric(
+                data["pos_new"], data["norm_new"], data["uv_new"], data["indices_new"], data["dual_atlas"],
+                yaw_deg=32.0, zoom_head=True,
             ),
         ),
         (
@@ -468,13 +669,6 @@ def render_before_after_and_gif(data: dict, out_png: Path, out_gif: Path) -> Non
                 yaw_deg=0.0, zoom_head=False,
             ),
         ),
-        (
-            "DOPO 3D - Profilo Laterale (+75° Senza Occhiali!)",
-            rasterize_view_barycentric(
-                data["pos_new"], data["norm_new"], data["uv_new"], data["indices_new"], data["dual_atlas"],
-                yaw_deg=75.0, zoom_head=False,
-            ),
-        ),
     ]
 
     sheet = Image.new("RGB", (380 * 4 + 50, 460 + 60), (24, 26, 32))
@@ -482,7 +676,7 @@ def render_before_after_and_gif(data: dict, out_png: Path, out_gif: Path) -> Non
     font = ImageFont.load_default()
     draw.text(
         (20, 16),
-        f"RE RICCARDO 3D (king-riccardo.glb) - Mode B: Dual-Chart 2048x1024 Face-Grafting ({data['size_kb']} KB, {data['shell_tris_count']} face tris)",
+        f"RE RICCARDO 3D (king-riccardo.glb) - Biometric Adversarial Mode B ({data['size_kb']} KB, {data['shell_tris_count']} face tris)",
         fill=(245, 224, 150),
         font=font,
     )
@@ -500,13 +694,13 @@ def render_before_after_and_gif(data: dict, out_png: Path, out_gif: Path) -> Non
             yaw_deg=yaw, cw=340, ch=400, zoom_head=False,
         )
         dr = ImageDraw.Draw(im)
-        dr.text((12, 12), f"Papino 3D Mode B ({int(yaw)} deg)", fill=(245, 224, 150), font=font)
+        dr.text((12, 12), f"Papino 3D ({int(yaw)} deg)", fill=(245, 224, 150), font=font)
         frames.append(im)
     frames[0].save(out_gif, save_all=True, append_images=frames[1:], duration=110, loop=0)
 
 
 def main() -> None:
-    print("👑 Grafting 2D front.png face onto King Riccardo 3D GLB (Mode B Dual-Chart 2048x1024)...", flush=True)
+    print("👑 Grafting 2D front.png face + 3D biometric sculpting onto King Riccardo 3D GLB...", flush=True)
     data = graft_face_onto_king_glb()
     print(f"🖼️ Rendering Before/After comparison and 360-degree GIF ({data['shell_tris_count']} face tris)...", flush=True)
     render_before_after_and_gif(data, PREVIEW_PNG, TURNTABLE_GIF)
