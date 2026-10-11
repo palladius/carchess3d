@@ -1,11 +1,45 @@
 # Changelog
 
-## [0.3.34] - 2026-10-11
+## [0.3.36] - 2026-10-11
 
 - 👨‍👩‍👦‍👦🏛️🐸 **Showcase Divided Into 3 Families (`Carlesso`, `Classic`, `Shrek / Palude` = Strictly 6 Pieces at a Time) + Lazy Per-Family Loading & TDD Guard (`showcase/index.html`, `tests/showcase-webgl.test.mjs`)**:
   - **Strictly 3 Family Tabs (`6` Pieces Visible at a Time)**: Removed the `"Tutte le Famiglie (18)"` (`data-family="all"`) tab so `showcase/index.html` presents the **3 dedicated family tabs** — `👨‍👩‍👦‍👦 Famiglia Carlesso (6)` (default), `♔🏛️ Scacchi Classici Vanilla (6)`, and `🐸🧅 Famiglia Shrek / Palude (6)` (supporting `#carlesso`, `#classic`, `#swamp`, and `#shrek` URL hashes) — showing and lazily loading **only 6 pieces at a time** (`ensureFamilyViews(validFam)`).
   - **Double Protection Against Chrome's 16-WebGL-Context Limit (`kMaxActiveWebGLContexts = 16`)**: Combining **6 visible pieces per family tab** (`6 << 16`) with a **single shared `THREE.WebGLRenderer`** (`sharedRenderer` blitting via `ctx.drawImage` into lightweight 2D canvases) guarantees **Ale 1** and **Re Riccardo** never suffer WebGL context eviction (`webglcontextlost` white box) on any desktop or mobile browser.
   - **TDD Regression Suite (`tests/showcase-webgl.test.mjs`)**: Verifies that (1) no `data-family="all"` tab exists, (2) `#family-tabs` contains strictly `['carlesso', 'classic', 'swamp']` with `6` pieces each, (3) `makeView()` never instantiates per-card `THREE.WebGLRenderer` instances, and (4) all 2D/3D `.glb` assets exist and have valid `glTF` v2 headers.
+
+## [0.3.35] - 2026-10-11
+
+- 🎙️🇬🇧🇮🇹 **Gemini 3.8 TTS Multi-Clip Character Voice Pool + Smart Anti-Repetition & Anti-Spam Engine (`scripts/generate_voice_lines.py`, `assets/audio/voices/voice-*.mp3`, `src/core/Registry.js`, `src/listeners/AudioListener.js`, `src/views/BoardInteractionView.js`, `src/listeners/HudListener.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
+  - **25 Character Voice Clips via `gemini-3.8-flash-tts` (`scripts/generate_voice_lines.py`)**:
+    - Upgraded the voice pipeline to **`gemini-3.8-flash-tts`** using `parts[].speech_metadata.style` for acting persona and inline `<sigh>`, `<pff>`, `<giggle>` tags (so stage directions are never spoken aloud).
+    - **Queen Kate (`q`, 40-Year-Old British UK Woman — Extended Voice `en-gb-csagent-4`, Winchester UK)**:
+      - Signature sentences: *"That's... interesting."*, *"Ok, Puffin McMuffin!"*, *"You... love me! I tell myself EVERY day!"*
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Hmm-hmm..."* (`voice-q-hmm.mp3`) & *"Pff... oh, honestly!"* (`voice-q-sbuffo.mp3`).
+    - **Knight Seby (`n`, Young Italian Boy)**:
+      - Signature sentences: *"Dimmi papino!"*, *"Papinoooooo!!!"*, *"Ti manco tantissimo, papino!"*, *"My body, my choice!"* (in English), *"Mi scappa la cacca!"*
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Mmh-hmm! Ehehe!"* (`voice-n-hmm.mp3`) & *"Pff... uffaaa!"* (`voice-n-sbuffo.mp3`).
+    - **Bishop Ale (`b`, 10-Year-Old Italian Boy Wizard)**:
+      - Signature sentences: *"Agli ordini, Signore!"*, *"Ti manco tantissimo, papino!"*, *"Papino, qual è il più forte?"*, *"Papino, quando mi compri un regalo?"*, *"Cafonazzo!"*
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Mmh-hmm... vediamo!"* (`voice-b-hmm.mp3`) & *"Pff... ma dai!"* (`voice-b-sbuffo.mp3`).
+    - **King Riccardo (`k`), Rook Pupurabbu (`r`), Pawn Puffin (`p`)**: Added high-probability non-verbal `voice-{k,r,p}-hmm.mp3` clips alongside `voice-{k,r,p}.mp3`.
+  - **3-Layer Anti-Repetition Voice Selector (`AudioListener.selectVoiceVariant`)**:
+    - First selection of each character plays a full `signature` quote; subsequent selections blend higher-probability `mumble` clips (`hmm-hmm` / `sbuffo`, `55%–65%` for heroes, `78%` for Puffin pawns) with a Fisher-Yates shuffled `signature` deck (`signatureDeckByType`) and a per-type ring buffer (`recentVariantIdsByType`) so **no clip ever plays twice in a row**.
+    - Emits `VOICE_LINE_SPOKEN` so `HudListener` displays the exact randomized quote spoken in the HUD speech bubble.
+  - **Pawn Hover Anti-Spam (`BoardInteractionView.js`, `AudioListener.playHoverSfxWithAntiSpam`)**: Added a per-piece-type hover cooldown (`2800ms` for pawns `'p'`, `950ms` for other pieces), softened the Puffin chirp pitch/volume, and alternated repeated hovers with a soft WebAudio `"hmm-hmm / sbuffo"` breath (`synthSoftSbuffo`).
+
+## [0.3.34] - 2026-10-11
+
+- 🔄🛡️🌐 **Zero-Split-Brain PWA Cache & Version Drift Detector (`sw.js`, `index.html`, `src/listeners/HudListener.js`, `tests/core.test.mjs`)**:
+  - **No Split-Brain / No "Lying Version Badge" (`HudListener.js`)**: `this.appVersion` strictly reflects `APP_VERSION` from `Registry.js` (the version of the JavaScript code actually running in memory). `fetch('./VERSION', { cache: 'no-store' })` now acts as a **Version Drift Detector** (`handleRemoteVersionCheck(remoteRaw)`): if the remote `VERSION` on GitHub Pages differs from the running `APP_VERSION`, it never overwrites `this.appVersion`; instead it purges stale Service Worker caches, triggers a one-time auto-reload (`sessionStorage` guard per version), and displays `${this.appVersion} ➔ 🔄 ${remoteTag}` on `#hud-version-tag`.
+  - **Bypass GitHub Pages 10-Minute HTTP Disk Cache for Code (`sw.js`, `index.html`)**:
+    - Never caches `/VERSION` (`fetch(event.request, { cache: 'no-store' })`).
+    - Uses `{ cache: 'no-cache' }` for `.html`, `.js`, and `.webmanifest` both during Service Worker `install` precaching and online `fetch` requests so the browser always validates `ETag` / `If-None-Match` against GitHub Pages while preserving offline fallback for 3D `.glb` / `.mp4` / `.mp3` assets (`carchess3d-offline-v22`).
+    - Registers `./sw.js` with `{ updateViaCache: 'none' }` and triggers `reg.update()` on load.
+
+## [0.3.33] - 2026-10-11
+
+- 🧪🖼️🔧 **Fix White 3D GLB Boxes on Ale 1 & Re Riccardo in `showcase/index.html` + TDD WebGL Context Budget Guard (`showcase/index.html`, `tests/showcase-webgl.test.mjs`)**:
+  - Replaced per-card WebGL contexts with a single shared `sharedRenderer` (`1` WebGL context for the entire page) and added `tests/showcase-webgl.test.mjs`.
 
 ## [0.3.32] - 2026-10-11
 

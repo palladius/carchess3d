@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v22';
+const CACHE_NAME = 'carchess3d-offline-v24';
 
 const PRECACHE_URLS = [
   './',
@@ -73,11 +73,30 @@ const PRECACHE_URLS = [
   './assets/models/pawn-puffin.glb',
   './assets/audio/combat-suspense.mp3',
   './assets/audio/voices/voice-k.mp3',
+  './assets/audio/voices/voice-k-hmm.mp3',
   './assets/audio/voices/voice-q.mp3',
+  './assets/audio/voices/voice-q-mcmuffin.mp3',
+  './assets/audio/voices/voice-q-loveme.mp3',
+  './assets/audio/voices/voice-q-hmm.mp3',
+  './assets/audio/voices/voice-q-sbuffo.mp3',
   './assets/audio/voices/voice-b.mp3',
+  './assets/audio/voices/voice-b-timanco.mp3',
+  './assets/audio/voices/voice-b-piuforte.mp3',
+  './assets/audio/voices/voice-b-regalo.mp3',
+  './assets/audio/voices/voice-b-cafonazzo.mp3',
+  './assets/audio/voices/voice-b-hmm.mp3',
+  './assets/audio/voices/voice-b-sbuffo.mp3',
   './assets/audio/voices/voice-n.mp3',
+  './assets/audio/voices/voice-n-papinooo.mp3',
+  './assets/audio/voices/voice-n-timanco.mp3',
+  './assets/audio/voices/voice-n-mybody.mp3',
+  './assets/audio/voices/voice-n-cacca.mp3',
+  './assets/audio/voices/voice-n-hmm.mp3',
+  './assets/audio/voices/voice-n-sbuffo.mp3',
   './assets/audio/voices/voice-r.mp3',
+  './assets/audio/voices/voice-r-hmm.mp3',
   './assets/audio/voices/voice-p.mp3',
+  './assets/audio/voices/voice-p-hmm.mp3',
   './docs/logo/logo.svg',
 ];
 
@@ -87,11 +106,17 @@ self.addEventListener('install', (event) => {
       .open(CACHE_NAME)
       .then((cache) =>
         Promise.allSettled(
-          PRECACHE_URLS.map((url) =>
-            cache.add(url).catch(() => {
+          PRECACHE_URLS.map((url) => {
+            const isCode =
+              url === './' ||
+              url.endsWith('.html') ||
+              url.endsWith('.js') ||
+              url.endsWith('.webmanifest');
+            const req = new Request(url, { cache: isCode ? 'no-cache' : 'default' });
+            return cache.add(req).catch(() => {
               // Ignore optional assets during precache
-            }),
-          ),
+            });
+          }),
         ),
       )
       .then(() => self.skipWaiting()),
@@ -118,16 +143,29 @@ self.addEventListener('fetch', (event) => {
   const reqUrl = new URL(event.request.url);
   if (reqUrl.origin !== self.location.origin) return;
 
+  // Never cache VERSION in Service Worker: it is our live truth probe to detect version drift!
+  if (reqUrl.pathname.endsWith('/VERSION') || reqUrl.pathname === 'VERSION') {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' }).catch(
+        () => new Response('', { status: 404, statusText: 'Offline' }),
+      ),
+    );
+    return;
+  }
+
   const isCodeOrDoc =
     event.request.mode === 'navigate' ||
     reqUrl.pathname.endsWith('/') ||
     reqUrl.pathname.endsWith('.html') ||
     reqUrl.pathname.endsWith('.js') ||
-    reqUrl.pathname.endsWith('VERSION');
+    reqUrl.pathname.endsWith('.webmanifest');
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      const networkFetch = fetch(event.request)
+      // For HTML/JS, bypass browser HTTP disk cache (max-age=600 on GitHub Pages) via 'no-cache'
+      // so online loads always validate ETag and fetch fresh code immediately after a push!
+      const fetchOpts = isCodeOrDoc ? { cache: 'no-cache' } : {};
+      const networkFetch = fetch(event.request, fetchOpts)
         .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const copy = networkResponse.clone();

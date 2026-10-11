@@ -179,14 +179,11 @@ export class HudListener {
     }
 
     if (typeof fetch === 'function') {
-      fetch('./VERSION')
+      fetch('./VERSION', { cache: 'no-store' })
         .then((r) => (r.ok ? r.text() : null))
         .then((txt) => {
           if (txt && txt.trim()) {
-            const v = txt.trim();
-            this.appVersion = v.startsWith('v') ? v : `v${v}`;
-            const el = this.rootEl?.querySelector?.('#hud-version-tag');
-            if (el) el.textContent = this.appVersion;
+            this.handleRemoteVersionCheck(txt.trim());
           }
         })
         .catch(() => {});
@@ -198,6 +195,7 @@ export class HudListener {
         bus.on('BOARD_RESET', (e) => this.onBoardReset(e)),
         bus.on('PIECE_HOVERED', (e) => this.onPieceHovered(e)),
         bus.on('PIECE_SELECTED', (e) => this.onPieceSelected(e)),
+        bus.on('VOICE_LINE_SPOKEN', (e) => this.onVoiceLineSpoken(e)),
         bus.on('CAPTURE_PREVIEW_HOVER', (e) => this.onCapturePreviewHover(e)),
         bus.on('MOVE_EXECUTED', (e) => this.onMoveExecuted(e)),
         bus.on('CHECK_DETECTED', (e) => this.onCheckDetected(e)),
@@ -229,6 +227,78 @@ export class HudListener {
         this._hasAutoOpenedSetup = true;
         setTimeout(() => this.openSetupModal(), 350);
       }
+    }
+  }
+
+  /**
+   * Zero-Split-Brain Version Drift Detector:
+   * - `this.appVersion` ALWAYS reflects `APP_VERSION` from `Registry.js` (the actual JS code in memory).
+   * - If `./VERSION` fetched with `{ cache: 'no-store' }` differs from `this.appVersion`, we know
+   *   a newer version was deployed while stale JS was cached. We never fake the badge; instead we
+   *   purge old SW caches and auto-reload once per version (guarded by `sessionStorage`), and mark
+   *   `#hud-version-tag` as `${this.appVersion} ➔ 🔄 ${remoteTag}`.
+   * @param {string} remoteRaw
+   */
+  handleRemoteVersionCheck(remoteRaw) {
+    const clean = String(remoteRaw || '').trim();
+    if (!clean) return false;
+    const remoteTag = clean.startsWith('v') ? clean : `v${clean}`;
+    if (remoteTag === this.appVersion) {
+      this.remoteAvailableVersion = null;
+      return false;
+    }
+
+    this.remoteAvailableVersion = remoteTag;
+    const el = this.rootEl?.querySelector?.('#hud-version-tag');
+    if (el) {
+      el.textContent = `${this.appVersion} ➔ 🔄 ${remoteTag}`;
+      el.style.cursor = 'pointer';
+      el.style.borderColor = '#ffd54f';
+      el.title = `Running JS ${this.appVersion} — Click to update to ${remoteTag}`;
+      el.onclick = () => this._purgeCachesAndReload(remoteTag);
+    }
+
+    if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
+      try {
+        const key = 'carchess3d_autoreload_ver';
+        if (sessionStorage.getItem(key) !== remoteTag) {
+          sessionStorage.setItem(key, remoteTag);
+          this._purgeCachesAndReload(remoteTag);
+        }
+      } catch {
+        // Ignore sessionStorage restrictions in private/sandboxed frames
+      }
+    }
+    return true;
+  }
+
+  _purgeCachesAndReload(targetTag = '') {
+    const reloadNow = () => {
+      if (typeof window !== 'undefined' && window.location?.reload) {
+        window.location.reload();
+      }
+    };
+    const tasks = [];
+    if (typeof navigator !== 'undefined' && navigator.serviceWorker?.getRegistration) {
+      tasks.push(
+        navigator.serviceWorker
+          .getRegistration()
+          .then((reg) => reg?.update?.())
+          .catch(() => {}),
+      );
+    }
+    if (typeof caches !== 'undefined' && typeof caches.keys === 'function') {
+      tasks.push(
+        caches
+          .keys()
+          .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+          .catch(() => {}),
+      );
+    }
+    if (tasks.length > 0) {
+      Promise.allSettled(tasks).then(reloadNow);
+    } else {
+      reloadNow();
     }
   }
 
@@ -3393,13 +3463,30 @@ export class HudListener {
   }
 
   onPieceSelected(e) {
+    this._lastSelectedEvent = e;
     const type = String(e.piece?.type || e.pieceType || '').toLowerCase();
     const char = CHARACTER_REGISTRY[type];
     if (!char) return;
     const v = VOICE_LINES[type];
-    const quote = v?.quote?.[this.lang] || v?.quote?.it || '';
+    const quote = this._pendingSpokenQuote || v?.quote?.[this.lang] || v?.quote?.it || '';
+    this._pendingSpokenQuote = null;
     this.lastVoiceQuote = quote;
+    this._renderSelectionToast(e, char, quote);
+  }
 
+  onVoiceLineSpoken(e) {
+    if (!e?.quote) return;
+    this.lastVoiceQuote = e.quote;
+    const type = String(e.pieceType || '').toLowerCase();
+    const char = CHARACTER_REGISTRY[type];
+    if (char && this._lastSelectedEvent && (!e.square || this._lastSelectedEvent.square === e.square)) {
+      this._renderSelectionToast(this._lastSelectedEvent, char, e.quote);
+    } else {
+      this._pendingSpokenQuote = e.quote;
+    }
+  }
+
+  _renderSelectionToast(e, char, quote) {
     const legalMoves = e.legalMoves || [];
     const firstCapture = legalMoves.find(
       (m) =>
