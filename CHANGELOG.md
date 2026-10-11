@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.15] - 2026-10-11
+
+- 🏺❄️🐧 **`n_x_p` Sacro Acquarius Refinement — Translucent Cyan-Blue Puffin Deep Behind the Ice Coffin (`VFXPoolView.js`, `assets/battles/keyframes/n_x_p.png`, `scripts/generate_nb_veo_battle.py`)**:
+  - Updated the `n_x_p` Nano Banana 2.1 keyframe (`assets/battles/keyframes/n_x_p.png`) and prompt so the Pawn Puffin is tinted translucent icy cyan-blue (*"azzurro traslucido"*) and encased **deep behind** the thick refractive front wall of the hexagonal Ice Coffin (`Teca di Ghiaccio`), with internal reflections and hanging icicles in front of him.
+  - Enhanced `createIceCoffinProp()` and `updateActiveChoreography()` in [`src/views/VFXPoolView.js`](src/views/VFXPoolView.js) to add a refractive front ice slab (`frontSlab`, `renderOrder = 19`, `depthWrite = false`), center the coffin directly over the defending Puffin (`def.position`), and tint the Puffin's 3D mesh translucent cyan-blue (`0x4dd0e1`, `emissive: 0x00bcd4`, `opacity: 0.68`) behind the ice wall before crumbling into diamond-ice crystals.
+
 ## [0.3.14] - 2026-10-11
 
 - 🎬✨ **36/36 Complete 16:9 Battle Cinema Video Suite (`assets/battles/videos/`, `assets/battles/keyframes/`)**:

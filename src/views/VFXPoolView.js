@@ -903,16 +903,31 @@ export class VFXPoolView {
     group.name = 'TecaDiGhiaccioEterno';
 
     const iceGlassMat = new THREE.MeshPhysicalMaterial({
-      color: 0x80deea,
+      color: 0x4dd0e1,
       emissive: 0x00bcd4,
-      emissiveIntensity: 0.48,
-      roughness: 0.06,
-      metalness: 0.12,
-      transmission: 0.84,
-      ior: 1.31,
+      emissiveIntensity: 0.55,
+      roughness: 0.05,
+      metalness: 0.14,
+      transmission: 0.88,
+      ior: 1.33,
       clearcoat: 1.0,
       transparent: true,
-      opacity: 0.86,
+      opacity: 0.62,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const frontIceSlabMat = new THREE.MeshPhysicalMaterial({
+      color: 0x80deea,
+      emissive: 0x00e5ff,
+      emissiveIntensity: 0.42,
+      roughness: 0.04,
+      metalness: 0.10,
+      transmission: 0.90,
+      ior: 1.35,
+      clearcoat: 1.0,
+      transparent: true,
+      opacity: 0.48,
+      depthWrite: false,
     });
     const frostRimMat = new THREE.MeshStandardMaterial({
       color: 0xe0f7fa,
@@ -922,36 +937,37 @@ export class VFXPoolView {
       metalness: 0.35,
     });
 
-    // Main hexagonal prism ice monolith
-    const monolith = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.50, 1.38, 6), iceGlassMat);
-    monolith.position.set(0, 0.69, 0);
+    // Main hexagonal prism ice monolith surrounding the Puffin (rendered after the Puffin so the Puffin is BEHIND the ice)
+    const monolith = new THREE.Mesh(new THREE.CylinderGeometry(0.54, 0.58, 1.48, 6), iceGlassMat);
+    monolith.position.set(0, 0.74, 0);
+    monolith.renderOrder = 18;
+
+    // Thick front refractive ice slab so the translucent cyan Puffin is unmistakably BEHIND the ice wall
+    const frontSlab = new THREE.Mesh(new THREE.BoxGeometry(0.76, 1.36, 0.16), frontIceSlabMat);
+    frontSlab.position.set(0, 0.72, 0.42);
+    frontSlab.renderOrder = 19;
 
     // Crown of jagged ice spires atop the coffin
     const spireGeo = new THREE.ConeGeometry(0.14, 0.36, 5);
     for (let i = 0; i < 6; i++) {
       const ang = (i * Math.PI * 2) / 6;
       const spire = new THREE.Mesh(spireGeo, frostRimMat);
-      spire.position.set(Math.cos(ang) * 0.36, 1.44, Math.sin(ang) * 0.36);
+      spire.position.set(Math.cos(ang) * 0.40, 1.52, Math.sin(ang) * 0.40);
       group.add(spire);
     }
 
     // Frozen base rune pedestal
-    const baseIce = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.64, 0.10, 6), frostRimMat);
+    const baseIce = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.68, 0.10, 6), frostRimMat);
     baseIce.position.set(0, 0.05, 0);
 
-    group.add(monolith, baseIce);
+    group.add(monolith, frontSlab, baseIce);
     group.visible = false;
     return group;
   }
 
   /**
-   * Builds a pre-allocated `THREE.Sprite` with a dynamic `512x160` `CanvasTexture`
-   * positioned above the brawl (`y = 1.95m`) that flashes comic onomatopoeia in 3D:
-   * `"CHARGE!"` -> `"CLANG! ⚔️"` -> `"CONTRATTACCO! 💥"` -> `"KAPOW! 🌪️"` -> `"K.O.! 🐸💦"`.
-=======
    * Builds a pre-allocated `THREE.Sprite` with a dynamic `512x160` `CanvasTexture`.
    * Kept hidden during 3D close-up combat so it never occludes the two fighting pieces.
->>>>>>> origin/main
    */
   createComicWordSpriteProp() {
     let tex = null;
@@ -2176,16 +2192,35 @@ export class VFXPoolView {
           }
         }
       }
-      // Animate Teca di Ghiaccio Eterno rising around the Puffin and crumbling at t >= 0.74!
+      // Animate Teca di Ghiaccio Eterno rising around the Puffin (Puffin is translucent cyan-blue BEHIND the front ice wall!)
       if (this.props.iceCoffin) {
         if (t < 0.36) {
           this.props.iceCoffin.visible = false;
         } else if (t < 0.74) {
           this.props.iceCoffin.visible = true;
           const riseU = Math.min(1, (t - 0.36) / 0.28);
-          this.props.iceCoffin.position.set(toPos.x, 0, toPos.z);
-          this.props.iceCoffin.scale.set(0.85 + riseU * 0.2, Math.max(0.1, riseU), 0.85 + riseU * 0.2);
-          this.props.iceCoffin.rotation.y = elapsedS * 1.6;
+          const defX = this.defenderFighter ? this.defenderFighter.position.x : toPos.x;
+          const defZ = this.defenderFighter ? this.defenderFighter.position.z : toPos.z;
+          this.props.iceCoffin.position.set(defX, 0, defZ);
+          this.props.iceCoffin.scale.set(0.92 + riseU * 0.22, Math.max(0.1, riseU), 0.92 + riseU * 0.22);
+          this.props.iceCoffin.rotation.y = defYaw + Math.sin(elapsedS * 2.0) * 0.12;
+          // Tint the Puffin translucent icy cyan-blue ("azzurro traslucido") inside/behind the ice block!
+          if (this.defenderFighter && !this.defenderFighter.userData.frozenCyanTinted) {
+            this.defenderFighter.userData.frozenCyanTinted = true;
+            this.defenderFighter.traverse((child) => {
+              if (child.isMesh && child.material) {
+                const clonedMat = child.material.clone();
+                if (clonedMat.color) clonedMat.color.setHex(0x4dd0e1);
+                if (clonedMat.emissive) {
+                  clonedMat.emissive.setHex(0x00bcd4);
+                  clonedMat.emissiveIntensity = 0.55;
+                }
+                clonedMat.transparent = true;
+                clonedMat.opacity = 0.68;
+                child.material = clonedMat;
+              }
+            });
+          }
         } else {
           // Crumbles into 60 diamond-ice crystals at the start of Act 3!
           this.props.iceCoffin.visible = false;
