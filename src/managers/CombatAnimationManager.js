@@ -9,9 +9,9 @@
  * - Strictly headless: zero Three.js imports and zero DOM/window references.
  */
 
-import { BATTLE_MATRIX, CHARACTER_REGISTRY } from '../core/Registry.js';
+import { BATTLE_MATRIX, CHARACTER_REGISTRY, resolveFamilyMatchup } from '../core/Registry.js';
 
-export const DEFAULT_BATTLE_DURATION_MS = 2800;
+export const DEFAULT_BATTLE_DURATION_MS = 4200;
 
 export class CombatAnimationManager {
   /**
@@ -104,6 +104,7 @@ export class CombatAnimationManager {
     this.startBattle({
       attacker: e.attacker,
       defender: e.defender,
+      familyId: e.familyId || 'carlesso',
       from,
       to,
       square,
@@ -118,7 +119,7 @@ export class CombatAnimationManager {
   }
 
   /**
-   * Triggered from Mode 2 (3D WOW Mode & Battle Cinema Arena) for any 6x6 pair.
+   * Triggered from Mode 2 (3D WOW Mode & Battle Cinema Arena) or 6x6 Matrix Explorer.
    * @param {object} e
    */
   onWowArenaClash(e) {
@@ -128,6 +129,7 @@ export class CombatAnimationManager {
     this.startBattle({
       attacker: e.attacker || 'b',
       defender: e.defender || 'n',
+      familyId: e.familyId || 'carlesso',
       from,
       to,
       square,
@@ -138,7 +140,7 @@ export class CombatAnimationManager {
       spectacle: e.spectacle || 'WOW Arena Showcase Clash 🎬',
       sticker: e.sticker || null,
       durationMs: e.durationMs,
-      source: 'wow_arena',
+      source: e.source || 'wow_arena',
     });
   }
 
@@ -147,7 +149,11 @@ export class CombatAnimationManager {
    * @param {object} params
    */
   startBattle(params) {
-    const entry = this.resolveChoreography(params.attacker, params.defender);
+    const entry = resolveFamilyMatchup(
+      params.familyId || 'carlesso',
+      params.attacker,
+      params.defender,
+    );
     const atkChar = CHARACTER_REGISTRY[entry.attacker];
     const defChar = CHARACTER_REGISTRY[entry.defender];
     const durationMs = params.durationMs ?? this.durationMs;
@@ -155,10 +161,13 @@ export class CombatAnimationManager {
     const battleEvent = {
       type: 'BATTLE_STARTED',
       id: entry.id,
+      familyId: entry.familyId,
       attacker: entry.attacker,
       defender: entry.defender,
       attackerName: entry.attackerName,
       defenderName: entry.defenderName,
+      attackerDisplayName: entry.attackerDisplayName,
+      defenderDisplayName: entry.defenderDisplayName,
       attackerAnimations: atkChar?.animations || null,
       defenderAnimations: defChar?.animations || null,
       from: params.from || 'e4',
@@ -176,6 +185,8 @@ export class CombatAnimationManager {
       banner: entry.banner,
       easterEgg: entry.easterEgg,
       nonLethalCuddle: entry.nonLethalCuddle,
+      hasDedicatedVideo: entry.hasDedicatedVideo,
+      hasSkeletalGlbClip: entry.hasSkeletalGlbClip,
       videoUrl: entry.videoUrl,
       compositeUrl: entry.compositeUrl,
       attackerImg: entry.attackerImg,

@@ -17,6 +17,8 @@
 import {
   CHARACTER_REGISTRY,
   BATTLE_MATRIX,
+  FAMILY_ROSTERS,
+  resolveFamilyMatchup,
   FAMILY_STICKERS,
   PROFILES,
   I18N,
@@ -49,6 +51,9 @@ export class HudListener {
     this.wowAttacker = 'b';
     this.wowDefender = 'n';
     this.wowGoldenCrit = false;
+    this.matrixFamily = 'carlesso';
+    this.matrixSelectedAtk = 'n';
+    this.matrixSelectedDef = 'b';
     this.topDownCamera = false;
     this.cameraFlipped = false;
     this.hintPending = false;
@@ -61,6 +66,7 @@ export class HudListener {
     this.rootEl = null;
     this.els = {};
     this.toastTimer = null;
+    this.checkmateModalTimer = null;
     this.offs = [];
 
     this._boundKeyDown = (e) => this.onKeyDown(e);
@@ -423,6 +429,70 @@ export class HudListener {
         border-radius: 50%;
         border: 2px solid #ffe082;
       }
+      /* 6x6 Capture Matrix Explorer Modal */
+      .hud-matrix-card {
+        width: min(96vw, 880px);
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 12px 14px;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .hud-matrix-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 4px;
+      }
+      .hud-matrix-table th {
+        font-size: 11px;
+        color: #ffe082;
+        padding: 4px;
+        text-align: center;
+        background: rgba(24, 32, 48, 0.85);
+        border-radius: 6px;
+      }
+      .hud-matrix-cell {
+        width: 100%;
+        padding: 5px 4px;
+        border-radius: 7px;
+        border: 1px solid rgba(255, 213, 79, 0.32);
+        background: rgba(20, 26, 40, 0.9);
+        color: #f5efe0;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 10.5px;
+        transition: transform 0.12s ease, border-color 0.12s ease;
+      }
+      .hud-matrix-cell:hover, .hud-matrix-cell.selected {
+        border-color: #ffe082;
+        background: rgba(45, 58, 86, 0.95);
+        transform: translateY(-1px);
+      }
+      .hud-matrix-cell.dedicated-video {
+        border-color: rgba(105, 240, 174, 0.75);
+        background: linear-gradient(180deg, rgba(18, 52, 44, 0.9) 0%, rgba(18, 28, 42, 0.92) 100%);
+      }
+      .hud-matrix-badges {
+        display: flex;
+        gap: 3px;
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 9.5px;
+      }
+      .hud-badge-pill {
+        padding: 1px 4px;
+        border-radius: 4px;
+        font-weight: 700;
+      }
+      .hud-badge-mp4 { background: #00695c; color: #a7ffeb; }
+      .hud-badge-mix { background: #283593; color: #c5cae9; }
+      .hud-badge-glb { background: #6a1b9a; color: #f3e5f5; }
+      .hud-badge-egg { background: #ef6c00; color: #fff8e1; }
       @keyframes hudPulse {
         from { transform: scale(1); }
         to { transform: scale(1.04); }
@@ -443,6 +513,7 @@ export class HudListener {
         <div class="hud-controls-row">
           <button id="hud-mode1-btn" class="hud-btn active">${this.t('mode1Btn')}</button>
           <button id="hud-mode2-btn" class="hud-btn">${this.t('mode2Btn')}</button>
+          <button id="hud-matrix-btn" class="hud-btn gold" title="Matrice 6×6 Combattimenti & Video">${this.t('matrixBtn')}</button>
 
           <select id="hud-profile-select" class="hud-select" aria-label="Player">
             ${PROFILES.map((p) => `<option value="${p.id}" ${p.id === this.activeProfile ? 'selected' : ''}>${p.name}</option>`).join('')}
@@ -541,6 +612,7 @@ export class HudListener {
             <button class="hud-btn" data-quick-clash="b_n" style="justify-content:center;">🎬 Ale 🐉 × Seby 🏎️</button>
             <button class="hud-btn" data-quick-clash="n_b" style="justify-content:center;">🎬 Seby 🏎️ × Ale 🐉</button>
             <button class="hud-btn" data-quick-clash="n_r" style="justify-content:center;">🎬 Seby 🏎️ 💜 Pupurabbu</button>
+            <button id="hud-wow-open-matrix-btn" class="hud-btn gold" style="justify-content:center;">⚔️ Apri Matrice 6×6 Completa</button>
           </div>
         </div>
       </aside>
@@ -623,10 +695,51 @@ export class HudListener {
           </div>
         </div>
       </div>
+
+      <!-- MODAL 4: 6x6 CAPTURE MATRIX EXPLORER & ASSET INVENTORY -->
+      <div id="hud-matrix-modal" class="hud-modal-backdrop hud-interactive">
+        <div class="hud-matrix-card hud-glass">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div>
+              <strong style="color:#ffe082;font-size:15px;">⚔️ Matrice 6×6 Combattimenti: Chi Mangia Chi (3D VFX & Film Veo 16:9)</strong>
+              <div style="font-size:11px;color:#b8f5d8;margin-top:2px;">
+                <span class="hud-badge-pill hud-badge-mp4">📹 MP4 Dedicato (4/36: b×n, n×b, n↔r)</span>
+                <span class="hud-badge-pill hud-badge-mix">🎞️ Video + Canvas (32/36)</span>
+                <span class="hud-badge-pill hud-badge-glb">🦴 GLB Rigged (Ale #2 FireBreath_Track)</span>
+                <span class="hud-badge-pill hud-badge-egg">🌟 Easter Egg (6/36)</span>
+              </div>
+            </div>
+            <button id="hud-matrix-close" class="hud-btn">✕</button>
+          </div>
+
+          <!-- Family Selector Tabs -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+            <span style="font-size:11px;color:#ffe082;font-weight:700;">Famiglia Attaccante (A):</span>
+            ${Object.values(FAMILY_ROSTERS)
+              .map(
+                (fam) =>
+                  `<button class="hud-btn ${fam.id === this.matrixFamily ? 'active' : ''}" data-matrix-family="${fam.id}">${fam.label.it}</button>`,
+              )
+              .join('')}
+          </div>
+
+          <!-- Dynamic 6x6 Grid Container -->
+          <div id="hud-matrix-grid-container"></div>
+
+          <!-- Selected Pair Detail & Launch Bar -->
+          <div id="hud-matrix-detail-bar" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(10,14,24,0.88);border:1px solid rgba(255,213,79,0.4);">
+            <div id="hud-matrix-detail-text" style="font-size:11.5px;line-height:1.35;color:#e6eef8;"></div>
+            <button id="hud-matrix-play-btn" class="hud-btn gold" style="padding:6px 12px;font-size:12px;">
+              ▶ Guarda in 3D + Video
+            </button>
+          </div>
+        </div>
+      </div>
     `;
 
     document.body.appendChild(root);
     this.rootEl = root;
+    this._renderMatrixExplorerGrid();
     this._bindDomActions(root);
   }
 
@@ -1008,6 +1121,198 @@ export class HudListener {
         this.showToast('🐸 Palude già attiva');
       }
     });
+
+    // 6x6 Capture Matrix Explorer Modal controls
+    const openMatrixModal = () => {
+      const modal = q('#hud-matrix-modal');
+      if (!modal) return;
+      this._renderMatrixExplorerGrid();
+      modal.style.display = 'grid';
+    };
+
+    q('#hud-matrix-btn')?.addEventListener('click', openMatrixModal);
+    q('#hud-wow-open-matrix-btn')?.addEventListener('click', openMatrixModal);
+    q('#hud-matrix-close')?.addEventListener('click', () => {
+      const modal = q('#hud-matrix-modal');
+      if (modal) modal.style.display = 'none';
+    });
+
+    root.querySelectorAll('button[data-matrix-family]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const famId = btn.dataset.matrixFamily || 'carlesso';
+        if (this.matrixFamily === famId) return;
+        this.matrixFamily = famId;
+        root.querySelectorAll('button[data-matrix-family]').forEach((b) =>
+          b.classList.toggle('active', b === btn),
+        );
+        this._renderMatrixExplorerGrid();
+      });
+    });
+
+    q('#hud-matrix-play-btn')?.addEventListener('click', () => {
+      this._launchMatrixPair(this.matrixSelectedAtk, this.matrixSelectedDef);
+    });
+  }
+
+  _renderMatrixExplorerGrid() {
+    if (!this.rootEl) return;
+    const container = this.rootEl.querySelector('#hud-matrix-grid-container');
+    if (!container) return;
+
+    const fam = FAMILY_ROSTERS[this.matrixFamily] || FAMILY_ROSTERS.carlesso;
+    const pieceKeys = ['k', 'q', 'b', 'n', 'r', 'p'];
+
+    const headerCells = pieceKeys
+      .map((defKey) => {
+        const p = fam.pieces[defKey];
+        return `<th>🛡️ ${p.glyph} ${p.name}</th>`;
+      })
+      .join('');
+
+    const rowsHtml = pieceKeys
+      .map((atkKey) => {
+        const atkP = fam.pieces[atkKey];
+        const cellsHtml = pieceKeys
+          .map((defKey) => {
+            const m = resolveFamilyMatchup(this.matrixFamily, atkKey, defKey);
+            const isSelected =
+              this.matrixSelectedAtk === atkKey && this.matrixSelectedDef === defKey;
+            const classes = [
+              'hud-matrix-cell',
+              isSelected ? 'selected' : '',
+              m.hasDedicatedVideo ? 'dedicated-video' : '',
+            ]
+              .filter(Boolean)
+              .join(' ');
+
+            const videoBadge = m.hasDedicatedVideo
+              ? '<span class="hud-badge-pill hud-badge-mp4">📹 MP4</span>'
+              : '<span class="hud-badge-pill hud-badge-mix">🎞️ Mix</span>';
+            const glbBadge = m.hasSkeletalGlbClip
+              ? '<span class="hud-badge-pill hud-badge-glb">🦴 GLB</span>'
+              : '';
+            const eggBadge = m.easterEgg
+              ? '<span class="hud-badge-pill hud-badge-egg">🌟 Egg</span>'
+              : '';
+
+            return `
+              <td>
+                <button
+                  class="${classes}"
+                  data-matrix-atk="${atkKey}"
+                  data-matrix-def="${defKey}"
+                  title="${m.attackerDisplayName} → ${m.defenderDisplayName}"
+                >
+                  <strong>${atkP.glyph} → ${fam.pieces[defKey].glyph}</strong>
+                  <div class="hud-matrix-badges">${videoBadge}${glbBadge}${eggBadge}</div>
+                </button>
+              </td>
+            `;
+          })
+          .join('');
+
+        return `
+          <tr>
+            <th style="text-align:left;white-space:nowrap;">
+              ⚔️ ${atkP.glyph} ${atkP.name}
+              <div style="font-size:9.5px;color:#9be7c4;font-weight:500;">${atkP.attackLabel}</div>
+            </th>
+            ${cellsHtml}
+          </tr>
+        `;
+      })
+      .join('');
+
+    container.innerHTML = `
+      <table class="hud-matrix-table">
+        <thead>
+          <tr>
+            <th>Attaccante (A) \\ Difensore (B)</th>
+            ${headerCells}
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    `;
+
+    container.querySelectorAll('button[data-matrix-atk]').forEach((btn) => {
+      btn.addEventListener('mouseenter', () => {
+        this.matrixSelectedAtk = btn.dataset.matrixAtk || 'n';
+        this.matrixSelectedDef = btn.dataset.matrixDef || 'b';
+        container.querySelectorAll('.hud-matrix-cell').forEach((c) =>
+          c.classList.toggle('selected', c === btn),
+        );
+        this._updateMatrixDetailBar();
+      });
+      btn.addEventListener('click', () => {
+        const atk = btn.dataset.matrixAtk || 'n';
+        const def = btn.dataset.matrixDef || 'b';
+        this.matrixSelectedAtk = atk;
+        this.matrixSelectedDef = def;
+        this._launchMatrixPair(atk, def);
+      });
+    });
+
+    this._updateMatrixDetailBar();
+  }
+
+  _updateMatrixDetailBar() {
+    if (!this.rootEl) return;
+    const detailEl = this.rootEl.querySelector('#hud-matrix-detail-text');
+    if (!detailEl) return;
+    const m = resolveFamilyMatchup(
+      this.matrixFamily,
+      this.matrixSelectedAtk,
+      this.matrixSelectedDef,
+    );
+    const animDesc = m.anim3dDesc?.[this.lang] || m.anim3dDesc?.it || m.effect;
+    const videoKind = m.hasDedicatedVideo
+      ? `📹 Film Veo/MP4 16:9 Dedicato (${m.videoUrl})`
+      : `🎞️ Video Condiviso (${m.videoUrl}) + Card 2D Canvas`;
+    const glbKind = m.hasSkeletalGlbClip
+      ? '🦴 Clip GLB Scheletrica: FireBreath_Track'
+      : '✨ Animazione 3D Procedurale & Pool VFX';
+
+    detailEl.innerHTML = `
+      <div><strong style="color:#ffe082;">${m.attackerDisplayName} mangia ${m.defenderDisplayName}</strong> — <em>${m.banner?.[this.lang] || m.banner?.it}</em></div>
+      <div><strong>3D Scacchiera:</strong> ${animDesc} · <strong>Reazione Vittima:</strong> <code>${m.victimReaction}</code> · ${glbKind}</div>
+      <div><strong>Sfondo 16:9:</strong> ${videoKind}</div>
+    `;
+  }
+
+  _launchMatrixPair(attacker, defender) {
+    if (this.rootEl) {
+      const modal = this.rootEl.querySelector('#hud-matrix-modal');
+      if (modal) modal.style.display = 'none';
+      if (this.rootEl.querySelector('#hud-wow-atk')) {
+        this.rootEl.querySelector('#hud-wow-atk').value = attacker;
+      }
+      if (this.rootEl.querySelector('#hud-wow-def')) {
+        this.rootEl.querySelector('#hud-wow-def').value = defender;
+      }
+    }
+
+    // Switch rival set if Classic Stone family is selected so the 3D pieces match!
+    const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+    if (pm?.setRivalSetMode) {
+      pm.setRivalSetMode(this.matrixFamily === 'classic' ? 'stone' : 'family');
+    }
+
+    this.ctx?.bus?.emit({
+      type: 'WOW_ARENA_CLASH',
+      familyId: this.matrixFamily,
+      attacker,
+      defender,
+      goldenCrit: true,
+      tier: 'golden_crit',
+      from: 'd4',
+      to: 'e5',
+      square: 'e5',
+      source: 'matrix_explorer',
+    });
+    this.ctx?.bus?.flush?.();
   }
 
   _syncWowPanelTabs() {
@@ -1043,6 +1348,10 @@ export class HudListener {
     this.turn = e.turn || 'w';
     this.inCheck = false;
     this.pendingPromotion = null;
+    if (this.checkmateModalTimer) {
+      clearTimeout(this.checkmateModalTimer);
+      this.checkmateModalTimer = null;
+    }
     this.onBattleEnded();
     this.updateTurnAndCheckUi();
     this.pushMiniLog(`✨ ${this._formatTurnLabel()}`, 'reset');
@@ -1086,8 +1395,11 @@ export class HudListener {
 
   onCheckmate(e) {
     const winnerName = e.winner === 'w' ? this._activeProfileName() : 'Nero ⚔️';
+    const bannerText = `${this.t('checkmateBanner')} · ${winnerName}`;
+    this.activeBanner = bannerText;
     this.pushMiniLog(`${this.t('checkmateTitle')} · ${winnerName}`, 'gameover');
     if (!this.rootEl) return;
+
     const modal = this.rootEl.querySelector('#hud-gameover-modal');
     const title = this.rootEl.querySelector('#hud-gameover-title');
     const sub = this.rootEl.querySelector('#hud-gameover-sub');
@@ -1095,7 +1407,19 @@ export class HudListener {
     if (sub) {
       sub.textContent = `👑 ${winnerName}`;
     }
-    if (modal) modal.style.display = 'grid';
+
+    // Show the Royal Capitulation comic banner while the 4.2s 3D King Capitulation plays on the board!
+    const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
+    const textEl = this.rootEl.querySelector('#hud-comic-text');
+    if (textEl) textEl.textContent = bannerText;
+    if (bannerEl) bannerEl.style.display = 'inline-flex';
+
+    if (this.checkmateModalTimer) clearTimeout(this.checkmateModalTimer);
+    this.checkmateModalTimer = setTimeout(() => {
+      this.checkmateModalTimer = null;
+      this.onBattleEnded();
+      if (modal) modal.style.display = 'grid';
+    }, 4200);
   }
 
   onDraw(e) {
@@ -1213,6 +1537,14 @@ export class HudListener {
   }
 
   skipActiveCutscene() {
+    if (this.checkmateModalTimer) {
+      clearTimeout(this.checkmateModalTimer);
+      this.checkmateModalTimer = null;
+      this.onBattleEnded();
+      const modal = this.rootEl?.querySelector('#hud-gameover-modal');
+      if (modal) modal.style.display = 'grid';
+      return;
+    }
     const combat = this.ctx?.combat || this.ctx?.combatManager;
     if (combat?.skip) {
       combat.skip('user_skip');
@@ -1299,6 +1631,7 @@ export class HudListener {
     setTxt('#hud-title', 'title');
     setTxt('#hud-mode1-btn', 'mode1Btn');
     setTxt('#hud-mode2-btn', 'mode2Btn');
+    setTxt('#hud-matrix-btn', 'matrixBtn');
     setTxt('#hud-luck-label', 'luckBar');
     setTxt('#hud-hint-btn', 'hintBtn');
     setTxt('#hud-flip-btn', 'flipCamBtn');
@@ -1314,12 +1647,14 @@ export class HudListener {
     setTxt('#hud-wow-clash-btn', 'triggerBattleBtn');
     this.updateTurnAndCheckUi();
     this.renderStickersUi();
+    this._renderMatrixExplorerGrid();
   }
 
   dispose() {
     for (const off of this.offs) off();
     this.offs = [];
     if (this.toastTimer) clearTimeout(this.toastTimer);
+    if (this.checkmateModalTimer) clearTimeout(this.checkmateModalTimer);
     if (typeof window !== 'undefined') {
       window.removeEventListener('keydown', this._boundKeyDown);
     }

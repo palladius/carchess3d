@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GameEventBus } from '../src/core/EventBus.js';
-import { BATTLE_MATRIX, CHARACTER_REGISTRY } from '../src/core/Registry.js';
+import { BATTLE_MATRIX, CHARACTER_REGISTRY, resolveFamilyMatchup } from '../src/core/Registry.js';
 import { CombatAnimationManager, DEFAULT_BATTLE_DURATION_MS } from '../src/managers/CombatAnimationManager.js';
 import { GameFlowManager, FLOW_STATES } from '../src/managers/GameFlowManager.js';
+import { BoardMapManager } from '../src/managers/BoardMapManager.js';
 
 const PIECE_KEYS = ['k', 'q', 'b', 'n', 'r', 'p'];
 
@@ -92,7 +93,7 @@ test('CombatAnimationManager: Easter Egg overrides (Seby <-> Pupurabbu cuddle & 
   assert.equal(events[events.length - 1].easterEgg, 'brothers_dragon_vs_turbo');
 });
 
-test('CombatAnimationManager: update(dt) completes cutscene after 2800ms and skip() aborts immediately', () => {
+test('CombatAnimationManager: update(dt) completes cutscene after 4200ms (+50%) and skip() aborts immediately', () => {
   const bus = new GameEventBus();
   const flow = new GameFlowManager();
   const combat = new CombatAnimationManager();
@@ -105,6 +106,8 @@ test('CombatAnimationManager: update(dt) completes cutscene after 2800ms and ski
   let skipped = null;
   bus.on('BATTLE_COMPLETED', (e) => { completed = e; });
   bus.on('BATTLE_SKIPPED', (e) => { skipped = e; });
+
+  assert.equal(DEFAULT_BATTLE_DURATION_MS, 4200);
 
   // Trigger a clash via WOW_ARENA_CLASH
   bus.emit({
@@ -120,15 +123,15 @@ test('CombatAnimationManager: update(dt) completes cutscene after 2800ms and ski
   assert.equal(combat.isActive(), true);
   assert.equal(flow.state(), FLOW_STATES.CAPTURE_CUTSCENE);
 
-  // Advance 1.4 seconds (halfway)
-  combat.update(1.4);
+  // Advance 2.1 seconds (halfway of 4.2s)
+  combat.update(2.1);
   bus.flush();
   assert.equal(combat.isActive(), true);
   assert.equal(completed, null);
   assert.ok(Math.abs(combat.getProgress() - 0.5) < 0.01);
 
-  // Advance another 1.5 seconds (total 2.9s >= 2.8s)
-  combat.update(1.5);
+  // Advance another 2.2 seconds (total 4.3s >= 4.2s)
+  combat.update(2.2);
   bus.flush(); // delivers BATTLE_COMPLETED
   bus.flush(); // delivers FLOW_STATE_CHANGED
 
@@ -162,4 +165,50 @@ test('CombatAnimationManager: update(dt) completes cutscene after 2800ms and ski
   assert.equal(skipped.reason, 'spacebar');
   assert.equal(flow.state(), FLOW_STATES.MODE1_CHESS);
   assert.equal(combat.skip(), false, 'Calling skip() when idle returns false');
+});
+
+test('6x6 Family Matrix Explorer & Royal Capitulation CHECKMATE squares', () => {
+  // 1. Verify all 3 families x 36 combinations = 108 matchups resolve with asset inventory metadata
+  let dedicatedCount = 0;
+  for (const fam of ['carlesso', 'classic', 'swamp']) {
+    for (const atk of PIECE_KEYS) {
+      for (const def of PIECE_KEYS) {
+        const m = resolveFamilyMatchup(fam, atk, def);
+        assert.equal(m.familyId, fam);
+        assert.ok(m.attackerDisplayName.length > 0);
+        assert.ok(m.defenderDisplayName.length > 0);
+        assert.ok(m.anim3dDesc?.it.length > 0);
+        assert.equal(m.hasSkeletalGlbClip, atk === 'b');
+        if (fam === 'carlesso' && m.hasDedicatedVideo) {
+          dedicatedCount += 1;
+        }
+      }
+    }
+  }
+  assert.equal(dedicatedCount, 4, '4 cells (b_x_n, n_x_b, n_x_r, r_x_n) map to dedicated Veo/MP4 videos');
+
+  // 2. Verify BoardMapManager emits loserKingSquare and winnerKingSquare on CHECKMATE (Scholar's Mate)
+  const bus = new GameEventBus();
+  const board = new BoardMapManager();
+  board.init({ bus });
+
+  let checkmateEvent = null;
+  bus.on('CHECKMATE', (e) => {
+    checkmateEvent = e;
+  });
+
+  board.move('e2', 'e4');
+  board.move('e7', 'e5');
+  board.move('f1', 'c4');
+  board.move('b8', 'c6');
+  board.move('d1', 'h5');
+  board.move('g8', 'f6');
+  board.move('h5', 'f7'); // Scholar's Mate!
+  bus.flush();
+
+  assert.ok(checkmateEvent, 'CHECKMATE event must be emitted');
+  assert.equal(checkmateEvent.winner, 'w');
+  assert.equal(checkmateEvent.loser, 'b');
+  assert.equal(checkmateEvent.loserKingSquare, 'e8');
+  assert.equal(checkmateEvent.winnerKingSquare, 'e1');
 });

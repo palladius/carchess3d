@@ -21,7 +21,7 @@ import * as THREE from 'three';
 import { CHARACTER_REGISTRY, squareToWorld } from '../core/Registry.js';
 
 const GRAVITY = 9.8;
-const DEBRIS_LIFETIME_S = 3.0;
+const DEBRIS_LIFETIME_S = 4.5;
 
 export class VFXPoolView {
   /**
@@ -96,6 +96,7 @@ export class VFXPoolView {
       bus.on('BATTLE_STARTED', (e) => this.onBattleStarted(e)),
       bus.on('BATTLE_COMPLETED', (e) => this.onBattleEnded(e)),
       bus.on('BATTLE_SKIPPED', (e) => this.onBattleEnded(e)),
+      bus.on('CHECKMATE', (e) => this.onCheckmate(e)),
       bus.on('BOARD_RESET', () => this.clearAllActive()),
     );
   }
@@ -720,9 +721,94 @@ export class VFXPoolView {
   }
 
   /**
+   * Spectacular 4.2s Royal Capitulation (`CHECKMATE`) on the defeated King's square!
+   * @param {object} e
+   */
+  onCheckmate(e = {}) {
+    this.hideStageProps();
+    const kingSq = e.loserKingSquare || (e.loser === 'w' ? 'e1' : 'e8');
+    const kingPos = squareToWorld(kingSq);
+
+    this.activeClash = {
+      type: 'CHECKMATE_CAPITULATION',
+      square: kingSq,
+      to: kingSq,
+      from: e.winnerKingSquare || 'e4',
+      effect: 'king_capitulation',
+      victimReaction: 'none',
+      durationMs: 4200,
+    };
+    this.clashElapsed = 0;
+
+    if (this.clashLight) {
+      this.clashLight.color.setHex(0xffca28);
+      this.clashLight.intensity = 7.5;
+      this.clashLight.position.set(kingPos.x, 2.2, kingPos.z);
+      this.clashLight.visible = true;
+    }
+
+    if (this.props.skyBeam) {
+      this.props.skyBeam.position.set(kingPos.x, 2.75, kingPos.z);
+      this.props.skyBeam.visible = true;
+    }
+    if (this.props.runeCircle) {
+      this.props.runeCircle.position.set(kingPos.x, 0.03, kingPos.z);
+      this.props.runeCircle.visible = true;
+    }
+    if (this.props.lightningBolts) {
+      this.props.lightningBolts.position.set(kingPos.x, 0, kingPos.z);
+      this.props.lightningBolts.visible = true;
+    }
+    if (this.props.shockwaveRing) {
+      this.props.shockwaveRing.position.set(kingPos.x, 0.04, kingPos.z);
+      this.props.shockwaveRing.scale.setScalar(0.5);
+      this.props.shockwaveRing.visible = true;
+    }
+    if (this.props.dizzyStars) {
+      this.props.dizzyStars.position.set(kingPos.x, 0.95, kingPos.z);
+      this.props.dizzyStars.visible = true;
+    }
+
+    // Multi-wave royal capitulation fireworks on the defeated King's square!
+    this.spawnFromPool('golden_sparks', kingPos, 60, {
+      speedMin: 1.8,
+      speedMax: 5.2,
+      upMin: 3.2,
+      upMax: 6.4,
+      restitution: 0.72,
+    });
+    this.spawnFromPool('amethyst_ruby_shards', kingPos, 55, {
+      speedMin: 1.6,
+      speedMax: 4.8,
+      upMin: 2.8,
+      upMax: 5.8,
+      restitution: 0.68,
+      delayS: 0.45,
+    });
+    this.spawnFromPool('stone_shrapnel', kingPos, 36, {
+      speedMin: 1.5,
+      speedMax: 4.2,
+      upMin: 2.4,
+      upMax: 5.0,
+      restitution: 0.6,
+      delayS: 0.95,
+    });
+    this.spawnFromPool('choco_lilac_confetti', kingPos, 45, {
+      speedMin: 1.4,
+      speedMax: 3.8,
+      upMin: 3.0,
+      upMax: 5.8,
+      restitution: 0.5,
+    });
+
+    this.startCameraOrbit(kingPos);
+  }
+
+  /**
    * Triggered on `BATTLE_COMPLETED` or `BATTLE_SKIPPED`: hides stage props and restores camera.
    */
   onBattleEnded(_e) {
+    if (this.activeClash?.type === 'CHECKMATE_CAPITULATION') return;
     this.activeClash = null;
     this.hideStageProps();
     if (this.camSaved) {
@@ -760,10 +846,17 @@ export class VFXPoolView {
     // 1. Update active 6x6 stage props & victim reaction
     if (this.activeClash) {
       this.clashElapsed += step;
-      const durationS = (this.activeClash.durationMs || 2800) / 1000;
+      const durationS = (this.activeClash.durationMs || 4200) / 1000;
       const t = Math.min(1, this.clashElapsed / durationS);
       this.updateActiveChoreography(this.activeClash, t, this.clashElapsed);
       this.updateCameraOrbit(t, step);
+      if (this.activeClash.type === 'CHECKMATE_CAPITULATION' && t >= 1) {
+        this.activeClash = null;
+        this.hideStageProps();
+        if (this.camSaved) {
+          this.camRestoreTimer = 0.45;
+        }
+      }
     } else if (this.camRestoreTimer > 0 && this.camSaved && this.camera) {
       this.camRestoreTimer = Math.max(0, this.camRestoreTimer - step);
       const alpha = Math.min(1, step * 8.0);
@@ -784,7 +877,7 @@ export class VFXPoolView {
       }
     }
 
-    // 2. Update pooled debris particles (gravity + y=0 board bounce + 3.0s fade-out)
+    // 2. Update pooled debris particles (gravity + y=0 board bounce + 4.5s fade-out)
     for (let i = this.activeParticles.length - 1; i >= 0; i--) {
       const p = this.activeParticles[i];
       if (p.delayS > 0) {
@@ -946,23 +1039,21 @@ export class VFXPoolView {
   }
 
   /**
-   * Smoothly orbits the camera around the clash square at distance `4.8m..6.2m, y = 2.6m..3.6m`,
-   * angled from `+Z` looking toward `-Z` so both the 3D clash and the 16:9 Veo Mirror (`z = -10m`) stay in frame.
+   * Positions the camera at a heroic low-front angle (`y = 2.6m..2.9m, z = +8.4m`) looking
+   * across the 3D chessboard toward `z = -5.5m` so the **3D chessboard & fighting pieces are
+   * in the foreground** and **behind them the 16:9 video fills the screen**!
    */
   updateCameraOrbit(t, step) {
     if (!this.camera || !this.camOrbitCenter) return;
     const c = this.camOrbitCenter;
-    const orbitAngle = (t - 0.5) * 0.55; // Sweeps smoothly across the Southern arc
-    const dist = 7.4 - Math.sin(t * Math.PI) * 0.45; // 6.95m .. 7.4m
-    const camY = 3.35 + Math.sin(t * Math.PI) * 0.35; // 3.35m .. 3.7m
+    const orbitAngle = (t - 0.5) * 0.42;
+    const camX = c.x * 0.45 + Math.sin(orbitAngle) * 1.8;
+    const camY = 2.65 + Math.sin(t * Math.PI) * 0.25;
+    const camZ = 8.4 - Math.sin(t * Math.PI) * 0.45;
 
-    const desiredPos = new THREE.Vector3(
-      c.x + Math.sin(orbitAngle) * dist,
-      camY,
-      c.z + Math.cos(orbitAngle) * dist,
-    );
-    // Look toward -Z/upward to frame BOTH the 3D board clash AND the entire z=-10.2m 16:9 Magic Cinema Mirror
-    const desiredTarget = new THREE.Vector3(c.x * 0.5, 2.15, c.z * 0.4 - 3.8);
+    const desiredPos = new THREE.Vector3(camX, camY, camZ);
+    // Look straight through the 3D chessboard clash at the full-screen 16:9 backdrop (z = -5.5m, y = 3.35m)
+    const desiredTarget = new THREE.Vector3(c.x * 0.35, 2.35, -5.5);
 
     const alpha = Math.min(1, step * 5.5);
     this.camera.position.lerp(desiredPos, alpha);

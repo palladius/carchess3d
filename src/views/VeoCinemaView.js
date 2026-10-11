@@ -43,16 +43,21 @@ export class VeoCinemaView {
 
     this.root = new THREE.Group();
     this.root.name = 'VeoMagicCinemaMirror';
-    // Framed between Grossmünster Twin Towers and below top HUD bar
-    this.root.position.set(0, 3.65, -10.2);
-    this.root.scale.setScalar(0.86);
+    // In idle mode, keep the mirror discreet ("in disparte") between the Grossmünster towers;
+    // during combat/checkmate it expands to a full-screen 16:9 backdrop right behind the board!
+    this.idlePos = new THREE.Vector3(0, 3.65, -10.8);
+    this.idleScale = 0.65;
+    this.battlePos = new THREE.Vector3(0, 3.35, -5.5);
+    this.battleScale = 2.05;
+
+    this.root.position.copy(this.idlePos);
+    this.root.scale.setScalar(this.idleScale);
     this.scene.add(this.root);
 
     this.initCanvasAndVideo();
     this.buildMirrorMeshAndOrnateFrame();
     this.preloadCharacterPortraits();
     this.bindEvents();
-    this.startIdleVideoReel(0);
     this.drawCanvasFrame();
   }
 
@@ -262,7 +267,7 @@ export class VeoCinemaView {
       this.bus.on('CHECKMATE', (e) => {
         this.mode = 'checkmate';
         this.winnerColor = e.winner || 'w';
-        this.stopVideoPlayback();
+        this.tryPlayVeoVideo('assets/battles/videos/b_x_n.mp4', false, 'checkmate');
       }),
       this.bus.on('BOARD_RESET', (e) => {
         this.mode = 'idle';
@@ -282,15 +287,15 @@ export class VeoCinemaView {
     if (!WOW_VIDEO_PLAYLIST.length) return;
     this.idleVideoIndex = ((index % WOW_VIDEO_PLAYLIST.length) + WOW_VIDEO_PLAYLIST.length) % WOW_VIDEO_PLAYLIST.length;
     this.idleClipElapsed = 0;
-    const clip = WOW_VIDEO_PLAYLIST[this.idleVideoIndex];
-    if (this.mode === 'idle' && clip?.url) {
-      this.tryPlayVeoVideo(clip.url, false, 'idle');
+    // Stay discreet ("in disparte") when idle — video only launches full-screen behind the board on combat/checkmate!
+    if (this.mode === 'idle') {
+      this.stopVideoPlayback();
     }
   }
 
   advanceIdleVideo() {
     if (this.mode !== 'idle') return;
-    this.startIdleVideoReel(this.idleVideoIndex + 1);
+    this.idleVideoIndex = (this.idleVideoIndex + 1) % Math.max(1, WOW_VIDEO_PLAYLIST.length);
   }
 
   startBattlePresentation(e = {}) {
@@ -316,7 +321,7 @@ export class VeoCinemaView {
       this.getOrLoadImage(choreo.compositeUrl);
     }
 
-    // Tier 1: Play Veo / 3D .mp4 VideoTexture
+    // Tier 1: Play Veo / 3D .mp4 VideoTexture full-screen behind the chessboard!
     this.tryPlayVeoVideo(choreo.videoUrl, false, 'battle');
   }
 
@@ -328,7 +333,7 @@ export class VeoCinemaView {
     this.stopVideoPlayback();
 
     try {
-      this.videoEl.loop = expectedMode === 'battle';
+      this.videoEl.loop = expectedMode === 'battle' || expectedMode === 'checkmate';
       this.videoEl.src = videoUrl;
       this.videoEl.currentTime = 0;
       const playPromise = this.videoEl.play();
@@ -378,11 +383,8 @@ export class VeoCinemaView {
 
   stopBattlePresentation() {
     this.stopVideoPlayback();
-    if (this.mode === 'battle') {
+    if (this.mode === 'battle' || this.mode === 'checkmate') {
       this.mode = 'idle';
-    }
-    if (this.mode === 'idle') {
-      this.advanceIdleVideo();
     }
   }
 
@@ -410,29 +412,7 @@ export class VeoCinemaView {
   }
 
   drawIdleCrestFrame(ctx, w, h) {
-    // 1. Ambient 16:9 WOW Video Reel (primary experience on the 16:9 Cinema Mirror)
-    if (this.usingVideoTexture && this.videoEl && this.videoEl.readyState >= 2) {
-      ctx.drawImage(this.videoEl, 0, 0, w, h);
-      const clip = WOW_VIDEO_PLAYLIST[this.idleVideoIndex] || WOW_VIDEO_PLAYLIST[0];
-      if (clip) {
-        ctx.save();
-        ctx.fillStyle = 'rgba(10, 14, 24, 0.72)';
-        ctx.strokeStyle = 'rgba(255, 213, 79, 0.65)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(28, h - 66, 300, 42, 21);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = '#ffe082';
-        ctx.font = 'bold 20px system-ui, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText(`🎬 ${clip.caption.it}`, 46, h - 38);
-        ctx.restore();
-      }
-      return;
-    }
-
-    // 2. Minimal visual fallback while first video frame decodes (zero turn-status text walls)
+    // Discreet ("in disparte") Royal Crest when no combat is active
     const t = this.time;
     const bg = ctx.createLinearGradient(0, 0, w, h);
     bg.addColorStop(0, '#12192e');
@@ -441,17 +421,17 @@ export class VeoCinemaView {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 16; i++) {
       const sx = ((i * 197 + Math.sin(t + i) * 35) % (w - 80)) + 40;
       const sy = ((i * 131 + Math.cos(t * 0.8 + i) * 25) % (h - 80)) + 40;
-      const r = 2.2 + Math.sin(t * 3 + i) * 1.2;
-      ctx.fillStyle = i % 2 === 0 ? 'rgba(255, 224, 130, 0.7)' : 'rgba(105, 240, 174, 0.6)';
+      const r = 2.0 + Math.sin(t * 2.5 + i) * 1.0;
+      ctx.fillStyle = i % 2 === 0 ? 'rgba(255, 224, 130, 0.6)' : 'rgba(105, 240, 174, 0.5)';
       ctx.beginPath();
       ctx.arc(sx, sy, Math.max(1, r), 0, Math.PI * 2);
       ctx.fill();
     }
 
-    ctx.strokeStyle = 'rgba(230, 184, 74, 0.55)';
+    ctx.strokeStyle = 'rgba(230, 184, 74, 0.5)';
     ctx.lineWidth = 4;
     ctx.strokeRect(24, 24, w - 48, h - 48);
 
@@ -520,23 +500,25 @@ export class VeoCinemaView {
     const t = this.time;
     const atkChar = CHARACTER_REGISTRY[choreo.attacker] || CHARACTER_REGISTRY.b;
     const defChar = CHARACTER_REGISTRY[choreo.defender] || CHARACTER_REGISTRY.p;
+    const atkLabel = choreo.attackerDisplayName || `${atkChar.glyph} ${atkChar.name}`;
+    const defLabel = choreo.defenderDisplayName || `${defChar.glyph} ${defChar.name}`;
 
-    // TIER 1: Live 16:9 Veo / 3D .mp4 video — clean full-bleed with compact corner matchup badge
+    // TIER 1: Live 16:9 Veo / 3D .mp4 video — full-screen behind the 3D chessboard!
     if (this.usingVideoTexture && this.videoEl && this.videoEl.readyState >= 2) {
       ctx.drawImage(this.videoEl, 0, 0, w, h);
 
       ctx.save();
-      ctx.fillStyle = 'rgba(10, 14, 24, 0.76)';
+      ctx.fillStyle = 'rgba(10, 14, 24, 0.78)';
       ctx.strokeStyle = '#ffd54f';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.roundRect(28, 24, 360, 46, 23);
+      ctx.roundRect(28, 24, 420, 46, 23);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = '#ffe082';
       ctx.font = 'bold 22px system-ui, sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText(`${atkChar.glyph} ${atkChar.name} ⚡ ${defChar.glyph} ${defChar.name}`, 48, 54);
+      ctx.fillText(`${atkLabel} ⚡ ${defLabel}`, 48, 54);
       ctx.restore();
       return;
     }
@@ -639,7 +621,6 @@ export class VeoCinemaView {
       ctx.drawImage(img, sx, sy, sw, sh, x + 16, y + 16, cw - 32, ch - 115);
       ctx.restore();
     } else {
-      // Stylized fallback emblem while image decodes
       ctx.fillStyle = '#26324d';
       ctx.fillRect(x + 16, y + 16, cw - 32, ch - 115);
       ctx.fillStyle = '#ffe082';
@@ -660,25 +641,23 @@ export class VeoCinemaView {
   }
 
   drawCheckmateFrame(ctx, w, h) {
-    const bg = ctx.createLinearGradient(0, 0, w, h);
-    bg.addColorStop(0, '#311b92');
-    bg.addColorStop(0.5, '#880e4f');
-    bg.addColorStop(1, '#f57f17');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, w, h);
+    if (this.usingVideoTexture && this.videoEl && this.videoEl.readyState >= 2) {
+      ctx.drawImage(this.videoEl, 0, 0, w, h);
+      ctx.fillStyle = 'rgba(20, 10, 35, 0.45)';
+      ctx.fillRect(0, 0, w, h);
+    } else {
+      const bg = ctx.createLinearGradient(0, 0, w, h);
+      bg.addColorStop(0, '#311b92');
+      bg.addColorStop(0.5, '#880e4f');
+      bg.addColorStop(1, '#f57f17');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+    }
 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffe082';
-    ctx.font = 'bold 74px system-ui, sans-serif';
-    ctx.fillText('🏆 SCACCO MATTO REALE! 🏆', w / 2, h / 2 - 40);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 44px system-ui, sans-serif';
-    const winnerText =
-      this.winnerColor === 'b'
-        ? 'Vittoria del Nero (Ossidiana & Argento)! 🎉'
-        : 'Vittoria del Bianco (Famiglia Carlesso)! 🎉';
-    ctx.fillText(winnerText, w / 2, h / 2 + 55);
+    ctx.font = 'bold 64px system-ui, sans-serif';
+    ctx.fillText('👑 CAPITOLAZIONE DEL RE! 🏆', w / 2, 130);
   }
 
   // ===========================================================================
@@ -686,7 +665,8 @@ export class VeoCinemaView {
   // ===========================================================================
 
   /**
-   * Animates the 16:9 screen canvas texture / video texture and golden frame glow.
+   * Animates the 16:9 screen canvas texture / video texture and smoothly transitions
+   * between discreet idle pose ("in disparte") and full-screen backdrop behind the board!
    * @param {number} dt
    */
   update(dt = 0.016) {
@@ -695,17 +675,25 @@ export class VeoCinemaView {
       this.battleElapsed += dt;
     }
 
+    const isExpanded = this.mode === 'battle' || this.mode === 'checkmate';
+    const targetPos = isExpanded ? this.battlePos : this.idlePos;
+    const targetScale = isExpanded ? this.battleScale : this.idleScale;
+    const lerpAlpha = Math.min(1, dt * 6.5);
+
+    this.root.position.lerp(targetPos, lerpAlpha);
+    const nextScale = this.root.scale.x + (targetScale - this.root.scale.x) * lerpAlpha;
+    this.root.scale.setScalar(nextScale);
+
     // Pulse golden frame and backlight halo
-    const isBattle = this.mode === 'battle';
     if (this.haloMaterial) {
-      this.haloMaterial.opacity = isBattle
-        ? 0.34 + Math.sin(this.time * 8.0) * 0.12
-        : 0.16 + Math.sin(this.time * 2.2) * 0.05;
+      this.haloMaterial.opacity = isExpanded
+        ? 0.36 + Math.sin(this.time * 8.0) * 0.12
+        : 0.14 + Math.sin(this.time * 2.2) * 0.04;
     }
     if (this.goldMaterial) {
-      this.goldMaterial.emissiveIntensity = isBattle
-        ? 0.55 + Math.sin(this.time * 6.0) * 0.2
-        : 0.32 + Math.sin(this.time * 2.0) * 0.08;
+      this.goldMaterial.emissiveIntensity = isExpanded
+        ? 0.58 + Math.sin(this.time * 6.0) * 0.2
+        : 0.28 + Math.sin(this.time * 2.0) * 0.06;
     }
 
     this.drawCanvasFrame();

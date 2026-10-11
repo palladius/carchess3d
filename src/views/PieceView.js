@@ -112,6 +112,9 @@ export class PieceView {
         bus.on('CASTLING_EXECUTED', (e) => {
           this.animateCastlingBellyBounce(e);
         }),
+        bus.on('CHECKMATE', (e) => {
+          this.animateKingCapitulation(e);
+        }),
         bus.on('PIECE_ANIM_REQUESTED', (e) => {
           if (e.animType === 'clip') {
             const target = e.square ? this.getPieceObject(e.square) : null;
@@ -1151,6 +1154,55 @@ export class PieceView {
   }
 
   /**
+   * Spectacular 3D King Capitulation (`CHECKMATE`):
+   * - Defeated King trembles violently, leaps upward in slow-motion, and topples 84° onto the board with a damped bounce!
+   * - Surviving winning army pieces perform celebratory victory jumps around the board!
+   * @param {object} e
+   */
+  animateKingCapitulation(e = {}) {
+    const loserColor = e.loser || (e.winner === 'w' ? 'b' : 'w');
+    const winnerColor = e.winner || (loserColor === 'w' ? 'b' : 'w');
+    let kingGroup = e.loserKingSquare ? this.pieceBySquare.get(e.loserKingSquare) : null;
+    if (!kingGroup) {
+      for (const group of this.pieceBySquare.values()) {
+        if (group.userData?.type === 'k' && group.userData?.color === loserColor) {
+          kingGroup = group;
+          break;
+        }
+      }
+    }
+
+    if (kingGroup) {
+      this.activeTweens.push({
+        kind: 'king_capitulation',
+        group: kingGroup,
+        baseX: kingGroup.position.x,
+        baseZ: kingGroup.position.z,
+        fallSign: loserColor === 'b' ? 1 : -1,
+        elapsed: 0,
+        duration: 3.6,
+      });
+    }
+
+    // Winning army celebration jumps!
+    let idx = 0;
+    for (const group of this.pieceBySquare.values()) {
+      if (group.userData?.color === winnerColor) {
+        this.activeTweens.push({
+          kind: 'victory_jump',
+          group,
+          baseY: 0,
+          baseRotY: group.rotation.y,
+          phaseOffset: (idx % 6) * 0.14,
+          elapsed: 0,
+          duration: 3.4,
+        });
+        idx += 1;
+      }
+    }
+  }
+
+  /**
    * Creates a standalone 3D piece Group for Mode 2 WOW 360° Turntable Inspector & Battle Arena.
    * @param {string} type - 'k'|'q'|'b'|'n'|'r'|'p'
    * @param {'w'|'b'} [color='w']
@@ -1352,6 +1404,41 @@ export class PieceView {
           group.position.set(toX, toY, toZ);
           group.rotation.z = 0;
           group.userData.isDivingToSwamp = false;
+        }
+      } else if (tw.kind === 'king_capitulation') {
+        const { group, baseX, baseZ, fallSign } = tw;
+        if (t < 0.28) {
+          // Phase 1: Violent royal earthquake tremble
+          const shake = Math.sin(tw.elapsed * 52) * 0.12;
+          group.position.set(baseX + shake, Math.abs(Math.sin(tw.elapsed * 24)) * 0.08, baseZ - shake * 0.6);
+          group.rotation.z = Math.sin(tw.elapsed * 42) * 0.22;
+        } else if (t < 0.56) {
+          // Phase 2: Slow-motion dramatic leap & tilt
+          const u = (t - 0.28) / 0.28;
+          group.position.set(baseX, Math.sin(u * Math.PI) * 0.92, baseZ);
+          group.rotation.y += dt * 8.5;
+          group.rotation.z = fallSign * u * 0.72;
+        } else {
+          // Phase 3: 84° Royal Topple onto the chessboard with damped bounce!
+          const u = (t - 0.56) / 0.44;
+          const bounce = Math.abs(Math.sin(u * Math.PI * 2.5)) * (1 - u) * 0.28;
+          group.position.set(baseX + fallSign * u * 0.18, bounce + 0.12, baseZ);
+          group.rotation.z = fallSign * (0.72 + Math.min(1, u * 1.4) * 0.76);
+        }
+        if (t < 1) {
+          remaining.push(tw);
+        }
+      } else if (tw.kind === 'victory_jump') {
+        const { group, baseY, baseRotY, phaseOffset } = tw;
+        const localT = Math.max(0, tw.elapsed - phaseOffset);
+        const hop = Math.abs(Math.sin(localT * 6.5)) * 0.48 * (1 - t * 0.5);
+        group.position.y = baseY + hop;
+        group.rotation.y = baseRotY + Math.sin(localT * 4.5) * 0.45;
+        if (t < 1) {
+          remaining.push(tw);
+        } else {
+          group.position.y = baseY;
+          group.rotation.y = baseRotY;
         }
       }
     }

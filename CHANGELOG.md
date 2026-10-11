@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.5] - 2026-10-11
+
+- 🎬 **16:9 Video Discreet in Idle, Full-Screen Behind the 3D Chessboard During Combat (`src/views/VeoCinemaView.js`, `src/views/VFXPoolView.js`)**:
+  - In `idle` mode, `VeoCinemaView` stays discreet ("in disparte" at `z = -10.8m, scale = 0.65`) between the Grossmünster towers without distracting video loops.
+  - On `BATTLE_STARTED` or `CHECKMATE`, `VeoCinemaView` smoothly expands into a giant full-screen 16:9 IMAX backdrop (`z = -5.5m, y = 3.35m, scale = 2.05` → `16.4m × 9.2m`) directly behind the North edge of the 8×8 chessboard, while `VFXPoolView.updateCameraOrbit` frames the camera at a low heroic angle (`y = 2.65m, z = +8.4m` looking through the 3D clash toward `z = -5.5m`) so the **3D chessboard & fighting pieces are in the foreground** and **behind them the 16:9 video fills the screen**.
+- 👑💥 **Spectacular 3D King Capitulation on Checkmate (`src/managers/BoardMapManager.js`, `src/views/PieceView.js`, `src/views/VFXPoolView.js`, `src/listeners/HudListener.js`)**:
+  - `BoardMapManager` now emits `loserKingSquare` and `winnerKingSquare` on `CHECKMATE`.
+  - `PieceView.animateKingCapitulation` plays a 3-stage **`king_capitulation`** animation on the defeated King (violent royal earthquake tremble → slow-motion leap → 84° collapse onto the chessboard with damped bounce) while all surviving winning pieces perform celebratory `victory_jump` hops.
+  - `VFXPoolView.onCheckmate` triggers a 4.2s Royal Capitulation spectacle on the defeated King's square (Golden Sky-Beam, Rune Circle, Lightning Bolts, Shockwave Ring, and 4 waves of golden sparks, gem shards, stone shrapnel, and confetti), and `HudListener.onCheckmate` displays the `👑 CAPITOLAZIONE DEL RE! SCACCO MATTO! 💥` banner for 4.2s before opening the Game Over modal.
+- ⚔️ **In-App 6×6 Capture Matrix Explorer & Asset Inventory (`src/core/Registry.js`, `src/listeners/HudListener.js`)**:
+  - Added `FAMILY_ROSTERS` (`carlesso`, `classic`, `swamp`), `resolveFamilyMatchup`, and a top-bar `⚔️ 6×6` button (`#hud-matrix-btn`) opening an interactive **6×6 Capture Matrix Explorer (`#hud-matrix-modal`)** where any `(Family/Attacker A → Defender B)` combination can be inspected (showing badges for `📹 MP4 Dedicato`, `🎞️ Video + Canvas`, `🦴 GLB Rigged`, and `🌟 Easter Egg`) and launched live on the 3D chessboard with 1 click.
+- ⏱️ **+50% Longer Combat Cutscenes (`src/managers/CombatAnimationManager.js`, `src/views/VFXPoolView.js`, `tests/combat.test.mjs`)**:
+  - Increased `DEFAULT_BATTLE_DURATION_MS` from `2800ms` to **`4200ms` (+50%)** and `DEBRIS_LIFETIME_S` from `3.0s` to **`4.5s` (+50%)** so every 3D clash and background video can be savored.
+
 ## [0.2.4] - 2026-10-10
 
 - 🧹 **Minimal Desktop UI & Bottom Mini-Log (`src/listeners/HudListener.js`, `src/core/Registry.js`)**:

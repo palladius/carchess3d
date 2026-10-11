@@ -237,6 +237,82 @@ export const WOW_VIDEO_PLAYLIST = Object.freeze([
   },
 ]);
 
+export const DEDICATED_VIDEO_PAIRS = Object.freeze(new Set(['b_x_n', 'n_x_b', 'n_x_r', 'r_x_n']));
+
+export const ANIM_3D_DESCRIPTIONS = Object.freeze({
+  sceptre_lightning: {
+    it: '⚡ Scettro Fulmine + Cerchio Runico + 28 Scintille d’Oro',
+    en: '⚡ Sceptre Lightning + Rune Circle + 28 Golden Sparks',
+  },
+  golden_toilet_throne: {
+    it: '🚽👑 Trono d’Oro Reale dal Cielo + Fulmini + Vortice',
+    en: '🚽👑 Descending Golden Throne + Lightning + Whirl',
+  },
+  chocolate_wave: {
+    it: '🍫✨ Onda Ciocco-Lilla Lucida + 40 Coriandoli + Fusione Dolce',
+    en: '🍫✨ Glossy Choco-Wave + 40 Confetti + Sweet Melt',
+  },
+  crystal_shatter: {
+    it: '🐉💎 Clip GLB FireBreath_Track + Teca Ametista + 52 Gemme',
+    en: '🐉💎 GLB FireBreath_Track + Amethyst Case + 52 Gem Shards',
+  },
+  loop_track_cars: {
+    it: '🏎️✨ Pista Loop Arancione + 8 Macchinine + Stelle Giramento',
+    en: '🏎️✨ Orange Loop-Track + 8 Toy Cars + Dizzy Stars',
+  },
+  plush_ground_pound: {
+    it: '💥💜 Salto 2.6m + Schiacciata Pancake + 32 Nuvole Puffose',
+    en: '💥💜 2.6m Leap + Pancake Squash + 32 Plush Poof Clouds',
+  },
+  halberd_fish_slap: {
+    it: '🐟⚔️ Schiaffo Pesce Azzurro 3D + Volo Fuori Scacchiera',
+    en: '🐟⚔️ 3D Silver-Blue Fish Slap + Off-Board Spin Arc',
+  },
+  mega_cuddle_bounce: {
+    it: '💜🤗 Rimbalzo Abbraccio Sincronizzato + 36 Cuori 3D Fluttuanti',
+    en: '💜🤗 Synchronized Cuddle Hop + 36 Floating 3D Hearts',
+  },
+});
+
+export const FAMILY_ROSTERS = Object.freeze({
+  carlesso: {
+    id: 'carlesso',
+    label: { it: '👨‍👩‍👦‍👦 Famiglia Carlesso', en: '👨‍👩‍👦‍👦 Carlesso Family' },
+    pieces: {
+      k: { name: 'Riccardo', glyph: '♔', badge: '👑', attackLabel: 'Scettro Fulmine / Trono d’Oro 🚽⚡' },
+      q: { name: 'Kate', glyph: '♕', badge: '💜', attackLabel: 'Ciocco-Onda Lilla 🍫✨' },
+      b: { name: 'Ale', glyph: '♗', badge: '🐉', attackLabel: 'Soffio Drago & Cristallo 💎🐉' },
+      n: { name: 'Seby', glyph: '♘', badge: '🏎️', attackLabel: 'Pista Loop & 8 Macchinine 🏎️🔥' },
+      r: { name: 'Pupurabbu', glyph: '♖', badge: '🤗', attackLabel: 'Schiacciata Puffosa / Abbraccio 💜' },
+      p: { name: 'Puffin', glyph: '♙', badge: '🐟', attackLabel: 'Alabarda & Pesce Slap 🐟⚔️' },
+    },
+  },
+  classic: {
+    id: 'classic',
+    label: { it: '🗿 Classici Carlessiani', en: '🗿 Classic Stone Set' },
+    pieces: {
+      k: { name: 'Re Ossidiana', glyph: '♚', badge: '🗿', attackLabel: 'Spadone di Basalto & Scintille 🗡️🗿' },
+      q: { name: 'Regina Runica', glyph: '♛', badge: '🔮', attackLabel: 'Onda d’Urto Runica & Frammenti 🔮' },
+      b: { name: 'Alfiere Monolito', glyph: '♝', badge: '🏛️', attackLabel: 'Raggio Cristallo Antico 💎🗿' },
+      n: { name: 'Destriero Basalto', glyph: '♞', badge: '🐴', attackLabel: 'Carica Corazzata & Stelle 💥🐴' },
+      r: { name: 'Torre Bastione', glyph: '♜', badge: '🏰', attackLabel: 'Crollo di Pietra & Detriti 🏰💥' },
+      p: { name: 'Scudiero Pietra', glyph: '♟', badge: '🛡️', attackLabel: 'Colpo di Scudo & Volo 🛡️⚔️' },
+    },
+  },
+  swamp: {
+    id: 'swamp',
+    label: { it: '🐸 Famiglia della Palude', en: '🐸 Enchanted Swamp Set' },
+    pieces: {
+      k: { name: 'Re Rospo', glyph: '♔', badge: '🐸', attackLabel: 'Salto Reale & Bolle Smeraldo 🐸💦' },
+      q: { name: 'Fata Ninfee', glyph: '♕', badge: '🪷', attackLabel: 'Onda di Ninfea & Polline Verde 🪷✨' },
+      b: { name: 'Sciamano Muschio', glyph: '♗', badge: '🍄', attackLabel: 'Cristallo di Smeraldo & Spore 🍄💎' },
+      n: { name: 'Cinghiale Turbo', glyph: '♘', badge: '🐗', attackLabel: 'Vortice di Fango & Carica 🐗💨' },
+      r: { name: 'Golem di Torba', glyph: '♖', badge: '🪵', attackLabel: 'Tuffo Palude & Splash Gigante 🪵💦' },
+      p: { name: 'Folletto Stagno', glyph: '♙', badge: '🐟', attackLabel: 'Schiaffo Carpa di Palude 🐟🌿' },
+    },
+  },
+});
+
 function resolveBattleVideoUrl(atk, def) {
   if (atk === 'b' && def === 'n') return 'assets/battles/videos/b_x_n.mp4';
   if (atk === 'n' && def === 'b') return 'assets/battles/videos/n_x_b.mp4';
@@ -263,8 +339,12 @@ function buildBattleMatrix() {
     for (const def of keys) {
       const defChar = CHARACTER_REGISTRY[def];
       const pairId = `${atkChar.role}_vs_${defChar.role}`;
+      const videoPairKey = `${atk}_x_${def}`;
+      const hasDedicatedVideo = DEDICATED_VIDEO_PAIRS.has(videoPairKey);
+      const hasSkeletalGlbClip = atk === 'b';
       matrix[atk][def] = {
         id: pairId,
+        videoPairKey,
         attacker: atk,
         defender: def,
         attackerName: atkChar.name,
@@ -275,6 +355,11 @@ function buildBattleMatrix() {
         banner: baseSig.banner,
         easterEgg: null,
         nonLethalCuddle: false,
+        hasDedicatedVideo,
+        videoSourceType: hasDedicatedVideo ? 'dedicated_mp4' : 'shared_mp4_and_canvas',
+        hasSkeletalGlbClip,
+        skeletalClipName: hasSkeletalGlbClip ? 'FireBreath_Track' : null,
+        anim3dDesc: ANIM_3D_DESCRIPTIONS[baseSig.effect],
         videoUrl: resolveBattleVideoUrl(atk, def),
         compositeUrl: `assets/battles/keyframes/${pairId}.svg`,
         attackerImg: atkChar.frontPortrait,
@@ -292,6 +377,7 @@ function buildBattleMatrix() {
       victimReaction: 'happy_cuddle_hop',
       easterEgg: 'seby_pupurabbu_cuddle',
       nonLethalCuddle: true,
+      anim3dDesc: ANIM_3D_DESCRIPTIONS.mega_cuddle_bounce,
       banner: {
         it: 'SUPER ABBRACCIO PUFFOSO! 💜🤗',
         en: 'MEGA FLUFFY CUDDLE HUG! 💜🤗',
@@ -307,6 +393,7 @@ function buildBattleMatrix() {
       debrisType: 'golden_sparks',
       victimReaction: 'royal_throne_whirl',
       easterEgg: 'carlesso_al_cesso_throne',
+      anim3dDesc: ANIM_3D_DESCRIPTIONS.golden_toilet_throne,
       banner: {
         it: 'CARLESSO AL CESSO! TRONO D’ORO! 🚽👑',
         en: 'ROYAL GOLDEN THRONE STRIKE! 🚽👑',
@@ -337,6 +424,27 @@ function buildBattleMatrix() {
 
 export const BATTLE_MATRIX = buildBattleMatrix();
 
+/**
+ * Resolves a full matchup summary for `(familyId, attacker, defender)` so the UI can
+ * inspect all 36 combinations per family (`carlesso`, `classic`, `swamp`).
+ */
+export function resolveFamilyMatchup(familyId = 'carlesso', attacker = 'n', defender = 'b') {
+  const fam = FAMILY_ROSTERS[familyId] || FAMILY_ROSTERS.carlesso;
+  const atkKey = String(attacker || 'p').toLowerCase();
+  const defKey = String(defender || 'p').toLowerCase();
+  const base = BATTLE_MATRIX[atkKey]?.[defKey] || BATTLE_MATRIX.p.p;
+  const atkPiece = fam.pieces[atkKey] || fam.pieces.p;
+  const defPiece = fam.pieces[defKey] || fam.pieces.p;
+  return {
+    ...base,
+    familyId: fam.id,
+    familyLabel: fam.label,
+    attackerDisplayName: `${atkPiece.badge} ${atkPiece.name}`,
+    defenderDisplayName: `${defPiece.badge} ${defPiece.name}`,
+    attackSignatureLabel: atkPiece.attackLabel,
+  };
+}
+
 export const FAMILY_STICKERS = Object.freeze([
   { id: 'sticker_riccardo_throne', name: { it: 'Trono d’Oro 🚽👑', en: 'Golden Throne 🚽👑' } },
   { id: 'sticker_kate_choco', name: { it: 'Onda Ciocco-Lilla 🍫💜', en: 'Choco-Lilac Wave 🍫💜' } },
@@ -360,6 +468,7 @@ export const I18N = Object.freeze({
     subtitle: 'Zurigo 3D',
     mode1Btn: '♟️ Gioca',
     mode2Btn: '🌟 WOW',
+    matrixBtn: '⚔️ 6×6',
     whoPlays: 'Profilo',
     opponent: 'VS',
     hotseat: '👥 2P',
@@ -382,6 +491,7 @@ export const I18N = Object.freeze({
     skipBtn: '⏭️ Salta',
     checkAlert: '⚠️ SCACCO!',
     checkmateTitle: '🏆 SCACCO MATTO!',
+    checkmateBanner: '👑 CAPITOLAZIONE DEL RE! SCACCO MATTO! 💥',
     drawTitle: '🤝 PATTA!',
     promoTitle: '✨ Promozione Puffin:',
     wowInspectorTab: '🔍 360°',
@@ -393,6 +503,7 @@ export const I18N = Object.freeze({
     subtitle: 'Zurich 3D',
     mode1Btn: '♟️ Play',
     mode2Btn: '🌟 WOW',
+    matrixBtn: '⚔️ 6×6',
     whoPlays: 'Player',
     opponent: 'VS',
     hotseat: '👥 2P',
@@ -415,6 +526,7 @@ export const I18N = Object.freeze({
     skipBtn: '⏭️ Skip',
     checkAlert: '⚠️ CHECK!',
     checkmateTitle: '🏆 CHECKMATE!',
+    checkmateBanner: '👑 ROYAL CAPITULATION! CHECKMATE! 💥',
     drawTitle: '🤝 DRAW!',
     promoTitle: '✨ Puffin Promotion:',
     wowInspectorTab: '🔍 360°',
