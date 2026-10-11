@@ -15,7 +15,7 @@ import {
 const PIECE_KEYS = ['k', 'q', 'b', 'n', 'r', 'p'];
 
 describe('Living Idle Animations & Character Hover/Select Voices', () => {
-  it('defines VOICE_LINES and authentic MP3 audio files for all 6 piece types', () => {
+  it('defines VOICE_LINES, multi-clip variants, and authentic Gemini 3.8 TTS MP3 audio files for all 6 piece types', () => {
     for (const type of PIECE_KEYS) {
       const v = VOICE_LINES[type];
       assert.ok(v, `Missing VOICE_LINES[${type}]`);
@@ -23,22 +23,51 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
       assert.ok(v.hoverSound?.label?.it, `Missing hoverSound.label.it for ${type}`);
       assert.ok(v.quote?.it, `Missing quote.it for ${type}`);
       assert.ok(v.audioUrl, `Missing audioUrl for ${type}`);
+      assert.ok(Array.isArray(v.variants) && v.variants.length >= 2, `Expected variants array for ${type}`);
       assert.equal(CHARACTER_REGISTRY[type].voiceLine, v);
 
       const diskPath = path.resolve(process.cwd(), v.audioUrl);
       assert.ok(fs.existsSync(diskPath), `Expected voice MP3 file to exist: ${v.audioUrl}`);
       const stat = fs.statSync(diskPath);
       assert.ok(stat.size > 5000, `Expected non-empty MP3 for ${v.audioUrl}`);
+
+      for (const variant of v.variants) {
+        assert.ok(variant.id, `Missing variant.id in ${type}`);
+        assert.ok(variant.audioUrl, `Missing variant.audioUrl in ${variant.id}`);
+        assert.ok(variant.quote?.it, `Missing variant.quote.it in ${variant.id}`);
+        const varDiskPath = path.resolve(process.cwd(), variant.audioUrl);
+        assert.ok(fs.existsSync(varDiskPath), `Expected variant MP3 to exist: ${variant.audioUrl}`);
+        assert.ok(fs.statSync(varDiskPath).size > 5000, `Expected non-empty MP3 for ${variant.audioUrl}`);
+      }
     }
 
     assert.equal(VOICE_LINES.n.quote.it, 'Dimmi papino!');
     assert.equal(VOICE_LINES.b.quote.it, 'Agli ordini, Signore!');
-    assert.equal(VOICE_LINES.q.quote.it, 'This is an interesting choice...');
+    assert.equal(VOICE_LINES.q.quote.it, "That's... interesting.");
     assert.equal(VOICE_LINES.q.speechLang, 'en-GB');
     assert.ok(VOICE_LINES.p.quote.it.includes('Puffin'));
+
+    // Verify all requested signature lines for Kate, Seby, and Ale are registered
+    const kateQuotes = VOICE_LINES.q.variants.map((v) => v.quote.en);
+    assert.ok(kateQuotes.includes("That's... interesting."));
+    assert.ok(kateQuotes.includes('Ok, Puffin McMuffin!'));
+    assert.ok(kateQuotes.includes('You... love me! I tell myself EVERY day!'));
+
+    const sebyQuotes = VOICE_LINES.n.variants.map((v) => v.quote.it);
+    assert.ok(sebyQuotes.includes('Papinoooooo!!!'));
+    assert.ok(sebyQuotes.includes('Ti manco tantissimo, papino!'));
+    assert.ok(sebyQuotes.includes('My body, my choice!'));
+    assert.ok(sebyQuotes.includes('Mi scappa la cacca!'));
+
+    const aleQuotes = VOICE_LINES.b.variants.map((v) => v.quote.it);
+    assert.ok(aleQuotes.includes('Agli ordini, Signore!'));
+    assert.ok(aleQuotes.includes('Ti manco tantissimo, papino!'));
+    assert.ok(aleQuotes.includes('Papino, qual è il più forte?'));
+    assert.ok(aleQuotes.includes('Papino, quando mi compri un regalo?'));
+    assert.ok(aleQuotes.includes('Cafonazzo!'));
   });
 
-  it('AudioListener plays creature sound on PIECE_HOVERED and character voice on PIECE_SELECTED', () => {
+  it('AudioListener plays creature sound on PIECE_HOVERED, avoids back-to-back voice repeats, and mixes signature lines with mumble/sbuffo reactions', () => {
     const bus = new GameEventBus();
     const audio = new AudioListener({ bus });
     const spokenEvents = [];
@@ -78,7 +107,25 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
     bus.flush();
     bus.flush();
     assert.equal(audio.playedSfx.at(-1), 'voice_q');
-    assert.equal(audio.playedVoices.at(-1)?.quote, 'This is an interesting choice...');
+    assert.equal(audio.playedVoices.at(-1)?.quote, "That's... interesting.");
+
+    // Verify anti-repetition: 12 consecutive selections on Queen Kate, Seby, and Ale never play the same variantId twice in a row
+    for (const pType of ['q', 'n', 'b']) {
+      let prevId = null;
+      const seenKinds = new Set();
+      for (let i = 0; i < 12; i++) {
+        const rec = audio.playCharacterVoiceLine(pType, 'e4');
+        assert.notEqual(
+          rec.variantId,
+          prevId,
+          `Expected ${pType} not to repeat variant ${rec.variantId} back-to-back`,
+        );
+        prevId = rec.variantId;
+        seenKinds.add(rec.kind);
+      }
+      assert.ok(seenKinds.has('mumble'), `Expected ${pType} to include mumble/sbuffo reactions`);
+      assert.ok(seenKinds.has('signature'), `Expected ${pType} to include signature sentences`);
+    }
 
     // Verify fiery combat music MP3 exists on disk and starts/stops on BATTLE_STARTED / BATTLE_COMPLETED
     const combatMp3Path = path.resolve(process.cwd(), COMBAT_AUDIO_URL);

@@ -277,14 +277,22 @@ export class BoardInteractionView {
     const hoveredPiece = sq ? board.pieceAt?.(sq) : null;
     this.pieceView?.setHoveredSquare?.(hoveredPiece ? sq : null);
 
-    // Emit PIECE_HOVERED when pointer enters a living piece (with 650ms anti-spam cooldown)
+    // Emit PIECE_HOVERED when pointer enters a living piece (with per-type anti-spam cooldown for pawn rows)
     const pieceSq = hoveredPiece ? sq : null;
     if (pieceSq !== this.hoveredPieceSquare) {
       this.hoveredPieceSquare = pieceSq;
       if (hoveredPiece && pieceSq) {
         const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
-        if (!this.lastHoverEmitMs || now - this.lastHoverEmitMs >= 650) {
+        const pType = String(hoveredPiece.type || 'p').toLowerCase();
+        if (!this.lastHoverByTypeMs) this.lastHoverByTypeMs = new Map();
+        const lastTypeMs = this.lastHoverByTypeMs.get(pType) || 0;
+        const typeCooldownMs = pType === 'p' ? 2800 : 950;
+        if (
+          (!this.lastHoverEmitMs || now - this.lastHoverEmitMs >= 750) &&
+          (!lastTypeMs || now - lastTypeMs >= typeCooldownMs)
+        ) {
           this.lastHoverEmitMs = now;
+          this.lastHoverByTypeMs.set(pType, now);
           this.ctx?.bus?.emit?.({
             type: 'PIECE_HOVERED',
             square: pieceSq,

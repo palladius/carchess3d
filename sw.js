@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v22';
+const CACHE_NAME = 'carchess3d-offline-v23';
 
 const PRECACHE_URLS = [
   './',
@@ -73,11 +73,30 @@ const PRECACHE_URLS = [
   './assets/models/pawn-puffin.glb',
   './assets/audio/combat-suspense.mp3',
   './assets/audio/voices/voice-k.mp3',
+  './assets/audio/voices/voice-k-hmm.mp3',
   './assets/audio/voices/voice-q.mp3',
+  './assets/audio/voices/voice-q-mcmuffin.mp3',
+  './assets/audio/voices/voice-q-loveme.mp3',
+  './assets/audio/voices/voice-q-hmm.mp3',
+  './assets/audio/voices/voice-q-sbuffo.mp3',
   './assets/audio/voices/voice-b.mp3',
+  './assets/audio/voices/voice-b-timanco.mp3',
+  './assets/audio/voices/voice-b-piuforte.mp3',
+  './assets/audio/voices/voice-b-regalo.mp3',
+  './assets/audio/voices/voice-b-cafonazzo.mp3',
+  './assets/audio/voices/voice-b-hmm.mp3',
+  './assets/audio/voices/voice-b-sbuffo.mp3',
   './assets/audio/voices/voice-n.mp3',
+  './assets/audio/voices/voice-n-papinooo.mp3',
+  './assets/audio/voices/voice-n-timanco.mp3',
+  './assets/audio/voices/voice-n-mybody.mp3',
+  './assets/audio/voices/voice-n-cacca.mp3',
+  './assets/audio/voices/voice-n-hmm.mp3',
+  './assets/audio/voices/voice-n-sbuffo.mp3',
   './assets/audio/voices/voice-r.mp3',
+  './assets/audio/voices/voice-r-hmm.mp3',
   './assets/audio/voices/voice-p.mp3',
+  './assets/audio/voices/voice-p-hmm.mp3',
   './docs/logo/logo.svg',
 ];
 
