@@ -1,0 +1,213 @@
+[
+  {
+    "iteration": 0,
+    "params": {
+      "scale_x": 910.0,
+      "scale_y": 955.0,
+      "y_eye_3d": 0.1928,
+      "row_eye_2d": 305.0,
+      "col_center_2d": 518.5,
+      "jaw_slim": 0.0,
+      "chin_taper": 0.0,
+      "forehead_broaden": 0.0,
+      "low_2d_ratio": 0.35,
+      "silver_hair_mix": 0.0,
+      "cylindrical_wrap": 0.28
+    },
+    "critique": {
+      "silver_hair_and_temples": 3.4,
+      "white_stubble_beard_mustache": 3.0,
+      "eyes_eyebrows_forehead": 4.5,
+      "nose_and_smile_identity": 4.8,
+      "head_jaw_3d_proportions": 4.2,
+      "seamless_3d_blend": 5.5,
+      "overall_likeness_score": 4.1,
+      "verdict_summary_it": "L'iterazione 0 fallisce nel catturare i tratti distintivi dell'età. Mancano completamente la barba incolta bianca e le tempie brizzolate, rendendo il modello troppo giovane e generico.",
+      "flaws_detected": [
+        "Mancanza di barba e baffi bianchi",
+        "Capelli troppo scuri",
+        "Mascella troppo squadrata",
+        "Sopracciglia non brizzolate"
+      ],
+      "regenerate_2d": true,
+      "prompt_corrections": "Aggiungere barba incolta bianca corta, tempie bianco-argento, sopracciglia sale e pepe e rughe d'espressione sulla fronte.",
+      "recommended_params": {
+        "scale_x": 895.0,
+        "scale_y": 945.0,
+        "row_eye_2d": 302.0,
+        "jaw_slim": 0.12,
+        "chin_taper": 0.07,
+        "low_2d_ratio": 0.92,
+        "silver_hair_mix": 0.88
+      },
+      "critic_model": "gemini-3-flash-preview"
+    },
+    "sheet_path": "tools/model-pipeline/king/out/adversarial_likeness/adversarial_iter_0.png"
+  },
+  {
+    "iteration": 1,
+    "params": {
+      "scale_x": 915.0,
+      "scale_y_lower": 950.0,
+      "scale_y_upper": 950.0,
+      "y_eye_3d": 0.1928,
+      "row_eye_2d": 314.0,
+      "col_center_2d": 514.5,
+      "jaw_slim": 0.045,
+      "chin_taper": 0.025,
+      "forehead_broaden": 0.02,
+      "nose_shorten": 0.22,
+      "nose_widen": 0.18,
+      "brow_overhang": 0.0065,
+      "low_2d_ratio": 0.93,
+      "silver_hair_mix": 0.85,
+      "side_stubble_mix": 0.48,
+      "cylindrical_wrap": 0.14
+    },
+    "critique": {
+      "silver_hair_and_temples": 4,
+      "white_stubble_beard_mustache": 4,
+      "eyes_eyebrows_forehead": 4,
+      "nose_and_smile_identity": 4,
+      "head_jaw_3d_proportions": 3,
+      "seamless_3d_blend": 3,
+      "overall_likeness_score": 3.5,
+      "verdict_summary_it": "Il ritratto 2D cattura un aspetto generico ma manca della profondità specifica degli occhi e della punta carnosa del naso di Riccardo. La proiezione 3D è gravemente disallineata verticalmente a causa di parametri scale_y errati, causando lo slittamento dei tratti del viso rispetto alla geometria e sbavature laterali.",
+      "flaws_detected": [
+        "Grave disallineamento verticale della texture nel 3D (occhi e bocca non corrispondono alla geometria).",
+        "Il ritratto 2D manca del carattere degli occhi infossati e incappucciati e della specifica arcata sopraccigliare.",
+        "La punta del naso nel 2D non è abbastanza carnosa e arrotondata.",
+        "Il lato della testa nel 3D presenta texture sbavate e orecchie mal posizionate."
+      ],
+      "regenerate_2d": true,
+      "prompt_corrections": "Ensure deep-set, slightly hooded warm brown eyes under a strong brow ridge with a vertical glabella crease. Broad, rounded, fleshy nose tip. Very short 2-3 day light white/silver stubble, not a full beard. Thin, wide closed-lip smile.",
+      "recommended_params": {
+        "scale_x": 865.0,
+        "scale_y_lower": 895.0,
+        "scale_y_upper": 1240.0,
+        "row_eye_2d": 320.0,
+        "jaw_slim": 0.045,
+        "chin_taper": 0.025,
+        "nose_shorten": 0.16,
+        "nose_widen": 0.14,
+        "brow_overhang": 0.007,
+        "low_2d_ratio": 0.95,
+        "silver_hair_mix": 0.86,
+        "side_stubble_mix": 0.49
+      },
+      "critic_model": "gemini-3.1-pro-preview"
+    },
+    "sheet_path": "tools/model-pipeline/king/out/adversarial_likeness/adversarial_iter_1.png",
+    "front_path": "tools/model-pipeline/king/out/adversarial_likeness/front_iter_1.png"
+  },
+  {
+    "iteration": 2,
+    "params": {
+      "scale_x": 865.0,
+      "scale_y_lower": 892.0,
+      "scale_y_upper": 1240.0,
+      "y_eye_3d": 0.1928,
+      "row_eye_2d": 320.0,
+      "col_center_2d": 514.5,
+      "jaw_slim": 0.045,
+      "chin_taper": 0.025,
+      "forehead_broaden": 0.02,
+      "nose_shorten": 0.46,
+      "nose_widen": 0.26,
+      "brow_overhang": 0.008,
+      "low_2d_ratio": 0.96,
+      "silver_hair_mix": 0.85,
+      "side_stubble_mix": 0.48,
+      "cylindrical_wrap": 0.112
+    },
+    "critique": {
+      "silver_hair_and_temples": 4,
+      "white_stubble_beard_mustache": 5,
+      "eyes_eyebrows_forehead": 5,
+      "nose_and_smile_identity": 6,
+      "head_jaw_3d_proportions": 5,
+      "seamless_3d_blend": 4,
+      "overall_likeness_score": 5,
+      "verdict_summary_it": "Il ritratto 2D cattura bene l'espressione e i tratti principali, ma la proiezione 3D presenta artefatti visibili sui lati della testa e la barba risulta un po' piatta e dipinta.",
+      "flaws_detected": [
+        "Texture stretching and grey artifacts visible on the side of the head in the +72 deg view.",
+        "Stubble appears painted on and lacks natural depth in the 3D projection.",
+        "Eyes lose some of their deep-set warmth and appear slightly flat in 3D."
+      ],
+      "regenerate_2d": false,
+      "prompt_corrections": "Maintain the current 2D likeness but focus on improving the 3D texture mapping to eliminate side artifacts. Ensure the stubble blends more naturally along the jawline and cheeks.",
+      "recommended_params": {
+        "scale_x": 870.0,
+        "scale_y_lower": 895.0,
+        "scale_y_upper": 1245.0,
+        "row_eye_2d": 320.0,
+        "jaw_slim": 0.048,
+        "chin_taper": 0.028,
+        "nose_shorten": 0.48,
+        "nose_widen": 0.28,
+        "brow_overhang": 0.009,
+        "low_2d_ratio": 0.95,
+        "silver_hair_mix": 0.88,
+        "side_stubble_mix": 0.52
+      },
+      "critic_model": "gemini-3.1-pro-preview"
+    },
+    "sheet_path": "tools/model-pipeline/king/out/adversarial_likeness/adversarial_iter_2.png",
+    "front_path": "tools/model-pipeline/king/out/adversarial_likeness/front_iter_2.png"
+  },
+  {
+    "iteration": 3,
+    "params": {
+      "scale_x": 870.0,
+      "scale_y_lower": 895.0,
+      "scale_y_upper": 1245.0,
+      "y_eye_3d": 0.1928,
+      "row_eye_2d": 320.0,
+      "col_center_2d": 514.5,
+      "jaw_slim": 0.048,
+      "chin_taper": 0.028,
+      "forehead_broaden": 0.02,
+      "nose_shorten": 0.48,
+      "nose_widen": 0.28,
+      "brow_overhang": 0.009,
+      "low_2d_ratio": 0.95,
+      "silver_hair_mix": 0.88,
+      "side_stubble_mix": 0.52,
+      "cylindrical_wrap": 0.112
+    },
+    "critique": {
+      "silver_hair_and_temples": 5,
+      "white_stubble_beard_mustache": 5,
+      "eyes_eyebrows_forehead": 6,
+      "nose_and_smile_identity": 6,
+      "head_jaw_3d_proportions": 5,
+      "seamless_3d_blend": 4,
+      "overall_likeness_score": 5,
+      "verdict_summary_it": "Il modello cattura l'essenza ma necessita di miglioramenti nella texture laterale e nei dettagli della barba.",
+      "flaws_detected": [
+        "Texture stretching on side",
+        "Mustache too dark",
+        "Hair texture lacks depth"
+      ],
+      "regenerate_2d": false,
+      "prompt_corrections": "Ensure light silver stubble, not dark mustache. Improve side hair texture.",
+      "recommended_params": {
+        "scale_x": 870.0,
+        "scale_y_lower": 895.0,
+        "scale_y_upper": 1245.0,
+        "row_eye_2d": 320.0,
+        "jaw_slim": 0.048,
+        "chin_taper": 0.028,
+        "nose_shorten": 0.48,
+        "nose_widen": 0.29,
+        "brow_overhang": 0.009,
+        "low_2d_ratio": 0.95,
+        "silver_hair_mix": 0.89,
+        "side_stubble_mix": 0.5
+      },
+      "critic_model": "gemini-3.1-pro-preview"
+    },
+    "sheet_path": "tools/model-pipeline/king/out/adversarial_likeness/adversarial_iter_3.png",
+    "front_path": "tools/model-pipeline/king/out/adversarial_likeness/front_iter_3.png"
+  }
+]

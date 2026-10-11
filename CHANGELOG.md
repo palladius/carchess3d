@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.30] - 2026-10-11
+## [0.3.31] - 2026-10-11
 
 - 🔥🥁🎻 **Fiery, Fast-Paced, Suspenseful Combat Soundtrack — Lyria 3 Orchestral-Rock Track + 152 BPM D-Minor Phrygian WebAudio Sequencer (`assets/audio/combat-suspense.mp3`, `src/listeners/AudioListener.js`, `sw.js`, `tests/voices_idle.test.mjs`)**:
   - **Lyria 3 Fiery Duel Soundtrack (`assets/audio/combat-suspense.mp3` & `.txt`)**: Generated a `30.8s` `152 BPM` D-Minor Phrygian orchestral-rock combat track via Google Lyria 3 (driving staccato string ostinato, thunderous Taiko war drums, heroic brass stabs, electric cello suspense, and embedded ID3v2.3 metadata). Automatically triggers on `BATTLE_STARTED` cycling through 4 dramatic phrase cue points (`0.0s, 7.6s, 15.2s, 22.0s`).
@@ -8,6 +8,14 @@
     - Opens with a Netflix-style **"TUDUM" double sub-bass punch** + Phrygian minor-second brass swell (`synthCombatEntryBraaam`).
     - Drives a relentless 16th-note D-Minor Phrygian ostinato (`D3 - F3 - G3 - G#3 - A3 - Bb3 - C#4 - D4`), Taiko war-drum downbeats, metallic sword/halberd off-beat rim clangs, and a rising suspense lead (`A4 -> A5`) that accelerates in Act 2 (*La Scazzottata*) and erupts into a 6-note K.O. climax chord in Act 3.
   - **Smooth `3.5s` Sliding-Window Audio Cross-Fade (`AudioListener.stopCombatMusic`)**: On `BATTLE_COMPLETED`, instead of cutting the combat soundtrack abruptly, smoothly ramps down the combat music volume along the exact same `3.5s` `smoothstep` sliding window (`?transitionSeconds=3.5`) as the visual Netflix-to-Zurich transition while restoring the peaceful theme song if active.
+
+## [0.3.30] - 2026-10-11
+
+- 👑🧬🤖 **Re Riccardo Adversarial Biometric Likeness Generator + Critic Loop (`tools/model-pipeline/king/adversarial_riccardo_likeness.py`, `graft_papino_face_3d.py`, `assets/models/king-riccardo.glb`, `niccolo-game-design` Skill)**:
+  - **Root-Cause Diagnosis via `nano-banana-ricc` Ground-Truth Photos**: Compared the 5 reference photos in `nano-banana-ricc` against the previous `king-riccardo.glb` / `front.png`, identifying why likeness was low: the old portrait had dark brown hair and a clean-shaven generic face instead of Riccardo's **deep-set hooded warm brown smiling eyes** under a masculine brow ridge with a vertical glabella crease and **signature small white tuft on his left eyebrow**, **broad rounded fleshy nose tip**, **thin wide affectionate smile**, **very short 2-to-3-day light white/silver stubble (`barbetta cortissima di 2-3 giorni`)**, and **short silver-white / salt-and-pepper temples**.
+  - **Photo-Anchored Template Seeding (`build_photo_seeded_template`)**: Seeded the King figurine head oval directly with Riccardo's frontal photograph from `riccardosouthafrica.png` and harmonized studio lighting + silver temples via `gemini-3-pro-image-preview` alongside all 5 `nano-banana-ricc` photos, locking crown (`y <= 212`) and collar (`y >= 490`) without double-exposure ghosting.
+  - **Piecewise-Linear 3D Landmark Calibration + Hybrid Side-Cylindrical Azimuth Unwrapping (`graft_papino_face_3d.py`)**: Calibrated `row_2d(y)` around `y_eye_3d = +0.1928m <-> row = 320.0` (`scale_y_upper = 1240.0 px/m`, `scale_y_lower = 892.0 px/m`), sculpted the 3D head mesh (`nose_shorten = 0.46`, `nose_widen = 0.26`, `brow_overhang = 0.0080`, `jaw_slim = 0.045`), unwrapped side-cheek UVs cylindrically via $\theta = \text{atan2}(\Delta x, \Delta z)$ to eliminate planar fold-over/stretching at `+32°` and `+72°`, and recolored non-shell hair texels inside exact barycentric triangles using a smooth luminance/warmth ramp.
+  - **Multimodal Adversarial Critic (`gemini-3.1-pro-preview` + `riccardo-likeness-critic`)**: Iteratively evaluated 6-panel biometric critique sheets (`tools/model-pipeline/king/out/adversarial_likeness/adversarial_iter_1..3.png`), raising overall 3D biometric likeness from **`4.1/10`** (Iter 0 baseline) to **`9.1/10`** (`adversarial_history.json`).
 
 ## [0.3.29] - 2026-10-11
 

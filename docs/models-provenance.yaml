@@ -94,17 +94,17 @@ models:
         md5: "88610244971d8949a2e7d9890a03574c"
 
   - id: "king-riccardo"
-    name: "King Riccardo (Mode B Dual-Chart 2048x1024 Face-Grafted)"
+    name: "King Riccardo (Adversarial Biometric Mode B 2048x1024 Face-Grafted)"
     piece: "king"
     character: "Riccardo"
     status: "CANONICAL"
     target_path: "assets/models/king-riccardo.glb"
-    size_bytes: 4212424
-    md5: "506b18d2f40b7d7505f8a76f9435e7f6"
+    size_bytes: 4266572
+    md5: "81271989d981bdb8d55872640ebf5fea"
     pipeline:
-      tool: "TRELLIS.2 + Mode B Dual-Chart 2048x1024 UV Face-Grafting"
+      tool: "TRELLIS.2 + Adversarial Biometric Mode B Dual-Chart 2048x1024 UV Face-Grafting"
       space: "microsoft/TRELLIS.2"
-      script: "tools/model-pipeline/king/graft_papino_face_3d.py"
+      script: "tools/model-pipeline/king/adversarial_riccardo_likeness.py"
       seed: 42
       resolution: 1024
       decimation_target: 100000
@@ -112,12 +112,12 @@ models:
     concept_sources:
       - role: "concept_reference"
         path: "assets/characters/king-riccardo-1.jpg"
-        size_bytes: 312829
-        md5: "cb498f98c461927ca9f162d8804ccb78"
+        size_bytes: 281037
+        md5: "7fddf31be685fbd654a8bcdb0ef87893"
       - role: "turnaround_front"
         path: "tools/model-pipeline/king/front.png"
-        size_bytes: 625433
-        md5: "4d897d4daf0f0e12b1d1f033f9ca119e"
+        size_bytes: 653826
+        md5: "2c20d6cc74fb9829efd8b69471b68434"
       - role: "turnaround_side_noglasses"
         path: "tools/model-pipeline/king/side.png"
         size_bytes: 979294
