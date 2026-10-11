@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.39] - 2026-10-11
+
+- 🎛️✨📱 **Clean Angular/Material SVG Icon Footer Toolbar (`src/listeners/HudListener.js`, `sw.js`)**:
+  - **Replaced Gaudy Emoji/Text Footer Buttons with Crisp Material Design Vector SVG Icon Buttons (`.hud-icon-btn`)**:
+    - Removed noisy emojis, long multi-word button labels, and bright yellow/green gradient buttons from `.hud-actions-dock` in favor of uniform `34×34px` matte-slate Material SVG icon buttons (`#hud-new-btn` `restart_alt`, `#hud-setup-btn` `tune`, `#hud-refresh-btn` `sync`, `#hud-top-btn` `view_in_ar` + `2D`/`3D` badge, `#hud-flip-btn` `swap_vert`, `#hud-hint-btn` `lightbulb`, `#hud-matrix36-btn` `grid_view`, `#hud-sfx-btn` `volume_up`, `#hud-music-btn` `music_note`, `#hud-dock-gallery` `museum`, `#hud-fen-btn` `code`, `#hud-console-btn` `terminal`, `#hud-toggle-topbar-btn` `menu`, plus a compact `EN | IT` segmented pill).
+    - Added a dedicated **Update / Refresh App** icon button (`#hud-refresh-btn`, Material `sync` icon) in the footer toolbar that checks `./VERSION` (`cache: 'no-store'`), purges Service Worker caches, and reloads on click (`checkAndRefreshVersion()`).
+    - Removed duplicate brand/GitHub links and hidden secondary/debug buttons from the bottom bar so both Desktop and Mobile (`#carchess-hud-root.mobile-simplified`) remain clean, readable, and single-row without overflowing.
+    - Updated `refreshTranslations()`, `setTopbarVisible()`, and `applyMobileCameraMode()` to update `title` and `aria-label` tooltips without overwriting `<svg>` icons.
+
 ## [0.3.38] - 2026-10-11
 
 - 🧹⚡📱 **Zero-Cache Mobile Permalink (`nocache.html` & `?nocache=1`) + Mobile HUD Flexbox Fix (`nocache.html`, `index.html`, `sw.js`, `HudListener.js`, `Registry.js`)**:
