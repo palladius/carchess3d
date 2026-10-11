@@ -158,7 +158,8 @@ export class AudioListener {
         this.stopCombatMusic(false);
       }),
       bus.on('BATTLE_SKIPPED', () => {
-        this.stopCombatMusic(true);
+        // Smooth, measured 2.5s audio cross-fade on Space/Click forced exit (never abrupt!)
+        this.stopCombatMusic(false, 2500);
       }),
       bus.on('BOARD_RESET', () => {
         this.stopCombatMusic(true);
@@ -749,10 +750,12 @@ export class AudioListener {
 
   /**
    * Smoothly fades out the fiery combat music over the `3.5s` sliding window (`immediate = false`)
-   * when the duel finishes (`BATTLE_COMPLETED`), or stops immediately in headless unit tests / `BOARD_RESET`.
+   * when the duel finishes (`BATTLE_COMPLETED`) or over `2.5s` when forced via Space/Click (`BATTLE_SKIPPED`),
+   * or stops immediately in headless unit tests / `BOARD_RESET`.
    * @param {boolean} [immediate=false]
+   * @param {number|null} [customDurationMs=null]
    */
-  stopCombatMusic(immediate = false) {
+  stopCombatMusic(immediate = false, customDurationMs = null) {
     if (!this.combatMusicActive && !this.combatFadingOut) return;
 
     this.playedSfx.push('combat_music_stopped');
@@ -770,7 +773,7 @@ export class AudioListener {
       this.combatFadeTimer = null;
     }
 
-    const fadeDurationMs = this._getExitWindowMs(false);
+    const fadeDurationMs = Number.isFinite(customDurationMs) ? customDurationMs : this._getExitWindowMs(false);
     const tickMs = 80;
     const totalTicks = Math.max(1, Math.round(fadeDurationMs / tickMs));
     let tick = 0;

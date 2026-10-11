@@ -243,6 +243,10 @@ export class CombatAnimationManager {
     return true;
   }
 
+  skipActiveCutscene(reason = 'user_skip') {
+    return this.skip(reason);
+  }
+
   /**
    * Fixed-timestep update (`dt` in seconds from `GameLoop`, or milliseconds if `dt > 20`).
    * Automatically emits `BATTLE_COMPLETED` when `elapsedMs >= durationMs`.

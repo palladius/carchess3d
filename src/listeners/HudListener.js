@@ -141,8 +141,13 @@ export class HudListener {
     this.toastTimer = null;
     this.checkmateModalTimer = null;
     this.offs = [];
+    this.battleStartedAtMs = 0;
+    this.combatPointerStart = null;
+    this.combatBlend = 0;
 
     this._boundKeyDown = (e) => this.onKeyDown(e);
+    this._boundCombatPointerDown = (e) => this.onCombatPointerDown(e);
+    this._boundCombatPointerUp = (e) => this.onCombatPointerUp(e);
     this._boundViewportChange = () => this.syncMobileOrientationUi();
 
     if (ctx) {
@@ -155,6 +160,9 @@ export class HudListener {
    */
   init(ctx = {}) {
     this.ctx = ctx;
+    if (ctx.scene?.userData) {
+      ctx.scene.userData.applyHudCombatBlend = (b) => this.setCombatBlend(b);
+    }
     if (typeof ctx.isMobilePhone === 'boolean' && ctx.isMobilePhone !== this.isMobilePhone) {
       this.isMobilePhone = ctx.isMobilePhone;
       if (this.isMobilePhone) {
@@ -169,6 +177,8 @@ export class HudListener {
     if (typeof document !== 'undefined' && !this.rootEl) {
       this.buildDom();
       window.addEventListener('keydown', this._boundKeyDown);
+      window.addEventListener('pointerdown', this._boundCombatPointerDown);
+      window.addEventListener('pointerup', this._boundCombatPointerUp);
       window.addEventListener('resize', this._boundViewportChange);
       window.addEventListener('orientationchange', this._boundViewportChange);
       this.syncMobileOrientationUi();
@@ -3561,6 +3571,7 @@ export class HudListener {
     const bannerObj = e.banner || richBanner || BATTLE_MATRIX[e.attacker]?.[e.defender]?.banner;
     const text = bannerObj?.[this.lang] || bannerObj?.en || bannerObj?.it || 'KNOCKOUT! ✨';
     this.activeBanner = text;
+    this.battleStartedAtMs = typeof performance !== 'undefined' ? performance.now() : Date.now();
 
     // Mobile Simplified UX: on the FIRST attack/capture, automatically unlock 3D camera mode!
     // Emitting CAMERA_VIEW_REQUESTED updates VFXPoolView.camSaved so when the battle finishes,
@@ -3584,16 +3595,23 @@ export class HudListener {
     }
 
     if (!this.rootEl) return;
-    // Hide the left WOW drawer and any center toast during combat so the auto-zoomed 3D fight is 100% clear!
+    // Hide the left WOW drawer, center toast, karaoke caption, and comic banner during combat
+    // so the Netflix Maxischermo + 3D fight is 100% pure and free of any header/footer clutter!
     const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
     if (wowPanel) wowPanel.style.display = 'none';
     const toastEl = this.rootEl.querySelector('#hud-toast');
     if (toastEl) toastEl.style.display = 'none';
+    const lyriaCap = this.rootEl.querySelector('#hud-lyria-caption');
+    if (lyriaCap) lyriaCap.style.display = 'none';
 
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
     const textEl = this.rootEl.querySelector('#hud-comic-text');
     if (textEl) textEl.textContent = text;
-    if (bannerEl) bannerEl.style.display = 'inline-flex';
+    if (bannerEl) bannerEl.style.display = 'none';
+
+    if (!this.ctx?.scene?.userData?.vfxControlsCombatBlend) {
+      this.setCombatBlend(1.0);
+    }
 
     this.logToQuake(
       'BATTLE',
@@ -3617,7 +3635,48 @@ export class HudListener {
     if (wowPanel) {
       wowPanel.style.display = this.flowState === 'Mode2_WowArena' ? 'flex' : 'none';
     }
+    if (!this.ctx?.scene?.userData?.vfxControlsCombatBlend) {
+      this.setCombatBlend(0.0);
+    }
     this.logToQuake('BATTLE', '✨ Clash completed.');
+  }
+
+  /**
+   * Smoothly hides all HUD chrome (header `#hud-topbar`, footer `.hud-bottombar`, status card, banners)
+   * as `blend` goes `0.0 -> 1.0` during Netflix Maxischermo combat, and smoothly restores them
+   * as `blend` glides `1.0 -> 0.0` during the sliding-window exit!
+   * @param {number} blend
+   */
+  setCombatBlend(blend) {
+    const b = Math.max(0, Math.min(1, Number.isFinite(blend) ? blend : 0));
+    this.combatBlend = b;
+    if (!this.rootEl) return;
+
+    const hudAlpha = b >= 0.96 ? 0 : Math.max(0, Math.min(1, Math.pow(1 - b, 2.4)));
+    const topBar = this.rootEl.querySelector('#hud-topbar');
+    const bottomBar = this.rootEl.querySelector('.hud-bottombar');
+    const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
+    const toastEl = this.rootEl.querySelector('#hud-toast');
+    const lyriaCap = this.rootEl.querySelector('#hud-lyria-caption');
+
+    if (topBar) {
+      topBar.style.opacity = String(hudAlpha);
+      topBar.style.transform = b > 0.002 ? `translateY(${(-32 * b).toFixed(1)}px)` : '';
+      topBar.style.pointerEvents = b > 0.12 ? 'none' : 'auto';
+    }
+    if (bottomBar) {
+      bottomBar.style.opacity = String(hudAlpha);
+      bottomBar.style.transform = b > 0.002 ? `translateY(${(32 * b).toFixed(1)}px)` : '';
+      const interactiveChildren = bottomBar.querySelectorAll('.hud-interactive');
+      interactiveChildren.forEach((el) => {
+        el.style.pointerEvents = b > 0.12 ? 'none' : 'auto';
+      });
+    }
+    if (b > 0.02) {
+      if (bannerEl) bannerEl.style.display = 'none';
+      if (toastEl) toastEl.style.display = 'none';
+      if (lyriaCap) lyriaCap.style.display = 'none';
+    }
   }
 
   onAiThinking(e) {
@@ -3680,7 +3739,7 @@ export class HudListener {
     if (!this.rootEl) return;
     const cap = this.rootEl.querySelector('#hud-lyria-caption');
     if (!cap) return;
-    if (e.text) {
+    if (e.text && this.combatBlend <= 0.02) {
       cap.textContent = `🎵 ${e.text}`;
       cap.style.display = 'block';
     } else {
@@ -3697,6 +3756,50 @@ export class HudListener {
       const bSel = this.rootEl.querySelector('#hud-rival-select');
       if (bSel && this.rivalSet) bSel.value = this.rivalSet;
     }
+  }
+
+  isCombatCutsceneActive() {
+    const combat = this.ctx?.combat || this.ctx?.combatManager;
+    return Boolean(
+      this.activeBanner ||
+        this.flowState === 'CaptureCutscene' ||
+        (combat && typeof combat.isActive === 'function' && combat.isActive()),
+    );
+  }
+
+  onCombatPointerDown(e) {
+    if (e.button !== undefined && e.button !== 0) return;
+    if (!this.isCombatCutsceneActive()) {
+      this.combatPointerStart = null;
+      return;
+    }
+    this.combatPointerStart = {
+      x: e.clientX ?? 0,
+      y: e.clientY ?? 0,
+    };
+  }
+
+  onCombatPointerUp(e) {
+    if (!this.combatPointerStart) return;
+    const start = this.combatPointerStart;
+    this.combatPointerStart = null;
+
+    if (!this.isCombatCutsceneActive()) return;
+    if (this.setupModalOpen || this.matrixModalOpen || this.quakeConsoleOpen) return;
+
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    // Guard against the initial square-tap that triggered the capture move (< 350ms ago)
+    if (this.battleStartedAtMs && now - this.battleStartedAtMs < 350) return;
+
+    const dx = (e.clientX ?? 0) - start.x;
+    const dy = (e.clientY ?? 0) - start.y;
+    const maxTapDist = e.pointerType === 'touch' ? 20 : 12;
+    if (Math.hypot(dx, dy) > maxTapDist) {
+      // Allow drag-to-orbit without exiting
+      return;
+    }
+
+    this.skipActiveCutscene('user_click');
   }
 
   onKeyDown(e) {
@@ -3729,9 +3832,9 @@ export class HudListener {
         this.closeMatrix36Modal();
         return;
       }
-      if (this.activeBanner || this.flowState === 'CaptureCutscene') {
+      if (this.isCombatCutsceneActive()) {
         e.preventDefault();
-        this.skipActiveCutscene();
+        this.skipActiveCutscene('escape');
         return;
       }
     }
@@ -3743,15 +3846,15 @@ export class HudListener {
       return;
     }
 
-    if (e.code === 'Space' && !isTextInput) {
-      if (this.activeBanner || this.flowState === 'CaptureCutscene') {
+    if ((e.code === 'Space' || e.code === 'Enter') && !isTextInput) {
+      if (this.isCombatCutsceneActive()) {
         e.preventDefault();
-        this.skipActiveCutscene();
+        this.skipActiveCutscene(e.code === 'Enter' ? 'enter' : 'spacebar');
       }
     }
   }
 
-  skipActiveCutscene() {
+  skipActiveCutscene(reason = 'user_skip') {
     if (this.checkmateModalTimer) {
       clearTimeout(this.checkmateModalTimer);
       this.checkmateModalTimer = null;
@@ -3762,9 +3865,9 @@ export class HudListener {
     }
     const combat = this.ctx?.combat || this.ctx?.combatManager;
     if (combat?.skip) {
-      combat.skip('user_skip');
+      combat.skip(reason);
     } else {
-      this.ctx?.bus?.emit({ type: 'BATTLE_SKIPPED', reason: 'user_skip' });
+      this.ctx?.bus?.emit({ type: 'BATTLE_SKIPPED', reason });
     }
     this.ctx?.bus?.flush?.();
   }
@@ -3979,6 +4082,8 @@ export class HudListener {
     if (this.checkmateModalTimer) clearTimeout(this.checkmateModalTimer);
     if (typeof window !== 'undefined') {
       window.removeEventListener('keydown', this._boundKeyDown);
+      window.removeEventListener('pointerdown', this._boundCombatPointerDown);
+      window.removeEventListener('pointerup', this._boundCombatPointerUp);
       window.removeEventListener('resize', this._boundViewportChange);
       window.removeEventListener('orientationchange', this._boundViewportChange);
     }

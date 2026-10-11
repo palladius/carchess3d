@@ -1280,13 +1280,14 @@ export class VFXPoolView {
       const nitroL = nitroR.clone();
       leftHandPivot.add(boosterL, nitroL);
 
-      // Orbiting miniature race car + glowing orange track ring
-      specialPivot.position.set(0, 0.48, 0);
+      // Orbiting miniature race car around Seby's warhorse (keep miniTrack ring hidden so horse stays 100% clear)
+      specialPivot.position.set(0, 0.22, 0);
       const miniTrack = new THREE.Mesh(
         new THREE.TorusGeometry(0.42, 0.028, 8, 24),
         orangeBoosterMat,
       );
       miniTrack.rotation.x = Math.PI * 0.5;
+      miniTrack.visible = false;
       const miniCar = new THREE.Group();
       const carBody = new THREE.Mesh(
         new THREE.BoxGeometry(0.18, 0.06, 0.10),
@@ -1298,7 +1299,7 @@ export class VFXPoolView {
       );
       carTop.position.y = 0.05;
       miniCar.add(carBody, carTop);
-      miniCar.position.set(0.42, 0.04, 0);
+      miniCar.position.set(0.46, 0.04, 0);
       specialPivot.add(miniTrack, miniCar);
     } else if (type === 'r') {
       // ROOK PUPURABBU (`r`): Giant Glowing Purple Plushie Boxing Gloves + Belly Aura
@@ -1722,10 +1723,10 @@ export class VFXPoolView {
       });
     } else if (effect === 'loop_track_cars') {
       this.props.loopTrack.position.set(toPos.x, 0.68, toPos.z);
-      this.props.loopTrack.visible = true;
+      this.props.loopTrack.visible = false;
       this.props.dizzyStars.position.set(toPos.x, 0.55, toPos.z);
       this.props.dizzyStars.visible = true;
-      this.spawnLoopCars(toPos, Math.min(12, Math.round(8 * countMult)));
+      this.spawnLoopCars(toPos, Math.min(8, Math.round(6 * countMult)));
     } else if (effect === 'plush_ground_pound') {
       this.props.shockwaveRing.position.set(toPos.x, 0.04, toPos.z);
       this.props.shockwaveRing.scale.setScalar(0.4);
@@ -1834,7 +1835,7 @@ export class VFXPoolView {
         origin.z + Math.sin(angle) * 0.18,
       );
       mesh.rotation.set(i * 0.5, angle, i * 0.3);
-      mesh.scale.setScalar(1);
+      mesh.scale.setScalar(opts.scale ?? 0.50);
       mesh.visible = !(opts.delayS > 0);
 
       const mat = mesh.material || mesh.userData.primaryMat;
@@ -2030,13 +2031,32 @@ export class VFXPoolView {
   }
 
   /**
-   * Triggered on `BATTLE_COMPLETED` or `BATTLE_SKIPPED`: clears stage fighters/props and
-   * starts the smooth 3.5s sliding-window zoom-out & alpha cross-fade back to the saved camera view!
+   * Triggered on `BATTLE_COMPLETED` or `BATTLE_SKIPPED`: captures the victorious fighter's
+   * current world offset so it smoothly settles onto `toSquare`, clears stage props, and
+   * starts the smooth 3.5s (or 2.5s on Space/Click) sliding-window zoom-out & alpha cross-fade!
    */
   onBattleEnded(e) {
     if (this.activeClash?.type === 'CHECKMATE_CAPITULATION') return;
     const isSkip = e?.type === 'BATTLE_SKIPPED';
-    const exitTotalS = isSkip ? 1.35 : this.getExitWindowS();
+    const exitTotalS = isSkip ? 2.50 : this.getExitWindowS();
+    this.exitStartBlend = Math.max(0.05, this.combatBlend || 1.0);
+
+    // Record the victorious attackerFighter's last world offset relative to `toSquare` so the
+    // board piece smoothly glides from its combat stance & 1.52x scale onto `toSquare`!
+    const toSq = String(this.activeClash?.square || this.activeClash?.to || '').toLowerCase();
+    const boardMap = this.pieceView?.pieceBySquare || this.pieceView?.pieceNodes;
+    if (toSq && boardMap && this.attackerFighter && this.activeToPos) {
+      const winnerNode = boardMap.get(toSq);
+      if (winnerNode) {
+        winnerNode.userData = winnerNode.userData || {};
+        winnerNode.userData.combatExitOffset = {
+          dx: (this.attackerFighter.position.x - this.activeToPos.x) / this.exitStartBlend,
+          dy: Math.max(0, this.attackerFighter.position.y) / this.exitStartBlend,
+          dz: (this.attackerFighter.position.z - this.activeToPos.z) / this.exitStartBlend,
+          scaleRatio: this.getHeroScaleMult(),
+        };
+      }
+    }
 
     this.activeClash = null;
     this.hideStageProps();
@@ -2093,6 +2113,7 @@ export class VFXPoolView {
         this.activeClash = null;
         this.hideStageProps();
         if (this.camSaved) {
+          this.exitStartBlend = 1.0;
           this.exitWindowTotalS = 2.2;
           this.exitPreWindowS = 0;
           this.camRestoreDuration = 2.2;
@@ -2104,7 +2125,8 @@ export class VFXPoolView {
       const postElapsed = this.camRestoreDuration - this.camRestoreTimer;
       const totalExitElapsed = this.exitPreWindowS + postElapsed;
       const rawExitU = Math.min(1, totalExitElapsed / Math.max(0.1, this.exitWindowTotalS));
-      const blend = Math.max(0, 1.0 - this.smoothstep(rawExitU));
+      const startB = Number.isFinite(this.exitStartBlend) ? this.exitStartBlend : 1.0;
+      const blend = Math.max(0, startB * (1.0 - this.smoothstep(rawExitU)));
       this._applyCombatBlendState(blend);
 
       if (this.camRestoreTimer === 0) {
@@ -2407,13 +2429,13 @@ export class VFXPoolView {
     if (atk && def) {
       const heroMult = this.getHeroScaleMult();
       const scale = (this.pieceView?.globalPieceScale || 1.0) * heroMult;
-      const baseSep = 0.78; // 1.56m wide stage separation between Left Attacker & Right Defender!
+      const baseSep = 1.14; // 2.28m wide stage separation between Left Attacker & Right Defender!
 
       if (reaction === 'happy_cuddle_hop' || clash.effect === 'mega_cuddle_bounce') {
         this.setComicWordText('SUPER ABBRACCIO! 💜🤗', '#8e24aa', '#ff80ab');
         const hop = Math.abs(Math.sin(elapsedS * 6.5)) * 0.52;
-        atk.position.set(toPos.x - dirX * 0.52, hop, toPos.z - dirZ * 0.52);
-        def.position.set(toPos.x + dirX * 0.52, hop, toPos.z + dirZ * 0.52);
+        atk.position.set(toPos.x - dirX * 0.65, hop, toPos.z - dirZ * 0.65);
+        def.position.set(toPos.x + dirX * 0.65, hop, toPos.z + dirZ * 0.65);
         atk.rotation.set(0, atkYaw + Math.sin(elapsedS * 4.5) * 0.24, 0);
         def.rotation.set(0, defYaw - Math.sin(elapsedS * 4.5) * 0.24, 0);
         atk.scale.setScalar(scale);
@@ -2460,7 +2482,7 @@ export class VFXPoolView {
           combatPhase: elapsedS * 5.0,
           combatAmp: 0.35,
           bodyY: stepHop * 0.6,
-          pitchX: 0.08,
+          pitchX: 0.05,
           rollZ: 0,
         });
 
@@ -2477,7 +2499,7 @@ export class VFXPoolView {
           combatPhase: elapsedS * 5.0,
           combatAmp: 0.35,
           bodyY: Math.abs(Math.sin(elapsedS * 5.0)) * 0.05,
-          pitchX: 0.06,
+          pitchX: 0.04,
           rollZ: 0,
         });
 
@@ -2504,22 +2526,22 @@ export class VFXPoolView {
           const actU = duelU / 0.48;
           this.setComicWordText('CLANG! ⚔️', '#ff6d00', '#ffea00');
           if (actU < 0.28) {
-            // Wind-up on the Left (-0.78m -> -0.92m)
+            // Wind-up on the Left (-1.14m -> -1.32m)
             const wU = this.smoothstep(actU / 0.28);
-            atkOffset = -baseSep - wU * 0.14;
-            atkPitch = -0.18 * wU;
+            atkOffset = -baseSep - wU * 0.18;
+            atkPitch = -0.08 * wU;
           } else if (actU < 0.68) {
-            // Lunge across the arena (-0.92m -> +0.22m) and strike Defender (+0.78m -> +0.98m recoil)
+            // Lunge forward (-1.32m -> -0.38m) while Defender recoils (+1.14m -> +1.36m): minimum gap 1.52m so pedestals NEVER overlap!
             const sU = (actU - 0.28) / 0.40;
             const s = Math.sin(sU * Math.PI);
-            atkOffset = -0.92 + s * 1.14;
-            defOffset = baseSep + Math.max(0, Math.sin(Math.max(0, sU - 0.25) * Math.PI)) * 0.24;
-            atkY = s * 0.24;
-            atkPitch = 0.34 * s;
-            defPitch = -0.32 * s;
-            defRoll = 0.16 * s;
+            atkOffset = -1.32 + s * 0.94;
+            defOffset = baseSep + Math.max(0, Math.sin(Math.max(0, sU - 0.20) * Math.PI)) * 0.22;
+            atkY = s * 0.18;
+            atkPitch = 0.10 * s;
+            defPitch = -0.10 * s;
+            defRoll = 0.08 * s;
           } else {
-            // Smoothly hold wide guard stance (`1.56m` apart) so the player clearly sees both characters!
+            // Smoothly hold wide guard stance (`2.28m` apart) so the player clearly sees both characters!
             const rU = this.smoothstep((actU - 0.68) / 0.32);
             atkOffset = -baseSep;
             defOffset = baseSep + (1 - rU) * 0.08;
@@ -2533,35 +2555,35 @@ export class VFXPoolView {
 
           if (!this.defenderCounterBurstFired && actU >= 0.22) {
             this.defenderCounterBurstFired = true;
-            this.spawnFromPool(defSpec.counterPool, toPos, 18, {
+            this.spawnFromPool(defSpec.counterPool, toPos, 12, {
               speedMin: 1.5,
-              speedMax: 3.8,
-              upMin: 2.0,
-              upMax: 4.4,
+              speedMax: 3.4,
+              upMin: 1.8,
+              upMax: 3.8,
               restitution: 0.6,
             });
           }
 
           if (actU < 0.24) {
-            // Defender winds up on Right (+0.78m -> +0.92m)
+            // Defender winds up on Right (+1.14m -> +1.32m)
             const wU = this.smoothstep(actU / 0.24);
-            defOffset = baseSep + wU * 0.14;
-            defPitch = -0.16 * wU;
+            defOffset = baseSep + wU * 0.18;
+            defPitch = -0.08 * wU;
           } else if (actU < 0.68) {
-            // Defender lunges Left (+0.92m -> -0.20m) and pushes Attacker back (-0.78m -> -1.04m)
+            // Defender lunges Left (+1.32m -> +0.38m) and pushes Attacker back (-1.14m -> -1.38m): minimum gap 1.52m!
             const sU = (actU - 0.24) / 0.44;
             const s = Math.sin(sU * Math.PI);
-            defOffset = 0.92 - s * 1.12;
-            atkOffset = -baseSep - s * defSpec.pushBackDist;
-            defY = s * defSpec.counterJumpY;
-            defPitch = defSpec.counterPitch * s * 0.85;
-            defRoll = Math.sin(sU * Math.PI * 2) * defSpec.counterRollAmp * 0.7;
-            defYawOff = defSpec.counterSpinYaw ? sU * Math.PI * 2 : 0;
-            atkPitch = -0.34 * s;
-            atkRoll = -0.18 * s;
-            atkY = s * 0.12;
+            defOffset = 1.32 - s * 0.94;
+            atkOffset = -baseSep - s * 0.24;
+            defY = s * Math.min(0.28, defSpec.counterJumpY * 0.55);
+            defPitch = 0.10 * s;
+            defRoll = Math.sin(sU * Math.PI * 2) * 0.08;
+            defYawOff = 0;
+            atkPitch = -0.10 * s;
+            atkRoll = -0.08 * s;
+            atkY = s * 0.08;
           } else {
-            // Both reset cleanly to wide guard (`-0.78m` vs `+0.78m`) before the Act 3 Finisher!
+            // Both reset cleanly to wide guard (`-1.14m` vs `+1.14m`) before the Act 3 Finisher!
             const rU = this.smoothstep((actU - 0.68) / 0.32);
             atkOffset = -baseSep - (1 - rU) * 0.08;
             defOffset = baseSep;
@@ -2569,7 +2591,7 @@ export class VFXPoolView {
         }
 
         def.userData.isCounterAttacking = isDefenderCounter;
-        const defScaleMult = isDefenderCounter ? Math.min(1.18, defSpec.bellyInflate) : 1.0;
+        const defScaleMult = isDefenderCounter ? Math.min(1.10, defSpec.bellyInflate) : 1.0;
         atk.scale.setScalar(scale);
         def.scale.setScalar(scale * defScaleMult);
 
@@ -2580,20 +2602,20 @@ export class VFXPoolView {
 
         this.pieceView?.applyPoseToPiece(atk, {
           walkPhase: elapsedS * 9.5,
-          walkAmp: 0.85,
+          walkAmp: 0.70,
           combatPhase: elapsedS * 10.0,
-          combatAmp: isDefenderCounter ? 0.75 : 1.15,
-          bodyY: Math.abs(Math.sin(elapsedS * 7.5)) * 0.08,
+          combatAmp: isDefenderCounter ? 0.65 : 1.05,
+          bodyY: Math.abs(Math.sin(elapsedS * 7.5)) * 0.06,
           pitchX: atkPitch,
           rollZ: atkRoll,
           yawOffset: atkYawOff,
         });
         this.pieceView?.applyPoseToPiece(def, {
           walkPhase: elapsedS * 9.5,
-          walkAmp: 0.85,
+          walkAmp: 0.70,
           combatPhase: elapsedS * 10.0 + Math.PI,
-          combatAmp: isDefenderCounter ? 1.25 : 0.85,
-          bodyY: Math.abs(Math.cos(elapsedS * 7.5)) * 0.08,
+          combatAmp: isDefenderCounter ? 1.10 : 0.75,
+          bodyY: Math.abs(Math.cos(elapsedS * 7.5)) * 0.06,
           pitchX: defPitch,
           rollZ: defRoll,
           yawOffset: defYawOff,
@@ -2627,8 +2649,8 @@ export class VFXPoolView {
             '#e0f7fa',
           );
 
-          const jumpH = clash.effect === 'plush_ground_pound' ? 1.35 : 0.55;
-          const atkOff = -baseSep * (1 - subU * 0.85);
+          const jumpH = clash.effect === 'plush_ground_pound' ? 1.05 : 0.42;
+          const atkOff = -baseSep + subU * 0.74;
           const defOff = baseSep;
           atk.position.set(toPos.x + dirX * atkOff, s * jumpH, toPos.z + dirZ * atkOff);
           def.position.set(toPos.x + dirX * defOff, 0, toPos.z + dirZ * defOff);
@@ -2931,21 +2953,33 @@ export class VFXPoolView {
 
       if (b <= 0.001) {
         node.position.x = basePos.x;
+        node.position.y = 0;
         node.position.z = basePos.z;
         node.scale.setScalar(baseScale);
+        if (node.userData?.combatExitOffset) {
+          delete node.userData.combatExitOffset;
+        }
       } else {
         const dx = basePos.x - center.x;
         const dz = basePos.z - center.z;
         const r = Math.hypot(dx, dz);
         if (r > 0.05) {
-          // Non-linear fisheye radial push: opens a wide ~2.2m radius clearing around the 2 protagonists
-          const radialPush = b * (1.42 * Math.exp(-r / 2.5) + 0.35);
+          // Non-linear fisheye radial push: opens a wide ~2.3m radius clearing around the 2 protagonists
+          const radialPush = b * (1.52 * Math.exp(-r / 2.5) + 0.36);
           node.position.x = basePos.x + (dx / r) * radialPush;
           node.position.z = basePos.z + (dz / r) * radialPush;
           // Non-linear scale falloff: neighboring pieces shrink to 56%..70% while protagonists are 152%
           const targetScaleRatio = 0.56 + 0.04 * Math.min(3.5, r);
           const s = baseScale * (1.0 - b * (1.0 - targetScaleRatio));
           node.scale.setScalar(s);
+        } else if (node.userData?.combatExitOffset) {
+          // Smoothly glide the victorious piece from its combat offset & 1.52x scale back to `toSquare`!
+          const off = node.userData.combatExitOffset;
+          node.position.x = basePos.x + off.dx * b;
+          node.position.y = off.dy * b;
+          node.position.z = basePos.z + off.dz * b;
+          const startScale = off.scale || baseScale;
+          node.scale.setScalar(baseScale + (startScale - baseScale) * b);
         }
       }
     }
@@ -2955,9 +2989,10 @@ export class VFXPoolView {
    * Applies the unified `combatBlend` (`0.0 .. 1.0`) across:
    * 1. `ZurichSwampView` (Swamp, Zurich Skyline, Alps, and 64 Chessboard tiles alpha cross-fade)
    * 2. `VeoCinemaView` (Netflix film alpha `100% <-> 0%` + "Cinema Vecchio" convergence)
-   * 3. `_applyArenaNonLinearWarp` (Non-linear radial dilation & scale falloff of neighboring board pieces)
-   * 4. `this.camera` & `this.controls.target` (smooth pull-back to `this.camSaved`)
-   * 5. `VeoMagicCinemaMirror` 3D position, scale, and quaternion convergence to `(0, 3.65, -10.8)`
+   * 3. `HudListener` (Top Header, Bottom Footer, Banners, and Toasts smoothly hide during combat!)
+   * 4. `_applyArenaNonLinearWarp` (Non-linear radial dilation & scale falloff of neighboring board pieces)
+   * 5. `this.camera` & `this.controls.target` (smooth pull-back to `this.camSaved`)
+   * 6. `VeoMagicCinemaMirror` 3D position, scale, and quaternion convergence to `(0, 3.65, -10.8)`
    * @param {number} blend
    */
   _applyCombatBlendState(blend) {
@@ -2968,6 +3003,7 @@ export class VFXPoolView {
       this.scene.userData.combatBlend = b;
       this.scene.userData.applySwampCombatBlend?.(b);
       this.scene.userData.applyCinemaCombatBlend?.(b);
+      this.scene.userData.applyHudCombatBlend?.(b);
     }
 
     this._applyArenaNonLinearWarp(b);
