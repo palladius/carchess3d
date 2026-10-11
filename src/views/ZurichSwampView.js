@@ -77,6 +77,19 @@ export class ZurichSwampView {
       waterRoughness: 0.16,
     };
 
+    this.combatBlend = 0.0;
+    this.inCombatCinemaMode = false;
+    this._zurichBgColor = new THREE.Color(0x0b1528);
+    this._combatBgColor = new THREE.Color(0x05070e);
+    this._dioramaFadeReady = false;
+    this._dioramaGroups = [];
+    this._dioramaMaterials = [];
+
+    if (this.scene) {
+      this.scene.userData = this.scene.userData || {};
+      this.scene.userData.applySwampCombatBlend = (b) => this.setCombatBlend(b);
+    }
+
     this.buildLightingAndSky();
     this.buildCarvedStoneAltar();
     this.buildCornerBraziers();
@@ -315,6 +328,7 @@ export class ZurichSwampView {
     const inlayContainer = new THREE.Group();
     inlayContainer.name = 'GoldenSquareInlays';
     altarGroup.add(inlayContainer);
+    this.squareInlayMat = goldTrimMat.clone();
 
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
@@ -347,7 +361,7 @@ export class ZurichSwampView {
         this.squaresByName.set(square, sqMesh);
 
         // Golden trim inlay at y = 0.001m
-        const inlay = new THREE.Mesh(inlayFrameGeo, goldTrimMat);
+        const inlay = new THREE.Mesh(inlayFrameGeo, this.squareInlayMat);
         inlay.position.set(col - 3.5, 0.001, row - 3.5);
         inlay.receiveShadow = true;
         inlayContainer.add(inlay);
@@ -1043,40 +1057,60 @@ export class ZurichSwampView {
   }
 
   /**
-   * During combat (`BATTLE_STARTED`), hides the surrounding 3D world clutter (skyline, Alps,
-   * swamp moat, fireflies, corner braziers, sky dome) and switches the 8x8 Chessboard (`CarvedStoneAltar`)
-   * to 50% translucency (`alpha = 0.50`) while hiding the solid stone foundation beneath it,
-   * so the enlarged 16:9 Veo Cinema Video shines through the translucent board while 3D characters
-   * remain 100% opaque on top!
-   * @param {boolean} active
+   * Collects all surrounding diorama groups (Swamp Moat, Zurich Skyline, Swiss Alps,
+   * Corner Braziers, Sky Dome, Fireflies, plus under-board stone foundation/island/rims)
+   * and caches their original material transparency states so they can smoothly dissolve (`1 -> 0`)
+   * on combat entry and smoothly rematerialize (`0 -> 1`) during the exit sliding window!
    */
-  setCombatCinemaMode(active) {
-    this.inCombatCinemaMode = Boolean(active);
-    if (this.scene) {
-      this.scene.background = new THREE.Color(active ? 0x05070e : 0x0b1528);
-    }
+  _ensureDioramaFadeTargets() {
+    if (this._dioramaFadeReady) return;
+    this._dioramaFadeReady = true;
+    this._dioramaGroups = [];
+    this._dioramaMaterials = [];
+
     for (const child of this.root.children) {
       if (
-        child.isLight ||
-        child.name === 'CarvedStoneAltar' ||
-        child.name === 'BoardHighlights'
+        !child.isLight &&
+        child.name !== 'CarvedStoneAltar' &&
+        child.name !== 'BoardHighlights'
       ) {
-        child.visible = true;
-      } else {
-        child.visible = !active;
+        this._dioramaGroups.push(child);
       }
     }
-
-    // Hide solid under-board foundation, island, and outer chunky stone border rims during combat
-    // so only the 64 black & white chessboard squares float at 50% translucency over the Veo video!
-    if (this.islandMesh) this.islandMesh.visible = !active;
-    if (this.foundationMesh) this.foundationMesh.visible = !active;
+    if (this.islandMesh) this._dioramaGroups.push(this.islandMesh);
+    if (this.foundationMesh) this._dioramaGroups.push(this.foundationMesh);
     if (this.altarBorderMeshes) {
       for (const m of this.altarBorderMeshes) {
-        m.visible = !active;
+        this._dioramaGroups.push(m);
       }
     }
 
+    const squareMats = new Set(this.squareMeshes.map((s) => s.material));
+    if (this.squareInlayMat) squareMats.add(this.squareInlayMat);
+    const seenMats = new Set();
+
+    for (const grp of this._dioramaGroups) {
+      grp.traverse?.((node) => {
+        const mats = Array.isArray(node.material)
+          ? node.material
+          : node.material
+            ? [node.material]
+            : [];
+        for (const mat of mats) {
+          if (!mat || squareMats.has(mat) || seenMats.has(mat)) continue;
+          seenMats.add(mat);
+          this._dioramaMaterials.push({
+            mat,
+            origTransparent: Boolean(mat.transparent),
+            origOpacity: Number.isFinite(mat.opacity) ? mat.opacity : 1.0,
+            origDepthWrite: mat.depthWrite !== undefined ? Boolean(mat.depthWrite) : true,
+          });
+        }
+      });
+    }
+  }
+
+  _resolveTargetCombatAlpha() {
     let defaultAlpha = 0.10; // 90% transparent ("che si veda appena")
     if (typeof window !== 'undefined' && window.location?.search) {
       const q = new URLSearchParams(window.location.search).get('boardAlpha');
@@ -1084,12 +1118,80 @@ export class ZurichSwampView {
         defaultAlpha = Math.max(0.02, Math.min(1.0, Number(q)));
       }
     }
-    const alpha = active
-      ? Number.isFinite(this.combatBoardAlpha)
-        ? this.combatBoardAlpha
-        : defaultAlpha
-      : 1.0;
-    this._applyAltarTranslucency(active && alpha < 0.999, alpha);
+    return Number.isFinite(this.combatBoardAlpha) ? this.combatBoardAlpha : defaultAlpha;
+  }
+
+  /**
+   * Smoothly interpolates the entire Zurich & Swamp Diorama + 8x8 Chessboard between:
+   * - `blend = 0.0`: 100% normal mode (Swamp, Zurich, Alps, Foundation, and 64 Chessboard tiles at 100% opacity)
+   * - `blend = 1.0`: 100% Netflix Combat XXL mode (Surrounding world hidden, 64 Chessboard tiles at 10% opacity / 90% transparent)
+   * - `0.0 < blend < 1.0`: Sliding-window optical cross-fade where the Swamp, Zurich Skyline, and Chessboard
+   *   smoothly rematerialize (`worldAlpha = 1.0 - blend`) as the Netflix Cinema screen zooms out!
+   * @param {number} blend
+   */
+  setCombatBlend(blend) {
+    this._ensureDioramaFadeTargets();
+    const b = Math.max(0, Math.min(1, Number.isFinite(blend) ? blend : 0));
+    this.combatBlend = b;
+    this.inCombatCinemaMode = b > 0.002;
+
+    if (this.scene) {
+      if (!this.scene.background || !this.scene.background.isColor) {
+        this.scene.background = new THREE.Color(0x0b1528);
+      }
+      this.scene.background.lerpColors(this._zurichBgColor, this._combatBgColor, b);
+    }
+
+    // 1. Surrounding Diorama (Swamp, Zurich Skyline, Alps, Braziers, Under-board Foundation & Island)
+    const worldAlpha = 1.0 - b;
+    const hideDiorama = worldAlpha <= 0.005;
+    const fullDiorama = worldAlpha >= 0.995;
+
+    for (const grp of this._dioramaGroups) {
+      grp.visible = !hideDiorama;
+    }
+
+    if (!hideDiorama) {
+      for (const item of this._dioramaMaterials) {
+        const { mat, origTransparent, origOpacity, origDepthWrite } = item;
+        const nextTransparent = fullDiorama ? origTransparent : true;
+        const nextDepthWrite = fullDiorama ? origDepthWrite : false;
+        if (mat.transparent !== nextTransparent || mat.depthWrite !== nextDepthWrite) {
+          mat.transparent = nextTransparent;
+          mat.depthWrite = nextDepthWrite;
+          mat.needsUpdate = true;
+        }
+        mat.opacity = fullDiorama ? origOpacity : origOpacity * worldAlpha;
+      }
+    }
+
+    // 2. 64 Chessboard Squares (`1.0` opacity in normal mode <-> `0.10` opacity in combat mode)
+    const targetAlpha = this._resolveTargetCombatAlpha();
+    const sqOpacity =
+      b >= 0.999
+        ? targetAlpha
+        : b <= 0.001
+          ? 1.0
+          : Math.round((1.0 - b + targetAlpha * b) * 1e6) / 1e6;
+    const isTranslucent = b > 0.002 && sqOpacity < 0.999;
+    this._applyAltarTranslucency(isTranslucent, isTranslucent ? sqOpacity : 1.0, b);
+  }
+
+  /**
+   * During combat (`BATTLE_STARTED`), transitions into Netflix Combat Cinema mode (`inCombatCinemaMode = true`),
+   * and on `BATTLE_COMPLETED` transitions back (`inCombatCinemaMode = false`).
+   * @param {boolean} active
+   */
+  setCombatCinemaMode(active) {
+    this.inCombatCinemaMode = Boolean(active);
+    // When VFXPoolView is not mounted (e.g., standalone unit tests), apply the target blend immediately;
+    // when VFXPoolView is mounted, VFXPoolView drives `setCombatBlend(b)` smoothly across the sliding window!
+    if (!this.scene?.userData?.vfxControlsCombatBlend) {
+      this.setCombatBlend(active ? 1.0 : 0.0);
+    } else if (active && this.combatBlend <= 0.001) {
+      // Prime entry blend on frame 0 so the transition starts smoothly without a hard cut
+      this.setCombatBlend(0.02);
+    }
   }
 
   /**
@@ -1098,29 +1200,38 @@ export class ZurichSwampView {
    */
   setCombatBoardAlpha(alpha = 0.10) {
     this.combatBoardAlpha = Math.max(0.02, Math.min(1.0, Number(alpha) || 0.10));
-    if (this.inCombatCinemaMode) {
-      this._applyAltarTranslucency(this.combatBoardAlpha < 0.999, this.combatBoardAlpha);
+    if (this.inCombatCinemaMode || this.combatBlend > 0.001) {
+      this.setCombatBlend(this.combatBlend || 1.0);
     }
   }
 
-  _applyAltarTranslucency(translucent, opacity) {
+  _applyAltarTranslucency(translucent, opacity, blend = translucent ? 1.0 : 0.0) {
+    const scaleY = translucent ? 1.0 + (0.02 - 1.0) * blend : 1.0;
     for (const sqMesh of this.squareMeshes) {
-      sqMesh.scale.y = translucent ? 0.02 : 1.0;
+      sqMesh.scale.y = scaleY;
       const mat = sqMesh.material;
       if (!mat) continue;
       const isLight = Boolean(sqMesh.userData?.isLight);
-      mat.transparent = translucent;
+      const nextDepthWrite = !translucent;
+      if (mat.transparent !== translucent || mat.depthWrite !== nextDepthWrite) {
+        mat.transparent = translucent;
+        mat.depthWrite = nextDepthWrite;
+        mat.needsUpdate = true;
+      }
       mat.opacity = opacity;
-      mat.roughness = translucent ? 0.85 : isLight ? 0.28 : 0.22;
-      mat.depthWrite = !translucent;
-      mat.needsUpdate = true;
+      mat.roughness = translucent ? (isLight ? 0.28 : 0.22) + 0.57 * blend : isLight ? 0.28 : 0.22;
     }
-    for (const mat of [this.goldTrimMat, this.borderMatH, this.borderMatV, this.mossStoneMat]) {
-      if (!mat) continue;
-      mat.transparent = translucent;
-      mat.opacity = translucent ? Math.min(1.0, opacity * 1.6) : 1.0;
-      mat.depthWrite = !translucent;
-      mat.needsUpdate = true;
+    if (this.squareInlayMat) {
+      const nextDepthWrite = !translucent;
+      if (
+        this.squareInlayMat.transparent !== translucent ||
+        this.squareInlayMat.depthWrite !== nextDepthWrite
+      ) {
+        this.squareInlayMat.transparent = translucent;
+        this.squareInlayMat.depthWrite = nextDepthWrite;
+        this.squareInlayMat.needsUpdate = true;
+      }
+      this.squareInlayMat.opacity = translucent ? Math.min(1.0, opacity * 1.6) : 1.0;
     }
   }
 

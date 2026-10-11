@@ -144,13 +144,25 @@ export class VFXPoolView {
     this.swampLandingPos = { x: 6.4, y: -0.28, z: 0 };
     this.lastCameraShake = 0;
 
-    // Orbiting camera state
+    // Orbiting camera & smooth sliding-window transition state
     this.camSaved = null;
     this.camRestoreTimer = 0;
+    this.camRestoreDuration = 0;
+    this.exitWindowTotalS = 3.5;
+    this.exitPreWindowS = 0;
+    this.combatBlend = 0.0;
+    this.lastCombatDesiredPos = new THREE.Vector3(0, 2.5, 4.8);
+    this.lastCombatDesiredTarget = new THREE.Vector3(0, 1.62, 0);
+    this.lastNetflixMirrorPos = new THREE.Vector3(0, 0.78, -6.0);
+    this.lastNetflixMirrorScale = 1.53;
+    this.lastNetflixMirrorQuat = new THREE.Quaternion();
+    this._idleMirrorQuat = new THREE.Quaternion(0, 0, 0, 1);
     this.hiddenBoardNodes = [];
     this.offs = [];
 
     if (this.scene) {
+      this.scene.userData = this.scene.userData || {};
+      this.scene.userData.vfxControlsCombatBlend = true;
       this.buildPools();
       this.scene.add(this.rootGroup);
     }
@@ -166,6 +178,8 @@ export class VFXPoolView {
   init(ctx = {}) {
     if (ctx.scene && !this.scene) {
       this.scene = ctx.scene;
+      this.scene.userData = this.scene.userData || {};
+      this.scene.userData.vfxControlsCombatBlend = true;
       if (this.pools.size === 0) this.buildPools();
       this.scene.add(this.rootGroup);
     }
@@ -1864,6 +1878,7 @@ export class VFXPoolView {
       };
     }
     this.camOrbitCenter = new THREE.Vector3(targetPos.x, 0.75, targetPos.z);
+    this._orbitPoseInitialized = false;
     this.camRestoreTimer = 0;
   }
 
@@ -1958,19 +1973,57 @@ export class VFXPoolView {
     this.startCameraOrbit(kingPos);
   }
 
+  smoothstep(x) {
+    const c = Math.max(0, Math.min(1, x));
+    return c * c * (3 - 2 * c);
+  }
+
+  getEntryDurationS() {
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const q = new URLSearchParams(window.location.search).get('entrySeconds');
+      if (q !== null && Number.isFinite(Number(q))) {
+        return Math.max(0.2, Math.min(4.0, Number(q)));
+      }
+    }
+    return 1.10;
+  }
+
+  getExitWindowS() {
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const q = new URLSearchParams(window.location.search).get('transitionSeconds');
+      if (q !== null && Number.isFinite(Number(q))) {
+        return Math.max(0.5, Math.min(8.0, Number(q)));
+      }
+    }
+    return Number.isFinite(this.combatTransitionSeconds) ? this.combatTransitionSeconds : 3.50;
+  }
+
   /**
-   * Triggered on `BATTLE_COMPLETED` or `BATTLE_SKIPPED`: clears stage fighters/props and restores camera.
+   * Triggered on `BATTLE_COMPLETED` or `BATTLE_SKIPPED`: clears stage fighters/props and
+   * continues the smooth 3.5s sliding-window zoom-out & alpha cross-fade back to the saved camera view!
    */
-  onBattleEnded(_e) {
+  onBattleEnded(e) {
     if (this.activeClash?.type === 'CHECKMATE_CAPITULATION') return;
+    const isSkip = e?.type === 'BATTLE_SKIPPED';
+    const exitTotalS = isSkip ? 1.35 : this.getExitWindowS();
+    const durationS = (this.activeClash?.durationMs || 6000) / 1000;
+    const preExitS = isSkip ? 0 : Math.min(durationS * 0.20, exitTotalS * 0.34);
+    const exitStartS = Math.max(1.5, durationS - preExitS);
+    const alreadyRan =
+      !isSkip && this.clashElapsed > exitStartS
+        ? Math.min(preExitS, this.clashElapsed - exitStartS)
+        : 0;
+
     this.activeClash = null;
     this.hideStageProps();
-    const mirrorRoot = this.scene?.getObjectByName?.('VeoMagicCinemaMirror');
-    if (mirrorRoot) {
-      mirrorRoot.rotation.set(0, 0, 0);
-    }
+
     if (this.camSaved) {
-      this.camRestoreTimer = 0.45;
+      this.exitWindowTotalS = exitTotalS;
+      this.exitPreWindowS = alreadyRan;
+      this.camRestoreDuration = Math.max(0.5, exitTotalS - alreadyRan);
+      this.camRestoreTimer = this.camRestoreDuration;
+    } else {
+      this._applyCombatBlendState(0.0);
     }
   }
 
@@ -1986,7 +2039,10 @@ export class VFXPoolView {
 
   clearAllActive() {
     this.activeClash = null;
+    this.camRestoreTimer = 0;
     this.hideStageProps();
+    this._applyCombatBlendState(0.0);
+    this.camSaved = null;
     for (const p of this.activeParticles) {
       p.mesh.visible = false;
     }
@@ -1995,7 +2051,7 @@ export class VFXPoolView {
 
   /**
    * Advances all active pooled particles, 3D Scazzottata character brawl, stage prop animations,
-   * and the Auto-Zoom Capture Camera.
+   * and the Auto-Zoom Capture Camera + 3.5s Sliding-Window Transition.
    * @param {number} dt - Delta time in seconds
    */
   update(dt) {
@@ -2013,33 +2069,22 @@ export class VFXPoolView {
         this.activeClash = null;
         this.hideStageProps();
         if (this.camSaved) {
-          this.camRestoreTimer = 0.45;
+          this.exitWindowTotalS = 2.2;
+          this.exitPreWindowS = 0;
+          this.camRestoreDuration = 2.2;
+          this.camRestoreTimer = 2.2;
         }
       }
     } else if (this.camRestoreTimer > 0 && this.camSaved && this.camera) {
       this.camRestoreTimer = Math.max(0, this.camRestoreTimer - step);
-      const alpha = Math.min(1, step * 8.0);
-      this.camera.position.lerp(this.camSaved.pos, alpha);
-      if (this.camSaved.fov && this.camera.fov !== undefined) {
-        this.camera.fov += (this.camSaved.fov - this.camera.fov) * alpha;
-        this.camera.updateProjectionMatrix?.();
-      }
-      if (this.controls?.target) {
-        this.controls.target.lerp(this.camSaved.target, alpha);
-        this.controls.update?.();
-      } else {
-        this.camera.lookAt(this.camSaved.target);
-      }
+      const postElapsed = this.camRestoreDuration - this.camRestoreTimer;
+      const totalExitElapsed = this.exitPreWindowS + postElapsed;
+      const rawExitU = Math.min(1, totalExitElapsed / Math.max(0.1, this.exitWindowTotalS));
+      const blend = Math.max(0, 1.0 - this.smoothstep(rawExitU));
+      this._applyCombatBlendState(blend);
+
       if (this.camRestoreTimer === 0) {
-        this.camera.position.copy(this.camSaved.pos);
-        if (this.camSaved.fov && this.camera.fov !== undefined) {
-          this.camera.fov = this.camSaved.fov;
-          this.camera.updateProjectionMatrix?.();
-        }
-        if (this.controls?.target) {
-          this.controls.target.copy(this.camSaved.target);
-          this.controls.update?.();
-        }
+        this._applyCombatBlendState(0.0);
         this.camSaved = null;
       }
     }
@@ -2762,7 +2807,8 @@ export class VFXPoolView {
   /**
    * Half-Board (~5x5 Squares) Combat Camera (`dist = 4.55m..4.90m, y = 2.42m..2.58m, fov = 45°`),
    * framing the 2 fighting pieces, ~5x5 squares of neighboring pieces around them,
-   * and 100% of the 16:9 Veo video backdrop right behind the board from any camera angle!
+   * and 100% of the 16:9 Veo video backdrop right behind the board from any camera angle,
+   * with a smooth entry window (`0 -> 1.1s`) and a continuous `3.5s` exit sliding window!
    */
   updateCameraOrbit(t, step) {
     if (!this.camera || !this.camOrbitCenter) return;
@@ -2805,77 +2851,164 @@ export class VFXPoolView {
       camY + shakeY,
       focusZ + dirZ * dist,
     );
-    // Focus on the 2 brawling characters + ~5x5 board squares in the lower half,
-    // while keeping 100% of the 16:9 Cinema Mirror framed in the upper half!
     const desiredTarget = new THREE.Vector3(
       focusX + shakeX * 0.4,
       targetY + shakeY * 0.4,
       focusZ,
     );
 
-    const targetFov = 45;
-    const alpha = Math.min(1, step * 7.5);
-    this.camera.position.lerp(desiredPos, alpha);
-    if (this.camera.fov !== undefined) {
-      this.camera.fov += (targetFov - this.camera.fov) * alpha;
-      this.camera.updateProjectionMatrix?.();
-    }
-    if (this.controls?.target) {
-      this.controls.target.lerp(desiredTarget, alpha);
-      this.controls.update?.();
+    if (!this._orbitPoseInitialized) {
+      this._orbitPoseInitialized = true;
+      this.lastCombatDesiredPos.copy(desiredPos);
+      this.lastCombatDesiredTarget.copy(desiredTarget);
     } else {
-      this.camera.lookAt(desiredTarget);
+      const orbitAlpha = Math.min(1, step * 9.0);
+      this.lastCombatDesiredPos.lerp(desiredPos, orbitAlpha);
+      this.lastCombatDesiredTarget.lerp(desiredTarget, orbitAlpha);
     }
 
-    // Align the 16:9 Netflix Cinema Screen strictly parallel to the camera's image plane (`camera.quaternion`)
-    // so there is zero trapezoid or horizontal foreshortening (pure 16:9 rectangle on screen at all times!).
+    // Compute the exact 16:9 Netflix Cinema XXL pose corresponding to the combat camera
+    const targetFov = 45;
+    this._computeNetflixMirrorPose(this.lastCombatDesiredPos, this.lastCombatDesiredTarget, targetFov, dist);
+
+    // Compute unified `combatBlend` (`0.0 .. 1.0`) across Entry (`0..1.1s`), Peak (`1.1s..4.8s`),
+    // and Phase 1 of the 3.5s Exit Sliding Window (`4.8s..6.0s`)
+    const durationS = (this.activeClash?.durationMs || 6000) / 1000;
+    const entryS = this.getEntryDurationS();
+    const exitTotalS = this.getExitWindowS();
+    const preExitS = Math.min(durationS * 0.20, exitTotalS * 0.34);
+    const exitStartS = Math.max(entryS + 0.5, durationS - preExitS);
+
+    let blend = 1.0;
+    if (this.clashElapsed < entryS) {
+      blend = Math.max(0.02, this.smoothstep(this.clashElapsed / entryS));
+    } else if (
+      this.clashElapsed > exitStartS &&
+      this.activeClash?.type !== 'CHECKMATE_CAPITULATION'
+    ) {
+      const exitElapsed = this.clashElapsed - exitStartS;
+      blend = Math.max(0, 1.0 - this.smoothstep(exitElapsed / Math.max(0.1, exitTotalS)));
+    }
+
+    this._applyCombatBlendState(blend);
+  }
+
+  /**
+   * Computes the camera-aligned 16:9 Netflix Cinema XXL position, scale, and quaternion
+   * for a given combat camera pose `(camPos, camTgt, fov)`.
+   */
+  _computeNetflixMirrorPose(camPos, camTgt, fov = 45, fallbackDist = 4.8) {
+    const upVec = new THREE.Vector3(0, 1, 0);
+    const lookMat = new THREE.Matrix4().lookAt(camPos, camTgt, upVec);
+    this.lastNetflixMirrorQuat.setFromRotationMatrix(lookMat);
+
+    const camDx = camPos.x - camTgt.x;
+    const camDz = camPos.z - camTgt.z;
+    const actualHorizDist = Math.hypot(camDx, camDz) || fallbackDist;
+    const actualDirX = camDx / actualHorizDist;
+    const actualDirZ = camDz / actualHorizDist;
+
+    const maxAltarCornerDist =
+      Math.abs(4.8 * actualDirX) +
+      Math.abs(4.8 * actualDirZ) +
+      camTgt.x * actualDirX +
+      camTgt.z * actualDirZ;
+    const backdropDist = Math.max(5.8, maxAltarCornerDist + 0.85);
+
+    let defaultBoost = 1.75; // Cinema XXL (+75%, covers the entire 90%-transparent chessboard underneath!)
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const qb = new URLSearchParams(window.location.search).get('videoBoost');
+      if (qb !== null && Number.isFinite(Number(qb))) {
+        defaultBoost = Math.max(0.8, Math.min(2.5, Number(qb)));
+      }
+    }
+    const videoBoost = Number.isFinite(this.combatVideoBoost)
+      ? this.combatVideoBoost
+      : defaultBoost;
+
+    const dMirror = actualHorizDist + backdropDist;
+    const halfTan = Math.tan((fov * 0.5 * Math.PI) / 180);
+    const hHalf = dMirror * halfTan;
+
+    const camFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(this.lastNetflixMirrorQuat).normalize();
+    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(this.lastNetflixMirrorQuat).normalize();
+
+    const topOffset = 0.72 * hHalf;
+    const frameSpanH = 0.78 * hHalf * videoBoost;
+    const mirrorScale = Math.max(0.52, Math.min(2.20, frameSpanH / 4.60));
+    const centerOffset = topOffset - 2.30 * mirrorScale;
+
+    this.lastNetflixMirrorPos
+      .copy(camPos)
+      .addScaledVector(camFwd, dMirror)
+      .addScaledVector(camUp, centerOffset);
+    this.lastNetflixMirrorScale = mirrorScale;
+  }
+
+  /**
+   * Applies the unified `combatBlend` (`0.0 .. 1.0`) across:
+   * 1. `ZurichSwampView` (Swamp, Zurich Skyline, Alps, and 64 Chessboard tiles alpha cross-fade)
+   * 2. `VeoCinemaView` (Netflix film alpha `100% <-> 0%` + "Cinema Vecchio" convergence)
+   * 3. `this.camera` & `this.controls.target` (smooth pull-back to `this.camSaved`)
+   * 4. `VeoMagicCinemaMirror` 3D position, scale, and quaternion convergence to `(0, 3.65, -10.8)`
+   * @param {number} blend
+   */
+  _applyCombatBlendState(blend) {
+    const b = Math.max(0, Math.min(1, Number.isFinite(blend) ? blend : 0));
+    this.combatBlend = b;
+
+    if (this.scene?.userData) {
+      this.scene.userData.combatBlend = b;
+      this.scene.userData.applySwampCombatBlend?.(b);
+      this.scene.userData.applyCinemaCombatBlend?.(b);
+    }
+
+    if (this.camera && this.camSaved) {
+      const savedPos = this.camSaved.pos;
+      const savedTarget = this.camSaved.target;
+      const savedFov = this.camSaved.fov || 46;
+      const targetFov = 45;
+
+      this.camera.position.lerpVectors(savedPos, this.lastCombatDesiredPos, b);
+      if (this.camera.fov !== undefined) {
+        this.camera.fov = savedFov + (targetFov - savedFov) * b;
+        this.camera.updateProjectionMatrix?.();
+      }
+      if (this.controls?.target) {
+        this.controls.target.lerpVectors(savedTarget, this.lastCombatDesiredTarget, b);
+        this.controls.update?.();
+      } else {
+        const lookTgt = new THREE.Vector3().lerpVectors(savedTarget, this.lastCombatDesiredTarget, b);
+        this.camera.lookAt(lookTgt);
+      }
+    }
+
     const mirrorRoot = this.scene?.getObjectByName?.('VeoMagicCinemaMirror');
     if (mirrorRoot) {
-      this.camera.updateMatrixWorld?.();
-      const actualTgt = this.controls?.target || desiredTarget;
-      const camDx = this.camera.position.x - actualTgt.x;
-      const camDz = this.camera.position.z - actualTgt.z;
-      const actualHorizDist = Math.hypot(camDx, camDz) || dist;
-      const actualDirX = camDx / actualHorizDist;
-      const actualDirZ = camDz / actualHorizDist;
+      const idlePos = mirrorRoot.userData?.idlePos || new THREE.Vector3(0, 3.65, -10.8);
+      const idleScale = mirrorRoot.userData?.idleScale || 0.65;
 
-      const maxAltarCornerDist =
-        Math.abs(4.8 * actualDirX) +
-        Math.abs(4.8 * actualDirZ) +
-        actualTgt.x * actualDirX +
-        actualTgt.z * actualDirZ;
-      const backdropDist = Math.max(5.8, maxAltarCornerDist + 0.85);
-
-      let defaultBoost = 1.75; // Cinema XXL (+75%, covers the entire 90%-transparent chessboard underneath!)
-      if (typeof window !== 'undefined' && window.location?.search) {
-        const qb = new URLSearchParams(window.location.search).get('videoBoost');
-        if (qb !== null && Number.isFinite(Number(qb))) {
-          defaultBoost = Math.max(0.8, Math.min(2.5, Number(qb)));
-        }
+      if (b >= 0.999 && this.camera) {
+        this.camera.updateMatrixWorld?.();
+        mirrorRoot.position.copy(this.lastNetflixMirrorPos);
+        mirrorRoot.scale.setScalar(this.lastNetflixMirrorScale);
+        mirrorRoot.quaternion.copy(this.camera.quaternion);
+        mirrorRoot.userData.vfxControlled = true;
+      } else if (b <= 0.001) {
+        mirrorRoot.position.copy(idlePos);
+        mirrorRoot.scale.setScalar(idleScale);
+        mirrorRoot.rotation.set(0, 0, 0);
+        mirrorRoot.userData.vfxControlled = false;
+      } else {
+        mirrorRoot.position.lerpVectors(idlePos, this.lastNetflixMirrorPos, b);
+        mirrorRoot.scale.setScalar(idleScale + (this.lastNetflixMirrorScale - idleScale) * b);
+        mirrorRoot.quaternion.slerpQuaternions(
+          this._idleMirrorQuat,
+          this.lastNetflixMirrorQuat,
+          b,
+        );
+        mirrorRoot.userData.vfxControlled = true;
       }
-      const videoBoost = Number.isFinite(this.combatVideoBoost)
-        ? this.combatVideoBoost
-        : defaultBoost;
-
-      const dMirror = actualHorizDist + backdropDist;
-      const curFov = this.camera.fov || targetFov;
-      const halfTan = Math.tan((curFov * 0.5 * Math.PI) / 180);
-      const hHalf = dMirror * halfTan;
-
-      const camFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion).normalize();
-      const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(this.camera.quaternion).normalize();
-
-      const topOffset = 0.72 * hHalf;
-      const frameSpanH = 0.78 * hHalf * videoBoost;
-      const mirrorScale = Math.max(0.52, Math.min(2.20, frameSpanH / 4.60));
-      const centerOffset = topOffset - 2.30 * mirrorScale;
-
-      mirrorRoot.position
-        .copy(this.camera.position)
-        .addScaledVector(camFwd, dMirror)
-        .addScaledVector(camUp, centerOffset);
-      mirrorRoot.scale.setScalar(mirrorScale);
-      mirrorRoot.quaternion.copy(this.camera.quaternion);
     }
   }
 

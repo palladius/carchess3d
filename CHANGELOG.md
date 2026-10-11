@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.24] - 2026-10-11
+
+- 🎞️🌊🏰 **Smooth `3.5s` Sliding-Window Transitions Into & Out Of Netflix Cinema (`VFXPoolView.js`, `VeoCinemaView.js`, `ZurichSwampView.js`, `tests/combat.test.mjs`)**:
+  - **Continuous `3.5s` Exit Sliding Window (`?transitionSeconds=3.5`, `4.80s -> 8.30s`)**: Eliminated the abrupt film cut and instant world snap when a duel finishes. Instead, starting during the final `1.20s` of the K.O. climax (`4.80s .. 6.00s`) and gliding seamlessly for `2.30s` after `BATTLE_COMPLETED` (`6.00s .. 8.30s`), a unified `combatBlend` (`1.0 -> 0.0`) drives the camera, Netflix Cinema screen, chessboard, and Zurich Swamp diorama in lockstep.
+  - **Smooth Entry Sliding Window (`?entrySeconds=1.10`)**: Entering a capture duel smoothly ramps `combatBlend` (`0.0 -> 1.0`) over `1.10s` as the camera glides in, the diorama dissolves, and the "Cinema Vecchio" expands into the 16:9 Netflix XXL theatre.
+  - **Netflix -> "Cinema Vecchio" 3D Convergence & Alpha Cross-Fade (`VeoCinemaView.js`)**: Keeps the Veo MP4 film playing during the exit window while cross-fading its canvas alpha from `100%` (`1.0`) down to `0%` over the classic idle crest (`drawIdleCrestFrame`), simultaneously zooming the 3D screen out (`lerpVectors` / `slerpQuaternions`) back to `(0, 3.65, -10.8)` (`scale = 0.65`) between the Grossmünster Twin Towers and morphing the bezel color from Netflix Red (`#E50914`) back to Zurich Gold (`#e6b84a`).
+  - **Simultaneous Rematerialization of Swamp, Zurich Skyline & Chessboard (`ZurichSwampView.js`)**: Added `setCombatBlend(blend)` to smoothly interpolate the 64 chessboard squares (`opacity: 0.10 <-> 1.00`) and all surrounding diorama meshes (`Swamp`, `Zurich Skyline`, `Swiss Alps`, `Corner Braziers`, `Under-Board Foundation` with `opacity: 0.0 <-> 1.0`, `depthWrite = false` during the cross-fade) while gently pulling the camera back from the two contenders to the player's saved pre-combat view.
+
 ## [0.3.23] - 2026-10-11
 
 - 🍿🔴🎬 **Netflix Cinema 16:9 Look & Feel — Minimal `1.1%` `#E50914` Red Bezel, `"N"` Badge, Scrubber Bar & Zero-Distortion `16:9` Camera Alignment (`VeoCinemaView.js`, `VFXPoolView.js`)**:
