@@ -256,14 +256,12 @@ export class VFXPoolView {
     const gemColors = [0xab47bc, 0xe53935, 0x7e57c2, 0x29b6f6, 0xff4081];
     this.createPool('amethyst_ruby_shards', 70, (i) => {
       const col = gemColors[i % gemColors.length];
-      const mat = new THREE.MeshPhysicalMaterial({
+      const mat = new THREE.MeshStandardMaterial({
         color: col,
         emissive: col,
         emissiveIntensity: 0.45,
-        roughness: 0.1,
-        metalness: 0.15,
-        transmission: 0.65,
-        clearcoat: 1.0,
+        roughness: 0.14,
+        metalness: 0.25,
         transparent: true,
         opacity: 0.92,
       });

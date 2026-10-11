@@ -41,6 +41,7 @@
       height: 100%;
       outline: none;
       touch-action: none;
+      background-color: #0b1528;
     }
     /* Visually hidden SEO/a11y heading */
     .sr-only {
@@ -64,11 +65,31 @@
 
   <script type="module" src="./src/main.js"></script>
   <script>
-    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
-    }
+    (function () {
+      const sp = new URLSearchParams(location.search);
+      const nocache = sp.get('nocache') === '1' || sp.get('fresh') === '1';
+      if (nocache) {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then((regs) => {
+            regs.forEach((r) => r.unregister());
+          });
+        }
+        if ('caches' in window) {
+          caches.keys().then((keys) => {
+            keys.forEach((k) => caches.delete(k));
+          });
+        }
+        return;
+      }
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('./sw.js', { updateViaCache: 'none' })
+            .then((reg) => reg.update().catch(() => {}))
+            .catch(() => {});
+        });
+      }
+    })();
   </script>
 </body>
 </html>

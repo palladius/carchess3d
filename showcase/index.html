@@ -93,24 +93,23 @@
     <p>Esplora le 3 famiglie di scacchi: 2D Nano Banana 2.1 + 3D GLB in autorotazione (trascina per ruotare, <b>click sul 3D o ⛶ = schermo intero</b>, Esc per uscire).</p>
     <div class="toolbar">
       <div class="btn-group" id="family-tabs" role="tablist" aria-label="Famiglia di Scacchi">
-        <button type="button" data-family="all" aria-pressed="true">✨ Tutte le Famiglie (18)</button>
-        <button type="button" data-family="carlesso" aria-pressed="false">👨‍👩‍👦‍👦 Famiglia Carlesso (6)</button>
+        <button type="button" data-family="carlesso" aria-pressed="true">👨‍👩‍👦‍👦 Famiglia Carlesso (6)</button>
         <button type="button" data-family="classic" aria-pressed="false">♔🏛️ Scacchi Classici Vanilla (6)</button>
-        <button type="button" data-family="swamp" aria-pressed="false">🐸🧅 Famiglia della Palude (6)</button>
+        <button type="button" data-family="swamp" aria-pressed="false">🐸🧅 Famiglia Shrek / Palude (6)</button>
       </div>
       <div class="btn-group" id="faction-tabs" role="group" aria-label="Colore Squadra 3D">
         <button type="button" data-faction="original" aria-pressed="true">🎨 Materiali Originali</button>
         <button type="button" data-faction="white" aria-pressed="false">⚪ Squadra Bianca (Avorio & Oro)</button>
         <button type="button" data-faction="black" aria-pressed="false">⚫ Squadra Nera (Ossidiana & Argento)</button>
       </div>
-      <span class="warn">🧪 Showcase 3D · Valutato da Adversarial Art Critic (<code>fable-5.1-high</code>)</span>
+      <span class="warn">🧪 Showcase 3D · 6 Pezzi per Famiglia · Valutato da Adversarial Art Critic</span>
     </div>
   </header>
 
   <section class="family-banner" id="family-banner">
     <div>
-      <h2 id="banner-title">✨ Tutte le 3 Famiglie — 18 Pezzi (Carlesso · Classici Vanilla · Palude)</h2>
-      <p id="banner-desc">Confronta i concept 2D Nano Banana 2.1 e i modelli 3D .glb verificati da <code>fable-5.1-high</code> (0 💩 rimasti!).</p>
+      <h2 id="banner-title">👨‍👩‍👦‍👦 Famiglia Carlesso — Cast Principale (6 Pezzi)</h2>
+      <p id="banner-desc">Riccardo, Kate, Ale (con drago rosso riggato a 26 ossa), Seby, Pupurabbu e la Guardia Svizzera Puffin.</p>
     </div>
     <div class="family-links">
       <a href="../tools/model-pipeline/classic/classic_contact_sheet.png" target="_blank">📸 Contact Sheet Classici Vanilla (6×4)</a>
@@ -127,21 +126,17 @@
     import { GLTFLoader } from '../vendor/three/addons/loaders/GLTFLoader.js';
 
     const FAMILY_META = {
-      all: {
-        title: '✨ Tutte le 3 Famiglie — 18 Pezzi (Carlesso · Classici Vanilla · Palude)',
-        desc: 'Tutte le 18 carte personaggio: 2D Nano Banana 2.1 + modelli 3D .glb con controllo colore squadra Bianco/Nero.',
-      },
       carlesso: {
-        title: '👨‍👩‍👦‍👦 Famiglia Carlesso — Cast Principale',
+        title: '👨‍👩‍👦‍👦 Famiglia Carlesso — Cast Principale (6 Pezzi)',
         desc: 'Riccardo, Kate, Ale (con drago rosso riggato a 26 ossa), Seby, Pupurabbu e la Guardia Svizzera Puffin.',
       },
       classic: {
-        title: '♔🏛️ Scacchi Classici (San Gennaro & Torre Matildea) — Set Staunton & Tradizione Italiana',
+        title: '♔🏛️ Scacchi Classici (San Gennaro & Torre Matildea) — Set Staunton & Tradizione Italiana (6 Pezzi)',
         desc: '100% Scacchi Classici senza riferimenti Carlessiani: Re con Croce Reale, Regina coronata di perle, Alfiere Busto di San Gennaro con Ampolla del Sangue e mitria gemmata, Destriero Staunton, Torre Matildea / Rocca Estense dei Lidi Ferraresi e Pedone tornito.',
       },
       swamp: {
-        title: '🐸🧅 Famiglia della Palude — Parodia Fiabesca 100% IP-Safe',
-        desc: 'Orco Brontolo, Principessa Orchessa, Mago Focaccina Ligure, Asinello Chiacchierone, Draghessa della Palude e Guardia Re Tappo (2D media 8.7/10 🟢 · 3D media 7.45/10 🟡).',
+        title: '🐸🧅 Famiglia Shrek / Palude — Parodia Fiabesca 100% IP-Safe (6 Pezzi)',
+        desc: 'Orco Brontolo, Principessa Orchessa, Don Gatto con gli Stivali Zorro-Vescovo, Asinello Chiacchierone (40 denti!), Draghessa della Palude e Zenzy Pan di Zenzero & Focaccina.',
       },
     };
 
@@ -155,11 +150,11 @@
         back: '../tools/model-pipeline/ale/experiments_back/back_nb_2.1.png',
         backGrid: '../tools/model-pipeline/ale/experiments_back/ale_hat_back_comparison_grid.jpg',
         models: [
-          { label: 'v1 · 1 vista (Canonico)', url: '../assets/models/bishop-ale-1.glb',
+          { label: 'v1 · 1 vista (Canonico)', url: '../assets/models/bishop-ale-1.glb?v=0.3.31',
             note: 'v1 (canonico attuale): TRELLIS da sola vista frontale, retro inventato.' },
-          { label: 'v3 · Rigged 🐉', url: '../assets/models/bishop-ale-rigged.glb',
+          { label: 'v3 · Rigged 🐉', url: '../assets/models/bishop-ale-rigged.glb?v=0.3.31',
             note: 'Assemblaggio modulare con drago 3D pulito e rig a 26 ossa (Idle + Click_Fire_Breath).' },
-          { label: 'v2 · 3 viste ❌', url: '../tools/model-pipeline/ale/out/ale1_hat_f_tq_back.glb',
+          { label: 'v2 · 3 viste ❌', url: '../tools/model-pipeline/ale/out/ale1_hat_f_tq_back.glb?v=0.3.31',
             note: 'v2 (scartata da Riccardo: 2 mezzi draghi): TRELLIS multi-image fronte + 3/4 + retro NB 2.1, seed 42.' },
         ],
         details: 'Mitria vescovile blu e oro, occhioni verdi sorridenti, drago rosso sulla spalla, bastoncino pastorale in legno, basamento marmo + legno.',
@@ -168,11 +163,11 @@
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
         glyph: '♔', piece: 'King (1.80m)', name: 'Re Riccardo', winner: true, defaultConfirmed: true,
         tagline: 'Re della famiglia Carlesso',
-        front: '../assets/characters/king-riccardo-1.jpg',
+        front: '../assets/characters/king-riccardo-1.jpg?v=0.3.31',
         back: '../tools/model-pipeline/king/back.png',
-        model: '../assets/models/king-riccardo.glb?v=0.3.20',
+        model: '../assets/models/king-riccardo.glb?v=0.3.31',
         details: 'Re con corona imperiale ad archi, mantello blu con bordi d\'ermellino, globo crucigero nella mano sinistra e scettro d\'oro nella destra.',
-        modelNote: 'TRELLIS.2 + Mode B Face-Grafting (Dual-Chart 2048×1024 + Laplacian Skin Blending da front.png): 96,958 tris, profilo senza occhiali coerente.',
+        modelNote: 'TRELLIS.2 + Adversarial Biometric Likeness Loop (9.1/10) + Mode B 2048×1024 Face-Grafting & Cylindrical Side Unwrapping.',
       },
       {
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
@@ -425,9 +420,15 @@
       }
     }
 
+    // Single shared WebGLRenderer across all 18+ showcase cards!
+    // Chromium enforces `kMaxActiveWebGLContexts = 16` per page: creating 18 WebGLRenderers
+    // evicts the oldest contexts (#0 Ale 1 and #1 Re Riccardo), turning their canvases white.
+    const sharedRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    sharedRenderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
     function makeView(pane, models) {
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       const scene = new THREE.Scene();
       scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 3.2));
       const key = new THREE.DirectionalLight(0xffffff, 2.5);
@@ -441,8 +442,8 @@
         return g;
       });
       const view = {
-        pane, renderer, scene, camera, slots, n: models.length, radii: [], maxR: MAX_RADIUS, angle: 0,
-        visible: false, dragging: false, lastX: 0, downX: 0, idleAt: 0, factionMaterials: [],
+        pane, canvas, ctx, scene, camera, slots, n: models.length, radii: [], maxR: MAX_RADIUS, angle: 0,
+        w: 0, h: 0, visible: false, dragging: false, lastX: 0, downX: 0, idleAt: 0, factionMaterials: [],
         uDragonTime: { value: 0 }, hasDragonCoil: false,
       };
 
@@ -540,9 +541,9 @@ if (uDragonCoilMode > 0.5) {
         slots[k].add(holder);
         view.radii[k] = radius * scale;
         layout(view);
-        if (!renderer.domElement.isConnected) {
+        if (!canvas.isConnected) {
           pane.querySelector('.placeholder')?.remove();
-          pane.prepend(renderer.domElement);
+          pane.prepend(canvas);
           resize(view);
         }
       }, undefined, (err) => {
@@ -550,7 +551,7 @@ if (uDragonCoilMode > 0.5) {
         if (ph) ph.textContent = `❌ ${m.label}: ${err.message}`;
       }));
 
-      const el = renderer.domElement;
+      const el = canvas;
       el.addEventListener('pointerdown', (e) => {
         view.dragging = true; view.lastX = view.downX = e.clientX; el.setPointerCapture(e.pointerId);
       });
@@ -577,7 +578,15 @@ if (uDragonCoilMode > 0.5) {
     function resize(v) {
       const w = v.pane.clientWidth, h = v.pane.clientHeight;
       if (!w || !h) return;
-      v.renderer.setSize(w, h, false);
+      const dpr = Math.min(devicePixelRatio, 2);
+      const pw = Math.max(1, Math.round(w * dpr));
+      const ph = Math.max(1, Math.round(h * dpr));
+      if (v.canvas.width !== pw || v.canvas.height !== ph) {
+        v.canvas.width = pw;
+        v.canvas.height = ph;
+      }
+      v.w = w;
+      v.h = h;
       v.camera.aspect = w / h;
       const t = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
       const needH = MODEL_H * MARGIN, needW = ((v.n - 1) * (v.spacing ?? 0) + 2 * v.maxR) * MARGIN;
@@ -587,11 +596,7 @@ if (uDragonCoilMode > 0.5) {
       v.camera.updateProjectionMatrix();
     }
 
-    CHARACTERS.forEach((c, i) => {
-      const models = modelsOf(c);
-      if (models.length) views[i] = makeView(root.querySelector(`[data-3d="${i}"]`), models);
-    });
-    const viewList = Object.values(views);
+    const viewList = [];
 
     const io = new IntersectionObserver((entries) => entries.forEach((en) => {
       const v = viewList.find((x) => x.pane === en.target);
@@ -601,20 +606,33 @@ if (uDragonCoilMode > 0.5) {
       const v = viewList.find((x) => x.pane === en.target);
       if (v) resize(v);
     }));
-    viewList.forEach((v) => { io.observe(v.pane); ro.observe(v.pane); });
 
-    // Family Tab Filtering
+    function ensureFamilyViews(fam) {
+      CHARACTERS.forEach((c, i) => {
+        if (c.family !== fam || views[i]) return;
+        const models = modelsOf(c);
+        if (!models.length) return;
+        const v = makeView(root.querySelector(`[data-3d="${i}"]`), models);
+        views[i] = v;
+        viewList.push(v);
+        io.observe(v.pane);
+        ro.observe(v.pane);
+      });
+    }
+
+    // Family Tab Filtering (strictly 1 family = 6 pieces visible at a time)
     function selectFamily(fam) {
-      const validFam = FAMILY_META[fam] ? fam : 'all';
+      const normalized = fam === 'shrek' ? 'swamp' : fam;
+      const validFam = FAMILY_META[normalized] ? normalized : 'carlesso';
       document.querySelectorAll('#family-tabs button').forEach((b) => {
         b.setAttribute('aria-pressed', b.dataset.family === validFam);
       });
       document.getElementById('banner-title').textContent = FAMILY_META[validFam].title;
       document.getElementById('banner-desc').textContent = FAMILY_META[validFam].desc;
       root.querySelectorAll('.card').forEach((card) => {
-        const show = validFam === 'all' || card.dataset.familyCard === validFam;
-        card.hidden = !show;
+        card.hidden = card.dataset.familyCard !== validFam;
       });
+      ensureFamilyViews(validFam);
       requestAnimationFrame(() => viewList.forEach((v) => resize(v)));
     }
 
@@ -636,7 +654,7 @@ if (uDragonCoilMode > 0.5) {
     });
 
     const initialHash = location.hash.replace('#', '');
-    if (initialHash && FAMILY_META[initialHash]) selectFamily(initialHash);
+    selectFamily(initialHash || 'carlesso');
 
     const clock = new THREE.Clock();
     function tick() {
@@ -644,11 +662,17 @@ if (uDragonCoilMode > 0.5) {
       const now = performance.now();
       const elapsedSec = now * 0.001;
       for (const v of viewList) {
-        if (!v.visible && document.fullscreenElement !== v.pane) continue;
+        if ((!v.visible && document.fullscreenElement !== v.pane) || !v.canvas.isConnected) continue;
+        const w = v.pane.clientWidth || v.w || 300;
+        const h = v.pane.clientHeight || v.h || 300;
+        if (w !== v.w || h !== v.h) resize(v);
         if (v.hasDragonCoil) v.uDragonTime.value = elapsedSec;
         if (!v.dragging && now - v.idleAt > 1500) v.angle += dt * (v.hasDragonCoil ? 0.22 : 0.6);
         v.slots.forEach((g) => { g.rotation.y = v.angle; });
-        v.renderer.render(v.scene, v.camera);
+        sharedRenderer.setSize(w, h, false);
+        sharedRenderer.render(v.scene, v.camera);
+        v.ctx.clearRect(0, 0, v.canvas.width, v.canvas.height);
+        v.ctx.drawImage(sharedRenderer.domElement, 0, 0, v.canvas.width, v.canvas.height);
       }
       requestAnimationFrame(tick);
     }
@@ -656,7 +680,7 @@ if (uDragonCoilMode > 0.5) {
   </script>
 
   <footer style="text-align:center;padding:24px 16px 40px;color:#90a4ae;font-size:12px;border-top:1px solid rgba(255,213,79,0.2);margin-top:40px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
-    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.10</span>
+    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.34</span>
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener noreferrer" style="color:#9be7c4;text-decoration:none;font-weight:600;">🐙 GitHub Code</a>
     <span>·</span>

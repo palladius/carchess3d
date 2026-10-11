@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.32';
+export const APP_VERSION = '0.3.42';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -71,22 +71,108 @@ export const VOICE_LINES = Object.freeze({
     speechLang: 'it-IT',
     pitch: 0.95,
     rate: 1.0,
+    variants: Object.freeze([
+      {
+        id: 'k_avanti',
+        kind: 'signature',
+        weight: 1.4,
+        audioUrl: 'assets/audio/voices/voice-k.mp3',
+        quote: {
+          it: 'Avanti tutta! Re Carlesso al comando!',
+          en: 'Avanti tutta! Re Carlesso al comando!',
+        },
+      },
+      {
+        id: 'k_hmm',
+        kind: 'mumble',
+        weight: 2.6,
+        audioUrl: 'assets/audio/voices/voice-k-hmm.mp3',
+        quote: {
+          it: "Mmh-hmm... vediamo un po'!",
+          en: "Mmh-hmm... let's see!",
+        },
+      },
+    ]),
   },
   q: {
     type: 'q',
     name: 'Kate',
     quote: {
-      it: 'This is an interesting choice...',
-      en: 'This is an interesting choice...',
+      it: "That's... interesting.",
+      en: "That's... interesting.",
     },
     hoverSound: {
       id: 'queen_chime',
-      label: { it: '♕ Hmm... *sarcastic British sigh*', en: '♕ Hmm... *sarcastic British sigh*' },
+      label: { it: '♕ Hmm-hmm... *sospiro British*', en: '♕ Hmm-hmm... *British sigh*' },
     },
     audioUrl: 'assets/audio/voices/voice-q.mp3',
     speechLang: 'en-GB',
-    pitch: 1.04,
-    rate: 0.92,
+    voiceModel: 'gemini-3.8-flash-tts',
+    voicePersona: 'en-gb-csagent-4',
+    pitch: 1.02,
+    rate: 0.95,
+    variants: Object.freeze([
+      {
+        id: 'q_interesting',
+        kind: 'signature',
+        weight: 1.5,
+        audioUrl: 'assets/audio/voices/voice-q.mp3',
+        quote: {
+          it: "That's... interesting.",
+          en: "That's... interesting.",
+        },
+      },
+      {
+        id: 'q_mcmuffin',
+        kind: 'signature',
+        weight: 1.5,
+        audioUrl: 'assets/audio/voices/voice-q-mcmuffin.mp3',
+        quote: {
+          it: 'Ok, Puffin McMuffin!',
+          en: 'Ok, Puffin McMuffin!',
+        },
+      },
+      {
+        id: 'q_loveme',
+        kind: 'signature',
+        weight: 1.5,
+        audioUrl: 'assets/audio/voices/voice-q-loveme.mp3',
+        quote: {
+          it: 'You... love me! I tell myself EVERY day!',
+          en: 'You... love me! I tell myself EVERY day!',
+        },
+      },
+      {
+        id: 'q_facetious',
+        kind: 'signature',
+        weight: 1.6,
+        audioUrl: 'assets/audio/voices/voice-q-facetious.mp3',
+        quote: {
+          it: "Don't be FACETIOUS!",
+          en: "Don't be FACETIOUS!",
+        },
+      },
+      {
+        id: 'q_hmm',
+        kind: 'mumble',
+        weight: 2.8,
+        audioUrl: 'assets/audio/voices/voice-q-hmm.mp3',
+        quote: {
+          it: 'Hmm-hmm...',
+          en: 'Hmm-hmm...',
+        },
+      },
+      {
+        id: 'q_sbuffo',
+        kind: 'mumble',
+        weight: 2.4,
+        audioUrl: 'assets/audio/voices/voice-q-sbuffo.mp3',
+        quote: {
+          it: 'Pff... oh, honestly!',
+          en: 'Pff... oh, honestly!',
+        },
+      },
+    ]),
   },
   b: {
     type: 'b',
@@ -103,6 +189,78 @@ export const VOICE_LINES = Object.freeze({
     speechLang: 'it-IT',
     pitch: 1.18,
     rate: 1.06,
+    variants: Object.freeze([
+      {
+        id: 'b_ordini',
+        kind: 'signature',
+        weight: 1.4,
+        audioUrl: 'assets/audio/voices/voice-b.mp3',
+        quote: {
+          it: 'Agli ordini, Signore!',
+          en: 'Agli ordini, Signore!',
+        },
+      },
+      {
+        id: 'b_timanco',
+        kind: 'signature',
+        weight: 1.5,
+        audioUrl: 'assets/audio/voices/voice-b-timanco.mp3',
+        quote: {
+          it: 'Papino, ti manco tantissimo!',
+          en: 'Papino, ti manco tantissimo!',
+        },
+      },
+      {
+        id: 'b_piuforte',
+        kind: 'signature',
+        weight: 1.5,
+        audioUrl: 'assets/audio/voices/voice-b-piuforte.mp3',
+        quote: {
+          it: 'Papino, qual è il più forte?',
+          en: 'Papino, qual è il più forte?',
+        },
+      },
+      {
+        id: 'b_regalo',
+        kind: 'signature',
+        weight: 1.5,
+        audioUrl: 'assets/audio/voices/voice-b-regalo.mp3',
+        quote: {
+          it: 'Papino, quando mi compri un regalo?',
+          en: 'Papino, quando mi compri un regalo?',
+        },
+      },
+      {
+        id: 'b_cafonazzo',
+        kind: 'signature',
+        weight: 1.7,
+        audioUrl: 'assets/audio/voices/voice-b-cafonazzo.mp3',
+        quote: {
+          it: 'Sei proprio un cafoNAZZO!',
+          en: 'Sei proprio un cafoNAZZO!',
+        },
+      },
+      {
+        id: 'b_hmm',
+        kind: 'mumble',
+        weight: 2.8,
+        audioUrl: 'assets/audio/voices/voice-b-hmm.mp3',
+        quote: {
+          it: 'Mmh-hmm... vediamo!',
+          en: 'Mmh-hmm... vediamo!',
+        },
+      },
+      {
+        id: 'b_sbuffo',
+        kind: 'mumble',
+        weight: 2.4,
+        audioUrl: 'assets/audio/voices/voice-b-sbuffo.mp3',
+        quote: {
+          it: 'Pff... ma dai!',
+          en: 'Pff... ma dai!',
+        },
+      },
+    ]),
   },
   n: {
     type: 'n',
@@ -119,6 +277,90 @@ export const VOICE_LINES = Object.freeze({
     speechLang: 'it-IT',
     pitch: 1.28,
     rate: 1.08,
+    variants: Object.freeze([
+      {
+        id: 'n_dimmi',
+        kind: 'signature',
+        weight: 1.2,
+        audioUrl: 'assets/audio/voices/voice-n.mp3',
+        quote: {
+          it: 'Dimmi papino!',
+          en: 'Dimmi papino!',
+        },
+      },
+      {
+        id: 'n_papinooo',
+        kind: 'signature',
+        weight: 1.6,
+        audioUrl: 'assets/audio/voices/voice-n-papinooo.mp3',
+        quote: {
+          it: 'Papinoooooo!!!',
+          en: 'Papinoooooo!!!',
+        },
+      },
+      {
+        id: 'n_timanco',
+        kind: 'signature',
+        weight: 1.5,
+        audioUrl: 'assets/audio/voices/voice-n-timanco.mp3',
+        quote: {
+          it: 'Papino, ti manco tantissimo!',
+          en: 'Papino, ti manco tantissimo!',
+        },
+      },
+      {
+        id: 'n_mybody',
+        kind: 'signature',
+        weight: 1.5,
+        audioUrl: 'assets/audio/voices/voice-n-mybody.mp3',
+        speechLang: 'en-US',
+        quote: {
+          it: 'My body, my choice!',
+          en: 'My body, my choice!',
+        },
+      },
+      {
+        id: 'n_cacca',
+        kind: 'signature',
+        weight: 1.5,
+        audioUrl: 'assets/audio/voices/voice-n-cacca.mp3',
+        quote: {
+          it: 'Mi scappa la cacca!',
+          en: 'Mi scappa la cacca!',
+        },
+      },
+      {
+        id: 'n_bottom',
+        kind: 'signature',
+        weight: 1.7,
+        audioUrl: 'assets/audio/voices/voice-n-bottom.mp3',
+        speechLang: 'en-GB',
+        quote: {
+          it: 'Mummy, can you clean my bottooooom?',
+          en: 'Mummy, can you clean my bottooooom?',
+        },
+      },
+      {
+        id: 'n_hmm',
+        kind: 'mumble',
+        weight: 2.8,
+        audioUrl: 'assets/audio/voices/voice-n-hmm.mp3',
+        quote: {
+          it: 'Mmh-hmm! Ehehe!',
+          en: 'Mmh-hmm! Hehe!',
+        },
+      },
+      {
+        id: 'n_sbuffo',
+        kind: 'mumble',
+        weight: 2.4,
+        audioUrl: 'assets/audio/voices/voice-n-sbuffo.mp3',
+        quote: {
+          it: 'Pff... uffaaa!',
+          en: 'Pff... uffaaa!',
+        },
+      },
+    ]),
   },
   r: {
     type: 'r',
@@ -135,6 +377,28 @@ export const VOICE_LINES = Object.freeze({
     speechLang: 'it-IT',
     pitch: 1.22,
     rate: 1.05,
+    variants: Object.freeze([
+      {
+        id: 'r_boing',
+        kind: 'signature',
+        weight: 1.4,
+        audioUrl: 'assets/audio/voices/voice-r.mp3',
+        quote: {
+          it: 'Boing boing! Super abbraccio Pupurabbu!',
+          en: 'Boing boing! Super abbraccio Pupurabbu!',
+        },
+      },
+      {
+        id: 'r_hmm',
+        kind: 'mumble',
+        weight: 2.8,
+        audioUrl: 'assets/audio/voices/voice-r-hmm.mp3',
+        quote: {
+          it: 'Mmh-boing! Prrr!',
+          en: 'Mmh-boing! Prrr!',
+        },
+      },
+    ]),
   },
   p: {
     type: 'p',
@@ -145,12 +409,34 @@ export const VOICE_LINES = Object.freeze({
     },
     hoverSound: {
       id: 'puffin_peep',
-      label: { it: '🐧 Piu-piu! *codina scodinzola*', en: '🐧 Piu-piu! *cute tail wag*' },
+      label: { it: '🐧 Mmh-piu... *codina scodinzola*', en: '🐧 Mmh-piu... *cute tail wag*' },
     },
     audioUrl: 'assets/audio/voices/voice-p.mp3',
     speechLang: 'it-IT',
     pitch: 1.45,
     rate: 1.12,
+    variants: Object.freeze([
+      {
+        id: 'p_eccomi',
+        kind: 'signature',
+        weight: 1.0,
+        audioUrl: 'assets/audio/voices/voice-p.mp3',
+        quote: {
+          it: 'Piu piu! Eccomi, pronta guardia Puffin!',
+          en: 'Piu piu! Eccomi, pronta guardia Puffin!',
+        },
+      },
+      {
+        id: 'p_hmm',
+        kind: 'mumble',
+        weight: 3.5,
+        audioUrl: 'assets/audio/voices/voice-p-hmm.mp3',
+        quote: {
+          it: 'Mmh... piu!',
+          en: 'Mmh... piu!',
+        },
+      },
+    ]),
   },
 });
 
@@ -1076,4 +1362,88 @@ export function isPortraitOrientation(env = {}) {
   if (!(width > 0 && height > 0)) return false;
   return height > width;
 }
+
+/**
+ * Detects whether the current device is a mobile phone OR a touch tablet (e.g., Pixel 10,
+ * Samsung Galaxy Tab S10, iPad) so WebGL can bypass heavy desktop post-processing FBOs
+ * (`UnrealBloomPass` HalfFloatType mip chains) that trigger white/dead canvases on mobile GPUs.
+ *
+ * @param {{ width?: number, height?: number, search?: string, userAgent?: string, maxTouchPoints?: number }} [env]
+ * @returns {boolean}
+ */
+export function isMobileOrTabletDevice(env = {}) {
+  if (isMobilePhoneViewport(env)) return true;
+
+  const win = typeof window !== 'undefined' ? window : null;
+  const nav = typeof navigator !== 'undefined' ? navigator : null;
+  const search =
+    env.search !== undefined
+      ? String(env.search || '')
+      : win?.location?.search
+        ? String(win.location.search)
+        : '';
+
+  if (search && typeof URLSearchParams !== 'undefined') {
+    const params = new URLSearchParams(search);
+    const desktopParam = (params.get('desktop') || '').toLowerCase();
+    const tabletParam = (params.get('tablet') || '').toLowerCase();
+    if (desktopParam === '1' || desktopParam === 'true') return false;
+    if (tabletParam === '1' || tabletParam === 'true') return true;
+  }
+
+  const ua = String(env.userAgent ?? nav?.userAgent ?? '');
+  if (/Android|iPhone|iPad|iPod|Mobile|Tablet|Silk/i.test(ua)) {
+    return true;
+  }
+
+  const touchPoints = Number(env.maxTouchPoints ?? nav?.maxTouchPoints ?? 0);
+  const width = Number(env.width ?? win?.innerWidth ?? 0);
+  const height = Number(env.height ?? win?.innerHeight ?? 0);
+  const longSide = Math.max(width, height);
+  if (touchPoints > 0 && longSide > 0 && longSide <= 1920) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Determines whether `PieceView` should use lightweight 3D sculptures (3D Faction Pedestals +
+ * 3D Columns + Double-Sided 2D Cutie Portrait Medallions + 3D Role Crowns / Stone Warriors)
+ * instead of full 3D `.glb` character meshes.
+ *
+ * - Default `false` everywhere (Full 3D `.glb` models enabled by default on Pixel 10, tablets, and desktop
+ *   now that `HalfFloatType` Bloom FBOs are bypassed on mobile GPUs!).
+ * - Opt-in via `?lite=1` / `?lite3d=1` for ultra-low-memory devices.
+ *
+ * @param {{ width?: number, height?: number, search?: string }} [env]
+ * @returns {boolean}
+ */
+export function shouldUseMobileLite3D(env = {}) {
+  const win = typeof window !== 'undefined' ? window : null;
+  const search =
+    env.search !== undefined
+      ? String(env.search || '')
+      : win?.location?.search
+        ? String(win.location.search)
+        : '';
+
+  if (search && typeof URLSearchParams !== 'undefined') {
+    const params = new URLSearchParams(search);
+    const liteParam = (params.get('lite') || params.get('lite3d') || '').toLowerCase();
+    const glbParam = (params.get('glb') || params.get('hd') || '').toLowerCase();
+    if (liteParam === '1' || liteParam === 'true') return true;
+    if (
+      liteParam === '0' ||
+      liteParam === 'false' ||
+      glbParam === '1' ||
+      glbParam === 'true'
+    ) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.32] - 2026-10-11
+## [0.3.42] - 2026-10-11
 
 - 🎬⚔️🍿 **10-Second Synchronized Combat (`1s Pre + 8s Veo Video + 1s Post`), Chrome-Free Netflix Maxischermo (`2.38x`, `78%` Alpha), Non-Linear Board Warp & Measured Space/Click Exit (`CombatAnimationManager.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `HudListener.js`, `AudioListener.js`, `tests/combat.test.mjs`, `docs/spec/SPEC.md`)**:
   - **Exact 10.0s Combat Timeline (`1000ms Pre-Padding + 8000ms Full Veo Video + 1000ms Post-Padding = 10000ms`)**:
@@ -17,6 +17,101 @@
     - Radially dilates non-fighting neighboring pieces outward (`+1.52m` fisheye clearing) and scales them down non-linearly to `56%..70%`, while scaling the 2 protagonists to `1.52x` (`?heroScale=1.52`) separated by `2.28m` (`baseSep = 1.14m`, minimum lunge gap `1.52m`) in 3/4 front-profile with zero `brawlCloud` dust blob and no occluding orange `loopTrack` ring.
   - **Measured, Unbroken Video + Audio Exit on `SPACEBAR` or `CLICK / TAP` (`BATTLE_SKIPPED`)**:
     - Pressing `Space` (or `Enter`/`Escape`) or clicking/tapping anywhere on the screen (with a `350ms` start guard and `<= 12px` drag threshold so camera orbiting still works) triggers a **measured `2.5s` sliding-window exit** where the `<video>` keeps playing uninterrupted while its alpha and volume smoothly fade `1.0 -> 0.0`, the combat soundtrack cross-fades out over `2.5s` (`AudioListener.stopCombatMusic(false, 2500)`), the victorious piece glides onto `toSquare`, and the HUD header/footer slide back in.
+
+## [0.3.41] - 2026-10-11
+
+- 🗿📱✨ **Full 3D `.glb` Models Enabled by Default on Pixel 10 & Mobile Phones (`src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`)**:
+  - Verified on real Google Pixel 10 hardware that with `HalfFloatType` `UnrealBloomPass` and hidden transmission FBOs bypassed, all 32 full 3D `.glb` character meshes render smoothly on mobile GPUs.
+  - Updated `shouldUseMobileLite3D()` to default to `false` (Full 3D `.glb` mode on all devices without needing `?glb=1`), while keeping lightweight 3D portrait medallions available via `?lite=1` or `?lite3d=1`.
+
+## [0.3.40] - 2026-10-11
+
+- 🎙️🇬🇧🇮🇹 **New Iconic Family Voice Lines (`"Don't be FACETIOUS!"`, `"Mummy, can you clean my bottooooom?"`, `"Papino, ti manco tantissimo!"`, `"Sei proprio un cafoNAZZO!"`) (`scripts/generate_voice_lines.py`, `assets/audio/voices/`, `src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
+  - **Queen Kate (`q`)**: Added *"Don't be FACETIOUS!"* (`voice-q-facetious.mp3`) spoken by the 40yo Winchester UK voice (`en-gb-csagent-4`) with crisp dry-witted British emphasis on `FACETIOUS!`.
+  - **Knight Seby (`n`)**: Added *"Mummy, can you clean my bottooooom?"* (`voice-n-bottom.mp3`) with the long dragged-out final syllable (`bottooooooom?`), and updated `voice-n-timanco.mp3` to *"Papino, ti manco tantissimo!"* (capturing the adorable 3rd-language inversion of *"I miss you"*).
+  - **Bishop Ale (`b`)**: Updated `voice-b-cafonazzo.mp3` to *"Sei proprio un cafoNAZZO!"* with the funny rising comic accent on `-NÀZZO!` at the end, and `voice-b-timanco.mp3` to *"Papino, ti manco tantissimo!"*.
+
+## [0.3.39] - 2026-10-11
+
+- 🎛️✨📱 **Clean Angular/Material SVG Icon Footer Toolbar (`src/listeners/HudListener.js`, `sw.js`)**:
+  - **Replaced Gaudy Emoji/Text Footer Buttons with Crisp Material Design Vector SVG Icon Buttons (`.hud-icon-btn`)**:
+    - Removed noisy emojis, long multi-word button labels, and bright yellow/green gradient buttons from `.hud-actions-dock` in favor of uniform `34×34px` matte-slate Material SVG icon buttons (`#hud-new-btn` `restart_alt`, `#hud-setup-btn` `tune`, `#hud-refresh-btn` `sync`, `#hud-top-btn` `view_in_ar` + `2D`/`3D` badge, `#hud-flip-btn` `swap_vert`, `#hud-hint-btn` `lightbulb`, `#hud-matrix36-btn` `grid_view`, `#hud-sfx-btn` `volume_up`, `#hud-music-btn` `music_note`, `#hud-dock-gallery` `museum`, `#hud-fen-btn` `code`, `#hud-console-btn` `terminal`, `#hud-toggle-topbar-btn` `menu`, plus a compact `EN | IT` segmented pill).
+    - Added a dedicated **Update / Refresh App** icon button (`#hud-refresh-btn`, Material `sync` icon) in the footer toolbar that checks `./VERSION` (`cache: 'no-store'`), purges Service Worker caches, and reloads on click (`checkAndRefreshVersion()`).
+    - Removed duplicate brand/GitHub links and hidden secondary/debug buttons from the bottom bar so both Desktop and Mobile (`#carchess-hud-root.mobile-simplified`) remain clean, readable, and single-row without overflowing.
+    - Updated `refreshTranslations()`, `setTopbarVisible()`, and `applyMobileCameraMode()` to update `title` and `aria-label` tooltips without overwriting `<svg>` icons.
+
+## [0.3.38] - 2026-10-11
+
+- 🧹⚡📱 **Zero-Cache Mobile Permalink (`nocache.html` & `?nocache=1`) + Mobile HUD Flexbox Fix (`nocache.html`, `index.html`, `sw.js`, `HudListener.js`, `Registry.js`)**:
+  - **Standalone `nocache.html` Permalink (`https://palladius.github.io/carchess3d/nocache.html`)**: Added a brand-new entry-point HTML page that is never in any legacy Service Worker precache list; on load it unregisters all Service Workers (`navigator.serviceWorker.getRegistrations()`), deletes all `CacheStorage` caches (`caches.keys()`), forces Chrome's HTTP disk cache (`max-age=600`) to re-fetch all `src/**/*.js` ES modules (`fetch(u, { cache: 'reload' })`), displays a green confirmation pill (`⚡ NO-CACHE LIVE v0.3.38`), and boots `./src/main.js?nocache=1&t=<timestamp>` directly without redirecting back to a cached `index.html`.
+  - **`?nocache=1` / `?fresh=1` Query Support (`index.html`, `sw.js`)**: Passing `?nocache=1` or `?fresh=1` to `index.html` unregisters Service Workers and purges caches instead of registering `sw.js`, while `sw.js` (`v26`) bypasses cache lookup (`fetch(req, { cache: 'no-store' })`) for `nocache.html` and `?nocache=1`.
+  - **Visible Mobile Version Badge, 1-Tap `🧹 No-Cache` Button & Bottom Bar Flexbox Fix (`HudListener.js`)**: Added `⚡ v0.3.38` and a 1-tap `🧹 No-Cache` link right inside `#hud-rotate-overlay` and `#hud-mobile-quick-setup`, and fixed `#carchess-hud-root.mobile-simplified .hud-status-card` (`flex-shrink: 0`) so the bottom dock buttons never squish the turn status card.
+
+## [0.3.37] - 2026-10-11
+
+- 👨‍👩‍👦‍👦🏛️🐸 **Showcase Divided Into 3 Families (`Carlesso`, `Classic`, `Shrek / Palude` = Strictly 6 Pieces at a Time) + Lazy Per-Family Loading & TDD Guard (`showcase/index.html`, `tests/showcase-webgl.test.mjs`)**:
+  - **Strictly 3 Family Tabs (`6` Pieces Visible at a Time)**: Removed the `"Tutte le Famiglie (18)"` (`data-family="all"`) tab so `showcase/index.html` presents the **3 dedicated family tabs** — `👨‍👩‍👦‍👦 Famiglia Carlesso (6)` (default), `♔🏛️ Scacchi Classici Vanilla (6)`, and `🐸🧅 Famiglia Shrek / Palude (6)` (supporting `#carlesso`, `#classic`, `#swamp`, and `#shrek` URL hashes) — showing and lazily loading **only 6 pieces at a time** (`ensureFamilyViews(validFam)`).
+  - **Double Protection Against Chrome's 16-WebGL-Context Limit (`kMaxActiveWebGLContexts = 16`)**: Combining **6 visible pieces per family tab** (`6 << 16`) with a **single shared `THREE.WebGLRenderer`** (`sharedRenderer` blitting via `ctx.drawImage` into lightweight 2D canvases) guarantees **Ale 1** and **Re Riccardo** never suffer WebGL context eviction (`webglcontextlost` white box) on any desktop or mobile browser.
+  - **TDD Regression Suite (`tests/showcase-webgl.test.mjs`)**: Verifies that (1) no `data-family="all"` tab exists, (2) `#family-tabs` contains strictly `['carlesso', 'classic', 'swamp']` with `6` pieces each, (3) `makeView()` never instantiates per-card `THREE.WebGLRenderer` instances, and (4) all 2D/3D `.glb` assets exist and have valid `glTF` v2 headers.
+
+## [0.3.36] - 2026-10-11
+
+- 🎬⏱️⚔️ **10-Second Battle Cutscene (`1s Pre-Padding + 8s Veo Video + 1s Post-Padding`), `1.52x` Hero Combatant Scale & Radial Neighbor Dilation (`CombatAnimationManager.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `tests/combat.test.mjs`)**:
+  - **`10.0s` Total Duel Timeline (`DEFAULT_BATTLE_DURATION_MS = 10000`)**:
+    - **`1.0s` Pre-Padding (`0.0s .. 1.0s`)**: `VeoCinemaView` cues Frame 0 of the 16:9 Veo battle video and holds it while the camera glides into position so the player never misses the first second of the film.
+    - **`8.0s` Full Veo Video Playback (`1.0s .. 9.0s`, `loop = false`)**: Plays the entire 8-second Veo 3.1 clip from start to finish with configurable translucency (`combatVideoAlpha = 0.78`, `?videoAlpha=0.78`).
+    - **`1.0s` Post-Padding (`9.0s .. 10.0s`)**: Holds the final K.O. frame before completing the duel.
+  - **`1.52x` Heroic Combatant Scale & Radial Neighbor Dilation (`VFXPoolView.js`)**:
+    - Enlarged the 2 active 3D fighters to `1.52x` hero scale and hid the `brawlCloud` dust blob for crisp silhouettes.
+    - Smoothly dilates neighboring board pieces radially outward (`> 0.6m`) and scales them down (`< 72%`) during combat so they frame the arena without crowding the two heroes, restoring their exact board positions and scale afterward.
+
+## [0.3.35] - 2026-10-11
+
+- 🎙️🇬🇧🇮🇹 **Gemini 3.8 TTS Multi-Clip Character Voice Pool + Smart Anti-Repetition & Anti-Spam Engine (`scripts/generate_voice_lines.py`, `assets/audio/voices/voice-*.mp3`, `src/core/Registry.js`, `src/listeners/AudioListener.js`, `src/views/BoardInteractionView.js`, `src/listeners/HudListener.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
+  - **25 Character Voice Clips via `gemini-3.8-flash-tts` (`scripts/generate_voice_lines.py`)**:
+    - Upgraded the voice pipeline to **`gemini-3.8-flash-tts`** using `parts[].speech_metadata.style` for acting persona and inline `<sigh>`, `<pff>`, `<giggle>` tags (so stage directions are never spoken aloud).
+    - **Queen Kate (`q`, 40-Year-Old British UK Woman — Extended Voice `en-gb-csagent-4`, Winchester UK)**:
+      - Signature sentences: *"That's... interesting."*, *"Ok, Puffin McMuffin!"*, *"You... love me! I tell myself EVERY day!"*
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Hmm-hmm..."* (`voice-q-hmm.mp3`) & *"Pff... oh, honestly!"* (`voice-q-sbuffo.mp3`).
+    - **Knight Seby (`n`, Young Italian Boy)**:
+      - Signature sentences: *"Dimmi papino!"*, *"Papinoooooo!!!"*, *"Ti manco tantissimo, papino!"*, *"My body, my choice!"* (in English), *"Mi scappa la cacca!"*
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Mmh-hmm! Ehehe!"* (`voice-n-hmm.mp3`) & *"Pff... uffaaa!"* (`voice-n-sbuffo.mp3`).
+    - **Bishop Ale (`b`, 10-Year-Old Italian Boy Wizard)**:
+      - Signature sentences: *"Agli ordini, Signore!"*, *"Ti manco tantissimo, papino!"*, *"Papino, qual è il più forte?"*, *"Papino, quando mi compri un regalo?"*, *"Cafonazzo!"*
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Mmh-hmm... vediamo!"* (`voice-b-hmm.mp3`) & *"Pff... ma dai!"* (`voice-b-sbuffo.mp3`).
+    - **King Riccardo (`k`), Rook Pupurabbu (`r`), Pawn Puffin (`p`)**: Added high-probability non-verbal `voice-{k,r,p}-hmm.mp3` clips alongside `voice-{k,r,p}.mp3`.
+  - **3-Layer Anti-Repetition Voice Selector (`AudioListener.selectVoiceVariant`)**:
+    - First selection of each character plays a full `signature` quote; subsequent selections blend higher-probability `mumble` clips (`hmm-hmm` / `sbuffo`, `55%–65%` for heroes, `78%` for Puffin pawns) with a Fisher-Yates shuffled `signature` deck (`signatureDeckByType`) and a per-type ring buffer (`recentVariantIdsByType`) so **no clip ever plays twice in a row**.
+    - Emits `VOICE_LINE_SPOKEN` so `HudListener` displays the exact randomized quote spoken in the HUD speech bubble.
+  - **Pawn Hover Anti-Spam (`BoardInteractionView.js`, `AudioListener.playHoverSfxWithAntiSpam`)**: Added a per-piece-type hover cooldown (`2800ms` for pawns `'p'`, `950ms` for other pieces), softened the Puffin chirp pitch/volume, and alternated repeated hovers with a soft WebAudio `"hmm-hmm / sbuffo"` breath (`synthSoftSbuffo`).
+
+## [0.3.34] - 2026-10-11
+
+- 🔄🛡️🌐 **Zero-Split-Brain PWA Cache & Version Drift Detector (`sw.js`, `index.html`, `src/listeners/HudListener.js`, `tests/core.test.mjs`)**:
+  - **No Split-Brain / No "Lying Version Badge" (`HudListener.js`)**: `this.appVersion` strictly reflects `APP_VERSION` from `Registry.js` (the version of the JavaScript code actually running in memory). `fetch('./VERSION', { cache: 'no-store' })` now acts as a **Version Drift Detector** (`handleRemoteVersionCheck(remoteRaw)`): if the remote `VERSION` on GitHub Pages differs from the running `APP_VERSION`, it never overwrites `this.appVersion`; instead it purges stale Service Worker caches, triggers a one-time auto-reload (`sessionStorage` guard per version), and displays `${this.appVersion} ➔ 🔄 ${remoteTag}` on `#hud-version-tag`.
+  - **Bypass GitHub Pages 10-Minute HTTP Disk Cache for Code (`sw.js`, `index.html`)**:
+    - Never caches `/VERSION` (`fetch(event.request, { cache: 'no-store' })`).
+    - Uses `{ cache: 'no-cache' }` for `.html`, `.js`, and `.webmanifest` both during Service Worker `install` precaching and online `fetch` requests so the browser always validates `ETag` / `If-None-Match` against GitHub Pages while preserving offline fallback for 3D `.glb` / `.mp4` / `.mp3` assets (`carchess3d-offline-v22`).
+    - Registers `./sw.js` with `{ updateViaCache: 'none' }` and triggers `reg.update()` on load.
+
+## [0.3.33] - 2026-10-11
+
+- 🧪🖼️🔧 **Fix White 3D GLB Boxes on Ale 1 & Re Riccardo in `showcase/index.html` + TDD WebGL Context Budget Guard (`showcase/index.html`, `tests/showcase-webgl.test.mjs`)**:
+  - **Root Cause (`kMaxActiveWebGLContexts = 16` in Chromium/Blink)**: `showcase/index.html` displays **18 character cards** (`6 Carlesso + 6 Classic + 6 Swamp`). Previously, `makeView()` instantiated a separate `new THREE.WebGLRenderer({ antialias: true, alpha: true })` per card (`18` total). Because Chromium enforces a hard cap of **16 active WebGL contexts per page**, creating contexts `#17` (*Draghessa della Palude*) and `#18` (*Zenzy Pan di Zenzero*) automatically evicted the 2 oldest WebGL contexts — **Card `#0` (`Ale 1`)** and **Card `#1` (`Re Riccardo`)** — turning their `<canvas>` elements into blank white rectangles (`WARNING: Too many active WebGL contexts. Oldest context will be lost`).
+  - **Single Shared `THREE.WebGLRenderer` + 2D Canvas Blitting (`showcase/index.html`)**: Replaced per-card WebGL contexts with a single shared `sharedRenderer` (`1` WebGL context for the entire page) that renders each visible card's `scene` + `camera` and blits to the card's lightweight 2D `<canvas>` (`ctx.drawImage(sharedRenderer.domElement, ...)`), keeping pointer drag, auto-rotation, faction tinting, and fullscreen working identically across all 18+ cards with zero context loss.
+  - **TDD Regression Suite (`tests/showcase-webgl.test.mjs`)**: Added automated tests verifying that (1) every 2D image and 3D `.glb` referenced in `showcase/index.html` exists and has a valid `glTF` v2 binary header, and (2) `makeView()` never instantiates `new THREE.WebGLRenderer` per card (`webglRendererInstantiations.length === 1`).
+
+## [0.3.32] - 2026-10-11
+
+- 📱🔥♟️ **Pixel 10 & Samsung Galaxy Tab S10 Ultra 3D WebGL Fix + Mobile Lite 3D Mode + Multi-Device Simulation (`main.js`, `PieceView.js`, `VFXPoolView.js`, `ZurichSwampView.js`, `HudListener.js`, `Registry.js`, `index.html`, `sw.js`, `scripts/simulate_mobile_devices.py`, `docs/spec/SPEC.md`)**:
+  - **Root-Cause Fix for Dead/White 3D Viewport on Google Pixel 10**:
+    - **Bypassed `EffectComposer` + `UnrealBloomPass` (`13 × HalfFloatType RGBA16F` FBOs) on Mobile & Tablet GPUs (`main.js`, `Registry.isMobileOrTabletDevice`)**: On Pixel 10 (Tensor G5 / PowerVR DXT GPU) and Android tablets, `UnrealBloomPass` allocates 13 `HalfFloatType` render targets that either overflow to `Inf`/`NaN` in the 5-mip Gaussian blur chain (which `OutputPass` ACES Filmic tone-mapping clamps to solid `#FFFFFF` pure white across the entire `<canvas>`) or trigger `webglcontextlost` (which Android Chrome composites as a dead white canvas while the HTML HUD bottom bar remains responsive). Mobile and tablet devices now render directly via `renderer.render(scene, camera)` with `renderer.setClearColor(0x0b1528, 1.0)` and `canvas#game-canvas { background-color: #0b1528; }` (overrideable via `?bloom=1`).
+    - **Removed Hidden Three.js Transmission Pass (`VFXPoolView.js`)**: Replaced `THREE.MeshPhysicalMaterial({ transmission: 0.65 })` on `amethyst_ruby_shards` with `THREE.MeshStandardMaterial({ transparent: true, opacity: 0.84 })`, eliminating Three.js's hidden full-screen multisampled `HalfFloatType` `_transmissionRenderTarget` allocation.
+    - **Mobile Lite 3D Mode (`PieceView.js`, `Registry.shouldUseMobileLite3D`)**: On smartphones (`isMobilePhone`), `PieceView` defaults to **Mobile Lite 3D Mode** (`mobileLite3D = true`, overrideable with `?glb=1` for full `.glb` models or `?lite3d=1` on any device), rendering the sculpted 3D Faction Pedestals, 3D Columns, Double-Sided 2D Cutie Portrait Medallions, and 3D Role Crowns in `< 15 ms` without downloading or cloning `30 MB` / `850k` vertices of `.glb` meshes.
+    - **Deduplicated Startup Piece Syncs & Guarded Custom Vertex Shaders (`main.js`, `PieceView.js`, `ZurichSwampView.js`)**: Pre-seeded `pieces.whiteFamily` and `pieces.rivalSetMode` before `pieceView.init()` and added `_lastSyncSignature` deduplication in `syncPiecesFromManager()` so startup builds the 32 pieces once instead of 4–5 times; skipped `injectLocomotionShader` (`onBeforeCompile`) and dynamic corner brazier `PointLight`s on mobile phones; added `webglcontextlost` / `webglcontextrestored` automatic recovery.
+  - **Mobile Bottom Bar Flexbox Fix (`HudListener.js`)**: Added `flex-shrink: 0` on `.hud-status-card` and `min-width: 0; overflow-x: auto` on `.hud-actions-dock` under `#carchess-hud-root.mobile-simplified` so the status card is never squished by the action dock buttons.
+  - **Automated Multi-Device Playwright WebGL Simulation (`scripts/simulate_mobile_devices.py`)**: Verified **Google Pixel 10** (`412×915` Portrait & `915×412` Landscape, both Default Lite 3D Mode and `?glb=1` Full GLB Mode) and **Samsung Galaxy Tab S10 Ultra** (`SM-X920`, `1480×925` Landscape & `925×1480` Portrait) with automated Not-White / Not-Black / WebGL `readPixels` checks (`tmp/device_simulation/simulation_report.json`).
+  - **Service Worker Cache Bump (`sw.js`)**: Bumped cache to `carchess3d-offline-v20` and included postprocessing modules in `PRECACHE_URLS`.
 
 ## [0.3.31] - 2026-10-11
 

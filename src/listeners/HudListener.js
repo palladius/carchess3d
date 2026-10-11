@@ -189,14 +189,11 @@ export class HudListener {
     }
 
     if (typeof fetch === 'function') {
-      fetch('./VERSION')
+      fetch('./VERSION', { cache: 'no-store' })
         .then((r) => (r.ok ? r.text() : null))
         .then((txt) => {
           if (txt && txt.trim()) {
-            const v = txt.trim();
-            this.appVersion = v.startsWith('v') ? v : `v${v}`;
-            const el = this.rootEl?.querySelector?.('#hud-version-tag');
-            if (el) el.textContent = this.appVersion;
+            this.handleRemoteVersionCheck(txt.trim());
           }
         })
         .catch(() => {});
@@ -208,6 +205,7 @@ export class HudListener {
         bus.on('BOARD_RESET', (e) => this.onBoardReset(e)),
         bus.on('PIECE_HOVERED', (e) => this.onPieceHovered(e)),
         bus.on('PIECE_SELECTED', (e) => this.onPieceSelected(e)),
+        bus.on('VOICE_LINE_SPOKEN', (e) => this.onVoiceLineSpoken(e)),
         bus.on('CAPTURE_PREVIEW_HOVER', (e) => this.onCapturePreviewHover(e)),
         bus.on('MOVE_EXECUTED', (e) => this.onMoveExecuted(e)),
         bus.on('CHECK_DETECTED', (e) => this.onCheckDetected(e)),
@@ -239,6 +237,107 @@ export class HudListener {
         this._hasAutoOpenedSetup = true;
         setTimeout(() => this.openSetupModal(), 350);
       }
+    }
+  }
+
+  /**
+   * Zero-Split-Brain Version Drift Detector:
+   * - `this.appVersion` ALWAYS reflects `APP_VERSION` from `Registry.js` (the actual JS code in memory).
+   * - If `./VERSION` fetched with `{ cache: 'no-store' }` differs from `this.appVersion`, we know
+   *   a newer version was deployed while stale JS was cached. We never fake the badge; instead we
+   *   purge old SW caches and auto-reload once per version (guarded by `sessionStorage`), and mark
+   *   `#hud-version-tag` as `${this.appVersion} ➔ 🔄 ${remoteTag}`.
+   * @param {string} remoteRaw
+   */
+  handleRemoteVersionCheck(remoteRaw) {
+    const clean = String(remoteRaw || '').trim();
+    if (!clean) return false;
+    const remoteTag = clean.startsWith('v') ? clean : `v${clean}`;
+    if (remoteTag === this.appVersion) {
+      this.remoteAvailableVersion = null;
+      return false;
+    }
+
+    this.remoteAvailableVersion = remoteTag;
+    const el = this.rootEl?.querySelector?.('#hud-version-tag');
+    if (el) {
+      el.textContent = `${this.appVersion} ➔ 🔄 ${remoteTag}`;
+      el.style.cursor = 'pointer';
+      el.style.borderColor = '#ffd54f';
+      el.title = `Running JS ${this.appVersion} — Click to update to ${remoteTag}`;
+      el.onclick = () => this._purgeCachesAndReload(remoteTag);
+    }
+    const refreshBtn = this.rootEl?.querySelector?.('#hud-refresh-btn');
+    if (refreshBtn) {
+      refreshBtn.classList.add('has-update');
+      refreshBtn.title = `Update available: ${this.appVersion} → ${remoteTag}`;
+    }
+
+    if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
+      try {
+        const key = 'carchess3d_autoreload_ver';
+        if (sessionStorage.getItem(key) !== remoteTag) {
+          sessionStorage.setItem(key, remoteTag);
+          this._purgeCachesAndReload(remoteTag);
+        }
+      } catch {
+        // Ignore sessionStorage restrictions in private/sandboxed frames
+      }
+    }
+    return true;
+  }
+
+  checkAndRefreshVersion() {
+    this.showToast(
+      this.lang === 'it'
+        ? `🔄 Aggiornamento app e pulizia cache (${this.appVersion})...`
+        : `🔄 Checking update & refreshing cache (${this.appVersion})...`,
+      2200,
+    );
+    if (typeof fetch === 'function') {
+      fetch('./VERSION', { cache: 'no-store' })
+        .then((r) => (r.ok ? r.text() : null))
+        .then((txt) => {
+          if (txt && txt.trim()) {
+            this.handleRemoteVersionCheck(txt.trim());
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          this._purgeCachesAndReload(this.remoteAvailableVersion || this.appVersion);
+        });
+    } else {
+      this._purgeCachesAndReload(this.appVersion);
+    }
+  }
+
+  _purgeCachesAndReload(targetTag = '') {
+    const reloadNow = () => {
+      if (typeof window !== 'undefined' && window.location?.reload) {
+        window.location.reload();
+      }
+    };
+    const tasks = [];
+    if (typeof navigator !== 'undefined' && navigator.serviceWorker?.getRegistration) {
+      tasks.push(
+        navigator.serviceWorker
+          .getRegistration()
+          .then((reg) => reg?.update?.())
+          .catch(() => {}),
+      );
+    }
+    if (typeof caches !== 'undefined' && typeof caches.keys === 'function') {
+      tasks.push(
+        caches
+          .keys()
+          .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+          .catch(() => {}),
+      );
+    }
+    if (tasks.length > 0) {
+      Promise.allSettled(tasks).then(reloadNow);
+    } else {
+      reloadNow();
     }
   }
 
@@ -487,12 +586,12 @@ export class HudListener {
         gap: 8px;
       }
       .hud-status-card {
-        padding: 7px 12px;
-        min-width: 245px;
-        max-width: 320px;
+        padding: 6px 11px;
+        min-width: 210px;
+        max-width: 295px;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 3px;
       }
       .hud-footer-meta {
         display: flex;
@@ -500,41 +599,40 @@ export class HudListener {
         align-items: center;
         gap: 6px;
         font-size: 10.5px;
-        color: #b0bec5;
-        padding-top: 5px;
-        margin-top: 3px;
-        border-top: 1px solid rgba(255, 213, 79, 0.20);
+        color: #90a4ae;
+        padding-top: 4px;
+        margin-top: 2px;
+        border-top: 1px solid rgba(255, 255, 255, 0.10);
       }
       .hud-version-pill {
         font-weight: 700;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        color: #ffe082;
-        background: rgba(255, 224, 130, 0.12);
-        border: 1px solid rgba(255, 224, 130, 0.35);
+        color: #cfd8dc;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.18);
         padding: 1px 6px;
-        border-radius: 6px;
+        border-radius: 5px;
         font-size: 10px;
         letter-spacing: 0.3px;
       }
       .hud-footer-sep {
-        color: rgba(255, 255, 255, 0.35);
+        color: rgba(255, 255, 255, 0.25);
       }
       .hud-footer-link {
-        color: #9be7c4;
+        color: #b0bec5;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 3px;
         font-weight: 600;
-        transition: color 0.15s ease, transform 0.1s ease;
+        transition: color 0.15s ease;
       }
       .hud-footer-link:hover {
         color: #fff;
         text-decoration: underline;
-        transform: translateY(-1px);
       }
       .hud-footer-link.hud-bug-link {
-        color: #ffab91;
+        color: #90a4ae;
       }
       .hud-footer-link.hud-bug-link:hover {
         color: #ffccbc;
@@ -545,44 +643,43 @@ export class HudListener {
         justify-content: space-between;
         gap: 8px;
         font-weight: 700;
-        font-size: 12.5px;
+        font-size: 12px;
       }
       .hud-check-badge {
         display: none;
-        padding: 3px 8px;
+        padding: 2px 7px;
         border-radius: 999px;
         background: linear-gradient(90deg, #d50000, #ff5252);
         color: #fff;
         font-weight: 800;
-        font-size: 11px;
+        font-size: 10.5px;
         animation: hudPulse 0.8s infinite alternate;
       }
       .hud-luck-wrap {
         display: flex;
         flex-direction: column;
-        gap: 3px;
+        gap: 2px;
       }
       .hud-luck-header {
         display: flex;
         justify-content: space-between;
-        font-size: 11px;
-        color: #b8f5d8;
+        font-size: 10.5px;
+        color: #90a4ae;
         font-weight: 600;
       }
       .hud-luck-track {
-        height: 9px;
+        height: 6px;
         border-radius: 999px;
         background: rgba(0, 0, 0, 0.55);
-        border: 1px solid rgba(76, 217, 162, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.18);
         overflow: hidden;
         position: relative;
       }
       .hud-luck-fill {
         height: 100%;
         width: 0%;
-        background: linear-gradient(90deg, #00c853 0%, #64dd17 55%, #ffd600 100%);
+        background: linear-gradient(90deg, #26a69a 0%, #66bb6a 60%, #ffd54f 100%);
         transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-        box-shadow: 0 0 12px rgba(100, 221, 23, 0.8);
       }
       .hud-luck-track.hot {
         border-color: #ffd600;
@@ -592,14 +689,95 @@ export class HudListener {
         display: none;
         gap: 4px;
         flex-wrap: wrap;
-        font-size: 13px;
+        font-size: 12px;
       }
       .hud-actions-dock {
-        padding: 6px 9px;
+        padding: 5px 7px;
         display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
+        flex-wrap: nowrap;
+        gap: 4px;
         align-items: center;
+      }
+      /* Clean Material / Angular-style Vector Icon Buttons for the Bottom Toolbar */
+      .hud-actions-dock .hud-icon-btn {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        padding: 0 6px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(22, 28, 42, 0.86);
+        color: #cfd8dc;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        cursor: pointer;
+        box-shadow: none;
+        font: 600 10.5px/1 system-ui, -apple-system, sans-serif;
+        transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease, transform 0.1s ease;
+      }
+      .hud-actions-dock .hud-icon-btn.with-badge {
+        width: auto;
+        padding: 0 8px;
+      }
+      .hud-actions-dock .hud-icon-btn:hover {
+        background: rgba(38, 48, 70, 0.95);
+        border-color: rgba(255, 255, 255, 0.36);
+        color: #ffffff;
+        transform: translateY(-1px);
+      }
+      .hud-actions-dock .hud-icon-btn.active {
+        background: rgba(255, 213, 79, 0.16);
+        border-color: rgba(255, 213, 79, 0.68);
+        color: #ffe082;
+        font-weight: 700;
+      }
+      .hud-actions-dock .hud-icon-btn.has-update {
+        background: rgba(0, 229, 255, 0.16);
+        border-color: #00e5ff;
+        color: #84ffff;
+      }
+      .hud-svg-icon {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+        flex-shrink: 0;
+        display: block;
+      }
+      .hud-icon-badge {
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        text-transform: uppercase;
+      }
+      .hud-dock-sep {
+        width: 1px;
+        height: 18px;
+        background: rgba(255, 255, 255, 0.14);
+        margin: 0 2px;
+        flex-shrink: 0;
+      }
+      .hud-lang-seg {
+        display: inline-flex;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 7px;
+        overflow: hidden;
+        background: rgba(15, 20, 30, 0.85);
+      }
+      .hud-lang-seg .hud-lang-pill {
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        color: #90a4ae;
+        padding: 0 7px;
+        height: 32px;
+        font: 700 10.5px/1 system-ui, sans-serif;
+        cursor: pointer;
+      }
+      .hud-lang-seg .hud-lang-pill.active {
+        background: rgba(255, 213, 79, 0.20);
+        color: #ffe082;
       }
       /* Compact Top-Right Skip Pill (100% clear of the center 3D combat & 16:9 Cinema Backdrop!) */
       .hud-comic-banner {
@@ -1255,21 +1433,43 @@ export class HudListener {
         gap: 6px;
       }
       #carchess-hud-root.mobile-simplified .hud-status-card {
-        min-width: 0;
-        max-width: 205px;
-        padding: 5px 9px;
-        gap: 2px;
+        flex-shrink: 0;
+        min-width: auto;
+        max-width: 195px;
+        padding: 4px 9px;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
       }
-      #carchess-hud-root.mobile-simplified .hud-footer-meta,
-      #carchess-hud-root.mobile-simplified .hud-stickers-row {
+      #carchess-hud-root.mobile-simplified .hud-luck-wrap,
+      #carchess-hud-root.mobile-simplified .hud-stickers-row,
+      #carchess-hud-root.mobile-simplified .hud-footer-meta .hud-footer-sep,
+      #carchess-hud-root.mobile-simplified .hud-footer-meta .hud-footer-link {
         display: none !important;
+      }
+      #carchess-hud-root.mobile-simplified .hud-footer-meta {
+        border-top: none;
+        padding-top: 0;
+        margin-top: 0;
       }
       #carchess-hud-root.mobile-simplified .hud-actions-dock {
         padding: 4px 6px;
         gap: 4px;
         flex-wrap: nowrap;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
       }
-      #carchess-hud-root.mobile-simplified .hud-footer-brand,
+      #carchess-hud-root.mobile-simplified .hud-actions-dock .hud-icon-btn {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        flex-shrink: 0;
+      }
+      #carchess-hud-root.mobile-simplified .hud-actions-dock .hud-icon-btn.with-badge {
+        width: auto;
+        padding: 0 7px;
+      }
       #carchess-hud-root.mobile-simplified #hud-dock-gallery,
       #carchess-hud-root.mobile-simplified #hud-dock-videos,
       #carchess-hud-root.mobile-simplified #hud-console-btn,
@@ -1281,11 +1481,13 @@ export class HudListener {
       #carchess-hud-root.mobile-simplified #hud-trackpad-btn,
       #carchess-hud-root.mobile-simplified #hud-fen-btn,
       #carchess-hud-root.mobile-simplified #hud-toggle-topbar-btn,
-      #carchess-hud-root.mobile-simplified .hud-actions-dock > span {
+      #carchess-hud-root.mobile-simplified .hud-dock-sep {
         display: none !important;
       }
-      #carchess-hud-root.mobile-simplified .hud-actions-dock > a[href*="github.com"] {
-        display: none !important;
+      @media (max-width: 500px) {
+        #carchess-hud-root.mobile-simplified .hud-status-card #hud-turn-text {
+          display: none !important;
+        }
       }
       #carchess-hud-root.mobile-simplified .hud-setup-card {
         width: min(95vw, 480px);
@@ -1323,6 +1525,10 @@ export class HudListener {
           <button type="button" id="hud-rotate-dismiss-btn" class="hud-btn gold" style="padding:9px 14px;font-size:12.5px;margin-top:4px;">
             ${this.t('rotateDismissBtn')}
           </button>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-size:11px;color:#9be7c4;">
+            <span class="hud-version-pill">⚡ ${this.appVersion}</span>
+            <a href="./nocache.html" style="color:#ffd54f;text-decoration:underline;font-weight:700;">🧹 Force No-Cache Reload</a>
+          </div>
         </div>
       </div>
 
@@ -1530,10 +1736,12 @@ export class HudListener {
               ${this.t('mobilePlayNowBtn')}
             </button>
 
-            <div style="display:flex;justify-content:center;">
+            <div style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span class="hud-version-pill">⚡ ${this.appVersion}</span>
               <button type="button" id="hud-mobile-advanced-toggle" class="hud-btn" style="font-size:11px;padding:4px 10px;opacity:0.88;">
                 ${this.t('mobileAdvOptionsBtn')}
               </button>
+              <a href="./nocache.html" class="hud-btn" style="font-size:11px;padding:4px 10px;text-decoration:none;color:#ffd54f;">🧹 No-Cache</a>
             </div>
           </div>
 
@@ -1647,7 +1855,7 @@ export class HudListener {
         </div>
       </div>
 
-      <!-- BOTTOM STATUS & FOOTER BAR (Sovrimpressione) -->
+      <!-- BOTTOM STATUS & CLEAN MATERIAL ICON FOOTER BAR -->
       <footer class="hud-bottombar">
         <div class="hud-status-card hud-glass hud-interactive">
           <div class="hud-turn-pill">
@@ -1665,62 +1873,86 @@ export class HudListener {
           </div>
           <div id="hud-stickers-row" class="hud-stickers-row" title="Unlocked Collectible Stickers"></div>
           <div class="hud-footer-meta">
-            <span id="hud-version-tag" class="hud-version-pill" title="CarChess3D Version">${this.appVersion}</span>
+            <span id="hud-version-tag" class="hud-version-pill" title="CarChess3D Running Version">${this.appVersion}</span>
             <span class="hud-footer-sep">·</span>
             <a href="${GITHUB_REPO_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link" title="View source code on GitHub">
-              <span>🐙</span> <span>GitHub Code</span>
+              <span>GitHub</span>
             </a>
             <span class="hud-footer-sep">·</span>
             <a href="${GITHUB_NEW_ISSUE_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link hud-bug-link" title="Report a bug or open a new GitHub issue">
-              <span>🐛</span> <span>Open a bug</span>
+              <span>Issue</span>
             </a>
           </div>
         </div>
 
-        <div class="hud-actions-dock hud-glass hud-interactive">
-          <!-- Language Flag Switcher (🇬🇧 English default / 🇮🇹 Italian) -->
-          <div style="display:inline-flex;gap:4px;align-items:center;" role="group" aria-label="Language / Lingua">
-            <button type="button" id="hud-flag-en" class="hud-btn ${this.lang === 'en' ? 'active' : ''}" data-set-lang="en" title="Switch to English 🇬🇧">🇬🇧 EN</button>
-            <button type="button" id="hud-flag-it" class="hud-btn ${this.lang === 'it' ? 'active' : ''}" data-set-lang="it" title="Passa all’Italiano 🇮🇹">🇮🇹 IT</button>
+        <div class="hud-actions-dock hud-glass hud-interactive" role="toolbar" aria-label="Game Controls">
+          <!-- Primary Match Actions: New Match, Edit Match, Check/Force Update -->
+          <button type="button" id="hud-new-btn" class="hud-btn hud-icon-btn" title="${this.t('newGameBtn')}" aria-label="${this.t('newGameBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L8 6l4 4V7c3.31 0 6 2.69 6 6 0 2.97-2.17 5.43-5 5.91v2.02c3.95-.49 7-3.85 7-7.93 0-4.42-3.58-8-8-8zm-6 8c0-1.65.67-3.15 1.76-4.24L6.34 7.34A8.014 8.014 0 0 0 4 13c0 4.08 3.05 7.44 7 7.93v-2.02c-2.83-.48-5-2.94-5-5.91z"/></svg>
+          </button>
+          <button type="button" id="hud-setup-btn" class="hud-btn hud-icon-btn" title="${this.t('setupBtn')}" aria-label="${this.t('setupBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
+          </button>
+          <button type="button" id="hud-refresh-btn" class="hud-btn hud-icon-btn" title="Check Update / Refresh App (${this.appVersion})" aria-label="Check Update / Refresh App">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+          </button>
+
+          <span class="hud-dock-sep"></span>
+
+          <!-- Camera & Gameplay Assistance: 2D/3D Camera, Flip Board, Hint, 6x6 Battle Matrix -->
+          <button type="button" id="hud-top-btn" class="hud-btn hud-icon-btn with-badge ${!this.topDownCamera ? 'active' : ''}" title="${this.t('topCamBtn')}" aria-label="${this.t('topCamBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.25 7.6 12.75 4.4a1.5 1.5 0 0 0-1.5 0L5.75 7.6A1.5 1.5 0 0 0 5 8.9v6.2c0 .54.29 1.03.75 1.3l5.5 3.2c.46.27 1.04.27 1.5 0l5.5-3.2c.46-.27.75-.76.75-1.3V8.9c0-.54-.29-1.03-.75-1.3zM12 6.15l4.62 2.69L12 11.53 7.38 8.84 12 6.15zm-5 4.42 4.25 2.47v4.88L7 15.45v-4.88zm6.25 7.35v-4.88L17.5 10.57v4.88l-4.25 2.47z"/></svg>
+            <span id="hud-top-badge" class="hud-icon-badge">${this.topDownCamera ? '2D' : '3D'}</span>
+          </button>
+          <button type="button" id="hud-flip-btn" class="hud-btn hud-icon-btn" title="${this.t('flipCamBtn')}" aria-label="${this.t('flipCamBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3 5 6.99h3V14h2V6.99h3L9 3z"/></svg>
+          </button>
+          <button type="button" id="hud-hint-btn" class="hud-btn hud-icon-btn" title="${this.t('hintBtn')}" aria-label="${this.t('hintBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>
+          </button>
+          <button type="button" id="hud-matrix36-btn" class="hud-btn hud-icon-btn" title="${this.t('matrixBtn')}" aria-label="${this.t('matrixBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/></svg>
+          </button>
+
+          <span class="hud-dock-sep"></span>
+
+          <!-- Audio Controls: SFX & Music -->
+          <button type="button" id="hud-sfx-btn" class="hud-btn hud-icon-btn active" title="${this.t('sfxBtn')}" aria-label="${this.t('sfxBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          </button>
+          <button type="button" id="hud-music-btn" class="hud-btn hud-icon-btn" title="${this.t('musicBtn')}" aria-label="${this.t('musicBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          </button>
+
+          <span class="hud-dock-sep"></span>
+
+          <!-- Desktop Utility Icons: 3D Gallery, FEN/PGN, Quake Console, Topbar Menu -->
+          <a id="hud-dock-gallery" href="./showcase/" class="hud-btn hud-icon-btn" style="text-decoration:none;" title="${this.t('galleryBtn')}" aria-label="${this.t('galleryBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11V9L12 2 2 9v2h2v9H2v2h20v-2h-2v-9h2zm-6 9H8v-9h8v9zm-4-7-2 3h4l-2-3z"/></svg>
+          </a>
+          <button type="button" id="hud-fen-btn" class="hud-btn hud-icon-btn" title="${this.t('fenBtn')}" aria-label="${this.t('fenBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.4 16.6 4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0 4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+          </button>
+          <button type="button" id="hud-console-btn" class="hud-btn hud-icon-btn" title="Quake Console (~ or \\)" aria-label="Quake Console">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 14H4V8h16v10zm-2-1h-6v-2h6v2zM7.5 17l-1.41-1.41L8.67 13l-2.59-2.59L7.5 9l4 4-4 4z"/></svg>
+          </button>
+          <button type="button" id="hud-toggle-topbar-btn" class="hud-btn hud-icon-btn" title="${this.t('toggleTopbarBtn')}" aria-label="${this.t('toggleTopbarBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+          </button>
+
+          <!-- Clean Language Segmented Toggle (EN | IT) -->
+          <div class="hud-lang-seg" role="group" aria-label="Language">
+            <button type="button" id="hud-flag-en" class="hud-lang-pill ${this.lang === 'en' ? 'active' : ''}" data-set-lang="en" title="English">EN</button>
+            <button type="button" id="hud-flag-it" class="hud-lang-pill ${this.lang === 'it' ? 'active' : ''}" data-set-lang="it" title="Italiano">IT</button>
           </div>
 
-          <span style="width:1px;height:18px;background:rgba(255,213,79,0.3);margin:0 2px;"></span>
-
-          <!-- Game Brand & Community Links -->
-          <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener" class="hud-footer-brand" title="CarChess3D on GitHub (Open Source)">
-            <span style="font-size:15px;">🏰🚽</span>
-            <span>CarChess3D</span>
-            <span class="hud-footer-sub">Carlesso al Cesso</span>
-          </a>
-          <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener" class="hud-btn" title="GitHub Source Code">🐙 GitHub</a>
-          <a id="hud-dock-gallery" href="./showcase/" class="hud-btn" style="text-decoration:none;" title="3D Gallery of all 18 Pieces">${this.t('galleryBtn')}</a>
-          <a id="hud-dock-videos" href="./battles.html" class="hud-btn" style="text-decoration:none;" title="16:9 Video Gallery of all 36 Clashes">${this.t('videosBtn')}</a>
-
-          <span style="width:1px;height:18px;background:rgba(255,213,79,0.3);margin:0 2px;"></span>
-
-          <!-- Console & Setup Buttons -->
-          <button id="hud-console-btn" class="hud-btn" title="Open/Close Quake Console (~ or \\)">~_ Console</button>
-          <button id="hud-setup-btn" class="hud-btn gold" title="Configure Factions & Players">${this.t('setupBtn')}</button>
-          <button id="hud-matrix36-btn" class="hud-btn gold-emerald" title="Open the Interactive 6×6 Matrix with all 36 3D Brawls and 36 16:9 Videos!">${this.t('matrixBtn')}</button>
-
-          <!-- In-game Actions -->
-          <button id="hud-hint-btn" class="hud-btn gold">${this.t('hintBtn')}</button>
-          <button id="hud-skeletons-btn" class="hud-btn" title="Show/Hide 3D Articulated Skeletons">${this.t('skeletonsBtn')}</button>
-          <button id="hud-swamp-btn" class="hud-btn" title="Splash captured pieces into the Enchanted Swamp!">${this.t('swampBtn')}</button>
-          <button id="hud-flip-btn" class="hud-btn">${this.t('flipCamBtn')}</button>
-          <button id="hud-top-btn" class="hud-btn">${this.t('topCamBtn')}</button>
-          <button id="hud-zoom-in-btn" class="hud-btn" title="Zoom In (+)">🔍+</button>
-          <button id="hud-zoom-out-btn" class="hud-btn" title="Zoom Out (-)">🔍−</button>
-          <button id="hud-trackpad-btn" class="hud-btn active" title="Mac Trackpad 2 fingers: Rotate + Pinch/Cmd to Zoom">${this.t('trackpadRotateBtn')}</button>
-          <button id="hud-new-btn" class="hud-btn">${this.t('newGameBtn')}</button>
-          <button id="hud-fen-btn" class="hud-btn">${this.t('fenBtn')}</button>
-          <button id="hud-music-btn" class="hud-btn">${this.t('musicBtn')}</button>
-          <button id="hud-sfx-btn" class="hud-btn active">${this.t('sfxBtn')}</button>
-
-          <span style="width:1px;height:18px;background:rgba(255,213,79,0.3);margin:0 2px;"></span>
-
-          <!-- Topbar Toggle Button -->
-          <button id="hud-toggle-topbar-btn" class="hud-btn" title="Show or Hide Top Bar">${this.t('toggleTopbarBtn')}</button>
+          <!-- Hidden legacy/debug action hooks (preserved for keyboard/Quake console & URL flags) -->
+          <a id="hud-dock-videos" href="./battles.html" class="hud-btn" style="display:none;" title="${this.t('videosBtn')}"></a>
+          <button type="button" id="hud-skeletons-btn" class="hud-btn hud-icon-btn" style="display:none;" title="${this.t('skeletonsBtn')}">🦴</button>
+          <button type="button" id="hud-swamp-btn" class="hud-btn" style="display:none;" title="${this.t('swampBtn')}"></button>
+          <button type="button" id="hud-zoom-in-btn" class="hud-btn" style="display:none;" title="Zoom In (+)"></button>
+          <button type="button" id="hud-zoom-out-btn" class="hud-btn" style="display:none;" title="Zoom Out (-)"></button>
+          <button type="button" id="hud-trackpad-btn" class="hud-btn active" style="display:none;" title="${this.t('trackpadRotateBtn')}"></button>
         </div>
       </footer>
 
@@ -2013,6 +2245,10 @@ export class HudListener {
         return;
       }
       this.topDownCamera = !this.topDownCamera;
+      const topBtn = q('#hud-top-btn');
+      const topBadge = q('#hud-top-badge');
+      if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
+      if (topBtn) topBtn.classList.toggle('active', !this.topDownCamera);
       if (this.ctx?.camera) {
         if (this.topDownCamera) {
           this.ctx.camera.position.set(0, 12.8, this.cameraFlipped ? -0.01 : 0.01);
@@ -2031,14 +2267,22 @@ export class HudListener {
 
     if (this.isMobilePhone) {
       const topBtn = q('#hud-top-btn');
+      const topBadge = q('#hud-top-badge');
+      if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
       if (topBtn) {
-        topBtn.textContent = this.t(this.topDownCamera ? 'mobileCamTopBtn' : 'mobileCam3dBtn');
+        const lbl = this.t(this.topDownCamera ? 'mobileCamTopBtn' : 'mobileCam3dBtn');
+        topBtn.title = lbl;
+        topBtn.setAttribute('aria-label', lbl);
         topBtn.classList.toggle('active', !this.topDownCamera);
       }
     }
 
     q('#hud-new-btn')?.addEventListener('click', () => {
       this.startNewGame();
+    });
+
+    q('#hud-refresh-btn')?.addEventListener('click', () => {
+      this.checkAndRefreshVersion();
     });
 
     q('#hud-fen-btn')?.addEventListener('click', () => {
@@ -2898,10 +3142,14 @@ export class HudListener {
       this.ctx.controls?.update?.();
     }
 
-    if (this.rootEl && this.isMobilePhone) {
+    if (this.rootEl) {
       const topBtn = this.rootEl.querySelector('#hud-top-btn');
+      const topBadge = this.rootEl.querySelector('#hud-top-badge');
+      if (topBadge) topBadge.textContent = isTop ? '2D' : '3D';
       if (topBtn) {
-        topBtn.textContent = this.t(isTop ? 'mobileCamTopBtn' : 'mobileCam3dBtn');
+        const lbl = this.t(isTop ? 'mobileCamTopBtn' : 'mobileCam3dBtn');
+        topBtn.title = lbl;
+        topBtn.setAttribute('aria-label', lbl);
         topBtn.classList.toggle('active', !isTop);
       }
     }
@@ -3171,8 +3419,8 @@ export class HudListener {
     }
     const btn = this.rootEl.querySelector('#hud-toggle-topbar-btn');
     if (btn) {
-      btn.textContent = this.topbarVisible ? this.t('toggleTopbarBtn') : this.t('showTopbarBtn');
-      btn.title =
+      btn.classList.toggle('active', this.topbarVisible);
+      const lbl =
         this.lang === 'it'
           ? this.topbarVisible
             ? 'Nascondi la barra in alto'
@@ -3180,6 +3428,8 @@ export class HudListener {
           : this.topbarVisible
             ? 'Hide top bar'
             : 'Show top bar';
+      btn.title = lbl;
+      btn.setAttribute('aria-label', lbl);
     }
   }
 
@@ -3387,13 +3637,30 @@ export class HudListener {
   }
 
   onPieceSelected(e) {
+    this._lastSelectedEvent = e;
     const type = String(e.piece?.type || e.pieceType || '').toLowerCase();
     const char = CHARACTER_REGISTRY[type];
     if (!char) return;
     const v = VOICE_LINES[type];
-    const quote = v?.quote?.[this.lang] || v?.quote?.it || '';
+    const quote = this._pendingSpokenQuote || v?.quote?.[this.lang] || v?.quote?.it || '';
+    this._pendingSpokenQuote = null;
     this.lastVoiceQuote = quote;
+    this._renderSelectionToast(e, char, quote);
+  }
 
+  onVoiceLineSpoken(e) {
+    if (!e?.quote) return;
+    this.lastVoiceQuote = e.quote;
+    const type = String(e.pieceType || '').toLowerCase();
+    const char = CHARACTER_REGISTRY[type];
+    if (char && this._lastSelectedEvent && (!e.square || this._lastSelectedEvent.square === e.square)) {
+      this._renderSelectionToast(this._lastSelectedEvent, char, e.quote);
+    } else {
+      this._pendingSpokenQuote = e.quote;
+    }
+  }
+
+  _renderSelectionToast(e, char, quote) {
     const legalMoves = e.legalMoves || [];
     const firstCapture = legalMoves.find(
       (m) =>
@@ -3960,34 +4227,36 @@ export class HudListener {
     setTxt('#hud-rival-select option[value="classic"]', 'setClassic');
     setTxt('#hud-rival-select option[value="stone"]', 'setStone');
 
-    // Bottom Status & Action Dock
+    // Bottom Status & Material Icon Action Dock (preserve <svg> icons, update title/aria-label)
+    const setTip = (sel, key) => {
+      const el = this.rootEl.querySelector(sel);
+      if (!el) return;
+      const lbl = this.t(key);
+      el.title = lbl;
+      el.setAttribute('aria-label', lbl);
+    };
     setTxt('#hud-luck-label', 'luckBar');
-    setTxt('#hud-dock-gallery', 'galleryBtn');
-    setTxt('#hud-dock-videos', 'videosBtn');
-    setTxt('#hud-setup-btn', 'setupBtn');
-    setTxt('#hud-matrix36-btn', 'matrixBtn');
-    setTxt('#hud-hint-btn', 'hintBtn');
-    setTxt('#hud-skeletons-btn', 'skeletonsBtn');
-    setTxt('#hud-swamp-btn', 'swampBtn');
-    setTxt('#hud-flip-btn', 'flipCamBtn');
-    if (this.isMobilePhone) {
-      setTxt('#hud-top-btn', this.topDownCamera ? 'mobileCamTopBtn' : 'mobileCam3dBtn');
-    } else {
-      setTxt('#hud-top-btn', 'topCamBtn');
-    }
-    const trackpadBtn = this.rootEl.querySelector('#hud-trackpad-btn');
-    if (trackpadBtn) {
-      const isRot = trackpadBtn.classList.contains('active');
-      trackpadBtn.textContent = isRot ? this.t('trackpadRotateBtn') : this.t('trackpadZoomBtn');
-    }
-    setTxt('#hud-new-btn', 'newGameBtn');
-    setTxt('#hud-fen-btn', 'fenBtn');
-    setTxt('#hud-music-btn', 'musicBtn');
-    setTxt('#hud-sfx-btn', 'sfxBtn');
+    setTip('#hud-dock-gallery', 'galleryBtn');
+    setTip('#hud-dock-videos', 'videosBtn');
+    setTip('#hud-setup-btn', 'setupBtn');
+    setTip('#hud-matrix36-btn', 'matrixBtn');
+    setTip('#hud-hint-btn', 'hintBtn');
+    setTip('#hud-skeletons-btn', 'skeletonsBtn');
+    setTip('#hud-swamp-btn', 'swampBtn');
+    setTip('#hud-flip-btn', 'flipCamBtn');
+    setTip('#hud-top-btn', this.isMobilePhone ? (this.topDownCamera ? 'mobileCamTopBtn' : 'mobileCam3dBtn') : 'topCamBtn');
+    const topBadge = this.rootEl.querySelector('#hud-top-badge');
+    if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
+    setTip('#hud-new-btn', 'newGameBtn');
+    setTip('#hud-fen-btn', 'fenBtn');
+    setTip('#hud-music-btn', 'musicBtn');
+    setTip('#hud-sfx-btn', 'sfxBtn');
     setTxt('#hud-skip-btn', 'skipBtn');
     const toggleBtn = this.rootEl.querySelector('#hud-toggle-topbar-btn');
     if (toggleBtn) {
-      toggleBtn.textContent = this.topbarVisible ? this.t('toggleTopbarBtn') : this.t('showTopbarBtn');
+      const lbl = this.topbarVisible ? this.t('toggleTopbarBtn') : this.t('showTopbarBtn');
+      toggleBtn.title = lbl;
+      toggleBtn.setAttribute('aria-label', lbl);
     }
 
     // Startup & Match Setup Modal

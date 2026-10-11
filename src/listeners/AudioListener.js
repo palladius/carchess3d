@@ -79,6 +79,17 @@ export class AudioListener {
     this.combatFadeTimer = null;
     this.voiceEl = null;
     this.voiceAudioCache = new Map();
+    /** @type {Map<string, number>} Count of voice plays per piece type */
+    this.voicePlayCountByType = new Map();
+    /** @type {Map<string, Array<string>>} Ring buffer of recent variant IDs per piece type (prevents immediate repeats) */
+    this.recentVariantIdsByType = new Map();
+    /** @type {Map<string, Array<object>>} Shuffled deck of unseen signature variants per piece type */
+    this.signatureDeckByType = new Map();
+    /** @type {Map<string, string>} Last played kind ('signature' | 'mumble') per piece type */
+    this.lastKindByType = new Map();
+    /** @type {Map<string, number>} Timestamp of last hover SFX per piece type (anti-spam for pawn rows) */
+    this.lastHoverTimeByType = new Map();
+    this.hoverStepCounter = 0;
     this.loopTimer = null;
     this.melodyStep = 0;
     this.lyricStep = 0;
@@ -128,8 +139,7 @@ export class AudioListener {
     this.offs.push(
       bus.on('PIECE_HOVERED', (e) => {
         const pType = String(e?.pieceType || e?.piece?.type || 'p').toLowerCase();
-        const recipe = this.hoverSynthTable[pType] || this.hoverSynthTable.p;
-        this.playSfx(`hover_${pType}`, recipe);
+        this.playHoverSfxWithAntiSpam(pType);
       }),
       bus.on('PIECE_SELECTED', (e) => {
         const pType = String(e?.piece?.type || e?.pieceType || 'p').toLowerCase();
@@ -365,64 +375,219 @@ export class AudioListener {
   // 1B. CREATURE HOVER SFX & SPOKEN CHARACTER VOICE LINES
   // ===========================================================================
 
+  /**
+   * Plays hover SFX with anti-spam protection so sweeping the cursor across a row of 8 Puffin pawns
+   * doesn't blast 10 consecutive high-pitched chirps:
+   * - Always records `hover_${pType}` in `this.playedSfx` for deterministic headless unit tests.
+   * - In browser runtime, enforces a per-type cooldown (`2400ms` for pawns `'p'`, `900ms` for others)
+   *   and alternates with a soft, low-volume `"hmm / sbuffo"` micro-breath (`synthSoftSbuffo`).
+   * @param {string} pType
+   */
+  playHoverSfxWithAntiSpam(pType = 'p') {
+    const now = typeof Date !== 'undefined' ? Date.now() : 0;
+    const lastMs = this.lastHoverTimeByType.get(pType) || 0;
+    const minCooldownMs = pType === 'p' ? 2400 : 900;
+    const isRapidRepeat = typeof window !== 'undefined' && lastMs > 0 && now - lastMs < minCooldownMs;
+    this.lastHoverTimeByType.set(pType, now);
+    this.hoverStepCounter++;
+
+    const recipe = this.hoverSynthTable[pType] || this.hoverSynthTable.p;
+    if (isRapidRepeat) {
+      // Record event for telemetry/tests but play only a barely-audible micro-rustle (or silence)
+      this.playedSfx.push(`hover_${pType}`);
+      if (this.playedSfx.length > 100) this.playedSfx.shift();
+      return;
+    }
+
+    // With higher probability (especially on pawns), play a soft natural "hmm-hmm / sbuffo" breath
+    const useSoftSbuffo = pType === 'p' ? this.hoverStepCounter % 3 !== 1 : this.hoverStepCounter % 2 === 0;
+    this.playSfx(`hover_${pType}`, () => {
+      if (useSoftSbuffo) {
+        this.synthSoftSbuffo(pType);
+      } else {
+        recipe();
+      }
+    });
+  }
+
+  synthSoftSbuffo(pType = 'p') {
+    // Gentle, low-volume "hmm-hmm" or "pff" breath so hover feels alive without shrill repetition
+    const baseHz = pType === 'q' ? 310 : pType === 'n' ? 240 : pType === 'b' ? 280 : pType === 'p' ? 420 : 210;
+    const detune = 0.94 + Math.random() * 0.12;
+    this.synthTone(baseHz * detune, baseHz * detune * 0.82, 0.09, 'sine', 0.055, 0);
+    this.synthTone(baseHz * detune * 0.88, baseHz * detune * 0.72, 0.11, 'triangle', 0.045, 0.08);
+  }
+
   synthHorseSnort() {
     // Horse snort ("prrr-snort!") + double hoof tap
-    this.synthTone(155, 82, 0.11, 'sawtooth', 0.12, 0);
-    this.synthTone(135, 68, 0.10, 'sawtooth', 0.11, 0.08);
-    this.synthTone(260, 110, 0.05, 'triangle', 0.14, 0.19);
-    this.synthTone(290, 120, 0.05, 'triangle', 0.14, 0.27);
+    this.synthTone(155, 82, 0.11, 'sawtooth', 0.10, 0);
+    this.synthTone(135, 68, 0.10, 'sawtooth', 0.09, 0.08);
+    this.synthTone(260, 110, 0.05, 'triangle', 0.11, 0.19);
+    this.synthTone(290, 120, 0.05, 'triangle', 0.11, 0.27);
   }
 
   synthDragonWhistle() {
     // Magical dragon whistle ("fiuuu!") + wing flutter
-    this.synthTone(580, 1360, 0.16, 'sine', 0.13, 0);
-    this.synthTone(1360, 920, 0.14, 'sine', 0.11, 0.14);
-    this.synthTone(240, 160, 0.07, 'triangle', 0.09, 0.22);
+    this.synthTone(580, 1360, 0.16, 'sine', 0.10, 0);
+    this.synthTone(1360, 920, 0.14, 'sine', 0.09, 0.14);
+    this.synthTone(240, 160, 0.07, 'triangle', 0.08, 0.22);
   }
 
   synthPuffinPeep() {
-    // Super-cute double puffin chirp ("piu-piu!")
-    this.synthTone(980, 1580, 0.08, 'sine', 0.14, 0);
-    this.synthTone(1120, 1760, 0.09, 'sine', 0.14, 0.10);
+    // Gentle, lower-pitched puffin murmur ("mmh-piu!") — no longer shrill
+    const detune = 0.92 + Math.random() * 0.14;
+    this.synthTone(620 * detune, 880 * detune, 0.07, 'sine', 0.065, 0);
+    this.synthTone(740 * detune, 640 * detune, 0.08, 'sine', 0.055, 0.09);
   }
 
   synthPlushBoing() {
     // Squishy plush monster bounce ("boing-purr!")
-    this.synthTone(220, 520, 0.14, 'sine', 0.15, 0);
-    this.synthTone(520, 340, 0.12, 'triangle', 0.12, 0.12);
+    this.synthTone(220, 520, 0.14, 'sine', 0.12, 0);
+    this.synthTone(520, 340, 0.12, 'triangle', 0.10, 0.12);
   }
 
   synthQueenChime() {
     // Elegant sarcastic British crystal chime
-    this.synthTone(783.99, 1174.66, 0.15, 'triangle', 0.12, 0);
-    this.synthTone(1046.5, 987.77, 0.18, 'sine', 0.11, 0.11);
+    this.synthTone(783.99, 1174.66, 0.15, 'triangle', 0.10, 0);
+    this.synthTone(1046.5, 987.77, 0.18, 'sine', 0.09, 0.11);
   }
 
   synthKingSceptreHum() {
     // Warm royal golden sceptre hum
-    this.synthTone(261.63, 392.0, 0.16, 'triangle', 0.13, 0);
-    this.synthTone(523.25, 659.25, 0.18, 'sine', 0.12, 0.10);
+    this.synthTone(261.63, 392.0, 0.16, 'triangle', 0.11, 0);
+    this.synthTone(523.25, 659.25, 0.18, 'sine', 0.10, 0.10);
   }
 
   /**
-   * Plays the character's spoken voice line from `assets/audio/voices/voice-${type}.mp3`
-   * (generated via Gemini TTS / Chirp 3 HD), falling back to `window.speechSynthesis` if needed,
-   * and emits `VOICE_LINE_SPOKEN` on the bus for HUD comic speech bubbles.
-   * @param {string} pieceType - `'k' | 'q' | 'b' | 'n' | 'r' | 'p'`
-   * @param {string|null} [square]
+   * Smart Anti-Repetition Voice Variant Selector:
+   * 1. On the very first selection of `type` (`playCount === 0`), returns `variants[0]` (the canonical
+   *    signature line) for deterministic onboarding and unit-test compatibility.
+   * 2. On subsequent selections (`playCount >= 1`):
+   *    - Excludes recently played variant IDs (`this.recentVariantIdsByType`) so the same clip NEVER plays back-to-back.
+   *    - Gives higher probability (`~55%`) to non-verbal vocalizations (`kind === 'mumble'`, e.g. `"Hmm-hmm..."`,
+   *      `"Pff... uffaaa!"`, `"Pff... oh, honestly!"`), especially right after a full spoken sentence.
+   *    - Uses a shuffled deck (`this.signatureDeckByType`) for `kind === 'signature'` lines so every signature
+   *      quote is heard before any signature quote repeats!
+   * @param {string} pieceType
+   * @param {{ rng?: () => number, forceKind?: 'signature'|'mumble' }} [opts]
+   * @returns {object}
    */
-  playCharacterVoiceLine(pieceType = 'p', square = null) {
+  selectVoiceVariant(pieceType = 'p', opts = {}) {
     const type = String(pieceType || 'p').toLowerCase();
     const spec = VOICE_LINES[type] || VOICE_LINES.p;
-    const quoteText = spec.quote?.[this.lang] || spec.quote?.it || '';
+    const variants = Array.isArray(spec.variants) && spec.variants.length > 0
+      ? spec.variants
+      : [{ id: `${type}_default`, kind: 'signature', weight: 1.0, audioUrl: spec.audioUrl, quote: spec.quote }];
+
+    const rng = typeof opts.rng === 'function' ? opts.rng : Math.random;
+    const playCount = this.voicePlayCountByType.get(type) || 0;
+    this.voicePlayCountByType.set(type, playCount + 1);
+
+    const recentIds = this.recentVariantIdsByType.get(type) || [];
+    const maxRecent = Math.max(1, Math.min(2, variants.length - 1));
+
+    const recordChoice = (chosen) => {
+      recentIds.push(chosen.id);
+      while (recentIds.length > maxRecent) {
+        recentIds.shift();
+      }
+      this.recentVariantIdsByType.set(type, recentIds);
+      this.lastKindByType.set(type, chosen.kind || 'signature');
+      return chosen;
+    };
+
+    // First play of this character: play canonical primary signature line (unless forceKind specified)
+    if (playCount === 0 && !opts.forceKind) {
+      return recordChoice(variants[0]);
+    }
+
+    const mumbles = variants.filter((v) => v.kind === 'mumble');
+    const signatures = variants.filter((v) => v.kind !== 'mumble');
+    const lastKind = this.lastKindByType.get(type);
+
+    // Determine whether to pick a mumble (hmm-hmm / sbuffo) or a signature sentence
+    let targetKind = opts.forceKind || null;
+    if (!targetKind) {
+      if (mumbles.length > 0 && signatures.length > 0) {
+        // Higher probability for mumble/sbuffo (~58% overall, or 68% right after a spoken signature sentence,
+        // and 78% for Puffin pawns so pawns mostly sigh/murmur softly)
+        const mumbleProb = type === 'p' ? 0.78 : lastKind === 'signature' ? 0.65 : 0.45;
+        targetKind = rng() < mumbleProb ? 'mumble' : 'signature';
+      } else if (mumbles.length > 0) {
+        targetKind = 'mumble';
+      } else {
+        targetKind = 'signature';
+      }
+    }
+
+    const lastId = recentIds.length > 0 ? recentIds[recentIds.length - 1] : null;
+
+    if (targetKind === 'mumble' && mumbles.length > 0) {
+      const freshMumbles = mumbles.filter((v) => !recentIds.includes(v.id));
+      if (freshMumbles.length > 0) {
+        const totalWeight = freshMumbles.reduce((acc, v) => acc + (Number(v.weight) || 1), 0);
+        let roll = rng() * totalWeight;
+        for (const item of freshMumbles) {
+          roll -= Number(item.weight) || 1;
+          if (roll <= 0) return recordChoice(item);
+        }
+        return recordChoice(freshMumbles[freshMumbles.length - 1]);
+      }
+      // All mumbles were played very recently: switch to a fresh signature line so we never repeat a mumble!
+      targetKind = 'signature';
+    }
+
+    // Signature shuffle-bag: cycle through all signature sentences without repeating any until all have been heard
+    let deck = this.signatureDeckByType.get(type) || [];
+    deck = deck.filter((v) => !recentIds.includes(v.id) && v.id !== lastId);
+    if (deck.length === 0) {
+      const freshSigs = signatures.filter((v) => !recentIds.includes(v.id) && v.id !== lastId);
+      const nonLastSigs = signatures.filter((v) => v.id !== lastId);
+      const source = freshSigs.length > 0
+        ? [...freshSigs]
+        : nonLastSigs.length > 0
+          ? [...nonLastSigs]
+          : [...signatures];
+      // Fisher-Yates shuffle
+      for (let i = source.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [source[i], source[j]] = [source[j], source[i]];
+      }
+      deck = source;
+    }
+    let chosenSig = deck.shift() || signatures[0] || variants[0];
+    this.signatureDeckByType.set(type, deck);
+    if (chosenSig.id === lastId && variants.length > 1) {
+      chosenSig = variants.find((v) => v.id !== lastId) || chosenSig;
+    }
+    return recordChoice(chosenSig);
+  }
+
+  /**
+   * Plays a randomized character voice line or non-verbal vocalization (`hmm-hmm` / `sbuffo`)
+   * from `VOICE_LINES[type].variants` (generated via Gemini 3.8 Flash TTS), falling back to
+   * `window.speechSynthesis` if needed, and emits `VOICE_LINE_SPOKEN` on the bus.
+   * @param {string} pieceType - `'k' | 'q' | 'b' | 'n' | 'r' | 'p'`
+   * @param {string|null} [square]
+   * @param {object} [opts]
+   */
+  playCharacterVoiceLine(pieceType = 'p', square = null, opts = {}) {
+    const type = String(pieceType || 'p').toLowerCase();
+    const spec = VOICE_LINES[type] || VOICE_LINES.p;
+    const variant = this.selectVoiceVariant(type, opts);
+    const quoteText = variant.quote?.[this.lang] || variant.quote?.it || spec.quote?.[this.lang] || spec.quote?.it || '';
+    const audioUrl = variant.audioUrl || spec.audioUrl;
+    const speechLang = variant.speechLang || spec.speechLang;
 
     const voiceRecord = {
       pieceType: type,
       square,
       name: spec.name,
+      variantId: variant.id,
+      kind: variant.kind || 'signature',
       quote: quoteText,
-      audioUrl: spec.audioUrl,
-      speechLang: spec.speechLang,
+      audioUrl,
+      speechLang,
     };
     this.playedVoices.push(voiceRecord);
     if (this.playedVoices.length > 50) this.playedVoices.shift();
@@ -436,7 +601,7 @@ export class AudioListener {
 
     if (!this.sfxEnabled) return voiceRecord;
 
-    if (typeof Audio !== 'undefined' && spec.audioUrl) {
+    if (typeof Audio !== 'undefined' && audioUrl) {
       try {
         if (this.voiceEl) {
           try {
@@ -444,27 +609,27 @@ export class AudioListener {
             this.voiceEl.currentTime = 0;
           } catch {}
         }
-        let audio = this.voiceAudioCache.get(spec.audioUrl);
+        let audio = this.voiceAudioCache.get(audioUrl);
         if (!audio) {
-          audio = new Audio(spec.audioUrl);
+          audio = new Audio(audioUrl);
           audio.preload = 'auto';
-          this.voiceAudioCache.set(spec.audioUrl, audio);
+          this.voiceAudioCache.set(audioUrl, audio);
         }
         audio.currentTime = 0;
-        audio.volume = 0.92;
+        audio.volume = variant.kind === 'mumble' ? 0.82 : 0.94;
         this.voiceEl = audio;
         const playPromise = audio.play();
         if (playPromise && typeof playPromise.catch === 'function') {
           playPromise.catch(() => {
-            this._speakFallbackUtterance(spec, quoteText);
+            this._speakFallbackUtterance({ ...spec, speechLang }, quoteText);
           });
         }
         return voiceRecord;
       } catch {
-        this._speakFallbackUtterance(spec, quoteText);
+        this._speakFallbackUtterance({ ...spec, speechLang }, quoteText);
       }
     } else {
-      this._speakFallbackUtterance(spec, quoteText);
+      this._speakFallbackUtterance({ ...spec, speechLang }, quoteText);
     }
     return voiceRecord;
   }

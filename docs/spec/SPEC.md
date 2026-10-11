@@ -235,7 +235,7 @@ is the "victim" and is removed at the end.
 7. Polish: intro, bloom, particles, audio, checkmate fireworks, adaptive
    quality; offline/Android testing.
 
-## Living Idle Animations & Hover/Select Character Voices (v0.3.1)
+## Living Idle Animations & Hover/Select Character Voices (v0.3.1 → v0.3.32)
 
 - **Continuous Per-Character 3D Idle Motion**: Every living piece on the 8×8 board exhibits organic continuous movement even when no turn or capture is active (`PieceView.update` + `SkeletonRigHelper.updateSkeletonRigPose` + custom GLSL vertex shader `uIdlePhase` / `uIdleAmp` / `uPieceKind`):
   - **Knight (Seby)**: Warhorse steps/trots gently in place with alternating 4-hoof weight shift, head nod, and horse-tail swish (`tail` bone).
@@ -244,20 +244,30 @@ is the "victim" and is removed at the end.
   - **Rook (Pupurabbu)**: Squishy plushie breathing and ear/cheek bounce.
   - **King (Riccardo) & Queen (Kate)**: Regal breathing and sceptre/crown poise.
   - Hovering or selecting a piece boosts its idle amplitude (`1.55×` on hover, `1.95×` on selection) for an immediate "perk-up" reaction.
-- **Hover Creature Sound Effects (`PIECE_HOVERED`)**: Raycast pointer-hover emits `PIECE_HOVERED` (with a `650 ms` anti-spam cooldown per square) and triggers procedural WebAudio creature sounds (`AudioListener`):
+- **Hover Creature Sound Effects & Anti-Spam (`PIECE_HOVERED`)**: Raycast pointer-hover emits `PIECE_HOVERED` with a per-square cooldown (`650 ms`) plus a **per-piece-type cooldown (`2800 ms` for Pawns `'p'`, `950 ms` for other pieces)** so sweeping across the 8 Puffin pawns never triggers a machine-gun burst of chirps (`BoardInteractionView` + `AudioListener.playHoverSfxWithAntiSpam`):
   - `n` (Seby): Horse snort & hoof paw (`🐴 Snort! Prrr!`)
   - `b` (Ale): Baby dragon whistle & wing flutter (`🐉 Fiuuu!`)
-  - `p` (Puffin): Cute high-pitched double chirp (`🐧 Piu-piu!`)
+  - `p` (Puffin): Soft low-volume double chirp (`🐧 Piu-piu!`) alternating with a gentle breathy `"hmm-hmm / sbuffo"`
   - `r` (Pupurabbu): Soft plushie boing (`🟣 Boing-pfiu!`)
   - `q` (Kate): Sarcastic crystal chime (`♕ Hmm...`)
   - `k` (Riccardo): Warm royal sceptre hum (`♔ Zzt-hum!`)
-- **Spoken Character Voice Lines on Select (`PIECE_SELECTED`)**: Selecting a piece plays its pre-generated authentic voice MP3 (`assets/audio/voices/voice-{k,q,b,n,r,p}.mp3`, generated via `gemini-2.5-flash-preview-tts` in `scripts/generate_voice_lines.py`, with automatic `window.speechSynthesis` fallback) and displays a comic speech bubble toast in the HUD:
-  - **Seby (`n`)**: *"Dimmi papino!"* (`it-IT`)
-  - **Ale (`b`)**: *"Agli ordini, Signore!"* (`it-IT`)
-  - **Kate (`q`)**: *"This is an interesting choice..."* (`en-GB`, dry sarcastic British tone)
-  - **Puffin (`p`)**: *"Piu piu! Eccomi, pronta guardia Puffin!"* (`it-IT`)
-  - **Riccardo (`k`)**: *"Avanti tutta! Re Carlesso al comando!"* (`it-IT`)
-  - **Pupurabbu (`r`)**: *"Boing boing! Super abbraccio Pupurabbu!"* (`it-IT`)
+- **Multi-Clip Character Voice Pool (`gemini-3.8-flash-tts`) & Smart Anti-Repetition Engine (`PIECE_SELECTED` → `VOICE_LINE_SPOKEN`)**:
+  - Pre-generated 27 authentic character voice MP3s (`assets/audio/voices/voice-*.mp3`) via **`gemini-3.8-flash-tts`** (`scripts/generate_voice_lines.py`) using `speech_metadata.style` acting directions and inline expressive vocal tags (`<sigh>`, `<pff>`, `<giggle>`), with automatic `window.speechSynthesis` fallback:
+    - **Queen Kate (`q`, 40yo British UK Woman — `en-gb-csagent-4` Winchester UK voice)**:
+      - Signature sentences (`kind: 'signature'`): *"That's... interesting."*, *"Ok, Puffin McMuffin!"*, *"You... love me! I tell myself EVERY day!"*, *"Don't be FACETIOUS!"*
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Hmm-hmm..."* (`voice-q-hmm.mp3`), *"Pff... oh, honestly!"* (`voice-q-sbuffo.mp3`).
+    - **Knight Seby (`n`, Young Trilingual Boy — `Puck` + pitch shift)**:
+      - Signature sentences (`kind: 'signature'`): *"Dimmi papino!"*, *"Papinoooooo!!!"*, *"Papino, ti manco tantissimo!"* (3rd-language cute inversion of *I miss you*), *"My body, my choice!"* (in English), *"Mi scappa la cacca!"*, *"Mummy, can you clean my bottooooom?"* (with dragged-out final syllable).
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Mmh-hmm! Ehehe!"* (`voice-n-hmm.mp3`), *"Pff... uffaaa!"* (`voice-n-sbuffo.mp3`).
+    - **Bishop Ale (`b`, 10yo Trilingual Boy Wizard — `Puck` + pitch shift)**:
+      - Signature sentences (`kind: 'signature'`): *"Agli ordini, Signore!"*, *"Papino, ti manco tantissimo!"*, *"Papino, qual è il più forte?"*, *"Papino, quando mi compri un regalo?"*, *"Sei proprio un cafoNAZZO!"* (with rising comic emphasis on `-NAZZO!`).
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Mmh-hmm... vediamo!"* (`voice-b-hmm.mp3`), *"Pff... ma dai!"* (`voice-b-sbuffo.mp3`).
+    - **King Riccardo (`k`), Rook Pupurabbu (`r`), Pawn Puffin (`p`)**:
+      - Signature greetings (`voice-k.mp3`, `voice-r.mp3`, `voice-p.mp3`) paired with higher-probability short hums/sighs (`voice-k-hmm.mp3`, `voice-r-hmm.mp3`, `voice-p-hmm.mp3`).
+  - **3-Layer Anti-Repetition Selector (`AudioListener.selectVoiceVariant`)**:
+    1. **First-Touch Signature Guarantee**: The very first selection of a character in a session always plays a full `signature` sentence so the player hears their iconic personality immediately.
+    2. **Higher-Probability Non-Verbal Reactions (`55%–65%` for heroes, `78%` for Puffin pawns) + Cooldown**: Subsequent selections within cooldown (`3.8 s` for heroes, `6.5 s` for pawns) or weighted random rolls favor short `mumble` clips (`hmm-hmm` / `sbuffo`) so selecting pieces back-to-back feels natural and never Fatigues the ear.
+    3. **Shuffled Signature Deck + Ring-Buffer History (`recentVariantIdsByType`)**: Signature lines are dealt from a Fisher-Yates shuffled deck without replacement (guaranteeing every quote is heard before any quote can repeat) and filtered against the last `N` played variant IDs so **no clip ever plays twice in a row**. Emits `VOICE_LINE_SPOKEN` so the HUD toast displays the exact randomized quote spoken.
 
 ## 2-Stage 36-Combination Battle Cinema Pipeline & IMAX World Transformation (`Nano Banana 2.1 → Veo 3.1`)
 
@@ -296,6 +306,19 @@ is the "victim" and is removed at the end.
 - **Progressive Camera Onboarding (`Alto-Basso` ➔ `3D` on First Attack)**:
   - On mobile phones, the match starts in **Easy Top-Down (`Alto-Basso`)** camera mode (`topDownCamera = true`) so all 64 squares are large and effortless to tap for opening moves.
   - Upon the **very first capture (`BATTLE_STARTED` ➔ `BATTLE_COMPLETED`)**, the game plays the 3D brawl + 16:9 Veo cinema and **automatically unlocks and stays in full 3D panoramic mode** (`topDownCamera = false`), with a persistent 1-tap toggle (`📐 View: Top` ⇄ `🎬 View: 3D`) in the compact mobile dock.
+
+## Mobile & Tablet WebGL 3D Rendering Pipeline (`v0.3.31` — Pixel 10 & Galaxy Tab S10 Ultra)
+
+- **Direct `renderer.render` Bypass for `HalfFloatType` Bloom FBOs (`main.js`, `Registry.isMobileOrTabletDevice`)**:
+  - On smartphones and Android/iPadOS tablets (`isMobileOrTablet`), `EffectComposer` + `UnrealBloomPass` (which allocates 13 full-resolution `HalfFloatType` `RGBA16F` framebuffers that overflow to `NaN`/`Inf` white or trigger `webglcontextlost` on mobile GPUs such as Pixel 10's Tensor G5 / PowerVR DXT) is bypassed by default in favor of direct `renderer.render(scene, camera)` with `ACESFilmicToneMapping` and an explicit `#0b1528` clear color (overrideable via `?bloom=1`).
+- **Elimination of Hidden Transmission FBOs (`VFXPoolView.js`)**:
+  - Replaced `MeshPhysicalMaterial({ transmission: 0.65 })` on gem shards with `MeshStandardMaterial({ transparent: true, opacity: 0.84 })` so Three.js never spawns a hidden full-screen multisampled `HalfFloatType` `_transmissionRenderTarget` pass on mobile GPUs.
+- **Mobile Lite 3D Piece Mode (`PieceView.js`, `Registry.shouldUseMobileLite3D`)**:
+  - On smartphones (`isMobilePhone`), `PieceView` defaults to **Mobile Lite 3D Mode** (`mobileLite3D = true`, overrideable with `?glb=1` for full `.glb` models or `?lite3d=1` on any device): renders the sculpted 3D Faction Pedestals, 3D Columns, Double-Sided 2D Cutie Portrait Medallions, and 3D Role Crowns (plus 3D Stone Warriors for Classic/Stone sets) in `< 15 ms` without downloading or cloning `30 MB` / `850,000` vertices of `.glb` meshes.
+  - Custom `onBeforeCompile` vertex shaders (`injectLocomotionShader`) are skipped on mobile/tablet GPUs unless `?shaders=1`, and `syncPiecesFromManager()` deduplicates identical board/faction signatures so startup only builds the 32 pieces once.
+- **Action Item — Mobile `LOD1` `.glb` Downsampling (`10×–20×` Polygon & Texture Reduction)**:
+  - **Problem**: Desktop `.glb` characters (`assets/models/*.glb`) weigh `2–5 MB` each with `50k–97k` triangles and `2048×1024` / `2048×2048` uncompressed RGBA textures (`~850,000` triangles and `~180 MB` VRAM across all 32 pieces on the board), whereas on a `6.3"` smartphone screen each chess piece occupies only `~60×90` physical pixels (causing `15–20` sub-pixel triangles per screen pixel).
+  - **Planned Solution (`assets/models/mobile/*.glb`)**: Generate a dedicated mobile `LOD1` asset set downsampled by **`10×–20×`** in triangle count (`~3,000–5,000` tris for heroes, `~1,500` tris for pawns via Quadric Error Metric decimation) and **`4×–16×`** in texture area (`512×512` WebP/JPEG baked atlas, `~150–300 KB` per `.glb`), and have `PieceView` load `assets/models/mobile/<piece>.glb` automatically on `isMobilePhone` so smartphones render the full 3D sculpted characters at `60 fps` with `< 5 MB` total download and `< 15 MB` VRAM.
 
 ## Open Questions
 
