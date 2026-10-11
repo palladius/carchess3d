@@ -288,24 +288,52 @@ export class VeoCinemaView {
       this.getOrLoadImage(choreo.compositeUrl);
     }
 
-    this.tryPlayVeoVideo(choreo.videoUrl, false, 'battle');
+    this.tryPlayVeoVideo(choreo.videoUrl, false, 'battle', true);
+  }
+
+  getPrePaddingS() {
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const q = new URLSearchParams(window.location.search).get('prePaddingSeconds');
+      if (q !== null && Number.isFinite(Number(q))) {
+        return Math.max(0.0, Math.min(3.0, Number(q)));
+      }
+    }
+    return Number.isFinite(this.videoPrePaddingS) ? this.videoPrePaddingS : 1.0;
+  }
+
+  getCombatVideoAlpha() {
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const q = new URLSearchParams(window.location.search).get('videoAlpha');
+      if (q !== null && Number.isFinite(Number(q))) {
+        return Math.max(0.25, Math.min(1.0, Number(q)));
+      }
+    }
+    return Number.isFinite(this.combatVideoAlpha) ? this.combatVideoAlpha : 0.78;
   }
 
   /**
    * Loads and plays ANY of the 36 `<atk>_x_<def>.mp4` or `.webm` battle videos on the 16:9 Cinema Mirror.
+   * During a 10.0s battle (`1s pre-padding + 8s Veo video + 1s post-padding`), cues Frame 0 during the
+   * `0.0s .. 1.0s` pre-padding zoom-in and starts playback at `t = 1.0s` (`loop = false`) so the user
+   * never misses the first second of the video and the video holds its final frame during `9.0s .. 10.0s`!
    * @param {string} videoUrl
    * @param {boolean} [triedWebm=false]
    * @param {'battle'|'checkmate'} [expectedMode='battle']
+   * @param {boolean} [deferForPrePadding=false]
    */
-  tryPlayVeoVideo(videoUrl, triedWebm = false, expectedMode = 'battle') {
+  tryPlayVeoVideo(videoUrl, triedWebm = false, expectedMode = 'battle', deferForPrePadding = false) {
     this.stopVideoPlayback();
     if (!videoUrl || !this.videoEl) return;
     if (!/[kqbnrp]_x_[kqbnrp]\.(mp4|webm)$/i.test(videoUrl)) return;
 
     try {
+      this.videoEl.loop = expectedMode === 'checkmate';
       this.videoEl.src = videoUrl;
       this.videoEl.currentTime = 0;
       this.videoEl.playbackRate = 1.0;
+      const prePadS = deferForPrePadding ? this.getPrePaddingS() : 0;
+      this.videoWaitingPrePadding = prePadS > 0 && this.battleElapsed < prePadS;
+
       const playPromise = this.videoEl.play();
       if (playPromise && typeof playPromise.then === 'function') {
         playPromise
@@ -321,25 +349,44 @@ export class VeoCinemaView {
             }
             this.usingVideoTexture = true;
             this.activeVideoUrl = videoUrl;
+            // If still inside the 1.0s pre-padding intro window, hold at Frame 0 until battleElapsed >= 1.0s!
+            if (this.videoWaitingPrePadding && this.battleElapsed < prePadS) {
+              try {
+                this.videoEl.pause();
+                this.videoEl.currentTime = 0;
+              } catch {
+                // Ignore seek/pause errors
+              }
+            } else {
+              this.videoWaitingPrePadding = false;
+            }
           })
           .catch(() => {
             if (!triedWebm && /\.mp4$/i.test(videoUrl)) {
-              this.tryPlayVeoVideo(videoUrl.replace(/\.mp4$/i, '.webm'), true, expectedMode);
+              this.tryPlayVeoVideo(
+                videoUrl.replace(/\.mp4$/i, '.webm'),
+                true,
+                expectedMode,
+                deferForPrePadding,
+              );
               return;
             }
             this.usingVideoTexture = false;
             this.activeVideoUrl = null;
+            this.videoWaitingPrePadding = false;
           });
       }
     } catch {
       this.usingVideoTexture = false;
       this.activeVideoUrl = null;
+      this.videoWaitingPrePadding = false;
     }
   }
 
   stopVideoPlayback() {
     this.usingVideoTexture = false;
     this.activeVideoUrl = null;
+    this.videoWaitingPrePadding = false;
     if (this.videoEl) {
       try {
         this.videoEl.pause();
@@ -563,23 +610,38 @@ export class VeoCinemaView {
           `${atkChar.glyph} ${atkChar.name.toUpperCase()}  ⚡  ${defChar.glyph} ${defChar.name.toUpperCase()}`;
 
     const counterSfx = choreo.defenderCounter?.sfxText || '';
+    const prePadS = this.getPrePaddingS();
+    const vidDur = this.videoEl?.duration > 0 ? this.videoEl.duration : 8.0;
+    const videoElapsed = Math.max(0, (this.battleElapsed || 0) - prePadS);
+    const phaseTag =
+      this.battleElapsed < prePadS
+        ? '1s INTRO · FACE-OFF ⚔️'
+        : videoElapsed < vidDur
+          ? '8s VEO FILM · LIVE 🎬'
+          : '1s FINALE · VITTORIA 🏆';
 
-    // TIER 1: If a Veo / 3D .mp4 or .webm video is loaded and playing, draw the clean live 16:9 video frame
-    // with a sleek Netflix Cinema overlay (red N badge, episode header, and bottom red timeline scrubber!)
+    // TIER 1: If a Veo / 3D .mp4 or .webm video is loaded, draw the 16:9 video frame with
+    // balanced cinema alpha (0.78 default) + subtle lower-arena contrast vignette so both the
+    // full-screen Veo movie AND the 100%-solid 3D foreground fighters are crystal clear!
     if (this.usingVideoTexture && this.videoEl && this.videoEl.readyState >= 2) {
-      ctx.drawImage(this.videoEl, 0, 0, w, h);
-      const vidDur = this.videoEl.duration > 0 ? this.videoEl.duration : 8.0;
-      const progress = Math.min(1, Math.max(0.05, (this.videoEl.currentTime || this.battleElapsed) / vidDur));
-      this.drawNetflixCinemaOverlay(ctx, w, h, titleText, progress);
+      this._drawMediaWithArenaContrast(ctx, w, h, this.videoEl);
+      const activeVidTime =
+        this.battleElapsed < prePadS
+          ? 0
+          : this.battleElapsed >= prePadS + vidDur
+            ? vidDur
+            : this.videoEl.currentTime || videoElapsed;
+      const progress = Math.min(1, Math.max(0.02, activeVidTime / vidDur));
+      this.drawNetflixCinemaOverlay(ctx, w, h, titleText, progress, phaseTag);
       return;
     }
 
     // TIER 2: If the Nano Banana 16:9 Initial Battle Keyframe (`assets/battles/keyframes/<id>.png`) is loaded, draw it cleanly!
     const nbKeyframe = this.getOrLoadImage(choreo.keyframeUrl);
     if (nbKeyframe) {
-      ctx.drawImage(nbKeyframe, 0, 0, w, h);
-      const progress = Math.min(1, Math.max(0.08, (this.battleElapsed || 0.8) / 4.2));
-      this.drawNetflixCinemaOverlay(ctx, w, h, titleText, progress);
+      this._drawMediaWithArenaContrast(ctx, w, h, nbKeyframe);
+      const progress = Math.min(1, Math.max(0.02, videoElapsed / vidDur));
+      this.drawNetflixCinemaOverlay(ctx, w, h, titleText, progress, phaseTag);
       return;
     }
 
@@ -653,12 +715,36 @@ export class VeoCinemaView {
   }
 
   /**
+   * Draws the 16:9 Veo video or keyframe with balanced alpha (`0.78` default) over a deep cinema
+   * obsidian backing plus a soft lower-arena radial contrast cushion so the 3D protagonists in front
+   * stand out with 100% silhouette readability while the Veo movie fills the screen behind them!
+   */
+  _drawMediaWithArenaContrast(ctx, w, h, mediaSource) {
+    ctx.save();
+    ctx.fillStyle = '#060812';
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.globalAlpha = this.getCombatVideoAlpha();
+    ctx.drawImage(mediaSource, 0, 0, w, h);
+    ctx.globalAlpha = 1.0;
+
+    // Soft radial contrast cushion in the lower-center foreground zone where the 2 3D fighters clash
+    const arenaGrad = ctx.createRadialGradient(w * 0.5, h * 0.69, 40, w * 0.5, h * 0.69, 390);
+    arenaGrad.addColorStop(0, 'rgba(6, 9, 20, 0.34)');
+    arenaGrad.addColorStop(0.65, 'rgba(6, 9, 20, 0.14)');
+    arenaGrad.addColorStop(1, 'rgba(6, 9, 20, 0.0)');
+    ctx.fillStyle = arenaGrad;
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+  }
+
+  /**
    * Draws a minimal, high-contrast Netflix Cinema player overlay on the 1280x720 (16:9) screen:
    * - Top subtle vignette gradient
    * - Iconic `#E50914` Netflix-red "N" ribbon + `CARCHESS CINEMA` series header + episode title
    * - Minimal 4px `#E50914` playback scrubber bar at the bottom edge with a glowing red playhead dot
    */
-  drawNetflixCinemaOverlay(ctx, w, h, titleText, progress = 0.35) {
+  drawNetflixCinemaOverlay(ctx, w, h, titleText, progress = 0.35, phaseTag = '8s VEO FILM · LIVE 🎬') {
     ctx.save();
 
     // Subtle top cinema gradient vignette for crisp typography
@@ -682,7 +768,7 @@ export class VeoCinemaView {
     ctx.textAlign = 'left';
     ctx.fillStyle = '#E50914';
     ctx.font = '800 12px system-ui, -apple-system, sans-serif';
-    ctx.fillText('C A R C H E S S   C I N E M A   ·   1 6 : 9   U H D', 62, 28);
+    ctx.fillText(`C A R C H E S S   C I N E M A   ·   1 6 : 9   U H D   ·   ${phaseTag}`, 62, 28);
 
     ctx.fillStyle = '#ffffff';
     ctx.font = '700 20px system-ui, -apple-system, sans-serif';
@@ -798,6 +884,37 @@ export class VeoCinemaView {
     this.time += dt;
     if (this.mode === 'battle' || this.outroBattle) {
       this.battleElapsed += dt;
+      const prePadS = this.getPrePaddingS();
+      // Release the 8.0s Veo video right at the end of the 1.0s pre-padding intro window!
+      if (this.videoWaitingPrePadding && this.battleElapsed >= prePadS) {
+        this.videoWaitingPrePadding = false;
+        if (this.videoEl && this.videoEl.paused) {
+          try {
+            const p = this.videoEl.play();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
+          } catch {
+            // Ignore play errors in headless environments
+          }
+        }
+      } else if (!this.videoWaitingPrePadding && this.usingVideoTexture && this.videoEl) {
+        const vidDur = this.videoEl.duration > 0 ? this.videoEl.duration : 8.0;
+        const targetVideoTime = Math.max(0, Math.min(vidDur - 0.04, this.battleElapsed - prePadS));
+        if (this.battleElapsed >= prePadS + vidDur) {
+          if (!this.videoEl.paused) {
+            try {
+              this.videoEl.pause();
+            } catch {
+              // Ignore pause errors
+            }
+          }
+        } else if (Math.abs((this.videoEl.currentTime || 0) - targetVideoTime) > 0.45) {
+          try {
+            this.videoEl.currentTime = targetVideoTime;
+          } catch {
+            // Ignore seek errors
+          }
+        }
+      }
     }
 
     const isExpanded = this.mode === 'battle' || this.mode === 'checkmate';
