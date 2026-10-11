@@ -34,9 +34,13 @@ export class VeoCinemaView {
     this.lastMoveSan = null;
     this.winnerColor = null;
     this.activeBattle = null;
+    this.outroBattle = null;
     this.battleElapsed = 0;
+    this.netflixBlend = 0.0;
     this.usingVideoTexture = false;
     this.activeVideoUrl = null;
+    this._idleGoldColor = new THREE.Color(0xe6b84a);
+    this._netflixRedColor = new THREE.Color(0xe50914);
 
     /** @type {Map<string, HTMLImageElement>} */
     this.imageCache = new Map();
@@ -51,10 +55,16 @@ export class VeoCinemaView {
     this.idleScale = 0.65;
     this.battlePos = new THREE.Vector3(0, 2.15, -5.3);
     this.battleScale = 0.75;
+    this.root.userData.idlePos = this.idlePos.clone();
+    this.root.userData.idleScale = this.idleScale;
 
     this.root.position.copy(this.idlePos);
     this.root.scale.setScalar(this.idleScale);
     this.scene.add(this.root);
+    if (this.scene) {
+      this.scene.userData = this.scene.userData || {};
+      this.scene.userData.applyCinemaCombatBlend = (b) => this.setNetflixBlend(b);
+    }
 
     this.initCanvasAndVideo();
     this.buildMirrorMeshAndOrnateFrame();
@@ -206,8 +216,8 @@ export class VeoCinemaView {
           this.startBattlePresentation(e);
         }
       }),
-      this.bus.on('BATTLE_COMPLETED', () => this.stopBattlePresentation()),
-      this.bus.on('BATTLE_SKIPPED', () => this.stopBattlePresentation()),
+      this.bus.on('BATTLE_COMPLETED', () => this.stopBattlePresentation(false)),
+      this.bus.on('BATTLE_SKIPPED', () => this.stopBattlePresentation(false)),
       this.bus.on('MOVE_EXECUTED', (e) => {
         this.turnColor = e.turn || 'w';
         this.lastMoveSan = e.move?.san || `${e.move?.from || ''}→${e.move?.to || ''}`;
@@ -222,7 +232,7 @@ export class VeoCinemaView {
         this.turnColor = e.turn || 'w';
         this.lastMoveSan = null;
         this.winnerColor = null;
-        this.stopBattlePresentation();
+        this.stopBattlePresentation(true);
       }),
     );
   }
@@ -257,13 +267,15 @@ export class VeoCinemaView {
     };
 
     this.activeBattle = choreo;
+    this.outroBattle = choreo;
     this.mode = 'battle';
     this.battleElapsed = 0;
 
-    // Position 16:9 Veo Cinema Screen behind the board so 100% of the video is visible!
-    if (this.root && this.battlePos) {
+    // Only snap position when VFXPoolView is not driving the smooth 3D trajectory
+    if (!this.scene?.userData?.vfxControlsCombatBlend && this.root && this.battlePos) {
       this.root.position.copy(this.battlePos);
       this.root.scale.setScalar(this.battleScale || 0.75);
+      this.setNetflixBlend(1.0);
     }
 
     // Preload portraits, Nano Banana 16:9 initial battle keyframe, & optional SVG composite
@@ -298,7 +310,12 @@ export class VeoCinemaView {
       if (playPromise && typeof playPromise.then === 'function') {
         playPromise
           .then(() => {
-            if (this.mode !== expectedMode && this.mode !== 'battle' && this.mode !== 'checkmate') {
+            if (
+              this.mode !== expectedMode &&
+              this.mode !== 'battle' &&
+              this.mode !== 'checkmate' &&
+              !this.outroBattle
+            ) {
               this.videoEl.pause();
               return;
             }
@@ -339,15 +356,65 @@ export class VeoCinemaView {
     }
   }
 
-  stopBattlePresentation() {
-    this.stopVideoPlayback();
+  /**
+   * Smoothly updates the Netflix Cinema <-> Classic Idle Mirror blend (`0.0 .. 1.0`):
+   * - `1.0` = 100% Netflix Cinema XXL (live Veo film + `#E50914` bezel + `N` badge + scrubber)
+   * - `0.0` = 100% "Cinema Vecchio" idle mirror docked between the Grossmünster Twin Towers
+   * - `0.0 < b < 1.0` = Sliding-window zoom-out & alpha cross-fade (`100% -> 0%` film alpha!)
+   * @param {number} b
+   */
+  setNetflixBlend(b) {
+    const clamped = Math.max(0, Math.min(1, Number.isFinite(b) ? b : 0));
+    this.netflixBlend = clamped;
+    if (this.root) {
+      this.root.userData.netflixBlend = clamped;
+    }
+
+    // Morph bezel trim color between Classic Zurich Gold (#e6b84a) and Netflix Red (#E50914)
+    if (this.goldMaterial?.color && this._idleGoldColor && this._netflixRedColor) {
+      this.goldMaterial.color.lerpColors(this._idleGoldColor, this._netflixRedColor, clamped);
+    }
+
+    // Modulate 3D screen & casing opacity during the sliding-window transition so the zooming-out
+    // Netflix film becomes translucent (`alpha: 100% -> ~18%`) as Zurich & the Swamp rematerialize,
+    // before settling cleanly at 100% as the discreet "Cinema Vecchio" between the Grossmünster towers!
+    const inTransition = clamped > 0.005 && clamped < 0.995;
+    const meshAlpha = inTransition
+      ? clamped >= 0.22
+        ? 0.18 + 0.82 * ((clamped - 0.22) / 0.78)
+        : 0.18 + 0.82 * (1.0 - clamped / 0.22)
+      : 1.0;
+
+    for (const mat of [this.screenMaterial, this.cinemaCasingMaterial, this.goldMaterial]) {
+      if (!mat) continue;
+      if (mat.transparent !== inTransition) {
+        mat.transparent = inTransition;
+        mat.depthWrite = !inTransition;
+        mat.needsUpdate = true;
+      }
+      mat.opacity = meshAlpha;
+    }
+
+    // Once the outro sliding window reaches 0.0, stop the hidden <video> element cleanly
+    if (clamped <= 0.002 && this.mode === 'idle' && (this.usingVideoTexture || this.outroBattle)) {
+      this.stopVideoPlayback();
+      this.outroBattle = null;
+    }
+  }
+
+  stopBattlePresentation(immediate = false) {
     if (this.mode === 'battle' || this.mode === 'checkmate') {
       this.mode = 'idle';
     }
-    if (this.root && this.idlePos) {
-      this.root.position.copy(this.idlePos);
-      this.root.rotation.set(0, 0, 0);
-      this.root.scale.setScalar(this.idleScale || 0.65);
+    if (immediate || !this.scene?.userData?.vfxControlsCombatBlend) {
+      this.stopVideoPlayback();
+      this.outroBattle = null;
+      this.setNetflixBlend(0.0);
+      if (this.root && this.idlePos) {
+        this.root.position.copy(this.idlePos);
+        this.root.rotation.set(0, 0, 0);
+        this.root.scale.setScalar(this.idleScale || 0.65);
+      }
     }
   }
 
@@ -361,10 +428,23 @@ export class VeoCinemaView {
     const w = this.canvas.width;
     const h = this.canvas.height;
 
-    if (this.mode === 'battle' && this.activeBattle) {
-      this.drawBattleFrame(ctx, w, h, this.activeBattle);
-    } else if (this.mode === 'checkmate') {
+    const battleData = this.activeBattle || this.outroBattle;
+    const blend = this.mode === 'battle' && !this.scene?.userData?.vfxControlsCombatBlend
+      ? 1.0
+      : this.netflixBlend;
+
+    if (this.mode === 'checkmate') {
       this.drawCheckmateFrame(ctx, w, h);
+    } else if (blend >= 0.998 && battleData) {
+      this.drawBattleFrame(ctx, w, h, battleData);
+    } else if (blend > 0.002 && battleData) {
+      // Smooth sliding-window cross-fade: "Il Cinema Vecchio" materializes underneath (`0 -> 100%`)
+      // while the Netflix Cinema film fades its alpha channel from `100%` down to `0%` (invisible)!
+      this.drawIdleCrestFrame(ctx, w, h);
+      ctx.save();
+      ctx.globalAlpha = blend;
+      this.drawBattleFrame(ctx, w, h, battleData);
+      ctx.restore();
     } else {
       this.drawIdleCrestFrame(ctx, w, h);
     }
@@ -716,29 +796,27 @@ export class VeoCinemaView {
    */
   update(dt = 0.016) {
     this.time += dt;
-    if (this.mode === 'battle') {
+    if (this.mode === 'battle' || this.outroBattle) {
       this.battleElapsed += dt;
     }
 
     const isExpanded = this.mode === 'battle' || this.mode === 'checkmate';
-    const targetPos = isExpanded ? this.battlePos : this.idlePos;
-    const targetScale = isExpanded ? this.battleScale : this.idleScale;
-    const lerpAlpha = Math.min(1, dt * 6.5);
+    if (!this.root?.userData?.vfxControlled) {
+      const targetPos = isExpanded ? this.battlePos : this.idlePos;
+      const targetScale = isExpanded ? this.battleScale : this.idleScale;
+      const lerpAlpha = Math.min(1, dt * 6.5);
 
-    this.root.position.lerp(targetPos, lerpAlpha);
-    const nextScale = this.root.scale.x + (targetScale - this.root.scale.x) * lerpAlpha;
-    this.root.scale.setScalar(nextScale);
-
-    // Pulse golden frame and backlight halo
-    if (this.haloMaterial) {
-      this.haloMaterial.opacity = isExpanded
-        ? 0.36 + Math.sin(this.time * 8.0) * 0.12
-        : 0.14 + Math.sin(this.time * 2.2) * 0.04;
+      this.root.position.lerp(targetPos, lerpAlpha);
+      const nextScale = this.root.scale.x + (targetScale - this.root.scale.x) * lerpAlpha;
+      this.root.scale.setScalar(nextScale);
     }
-    if (this.goldMaterial) {
-      this.goldMaterial.emissiveIntensity = isExpanded
-        ? 0.58 + Math.sin(this.time * 6.0) * 0.2
-        : 0.28 + Math.sin(this.time * 2.0) * 0.06;
+
+    // Pulse backlight halo in proportion to netflixBlend
+    const b = this.netflixBlend;
+    if (this.haloMaterial) {
+      const idleHalo = 0.14 + Math.sin(this.time * 2.2) * 0.04;
+      const battleHalo = 0.36 + Math.sin(this.time * 8.0) * 0.12;
+      this.haloMaterial.opacity = idleHalo + (battleHalo - idleHalo) * b;
     }
 
     this.drawCanvasFrame();

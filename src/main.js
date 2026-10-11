@@ -21,6 +21,7 @@ import { OutputPass } from '../vendor/three/addons/postprocessing/OutputPass.js'
 import { GameEventBus } from './core/EventBus.js';
 import { mulberry32 } from './core/Rng.js';
 import { GameLoop } from './core/GameLoop.js';
+import { isMobilePhoneViewport } from './core/Registry.js';
 
 import { GameFlowManager, FLOW_STATES } from './managers/GameFlowManager.js';
 import { BoardMapManager } from './managers/BoardMapManager.js';
@@ -42,14 +43,15 @@ import { AudioListener } from './listeners/AudioListener.js';
 import { ProfileStorageListener } from './listeners/ProfileStorageListener.js';
 
 function bootstrapCarChess3D() {
+  const isMobilePhone = isMobilePhoneViewport();
   const canvas = document.getElementById('game-canvas');
   const renderer = new THREE.WebGLRenderer({
     canvas,
-    antialias: true,
+    antialias: !isMobilePhone,
     powerPreference: 'high-performance',
     preserveDrawingBuffer: true, // Enables clean screenshot capture for 4-angle Critic
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobilePhone ? 1.5 : 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -205,6 +207,7 @@ function bootstrapCarChess3D() {
     camera,
     controls,
     renderer,
+    isMobilePhone,
   };
 
   flow.init(ctx);

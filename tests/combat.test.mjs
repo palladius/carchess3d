@@ -349,8 +349,14 @@ test('ZurichSwampView: switches 64 chessboard tiles to 50% translucency during c
     assert.equal(sq.material.depthWrite, false);
   }
 
-  bus.emit({ type: 'BATTLE_COMPLETED', attacker: 'p', defender: 'p', from: 'e4', to: 'd5' });
-  bus.flush();
+  // Mid-sliding-window transition (50% blend): chessboard is 55% opaque and diorama is rematerializing at 50% alpha
+  swampView.setCombatBlend(0.5);
+  assert.equal(swampView.inCombatCinemaMode, true);
+  assert.equal(swampView.foundationMesh.visible, true, 'Foundation visible while rematerializing at 50% blend');
+  assert.ok(Math.abs(swampView.squareMeshes[0].material.opacity - 0.55) < 0.01, 'Board tiles at 55% opacity mid-transition');
+
+  // End of sliding-window transition (0% blend): full restoration
+  swampView.setCombatBlend(0.0);
 
   assert.equal(swampView.inCombatCinemaMode, false);
   assert.equal(swampView.foundationMesh.visible, true);

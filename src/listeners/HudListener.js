@@ -26,6 +26,8 @@ import {
   APP_VERSION,
   GITHUB_REPO_URL,
   GITHUB_NEW_ISSUE_URL,
+  isMobilePhoneViewport,
+  isPortraitOrientation,
 } from '../core/Registry.js';
 import { BATTLE_MATRIX_36 } from '../core/BattleMatrix36.js';
 
@@ -82,7 +84,15 @@ export class HudListener {
     }
     /** @type {'it'|'en'} */
     this.lang = initialLang;
-    this.activeProfile = 'ale';
+    this.isMobilePhone =
+      typeof ctx?.isMobilePhone === 'boolean' ? ctx.isMobilePhone : isMobilePhoneViewport();
+    this.portraitDismissed = false;
+    this.mobileQuickMode = 'easy'; // 'easy' | 'medium' | 'hotseat'
+    this.mobileAdvancedOpen = false;
+    this.mobileAwaitingFirstAttack3D = this.isMobilePhone;
+    this.justUnlockedMobile3D = false;
+
+    this.activeProfile = this.isMobilePhone ? 'ospite' : 'ale';
     this.opponentMode = 'easy';
     this.whiteFamily = 'carlesso';
     this.rivalSet = 'classic';
@@ -90,7 +100,7 @@ export class HudListener {
     this.blackPlayerType = 'ai';
     this.whiteDifficulty = 'easy';
     this.blackDifficulty = 'easy';
-    this.topbarVisible = true;
+    this.topbarVisible = !this.isMobilePhone;
     this.setupModalOpen = false;
     this.quakeConsoleOpen = false;
     this.quakeLogs = [];
@@ -114,7 +124,7 @@ export class HudListener {
     this.matrixFamily = 'carlesso';
     this.matrixSelectedAtk = 'n';
     this.matrixSelectedDef = 'b';
-    this.topDownCamera = false;
+    this.topDownCamera = this.isMobilePhone;
     this.musicPlaying = false;
     this.sfxEnabled = true;
     this.skeletonsVisible = false;
@@ -133,6 +143,7 @@ export class HudListener {
     this.offs = [];
 
     this._boundKeyDown = (e) => this.onKeyDown(e);
+    this._boundViewportChange = () => this.syncMobileOrientationUi();
 
     if (ctx) {
       this.init(ctx);
@@ -144,11 +155,27 @@ export class HudListener {
    */
   init(ctx = {}) {
     this.ctx = ctx;
+    if (typeof ctx.isMobilePhone === 'boolean' && ctx.isMobilePhone !== this.isMobilePhone) {
+      this.isMobilePhone = ctx.isMobilePhone;
+      if (this.isMobilePhone) {
+        this.activeProfile = 'ospite';
+        this.topDownCamera = true;
+        this.mobileAwaitingFirstAttack3D = true;
+        this.topbarVisible = false;
+      }
+    }
     const bus = ctx.bus;
 
     if (typeof document !== 'undefined' && !this.rootEl) {
       this.buildDom();
       window.addEventListener('keydown', this._boundKeyDown);
+      window.addEventListener('resize', this._boundViewportChange);
+      window.addEventListener('orientationchange', this._boundViewportChange);
+      this.syncMobileOrientationUi();
+    }
+
+    if (this.isMobilePhone) {
+      this.applyMobileCameraMode('top', { silent: true });
     }
 
     if (typeof fetch === 'function') {
@@ -1137,12 +1164,158 @@ export class HudListener {
         align-items: center;
         gap: 6px;
       }
+
+      /* MOBILE SIMPLIFIED UX ("Easy Adopter" mode — phones only, iPad/Desktop untouched) */
+      .hud-modal-backdrop, .hud-setup-card, .hud-matrix36-card, .hud-matrix-card {
+        touch-action: pan-y;
+        -webkit-overflow-scrolling: touch;
+      }
+      .hud-rotate-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 980;
+        background: radial-gradient(circle at 50% 35%, rgba(28, 38, 62, 0.96), rgba(7, 10, 18, 0.98));
+        backdrop-filter: blur(10px);
+        display: none;
+        place-items: center;
+        padding: 20px;
+        text-align: center;
+      }
+      .hud-rotate-card {
+        max-width: 360px;
+        padding: 22px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      .hud-rotate-icon {
+        font-size: 46px;
+        line-height: 1;
+        animation: hudPulse 0.9s infinite alternate;
+      }
+      .hud-mobile-quick-setup {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .hud-mobile-matchup-pill {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        background: rgba(16, 23, 38, 0.92);
+        border: 1.5px solid rgba(255, 213, 79, 0.55);
+        border-radius: 12px;
+        padding: 10px 12px;
+      }
+      .hud-mobile-team-col {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 12px;
+      }
+      .hud-mobile-diff-pills {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+      .hud-mobile-diff-btn {
+        padding: 9px 6px;
+        font-size: 12.5px;
+        justify-content: center;
+      }
+      .hud-mobile-play-cta {
+        width: 100%;
+        padding: 13px 16px;
+        font-size: 16px;
+        font-weight: 900;
+        justify-content: center;
+        border-radius: 12px;
+      }
+      #carchess-hud-root.mobile-simplified #hud-topbar {
+        display: none !important;
+      }
+      #carchess-hud-root.mobile-simplified .hud-bottombar {
+        bottom: 4px;
+        left: 6px;
+        right: 6px;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 6px;
+      }
+      #carchess-hud-root.mobile-simplified .hud-status-card {
+        min-width: 0;
+        max-width: 205px;
+        padding: 5px 9px;
+        gap: 2px;
+      }
+      #carchess-hud-root.mobile-simplified .hud-footer-meta,
+      #carchess-hud-root.mobile-simplified .hud-stickers-row {
+        display: none !important;
+      }
+      #carchess-hud-root.mobile-simplified .hud-actions-dock {
+        padding: 4px 6px;
+        gap: 4px;
+        flex-wrap: nowrap;
+      }
+      #carchess-hud-root.mobile-simplified .hud-footer-brand,
+      #carchess-hud-root.mobile-simplified #hud-dock-gallery,
+      #carchess-hud-root.mobile-simplified #hud-dock-videos,
+      #carchess-hud-root.mobile-simplified #hud-console-btn,
+      #carchess-hud-root.mobile-simplified #hud-skeletons-btn,
+      #carchess-hud-root.mobile-simplified #hud-swamp-btn,
+      #carchess-hud-root.mobile-simplified #hud-flip-btn,
+      #carchess-hud-root.mobile-simplified #hud-zoom-in-btn,
+      #carchess-hud-root.mobile-simplified #hud-zoom-out-btn,
+      #carchess-hud-root.mobile-simplified #hud-trackpad-btn,
+      #carchess-hud-root.mobile-simplified #hud-fen-btn,
+      #carchess-hud-root.mobile-simplified #hud-toggle-topbar-btn,
+      #carchess-hud-root.mobile-simplified .hud-actions-dock > span {
+        display: none !important;
+      }
+      #carchess-hud-root.mobile-simplified .hud-actions-dock > a[href*="github.com"] {
+        display: none !important;
+      }
+      #carchess-hud-root.mobile-simplified .hud-setup-card {
+        width: min(95vw, 480px);
+        max-height: 92dvh;
+        padding: 12px 14px;
+        gap: 9px;
+      }
+      #carchess-hud-root.mobile-simplified .hud-mobile-quick-setup {
+        display: flex;
+      }
+      #carchess-hud-root.mobile-simplified .hud-desktop-setup-only {
+        display: none;
+      }
+      #carchess-hud-root.mobile-simplified.mobile-advanced-open .hud-desktop-setup-only {
+        display: flex;
+      }
+      #carchess-hud-root.mobile-simplified.mobile-advanced-open .hud-setup-sides.hud-desktop-setup-only {
+        display: grid;
+      }
     `;
     document.head.appendChild(style);
 
     const root = document.createElement('div');
     root.id = 'carchess-hud-root';
+    if (this.isMobilePhone) {
+      root.classList.add('mobile-simplified');
+    }
     root.innerHTML = `
+      <!-- MOBILE PORTRAIT -> LANDSCAPE FRIENDLY PROMPT -->
+      <div id="hud-rotate-overlay" class="hud-rotate-overlay hud-interactive">
+        <div class="hud-rotate-card hud-glass">
+          <div class="hud-rotate-icon">📱🔄</div>
+          <h2 id="hud-rotate-title" style="margin:0;color:#ffe082;font-size:19px;">${this.t('rotateTitle')}</h2>
+          <p id="hud-rotate-sub" style="margin:0;color:#d6e4f0;font-size:13px;line-height:1.4;">${this.t('rotateSub')}</p>
+          <button type="button" id="hud-rotate-dismiss-btn" class="hud-btn gold" style="padding:9px 14px;font-size:12.5px;margin-top:4px;">
+            ${this.t('rotateDismissBtn')}
+          </button>
+        </div>
+      </div>
+
       <!-- QUAKE CONSOLE DROPDOWN (Toggle with ~ or \\ or §) -->
       <aside id="hud-quake-console" class="hud-quake-console hud-interactive" aria-label="Console Quake">
         <div class="quake-header">
@@ -1310,10 +1483,10 @@ export class HudListener {
             <div>
               <div style="font-size:18px;font-weight:900;color:#ffe082;display:flex;align-items:center;gap:8px;">
                 <span>🏰🚽</span>
-                <span id="hud-setup-title">${this.t('setupTitle')}</span>
+                <span id="hud-setup-title">${this.t(this.isMobilePhone ? 'mobileQuickTitle' : 'setupTitle')}</span>
               </div>
               <span id="hud-setup-sub" style="font-size:11.5px;color:#9be7c4;display:block;margin-top:2px;">
-                ${this.t('setupSub')}
+                ${this.t(this.isMobilePhone ? 'mobileQuickSub' : 'setupSub')}
               </span>
             </div>
             <div style="display:flex;align-items:center;gap:6px;">
@@ -1323,7 +1496,38 @@ export class HudListener {
             </div>
           </div>
 
-          <div class="hud-setup-sides">
+          <!-- MOBILE SIMPLIFIED 1-TAP QUICK START ("Easy Adopter" Mode) -->
+          <div id="hud-mobile-quick-setup" class="hud-mobile-quick-setup">
+            <div class="hud-mobile-matchup-pill">
+              <div class="hud-mobile-team-col">
+                <strong id="hud-mobile-you-lbl" style="color:#ffe082;">${this.t('mobileQuickYou')}</strong>
+                <span id="hud-mobile-papino-team" style="color:#b9f6ca;font-size:11px;">${this.t('mobileQuickPapinoTeam')}</span>
+              </div>
+              <span style="font-size:18px;font-weight:900;color:#ffd54f;">⚡ VS ⚡</span>
+              <div class="hud-mobile-team-col" style="text-align:right;">
+                <strong id="hud-mobile-cpu-lbl" style="color:#90caf9;">${this.t('mobileQuickCpu')}</strong>
+                <span id="hud-mobile-cpu-team" style="color:#cfd8dc;font-size:11px;">${this.t('mobileQuickCpuTeam')}</span>
+              </div>
+            </div>
+
+            <div class="hud-mobile-diff-pills" role="group" aria-label="Quick Mode">
+              <button type="button" id="hud-mobile-diff-easy" class="hud-btn hud-mobile-diff-btn active" data-mobile-mode="easy">${this.t('mobileDiffEasy')}</button>
+              <button type="button" id="hud-mobile-diff-medium" class="hud-btn hud-mobile-diff-btn" data-mobile-mode="medium">${this.t('mobileDiffMed')}</button>
+              <button type="button" id="hud-mobile-diff-hotseat" class="hud-btn hud-mobile-diff-btn" data-mobile-mode="hotseat">${this.t('mobileDiff2P')}</button>
+            </div>
+
+            <button type="button" id="hud-mobile-quick-play-btn" class="hud-btn gold-emerald hud-mobile-play-cta">
+              ${this.t('mobilePlayNowBtn')}
+            </button>
+
+            <div style="display:flex;justify-content:center;">
+              <button type="button" id="hud-mobile-advanced-toggle" class="hud-btn" style="font-size:11px;padding:4px 10px;opacity:0.88;">
+                ${this.t('mobileAdvOptionsBtn')}
+              </button>
+            </div>
+          </div>
+
+          <div class="hud-setup-sides hud-desktop-setup-only">
             <!-- WHITE SIDE -->
             <div class="hud-side-box white-side">
               <div class="hud-side-title">
@@ -1357,7 +1561,7 @@ export class HudListener {
               <label id="hud-setup-white-profile-wrap" class="hud-setup-label">
                 <span id="hud-setup-profile-lbl">${this.t('profileLabel')}</span>
                 <select id="hud-setup-white-profile" class="hud-select" style="width:100%;">
-                  ${PROFILES.map((p) => `<option value="${p.id}" ${p.id === 'ale' ? 'selected' : ''}>${p.name}</option>`).join('')}
+                  ${PROFILES.map((p) => `<option value="${p.id}" ${p.id === (this.isMobilePhone ? 'ospite' : 'ale') ? 'selected' : ''}>${p.name}</option>`).join('')}
                 </select>
               </label>
 
@@ -1417,12 +1621,12 @@ export class HudListener {
             </div>
           </div>
 
-          <div class="hud-setup-badge">
+          <div class="hud-setup-badge hud-desktop-setup-only">
             <span>✨</span>
             <span id="hud-setup-badge-text">${this.t('defaultSetupBadge')}</span>
           </div>
 
-          <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:center;margin-top:4px;">
+          <div class="hud-desktop-setup-only" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:center;margin-top:4px;">
             <button id="hud-setup-apply-btn" class="hud-btn" style="padding:10px 18px;font-size:13px;" title="Update factions, players and AI in the current match without resetting board pieces">
               ${this.t('applyCurrentBtn')}
             </button>
@@ -1794,6 +1998,10 @@ export class HudListener {
     });
 
     q('#hud-top-btn')?.addEventListener('click', () => {
+      if (this.isMobilePhone) {
+        this.applyMobileCameraMode(this.topDownCamera ? '3d' : 'top', { silent: false });
+        return;
+      }
       this.topDownCamera = !this.topDownCamera;
       if (this.ctx?.camera) {
         if (this.topDownCamera) {
@@ -1810,6 +2018,14 @@ export class HudListener {
       });
       this.ctx?.bus?.flush?.();
     });
+
+    if (this.isMobilePhone) {
+      const topBtn = q('#hud-top-btn');
+      if (topBtn) {
+        topBtn.textContent = this.t(this.topDownCamera ? 'mobileCamTopBtn' : 'mobileCam3dBtn');
+        topBtn.classList.toggle('active', !this.topDownCamera);
+      }
+    }
 
     q('#hud-new-btn')?.addEventListener('click', () => {
       this.startNewGame();
@@ -2181,6 +2397,36 @@ export class HudListener {
 
     q('#hud-setup-apply-btn')?.addEventListener('click', () => submitSetupFromModal(false));
     q('#hud-setup-start-btn')?.addEventListener('click', () => submitSetupFromModal(true));
+
+    // Mobile Simplified UX bindings ("Easy Adopter" 1-tap start & Portrait -> Landscape prompt)
+    q('#hud-rotate-dismiss-btn')?.addEventListener('click', () => {
+      this.portraitDismissed = true;
+      this.syncMobileOrientationUi();
+    });
+
+    root.querySelectorAll('button[data-mobile-mode]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        this.mobileQuickMode = btn.dataset.mobileMode || 'easy';
+        root.querySelectorAll('button[data-mobile-mode]').forEach((b) =>
+          b.classList.toggle('active', b === btn),
+        );
+      });
+    });
+
+    q('#hud-mobile-quick-play-btn')?.addEventListener('click', () => {
+      this.startMobileQuickMatch();
+    });
+
+    q('#hud-mobile-advanced-toggle')?.addEventListener('click', () => {
+      this.mobileAdvancedOpen = !this.mobileAdvancedOpen;
+      root.classList.toggle('mobile-advanced-open', this.mobileAdvancedOpen);
+      const advBtn = q('#hud-mobile-advanced-toggle');
+      if (advBtn) {
+        advBtn.textContent = this.t(
+          this.mobileAdvancedOpen ? 'mobileHideAdvBtn' : 'mobileAdvOptionsBtn',
+        );
+      }
+    });
 
     // Quake Console bindings
     q('#hud-console-btn')?.addEventListener('click', () => this.toggleQuakeConsole());
@@ -2600,8 +2846,96 @@ export class HudListener {
   }
 
   // ===========================================================================
-  // 1.5 SETUP MODAL, TOPBAR TOGGLE & QUAKE CONSOLE METHODS
+  // 1.5 MOBILE SIMPLIFIED UX, SETUP MODAL, TOPBAR TOGGLE & QUAKE CONSOLE
   // ===========================================================================
+
+  /**
+   * Synchronizes the Portrait -> Landscape friendly overlay (`#hud-rotate-overlay`)
+   * on mobile phones. Automatically hides as soon as the phone rotates to landscape.
+   */
+  syncMobileOrientationUi(envOverride = undefined) {
+    const isPortrait = isPortraitOrientation(envOverride);
+    if (!isPortrait) {
+      // Reset dismiss flag once user rotates to landscape so rotating back to portrait prompts again
+      this.portraitDismissed = false;
+    }
+    if (!this.rootEl) return;
+    this.rootEl.classList.toggle('mobile-simplified', Boolean(this.isMobilePhone));
+    const rotateOverlay = this.rootEl.querySelector('#hud-rotate-overlay');
+    if (rotateOverlay) {
+      const shouldShow = Boolean(this.isMobilePhone && isPortrait && !this.portraitDismissed);
+      rotateOverlay.style.display = shouldShow ? 'grid' : 'none';
+    }
+  }
+
+  /**
+   * Sets camera between 'top' (Easy Alto-Basso 2D-like overhead view) and '3d' (panoramic 3D view)
+   * on mobile phones, updating `#hud-top-btn` label and notifying `VFXPoolView`.
+   * @param {'top'|'3d'} mode
+   * @param {{ silent?: boolean }} [opts]
+   */
+  applyMobileCameraMode(mode = 'top', opts = {}) {
+    const isTop = mode === 'top';
+    this.topDownCamera = isTop;
+    const pos = isTop
+      ? { x: 0, y: 12.8, z: this.cameraFlipped ? -0.01 : 0.01 }
+      : { x: 0, y: this.cameraFlipped ? 7.0 : 7.2, z: this.cameraFlipped ? -8.2 : 9.8 };
+    const target = { x: 0, y: 0.3, z: 0 };
+
+    if (this.ctx?.camera?.position?.set) {
+      this.ctx.camera.position.set(pos.x, pos.y, pos.z);
+      this.ctx.controls?.target?.set?.(target.x, target.y, target.z);
+      this.ctx.controls?.update?.();
+    }
+
+    if (this.rootEl && this.isMobilePhone) {
+      const topBtn = this.rootEl.querySelector('#hud-top-btn');
+      if (topBtn) {
+        topBtn.textContent = this.t(isTop ? 'mobileCamTopBtn' : 'mobileCam3dBtn');
+        topBtn.classList.toggle('active', !isTop);
+      }
+    }
+
+    if (!opts.silent && this.ctx?.bus) {
+      this.ctx.bus.emit({
+        type: 'CAMERA_VIEW_REQUESTED',
+        view: isTop ? 'top' : 'default',
+        pos,
+        target,
+      });
+      this.ctx.bus.flush?.();
+    }
+  }
+
+  /**
+   * 1-tap "Easy Adopter" mobile match launcher:
+   * - White: Guest (`ospite`) with Papino's Team (`carlesso`)
+   * - Black: CPU (`easy` / `medium`) or 2P (`hotseat`) with Classic Rivals (`classic`)
+   * - Camera: Starts in Easy Top-Down (`Alto-Basso`) and arms `mobileAwaitingFirstAttack3D = true`
+   *   so the very first capture automatically unlocks and transitions to full 3D!
+   */
+  startMobileQuickMatch() {
+    const mode = this.mobileQuickMode || 'easy';
+    const isHotseat = mode === 'hotseat';
+    const blackDiff = mode === 'medium' ? 'medium' : 'easy';
+
+    this.mobileAwaitingFirstAttack3D = true;
+    this.justUnlockedMobile3D = false;
+    this.applyMobileCameraMode('top', { silent: true });
+
+    this.applySetup({
+      whiteFamily: 'carlesso',
+      whitePlayerType: 'human',
+      whiteProfile: 'ospite',
+      whiteDiff: 'easy',
+      rivalSet: 'classic',
+      blackPlayerType: isHotseat ? 'human' : 'ai',
+      blackDiff,
+      resetBoard: true,
+    });
+
+    this.showToast(this.t('mobileStartToast'), 3800);
+  }
 
   openSetupModal() {
     this.setupModalOpen = true;
@@ -2614,7 +2948,7 @@ export class HudListener {
       const bSet = this.rootEl.querySelector('#hud-setup-black-set');
       if (bSet) bSet.value = this.rivalSet || 'classic';
       const wProf = this.rootEl.querySelector('#hud-setup-white-profile');
-      if (wProf) wProf.value = this.activeProfile || 'ale';
+      if (wProf) wProf.value = this.activeProfile || (this.isMobilePhone ? 'ospite' : 'ale');
       const bDiff = this.rootEl.querySelector('#hud-setup-black-diff');
       if (bDiff) bDiff.value = this.blackDifficulty || this.opponentMode || 'easy';
       const wDiff = this.rootEl.querySelector('#hud-setup-white-diff');
@@ -2652,6 +2986,11 @@ export class HudListener {
    */
   startNewGame() {
     this.closeSetupModal();
+    if (this.isMobilePhone) {
+      this.mobileAwaitingFirstAttack3D = true;
+      this.justUnlockedMobile3D = false;
+      this.applyMobileCameraMode('top', { silent: true });
+    }
     if (this.rootEl) {
       const goModal = this.rootEl.querySelector('#hud-gameover-modal');
       if (goModal) goModal.style.display = 'none';
@@ -3223,6 +3562,27 @@ export class HudListener {
     const text = bannerObj?.[this.lang] || bannerObj?.en || bannerObj?.it || 'KNOCKOUT! ✨';
     this.activeBanner = text;
 
+    // Mobile Simplified UX: on the FIRST attack/capture, automatically unlock 3D camera mode!
+    // Emitting CAMERA_VIEW_REQUESTED updates VFXPoolView.camSaved so when the battle finishes,
+    // the camera smoothly restores to the 3D panoramic angle instead of overhead Top-Down.
+    if (this.isMobilePhone && this.mobileAwaitingFirstAttack3D) {
+      this.mobileAwaitingFirstAttack3D = false;
+      this.topDownCamera = false;
+      this.justUnlockedMobile3D = true;
+      const pos3d = {
+        x: 0,
+        y: this.cameraFlipped ? 7.0 : 7.2,
+        z: this.cameraFlipped ? -8.2 : 9.8,
+      };
+      const target3d = { x: 0, y: 0.3, z: 0 };
+      this.ctx?.bus?.emit({
+        type: 'CAMERA_VIEW_REQUESTED',
+        view: 'default',
+        pos: pos3d,
+        target: target3d,
+      });
+    }
+
     if (!this.rootEl) return;
     // Hide the left WOW drawer and any center toast during combat so the auto-zoomed 3D fight is 100% clear!
     const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
@@ -3244,6 +3604,11 @@ export class HudListener {
 
   onBattleEnded() {
     this.activeBanner = null;
+    if (this.isMobilePhone && this.justUnlockedMobile3D) {
+      this.justUnlockedMobile3D = false;
+      this.applyMobileCameraMode('3d', { silent: true });
+      this.showToast(this.t('mobile3dUnlockedToast'), 3800);
+    }
     if (!this.rootEl) return;
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
     if (bannerEl) bannerEl.style.display = 'none';
@@ -3502,7 +3867,11 @@ export class HudListener {
     setTxt('#hud-skeletons-btn', 'skeletonsBtn');
     setTxt('#hud-swamp-btn', 'swampBtn');
     setTxt('#hud-flip-btn', 'flipCamBtn');
-    setTxt('#hud-top-btn', 'topCamBtn');
+    if (this.isMobilePhone) {
+      setTxt('#hud-top-btn', this.topDownCamera ? 'mobileCamTopBtn' : 'mobileCam3dBtn');
+    } else {
+      setTxt('#hud-top-btn', 'topCamBtn');
+    }
     const trackpadBtn = this.rootEl.querySelector('#hud-trackpad-btn');
     if (trackpadBtn) {
       const isRot = trackpadBtn.classList.contains('active');
@@ -3519,8 +3888,23 @@ export class HudListener {
     }
 
     // Startup & Match Setup Modal
-    setTxt('#hud-setup-title', 'setupTitle');
-    setTxt('#hud-setup-sub', 'setupSub');
+    setTxt('#hud-setup-title', this.isMobilePhone ? 'mobileQuickTitle' : 'setupTitle');
+    setTxt('#hud-setup-sub', this.isMobilePhone ? 'mobileQuickSub' : 'setupSub');
+    setTxt('#hud-rotate-title', 'rotateTitle');
+    setTxt('#hud-rotate-sub', 'rotateSub');
+    setTxt('#hud-rotate-dismiss-btn', 'rotateDismissBtn');
+    setTxt('#hud-mobile-you-lbl', 'mobileQuickYou');
+    setTxt('#hud-mobile-papino-team', 'mobileQuickPapinoTeam');
+    setTxt('#hud-mobile-cpu-lbl', 'mobileQuickCpu');
+    setTxt('#hud-mobile-cpu-team', 'mobileQuickCpuTeam');
+    setTxt('#hud-mobile-diff-easy', 'mobileDiffEasy');
+    setTxt('#hud-mobile-diff-medium', 'mobileDiffMed');
+    setTxt('#hud-mobile-diff-hotseat', 'mobileDiff2P');
+    setTxt('#hud-mobile-quick-play-btn', 'mobilePlayNowBtn');
+    setTxt(
+      '#hud-mobile-advanced-toggle',
+      this.mobileAdvancedOpen ? 'mobileHideAdvBtn' : 'mobileAdvOptionsBtn',
+    );
     setTxt('#hud-setup-white-title', 'whiteSide');
     setTxt('#hud-setup-black-title', 'blackSide');
     setTxt('#hud-setup-white-faction-lbl', 'factionLabel');
@@ -3595,6 +3979,8 @@ export class HudListener {
     if (this.checkmateModalTimer) clearTimeout(this.checkmateModalTimer);
     if (typeof window !== 'undefined') {
       window.removeEventListener('keydown', this._boundKeyDown);
+      window.removeEventListener('resize', this._boundViewportChange);
+      window.removeEventListener('orientationchange', this._boundViewportChange);
     }
     if (this.rootEl) {
       this.rootEl.remove();

@@ -363,22 +363,23 @@ const RAW_PAIRS_36 = {
   },
   b_x_q: {
     title: {
-      it: 'Alfiere Ale vs Regina Kate (Ametista & Lilla)',
-      en: 'Bishop Ale vs Queen Kate (Amethyst & Lilac)',
+      it: 'Alfiere Ale vs Regina Kate (Teca Sacra di Tanzanite Blu-Viola)',
+      en: 'Bishop Ale vs Queen Kate (Sacred Blue-Violet Tanzanite Case)',
     },
     banner: {
-      it: 'FIAMMA DEL DRAGO E GEMME VIOLA PER MAMMA KATE! 💎💜',
-      en: 'DRAGON FLAME & PURPLE GEMS FOR QUEEN KATE! 💎💜',
+      it: 'TECA DI TANZANITE BLU-VIOLA! MAMMA KATE BLOCCATA NEL CRISTALLO! 💎💙💜',
+      en: 'BLUE-VIOLET TANZANITE CASE! MOM KATE SAFELY LOCKED IN CRYSTAL! 💎💙💜',
     },
     attackerWeapon: 'dragon_crystal',
     defenderCounter: {
       move: 'wand_sparkle_veil',
-      it: 'Regina Kate evoca un velo scintillante di polvere lilla!',
-      en: 'Queen Kate conjures a shimmering veil of lilac stardust!',
+      it: 'Ale rinchiude Mamma Kate in una Teca di Tanzanite viola con riflessi azzurri e la spinge dolcemente in palude!',
+      en: 'Ale locks Mom Kate inside a violet Tanzanite case with azure reflections and slides it gently into the swamp!',
       sfxText: 'SCUDO!',
     },
     clashStyle: 'dragon_vs_wand',
-    finisherReaction: 'crystallize_shatter_swamp',
+    finisherReaction: 'tanzanite_coffin_slide_swamp',
+    easterEgg: 'ale_tanzanite_coffin_for_mom',
   },
   b_x_b: {
     title: {
