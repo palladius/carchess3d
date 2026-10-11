@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.13] - 2026-10-11
+
+- 🎬🍫💜🐟 **Stage 2 Veo 3.1 16:9 Battle Videos — Batch B (`q_x_*`, `r_x_*`, `p_x_*` — 30/36 Total) + Vertex AI Fallback (`assets/battles/videos/`, `scripts/generate_nb_veo_battle.py`)**:
+  - Generated and bundled 10 additional 8-second `1280×720` 16:9 Veo 3.1 animated videos (`.mp4` + `.webm`) from their Nano Banana 2.1 initial keyframes:
+    - **Queen Kate (`q_x_*` — 6/6 complete)**: `q_x_q` (`5.6 MB`), `q_x_b` (`4.7 MB`), `q_x_n` (`5.0 MB`), `q_x_r` (`4.2 MB`), `q_x_p` (`4.0 MB`) (plus `q_x_k` `5.8 MB`)
+    - **Rook Pupurabbu (`r_x_*`)**: `r_x_r` (`3.3 MB`), `r_x_p` (`3.5 MB`) (plus `r_x_n` `2.8 MB`)
+    - **Pawn Puffin (`p_x_*`)**: `p_x_k` (`3.3 MB`), `p_x_q` (`3.8 MB`), `p_x_b` (`2.9 MB`)
+  - Added automatic Vertex AI (`veo-3.1-fast-generate-001` / `veo-3.1-generate-001` / `veo-3.0-fast-generate-001`) fallback in [`scripts/generate_nb_veo_battle.py`](scripts/generate_nb_veo_battle.py) when AI Studio daily per-model quota (`429 RESOURCE_EXHAUSTED`) is reached.
+
 ## [0.3.12] - 2026-10-11
 
 - 🎬🏺🎲 **Stage 2 Veo 3.1 16:9 Battle Videos — Batch A (`n_x_p` Sacro Acquarius + All 6 `k_x_*` D&D Spells) (`assets/battles/videos/`)**:

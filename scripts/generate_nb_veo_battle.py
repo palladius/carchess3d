@@ -588,10 +588,30 @@ def generate_veo_video(
     img_bytes = keyframe_png.read_bytes()
 
     last_err = None
-    for veo_model in VEO_MODELS:
+    candidate_runs = [(client, m) for m in VEO_MODELS]
+    vertex_project = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCP_PROJECT")
+    if not vertex_project:
         try:
-            print(f"  🎬 Stage 2 (Veo `{veo_model}`): animating `{keyframe_png.name}` -> `{pair_id}.mp4`...")
-            op = client.models.generate_videos(
+            vertex_project = subprocess.check_output(
+                ["gcloud", "config", "get-value", "project"],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+        except Exception:
+            vertex_project = None
+    if vertex_project:
+        try:
+            vclient = genai.Client(vertexai=True, project=vertex_project, location="us-central1")
+            for vm in ("veo-3.1-fast-generate-001", "veo-3.1-generate-001", "veo-3.0-fast-generate-001"):
+                candidate_runs.append((vclient, vm))
+        except Exception:
+            pass
+
+    for active_client, veo_model in candidate_runs:
+        try:
+            backend_tag = "VertexAI" if getattr(active_client, "vertexai", False) else "AIStudio"
+            print(f"  🎬 Stage 2 (Veo `{veo_model}` [{backend_tag}]): animating `{keyframe_png.name}` -> `{pair_id}.mp4`...")
+            op = active_client.models.generate_videos(
                 model=veo_model,
                 prompt=veo_prompt,
                 image=types.Image(image_bytes=img_bytes, mime_type="image/png"),
@@ -604,7 +624,7 @@ def generate_veo_video(
             while not op.done:
                 poll_count += 1
                 time.sleep(10)
-                op = client.operations.get(op)
+                op = active_client.operations.get(op)
                 print(f"    ⏳ Polling Veo for `{pair_id}` (attempt {poll_count})...")
                 if poll_count > 60:
                     raise TimeoutError(f"Veo polling timed out for {pair_id}")
@@ -620,7 +640,7 @@ def generate_veo_video(
             if getattr(video_obj, "video_bytes", None):
                 raw_mp4.write_bytes(video_obj.video_bytes)
             else:
-                client.files.download(file=video_obj)
+                active_client.files.download(file=video_obj)
                 video_obj.save(str(raw_mp4))
 
             transcode_mp4_and_webm(raw_mp4, final_mp4, final_webm)
@@ -634,7 +654,7 @@ def generate_veo_video(
         except Exception as e:
             last_err = e
             print(f"  ⚠️ Veo `{veo_model}` error for `{pair_id}`: {e}", file=sys.stderr)
-            time.sleep(3)
+            time.sleep(2)
 
     raise RuntimeError(f"Failed to generate Veo video for {pair_id}: {last_err}")
 
