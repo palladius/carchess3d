@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.22] - 2026-10-11
+
+- 🎬♟️✨ **Cinema XXL (`+75%`, `1.75x`) Veo Combat Video & 90% Transparent Chessboard (`opacity = 0.10`) (`ZurichSwampView.js`, `VFXPoolView.js`, `tests/combat.test.mjs`)**:
+  - **90% Transparent Chessboard During Combat (`opacity = 0.10`, *"che si veda appena"*)**: In `ZurichSwampView.setCombatCinemaMode(true)`, the 64 black and white chessboard tiles switch to 90% transparency (`opacity = 0.10`, `depthWrite = false`, flattened to `0.02` wafer height) while hiding the solid stone foundation, island, and outer chunky border rims beneath the board, so the chessboard becomes a subtle ghost grid and all 3D chess characters remain at **100% solid opacity** on top.
+  - **Cinema XXL (`+75%`, `videoBoost = 1.75`) Veo Backdrop**: Enlarged the 16:9 `VeoMagicCinemaMirror` by `+75%` (`defaultBoost = 1.75`) and positioned its plane strictly behind all 4 corners of the altar (`backdropDist = Math.max(5.6, maxAltarCornerDist + 0.65)`), so the video spans across the screen with minimal black side bars and extends all the way underneath the 90%-transparent chessboard.
+  - **Live URL Tuning Parameters**: Added `?videoBoost=1.75` and `?boardAlpha=0.10` query parameters (plus `swampView.setCombatBoardAlpha(alpha)` and `vfxView.combatVideoBoost`) for instant live experimentation.
+
 ## [0.3.21] - 2026-10-11
 
 - 🇬🇧🇮🇹👵 **English Default UI for Nonna Susan & One-Click `🇬🇧 EN` / `🇮🇹 IT` Flag Switcher (`HudListener.js`, `Registry.js`, `AIWorkerManager.js`, `BoardInteractionView.js`, `index.html`, `docs/spec/SPEC.md`)**:
