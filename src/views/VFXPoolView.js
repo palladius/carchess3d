@@ -25,7 +25,7 @@ import * as THREE from 'three';
 import { CHARACTER_REGISTRY, squareToWorld } from '../core/Registry.js';
 
 const GRAVITY = 9.8;
-const DEBRIS_LIFETIME_S = 3.0;
+const DEBRIS_LIFETIME_S = 4.5;
 
 /**
  * Declarative combat & counter-attack specs per character role (Niccolò Rule #7: Data-driven over if/else).
@@ -147,6 +147,7 @@ export class VFXPoolView {
     // Orbiting camera state
     this.camSaved = null;
     this.camRestoreTimer = 0;
+    this.hiddenBoardNodes = [];
     this.offs = [];
 
     if (this.scene) {
@@ -183,6 +184,7 @@ export class VFXPoolView {
       bus.on('BATTLE_STARTED', (e) => this.onBattleStarted(e)),
       bus.on('BATTLE_COMPLETED', (e) => this.onBattleEnded(e)),
       bus.on('BATTLE_SKIPPED', (e) => this.onBattleEnded(e)),
+      bus.on('CHECKMATE', (e) => this.onCheckmate(e)),
       bus.on('BOARD_RESET', () => this.clearAllActive()),
     );
   }
@@ -361,7 +363,26 @@ export class VFXPoolView {
       return new THREE.Mesh(dropletGeo, mat);
     });
 
-    // 10. San Gennaro Liquefied Blood Droplets & Golden Miracle Sparks (`san_gennaro_blood_drops`) — 64 droplets
+    // 10. Sacro Acquarius Diamond-Ice Shards (`diamond_ice_crystals` — Seby vs Puffin) — 64 crystals
+    const iceShardGeo = new THREE.OctahedronGeometry(0.095, 0);
+    const iceColors = [0x80deea, 0xe0f7fa, 0x00e5ff, 0x4dd0e1, 0xffffff];
+    this.createPool('diamond_ice_crystals', 64, (i) => {
+      const col = iceColors[i % iceColors.length];
+      const mat = new THREE.MeshPhysicalMaterial({
+        color: col,
+        emissive: 0x00bcd4,
+        emissiveIntensity: 0.65,
+        roughness: 0.06,
+        metalness: 0.15,
+        transmission: 0.78,
+        clearcoat: 1.0,
+        transparent: true,
+        opacity: 0.96,
+      });
+      return new THREE.Mesh(iceShardGeo, mat);
+    });
+
+    // 11. San Gennaro Liquefied Blood Droplets & Golden Miracle Sparks (`san_gennaro_blood_drops`) — 64 droplets
     const dropGeo = new THREE.SphereGeometry(0.072, 10, 10);
     const bloodColors = [0xd50000, 0xff1744, 0xb71c1c, 0xffd700];
     this.createPool('san_gennaro_blood_drops', 64, (i) => {
@@ -577,14 +598,14 @@ export class VFXPoolView {
     this.props.puffinFish = fishGroup;
     this.rootGroup.add(fishGroup);
 
-    // 7. Golden Crit Sky-Beam Pillar
+    // 7. Golden Crit Sky-Beam Pillar (subtle halo so fighters remain crisp)
     const beamGeo = new THREE.CylinderGeometry(0.45, 0.65, 5.5, 20, 1, true);
     this.props.skyBeam = new THREE.Mesh(
       beamGeo,
       new THREE.MeshBasicMaterial({
         color: 0xffd700,
         transparent: true,
-        opacity: 0.42,
+        opacity: 0.14,
         side: THREE.DoubleSide,
       }),
     );
@@ -645,11 +666,12 @@ export class VFXPoolView {
     this.defenderFighter = null;
     this.attackerWeaponProp = null;
     this.defenderWeaponProp = null;
+    this.hiddenBoardNodes = [];
 
     this.props.brawlCloud = this.createBrawlCloudProp();
     this.rootGroup.add(this.props.brawlCloud);
 
-    // 9. Pre-allocated 3D Floating Comic Impact Word Sprite (`y = 1.95m`)
+    // 9. Pre-allocated 3D Floating Comic Impact Word Sprite (kept hidden to prevent occluding the 3D fighters)
     this.props.comicWordSprite = this.createComicWordSpriteProp();
     this.rootGroup.add(this.props.comicWordSprite);
 
@@ -657,16 +679,295 @@ export class VFXPoolView {
     this.props.swampKoSplash = this.createSwampKoSplashProp();
     this.rootGroup.add(this.props.swampKoSplash);
 
-    // 11. Fallback Stage Figurines (used only in headless unit tests where PieceView is not mounted)
+    // 11. Sacro Acquarius Celestial Water-Bearer Maiden + Giant Golden Amphora + IceCoffin (`n_x_p`)
+    this.props.aquariusMaiden = this.createAquariusMaidenAmphoraProp();
+    this.props.iceCoffin = this.createIceCoffinProp();
+    this.rootGroup.add(this.props.aquariusMaiden, this.props.iceCoffin);
+
+    // 12. King Riccardo ("Papino" `k`) 6 D&D Spells 3D Stage Props
+    this.createPapinoDndProps();
+
+    // 13. Fallback Stage Figurines (used only in headless unit tests where PieceView is not mounted)
     this.victimProxy = this.createStageFigurine(0xd7ccc8);
     this.cuddlePartnerProxy = this.createStageFigurine(0x9575cd);
     this.rootGroup.add(this.victimProxy, this.cuddlePartnerProxy);
   }
 
   /**
-   * Builds a pre-allocated `THREE.Sprite` with a dynamic `512x160` `CanvasTexture`
-   * positioned above the brawl (`y = 1.95m`) that flashes comic onomatopoeia in 3D:
-   * `"CHARGE!"` -> `"CLANG! ⚔️"` -> `"CONTRATTACCO! 💥"` -> `"KAPOW! 🌪️"` -> `"K.O.! 🐸💦"`.
+<<<<<<< HEAD
+   * Pre-allocates the 3D D&D Spell Stage Props for King Riccardo ("Papino" `k`):
+   * - `dndFireball`: Blazing 8d6 Fireball sphere + floating golden d20 icosahedron (`k_x_p`)
+   * - `dndMeteorSwarm`: 4 blazing volcanic meteors raining from a sky spell ring (`k_x_b`)
+   * - `dndComicDaemon`: Chubby red comic baby Balor demon with horns, bat wings, pitchfork & pizza slice (`k_x_r`)
+   * - `dndDisintegrateRay`: Intense emerald-green Disintegrate beam + green arcane dust pile (`k_x_k`)
+   * - `dndPetrifyStatue`: Gray-gold marble petrification shell around the target (`k_x_q`)
+   */
+  createPapinoDndProps() {
+    // 1. D&D Fireball (`k_x_p`) + Golden d20
+    const fbGroup = new THREE.Group();
+    fbGroup.name = 'DndFireballProp';
+    const fbCore = new THREE.Mesh(
+      new THREE.SphereGeometry(0.38, 16, 14),
+      new THREE.MeshBasicMaterial({ color: 0xff6d00, transparent: true, opacity: 0.9 }),
+    );
+    const d20Mesh = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.18, 0),
+      new THREE.MeshStandardMaterial({
+        color: 0xffd700,
+        emissive: 0xff8f00,
+        emissiveIntensity: 0.75,
+        roughness: 0.15,
+        metalness: 0.9,
+      }),
+    );
+    d20Mesh.position.set(0, 0.65, 0);
+    fbGroup.add(fbCore, d20Mesh);
+    fbGroup.userData = { fbCore, d20Mesh };
+    fbGroup.visible = false;
+    this.props.dndFireball = fbGroup;
+    this.rootGroup.add(fbGroup);
+
+    // 2. D&D Meteor Swarm (`k_x_b`) — 4 volcanic meteors with flame tails
+    const meteorGroup = new THREE.Group();
+    meteorGroup.name = 'DndMeteorSwarmProp';
+    const rockMat = new THREE.MeshStandardMaterial({
+      color: 0xd84315,
+      emissive: 0xff3d00,
+      emissiveIntensity: 0.85,
+      roughness: 0.4,
+    });
+    const tailMat = new THREE.MeshBasicMaterial({ color: 0xffea00, transparent: true, opacity: 0.85 });
+    for (let i = 0; i < 4; i++) {
+      const m = new THREE.Group();
+      const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.22, 0), rockMat);
+      const tail = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.65, 8), tailMat);
+      tail.position.set(0, 0.42, 0);
+      m.add(rock, tail);
+      const ang = (i * Math.PI * 2) / 4;
+      m.position.set(Math.cos(ang) * 0.45, 1.8 + i * 0.35, Math.sin(ang) * 0.45);
+      meteorGroup.add(m);
+    }
+    meteorGroup.visible = false;
+    this.props.dndMeteorSwarm = meteorGroup;
+    this.rootGroup.add(meteorGroup);
+
+    // 3. D&D Summon Greater Comic Daemon (`k_x_r`) — Chubby Red Baby Balor with Horns, Bat Wings & Pizza
+    const daemonGroup = new THREE.Group();
+    daemonGroup.name = 'DndComicDaemonProp';
+    const redMat = new THREE.MeshStandardMaterial({
+      color: 0xe53935,
+      emissive: 0xb71c1c,
+      emissiveIntensity: 0.45,
+      roughness: 0.35,
+    });
+    const hornMat = new THREE.MeshStandardMaterial({ color: 0xffd54f, roughness: 0.2, metalness: 0.8 });
+    const belly = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 12), redMat);
+    belly.position.set(0, 0.38, 0);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 12), redMat);
+    head.position.set(0, 0.82, 0);
+    const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.22, 8), hornMat);
+    hornL.position.set(-0.14, 1.02, 0);
+    hornL.rotation.z = 0.35;
+    const hornR = hornL.clone();
+    hornR.position.x = 0.14;
+    hornR.rotation.z = -0.35;
+    // Slice of Pizza in left hand!
+    const pizzaSlice = new THREE.Mesh(
+      new THREE.ConeGeometry(0.15, 0.28, 3),
+      new THREE.MeshBasicMaterial({ color: 0xffca28 }),
+    );
+    pizzaSlice.position.set(-0.36, 0.55, 0.18);
+    pizzaSlice.rotation.x = Math.PI * 0.4;
+    daemonGroup.add(belly, head, hornL, hornR, pizzaSlice);
+    daemonGroup.visible = false;
+    this.props.dndComicDaemon = daemonGroup;
+    this.rootGroup.add(daemonGroup);
+
+    // 4. D&D Disintegrate Emerald Laser Ray (`k_x_k`)
+    const disGroup = new THREE.Group();
+    disGroup.name = 'DndDisintegrateRayProp';
+    const beam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.12, 1.8, 12),
+      new THREE.MeshBasicMaterial({ color: 0x00e676, transparent: true, opacity: 0.92 }),
+    );
+    beam.rotation.x = Math.PI * 0.5;
+    beam.position.set(0, 0.68, 0);
+    const dustPile = new THREE.Mesh(
+      new THREE.ConeGeometry(0.42, 0.28, 16),
+      new THREE.MeshStandardMaterial({
+        color: 0x00e676,
+        emissive: 0x00c853,
+        emissiveIntensity: 0.65,
+        roughness: 0.8,
+      }),
+    );
+    dustPile.position.set(0, 0.14, 0);
+    disGroup.add(beam, dustPile);
+    disGroup.userData = { beam, dustPile };
+    disGroup.visible = false;
+    this.props.dndDisintegrateRay = disGroup;
+    this.rootGroup.add(disGroup);
+
+    // 5. D&D Flesh to Stone / Petrification Statue Shell (`k_x_q`)
+    const petrifyMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.38, 0.44, 1.32, 8),
+      new THREE.MeshStandardMaterial({
+        color: 0x9e9e9e,
+        emissive: 0xffca28,
+        emissiveIntensity: 0.28,
+        roughness: 0.65,
+        metalness: 0.25,
+        transparent: true,
+        opacity: 0.72,
+      }),
+    );
+    petrifyMesh.name = 'DndPetrifyStatueProp';
+    petrifyMesh.position.set(0, 0.66, 0);
+    petrifyMesh.visible = false;
+    this.props.dndPetrifyStatue = petrifyMesh;
+    this.rootGroup.add(petrifyMesh);
+  }
+
+  /**
+   * Builds the celestial Golden-Cyan Water-Bearer Maiden silhouette holding an enormous
+   * Golden Amphora (`Anfora dell'Acquario`) pouring a luminous stream of Absolute-Zero ice energy.
+   */
+  createAquariusMaidenAmphoraProp() {
+    const group = new THREE.Group();
+    group.name = 'AquariusMaidenAmphora';
+
+    const auraMat = new THREE.MeshStandardMaterial({
+      color: 0x80deea,
+      emissive: 0x00e5ff,
+      emissiveIntensity: 0.85,
+      roughness: 0.15,
+      metalness: 0.3,
+      transparent: true,
+      opacity: 0.82,
+    });
+    const goldAmphoraMat = new THREE.MeshStandardMaterial({
+      color: 0xffd54f,
+      emissive: 0xffa000,
+      emissiveIntensity: 0.65,
+      roughness: 0.18,
+      metalness: 0.88,
+    });
+    const iceStreamMat = new THREE.MeshBasicMaterial({
+      color: 0xe0f7fa,
+      transparent: true,
+      opacity: 0.88,
+      side: THREE.DoubleSide,
+    });
+
+    // Celestial maiden flowing robe & torso silhouette
+    const robe = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.95, 16), auraMat);
+    robe.position.set(0, 0.48, 0);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.14, 14, 12), auraMat);
+    head.position.set(0, 1.06, 0);
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.022, 10, 24), goldAmphoraMat);
+    halo.position.set(0, 1.12, -0.04);
+
+    // Enormous Golden Amphora held overhead and tilted forward
+    const amphoraGroup = new THREE.Group();
+    amphoraGroup.position.set(0, 1.36, 0.18);
+    amphoraGroup.rotation.x = Math.PI * 0.38;
+    const vaseBelly = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 14), goldAmphoraMat);
+    vaseBelly.scale.set(1.0, 1.35, 1.0);
+    const vaseNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.15, 0.24, 16), goldAmphoraMat);
+    vaseNeck.position.set(0, 0.32, 0);
+    const vaseLip = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.025, 10, 20), goldAmphoraMat);
+    vaseLip.rotation.x = Math.PI * 0.5;
+    vaseLip.position.set(0, 0.44, 0);
+    amphoraGroup.add(vaseBelly, vaseNeck, vaseLip);
+
+    // Luminous cascading ice-energy stream pouring out of the Amphora mouth
+    const streamBeam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.09, 0.34, 1.45, 16, 1, true),
+      iceStreamMat,
+    );
+    streamBeam.position.set(0, 1.05, 0.65);
+    streamBeam.rotation.x = -Math.PI * 0.32;
+
+    group.add(robe, head, halo, amphoraGroup, streamBeam);
+    group.userData = { amphoraGroup, streamBeam, halo };
+    group.visible = false;
+    return group;
+  }
+
+  /**
+   * Builds the towering translucent Diamond-Blue Ice Coffin (`Teca di Ghiaccio Eterno`)
+   * that encases the victim before crumbling into 60+ diamond-ice crystals.
+   */
+  createIceCoffinProp() {
+    const group = new THREE.Group();
+    group.name = 'TecaDiGhiaccioEterno';
+
+    const iceGlassMat = new THREE.MeshPhysicalMaterial({
+      color: 0x4dd0e1,
+      emissive: 0x00bcd4,
+      emissiveIntensity: 0.55,
+      roughness: 0.05,
+      metalness: 0.14,
+      transmission: 0.88,
+      ior: 1.33,
+      clearcoat: 1.0,
+      transparent: true,
+      opacity: 0.62,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const frontIceSlabMat = new THREE.MeshPhysicalMaterial({
+      color: 0x80deea,
+      emissive: 0x00e5ff,
+      emissiveIntensity: 0.42,
+      roughness: 0.04,
+      metalness: 0.10,
+      transmission: 0.90,
+      ior: 1.35,
+      clearcoat: 1.0,
+      transparent: true,
+      opacity: 0.48,
+      depthWrite: false,
+    });
+    const frostRimMat = new THREE.MeshStandardMaterial({
+      color: 0xe0f7fa,
+      emissive: 0x00e5ff,
+      emissiveIntensity: 0.72,
+      roughness: 0.15,
+      metalness: 0.35,
+    });
+
+    // Main hexagonal prism ice monolith surrounding the Puffin (rendered after the Puffin so the Puffin is BEHIND the ice)
+    const monolith = new THREE.Mesh(new THREE.CylinderGeometry(0.54, 0.58, 1.48, 6), iceGlassMat);
+    monolith.position.set(0, 0.74, 0);
+    monolith.renderOrder = 18;
+
+    // Thick front refractive ice slab so the translucent cyan Puffin is unmistakably BEHIND the ice wall
+    const frontSlab = new THREE.Mesh(new THREE.BoxGeometry(0.76, 1.36, 0.16), frontIceSlabMat);
+    frontSlab.position.set(0, 0.72, 0.42);
+    frontSlab.renderOrder = 19;
+
+    // Crown of jagged ice spires atop the coffin
+    const spireGeo = new THREE.ConeGeometry(0.14, 0.36, 5);
+    for (let i = 0; i < 6; i++) {
+      const ang = (i * Math.PI * 2) / 6;
+      const spire = new THREE.Mesh(spireGeo, frostRimMat);
+      spire.position.set(Math.cos(ang) * 0.40, 1.52, Math.sin(ang) * 0.40);
+      group.add(spire);
+    }
+
+    // Frozen base rune pedestal
+    const baseIce = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.68, 0.10, 6), frostRimMat);
+    baseIce.position.set(0, 0.05, 0);
+
+    group.add(monolith, frontSlab, baseIce);
+    group.visible = false;
+    return group;
+  }
+
+  /**
+   * Builds a pre-allocated `THREE.Sprite` with a dynamic `512x160` `CanvasTexture`.
+   * Kept hidden during 3D close-up combat so it never occludes the two fighting pieces.
    */
   createComicWordSpriteProp() {
     let tex = null;
@@ -689,7 +990,7 @@ export class VFXPoolView {
     const mat = new THREE.SpriteMaterial({
       map: tex,
       transparent: true,
-      depthTest: false,
+      depthTest: true,
       depthWrite: false,
     });
     const sprite = new THREE.Sprite(mat);
@@ -708,7 +1009,7 @@ export class VFXPoolView {
   }
 
   /**
-   * Updates the 3D Comic Impact Word Sprite canvas texture only when the word changes.
+   * Updates the Comic Impact Word state without displaying an occluding 3D billboard over the fighters.
    * @param {string} word
    * @param {string} [bgHex='#ff3d00']
    * @param {string} [borderHex='#ffea00']
@@ -716,7 +1017,8 @@ export class VFXPoolView {
   setComicWordText(word, bgHex = '#ff3d00', borderHex = '#ffea00') {
     const sprite = this.props.comicWordSprite;
     if (!sprite) return;
-    sprite.visible = true;
+    // Never show the 3D text billboard over the close-up auto-zoomed fighters!
+    sprite.visible = false;
     if (this.currentComicWord === word) return;
     this.currentComicWord = word;
     sprite.userData.currentWord = word;
@@ -1137,33 +1439,33 @@ export class VFXPoolView {
     const dustMat = new THREE.MeshStandardMaterial({
       color: 0xf5f0e6,
       emissive: 0xffe0b2,
-      emissiveIntensity: 0.35,
+      emissiveIntensity: 0.25,
       roughness: 0.78,
       metalness: 0.05,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.35,
     });
-    const puffGeo = new THREE.SphereGeometry(0.19, 10, 10);
+    const puffGeo = new THREE.SphereGeometry(0.15, 10, 10);
     for (let i = 0; i < 8; i++) {
       const ang = (i * Math.PI * 2) / 8;
       const puff = new THREE.Mesh(puffGeo, dustMat);
       puff.position.set(
         Math.cos(ang) * 0.26,
-        i % 2 === 0 ? 0.08 : -0.06,
+        i % 2 === 0 ? 0.04 : -0.02,
         Math.sin(ang) * 0.26,
       );
-      puff.scale.setScalar(0.85 + (i % 3) * 0.22);
+      puff.scale.setScalar(0.75 + (i % 3) * 0.16);
       cloudGroup.add(puff);
     }
 
     // Comic orange-gold & crimson impact spikes ("SCAZZOTTATA!")
-    const spikeGeo = new THREE.ConeGeometry(0.08, 0.36, 5);
+    const spikeGeo = new THREE.ConeGeometry(0.06, 0.28, 5);
     const goldSpikeMat = new THREE.MeshBasicMaterial({ color: 0xffea00 });
     const redSpikeMat = new THREE.MeshBasicMaterial({ color: 0xff3d00 });
     for (let i = 0; i < 6; i++) {
       const ang = (i * Math.PI * 2) / 6 + 0.25;
       const spike = new THREE.Mesh(spikeGeo, i % 2 === 0 ? goldSpikeMat : redSpikeMat);
-      spike.position.set(Math.cos(ang) * 0.32, 0.05, Math.sin(ang) * 0.32);
+      spike.position.set(Math.cos(ang) * 0.30, 0.04, Math.sin(ang) * 0.30);
       spike.rotation.z = -Math.sin(ang) * 1.2;
       spike.rotation.x = Math.cos(ang) * 1.2;
       cloudGroup.add(spike);
@@ -1195,6 +1497,12 @@ export class VFXPoolView {
   }
 
   clearBrawlFighters() {
+    if (this.hiddenBoardNodes?.length) {
+      for (const node of this.hiddenBoardNodes) {
+        if (node) node.visible = true;
+      }
+      this.hiddenBoardNodes = [];
+    }
     if (this.brawlStageGroup) {
       if (this.pieceView?.clearGroup) {
         this.pieceView.clearGroup(this.brawlStageGroup);
@@ -1213,7 +1521,7 @@ export class VFXPoolView {
   /**
    * Triggered on `BATTLE_STARTED`: mounts the two real 3D `.glb` characters (`attackerFighter` &
    * `defenderFighter`) with their 3D weapons (`buildFighterWeaponProp`), activates pooled particles
-   * and stage props, and starts the close-up Orbiting Capture Camera.
+   * and stage props, and starts the close-up Auto-Zoom Capture Camera.
    * @param {object} e
    */
   onBattleStarted(e) {
@@ -1228,9 +1536,25 @@ export class VFXPoolView {
     const toPos = squareToWorld(e.square || e.to || 'd5');
     const rawFrom = squareToWorld(e.from || 'e4');
     const sameSq = Math.hypot(toPos.x - rawFrom.x, toPos.z - rawFrom.z) < 0.15;
-    const fromPos = sameSq ? { x: toPos.x, y: 0, z: toPos.z + 1.45 } : rawFrom;
+    const fromPos = sameSq ? { x: toPos.x, y: 0, z: toPos.z + 1.15 } : rawFrom;
     this.activeFromPos = fromPos;
     this.activeToPos = toPos;
+
+    // Temporarily hide static board pieces on the active clash squares (`from` & `to`) so they
+    // don't double-render with the brawling fighters, while keeping neighboring pieces visible!
+    const boardMap = this.pieceView?.pieceBySquare || this.pieceView?.pieceNodes;
+    if (boardMap) {
+      const clashSquares = new Set(
+        [e.from, e.to, e.square, e.capturedSquare].filter(Boolean).map((s) => String(s).toLowerCase()),
+      );
+      for (const [sqKey, node] of boardMap.entries()) {
+        const sq = String(node?.userData?.square || sqKey || '').toLowerCase();
+        if (sq && clashSquares.has(sq) && node?.visible) {
+          node.visible = false;
+          this.hiddenBoardNodes.push(node);
+        }
+      }
+    }
 
     const atkType = String(e.attacker || 'p').toLowerCase();
     const defType = String(e.defender || 'p').toLowerCase();
@@ -1298,7 +1622,7 @@ export class VFXPoolView {
       }
     }
 
-    // Prime the 3D Comic Impact Word Sprite above the brawl (`y = 1.95m`)
+    // Prime the Comic Impact Word state (sprite stays hidden so it never occludes the fighters)
     if (this.props.comicWordSprite) {
       this.props.comicWordSprite.position.set(toPos.x, 1.95, toPos.z);
       this.setComicWordText('CHARGE! ⚔️', '#1e88e5', '#ffea00');
@@ -1401,6 +1725,35 @@ export class VFXPoolView {
         restitution: 0.6,
         floatUp: true,
       });
+    } else if (effect === 'sacro_acquarius_ice_coffin') {
+      // Knight Seby vs Pawn Puffin (`n_x_p`): Sacro Acquarius & Teca di Ghiaccio Eterno!
+      if (this.props.aquariusMaiden) {
+        this.props.aquariusMaiden.position.set(fromPos.x, 0.55, fromPos.z);
+        this.props.aquariusMaiden.scale.setScalar(1);
+        this.props.aquariusMaiden.visible = true;
+      }
+      if (this.props.iceCoffin) {
+        this.props.iceCoffin.position.set(toPos.x, 0, toPos.z);
+        this.props.iceCoffin.scale.set(1, 0.08, 1);
+        this.props.iceCoffin.visible = true;
+      }
+      // Initial Aurora ice stream frost burst + final Teca di Ghiaccio crumble shards
+      this.spawnFromPool('diamond_ice_crystals', toPos, Math.round(24 * countMult), {
+        speedMin: 1.4,
+        speedMax: 3.4,
+        upMin: 2.0,
+        upMax: 4.4,
+        restitution: 0.65,
+        delayS: 1.25,
+      });
+      this.spawnFromPool('diamond_ice_crystals', toPos, Math.round(40 * countMult), {
+        speedMin: 2.0,
+        speedMax: 5.2,
+        upMin: 2.8,
+        upMax: 6.0,
+        restitution: 0.72,
+        delayS: 2.85,
+      });
     } else if (effect === 'san_gennaro_miracle' || effect === 'crosier_blessing_beam') {
       if (this.props.sanGennaroAmpoule) {
         this.props.sanGennaroAmpoule.position.set(toPos.x, 1.75, toPos.z);
@@ -1421,7 +1774,7 @@ export class VFXPoolView {
       });
     }
 
-    // Start Orbiting Capture Camera choreography
+    // Start Auto-Zoom Capture Camera choreography
     this.startCameraOrbit(toPos);
   }
 
@@ -1499,7 +1852,7 @@ export class VFXPoolView {
   }
 
   /**
-   * Saves the player's camera pose and prepares smooth close-up orbital framing around `targetPos`.
+   * Saves the player's camera pose + FOV and prepares tight close-up auto-zoom framing around `targetPos`.
    */
   startCameraOrbit(targetPos) {
     if (!this.camera) return;
@@ -1507,16 +1860,109 @@ export class VFXPoolView {
       this.camSaved = {
         pos: this.camera.position.clone(),
         target: this.controls?.target ? this.controls.target.clone() : new THREE.Vector3(0, 0, 0),
+        fov: this.camera.fov || 46,
       };
     }
-    this.camOrbitCenter = new THREE.Vector3(targetPos.x, 0.7, targetPos.z);
+    this.camOrbitCenter = new THREE.Vector3(targetPos.x, 0.75, targetPos.z);
     this.camRestoreTimer = 0;
+  }
+
+  /**
+   * Triggered on `CHECKMATE`: stages a spectacular 4.2s Royal Capitulation 3D sequence
+   * over the defeated King's square (descending Golden Throne, lightning bolts, sky-beam,
+   * golden sparks, gem shards, and confetti) while orbiting the camera around the fallen King.
+   * @param {object} e
+   */
+  onCheckmate(e) {
+    this.hideStageProps();
+    const kingSq = e.loserKingSquare || (e.loser === 'w' ? 'e1' : 'e8');
+    const winKingSq = e.winnerKingSquare || (e.winner === 'w' ? 'e1' : 'e8');
+    const kingPos = squareToWorld(kingSq);
+    const winPos = squareToWorld(winKingSq);
+
+    this.activeClash = {
+      type: 'CHECKMATE_CAPITULATION',
+      square: kingSq,
+      to: kingSq,
+      from: winKingSq,
+      effect: 'golden_toilet_throne',
+      victimReaction: 'royal_throne_whirl',
+      durationMs: 4200,
+    };
+    this.clashElapsed = 0;
+    this.activeFromPos = winPos;
+    this.activeToPos = kingPos;
+
+    if (this.clashLight) {
+      this.clashLight.color.setHex(0xffd700);
+      this.clashLight.intensity = 7.5;
+      this.clashLight.position.set(kingPos.x, 2.2, kingPos.z);
+      this.clashLight.visible = true;
+    }
+
+    if (this.props.skyBeam) {
+      this.props.skyBeam.position.set(kingPos.x, 2.75, kingPos.z);
+      this.props.skyBeam.visible = true;
+    }
+    if (this.props.runeCircle) {
+      this.props.runeCircle.position.set(kingPos.x, 0.03, kingPos.z);
+      this.props.runeCircle.visible = true;
+    }
+    if (this.props.lightningBolts) {
+      this.props.lightningBolts.position.set(kingPos.x, 0, kingPos.z);
+      this.props.lightningBolts.visible = true;
+    }
+    if (this.props.goldenThrone) {
+      this.props.goldenThrone.position.set(kingPos.x, 3.0, kingPos.z);
+      this.props.goldenThrone.visible = true;
+    }
+    if (this.props.shockwaveRing) {
+      this.props.shockwaveRing.position.set(kingPos.x, 0.04, kingPos.z);
+      this.props.shockwaveRing.scale.setScalar(0.5);
+      this.props.shockwaveRing.visible = true;
+    }
+
+    // Royal Capitulation multi-wave fireworks on both the fallen King and victorious King
+    this.spawnFromPool('golden_sparks', kingPos, 55, {
+      speedMin: 1.8,
+      speedMax: 5.0,
+      upMin: 3.2,
+      upMax: 6.4,
+      restitution: 0.7,
+    });
+    this.spawnFromPool('amethyst_ruby_shards', kingPos, 45, {
+      speedMin: 1.6,
+      speedMax: 4.5,
+      upMin: 2.8,
+      upMax: 5.8,
+      restitution: 0.72,
+      delayS: 0.35,
+    });
+    this.spawnFromPool('choco_lilac_confetti', winPos, 50, {
+      speedMin: 1.5,
+      speedMax: 4.2,
+      upMin: 3.4,
+      upMax: 6.0,
+      restitution: 0.5,
+      delayS: 0.5,
+    });
+    this.spawnFromPool('floating_purple_hearts', winPos, 30, {
+      speedMin: 0.9,
+      speedMax: 2.6,
+      upMin: 2.4,
+      upMax: 5.0,
+      restitution: 0.6,
+      floatUp: true,
+    });
+
+    this.startCameraOrbit(kingPos);
   }
 
   /**
    * Triggered on `BATTLE_COMPLETED` or `BATTLE_SKIPPED`: clears stage fighters/props and restores camera.
    */
   onBattleEnded(_e) {
+    if (this.activeClash?.type === 'CHECKMATE_CAPITULATION') return;
     this.activeClash = null;
     this.hideStageProps();
     if (this.camSaved) {
@@ -1545,7 +1991,7 @@ export class VFXPoolView {
 
   /**
    * Advances all active pooled particles, 3D Scazzottata character brawl, stage prop animations,
-   * and the Orbiting Capture Camera.
+   * and the Auto-Zoom Capture Camera.
    * @param {number} dt - Delta time in seconds
    */
   update(dt) {
@@ -1555,14 +2001,25 @@ export class VFXPoolView {
     // 1. Update active 3-Act 3D Scazzottata & stage props
     if (this.activeClash) {
       this.clashElapsed += step;
-      const durationS = (this.activeClash.durationMs || 4000) / 1000;
+      const durationS = (this.activeClash.durationMs || 6000) / 1000;
       const t = Math.min(1, this.clashElapsed / durationS);
       this.updateActiveChoreography(this.activeClash, t, this.clashElapsed);
       this.updateCameraOrbit(t, step);
+      if (this.activeClash.type === 'CHECKMATE_CAPITULATION' && t >= 1) {
+        this.activeClash = null;
+        this.hideStageProps();
+        if (this.camSaved) {
+          this.camRestoreTimer = 0.45;
+        }
+      }
     } else if (this.camRestoreTimer > 0 && this.camSaved && this.camera) {
       this.camRestoreTimer = Math.max(0, this.camRestoreTimer - step);
       const alpha = Math.min(1, step * 8.0);
       this.camera.position.lerp(this.camSaved.pos, alpha);
+      if (this.camSaved.fov && this.camera.fov !== undefined) {
+        this.camera.fov += (this.camSaved.fov - this.camera.fov) * alpha;
+        this.camera.updateProjectionMatrix?.();
+      }
       if (this.controls?.target) {
         this.controls.target.lerp(this.camSaved.target, alpha);
         this.controls.update?.();
@@ -1571,6 +2028,10 @@ export class VFXPoolView {
       }
       if (this.camRestoreTimer === 0) {
         this.camera.position.copy(this.camSaved.pos);
+        if (this.camSaved.fov && this.camera.fov !== undefined) {
+          this.camera.fov = this.camSaved.fov;
+          this.camera.updateProjectionMatrix?.();
+        }
         if (this.controls?.target) {
           this.controls.target.copy(this.camSaved.target);
           this.controls.update?.();
@@ -1588,6 +2049,9 @@ export class VFXPoolView {
           p.mesh.visible = true;
           if (this.props.crystalCase && this.activeClash?.effect === 'crystal_shatter') {
             this.props.crystalCase.visible = false;
+          }
+          if (this.props.iceCoffin && this.activeClash?.effect === 'sacro_acquarius_ice_coffin' && this.clashElapsed >= 2.6) {
+            this.props.iceCoffin.visible = false;
           }
         }
         continue;
@@ -1700,6 +2164,123 @@ export class VFXPoolView {
       );
       this.props.puffinFish.rotation.y = elapsedS * 9.5;
     }
+    if (clash.effect === 'sacro_acquarius_ice_coffin') {
+      // Animate Celestial Aquarius Water-Bearer Woman & Golden Amphora pouring ice energy!
+      if (this.props.aquariusMaiden) {
+        const showMaiden = t >= 0.28 && t < 0.78;
+        this.props.aquariusMaiden.visible = showMaiden;
+        if (showMaiden) {
+          const atkX = this.attackerFighter ? this.attackerFighter.position.x : toPos.x - dirX * 0.36;
+          const atkZ = this.attackerFighter ? this.attackerFighter.position.z : toPos.z - dirZ * 0.36;
+          this.props.aquariusMaiden.position.set(
+            atkX - dirX * 0.24,
+            0.55 + Math.sin(elapsedS * 6.0) * 0.08,
+            atkZ - dirZ * 0.24,
+          );
+          this.props.aquariusMaiden.rotation.set(0, atkYaw, 0);
+          const { amphoraGroup, streamBeam, halo } = this.props.aquariusMaiden.userData;
+          if (amphoraGroup) {
+            const pourProgress = Math.min(1, (t - 0.28) / 0.22);
+            amphoraGroup.rotation.x = Math.PI * (0.18 + pourProgress * 0.32);
+          }
+          if (streamBeam) {
+            const beamPulse = 0.85 + Math.sin(elapsedS * 24.0) * 0.25;
+            streamBeam.scale.set(beamPulse, 1.0 + Math.sin(elapsedS * 18.0) * 0.15, beamPulse);
+          }
+          if (halo) {
+            halo.rotation.z = elapsedS * 3.5;
+          }
+        }
+      }
+      // Animate Teca di Ghiaccio Eterno rising around the Puffin (Puffin is translucent cyan-blue BEHIND the front ice wall!)
+      if (this.props.iceCoffin) {
+        if (t < 0.36) {
+          this.props.iceCoffin.visible = false;
+        } else if (t < 0.74) {
+          this.props.iceCoffin.visible = true;
+          const riseU = Math.min(1, (t - 0.36) / 0.28);
+          const defX = this.defenderFighter ? this.defenderFighter.position.x : toPos.x;
+          const defZ = this.defenderFighter ? this.defenderFighter.position.z : toPos.z;
+          this.props.iceCoffin.position.set(defX, 0, defZ);
+          this.props.iceCoffin.scale.set(0.92 + riseU * 0.22, Math.max(0.1, riseU), 0.92 + riseU * 0.22);
+          this.props.iceCoffin.rotation.y = defYaw + Math.sin(elapsedS * 2.0) * 0.12;
+          // Tint the Puffin translucent icy cyan-blue ("azzurro traslucido") inside/behind the ice block!
+          if (this.defenderFighter && !this.defenderFighter.userData.frozenCyanTinted) {
+            this.defenderFighter.userData.frozenCyanTinted = true;
+            this.defenderFighter.traverse((child) => {
+              if (child.isMesh && child.material) {
+                const clonedMat = child.material.clone();
+                if (clonedMat.color) clonedMat.color.setHex(0x4dd0e1);
+                if (clonedMat.emissive) {
+                  clonedMat.emissive.setHex(0x00bcd4);
+                  clonedMat.emissiveIntensity = 0.55;
+                }
+                clonedMat.transparent = true;
+                clonedMat.opacity = 0.68;
+                child.material = clonedMat;
+              }
+            });
+          }
+        } else {
+          // Crumbles into 60 diamond-ice crystals at the start of Act 3!
+          this.props.iceCoffin.visible = false;
+        }
+      }
+    }
+
+    // Animate King Riccardo ("Papino" `k`) 6 D&D Spells in 3D!
+    const dndSpell = clash.dndSpell;
+    if (dndSpell) {
+      const showDnd = t >= 0.30 && t < 0.86;
+      if (dndSpell === 'fireball' && this.props.dndFireball) {
+        this.props.dndFireball.visible = showDnd;
+        if (showDnd) {
+          const fbU = Math.min(1, (t - 0.30) / 0.35);
+          this.props.dndFireball.position.set(
+            fromPos.x + (toPos.x - fromPos.x) * fbU,
+            0.55 + Math.sin(fbU * Math.PI) * 0.65,
+            fromPos.z + (toPos.z - fromPos.z) * fbU,
+          );
+          const { fbCore, d20Mesh } = this.props.dndFireball.userData;
+          if (fbCore) fbCore.scale.setScalar(0.5 + fbU * 1.45 + Math.sin(elapsedS * 20) * 0.15);
+          if (d20Mesh) d20Mesh.rotation.set(elapsedS * 8, elapsedS * 11, elapsedS * 6);
+        }
+      } else if (dndSpell === 'meteor_swarm' && this.props.dndMeteorSwarm) {
+        this.props.dndMeteorSwarm.visible = showDnd;
+        if (showDnd) {
+          const fallU = ((t - 0.30) / 0.56) % 1;
+          this.props.dndMeteorSwarm.position.set(toPos.x, (1 - fallU) * 1.6, toPos.z);
+          this.props.dndMeteorSwarm.rotation.y = elapsedS * 4.5;
+        }
+      } else if (dndSpell === 'summon_comic_daemon' && this.props.dndComicDaemon) {
+        this.props.dndComicDaemon.visible = showDnd;
+        if (showDnd) {
+          const hop = Math.abs(Math.sin(elapsedS * 14.0)) * 0.35;
+          this.props.dndComicDaemon.position.set(
+            toPos.x - dirX * 0.12,
+            hop,
+            toPos.z - dirZ * 0.12,
+          );
+          this.props.dndComicDaemon.rotation.set(0, atkYaw + Math.sin(elapsedS * 10) * 0.4, 0);
+        }
+      } else if (dndSpell === 'disintegrate' && this.props.dndDisintegrateRay) {
+        this.props.dndDisintegrateRay.visible = showDnd;
+        if (showDnd) {
+          this.props.dndDisintegrateRay.position.set(toPos.x, 0, toPos.z);
+          this.props.dndDisintegrateRay.rotation.set(0, atkYaw, 0);
+          const { beam, dustPile } = this.props.dndDisintegrateRay.userData;
+          if (beam) beam.scale.set(1 + Math.sin(elapsedS * 30) * 0.3, 1, 1 + Math.sin(elapsedS * 30) * 0.3);
+          if (dustPile) dustPile.scale.setScalar(Math.min(1.4, Math.max(0.2, (t - 0.30) * 2.5)));
+        }
+      } else if (dndSpell === 'flesh_to_stone_petrification' && this.props.dndPetrifyStatue) {
+        this.props.dndPetrifyStatue.visible = showDnd;
+        if (showDnd) {
+          this.props.dndPetrifyStatue.position.set(toPos.x, 0.66, toPos.z);
+          this.props.dndPetrifyStatue.rotation.y = elapsedS * 2.0;
+        }
+      }
+    }
+
     if (this.props.sanGennaroAmpoule?.visible) {
       const amp = this.props.sanGennaroAmpoule;
       const { bloodCore, bloodCoreMat } = amp.userData || {};
@@ -1749,7 +2330,7 @@ export class VFXPoolView {
     const reaction = clash.victimReaction;
 
     if (atk && def) {
-      const scale = this.pieceView?.globalPieceScale || 1.0;
+      const scale = (this.pieceView?.globalPieceScale || 1.0) * 1.22;
 
       if (reaction === 'happy_cuddle_hop' || clash.effect === 'mega_cuddle_bounce') {
         // Seby <-> Pupurabbu Easter Egg: Synchronized Mega Cuddle Bounce!
@@ -1825,14 +2406,14 @@ export class VFXPoolView {
         // ACT 2 (25..74%): LA SCAZZOTTATA 3D! (5-Hit Back-and-Forth 3D Character Brawl + Defender Counter-Attacks!)
         const brawlU = (t - 0.25) / 0.49;
 
-        // Swirl the 3D Cartoon Brawl Cloud & Starburst between the two fighters!
+        // Swirl the low-profile 3D Cartoon Brawl Dust at the fighters' feet (`y = 0.16m`) so bodies stay 100% clear!
         const strike = Math.abs(Math.sin(brawlU * Math.PI * 5.0));
         if (this.props.brawlCloud) {
           this.props.brawlCloud.visible = true;
-          this.props.brawlCloud.position.set(toPos.x, 0.46 + strike * 0.14, toPos.z);
+          this.props.brawlCloud.position.set(toPos.x, 0.16 + strike * 0.06, toPos.z);
           this.props.brawlCloud.rotation.y = elapsedS * 11.0;
           this.props.brawlCloud.rotation.z = elapsedS * 7.5;
-          const cScale = 0.68 + strike * 0.48;
+          const cScale = 0.42 + strike * 0.20;
           this.props.brawlCloud.scale.setScalar(cScale);
         }
 
@@ -1893,40 +2474,72 @@ export class VFXPoolView {
           const exFrac = (brawlU - 0.44) / 0.24;
           const s = Math.sin(exFrac * Math.PI);
           isDefenderCounter = true;
-          this.setComicWordText('KAPOW! 🌪️', '#aa00ff', '#ffea00');
+          this.setComicWordText(
+            clash.effect === 'sacro_acquarius_ice_coffin' ? 'SACRO ACQUARIUS! ♒❄️' : 'KAPOW! 🌪️',
+            clash.effect === 'sacro_acquarius_ice_coffin' ? '#00ACC1' : '#aa00ff',
+            '#ffea00',
+          );
 
           atkOffset = -0.18 + Math.cos(exFrac * Math.PI * 2) * 0.16;
           defOffset = 0.14 - Math.cos(exFrac * Math.PI * 2) * 0.22;
           atkY = s * 0.42;
           defY = s * (defSpec.counterJumpY + 0.16);
           defPitch = defSpec.counterPitch * 0.85 * s;
-          atkYawOff = exFrac * Math.PI * 2;
+          atkYawOff = clash.effect === 'sacro_acquarius_ice_coffin' ? 0 : exFrac * Math.PI * 2;
           defYawOff = defSpec.counterSpinYaw ? exFrac * defSpec.counterSpinYaw : -exFrac * Math.PI * 2;
           atkRoll = Math.sin(exFrac * Math.PI * 4) * 0.25;
           defRoll = -Math.sin(exFrac * Math.PI * 4) * defSpec.counterRollAmp;
         } else if (brawlU < 0.84) {
-          // Exchange 4 (brawlU = 0.68..0.84): Attacker A breaks through with a heavy uppercut!
+          // Exchange 4 (brawlU = 0.68..0.84): Attacker A breaks through with a heavy uppercut / Aurora stream!
           const exFrac = (brawlU - 0.68) / 0.16;
           const s = Math.sin(exFrac * Math.PI);
-          this.setComicWordText('KAPOW! 🌪️', '#ff3d00', '#ffea00');
+          const dndWords = {
+            fireball: 'D&D FIREBALL 8d6! 🔥',
+            chain_lightning: 'CHAIN LIGHTNING! ⚡',
+            meteor_swarm: 'METEOR SWARM! ☄️',
+            summon_comic_daemon: 'SUMMON DAEMON! 😈',
+            disintegrate: 'DISINTEGRATE! 🟢',
+            flesh_to_stone_petrification: 'PIETRIFICAZIONE! 🗿',
+          };
+          this.setComicWordText(
+            clash.effect === 'sacro_acquarius_ice_coffin'
+              ? 'SACRO ACQUARIUS! ♒❄️'
+              : dndWords[clash.dndSpell] || 'KAPOW! 🌪️',
+            clash.effect === 'sacro_acquarius_ice_coffin' ? '#0097a7' : '#ff3d00',
+            '#80deea',
+          );
           atkOffset = -0.28 + s * 0.30;
           defOffset = 0.20 + s * 0.26;
           atkY = s * 0.34;
-          defY = s * 0.40;
+          defY = clash.effect === 'sacro_acquarius_ice_coffin' ? 0.05 : s * 0.40;
           atkPitch = -0.28 * s;
-          defYawOff = exFrac * Math.PI * 4;
+          defYawOff = clash.effect === 'sacro_acquarius_ice_coffin' ? 0 : exFrac * Math.PI * 4;
           defRoll = 0.32 * s;
         } else {
-          // Exchange 5 (brawlU = 0.84..1.00): Attacker A Signature Finishing Slam!
+          // Exchange 5 (brawlU = 0.84..1.00): Attacker A Signature Finishing Slam / Teca di Ghiaccio!
           const exFrac = (brawlU - 0.84) / 0.16;
           const s = Math.sin(exFrac * Math.PI);
-          this.setComicWordText('KAPOW! 🌪️', '#ff6d00', '#ffea00');
+          const dndFinishWords = {
+            fireball: 'NAT 20 FIREBALL! 🔥🎲',
+            chain_lightning: 'CHAIN LIGHTNING! ⚡⛓️',
+            meteor_swarm: 'METEOR SWARM! ☄️🌋',
+            summon_comic_daemon: 'DEMONE PIZZA! 😈🍕',
+            disintegrate: '10d6+40 DUST! 🟢✨',
+            flesh_to_stone_petrification: 'STATUA D’ORO! 🗿👑',
+          };
+          this.setComicWordText(
+            clash.effect === 'sacro_acquarius_ice_coffin'
+              ? 'TECA DI GHIACCIO! 🧊'
+              : dndFinishWords[clash.dndSpell] || 'KAPOW! 🌪️',
+            clash.effect === 'sacro_acquarius_ice_coffin' ? '#00838f' : '#ff6d00',
+            '#e0f7fa',
+          );
           const jumpH = clash.effect === 'plush_ground_pound' ? 1.85 : 0.78;
           atkOffset = -0.30 * (1 - exFrac);
           defOffset = 0.18;
-          atkY = Math.sin(exFrac * Math.PI) * jumpH;
-          atkPitch = Math.cos(exFrac * Math.PI) * 0.38;
-          defPitch = -0.36 * s;
+          atkY = clash.effect === 'sacro_acquarius_ice_coffin' ? 0.18 : Math.sin(exFrac * Math.PI) * jumpH;
+          atkPitch = clash.effect === 'sacro_acquarius_ice_coffin' ? -0.18 : Math.cos(exFrac * Math.PI) * 0.38;
+          defPitch = clash.effect === 'sacro_acquarius_ice_coffin' ? 0 : -0.36 * s;
         }
 
         def.userData.isCounterAttacking = isDefenderCounter;
@@ -1949,9 +2562,22 @@ export class VFXPoolView {
           rollZ: atkRoll,
           yawOffset: atkYawOff,
         });
+        // Seby's Sacro Acquarius Pose: Unites both hands high overhead while the Golden Amphora pours ice!
+        if (clash.effect === 'sacro_acquarius_ice_coffin' && brawlU >= 0.44) {
+          const skel = atk.userData?.proceduralSkeleton;
+          if (skel?.leftArm && skel?.rightArm) {
+            skel.leftArm.rotation.set(-2.85, 0, -0.32);
+            skel.rightArm.rotation.set(-2.85, 0, 0.32);
+          }
+          if (this.attackerWeaponProp?.userData) {
+            const { leftHandPivot, rightHandPivot } = this.attackerWeaponProp.userData;
+            if (leftHandPivot) leftHandPivot.position.set(-0.08, 0.96, 0.08);
+            if (rightHandPivot) rightHandPivot.position.set(0.08, 0.96, 0.08);
+          }
+        }
         this.pieceView?.applyPoseToPiece(def, {
           walkPhase: elapsedS * 26,
-          walkAmp: 1.55,
+          walkAmp: clash.effect === 'sacro_acquarius_ice_coffin' && brawlU >= 0.55 ? 0.1 : 1.55,
           combatPhase: elapsedS * 28 + Math.PI,
           combatAmp: isDefenderCounter ? 2.15 : 1.65,
           bodyY: Math.abs(Math.cos(elapsedS * 18)) * 0.14,
@@ -1965,7 +2591,11 @@ export class VFXPoolView {
       } else {
         // ACT 3 (74..100%): Knockout Launch toward Shrek's Swamp (`x = ±6.4m, y = -0.28m`) + Water Splash!
         if (this.props.brawlCloud) this.props.brawlCloud.visible = false;
-        this.setComicWordText('K.O.! 🐸💦', '#00c853', '#ffea00');
+        this.setComicWordText(
+          clash.effect === 'sacro_acquarius_ice_coffin' ? 'CRUMBLE! ❄️💎' : 'K.O.! 🐸💦',
+          clash.effect === 'sacro_acquarius_ice_coffin' ? '#00bcd4' : '#00c853',
+          '#ffea00',
+        );
         def.userData.isCounterAttacking = false;
 
         const koU = (t - 0.74) / 0.26;
@@ -1991,7 +2621,13 @@ export class VFXPoolView {
         const swampY = this.swampLandingPos.y;
         const swampZ = this.swampLandingPos.z;
 
-        if ((reaction === 'sweet_melt' || reaction === 'bowled_flat_stars' || reaction === 'pancake_squash') && koU < 0.28) {
+        if (reaction === 'frozen_coffin_crumble' && koU < 0.36) {
+          // Frozen Puffin inside the Teca di Ghiaccio crumbles/shatters into diamond-ice crystals on the square!
+          const subU = koU / 0.36;
+          const crumbleScale = Math.max(0.12, 1 - subU * 0.85);
+          def.scale.set(scale * (1 + subU * 0.35), scale * crumbleScale, scale * (1 + subU * 0.35));
+          def.position.set(toPos.x + dirX * 0.16, 0, toPos.z + dirZ * 0.16);
+        } else if ((reaction === 'sweet_melt' || reaction === 'bowled_flat_stars' || reaction === 'pancake_squash') && koU < 0.28) {
           // Brief squash/melt on the square before being catapulted into Shrek's Swamp!
           const subU = koU / 0.28;
           def.scale.set(
@@ -2002,9 +2638,11 @@ export class VFXPoolView {
           def.position.set(toPos.x + dirX * 0.20, 0, toPos.z + dirZ * 0.20);
         } else {
           const arcU =
-            reaction === 'sweet_melt' || reaction === 'bowled_flat_stars' || reaction === 'pancake_squash'
-              ? (koU - 0.28) / 0.72
-              : koU;
+            reaction === 'frozen_coffin_crumble'
+              ? (koU - 0.36) / 0.64
+              : reaction === 'sweet_melt' || reaction === 'bowled_flat_stars' || reaction === 'pancake_squash'
+                ? (koU - 0.28) / 0.72
+                : koU;
           const clampedU = Math.min(1, Math.max(0, arcU));
           const curX = toPos.x + (swampX - toPos.x) * clampedU;
           const curZ = toPos.z + (swampZ - toPos.z) * clampedU;
@@ -2072,7 +2710,7 @@ export class VFXPoolView {
     } else if (reaction === 'sweet_melt') {
       const melt = Math.min(1, t * 1.4);
       v.scale.set(1 + melt * 0.6, Math.max(0.08, 1 - melt * 0.92), 1 + melt * 0.6);
-    } else if (reaction === 'crystallize_shatter') {
+    } else if (reaction === 'crystallize_shatter' || reaction === 'frozen_coffin_crumble') {
       v.scale.setScalar(t < 0.32 ? 1.05 : Math.max(0.01, 1 - (t - 0.32) * 3.0));
     } else if (reaction === 'bowled_flat_stars' || reaction === 'pancake_squash') {
       const flat = Math.min(1, Math.max(0, (t - 0.2) * 2.0));
@@ -2085,16 +2723,23 @@ export class VFXPoolView {
   }
 
   /**
-   * Smoothly orbits the camera close around the clashing 3D characters (`dist = 3.9m..4.6m, y = 2.2m..2.5m`),
-   * angled from `+Z` looking toward `-Z` so BOTH the close-up 3D Scazzottata AND the 16:9 Veo Mirror stay in frame!
-   * Includes subtle impact camera shake on heavy hits in Act 2 and swamp splash impact in Act 3.
+   * Auto-Zoom Close-Up Combat Camera (`dist = 1.82m..2.10m, y = 1.28m..1.44m, fov = 30°`),
+   * tightly framing the 2 fighting pieces, their immediately adjacent neighbors on the board
+   * ("i pezzi vicini e poco altro!"), and the full-screen 16:9 Veo video backdrop right behind them!
    */
   updateCameraOrbit(t, step) {
     if (!this.camera || !this.camOrbitCenter) return;
     const c = this.camOrbitCenter;
-    const orbitAngle = (t - 0.5) * 0.62; // Sweeps dynamically around the 3D brawl
-    const dist = 4.65 - Math.sin(t * Math.PI) * 0.65; // Zooms in close (4.0m .. 4.65m) for the 3D Scazzottata!
-    const camY = 2.25 + Math.sin(t * Math.PI) * 0.28; // Heroic low-medium brawl angle
+    let focusX = c.x;
+    let focusZ = c.z;
+    if (this.attackerFighter && this.defenderFighter && t < 0.74) {
+      focusX = (this.attackerFighter.position.x + this.defenderFighter.position.x) * 0.5;
+      focusZ = (this.attackerFighter.position.z + this.defenderFighter.position.z) * 0.5;
+    }
+
+    const orbitAngle = (t - 0.5) * 0.48; // Smooth close-up sweep around the 2 fighters
+    const dist = 2.10 - Math.sin(t * Math.PI) * 0.28; // Tight auto-zoom (1.82m .. 2.10m)
+    const camY = 1.28 + Math.sin(t * Math.PI) * 0.16; // Heroic close-up eye level
 
     // Impact camera shake on heavy hits in Act 2 (`t = 0.25..0.74`) and swamp splash (`t = 0.88..0.98`)
     let shakeX = 0;
@@ -2103,30 +2748,35 @@ export class VFXPoolView {
       const brawlU = (t - 0.25) / 0.49;
       const exFrac = (brawlU * 5.0) % 1;
       const hitPulse = Math.pow(Math.sin(exFrac * Math.PI), 4);
-      const amp = 0.095 * hitPulse;
+      const amp = 0.065 * hitPulse;
       shakeX = Math.sin(this.clashElapsed * 65.0) * amp;
       shakeY = Math.cos(this.clashElapsed * 53.0) * amp * 0.85;
     } else if (t >= 0.88 && t < 0.98) {
       const splashPulse = Math.sin(((t - 0.88) / 0.10) * Math.PI);
-      shakeX = Math.sin(this.clashElapsed * 48.0) * 0.045 * splashPulse;
-      shakeY = Math.cos(this.clashElapsed * 42.0) * 0.055 * splashPulse;
+      shakeX = Math.sin(this.clashElapsed * 48.0) * 0.035 * splashPulse;
+      shakeY = Math.cos(this.clashElapsed * 42.0) * 0.045 * splashPulse;
     }
     this.lastCameraShake = Math.hypot(shakeX, shakeY);
 
     const desiredPos = new THREE.Vector3(
-      c.x + Math.sin(orbitAngle) * dist + shakeX,
+      focusX + Math.sin(orbitAngle) * dist + shakeX,
       camY + shakeY,
-      c.z + Math.cos(orbitAngle) * dist,
+      focusZ + Math.cos(orbitAngle) * dist,
     );
-    // Focus directly on the two brawling 3D characters while keeping the 16:9 Cinema Mirror in the upper background
+    // Focus tightly on the 2 brawling characters while keeping the 16:9 Cinema Mirror filling the backdrop
     const desiredTarget = new THREE.Vector3(
-      c.x * 0.82 + shakeX * 0.5,
-      1.05 + shakeY * 0.5,
-      c.z * 0.75 - 1.15,
+      focusX + shakeX * 0.4,
+      0.78 + shakeY * 0.4,
+      focusZ - 0.35,
     );
 
-    const alpha = Math.min(1, step * 6.0);
+    const alpha = Math.min(1, step * 7.5);
     this.camera.position.lerp(desiredPos, alpha);
+    if (this.camera.fov !== undefined) {
+      const targetFov = 30;
+      this.camera.fov += (targetFov - this.camera.fov) * alpha;
+      this.camera.updateProjectionMatrix?.();
+    }
     if (this.controls?.target) {
       this.controls.target.lerp(desiredTarget, alpha);
       this.controls.update?.();

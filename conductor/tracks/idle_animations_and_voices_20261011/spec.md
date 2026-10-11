@@ -62,10 +62,26 @@ Even when no move or capture is currently executing on the chessboard, the 32 pi
 ### FR-4: Floating Speech Bubble on Piece Selection (`src/listeners/HudListener.js`)
 - When `PIECE_SELECTED` fires, display a cute non-intrusive floating comic speech pill (`💬 Seby: "Dimmi papino!"`, `💬 Kate: "This is an interesting choice..."`) near the HUD status / piece toast for `2.2s`.
 
+### FR-5: IMAX 16:9 Battle Cinema World Transformation & Bespoke Choreography (`ZurichSwampView.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `BattleMatrix36.js`)
+- **Combat Cinema World Isolation (`ZurichSwampView.setCombatCinemaMode(active)`)**:
+  - On `BATTLE_STARTED` / `WOW_ARENA_CLASH`, hide surrounding 3D world clutter (`Grossmünster`, `ZurichSkyline`, `SwissAlps`, `EmeraldSwampMoat`, `WizardBraziers`, `SwampFireflies`, `SkyDome`) and darken the background/fog to a cinema theater void (`0x05070e`), keeping **only the 8×8 Chessboard (`CarvedStoneAltar`) and the 3D Chess Pieces** in the foreground.
+  - Expand `VeoCinemaView` to `(0, 2.75, -4.65)` with `scale = 1.55` (`12.4m × 7.0m` near-fullscreen IMAX 16:9 screen directly behind the chessboard) and frame it with `VFXPoolView.updateCameraOrbit` so the Veo battle video fills almost the entire viewport.
+  - On `BATTLE_COMPLETED` / `BATTLE_SKIPPED` / `BOARD_RESET`, restore the full Zurich Swamp world and standard cinema mirror position (`(0, 3.65, -10.2)`, `scale = 0.86`).
+- **Bespoke 3D + Veo Choreography Additions**:
+  - **Knight Seby vs Pawn Puffin (`n_x_p`)**: Saint Seiya *"Sacro Acquarius & Teca di Ghiaccio Eterno"* (`sacro_acquarius_ice_coffin`, `diamond_ice_crystals`, `frozen_coffin_crumble`, `seby_sacro_acquarius`).
+  - **King Riccardo ("Papino" `k`) — 6 Distinct D&D Spells (`k_x_*`)**:
+    - `k_x_p`: Fireball (`fireball`) 🔥🎲
+    - `k_x_n`: Chain Lightning (`chain_lightning`) ⚡⛓️
+    - `k_x_b`: Meteor Swarm (`meteor_swarm`) ☄️🌋
+    - `k_x_r`: Summon Greater Comic Daemon (`summon_comic_daemon`) 😈🍕
+    - `k_x_k`: Disintegrate (`disintegrate`) 🟢✨
+    - `k_x_q`: Flesh to Stone / Petrification + Golden Throne (`flesh_to_stone_petrification`) 🗿🚽👑
+
 ---
 
 ## 3. Acceptance Criteria
 1. All 32 pieces visibly move in place with character-specific organic idle animations even when no turn is being played (`Knight` horse steps in place, `Puffin` sways fluidly & wags tail, `Ale` dragon flaps wings, `Pupurabbu` breathes squishily).
 2. Hovering a piece with the mouse triggers its distinct creature SFX (`snort`, `fiuu`, `peep`, `boing`) and a visual perk-up animation.
 3. Selecting/clicking a piece plays its spoken voice line (`"Dimmi papino!"`, `"Agli ordini Signore!"`, `"This is an interesting choice..."`, cute Puffin line) and shows the speech bubble.
-4. `just test` and `just provenance` pass 100% with zero regressions.
+4. During combat (`BATTLE_STARTED`), surrounding 3D world clutter hides, keeping only the 8×8 chessboard and 3D pieces in the foreground while the 16:9 Veo Cinema screen expands to near-fullscreen IMAX scale behind the board.
+5. `just test` and `just provenance` pass 100% with zero regressions.

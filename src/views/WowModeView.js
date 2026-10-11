@@ -333,9 +333,12 @@ export class WowModeView {
     } else if (e.to === 'Mode1_Chess') {
       this.setActive(false);
     } else if (e.to === 'CaptureCutscene' && this.active) {
-      // During WOW Arena battle cutscene, hide single inspector so arena fighters & VFX shine
+      // During WOW Arena battle cutscene, hide single inspector and show neighboring chessboard pieces around the clash!
       this.inspectorGroup.visible = false;
       this.arenaGroup.visible = true;
+      if (this.pieceView?.rootGroup) {
+        this.pieceView.rootGroup.visible = true;
+      }
     }
   }
 
@@ -344,6 +347,9 @@ export class WowModeView {
       if (enabled) {
         this.inspectorGroup.visible = this.subMode === 'inspector';
         this.arenaGroup.visible = this.subMode === 'arena';
+        if (this.pieceView?.rootGroup) {
+          this.pieceView.rootGroup.visible = this.subMode === 'arena';
+        }
       }
       return;
     }
@@ -360,7 +366,7 @@ export class WowModeView {
         };
       }
       if (this.pieceView?.rootGroup) {
-        this.pieceView.rootGroup.visible = false;
+        this.pieceView.rootGroup.visible = this.subMode === 'arena';
       }
       this.setSubMode(this.subMode);
       this.focusCameraForSubMode();
@@ -389,6 +395,9 @@ export class WowModeView {
     this.inspectorGroup.visible = this.subMode === 'inspector';
     this.arenaGroup.visible = this.subMode === 'arena';
     if (this.active) {
+      if (this.pieceView?.rootGroup) {
+        this.pieceView.rootGroup.visible = this.subMode === 'arena';
+      }
       this.focusCameraForSubMode();
     }
   }
@@ -722,7 +731,12 @@ export class WowModeView {
   // ===========================================================================
 
   onArenaClash(e = {}) {
-    this.setSubMode('arena');
+    this.subMode = 'arena';
+    this.inspectorGroup.visible = false;
+    this.arenaGroup.visible = true;
+    if (this.pieceView?.rootGroup) {
+      this.pieceView.rootGroup.visible = true;
+    }
     this._clearArenaFighters();
 
     const atkType = ROLE_OR_NAME_TO_KEY[String(e.attacker || 'b').toLowerCase()] || 'b';
@@ -730,43 +744,47 @@ export class WowModeView {
     const fromSq = e.from || 'd4';
     const toSq = e.to || e.square || 'e5';
 
-    // Stage the Attacker & Defender 3D pieces on the altar without mutating Mode 1 pieceBySquare
-    if (this.pieceView?.buildPieceGroup) {
-      const pm = this.ctx?.pieces || this.ctx?.pieceManager;
-      const atkDesc = pm?.resolveDescriptor
-        ? pm.resolveDescriptor({ type: atkType, color: 'w', square: fromSq })
-        : { type: atkType, color: 'w', square: fromSq, ...CHARACTER_REGISTRY[atkType] };
-      const defDesc = pm?.resolveDescriptor
-        ? pm.resolveDescriptor({ type: defType, color: 'b', square: toSq })
-        : { type: defType, color: 'b', square: toSq, ...CHARACTER_REGISTRY[defType] };
-
-      const atkMesh = this.pieceView.buildPieceGroup(atkDesc);
-      const defMesh = this.pieceView.buildPieceGroup(defDesc);
-      const pFrom = squareToWorld(fromSq);
-      const pTo = squareToWorld(toSq);
-      atkMesh.position.set(pFrom.x, 0, pFrom.z);
-      defMesh.position.set(pTo.x, 0, pTo.z);
-
-      this.arenaGroup.add(atkMesh, defMesh);
-    }
-
-    // Fallback: if headless CombatAnimationManager is not wired into ctx, emit BATTLE_STARTED directly
+    // When CombatAnimationManager + VFXPoolView are wired into ctx, VFXPoolView spawns the
+    // animated 3D fighters and drives the close-up auto-zoom camera directly.
+    // Only stage fallback static meshes if CombatAnimationManager is absent (e.g. unit test).
     const hasCombatManager = Boolean(this.ctx?.combat || this.ctx?.combatManager);
-    if (!hasCombatManager && this.ctx?.bus) {
-      const entry = BATTLE_MATRIX[atkType]?.[defType] || BATTLE_MATRIX.b.n;
-      this.ctx.bus.emit({
-        type: 'BATTLE_STARTED',
-        ...entry,
-        from: fromSq,
-        to: toSq,
-        square: toSq,
-        capturedSquare: toSq,
-        playerId: 'w',
-        victimColor: 'b',
-        tier: e.goldenCrit || e.tier === 'golden_crit' ? 'golden_crit' : 'normal',
-        source: 'wow_arena',
-        durationMs: 2800,
-      });
+    if (!hasCombatManager) {
+      this.focusCameraForSubMode();
+      if (this.pieceView?.buildPieceGroup) {
+        const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+        const atkDesc = pm?.resolveDescriptor
+          ? pm.resolveDescriptor({ type: atkType, color: 'w', square: fromSq })
+          : { type: atkType, color: 'w', square: fromSq, ...CHARACTER_REGISTRY[atkType] };
+        const defDesc = pm?.resolveDescriptor
+          ? pm.resolveDescriptor({ type: defType, color: 'b', square: toSq })
+          : { type: defType, color: 'b', square: toSq, ...CHARACTER_REGISTRY[defType] };
+
+        const atkMesh = this.pieceView.buildPieceGroup(atkDesc);
+        const defMesh = this.pieceView.buildPieceGroup(defDesc);
+        const pFrom = squareToWorld(fromSq);
+        const pTo = squareToWorld(toSq);
+        atkMesh.position.set(pFrom.x, 0, pFrom.z);
+        defMesh.position.set(pTo.x, 0, pTo.z);
+
+        this.arenaGroup.add(atkMesh, defMesh);
+      }
+
+      if (this.ctx?.bus) {
+        const entry = BATTLE_MATRIX[atkType]?.[defType] || BATTLE_MATRIX.b.n;
+        this.ctx.bus.emit({
+          type: 'BATTLE_STARTED',
+          ...entry,
+          from: fromSq,
+          to: toSq,
+          square: toSq,
+          capturedSquare: toSq,
+          playerId: 'w',
+          victimColor: 'b',
+          tier: e.goldenCrit || e.tier === 'golden_crit' ? 'golden_crit' : 'normal',
+          source: 'wow_arena',
+          durationMs: 6000,
+        });
+      }
     }
   }
 

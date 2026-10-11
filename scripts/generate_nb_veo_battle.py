@@ -240,22 +240,146 @@ CUSTOM_PAIR_PROMPTS = {
             "while dozens of glowing purple and pink 3D hearts float around them! Pixar 3D animation style."
         ),
     },
-    "k_x_q": {
+    "n_x_p": {
         "nb_prompt": (
-            "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown and blue "
-            "ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Queen Kate in her blonde "
-            "wavy hair, dark-blue glasses, golden crown, and purple velvet gown holding a golden wand). Image 3 shows "
-            "their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an "
-            "enchanted chessboard at twilight. On the LEFT, King Riccardo raises his golden lightning sceptre while a "
-            "hilarious gleaming solid-gold royal toilet-throne ('Carlesso al Cesso') glows in a golden beam above the "
-            "board. On the RIGHT, Queen Kate smiles and raises a swirling shield of glossy milk chocolate and lilac "
-            "sparkles. Keep both characters 100% faithful to the reference photos. No text."
+            "Look at the reference images: Image 1 is the LEFT character (Knight Seby, a cute Pixar-style blonde boy "
+            "in gleaming golden plate armor and blue cape). Image 2 is the RIGHT character (Pawn Puffin, a cute puffin "
+            "bird in Swiss Guard armor holding a halberd). Image 3 shows their exact LEFT vs RIGHT placement. "
+            "Create a single cohesive 16:9 cinematic Pixar-style 3D battle frame on an enchanted chessboard at "
+            "twilight, inspired by Saint Seiya Aquarius Camus ('Sacro Acquarius'). "
+            "On the LEFT side, Knight Seby stands heroically raising and clasping both hands united high above his "
+            "head! Directly behind and above Seby hovers a luminous celestial Water-Bearer Woman (the Maiden of "
+            "Aquarius) tilting an enormous ornate Golden Amphora, from which pours a dazzling stream of glowing "
+            "cyan-blue absolute-zero ice energy and snowflakes! "
+            "On the RIGHT side, Pawn Puffin is trapped DEEP INSIDE and BEHIND the thick front wall of a massive, "
+            "towering hexagonal Ice Coffin ('Teca di Ghiaccio'): the entire Puffin is transformed into a translucent "
+            "icy cyan-blue ('azzurro traslucido') frozen figure viewed THROUGH the thick, glossy, refractive front "
+            "slab of ice (IMPORTANT: the translucent cyan-blue Puffin is BEHIND the front ice wall, deeply embedded "
+            "inside the ice block, NEVER standing in front of the ice!). Seamless 16:9 scene, no text."
         ),
         "veo_prompt": (
-            "Starting from this initial frame, King Riccardo on the left waves his golden sceptre summoning a funny "
-            "gleaming solid-gold royal toilet-throne that descends in a beam of golden light with crackling royal "
-            "sparks while Queen Kate on the right spins a glossy lilac-and-chocolate shield! The golden throne wave "
-            "gently whirls Queen Kate off the chessboard in a shower of golden sparkles and purple confetti."
+            "Starting from this initial battle frame, animate an epic Saint Seiya 'Sacro Acquarius' (Aurora Execution) "
+            "3D battle: on the left, Knight Seby holds his hands united high above his head while the celestial "
+            "Water-Bearer Woman behind him tilts her enormous Golden Amphora, pouring a blinding torrent of luminous "
+            "cyan-blue ice energy across the chessboard! On the right, the translucent icy cyan-blue Pawn Puffin is "
+            "seen deep behind the thick refractive front wall of the towering diamond-blue Ice Coffin ('Teca di "
+            "Ghiaccio'), and after a dramatic crystalline shimmer, the entire Ice Coffin and the frozen cyan Puffin "
+            "inside it crumble and shatter into thousands of sparkling diamond-ice crystals!"
+        ),
+    },
+    "k_x_p": {
+        "nb_prompt": (
+            "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, "
+            "and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Pawn Puffin in "
+            "colorful Swiss Guard armor holding a halberd and silver fish). Image 3 shows their LEFT vs RIGHT "
+            "placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard "
+            "at twilight. On the LEFT, King Riccardo ('Papino') casts the classic Dungeons & Dragons 'Fireball' spell: "
+            "a glowing golden 20-sided D&D die (d20 showing 20) floats beside his sceptre as he hurls a blazing "
+            "swirling sphere of orange-gold D&D Fireball magic toward the right! On the RIGHT, Pawn Puffin holds up "
+            "his halberd and silver fish in wide-eyed comic surprise. Keep both characters 100% faithful to the "
+            "reference photos. Seamless 16:9 scene, no text."
+        ),
+        "veo_prompt": (
+            "Starting from this initial frame, King Riccardo on the left rolls a glowing golden D&D d20 die and hurls "
+            "a massive blazing orange-red D&D Fireball spell from his golden sceptre across the chessboard! The "
+            "Fireball erupts in a spectacular, funny Pixar-style mushroom cloud of golden fire and sparks around Pawn "
+            "Puffin on the right, comically singing his feathers and sending him flying into the emerald swamp moat!"
+        ),
+    },
+    "k_x_n": {
+        "nb_prompt": (
+            "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, "
+            "and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Knight Seby, a "
+            "cute blonde boy in golden knight armor riding a golden warhorse). Image 3 shows their LEFT vs RIGHT "
+            "placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard "
+            "at twilight. On the LEFT, King Riccardo ('Papino') casts the Dungeons & Dragons 'Chain Lightning' spell: "
+            "multiple jagged, forking arcs of brilliant electric blue-and-gold Chain Lightning shoot from his raised "
+            "golden sceptre, bouncing from one bolt to another across the board! On the RIGHT, Knight Seby on his "
+            "rearing golden warhorse and his miniature race cars are surrounded by jumping electric arcs. Keep both "
+            "characters 100% faithful to the reference photos. Seamless 16:9 scene, no text."
+        ),
+        "veo_prompt": (
+            "Starting from this initial frame, King Riccardo on the left casts Dungeons & Dragons Chain Lightning from "
+            "his golden sceptre! Dazzling jagged bolts of blue-and-gold electricity arc and bounce in a chain from one "
+            "of Seby's miniature toy race cars to another and then zap Knight Seby and his golden warhorse on the "
+            "right with funny cartoon electric sparks, sending Seby spinning off the board into the emerald swamp!"
+        ),
+    },
+    "k_x_b": {
+        "nb_prompt": (
+            "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, "
+            "and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Bishop Ale, a cute "
+            "boy in blue-and-gold bishop mitre hat and robe with a red baby dragon on his shoulder). Image 3 shows "
+            "their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an "
+            "enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') raises his sceptre to the sky "
+            "casting the 9th-level Dungeons & Dragons spell 'Meteor Swarm': four giant blazing volcanic meteors with "
+            "fiery golden-red tails plummet diagonally down from a glowing D&D arcane circle in the twilight sky "
+            "toward the right side of the board! On the RIGHT, Bishop Ale and his red shoulder dragon look up at the "
+            "incoming meteors. Keep both characters 100% faithful to the reference photos. Seamless 16:9, no text."
+        ),
+        "veo_prompt": (
+            "Starting from this initial frame, King Riccardo on the left commands a 9th-level Dungeons & Dragons "
+            "Meteor Swarm with his golden sceptre! Four blazing volcanic meteors streak down from the sky with fiery "
+            "trails and impact around Bishop Ale and his red baby dragon on the right in a spectacular shower of "
+            "golden sparks and lava pebbles, launching Ale comically into the emerald swamp moat!"
+        ),
+    },
+    "k_x_r": {
+        "nb_prompt": (
+            "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, "
+            "and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Rook Pupurabbu, a "
+            "cute fluffy purple plush monster mascot in a purple stone rook tower). Image 3 shows their LEFT vs RIGHT "
+            "placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard "
+            "at twilight. On the LEFT, King Riccardo ('Papino') casts a comedic Dungeons & Dragons 'Summon Greater "
+            "Demon' spell: from a glowing golden-red arcane rune circle in the center of the board pops a hilarious, "
+            "chubby Pixar-style red baby Balor demon with tiny bat wings, a toy plastic pitchfork, and a slice of "
+            "Italian pizza, grinning mischievously at Rook Pupurabbu on the RIGHT! Keep King Riccardo and Pupurabbu "
+            "100% faithful to the reference photos. Seamless 16:9 scene, no text."
+        ),
+        "veo_prompt": (
+            "Starting from this initial frame, King Riccardo on the left points his sceptre as his summoned chubby, "
+            "funny Pixar-style red D&D demon holding a toy pitchfork and a slice of pizza hops across the chessboard "
+            "and does a hilarious bouncy belly-bump and tickle-wrestle with giant fluffy purple Rook Pupurabbu on the "
+            "right, bouncing Pupurabbu off the chessboard into the emerald swamp while the little demon munches its pizza!"
+        ),
+    },
+    "k_x_k": {
+        "nb_prompt": (
+            "Look at the reference images: Image 1 is the LEFT character (White Team King Riccardo in his golden "
+            "crown, glasses, and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character "
+            "(Rival Dark Obsidian Team King Riccardo). Image 3 shows their LEFT vs RIGHT placement. Create a single "
+            "cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, "
+            "King Riccardo ('Papino') points his golden sceptre forward firing the iconic Dungeons & Dragons 6th-level "
+            "'Disintegrate' spell: a razor-sharp, blindingly bright emerald-green laser ray of arcane energy (with "
+            "glowing green D&D dice sparks) striking the Rival Dark King on the RIGHT, whose dark obsidian armor is "
+            "beginning to dissolve into sparkling green arcane dust! Keep both characters 100% faithful to the "
+            "reference photos. Seamless 16:9 scene, no text."
+        ),
+        "veo_prompt": (
+            "Starting from this initial frame, King Riccardo on the left fires a continuous, dazzling emerald-green "
+            "Dungeons & Dragons Disintegrate ray from his golden sceptre straight at the Rival Dark King on the right! "
+            "The rival King comically dissolves from head to toe into a shimmering pile of glowing emerald-green "
+            "arcane dust with only his crown clinking on top of the dust pile, while White King Riccardo grins!"
+        ),
+    },
+    "k_x_q": {
+        "nb_prompt": (
+            "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, "
+            "and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Queen Kate in her "
+            "blonde wavy hair, dark-blue glasses, golden crown, and purple velvet gown holding a golden wand). Image 3 "
+            "shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame "
+            "on an enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') casts the Dungeons & "
+            "Dragons 'Flesh to Stone' (Petrification) spell combined with a hilarious gleaming solid-gold royal "
+            "toilet-throne ('Carlesso al Cesso'): an amber-gold petrifying basilisk rune beam shines from his sceptre "
+            "onto Queen Kate on the RIGHT, whose purple gown is turning into comical carved gray-and-gold marble stone "
+            "while the golden throne descends behind her! Keep both characters 100% faithful to the reference photos. "
+            "Seamless 16:9 scene, no text."
+        ),
+        "veo_prompt": (
+            "Starting from this initial frame, King Riccardo on the left waves his golden sceptre casting the Dungeons "
+            "& Dragons Flesh to Stone Petrification ray while summoning a funny gleaming solid-gold royal throne! "
+            "The amber-gold petrification beam turns Queen Kate on the right into a hilarious posed marble-and-gold "
+            "statue seated on the golden throne, which then whirls off the chessboard in a shower of golden sparkles!"
         ),
     },
     "q_x_k": {
@@ -467,10 +591,30 @@ def generate_veo_video(
     img_bytes = keyframe_png.read_bytes()
 
     last_err = None
-    for veo_model in VEO_MODELS:
+    candidate_runs = [(client, m) for m in VEO_MODELS]
+    vertex_project = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCP_PROJECT")
+    if not vertex_project:
         try:
-            print(f"  🎬 Stage 2 (Veo `{veo_model}`): animating `{keyframe_png.name}` -> `{pair_id}.mp4`...")
-            op = client.models.generate_videos(
+            vertex_project = subprocess.check_output(
+                ["gcloud", "config", "get-value", "project"],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+        except Exception:
+            vertex_project = None
+    if vertex_project:
+        try:
+            vclient = genai.Client(vertexai=True, project=vertex_project, location="us-central1")
+            for vm in ("veo-3.1-fast-generate-001", "veo-3.1-generate-001", "veo-3.0-fast-generate-001"):
+                candidate_runs.append((vclient, vm))
+        except Exception:
+            pass
+
+    for active_client, veo_model in candidate_runs:
+        try:
+            backend_tag = "VertexAI" if getattr(active_client, "vertexai", False) else "AIStudio"
+            print(f"  🎬 Stage 2 (Veo `{veo_model}` [{backend_tag}]): animating `{keyframe_png.name}` -> `{pair_id}.mp4`...")
+            op = active_client.models.generate_videos(
                 model=veo_model,
                 prompt=veo_prompt,
                 image=types.Image(image_bytes=img_bytes, mime_type="image/png"),
@@ -483,7 +627,7 @@ def generate_veo_video(
             while not op.done:
                 poll_count += 1
                 time.sleep(10)
-                op = client.operations.get(op)
+                op = active_client.operations.get(op)
                 print(f"    ⏳ Polling Veo for `{pair_id}` (attempt {poll_count})...")
                 if poll_count > 60:
                     raise TimeoutError(f"Veo polling timed out for {pair_id}")
@@ -499,7 +643,7 @@ def generate_veo_video(
             if getattr(video_obj, "video_bytes", None):
                 raw_mp4.write_bytes(video_obj.video_bytes)
             else:
-                client.files.download(file=video_obj)
+                active_client.files.download(file=video_obj)
                 video_obj.save(str(raw_mp4))
 
             transcode_mp4_and_webm(raw_mp4, final_mp4, final_webm)
@@ -513,7 +657,7 @@ def generate_veo_video(
         except Exception as e:
             last_err = e
             print(f"  ⚠️ Veo `{veo_model}` error for `{pair_id}`: {e}", file=sys.stderr)
-            time.sleep(3)
+            time.sleep(2)
 
     raise RuntimeError(f"Failed to generate Veo video for {pair_id}: {last_err}")
 

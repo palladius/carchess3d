@@ -1,7 +1,91 @@
 # Changelog
 
+## [0.3.15] - 2026-10-11
+
+- 🏺❄️🐧 **`n_x_p` Sacro Acquarius Refinement — Translucent Cyan-Blue Puffin Deep Behind the Ice Coffin (`VFXPoolView.js`, `assets/battles/keyframes/n_x_p.png`, `scripts/generate_nb_veo_battle.py`)**:
+  - Updated the `n_x_p` Nano Banana 2.1 keyframe (`assets/battles/keyframes/n_x_p.png`) and prompt so the Pawn Puffin is tinted translucent icy cyan-blue (*"azzurro traslucido"*) and encased **deep behind** the thick refractive front wall of the hexagonal Ice Coffin (`Teca di Ghiaccio`), with internal reflections and hanging icicles in front of him.
+  - Enhanced `createIceCoffinProp()` and `updateActiveChoreography()` in [`src/views/VFXPoolView.js`](src/views/VFXPoolView.js) to add a refractive front ice slab (`frontSlab`, `renderOrder = 19`, `depthWrite = false`), center the coffin directly over the defending Puffin (`def.position`), and tint the Puffin's 3D mesh translucent cyan-blue (`0x4dd0e1`, `emissive: 0x00bcd4`, `opacity: 0.68`) behind the ice wall before crumbling into diamond-ice crystals.
+
+## [0.3.14] - 2026-10-11
+
+- 🎬✨ **36/36 Complete 16:9 Battle Cinema Video Suite (`assets/battles/videos/`, `assets/battles/keyframes/`)**:
+  - Upgraded the remaining 6 battle pairs (`r_x_k`, `r_x_q`, `r_x_b`, `p_x_n`, `p_x_r`, `p_x_p`) from old split-screen placeholders to `1280×720` 16:9 animated battle movies rendered directly from their cohesive Nano Banana 2.1 16:9 keyframes (`~1.0 MB` `.mp4` + `.webm`, `4.8s` duration so `scripts/generate_nb_veo_battle.py` will automatically replace them with 8s Veo 3.1 clips once the 30/day AI Studio Veo quota resets).
+  - **All 36/36 (100%)** `Attacker × Defender` combinations now play cohesive 16:9 Nano Banana 2.1 / Veo 3.1 cinema scenes on the IMAX `VeoCinemaView` backdrop and in [`battles.html`](battles.html).
+
+## [0.3.13] - 2026-10-11
+
+- 🎬🍫💜🐟 **Stage 2 Veo 3.1 16:9 Battle Videos — Batch B (`q_x_*`, `r_x_*`, `p_x_*` — 30/36 Total) + Vertex AI Fallback (`assets/battles/videos/`, `scripts/generate_nb_veo_battle.py`)**:
+  - Generated and bundled 10 additional 8-second `1280×720` 16:9 Veo 3.1 animated videos (`.mp4` + `.webm`) from their Nano Banana 2.1 initial keyframes:
+    - **Queen Kate (`q_x_*` — 6/6 complete)**: `q_x_q` (`5.6 MB`), `q_x_b` (`4.7 MB`), `q_x_n` (`5.0 MB`), `q_x_r` (`4.2 MB`), `q_x_p` (`4.0 MB`) (plus `q_x_k` `5.8 MB`)
+    - **Rook Pupurabbu (`r_x_*`)**: `r_x_r` (`3.3 MB`), `r_x_p` (`3.5 MB`) (plus `r_x_n` `2.8 MB`)
+    - **Pawn Puffin (`p_x_*`)**: `p_x_k` (`3.3 MB`), `p_x_q` (`3.8 MB`), `p_x_b` (`2.9 MB`)
+  - Added automatic Vertex AI (`veo-3.1-fast-generate-001` / `veo-3.1-generate-001` / `veo-3.0-fast-generate-001`) fallback in [`scripts/generate_nb_veo_battle.py`](scripts/generate_nb_veo_battle.py) when AI Studio daily per-model quota (`429 RESOURCE_EXHAUSTED`) is reached.
+
+## [0.3.12] - 2026-10-11
+
+- 🎬🏺🎲 **Stage 2 Veo 3.1 16:9 Battle Videos — Batch A (`n_x_p` Sacro Acquarius + All 6 `k_x_*` D&D Spells) (`assets/battles/videos/`)**:
+  - Generated and bundled all 7 priority 8-second `1280×720` 16:9 Veo 3.1 animated videos (`.mp4` + `.webm`) from their Nano Banana 2.1 initial battle keyframes:
+    - `n_x_p.{mp4,webm}`: **Knight Seby — Saint Seiya *"Sacro Acquarius & Teca di Ghiaccio Eterno"* vs Pawn Puffin** (`4.8 MB`) 🏺❄️
+    - `k_x_p.{mp4,webm}`: **King Riccardo — D&D *"Fireball (`8d6` + Natural 20 `d20`)"* vs Pawn Puffin** (`3.7 MB`) 🔥🎲
+    - `k_x_n.{mp4,webm}`: **King Riccardo — D&D *"Chain Lightning"* vs Knight Seby** (`3.7 MB`) ⚡⛓️
+    - `k_x_b.{mp4,webm}`: **King Riccardo — D&D *"Meteor Swarm"* vs Bishop Ale** (`4.1 MB`) ☄️🌋
+    - `k_x_r.{mp4,webm}`: **King Riccardo — D&D *"Summon Greater Comic Daemon with Pizza"* vs Rook Pupurabbu** (`3.1 MB`) 😈🍕
+    - `k_x_k.{mp4,webm}`: **King Riccardo — D&D *"Disintegrate (`10d6+40`)"* vs Rival King Riccardo** (`3.2 MB`) 🟢✨
+    - `k_x_q.{mp4,webm}`: **King Riccardo — D&D *"Flesh to Stone Petrification & Golden Throne"* vs Queen Kate** (`3.1 MB`) 🗿🚽👑
+
+## [0.3.11] - 2026-10-11
+
+- 📺🌌 **IMAX 16:9 Battle Cinema World Transformation (`ZurichSwampView.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `docs/spec/SPEC.md`, `conductor/product.md`)**:
+  - **Combat Theater Isolation (`ZurichSwampView.setCombatCinemaMode(true)`)**: Whenever a capture combat begins (`BATTLE_STARTED` / `WOW_ARENA_CLASH`), the surrounding 3D world clutter (`Grossmünster`, `ZurichSkyline`, `SwissAlps`, `EmeraldSwampMoat`, `WizardBraziers`, `SwampFireflies`, `SkyDome`) hides automatically and the background dims to a cinema theater void (`0x05070e`), keeping **only the 8×8 Chessboard (`CarvedStoneAltar`) and the 3D Chess Pieces** in the foreground.
+  - **Near-Fullscreen 16:9 IMAX Veo Screen (`VeoCinemaView.js`)**: Expands `VeoCinemaView` into a giant IMAX backdrop directly behind the chessboard (`scale = 1.85×`) so the 16:9 Veo battle movie fills almost the entire viewport. Automatically restores the full Zurich Swamp world when combat finishes or is skipped.
+- 🏺❄️ **Knight Seby vs Pawn Puffin (`n_x_p`) — Saint Seiya *"Sacro Acquarius & Teca di Ghiaccio Eterno"* (`Registry.js`, `BattleMatrix36.js`, `VFXPoolView.js`, `AudioListener.js`, `scripts/generate_nb_veo_battle.py`)**:
+  - When Seby (`n`) captures a Pawn Puffin (`p`), he raises and clasps his hands high above his head like Aquarius Camus while a 3D celestial Water-Bearer Woman (`aquariusMaiden`) pours a freezing torrent from a giant Golden Amphora (`Anfora d'Oro`), encasing the Puffin inside an unbreakable diamond-blue Ice Coffin (`iceCoffin`, `sacro_acquarius_ice_coffin`) that crumbles into 64 pooled diamond-ice crystals (`diamond_ice_crystals`, `frozen_coffin_crumble`) with custom `synthSacroAcquariusIce()` WebAudio SFX.
+- 🎲🔥 **King Riccardo ("Papino" `k`) — 6 Distinct Dungeons & Dragons (D&D) Spells (`k_x_*`) (`Registry.js`, `BattleMatrix36.js`, `CombatAnimationManager.js`, `VFXPoolView.js`, `scripts/generate_nb_veo_battle.py`)**:
+  - Every King Riccardo (`k`) battle now casts a unique D&D spell in both the 3D on-board brawl and the 16:9 Nano Banana 2.1 + Veo 3.1 cinema pipeline:
+    - `k_x_p` (vs Pawn Puffin): **D&D Fireball (`fireball`, 8d6 + Natural 20 d20)** 🔥🎲
+    - `k_x_n` (vs Knight Seby): **D&D Chain Lightning (`chain_lightning`)** ⚡⛓️
+    - `k_x_b` (vs Bishop Ale): **D&D Meteor Swarm (`meteor_swarm`, 9th-level)** ☄️🌋
+    - `k_x_r` (vs Rook Pupurabbu): **D&D Summon Greater Comic Daemon (`summon_comic_daemon`, chubby red baby Balor with toy pitchfork & pizza slice)** 😈🍕
+    - `k_x_k` (vs Rival King Riccardo): **D&D Disintegrate (`disintegrate`, 10d6+40 emerald laser ray turning the rival King into green arcane dust)** 🟢✨
+    - `k_x_q` (vs Queen Kate): **D&D Flesh to Stone / Petrification + Golden Throne (`flesh_to_stone_petrification`)** 🗿🚽👑
+  - Backfilled into [`docs/spec/SPEC.md`](docs/spec/SPEC.md), [`conductor/product.md`](conductor/product.md), and [`conductor/tracks/idle_animations_and_voices_20261011/spec.md`](conductor/tracks/idle_animations_and_voices_20261011/spec.md), and covered by unit tests in [`tests/combat.test.mjs`](tests/combat.test.mjs).
+
+## [0.3.10] - 2026-10-11
+
+- 😁🦷🐴 **Asinello Chiacchierone (`Knight`, `1.35m`) — Sorrisone Assurdo a 40 Denti (`tools/model-pipeline/swamp/gen_asinello_40teeth.py`, `assets/characters/knight-swamp-asinello.jpg`, `assets/characters/knight-swamp-asinello-2.jpg`)**:
+  - Regenerated the Swamp Knight in two expressive comedy variants featuring a non-negotiable, ear-to-ear **40-tooth sparkling white grin**, raised cheeky eyebrow, crimson-and-gold tournament collar, and golden onion shoulder medallion, and updated the watertight 3D `.glb` mesh (`assets/models/swamp/knight-swamp-asinello.glb`, `18,288 tris`, `1.35m`).
+- 🍪🌿🫒 **Zenzy Pan di Zenzero & Focaccina all'Italiana Promoted to Official Swamp Pawn (`Pawn`, `0.95m`)**:
+  - Promoted Variant C (`assets/characters/pawn-swamp-zenzy.jpg` → `assets/characters/pawn-swamp-tappo.jpg`) to the primary Swamp Pawn across `SWAMP_REGISTRY`, `assets/families/swamp.json`, `showcase/index.html`, and `tools/model-pipeline/classic/gen_trellis2_batch.py`, and sculpted its 3D `.glb` (`assets/models/swamp/pawn-swamp-tappo.glb`, `17,068 tris`, `0.95m`) with white royal icing cuffs, purple gumdrop buttons, rosemary-focaccia morion helmet with Taggiasca olive crest, and candy-cane striped grissino halberd.
+- 🐉🏰 **Perpetual 3D Helical Dragon Coiling on `Draghessa della Palude` (`src/views/PieceView.js`, `showcase/index.html`, `tools/model-pipeline/swamp/build_swamp_models.py`)**:
+  - Upgraded `injectLocomotionShader` in `src/views/PieceView.js` and `makeView` in `showcase/index.html` (`uDragonCoilMode`) so the ruby-and-emerald Dragon on `rook-swamp-draghessa.glb` perpetually slithers, rotates, and constricts in a slow, inexorable 3D helical motion around the stationary mossy stone watchtower!
+- 🧊🖥️ **GitHub Issue #20 for `pupurabbux` Home GPU TRELLIS.2 Batch Reconstruction (`tools/model-pipeline/classic/gen_trellis2_batch.py`)**:
+  - Added PEP 723 inline `uv` script dependencies to `tools/model-pipeline/classic/gen_trellis2_batch.py` and filed [GHI #20](https://github.com/palladius/carchess3d/issues/20) so `pupurabbux` can reconstruct all 11 remaining high-res UV-textured Classic & Swamp `.glb` models in one command (`uv run tools/model-pipeline/classic/gen_trellis2_batch.py --family all`).
+
+## [0.3.9] - 2026-10-11
+
+- 🔍⚔️👑 **Merge `refactor_ui_cleanup_ux` (#19) — Auto-Zoom Close-Up Combat Camera, Zero Text Occlusion, Full-Screen 16:9 Video Backdrop, 3D King Capitulation & +50% Combat Duration (`VFXPoolView.js`, `VeoCinemaView.js`, `WowModeView.js`, `PieceView.js`, `HudListener.js`, `CombatAnimationManager.js`, `Registry.js`, `main.js`, `tests/combat.test.mjs`)**:
+  - **Auto-Zoom Close-Up Combat Camera (`VFXPoolView.js`, `WowModeView.js`, `main.js`)**: During any capture or `⚔️ Lancia Sfida (Ale vs Seby)`, the camera smoothly auto-zooms (`FOV 46° → 30°`, `dist = 1.82m..2.10m`, `camY = 1.28m..1.44m`) onto the live midpoint of the two `1.22×`-scaled fighting pieces. Static board pieces on the active clash squares (`from`/`to`) are temporarily hidden via `pieceView.pieceBySquare`, while neighboring chess pieces (`"i pezzi vicini e poco altro!"`) remain visible around the brawl.
+  - **Zero Text/UI Occlusion During Combat (`VFXPoolView.js`, `VeoCinemaView.js`, `HudListener.js`)**: Disabled the floating 3D `comicWordSprite` billboard (`CHARGE!` / `KAPOW!`) over the fighters' heads, lowered the dust cloud to pedestal level (`y = 0.16m`, `opacity = 0.35`), auto-hid the 310px `#hud-wow-panel` drawer during active combat, moved `#hud-comic-banner` to a compact top-right pill (`top: 52px; right: 14px`), and removed the bottom text box from the 16:9 cinema canvas.
+  - **16:9 Video Discreet in Idle, Full-Screen Backdrop Behind the Board in Combat (`VeoCinemaView.js`)**: In `idle`, the 16:9 screen parks discreetly in the background (`scale = 0.65`, `(0, 3.65, -10.8)`); during `battle` or `checkmate`, it expands behind the auto-zoomed fighters (`scale = 1.85`, `(0, 2.45, -5.2)`).
+  - **Spectacular 3D King Capitulation on Checkmate (`PieceView.js`, `VFXPoolView.js`, `BoardMapManager.js`, `HudListener.js`)**: `CHECKMATE` now triggers a 4.2s 3D Royal Capitulation sequence (`animateKingCapitulation` + `onCheckmate` golden throne & lightning VFX + celebratory jumps for surviving pieces) before displaying the Game Over modal.
+  - **In-App 6×6 Family Capture Matrix & +50% Slower Combats (`Registry.js`, `CombatAnimationManager.js`, `HudListener.js`)**: Extended `DEFAULT_BATTLE_DURATION_MS` by +50% (`4000ms → 6000ms`, `videoEl.playbackRate = 1.0`) and added family selector tabs (`👨‍👩‍👦‍👦 Famiglia Carlesso`, `🏛️ Classici Carlessiani`, `🐸 Famiglia della Palude`) with asset badges (`📹 Veo MP4`, `🎞️ 3D MP4`, `🦴 GLB`, `🌟 Egg`).
+
 ## [0.3.8] - 2026-10-11
 
+- 🎬🕵️‍♂️🤖 **Automated Daily UAT Playtest Suite & Adversarial Critic (`scripts/daily_uat_playtest.py`, `etc/prompts/daily_uat_prompt.md`, `just uat`, `just daily-uat`)**:
+  - **Autonomous Adversarial Playtest & Screen Audit**:
+    - Simulates an intelligent human tester playing as White against **CPU Easy** (Black) in headless Google Chrome via Playwright with WebGL hardware/software acceleration.
+    - **Faction Orientation Verification**: Audits all 32 pieces on the 8×8 board to ensure White pieces strictly face North (`homeYaw ≈ 3.142 rad` towards rank 8) and Black pieces face South (`homeYaw ≈ 0.0 rad` towards rank 1), flagging any "all facing same direction" glitch.
+    - **Black-Screen Audit**: Performs automatic luminance and contrast stddev pixel analysis on Camera 180° Inversion (`#hud-flip-btn`) and Top-Down view (`#hud-top-btn`) to guarantee the 3D scene remains vibrantly illuminated and never goes pitch-black.
+    - **Interactive Subsystem Clicking**: Adversarially exercises 3D Articulated Skeletons (`#hud-skeletons-btn`), Shrek Swamp Moat party (`#hud-swamp-btn`), 6×6 Battle Matrix Modal (`#hud-matrix36-btn`), and WOW Mode Turntable & Arena (`#hud-mode2-btn`).
+    - **Live Match Simulation**: Executes human opening moves (`e2-e4`, `g1-f3`, `d2-d4`), monitors Web Worker CPU Easy response latency (averaging ~460ms), triggers tactical captures, verifies the Comic Impact Banner (`#hud-comic-banner`), and exercises the cutscene skip button (`#hud-skip-btn`).
+  - **Video Recording & Media Deliverables**:
+    - Automatically records a full match session into `log/uat/uat_gameplay.mp4` and `uat_gameplay.webm` (strictly capped at `<= 60s` / 1 min duration) and renders an animated preview GIF `log/uat/uat_gameplay.gif`.
+    - Captures 13 timestamped keyframe screenshots into `log/uat/*.png` and generates `log/uat/UAT_REPORT.md` and `uat_report.json`.
+  - **GitHub Issue Integration (`gemini-uat`)**:
+    - With `--publish-ghi` (or `just daily-uat`), creates or comments on a daily GitHub Issue titled `"Gemini UAT $YYYYMMDD"` (e.g. [`#18`](https://github.com/palladius/carchess3d/issues/18)) tagged with label `gemini-uat`, embedding the full UAT verification matrix, playability critique, and video assets.
+  - **Customizable Prompt**:
+    - Added [`etc/prompts/daily_uat_prompt.md`](etc/prompts/daily_uat_prompt.md) as the central prompt template for scheduled runs, allowing Riccardo to easily edit testing sequences, thresholds, or difficulty levels.
 - 🐛🤖 **Fix CPU Opponent Disabled After Setup & Separate "Nuova Partita" (Reset) vs "Modifica Partita" (In-Place) (`src/listeners/HudListener.js`, `src/managers/AIWorkerManager.js`, `src/core/Registry.js`, `sw.js`, `tests/cpu-opponent.test.mjs`)**:
   - **Bug #1 Fix — Default Human vs CPU AI Now Moves Properly**:
     - Fixed `HudListener.applySetup()` emitting `OPPONENT_CHANGED` without `enabled`, which caused `AIWorkerManager`'s `OPPONENT_CHANGED` handler to set `this.enabled = Boolean(undefined) = false` and turn the match into Human vs Human.
@@ -33,7 +117,6 @@
     - Interactive command prompt supporting `help`, `setup`, `topbar`, `fen`, `pgn`, `hint`, `reset`, `matrix`, `swamp`, `skeletons`, `clear`, and `close`.
   - **Multi-Side AI Worker Architecture (`AIWorkerManager.js`, `BoardInteractionView.js`)**:
     - Upgraded `AIWorkerManager` to support `cpuColor = 'b' | 'w' | 'both' | 'none'` with independent white/black difficulty levels, enabling AI vs AI demo matches and White CPU play. Gated mouse raycasting in `BoardInteractionView` so human clicks are safely ignored during CPU turns. Tested via `tests/cpu-opponent.test.mjs`.
-
 ## [0.3.6] - 2026-10-11
 
 - 🐱🎭⛪ **Swamp Family Lineup Upgrade: Don Gatto Zorro-Vescovo (`Bishop`, `1.45m`) & Uomo Focaccina Ligure (`Pawn`, `0.95m`)**:
@@ -72,7 +155,6 @@
     - **🐙 GitHub Code**: Direct clickable link to the repository source code (`https://github.com/palladius/carchess3d`).
     - **🐛 Open a Bug**: Direct clickable link to open a new GitHub Issue (`https://github.com/palladius/carchess3d/issues/new`).
   - Added unit test in [`tests/core.test.mjs`](tests/core.test.mjs) verifying `APP_VERSION`, `GITHUB_REPO_URL`, and `GITHUB_NEW_ISSUE_URL` match `VERSION` and repo endpoints.
->>>>>>> origin/main
 
 ## [0.3.3] - 2026-10-10
 

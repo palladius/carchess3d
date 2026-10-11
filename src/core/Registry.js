@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.8';
+export const APP_VERSION = '0.3.15';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -319,6 +319,109 @@ const BASE_SIGNATURES = Object.freeze({
   },
 });
 
+export const WOW_VIDEO_PLAYLIST = Object.freeze([
+  {
+    id: 'b_x_n',
+    attacker: 'b',
+    defender: 'n',
+    url: 'assets/battles/videos/b_x_n.mp4',
+    webmUrl: 'assets/battles/videos/b_x_n.webm',
+    caption: { it: '🐉 Ale × Seby 🐴', en: '🐉 Ale × Seby 🐴' },
+  },
+  {
+    id: 'n_x_b',
+    attacker: 'n',
+    defender: 'b',
+    url: 'assets/battles/videos/n_x_b.mp4',
+    webmUrl: 'assets/battles/videos/n_x_b.webm',
+    caption: { it: '🏎️ Seby × Ale 💎', en: '🏎️ Seby × Ale 💎' },
+  },
+  {
+    id: 'n_x_r',
+    attacker: 'n',
+    defender: 'r',
+    url: 'assets/battles/videos/n_x_r.mp4',
+    webmUrl: 'assets/battles/videos/n_x_r.webm',
+    caption: { it: '💜 Seby & Pupurabbu 🤗', en: '💜 Seby & Pupurabbu 🤗' },
+  },
+]);
+
+export const DEDICATED_VIDEO_PAIRS = Object.freeze(new Set(['b_x_n', 'n_x_b', 'n_x_r', 'r_x_n']));
+
+export const ANIM_3D_DESCRIPTIONS = Object.freeze({
+  sceptre_lightning: {
+    it: '⚡ Scettro Fulmine + Cerchio Runico + 28 Scintille d’Oro',
+    en: '⚡ Sceptre Lightning + Rune Circle + 28 Golden Sparks',
+  },
+  golden_toilet_throne: {
+    it: '🚽👑 Trono d’Oro Reale dal Cielo + Fulmini + Vortice',
+    en: '🚽👑 Descending Golden Throne + Lightning + Whirl',
+  },
+  chocolate_wave: {
+    it: '🍫✨ Onda Ciocco-Lilla Lucida + 40 Coriandoli + Fusione Dolce',
+    en: '🍫✨ Glossy Choco-Wave + 40 Confetti + Sweet Melt',
+  },
+  crystal_shatter: {
+    it: '🐉💎 Clip GLB FireBreath_Track + Teca Ametista + 52 Gemme',
+    en: '🐉💎 GLB FireBreath_Track + Amethyst Case + 52 Gem Shards',
+  },
+  loop_track_cars: {
+    it: '🏎️✨ Pista Loop Arancione + 8 Macchinine + Stelle Giramento',
+    en: '🏎️✨ Orange Loop-Track + 8 Toy Cars + Dizzy Stars',
+  },
+  plush_ground_pound: {
+    it: '💥💜 Salto 2.6m + Schiacciata Pancake + 32 Nuvole Puffose',
+    en: '💥💜 2.6m Leap + Pancake Squash + 32 Plush Poof Clouds',
+  },
+  halberd_fish_slap: {
+    it: '🐟⚔️ Schiaffo Pesce Azzurro 3D + Volo Fuori Scacchiera',
+    en: '🐟⚔️ 3D Silver-Blue Fish Slap + Off-Board Spin Arc',
+  },
+  mega_cuddle_bounce: {
+    it: '💜🤗 Rimbalzo Abbraccio Sincronizzato + 36 Cuori 3D Fluttuanti',
+    en: '💜🤗 Synchronized Cuddle Hop + 36 Floating 3D Hearts',
+  },
+});
+
+export const FAMILY_ROSTERS = Object.freeze({
+  carlesso: {
+    id: 'carlesso',
+    label: { it: '👨‍👩‍👦‍👦 Famiglia Carlesso', en: '👨‍👩‍👦‍👦 Carlesso Family' },
+    pieces: {
+      k: { name: 'Riccardo', glyph: '♔', badge: '👑', attackLabel: 'Scettro Fulmine / Trono d’Oro 🚽⚡' },
+      q: { name: 'Kate', glyph: '♕', badge: '💜', attackLabel: 'Ciocco-Onda Lilla 🍫✨' },
+      b: { name: 'Ale', glyph: '♗', badge: '🐉', attackLabel: 'Soffio Drago & Cristallo 💎🐉' },
+      n: { name: 'Seby', glyph: '♘', badge: '🏎️', attackLabel: 'Pista Loop & 8 Macchinine 🏎️🔥' },
+      r: { name: 'Pupurabbu', glyph: '♖', badge: '🤗', attackLabel: 'Schiacciata Puffosa / Abbraccio 💜' },
+      p: { name: 'Puffin', glyph: '♙', badge: '🐟', attackLabel: 'Alabarda & Pesce Slap 🐟⚔️' },
+    },
+  },
+  classic: {
+    id: 'classic',
+    label: { it: '🏛️ Classici Carlessiani', en: '🏛️ Classic Set' },
+    pieces: {
+      k: { name: 'Re Classico', glyph: '♔', badge: '🏛️', attackLabel: 'Decreto Croce Reale & Scintille ♔⚡' },
+      q: { name: 'Regina Classica', glyph: '♕', badge: '✨', attackLabel: 'Onda Corona Imperiale ♕✨' },
+      b: { name: 'San Gennaro', glyph: '♗', badge: '🩸', attackLabel: 'Raggio Ampolla Sacra & Gemme ♗🩸' },
+      n: { name: 'Destriero Classico', glyph: '♘', badge: '🐎', attackLabel: 'Carica Cavalleria & Stelle 💥🐎' },
+      r: { name: 'Torre Matildea', glyph: '♖', badge: '🏰', attackLabel: 'Schianto Rocca Estense 🏰💥' },
+      p: { name: 'Pedone Classico', glyph: '♙', badge: '🛡️', attackLabel: 'Colpo Marcia Staunton 🛡️⚔️' },
+    },
+  },
+  swamp: {
+    id: 'swamp',
+    label: { it: '🐸 Famiglia della Palude', en: '🐸 Swamp Family' },
+    pieces: {
+      k: { name: 'Orco Brontolo', glyph: '♔', badge: '🐸', attackLabel: 'Rutto Cipolla di Palude 🐸🧅' },
+      q: { name: 'Principessa Orchessa', glyph: '♕', badge: '🥋', attackLabel: 'Calcio Kung-Fu Slow-Mo 👑🥋' },
+      b: { name: 'Don Gatto Zorro-Vescovo', glyph: '♗', badge: '🐱', attackLabel: 'Stoccata Zorro-Vescovo 🐱⚔️' },
+      n: { name: 'Asinello 40 Denti', glyph: '♘', badge: '🫏', attackLabel: 'Calcio Doppio d’Asinello 🫏✨' },
+      r: { name: 'Draghessa', glyph: '♖', badge: '🐉', attackLabel: 'Fumo Cuore di Draghessa 🐉🏰' },
+      p: { name: 'Zenzy Pan di Zenzero', glyph: '♙', badge: '🍪', attackLabel: 'Alabarda Pan di Zenzero & Focaccina 🍪⚔️' },
+    },
+  },
+});
+
 /**
  * Build the complete 6x6 declarative `BATTLE_MATRIX[attacker][defender]` with
  * family Easter Eggs baked directly into the table (zero runtime if/else ladders!).
@@ -333,8 +436,12 @@ function buildBattleMatrix() {
     for (const def of keys) {
       const defChar = CHARACTER_REGISTRY[def];
       const pairId = `${atkChar.role}_vs_${defChar.role}`;
+      const videoPairKey = `${atk}_x_${def}`;
+      const hasDedicatedVideo = DEDICATED_VIDEO_PAIRS.has(videoPairKey);
+      const hasSkeletalGlbClip = atk === 'b';
       matrix[atk][def] = {
         id: pairId,
+        videoPairKey,
         attacker: atk,
         defender: def,
         attackerName: atkChar.name,
@@ -345,7 +452,13 @@ function buildBattleMatrix() {
         banner: baseSig.banner,
         easterEgg: null,
         nonLethalCuddle: false,
+        hasDedicatedVideo,
+        videoSourceType: hasDedicatedVideo ? 'veo_mp4' : 'rendered_3d_mp4',
+        hasSkeletalGlbClip,
+        skeletalClipName: hasSkeletalGlbClip ? 'FireBreath_Track' : null,
+        anim3dDesc: ANIM_3D_DESCRIPTIONS[baseSig.effect],
         videoUrl: `assets/battles/videos/${atk}_x_${def}.mp4`,
+        webmUrl: `assets/battles/videos/${atk}_x_${def}.webm`,
         compositeUrl: `assets/battles/keyframes/${pairId}.svg`,
         attackerImg: atkChar.frontPortrait,
         defenderImg: defChar.frontPortrait,
@@ -357,12 +470,14 @@ function buildBattleMatrix() {
   for (const [a, d] of [['n', 'r'], ['r', 'n']]) {
     matrix[a][d] = {
       ...matrix[a][d],
-      videoUrl: 'assets/battles/videos/n_x_r.mp4',
+      videoUrl: `assets/battles/videos/${a}_x_${d}.mp4`,
+      webmUrl: `assets/battles/videos/${a}_x_${d}.webm`,
       effect: 'mega_cuddle_bounce',
       debrisType: 'floating_purple_hearts',
       victimReaction: 'happy_cuddle_hop',
       easterEgg: 'seby_pupurabbu_cuddle',
       nonLethalCuddle: true,
+      anim3dDesc: ANIM_3D_DESCRIPTIONS.mega_cuddle_bounce,
       banner: {
         it: 'SUPER ABBRACCIO PUFFOSO! 💜🤗',
         en: 'MEGA FLUFFY CUDDLE HUG! 💜🤗',
@@ -378,6 +493,7 @@ function buildBattleMatrix() {
       debrisType: 'golden_sparks',
       victimReaction: 'royal_throne_whirl',
       easterEgg: 'carlesso_al_cesso_throne',
+      anim3dDesc: ANIM_3D_DESCRIPTIONS.golden_toilet_throne,
       banner: {
         it: 'CARLESSO AL CESSO! TRONO D’ORO! 🚽👑',
         en: 'ROYAL GOLDEN THRONE STRIKE! 🚽👑',
@@ -403,10 +519,102 @@ function buildBattleMatrix() {
     },
   };
 
+  // Easter Egg #4: Seby (n) -> Pawn Puffin (p): "Sacro Acquarius & Teca di Ghiaccio Eterno" ♒❄️💎
+  matrix.n.p = {
+    ...matrix.n.p,
+    effect: 'sacro_acquarius_ice_coffin',
+    debrisType: 'diamond_ice_crystals',
+    victimReaction: 'frozen_coffin_crumble',
+    easterEgg: 'seby_sacro_acquarius',
+    banner: {
+      it: 'SACRO ACQUARIUS! SEBY CONGELA PUFFIN NELLA TECA DI GHIACCIO! ♒❄️💎',
+      en: 'SACRED AQUARIUS! SEBY FREEZES PUFFIN IN THE ICE COFFIN! ♒❄️💎',
+    },
+  };
+
+  // Easter Egg #5: King Riccardo ("Papino" `k`) casts a DIFFERENT D&D Spell for each of his 6 targets! 🎲🧙‍♂️
+  const PAPINO_DND_SPELLS = {
+    k: {
+      dndSpell: 'disintegrate',
+      banner: {
+        it: 'D&D DISINTEGRATE (10d6+40)! RAGGIO VERDE POLVERIZZA IL RE RIVALE! 🟢✨🎲',
+        en: 'D&D DISINTEGRATE (10d6+40)! EMERALD RAY VAPORIZES THE RIVAL KING! 🟢✨🎲',
+      },
+    },
+    q: {
+      dndSpell: 'flesh_to_stone_petrification',
+      banner: {
+        it: 'CARLESSO AL CESSO & D&D PIETRIFICAZIONE! STATUA SUL TRONO D’ORO! 🗿🚽👑',
+        en: 'CARLESSO AL CESSO & D&D PETRIFICATION! STATUE ON THE GOLDEN THRONE! 🗿🚽👑',
+      },
+    },
+    b: {
+      dndSpell: 'meteor_swarm',
+      banner: {
+        it: 'D&D METEOR SWARM (9° LIV)! PIOGGIA DI METEORE SU ALE & DRAGO! ☄️🌋🎲',
+        en: 'D&D METEOR SWARM (LVL 9)! BLAZING METEORS RAIN ON ALE & DRAGON! ☄️🌋🎲',
+      },
+    },
+    n: {
+      dndSpell: 'chain_lightning',
+      banner: {
+        it: 'D&D CHAIN LIGHTNING! CATENA DI FULMINI REALE SU SEBY TURBO! ⚡⛓️🎲',
+        en: 'D&D CHAIN LIGHTNING! ARCING ROYAL BOLTS STRIKE TURBO SEBY! ⚡⛓️🎲',
+      },
+    },
+    r: {
+      dndSpell: 'summon_comic_daemon',
+      banner: {
+        it: 'D&D SUMMON DAEMON! DEMONE BUFFO CON PIZZA CONTRO PUPURABBU! 😈🍕🎲',
+        en: 'D&D SUMMON COMIC DAEMON! CHUBBY PIZZA DEMON VS PUPURABBU! 😈🍕🎲',
+      },
+    },
+    p: {
+      dndSpell: 'fireball',
+      banner: {
+        it: 'D&D FIREBALL (8d6)! PAPINO LANCIA PALLA DI FUOCO SUL PUFFIN! 🔥🎲',
+        en: 'D&D FIREBALL (8d6)! PAPINO HURLS A BLAZING FIREBALL AT PUFFIN! 🔥🎲',
+      },
+    },
+  };
+  for (const [defKey, dndSpec] of Object.entries(PAPINO_DND_SPELLS)) {
+    matrix.k[defKey] = {
+      ...matrix.k[defKey],
+      dndSpell: dndSpec.dndSpell,
+      banner: dndSpec.banner,
+    };
+  }
+
   return Object.freeze(matrix);
 }
 
 export const BATTLE_MATRIX = buildBattleMatrix();
+
+/**
+ * Resolves a full matchup summary for `(familyId, attacker, defender)` so the UI can
+ * inspect all 36 combinations per family (`carlesso`, `classic`, `swamp`).
+ */
+export function resolveFamilyMatchup(familyId = 'carlesso', attacker = 'n', defender = 'b') {
+  const fam = FAMILY_ROSTERS[familyId] || FAMILY_ROSTERS.carlesso;
+  const reg = FAMILY_REGISTRIES[fam.id] || CHARACTER_REGISTRY;
+  const atkKey = String(attacker || 'p').toLowerCase();
+  const defKey = String(defender || 'p').toLowerCase();
+  const base = BATTLE_MATRIX[atkKey]?.[defKey] || BATTLE_MATRIX.p.p;
+  const atkPiece = fam.pieces[atkKey] || fam.pieces.p;
+  const defPiece = fam.pieces[defKey] || fam.pieces.p;
+  const atkReg = reg[atkKey] || CHARACTER_REGISTRY[atkKey];
+  const defReg = reg[defKey] || CHARACTER_REGISTRY[defKey];
+  return {
+    ...base,
+    familyId: fam.id,
+    familyLabel: fam.label,
+    attackerDisplayName: `${atkPiece.badge} ${atkPiece.name}`,
+    defenderDisplayName: `${defPiece.badge} ${defPiece.name}`,
+    attackSignatureLabel: atkPiece.attackLabel,
+    attackerImg: atkReg?.frontPortrait || base.attackerImg,
+    defenderImg: defReg?.frontPortrait || base.defenderImg,
+  };
+}
 
 export const FAMILY_STICKERS = Object.freeze([
   { id: 'sticker_riccardo_throne', name: { it: 'Trono d’Oro di Re Riccardo 🚽👑', en: 'King Riccardo Golden Throne 🚽👑' } },
@@ -461,11 +669,11 @@ export const SWAMP_REGISTRY = Object.freeze({
   },
   n: {
     ...CHARACTER_REGISTRY.n,
-    name: 'Asinello',
-    title: { it: 'Asinello Chiacchierone 🫏✨', en: 'Chatterbox Donkey 🫏✨' },
+    name: 'Asinello 40 Denti',
+    title: { it: 'Asinello Chiacchierone (Sorrisone a 40 Denti!) 🫏😁✨', en: 'Chatterbox Burro (40-Tooth Grin!) 🫏😁✨' },
     frontPortrait: 'assets/characters/knight-swamp-asinello.jpg',
-    altPortrait: 'assets/characters/knight-swamp-asinello.jpg',
-    backPortrait: 'assets/characters/knight-swamp-asinello.jpg',
+    altPortrait: 'assets/characters/knight-swamp-asinello-2.jpg',
+    backPortrait: 'assets/characters/knight-swamp-asinello-2.jpg',
     glbUrl: 'assets/models/swamp/knight-swamp-asinello.glb',
     optionalGlbCandidates: ['assets/models/swamp/knight-swamp-asinello.glb'],
     accentColor: 0x8d6e63,
@@ -473,7 +681,7 @@ export const SWAMP_REGISTRY = Object.freeze({
   r: {
     ...CHARACTER_REGISTRY.r,
     name: 'Draghessa',
-    title: { it: 'Torre Draghessa della Palude 🐉🏰', en: 'Swamp Dragoness Rook 🐉🏰' },
+    title: { it: 'Torre Draghessa della Palude (Spire Inesorabili!) 🐉🏰', en: 'Swamp Dragoness Rook (Inexorable Coils!) 🐉🏰' },
     frontPortrait: 'assets/characters/rook-swamp-draghessa.jpg',
     altPortrait: 'assets/characters/rook-swamp-draghessa.jpg',
     backPortrait: 'assets/characters/rook-swamp-draghessa.jpg',
@@ -483,10 +691,10 @@ export const SWAMP_REGISTRY = Object.freeze({
   },
   p: {
     ...CHARACTER_REGISTRY.p,
-    name: 'Uomo Focaccina',
-    title: { it: 'Pedone Uomo Focaccina Ligure 🫒🥖', en: 'Ligurian Focaccina Warrior Pawn 🫒🥖' },
-    frontPortrait: 'assets/characters/pawn-swamp-focaccina.jpg',
-    altPortrait: 'assets/characters/pawn-swamp-zenzy.jpg',
+    name: 'Zenzy Pan di Zenzero',
+    title: { it: 'Pedone Zenzy Pan di Zenzero & Focaccina 🍪🫒⚔️', en: 'Zenzy Italian Gingerbread & Focaccina Guard 🍪🫒⚔️' },
+    frontPortrait: 'assets/characters/pawn-swamp-zenzy.jpg',
+    altPortrait: 'assets/characters/pawn-swamp-focaccina.jpg',
     backPortrait: 'assets/characters/pawn-swamp-porcellini.jpg',
     glbUrl: 'assets/models/swamp/pawn-swamp-tappo.glb',
     optionalGlbCandidates: ['assets/models/swamp/pawn-swamp-tappo.glb'],
@@ -664,6 +872,7 @@ export const I18N = Object.freeze({
     skipBtn: '⏭️ Skip Cutscene (Space)',
     checkAlert: '⚠️ KING IN CHECK!',
     checkmateTitle: '🏆 CHECKMATE!',
+    checkmateBanner: '👑 ROYAL CAPITULATION! CHECKMATE! 💥',
     drawTitle: '🤝 DRAW!',
     promoTitle: '✨ Magical Puffin Promotion! Choose Your Hero:',
     wowInspectorTab: '🔍 360° 3D Character Inspector',

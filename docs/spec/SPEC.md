@@ -258,10 +258,24 @@ is the "victim" and is removed at the end.
   - **Riccardo (`k`)**: *"Avanti tutta! Re Carlesso al comando!"* (`it-IT`)
   - **Pupurabbu (`r`)**: *"Boing boing! Super abbraccio Pupurabbu!"* (`it-IT`)
 
-## 2-Stage 36-Combination Battle Cinema Pipeline (`Nano Banana 2.1 → Veo 3.1`)
+## 2-Stage 36-Combination Battle Cinema Pipeline & IMAX World Transformation (`Nano Banana 2.1 → Veo 3.1`)
 
 - **Stage 1 (Nano Banana 2.1 16:9 Initial Keyframe)**: For each of the 36 `Attacker × Defender` combinations, `scripts/generate_nb_veo_battle.py` feeds **Photo 1 (Attacker on the LEFT)** + **Photo 2 (Defender on the RIGHT)** + a side-by-side 16:9 layout guide (`assets/battles/refs/<id>_ref.png`) into `gemini-3.1-flash-image-preview` to generate the 16:9 initial battle keyframe (`assets/battles/keyframes/<id>.png`).
 - **Stage 2 (Veo 3.1 16:9 Battle Video)**: Passes the Stage 1 keyframe as `image=` into `veo-3.1-generate-preview` with the pair's specific choreography prompt (`assets/battles/prompts_36.json`) to generate an 8-second 16:9 `.mp4` and `.webm` video (`assets/battles/videos/<id>.{mp4,webm}`), synchronized with the in-place 3D board brawl (`PieceView` + `VFXPoolView` + `VeoCinemaView`).
+- **IMAX 16:9 Battle Cinema World Transformation (`ZurichSwampView.setCombatCinemaMode` + `VeoCinemaView`)**:
+  - Whenever a capture combat begins (`BATTLE_STARTED` / `WOW_ARENA_CLASH`), the surrounding 3D world (Grossmünster towers, Zurich skyline, Swiss Alps, emerald swamp moat, corner braziers, fireflies, and sky dome) hides automatically and the scene transitions to a dark theater void (`0x05070e`).
+  - Only the **8×8 Chessboard (`CarvedStoneAltar`)** and the **3D Chess Pieces** (plus the two brawling 3D characters in `VFXPoolView`) remain in the foreground, while the **16:9 Veo Cinema Screen (`VeoCinemaView`)** moves forward to `(0, 2.75, -4.65)` and expands to near-fullscreen IMAX scale (`1.55×`, `12.4m × 7.0m`) right behind the chessboard so the Veo battle video dominates the viewport without background clutter. When the battle finishes or is skipped (`BATTLE_COMPLETED` / `BATTLE_SKIPPED`), the full Zurich Swamp world smoothly restores.
+- **Bespoke Signature Choreography Highlights**:
+  - **King Riccardo ("Papino" `k`) — 6 Distinct Dungeons & Dragons (D&D) Spells (`k_x_*`)**:
+    - `k_x_p` (vs Pawn Puffin): **D&D Fireball (`fireball`, 8d6 + Natural 20 d20)** 🔥🎲
+    - `k_x_n` (vs Knight Seby): **D&D Chain Lightning (`chain_lightning`)** ⚡⛓️
+    - `k_x_b` (vs Bishop Ale): **D&D Meteor Swarm (`meteor_swarm`, 9th-level)** ☄️🌋
+    - `k_x_r` (vs Rook Pupurabbu): **D&D Summon Greater Comic Daemon (`summon_comic_daemon`, chubby red baby Balor with toy pitchfork & pizza slice)** 😈🍕
+    - `k_x_k` (vs Rival King Riccardo): **D&D Disintegrate (`disintegrate`, 10d6+40 emerald laser ray turning the rival King into green arcane dust)** 🟢✨
+    - `k_x_q` (vs Queen Kate): **D&D Flesh to Stone / Petrification + Golden Throne (`flesh_to_stone_petrification`)** 🗿🚽👑
+  - **Knight Seby vs Pawn Puffin (`n_x_p`) — Saint Seiya "Sacro Acquarius & Teca di Ghiaccio Eterno"**:
+    - Seby (`n`) raises and clasps his hands high above his head like Aquarius Camus while a celestial Water-Bearer Woman (`Fanciulla dell'Acquario`) pours a freezing torrent from a giant Golden Amphora (`Anfora d'Oro`), encasing the Puffin inside an unbreakable diamond-blue Ice Coffin (`Teca di Ghiaccio`, `sacro_acquarius_ice_coffin`) that crumbles into sparkling diamond-ice crystals (`diamond_ice_crystals`, `frozen_coffin_crumble`).
+  - **Knight Seby ↔ Rook Pupurabbu (`n_x_r`, `r_x_n`) — Best-Friends Cuddle (`mega_cuddle_bounce`)**: Non-lethal joyful cuddle storm with 3D purple hearts.
 
 ## Open Questions
 

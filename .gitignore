@@ -11,3 +11,7 @@ private/
 
 # Local-only Riccardo policy markers (autopush-enabled). Never commit.
 .riccardo/
+
+# Runtime logs, test videos, and UAT captures
+log/
+

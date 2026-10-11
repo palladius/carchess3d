@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GameEventBus } from '../src/core/EventBus.js';
-import { BATTLE_MATRIX, CHARACTER_REGISTRY } from '../src/core/Registry.js';
+import { BATTLE_MATRIX, CHARACTER_REGISTRY, resolveFamilyMatchup } from '../src/core/Registry.js';
 import { CombatAnimationManager, DEFAULT_BATTLE_DURATION_MS } from '../src/managers/CombatAnimationManager.js';
 import { GameFlowManager, FLOW_STATES } from '../src/managers/GameFlowManager.js';
+import { BoardMapManager } from '../src/managers/BoardMapManager.js';
 
 const PIECE_KEYS = ['k', 'q', 'b', 'n', 'r', 'p'];
 
@@ -90,9 +91,35 @@ test('CombatAnimationManager: Easter Egg overrides (Seby <-> Pupurabbu cuddle & 
   combat.onDropSpawned({ attacker: 'b', defender: 'n', square: 'f3' });
   bus.flush();
   assert.equal(events[events.length - 1].easterEgg, 'brothers_dragon_vs_turbo');
+
+  // 4. Knight Seby (n) vs Pawn Puffin (p): Saint Seiya Sacro Acquarius & Teca di Ghiaccio Eterno!
+  combat.onDropSpawned({ attacker: 'n', defender: 'p', square: 'e5' });
+  bus.flush();
+  const acqEv = events[events.length - 1];
+  assert.equal(acqEv.effect, 'sacro_acquarius_ice_coffin');
+  assert.equal(acqEv.debrisType, 'diamond_ice_crystals');
+  assert.equal(acqEv.victimReaction, 'frozen_coffin_crumble');
+  assert.equal(acqEv.easterEgg, 'seby_sacro_acquarius');
+  assert.match(acqEv.banner.it, /SACRO ACQUARIUS/);
+
+  // 5. King Riccardo ("Papino" k) casts a different D&D spell for each of his 6 targets!
+  const expectedDndSpells = {
+    k: 'disintegrate',
+    q: 'flesh_to_stone_petrification',
+    b: 'meteor_swarm',
+    n: 'chain_lightning',
+    r: 'summon_comic_daemon',
+    p: 'fireball',
+  };
+  for (const [def, expectedSpell] of Object.entries(expectedDndSpells)) {
+    combat.onDropSpawned({ attacker: 'k', defender: def, square: 'd5' });
+    bus.flush();
+    const dndEv = events[events.length - 1];
+    assert.equal(dndEv.dndSpell, expectedSpell, `k vs ${def} must cast D&D spell ${expectedSpell}`);
+  }
 });
 
-test('CombatAnimationManager: update(dt) completes cutscene after 4000ms and skip() aborts immediately', () => {
+test('CombatAnimationManager: update(dt) completes cutscene after 6000ms (+50% slower) and skip() aborts immediately', () => {
   const bus = new GameEventBus();
   const flow = new GameFlowManager();
   const combat = new CombatAnimationManager();
@@ -105,6 +132,8 @@ test('CombatAnimationManager: update(dt) completes cutscene after 4000ms and ski
   let skipped = null;
   bus.on('BATTLE_COMPLETED', (e) => { completed = e; });
   bus.on('BATTLE_SKIPPED', (e) => { skipped = e; });
+
+  assert.equal(DEFAULT_BATTLE_DURATION_MS, 6000);
 
   // Trigger a clash via WOW_ARENA_CLASH
   bus.emit({
@@ -120,15 +149,15 @@ test('CombatAnimationManager: update(dt) completes cutscene after 4000ms and ski
   assert.equal(combat.isActive(), true);
   assert.equal(flow.state(), FLOW_STATES.CAPTURE_CUTSCENE);
 
-  // Advance 2.0 seconds (halfway)
-  combat.update(2.0);
+  // Advance 3.0 seconds (halfway)
+  combat.update(3.0);
   bus.flush();
   assert.equal(combat.isActive(), true);
   assert.equal(completed, null);
   assert.ok(Math.abs(combat.getProgress() - 0.5) < 0.01);
 
-  // Advance another 2.1 seconds (total 4.1s >= 4.0s)
-  combat.update(2.1);
+  // Advance another 3.1 seconds (total 6.1s >= 6.0s)
+  combat.update(3.1);
   bus.flush(); // delivers BATTLE_COMPLETED
   bus.flush(); // delivers FLOW_STATE_CHANGED
 
@@ -163,3 +192,135 @@ test('CombatAnimationManager: update(dt) completes cutscene after 4000ms and ski
   assert.equal(flow.state(), FLOW_STATES.MODE1_CHESS);
   assert.equal(combat.skip(), false, 'Calling skip() when idle returns false');
 });
+
+test('6x6 Family Matrix Explorer & Royal Capitulation CHECKMATE squares', () => {
+  // 1. Verify all 3 families x 36 combinations = 108 matchups resolve with asset inventory metadata
+  let dedicatedCount = 0;
+  for (const fam of ['carlesso', 'classic', 'swamp']) {
+    for (const atk of PIECE_KEYS) {
+      for (const def of PIECE_KEYS) {
+        const m = resolveFamilyMatchup(fam, atk, def);
+        assert.equal(m.familyId, fam);
+        assert.ok(m.attackerDisplayName.length > 0);
+        assert.ok(m.defenderDisplayName.length > 0);
+        assert.ok(m.anim3dDesc?.it.length > 0);
+        assert.equal(m.hasSkeletalGlbClip, atk === 'b');
+        if (fam === 'carlesso' && m.hasDedicatedVideo) {
+          dedicatedCount += 1;
+        }
+      }
+    }
+  }
+  assert.equal(dedicatedCount, 4, '4 cells (b_x_n, n_x_b, n_x_r, r_x_n) map to dedicated Veo/MP4 videos');
+
+  // 2. Verify BoardMapManager emits loserKingSquare and winnerKingSquare on CHECKMATE (Scholar's Mate)
+  const bus = new GameEventBus();
+  const board = new BoardMapManager();
+  board.init({ bus });
+
+  let checkmateEvent = null;
+  bus.on('CHECKMATE', (e) => {
+    checkmateEvent = e;
+  });
+
+  board.move('e2', 'e4');
+  board.move('e7', 'e5');
+  board.move('f1', 'c4');
+  board.move('b8', 'c6');
+  board.move('d1', 'h5');
+  board.move('g8', 'f6');
+  board.move('h5', 'f7'); // Scholar's Mate!
+  bus.flush();
+
+  assert.ok(checkmateEvent, 'CHECKMATE event must be emitted');
+  assert.equal(checkmateEvent.winner, 'w');
+  assert.equal(checkmateEvent.loser, 'b');
+  assert.equal(checkmateEvent.loserKingSquare, 'e8');
+  assert.equal(checkmateEvent.winnerKingSquare, 'e1');
+});
+
+test('VFXPoolView: auto-zooms camera tightly onto the 2 fighting pieces, hides occluding 3D text billboard, and keeps neighboring pieces visible', async () => {
+  const { register } = await import('node:module');
+  const threeUrl = new URL('../vendor/three/three.module.js', import.meta.url).href;
+  register(
+    `data:text/javascript,${encodeURIComponent(
+      `export function resolve(specifier, context, nextResolve) {
+        if (specifier === 'three') return { shortCircuit: true, url: ${JSON.stringify(threeUrl)} };
+        return nextResolve(specifier, context);
+      }`,
+    )}`,
+  );
+
+  const THREE = await import('three');
+  const { VFXPoolView } = await import('../src/views/VFXPoolView.js');
+  const { PieceView } = await import('../src/views/PieceView.js');
+  const { PieceManager } = await import('../src/managers/PieceManager.js');
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(46, 16 / 9, 0.1, 120);
+  camera.position.set(0, 5.85, 12.6);
+  const controls = {
+    target: new THREE.Vector3(0, 2.15, -2.2),
+    update() {},
+  };
+
+  const bus = new GameEventBus();
+  const board = new BoardMapManager();
+  const pieces = new PieceManager();
+  const combat = new CombatAnimationManager();
+  const ctx = { bus, board, pieces, pieceManager: pieces, combat, scene, camera, controls };
+  board.init(ctx);
+  pieces.init(ctx);
+  combat.init(ctx);
+
+  const pieceView = new PieceView(scene, ctx);
+  pieceView.init(scene, ctx);
+  const vfxView = new VFXPoolView({ scene, camera, controls, bus, pieceView });
+
+  // Place a piece on d4 and e5 plus a neighbor on c4
+  board.loadFen('rnbqkbnr/pppp1ppp/8/4p3/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 2');
+  bus.flush();
+  bus.flush();
+
+  const neighborPiece = pieceView.getPieceObject('c4');
+  const clashFromPiece = pieceView.getPieceObject('d4');
+  const clashToPiece = pieceView.getPieceObject('e5');
+  assert.ok(neighborPiece?.visible, 'Neighbor piece c4 is visible before clash');
+  assert.ok(clashFromPiece?.visible, 'd4 piece is visible before clash');
+  assert.ok(clashToPiece?.visible, 'e5 piece is visible before clash');
+
+  // Trigger "Lancia Sfida Ale vs Seby" (WOW_ARENA_CLASH on d4 -> e5)
+  bus.emit({
+    type: 'WOW_ARENA_CLASH',
+    attacker: 'b',
+    defender: 'n',
+    from: 'd4',
+    to: 'e5',
+    square: 'e5',
+  });
+  bus.flush();
+  bus.flush();
+
+  // Advance 1.5s into combat
+  for (let i = 0; i < 45; i++) {
+    combat.update(1 / 30);
+    vfxView.update(1 / 30);
+  }
+
+  // 1. 3D floating comic text billboard must be hidden so it never occludes the fighters!
+  assert.equal(vfxView.props.comicWordSprite.visible, false, '3D comicWordSprite must stay hidden');
+
+  // 2. Camera must auto-zoom tightly onto the 2 fighters (FOV ~30 deg, distance < 2.6m to target)
+  assert.ok(camera.fov < 32, `Expected close-up FOV < 32, got ${camera.fov}`);
+  const camDist = camera.position.distanceTo(controls.target);
+  assert.ok(camDist < 2.6, `Expected tight close-up camera distance < 2.6m, got ${camDist.toFixed(2)}m`);
+
+  // 3. Static board pieces on d4 & e5 are temporarily hidden (replaced by 1.22x brawl fighters),
+  //    while neighboring piece c4 remains visible!
+  assert.equal(clashFromPiece.visible, false, 'Static piece on d4 hidden during clash');
+  assert.equal(clashToPiece.visible, false, 'Static piece on e5 hidden during clash');
+  assert.equal(neighborPiece.visible, true, 'Neighboring piece on c4 remains visible around the clash');
+  assert.ok(vfxView.attackerFighter?.visible, 'Animated 3D attacker fighter is visible');
+  assert.ok(vfxView.defenderFighter?.visible, 'Animated 3D defender fighter is visible');
+});
+

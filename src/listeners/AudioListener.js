@@ -77,6 +77,7 @@ export class AudioListener {
       plush_ground_pound: () => this.synthPlushieSqueakBoom(),
       halberd_fish_slap: () => this.synthFishSlapPling(),
       mega_cuddle_bounce: () => this.synthCuddleHarpArpeggio(),
+      sacro_acquarius_ice_coffin: () => this.synthSacroAcquariusIce(),
     });
 
     // Declarative table of per-piece hover creature sound effects (snort, fiuu, piu-piu, boing)
@@ -288,6 +289,14 @@ export class AudioListener {
   synthCuddleHarpArpeggio() {
     [523.25, 659.25, 783.99, 987.77, 1046.5, 1318.5].forEach((f, i) => {
       this.synthTone(f, f, 0.28, 'sine', 0.14, i * 0.065);
+    });
+  }
+
+  synthSacroAcquariusIce() {
+    // Cosmic Aurora Execution sweep + shimmering ice freeze + diamond coffin shatter chimes
+    this.synthTone(440, 1760, 0.38, 'sine', 0.16, 0);
+    [1318.5, 1567.98, 1975.5, 2637.0].forEach((f, i) => {
+      this.synthTone(f, f * 1.15, 0.24, 'triangle', 0.14, 0.25 + i * 0.07);
     });
   }
 

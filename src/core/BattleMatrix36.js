@@ -94,18 +94,19 @@ const RAW_PAIRS_36 = {
   // ===========================================================================
   k_x_k: {
     title: {
-      it: 'Re Riccardo vs Re Riccardo (Specchio Reale)',
-      en: 'King Riccardo vs Mirror King Riccardo',
+      it: 'Re Riccardo vs Re Riccardo (D&D Disintegrate 10d6+40)',
+      en: 'King Riccardo vs Mirror King (D&D Disintegrate 10d6+40)',
     },
     banner: {
-      it: 'DOPPIO SCETTRO LAMPO! CORONA CONTRO CORONA! ⚡👑',
-      en: 'DOUBLE SCEPTRE LIGHTNING! CROWN VS CROWN! ⚡👑',
+      it: 'D&D DISINTEGRATE (10d6+40)! RAGGIO VERDE POLVERIZZA IL RE RIVALE! 🟢✨🎲',
+      en: 'D&D DISINTEGRATE (10d6+40)! EMERALD RAY VAPORIZES THE RIVAL KING! 🟢✨🎲',
     },
+    dndSpell: 'disintegrate',
     attackerWeapon: 'sceptre',
     defenderCounter: {
       move: 'sceptre_parry_zap',
-      it: 'Il Re Nero incrocia lo Scettro e spara una scintilla d’oro!',
-      en: 'Black King crosses his Sceptre and zaps a golden spark!',
+      it: 'Il Re Nero incrocia lo Scettro ma il raggio verde Disintegrate lo avvolge!',
+      en: 'Black King crosses his Sceptre before the green Disintegrate ray strikes!',
       sfxText: 'ZAP!',
     },
     clashStyle: 'sword_duel',
@@ -113,18 +114,19 @@ const RAW_PAIRS_36 = {
   },
   k_x_q: {
     title: {
-      it: 'Re Riccardo vs Regina Kate (Carlesso al Cesso)',
-      en: 'King Riccardo vs Queen Kate (Royal Toilet Throne)',
+      it: 'Re Riccardo vs Regina Kate (D&D Pietrificazione & Trono d’Oro)',
+      en: 'King Riccardo vs Queen Kate (D&D Petrification & Golden Throne)',
     },
     banner: {
-      it: "CARLESSO AL CESSO! TRONO D'ORO REALE! 🚽👑",
-      en: 'CARLESSO AL CESSO! GOLDEN THRONE STRIKE! 🚽👑',
+      it: "CARLESSO AL CESSO & D&D PIETRIFICAZIONE! STATUA SUL TRONO D'ORO! 🗿🚽👑",
+      en: 'CARLESSO AL CESSO & D&D PETRIFICATION! STATUE ON THE GOLDEN THRONE! 🗿🚽👑',
     },
+    dndSpell: 'flesh_to_stone_petrification',
     attackerWeapon: 'toilet_throne',
     defenderCounter: {
       move: 'lilac_choco_shield',
-      it: 'Regina Kate alza uno scudo vorticoso di cioccolato lilla!',
-      en: 'Queen Kate spins a glossy lilac chocolate shield!',
+      it: 'Regina Kate alza uno scudo di cioccolato lilla prima della Pietrificazione!',
+      en: 'Queen Kate spins a glossy lilac chocolate shield against Petrification!',
       sfxText: 'SCUDO!',
     },
     clashStyle: 'royal_throne',
@@ -136,18 +138,19 @@ const RAW_PAIRS_36 = {
   },
   k_x_b: {
     title: {
-      it: 'Re Riccardo vs Alfiere Ale & Draghetto',
-      en: 'King Riccardo vs Bishop Ale & Red Dragon',
+      it: 'Re Riccardo vs Alfiere Ale (D&D Meteor Swarm 9° Livello)',
+      en: 'King Riccardo vs Bishop Ale (D&D Meteor Swarm Lvl 9)',
     },
     banner: {
-      it: 'SCETTRO DI PAPÀ CONTRO FIAMMA DEL DRAGO! ⚡🐉',
-      en: "DAD'S SCEPTRE VS DRAGON FIREBREATH! ⚡🐉",
+      it: 'D&D METEOR SWARM (9° LIV)! PIOGGIA DI METEORE SU ALE & DRAGO! ☄️🌋🎲',
+      en: 'D&D METEOR SWARM (LVL 9)! BLAZING METEORS RAIN ON ALE & DRAGON! ☄️🌋🎲',
     },
+    dndSpell: 'meteor_swarm',
     attackerWeapon: 'sceptre',
     defenderCounter: {
       move: 'dragon_flame_puff',
-      it: 'Il draghetto di Ale soffia una nuvola di fuoco sui baffi del Re!',
-      en: "Ale's shoulder dragon puffs a fireball at the King's beard!",
+      it: 'Il draghetto di Ale soffia fuoco contro la pioggia di Meteore D&D!',
+      en: "Ale's shoulder dragon puffs fire against the D&D Meteor Swarm!",
       sfxText: 'FIAMMA!',
     },
     clashStyle: 'sceptre_vs_dragon',
@@ -155,18 +158,19 @@ const RAW_PAIRS_36 = {
   },
   k_x_n: {
     title: {
-      it: 'Re Riccardo vs Cavaliere Seby Turbo',
-      en: 'King Riccardo vs Turbo Knight Seby',
+      it: 'Re Riccardo vs Cavaliere Seby (D&D Chain Lightning)',
+      en: 'King Riccardo vs Knight Seby (D&D Chain Lightning)',
     },
     banner: {
-      it: 'MULTA REALE ALLA PISTA TURBO DI SEBY! ⚡🏎️',
-      en: "ROYAL SPEED TICKET ON SEBY'S TURBO TRACK! ⚡🏎️",
+      it: 'D&D CHAIN LIGHTNING! CATENA DI FULMINI REALE SU SEBY TURBO! ⚡⛓️🎲',
+      en: 'D&D CHAIN LIGHTNING! ARCING ROYAL BOLTS STRIKE TURBO SEBY! ⚡⛓️🎲',
     },
+    dndSpell: 'chain_lightning',
     attackerWeapon: 'sceptre',
     defenderCounter: {
       move: 'warhorse_wheelie_kick',
-      it: 'Seby impenna il destriero e lancia una macchinina arancione!',
-      en: 'Seby pops a warhorse wheelie and launches an orange race car!',
+      it: 'Seby impenna il destriero mentre la Catena di Fulmini rimbalza sulle macchinine!',
+      en: 'Seby pops a warhorse wheelie as Chain Lightning arcs across his race cars!',
       sfxText: 'IMPENNATA!',
     },
     clashStyle: 'sceptre_vs_horse',
@@ -174,18 +178,19 @@ const RAW_PAIRS_36 = {
   },
   k_x_r: {
     title: {
-      it: 'Re Riccardo vs Torre Pupurabbu Puffoso',
-      en: 'King Riccardo vs Giant Plushie Pupurabbu',
+      it: 'Re Riccardo vs Torre Pupurabbu (D&D Summon Comic Daemon)',
+      en: 'King Riccardo vs Rook Pupurabbu (D&D Summon Comic Daemon)',
     },
     banner: {
-      it: 'TUONO D’ORO SUL PELUCHE GIGANTE! ⚡💜',
-      en: 'GOLDEN THUNDER ON THE GIANT PLUSHIE! ⚡💜',
+      it: 'D&D SUMMON DAEMON! DEMONE BUFFO CON PIZZA CONTRO PUPURABBU! 😈🍕🎲',
+      en: 'D&D SUMMON COMIC DAEMON! CHUBBY PIZZA DEMON VS PUPURABBU! 😈🍕🎲',
     },
+    dndSpell: 'summon_comic_daemon',
     attackerWeapon: 'sceptre',
     defenderCounter: {
       move: 'plush_belly_bounce',
-      it: 'Pupurabbu gonfia la pancia morbida e rimbalza il lampo!',
-      en: 'Pupurabbu puffs up his squishy belly to bounce the bolt!',
+      it: 'Pupurabbu gonfia la pancia e fa a panciate col Demone Buffo D&D!',
+      en: 'Pupurabbu puffs up his belly to belly-bump the Chubby D&D Demon!',
       sfxText: 'BOING!',
     },
     clashStyle: 'plush_bounce',
@@ -193,18 +198,19 @@ const RAW_PAIRS_36 = {
   },
   k_x_p: {
     title: {
-      it: 'Re Riccardo vs Pedone Puffin Guardia Svizzera',
-      en: 'King Riccardo vs Swiss Guard Pawn Puffin',
+      it: 'Re Riccardo vs Pedone Puffin (D&D Fireball 8d6)',
+      en: 'King Riccardo vs Pawn Puffin (D&D Fireball 8d6)',
     },
     banner: {
-      it: 'DECRETO REALE: PUFFIN NELLA PALUDE! 👑🐟',
-      en: 'ROYAL DECREE: PUFFIN INTO THE SWAMP! 👑🐟',
+      it: 'D&D FIREBALL (8d6)! PAPINO LANCIA PALLA DI FUOCO SUL PUFFIN! 🔥🎲',
+      en: 'D&D FIREBALL (8d6)! PAPINO HURLS A BLAZING FIREBALL AT PUFFIN! 🔥🎲',
     },
+    dndSpell: 'fireball',
     attackerWeapon: 'sceptre',
     defenderCounter: {
       move: 'halberd_fish_parry',
-      it: 'Puffin incrocia l’alabarda svizzera e sventola l’aringa!',
-      en: 'Puffin crosses his Swiss halberd and waves his silver herring!',
+      it: 'Puffin alza l’alabarda e l’aringa contro la Palla di Fuoco D&D!',
+      en: 'Puffin raises his halberd and silver fish against the D&D Fireball!',
       sfxText: 'PARATA!',
     },
     clashStyle: 'halberd_joust',
@@ -558,22 +564,26 @@ const RAW_PAIRS_36 = {
   },
   n_x_p: {
     title: {
-      it: 'Cavaliere Seby vs Pedone Puffin (Sorpasso Turbo)',
-      en: 'Knight Seby vs Pawn Puffin (Turbo Overtake)',
+      it: 'Cavaliere Seby vs Pedone Puffin (Sacro Acquarius & Teca di Ghiaccio)',
+      en: 'Knight Seby vs Pawn Puffin (Sacred Aquarius & Ice Coffin)',
     },
     banner: {
-      it: 'BEEP BEEP PUFFIN! PASSA IL CAVALLO TURBO DI SEBY! 🏎️🐟',
-      en: "BEEP BEEP PUFFIN! SEBY'S TURBO WARHORSE COMING THROUGH! 🏎️🐟",
+      it: 'SACRO ACQUARIUS! SEBY CONGELA PUFFIN NELLA TECA DI GHIACCIO! ♒❄️💎',
+      en: 'SACRED AQUARIUS! SEBY FREEZES PUFFIN IN THE ICE COFFIN! ♒❄️💎',
     },
     attackerWeapon: 'turbo_cars',
     defenderCounter: {
       move: 'puffin_halberd_vault',
-      it: 'Puffin salta sulla pista arancione agitando l’alabarda!',
-      en: 'Puffin hops onto the orange track waving his halberd!',
+      it: 'Puffin alza l’alabarda contro il vento glaciale dello Zero Assoluto!',
+      en: 'Puffin raises his halberd against the Absolute Zero blizzard!',
       sfxText: 'PARATA!',
     },
-    clashStyle: 'halberd_joust',
-    finisherReaction: 'bowled_flat_stars_swamp',
+    clashStyle: 'sacro_acquarius_ice',
+    finisherReaction: 'frozen_coffin_crumble_swamp',
+    effect: 'sacro_acquarius_ice_coffin',
+    debrisType: 'diamond_ice_crystals',
+    victimReaction: 'frozen_coffin_crumble',
+    easterEgg: 'seby_sacro_acquarius',
   },
 
   // ===========================================================================
@@ -848,6 +858,7 @@ function buildBattleMatrix36() {
         clashStyle: raw.clashStyle,
         finisherReaction: raw.finisherReaction,
         effect: raw.effect || atkMeta.effect,
+        dndSpell: raw.dndSpell || null,
         debrisType: raw.debrisType || atkMeta.debrisType,
         victimReaction: raw.victimReaction || atkMeta.victimReaction,
         easterEgg: raw.easterEgg || null,

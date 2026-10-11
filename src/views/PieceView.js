@@ -215,6 +215,9 @@ export class PieceView {
             }
           }
         }),
+        bus.on('CHECKMATE', (e) => {
+          this.animateKingCapitulation(e);
+        }),
       );
     }
 
@@ -1033,10 +1036,29 @@ export class PieceView {
                 if (isWireframe) {
                   mat.wireframe = true;
                 }
+                const isDraghessaPiece =
+                  desc.id === 'rook_swamp_draghessa' ||
+                  String(desc.glbUrl || '').includes('rook-swamp-draghessa');
+                let dragonCoilMode = 0.0;
+                if (isDraghessaPiece) {
+                  const dragonMatNames = new Set([
+                    'dragon_ruby',
+                    'dragon_emerald',
+                    'amber_gem',
+                    'eye_dark',
+                    'onion_gold',
+                  ]);
+                  if (dragonMatNames.has(mat.name)) {
+                    dragonCoilMode = 1.0; // Dedicated Dragon sub-mesh: 100% helical coiling around the stationary tower!
+                  } else if (mat.map) {
+                    dragonCoilMode = 2.0; // UV-mapped TRELLIS.2 single-mesh: outer radial dragon coils around inner stone tower!
+                  }
+                }
                 this.injectLocomotionShader(
                   mat,
                   desc.type,
                   pieceGroup.userData.locomotionUniforms,
+                  dragonCoilMode,
                 );
                 mat.needsUpdate = true;
               }
@@ -1089,11 +1111,13 @@ export class PieceView {
   /**
    * Injects a real-time procedural skeletal limb & horse-gallop vertex shader into `.glb` materials
    * so every character's legs, feet, horse hooves, arms, and weapons visibly walk, gallop, and brawl!
+   * For `rook-swamp-draghessa`, `dragonCoilMode > 0` drives a perpetual, slow, inexorable 3D helical
+   * coiling of the Dragon around the stationary stone watchtower.
    */
-  injectLocomotionShader(mat, pieceType, uniforms) {
+  injectLocomotionShader(mat, pieceType, uniforms, dragonCoilMode = 0.0) {
     if (!mat || !uniforms) return;
     mat.customProgramCacheKey = () =>
-      `carchess_loco_v3_${pieceType}_${mat.wireframe ? 'w' : 's'}_${mat.map ? 't' : 'u'}`;
+      `carchess_loco_v4_${pieceType}_dc${dragonCoilMode}_${mat.wireframe ? 'w' : 's'}_${mat.map ? 't' : 'u'}`;
     mat.onBeforeCompile = (shader) => {
       shader.uniforms.uWalkPhase = uniforms.uWalkPhase;
       shader.uniforms.uWalkAmp = uniforms.uWalkAmp;
@@ -1103,6 +1127,7 @@ export class PieceView {
       shader.uniforms.uIdlePhase = uniforms.uIdlePhase;
       shader.uniforms.uIdleAmp = uniforms.uIdleAmp;
       shader.uniforms.uPieceKind = uniforms.uPieceKind;
+      shader.uniforms.uDragonCoilMode = { value: dragonCoilMode };
 
       shader.vertexShader =
         `
@@ -1114,13 +1139,49 @@ uniform float uGaitMode;
 uniform float uIdlePhase;
 uniform float uIdleAmp;
 uniform float uPieceKind;
+uniform float uDragonCoilMode;
 ` +
-        shader.vertexShader.replace(
-          '#include <begin_vertex>',
-          `#include <begin_vertex>
+        shader.vertexShader
+          .replace(
+            '#include <beginnormal_vertex>',
+            `#include <beginnormal_vertex>
+if (uDragonCoilMode > 0.5) {
+  float normYN = clamp(position.y + 0.5, 0.0, 1.0);
+  float dMaskN = (uDragonCoilMode < 1.5)
+    ? 1.0
+    : (smoothstep(0.11, 0.175, length(position.xz)) * smoothstep(0.16, 0.25, normYN) * smoothstep(0.95, 0.82, normYN));
+  float coilThetaN = (uIdlePhase * 0.68 + sin(uIdlePhase * 1.15 - normYN * 5.2) * 0.34) * dMaskN;
+  float cN = cos(coilThetaN);
+  float sN = sin(coilThetaN);
+  objectNormal = vec3(
+    objectNormal.x * cN - objectNormal.z * sN,
+    objectNormal.y,
+    objectNormal.x * sN + objectNormal.z * cN
+  );
+}
+`,
+          )
+          .replace(
+            '#include <begin_vertex>',
+            `#include <begin_vertex>
 float normY = clamp(position.y + 0.5, 0.0, 1.0);
 float side = clamp(position.x * 6.5, -1.0, 1.0);
-if (uIdleAmp > 0.001 && uWalkAmp < 0.05 && uCombatAmp < 0.05) {
+if (uDragonCoilMode > 0.5) {
+  // Perpetual, slow, inexorable, scary 3D Dragon Coiling & Slithering around the stationary Watchtower!
+  float dMask = (uDragonCoilMode < 1.5)
+    ? 1.0
+    : (smoothstep(0.11, 0.175, length(position.xz)) * smoothstep(0.16, 0.25, normY) * smoothstep(0.95, 0.82, normY));
+  float coilTheta = (uIdlePhase * 0.68 + sin(uIdlePhase * 1.15 - normY * 5.2) * 0.34) * dMask;
+  float constrictR = 1.0 + sin(uIdlePhase * 1.85 - normY * 4.2) * 0.065 * dMask;
+  float slitherY = sin(uIdlePhase * 1.45 - normY * 6.0) * 0.045 * dMask;
+  float cT = cos(coilTheta);
+  float sT = sin(coilTheta);
+  float rx = (transformed.x * cT - transformed.z * sT) * constrictR;
+  float rz = (transformed.x * sT + transformed.z * cT) * constrictR;
+  transformed.x = rx;
+  transformed.z = rz;
+  transformed.y += slitherY;
+} else if (uIdleAmp > 0.001 && uWalkAmp < 0.05 && uCombatAmp < 0.05) {
   if (abs(uPieceKind - 1.0) < 0.25) {
     // Knight Seby ('n'): Horse steps/trots in place, nods head & swishes tail!
     float legMask = smoothstep(0.45, 0.03, normY);
@@ -1192,7 +1253,7 @@ if (uCombatAmp > 0.001) {
   transformed.y += abs(slash) * uCombatAmp * 0.09 * upperMask;
 }
 `,
-        );
+          );
     };
   }
 
@@ -1657,6 +1718,56 @@ if (uCombatAmp > 0.001) {
       elapsed: 0,
       duration: 0.28,
     });
+    this.activeMoves = this.activeTweens;
+  }
+
+  /**
+   * Spectacular 3D Royal Capitulation (`CHECKMATE`):
+   * - The defeated King trembles violently, leaps in slow-motion, and topples 84° onto the board!
+   * - All surviving victorious pieces jump in celebratory waves!
+   */
+  animateKingCapitulation(e = {}) {
+    const loserColor = e.loser ? String(e.loser).toLowerCase() : (e.winner === 'w' ? 'b' : 'w');
+    const winnerColor = loserColor === 'w' ? 'b' : 'w';
+    let kingGroup = e.kingSquare ? this.pieceBySquare.get(e.kingSquare) : null;
+
+    if (!kingGroup) {
+      for (const grp of this.pieceBySquare.values()) {
+        if (grp.userData?.type === 'k' && grp.userData?.color === loserColor) {
+          kingGroup = grp;
+          break;
+        }
+      }
+    }
+
+    if (kingGroup) {
+      const fallSign = loserColor === 'w' ? 1 : -1;
+      this.activeTweens.push({
+        kind: 'king_capitulation',
+        group: kingGroup,
+        baseX: kingGroup.position.x,
+        baseZ: kingGroup.position.z,
+        fallSign,
+        elapsed: 0,
+        duration: 2.8,
+      });
+    }
+
+    let idx = 0;
+    for (const grp of this.pieceBySquare.values()) {
+      if (grp.userData?.color === winnerColor) {
+        this.activeTweens.push({
+          kind: 'victory_jump',
+          group: grp,
+          baseY: 0,
+          baseRotY: grp.rotation.y,
+          phaseOffset: (idx % 5) * 0.14,
+          elapsed: 0,
+          duration: 3.2,
+        });
+        idx += 1;
+      }
+    }
     this.activeMoves = this.activeTweens;
   }
 
@@ -2198,6 +2309,41 @@ if (uCombatAmp > 0.001) {
           group.rotation.z = 0;
           group.userData.isDivingToSwamp = false;
           group.userData.celebrationSplashTimer = 1.1;
+        }
+      } else if (tw.kind === 'king_capitulation') {
+        const { group, baseX, baseZ, fallSign } = tw;
+        if (t < 0.28) {
+          // Phase 1: Violent royal earthquake tremble
+          const shake = Math.sin(tw.elapsed * 52) * 0.12;
+          group.position.set(baseX + shake, Math.abs(Math.sin(tw.elapsed * 24)) * 0.08, baseZ - shake * 0.6);
+          group.rotation.z = Math.sin(tw.elapsed * 42) * 0.22;
+        } else if (t < 0.56) {
+          // Phase 2: Slow-motion dramatic leap & tilt
+          const u = (t - 0.28) / 0.28;
+          group.position.set(baseX, Math.sin(u * Math.PI) * 0.92, baseZ);
+          group.rotation.y += dt * 8.5;
+          group.rotation.z = fallSign * u * 0.72;
+        } else {
+          // Phase 3: 84° Royal Topple onto the chessboard with damped bounce!
+          const u = (t - 0.56) / 0.44;
+          const bounce = Math.abs(Math.sin(u * Math.PI * 2.5)) * (1 - u) * 0.28;
+          group.position.set(baseX + fallSign * u * 0.18, bounce + 0.12, baseZ);
+          group.rotation.z = fallSign * (0.72 + Math.min(1, u * 1.4) * 0.76);
+        }
+        if (t < 1) {
+          remaining.push(tw);
+        }
+      } else if (tw.kind === 'victory_jump') {
+        const { group, baseY, baseRotY, phaseOffset } = tw;
+        const localT = Math.max(0, tw.elapsed - phaseOffset);
+        const hop = Math.abs(Math.sin(localT * 6.5)) * 0.48 * (1 - t * 0.5);
+        group.position.y = baseY + hop;
+        group.rotation.y = baseRotY + Math.sin(localT * 4.5) * 0.45;
+        if (t < 1) {
+          remaining.push(tw);
+        } else {
+          group.position.y = baseY;
+          group.rotation.y = baseRotY;
         }
       }
     }
