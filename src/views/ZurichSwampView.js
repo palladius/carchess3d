@@ -27,7 +27,12 @@
  */
 
 import * as THREE from 'three';
-import { FILES, squareToWorld } from '../core/Registry.js';
+import {
+  FILES,
+  squareToWorld,
+  isMobilePhoneViewport,
+  isMobileOrTabletDevice,
+} from '../core/Registry.js';
 
 const LIGHT_SQUARE_HEX = 0xf3ebd9;
 const DARK_SQUARE_HEX = 0x232938;
@@ -117,10 +122,13 @@ export class ZurichSwampView {
     this.root.add(this.hemiLight);
 
     // Moonlight / Alpine twilight directional light casting crisp piece shadows on y = 0.0m
+    const isPhone = isMobilePhoneViewport();
+    const isMobileOrTablet = isMobileOrTabletDevice();
     this.sunLight = new THREE.DirectionalLight(0xeef6ff, Math.max(2.15, this.debugConfig.sunIntensity));
     this.sunLight.position.set(8.5, 16.0, 9.5);
-    this.sunLight.castShadow = true;
-    this.sunLight.shadow.mapSize.set(2048, 2048);
+    this.sunLight.castShadow = !isPhone;
+    const shadowRes = isMobileOrTablet ? 1024 : 2048;
+    this.sunLight.shadow.mapSize.set(shadowRes, shadowRes);
     this.sunLight.shadow.camera.near = 2.0;
     this.sunLight.shadow.camera.far = 42.0;
     const d = 11.0;
@@ -497,6 +505,7 @@ export class ZurichSwampView {
       // 4. Warm PointLight (0xff8f24, intensity 3.2, distance 18)
       const light = new THREE.PointLight(0xff8f24, this.debugConfig.brazierIntensity, 18, 1.5);
       light.position.set(0, 1.65, 0);
+      light.visible = !isMobilePhoneViewport();
       unit.add(light);
 
       brazierGroup.add(unit);

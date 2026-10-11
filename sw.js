@@ -19,6 +19,11 @@ const PRECACHE_URLS = [
   './vendor/three/addons/controls/OrbitControls.js',
   './vendor/three/addons/loaders/GLTFLoader.js',
   './vendor/three/addons/utils/SkeletonUtils.js',
+  './vendor/three/addons/postprocessing/EffectComposer.js',
+  './vendor/three/addons/postprocessing/RenderPass.js',
+  './vendor/three/addons/postprocessing/UnrealBloomPass.js',
+  './vendor/three/addons/postprocessing/OutputPass.js',
+  './src/main.js',
   './src/utils/glbGrounding.js',
   './src/core/EventBus.js',
   './src/core/GameLoop.js',
@@ -132,7 +137,11 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cachedResponse);
 
-      return isCodeOrDoc ? networkFetch.then((res) => res || cachedResponse) : cachedResponse || networkFetch;
+      return (
+        isCodeOrDoc
+          ? networkFetch.then((res) => res || cachedResponse)
+          : Promise.resolve(cachedResponse || networkFetch)
+      ).then((res) => res || new Response('', { status: 404, statusText: 'Offline Not Cached' }));
     }),
   );
 });

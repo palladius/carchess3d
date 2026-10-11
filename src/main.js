@@ -21,7 +21,7 @@ import { OutputPass } from '../vendor/three/addons/postprocessing/OutputPass.js'
 import { GameEventBus } from './core/EventBus.js';
 import { mulberry32 } from './core/Rng.js';
 import { GameLoop } from './core/GameLoop.js';
-import { isMobilePhoneViewport } from './core/Registry.js';
+import { isMobilePhoneViewport, isMobileOrTabletDevice } from './core/Registry.js';
 
 import { GameFlowManager, FLOW_STATES } from './managers/GameFlowManager.js';
 import { BoardMapManager } from './managers/BoardMapManager.js';
@@ -43,20 +43,44 @@ import { AudioListener } from './listeners/AudioListener.js';
 import { ProfileStorageListener } from './listeners/ProfileStorageListener.js';
 
 function bootstrapCarChess3D() {
+  const urlParams = new URLSearchParams(window.location.search);
   const isMobilePhone = isMobilePhoneViewport();
+  const isMobileOrTablet = isMobileOrTabletDevice();
   const canvas = document.getElementById('game-canvas');
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    antialias: !isMobilePhone,
-    powerPreference: 'high-performance',
-    preserveDrawingBuffer: true, // Enables clean screenshot capture for 4-angle Critic
-  });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobilePhone ? 1.5 : 2));
+  if (canvas) {
+    canvas.style.backgroundColor = '#0b1528';
+  }
+
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: false,
+      antialias: !isMobilePhone,
+      powerPreference: isMobileOrTablet ? 'default' : 'high-performance',
+      preserveDrawingBuffer: true, // Enables clean screenshot capture for 4-angle Critic & UAT
+    });
+  } catch {
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: false,
+      antialias: false,
+      powerPreference: 'default',
+    });
+  }
+
+  renderer.setClearColor(0x0b1528, 1.0);
+  renderer.setPixelRatio(
+    Math.min(
+      window.devicePixelRatio || 1,
+      isMobilePhone ? 1.25 : isMobileOrTablet ? 1.5 : 2,
+    ),
+  );
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.enabled = !isMobilePhone;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.24;
+  renderer.toneMappingExposure = isMobileOrTablet ? 1.12 : 1.24;
 
   const scene = new THREE.Scene();
 
@@ -166,19 +190,45 @@ function bootstrapCarChess3D() {
 
   controls.update();
 
-  // Post-processing bloom pipeline
-  const composer = new EffectComposer(renderer);
-  const renderPass = new RenderPass(scene, camera);
-  const bloomPass = new UnrealBloomPass(
-    new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.36, // strength
-    0.45, // radius
-    0.80, // threshold
-  );
-  const outputPass = new OutputPass();
-  composer.addPass(renderPass);
-  composer.addPass(bloomPass);
-  composer.addPass(outputPass);
+  // Post-processing bloom pipeline:
+  // On mobile phones (e.g., Pixel 10 PowerVR GPU) and touch tablets (e.g., Samsung Galaxy Tab S10),
+  // bypass the 13 HalfFloatType (RGBA16F) FBOs of EffectComposer + UnrealBloomPass by default
+  // to prevent HalfFloatType shader overflow (solid white screen) and mobile GPU OOM context loss!
+  const bloomParam = (urlParams.get('bloom') || '').toLowerCase();
+  const useBloom =
+    bloomParam === '1' || bloomParam === 'true'
+      ? true
+      : bloomParam === '0' || bloomParam === 'false'
+        ? false
+        : !isMobileOrTablet;
+
+  let composer;
+  let bloomPass;
+  if (useBloom) {
+    composer = new EffectComposer(renderer);
+    const renderPass = new RenderPass(scene, camera);
+    bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.36, // strength
+      0.45, // radius
+      0.80, // threshold
+    );
+    const outputPass = new OutputPass();
+    composer.addPass(renderPass);
+    composer.addPass(bloomPass);
+    composer.addPass(outputPass);
+    composer.useBloom = true;
+  } else {
+    bloomPass = { strength: 0, radius: 0, threshold: 1, enabled: false };
+    composer = {
+      passes: [],
+      useBloom: false,
+      render() {
+        renderer.render(scene, camera);
+      },
+      setSize() {},
+    };
+  }
 
   // 1. Core Event Bus & Seeded PRNG
   const bus = new GameEventBus();
@@ -191,6 +241,24 @@ function bootstrapCarChess3D() {
   const drops = new DropManager();
   const combat = new CombatAnimationManager();
   const ai = new AIWorkerManager();
+
+  // Pre-seed initial White & Black faction families before initializing views so startup
+  // builds the 32 pieces ONCE instead of rebuilding 4 times!
+  const familyParam = urlParams.get('family');
+  const whiteParam = urlParams.get('white') || familyParam || 'carlesso';
+  const blackParam =
+    urlParams.get('black') ||
+    urlParams.get('rival') ||
+    (familyParam && familyParam !== 'carlesso' ? familyParam : 'classic');
+  pieces.whiteFamily = ['carlesso', 'swamp', 'classic'].includes(whiteParam)
+    ? whiteParam
+    : 'carlesso';
+  pieces.rivalSetMode =
+    blackParam === 'carlesso'
+      ? 'family'
+      : ['family', 'swamp', 'classic', 'stone'].includes(blackParam)
+        ? blackParam
+        : 'classic';
 
   // 3. Shared GameContext (Service Locator / Dependency Injection)
   const ctx = {
@@ -208,6 +276,8 @@ function bootstrapCarChess3D() {
     controls,
     renderer,
     isMobilePhone,
+    isMobileOrTablet,
+    webglContextLost: false,
   };
 
   flow.init(ctx);
@@ -222,6 +292,29 @@ function bootstrapCarChess3D() {
   const cinemaView = new VeoCinemaView(scene, bus);
   const pieceView = new PieceView(scene, ctx);
   pieceView.init(scene, ctx);
+
+  // WebGL Context Loss & Restoration Watchdog (prevents dead white canvas on mobile GPUs)
+  if (canvas) {
+    canvas.addEventListener(
+      'webglcontextlost',
+      (e) => {
+        e.preventDefault();
+        ctx.webglContextLost = true;
+        pieceView.mobileLite3D = true;
+      },
+      false,
+    );
+    canvas.addEventListener(
+      'webglcontextrestored',
+      () => {
+        ctx.webglContextLost = false;
+        pieceView._lastSyncSignature = null;
+        pieceView.syncPiecesFromManager();
+        renderer.render(scene, camera);
+      },
+      false,
+    );
+  }
 
   const boardInteraction = new BoardInteractionView({
     scene,
@@ -313,14 +406,6 @@ function bootstrapCarChess3D() {
   bus.flush();
   bus.flush();
 
-  // Re-apply URL camera preset & family selectors after initial board sync
-  const urlParams = new URLSearchParams(window.location.search);
-  const familyParam = urlParams.get('family');
-  const whiteParam = urlParams.get('white') || familyParam || 'carlesso';
-  const blackParam =
-    urlParams.get('black') ||
-    urlParams.get('rival') ||
-    (familyParam && familyParam !== 'carlesso' ? familyParam : 'classic');
   if (whiteParam) {
     pieces.setWhiteFamily(whiteParam);
   }

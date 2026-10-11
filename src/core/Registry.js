@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.31';
+export const APP_VERSION = '0.3.32';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -1075,5 +1075,89 @@ export function isPortraitOrientation(env = {}) {
   const height = Number(env.height ?? win?.innerHeight ?? 0);
   if (!(width > 0 && height > 0)) return false;
   return height > width;
+}
+
+/**
+ * Detects whether the current device is a mobile phone OR a touch tablet (e.g., Pixel 10,
+ * Samsung Galaxy Tab S10, iPad) so WebGL can bypass heavy desktop post-processing FBOs
+ * (`UnrealBloomPass` HalfFloatType mip chains) that trigger white/dead canvases on mobile GPUs.
+ *
+ * @param {{ width?: number, height?: number, search?: string, userAgent?: string, maxTouchPoints?: number }} [env]
+ * @returns {boolean}
+ */
+export function isMobileOrTabletDevice(env = {}) {
+  if (isMobilePhoneViewport(env)) return true;
+
+  const win = typeof window !== 'undefined' ? window : null;
+  const nav = typeof navigator !== 'undefined' ? navigator : null;
+  const search =
+    env.search !== undefined
+      ? String(env.search || '')
+      : win?.location?.search
+        ? String(win.location.search)
+        : '';
+
+  if (search && typeof URLSearchParams !== 'undefined') {
+    const params = new URLSearchParams(search);
+    const desktopParam = (params.get('desktop') || '').toLowerCase();
+    const tabletParam = (params.get('tablet') || '').toLowerCase();
+    if (desktopParam === '1' || desktopParam === 'true') return false;
+    if (tabletParam === '1' || tabletParam === 'true') return true;
+  }
+
+  const ua = String(env.userAgent ?? nav?.userAgent ?? '');
+  if (/Android|iPhone|iPad|iPod|Mobile|Tablet|Silk/i.test(ua)) {
+    return true;
+  }
+
+  const touchPoints = Number(env.maxTouchPoints ?? nav?.maxTouchPoints ?? 0);
+  const width = Number(env.width ?? win?.innerWidth ?? 0);
+  const height = Number(env.height ?? win?.innerHeight ?? 0);
+  const longSide = Math.max(width, height);
+  if (touchPoints > 0 && longSide > 0 && longSide <= 1920) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Determines whether `PieceView` should use lightweight 3D sculptures (3D Faction Pedestals +
+ * 3D Columns + Double-Sided 2D Cutie Portrait Medallions + 3D Role Crowns / Stone Warriors)
+ * instead of downloading & cloning 30+ MB / 850k vertices of `.glb` meshes on compact phones.
+ *
+ * - Default `true` on smartphones (`isMobilePhoneViewport`, e.g. Pixel 10) for instant,
+ *   zero-OOM 60fps 3D rendering.
+ * - Default `false` on tablets (`shortSide >= 600px`, e.g. Samsung Galaxy Tab S10) & desktops.
+ * - Overrideable via `?lite=1` / `?lite3d=1` (force Lite 3D) or `?glb=1` / `?hd=1` / `?lite=0` (force Full GLB).
+ *
+ * @param {{ width?: number, height?: number, search?: string }} [env]
+ * @returns {boolean}
+ */
+export function shouldUseMobileLite3D(env = {}) {
+  const win = typeof window !== 'undefined' ? window : null;
+  const search =
+    env.search !== undefined
+      ? String(env.search || '')
+      : win?.location?.search
+        ? String(win.location.search)
+        : '';
+
+  if (search && typeof URLSearchParams !== 'undefined') {
+    const params = new URLSearchParams(search);
+    const liteParam = (params.get('lite') || params.get('lite3d') || '').toLowerCase();
+    const glbParam = (params.get('glb') || params.get('hd') || '').toLowerCase();
+    if (liteParam === '1' || liteParam === 'true') return true;
+    if (
+      liteParam === '0' ||
+      liteParam === 'false' ||
+      glbParam === '1' ||
+      glbParam === 'true'
+    ) {
+      return false;
+    }
+  }
+
+  return isMobilePhoneViewport(env);
 }
 
