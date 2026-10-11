@@ -30,6 +30,10 @@ import {
   PEDESTAL_HEIGHT,
 } from '../utils/glbGrounding.js';
 import { BISHOP_GLB_VARIANTS } from '../managers/PieceManager.js';
+import {
+  createArticulatedSkeletonRig,
+  updateSkeletonRigPose,
+} from './SkeletonRigHelper.js';
 
 const HERO_SCALE = 1.35;
 const TURNTABLE_SPEED_RAD_S = 0.6;
@@ -68,6 +72,8 @@ export class WowModeView {
     this.cardSide = 'front';
     this.autoRotate = true;
     this.turntableAngle = 0;
+    this.skeletonsVisible = false;
+    this.heroSkeletonRig = null;
 
     // Root 3D Stage Group at (0, 0, 0)
     this.rootGroup = new THREE.Group();
@@ -146,6 +152,9 @@ export class WowModeView {
       this.pieceView = opts.pieceView || this.pieceView;
       this.ctx = opts.ctx || (opts.bus ? opts : this.ctx);
     }
+    if (this.pieceView && typeof this.pieceView.skeletonsVisible === 'boolean') {
+      this.skeletonsVisible = this.pieceView.skeletonsVisible;
+    }
     if (this.scene && !this.rootGroup.parent) {
       this.scene.add(this.rootGroup);
     }
@@ -171,6 +180,15 @@ export class WowModeView {
         bus.on('WOW_INSPECT_CHARACTER', (e) => this.onInspectCharacter(e)),
         bus.on('WOW_TRIGGER_ANIMATION', (e) => this.onTriggerAnimation(e)),
         bus.on('WOW_ARENA_CLASH', (e) => this.onArenaClash(e)),
+        bus.on('TOGGLE_SKELETONS', (e) => {
+          const next =
+            typeof e?.visible === 'boolean'
+              ? e.visible
+              : typeof e?.enabled === 'boolean'
+                ? e.enabled
+                : Boolean(this.pieceView?.skeletonsVisible ?? !this.skeletonsVisible);
+          this.setSkeletonsVisible(next);
+        }),
         bus.on('PIECE_SET_CHANGED', (e) => {
           if (e.bishopVariant && e.bishopVariant !== this.bishopVariant) {
             this.bishopVariant = e.bishopVariant;
@@ -181,6 +199,19 @@ export class WowModeView {
         }),
       );
     }
+  }
+
+  setSkeletonsVisible(visible) {
+    this.skeletonsVisible = typeof visible === 'boolean' ? visible : !this.skeletonsVisible;
+    if (this.heroSkeletonRig) {
+      this.heroSkeletonRig.userData.alwaysVisible = this.skeletonsVisible;
+      updateSkeletonRigPose(this.heroSkeletonRig, this.selectedKey, {
+        walkPhase: this.emoteState.elapsed * 6,
+        walkAmp: this.skeletonsVisible ? 0.35 : 0,
+        skeletonsVisible: this.skeletonsVisible,
+      });
+    }
+    return this.skeletonsVisible;
   }
 
   // ===========================================================================
@@ -446,6 +477,9 @@ export class WowModeView {
     this.heroMixer = null;
     this.heroClips.clear();
     this.activeAction = null;
+    if (this.pieceView && typeof this.pieceView.skeletonsVisible === 'boolean') {
+      this.skeletonsVisible = this.pieceView.skeletonsVisible;
+    }
 
     // Determine GLB URL (supporting Ale #1 hat vs Ale #2 rigged dragon)
     let glbUrl = meta.glbUrl;
@@ -453,6 +487,7 @@ export class WowModeView {
       glbUrl = BISHOP_GLB_VARIANTS[this.bishopVariant] || meta.glbUrl;
     }
 
+    const baseHeroHeight = CANONICAL_PIECE_HEIGHTS[this.selectedKey] ?? 1.45;
     const desc = {
       id: `wow_hero_${this.selectedKey}`,
       square: 'e4',
@@ -461,7 +496,7 @@ export class WowModeView {
       role: meta.role,
       name: meta.name,
       glyph: meta.glyph,
-      height: CANONICAL_PIECE_HEIGHTS[this.selectedKey] ?? 1.45,
+      height: baseHeroHeight,
       glbUrl,
       frontPortrait: meta.frontPortrait,
       backPortrait: meta.backPortrait || meta.frontPortrait,
@@ -474,15 +509,31 @@ export class WowModeView {
     if (this.pieceView?.buildPieceGroup) {
       const pieceGroup = this.pieceView.buildPieceGroup({ ...desc, glbUrl: null });
       pieceGroup.position.set(0, TURNTABLE_TOP_Y, 0);
+      pieceGroup.rotation.set(0, 0, 0);
       pieceGroup.scale.setScalar(HERO_SCALE);
       this.heroMountGroup.add(pieceGroup);
       this.currentHeroObject = pieceGroup;
+      this.heroSkeletonRig = pieceGroup.userData?.skeletonRig || null;
+      if (this.heroSkeletonRig) {
+        this.heroSkeletonRig.userData.alwaysVisible = this.skeletonsVisible;
+        updateSkeletonRigPose(this.heroSkeletonRig, this.selectedKey, {
+          skeletonsVisible: this.skeletonsVisible,
+        });
+      }
     } else {
       const fallback = this._buildStandaloneHeroFallback(desc);
+      const rig = createArticulatedSkeletonRig(THREE, this.selectedKey, baseHeroHeight, 'w');
+      rig.userData.alwaysVisible = this.skeletonsVisible;
+      updateSkeletonRigPose(rig, this.selectedKey, {
+        skeletonsVisible: this.skeletonsVisible,
+      });
+      fallback.add(rig);
+      fallback.userData = { ...(fallback.userData || {}), skeletonRig: rig };
       fallback.position.set(0, TURNTABLE_TOP_Y, 0);
       fallback.scale.setScalar(HERO_SCALE);
       this.heroMountGroup.add(fallback);
       this.currentHeroObject = fallback;
+      this.heroSkeletonRig = rig;
     }
 
     // Load high-res 3D GLB if available (`bishop-ale-rigged.glb`, `bishop-ale-1.glb`, `pawn-puffin.glb`, etc.)
@@ -522,15 +573,27 @@ export class WowModeView {
             }
           });
 
-          const targetHeight = (CANONICAL_PIECE_HEIGHTS[this.selectedKey] ?? 1.45) * HERO_SCALE;
+          const targetHeight = baseHeroHeight * HERO_SCALE;
           const { holder } = groundAndNormalizeObject3D(THREE, cloned, targetHeight, {
             baseElevation: TURNTABLE_TOP_Y,
             maxRadius: 0.85,
           });
 
+          // Create and attach hero-scaled articulated 3D skeleton rig to turntable holder
+          const glbRig = createArticulatedSkeletonRig(THREE, this.selectedKey, baseHeroHeight, 'w');
+          glbRig.scale.setScalar(HERO_SCALE);
+          glbRig.position.y = -PEDESTAL_HEIGHT * HERO_SCALE;
+          glbRig.userData.alwaysVisible = this.skeletonsVisible;
+          updateSkeletonRigPose(glbRig, this.selectedKey, {
+            skeletonsVisible: this.skeletonsVisible,
+          });
+          holder.add(glbRig);
+          holder.userData = { ...(holder.userData || {}), skeletonRig: glbRig };
+
           this.heroMountGroup.clear();
           this.heroMountGroup.add(holder);
           this.currentHeroObject = holder;
+          this.heroSkeletonRig = glbRig;
 
           if (Array.isArray(gltf.animations) && gltf.animations.length > 0) {
             this.heroMixer = new THREE.AnimationMixer(cloned);
@@ -751,22 +814,45 @@ export class WowModeView {
       this.heroMixer.update(dt);
     }
 
-    // 3. Procedural Emote overlays (Attack lunge / Victory spin / Idle breathing)
+    // 3. Procedural Emote overlays (Attack lunge / Victory spin / Idle breathing) & Skeleton Rig update
     if (this.currentHeroObject) {
       this.emoteState.elapsed += dt;
       const t = this.emoteState.elapsed;
+      let walkAmp = this.skeletonsVisible ? 0.32 : 0;
+      let combatAmp = 0;
+
       if (this.emoteState.type === 'attack' && t < this.emoteState.duration) {
         const pulse = Math.sin((t / this.emoteState.duration) * Math.PI);
         this.currentHeroObject.position.y = TURNTABLE_TOP_Y + pulse * 0.32;
         this.currentHeroObject.position.z = pulse * 0.28;
+        combatAmp = 1.25;
+        walkAmp = 1.1;
+      } else if (this.emoteState.type === 'fire' && t < this.emoteState.duration) {
+        this.currentHeroObject.position.y = TURNTABLE_TOP_Y + Math.sin(t * 8) * 0.06;
+        combatAmp = 0.95;
+        walkAmp = 0.85;
       } else if (this.emoteState.type === 'victory' && t < this.emoteState.duration) {
         const p = t / this.emoteState.duration;
         this.currentHeroObject.position.y = TURNTABLE_TOP_Y + Math.abs(Math.sin(p * Math.PI * 2)) * 0.42;
         this.currentHeroObject.rotation.y = p * Math.PI * 2;
+        walkAmp = 1.2;
       } else {
         this.currentHeroObject.position.y = TURNTABLE_TOP_Y + Math.sin(t * 2.4) * 0.025;
         this.currentHeroObject.position.z = 0;
         this.currentHeroObject.rotation.y = 0;
+      }
+
+      if (this.heroSkeletonRig) {
+        const isVis = Boolean(this.pieceView?.skeletonsVisible ?? this.skeletonsVisible);
+        this.heroSkeletonRig.userData.alwaysVisible = isVis;
+        updateSkeletonRigPose(this.heroSkeletonRig, this.selectedKey, {
+          walkPhase: t * 6.5,
+          walkAmp,
+          combatPhase: t * 10.0,
+          combatAmp,
+          rearUp: this.selectedKey === 'n' && combatAmp > 0.5 ? 0.65 : 0,
+          skeletonsVisible: isVis,
+        });
       }
     }
 

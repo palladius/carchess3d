@@ -11,7 +11,7 @@
 
 import { BATTLE_MATRIX, CHARACTER_REGISTRY, resolveFamilyMatchup } from '../core/Registry.js';
 
-export const DEFAULT_BATTLE_DURATION_MS = 4200;
+export const DEFAULT_BATTLE_DURATION_MS = 4000;
 
 export class CombatAnimationManager {
   /**

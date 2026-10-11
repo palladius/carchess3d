@@ -1,4 +1,4 @@
-"""Stdlib unittest suite for the Carlessian Classic Chess Family (`classic`)."""
+"""Stdlib unittest suite for the Vanilla Classic Chess Family (`classic`)."""
 
 import json
 import pathlib
@@ -13,34 +13,34 @@ MODELS_DIR = ROOT / "assets/models/classic"
 
 EXPECTED_PIECES = {
     "king": {
-        "slug": "king-classic-cesso",
+        "slug": "king-classic-re",
         "height_m": 1.80,
-        "attack_sig": "royal_flush_quake",
+        "attack_sig": "royal_cross_decree",
     },
     "queen": {
-        "slug": "queen-classic-ciocco",
+        "slug": "queen-classic-regina",
         "height_m": 1.65,
-        "attack_sig": "marble_choco_crush",
+        "attack_sig": "imperial_coronet_wave",
     },
     "bishop": {
-        "slug": "bishop-classic-drago",
+        "slug": "bishop-classic-vescovo",
         "height_m": 1.45,
-        "attack_sig": "rune_laser_cleave",
+        "attack_sig": "crosier_blessing_beam",
     },
     "knight": {
-        "slug": "knight-classic-turbo",
+        "slug": "knight-classic-cavallo",
         "height_m": 1.35,
-        "attack_sig": "stone_hoon_charge",
+        "attack_sig": "warhorse_cavalry_charge",
     },
     "rook": {
-        "slug": "rook-classic-puffo",
+        "slug": "rook-classic-torre",
         "height_m": 1.30,
         "attack_sig": "fortress_slam",
     },
     "pawn": {
-        "slug": "pawn-classic-puffin",
+        "slug": "pawn-classic-pedone",
         "height_m": 0.95,
-        "attack_sig": "pike_bonk",
+        "attack_sig": "staunton_march_strike",
     },
 }
 
@@ -65,7 +65,7 @@ def parse_glb_json(path: pathlib.Path) -> dict:
 
 
 class TestClassicFamily(unittest.TestCase):
-    """Validate Carlessian Classic 2D portraits, 3D GLB models, and family manifest."""
+    """Validate Vanilla Classic 2D portraits, 3D GLB models, and family manifest."""
 
     @classmethod
     def setUpClass(cls):
@@ -97,6 +97,14 @@ class TestClassicFamily(unittest.TestCase):
                     req,
                     mat_names,
                     f"{glb_path.name}: missing required material '{req}' (found {mat_names})",
+                )
+
+            # Ensure zero Carlesso-pet materials (no purple monster fur or dragon ruby) in Vanilla Classic
+            for forbidden_mat in ("accent_puffo", "accent_ruby", "accent_choco", "accent_orange"):
+                self.assertNotIn(
+                    forbidden_mat,
+                    mat_names,
+                    f"{glb_path.name}: Vanilla Classic piece must not contain '{forbidden_mat}'",
                 )
 
             # Aggregate POSITION min/max and triangle count across mesh primitives

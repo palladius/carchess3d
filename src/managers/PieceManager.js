@@ -5,7 +5,7 @@
  * and Bishop Ale GLB variant (`'rigged'|'hat'`). Zero DOM or Three.js imports (`<= 300` LOC).
  */
 
-import { CHARACTER_REGISTRY, squareToWorld } from '../core/Registry.js';
+import { CHARACTER_REGISTRY, FAMILY_REGISTRIES, squareToWorld } from '../core/Registry.js';
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
 export const BISHOP_GLB_VARIANTS = Object.freeze({
@@ -23,7 +23,9 @@ export const CLIP_ALIASES = Object.freeze({
 export class PieceManager {
   constructor() {
     this.ctx = null;
-    /** @type {'family'|'stone'} */
+    /** @type {'carlesso'|'swamp'|'classic'} */
+    this.whiteFamily = 'carlesso';
+    /** @type {'family'|'swamp'|'classic'|'stone'} */
     this.rivalSetMode = 'family';
     /** @type {'rigged'|'hat'} */
     this.bishopVariant = 'hat';
@@ -56,12 +58,16 @@ export class PieceManager {
     const type = String(raw.type || 'p').toLowerCase();
     const color = raw.color === 'b' ? 'b' : 'w';
     const square = raw.square || 'e4';
-    const meta = CHARACTER_REGISTRY[type] || CHARACTER_REGISTRY.p;
     const isStoneSet = color === 'b' && this.rivalSetMode === 'stone';
+    const activeFamily = color === 'w'
+      ? this.whiteFamily
+      : (isStoneSet || this.rivalSetMode === 'family' ? 'carlesso' : this.rivalSetMode);
+    const reg = FAMILY_REGISTRIES[activeFamily] || CHARACTER_REGISTRY;
+    const meta = reg[type] || CHARACTER_REGISTRY[type] || CHARACTER_REGISTRY.p;
 
     let glbUrl = null;
     if (!isStoneSet) {
-      glbUrl = type === 'b'
+      glbUrl = activeFamily === 'carlesso' && type === 'b'
         ? (BISHOP_GLB_VARIANTS[this.bishopVariant] || meta.glbUrl)
         : (meta.glbUrl || null);
     }
@@ -69,9 +75,8 @@ export class PieceManager {
     const pos = squareToWorld(square);
     return {
       id: raw.id || `${color}_${type}_${square}`,
-      square,
-      type,
-      color,
+      square, type, color,
+      family: isStoneSet ? 'stone' : activeFamily,
       role: meta.role,
       name: isStoneSet ? `Stone ${meta.role[0].toUpperCase()}${meta.role.slice(1)}` : meta.name,
       glyph: meta.glyph,
@@ -84,9 +89,7 @@ export class PieceManager {
       accentColor: meta.accentColor,
       isStoneSet,
       animations: { ...meta.animations },
-      x: pos.x,
-      y: 0,
-      z: pos.z,
+      x: pos.x, y: 0, z: pos.z,
     };
   }
 
@@ -114,33 +117,20 @@ export class PieceManager {
     const captureId = e.id || (isRealBoardMove
       ? `${existing?.id || `captured_${victimColor}_${defType}_${capturedSq}`}_${slotIndex}`
       : `swamp_${victimColor}_${defType}_${capturedSq}`);
-
-    if (trayList.some((item) => item.id === captureId)) {
-      return false;
-    }
+    if (trayList.some((item) => item.id === captureId)) return false;
 
     const sideSign = victimColor === 'w' ? -1 : 1;
-    const colRing = slotIndex % 2;
-    const rowSlot = Math.floor(slotIndex / 2);
-    // Place captured pieces in the Enchanted Swamp Moat (r = 6.2m..8.2m, y = -0.28m)
-    const trayX = sideSign * (6.25 + colRing * 0.95);
+    const trayX = sideSign * (6.25 + (slotIndex % 2) * 0.95);
     const trayY = -0.28;
-    const trayZ = rowSlot * 1.05 - 2.65;
+    const trayZ = Math.floor(slotIndex / 2) * 1.05 - 2.65;
 
-    const desc = this.resolveDescriptor({
-      type: defType,
-      color: victimColor,
-      square: capturedSq,
-      id: captureId,
-    });
+    const desc = this.resolveDescriptor({ type: defType, color: victimColor, square: capturedSq, id: captureId });
     trayList.push({
       ...desc,
       capturedFromSquare: capturedSq,
       capturedBy: e.attacker || 'p',
       trayIndex: slotIndex,
-      trayX,
-      trayY,
-      trayZ,
+      trayX, trayY, trayZ,
     });
     return true;
   }
@@ -198,30 +188,37 @@ export class PieceManager {
     this.emitPiecesSynced('move_executed', move);
   }
 
-  setRivalSetMode(mode) {
-    const normalized = mode === 'stone' ? 'stone' : 'family';
-    if (this.rivalSetMode === normalized) return;
-    this.rivalSetMode = normalized;
+  _applySetChange(reason) {
     this.reResolveAll();
     this.ctx?.bus?.emit({
       type: 'PIECE_SET_CHANGED',
+      whiteFamily: this.whiteFamily,
       rivalSetMode: this.rivalSetMode,
       bishopVariant: this.bishopVariant,
     });
-    this.emitPiecesSynced('rival_set_changed');
+    this.emitPiecesSynced(reason);
+  }
+
+  setWhiteFamily(family) {
+    const normalized = ['carlesso', 'swamp', 'classic'].includes(family) ? family : 'carlesso';
+    if (this.whiteFamily === normalized) return;
+    this.whiteFamily = normalized;
+    this._applySetChange('white_family_changed');
+  }
+
+  setRivalSetMode(mode) {
+    const valid = ['family', 'swamp', 'classic', 'stone'];
+    const normalized = mode === 'carlesso' ? 'family' : (valid.includes(mode) ? mode : 'family');
+    if (this.rivalSetMode === normalized) return;
+    this.rivalSetMode = normalized;
+    this._applySetChange('rival_set_changed');
   }
 
   setBishopVariant(variant) {
     const normalized = variant === 'hat' ? 'hat' : 'rigged';
     if (this.bishopVariant === normalized) return;
     this.bishopVariant = normalized;
-    this.reResolveAll();
-    this.ctx?.bus?.emit({
-      type: 'PIECE_SET_CHANGED',
-      rivalSetMode: this.rivalSetMode,
-      bishopVariant: this.bishopVariant,
-    });
-    this.emitPiecesSynced('bishop_variant_changed');
+    this._applySetChange('bishop_variant_changed');
   }
 
   reResolveAll() {
@@ -265,6 +262,7 @@ export class PieceManager {
       type: 'PIECES_SYNCED',
       reason,
       move,
+      whiteFamily: this.whiteFamily,
       rivalSetMode: this.rivalSetMode,
       bishopVariant: this.bishopVariant,
       pieces: this.getLivingPieces(),
@@ -275,6 +273,7 @@ export class PieceManager {
   getLivingPieces() { return Array.from(this.livingBySquare.values()); }
   getPieceAt(square) { return this.livingBySquare.get(square) || null; }
   getCapturedTrays() { return { w: [...this.capturedTrays.w], b: [...this.capturedTrays.b] }; }
+  getWhiteFamily() { return this.whiteFamily; }
   getRivalSetMode() { return this.rivalSetMode; }
   getBishopVariant() { return this.bishopVariant; }
   update(_dt) {}

@@ -76,6 +76,30 @@ test('PieceManager: toggles rival set mode (family vs stone) and Bishop Ale vari
   assert.equal(pieces.getBishopVariant(), 'rigged');
   assert.equal(pieces.getPieceAt('c1').glbUrl, BISHOP_GLB_VARIANTS.rigged);
 
+  // Toggle Black rival set to 'swamp' and 'classic'
+  pieces.setRivalSetMode('swamp');
+  bus.flush();
+  assert.equal(pieces.getRivalSetMode(), 'swamp');
+  assert.equal(pieces.getPieceAt('e8').name, 'Orco Brontolo');
+  assert.equal(pieces.getPieceAt('e8').glbUrl, 'assets/models/swamp/king-swamp-orco.glb');
+  assert.equal(pieces.getPieceAt('c8').glbUrl, 'assets/models/swamp/bishop-swamp-focaccina.glb');
+
+  pieces.setRivalSetMode('classic');
+  bus.flush();
+  assert.equal(pieces.getRivalSetMode(), 'classic');
+  assert.equal(pieces.getPieceAt('c8').name, 'San Gennaro');
+  assert.equal(pieces.getPieceAt('c8').glbUrl, 'assets/models/classic/bishop-classic-vescovo.glb');
+  assert.equal(pieces.getPieceAt('a8').name, 'Torre Matildea');
+  assert.equal(pieces.getPieceAt('a8').glbUrl, 'assets/models/classic/rook-classic-torre.glb');
+
+  // Toggle White family to 'swamp' and 'classic', then restore 'carlesso'
+  pieces.setWhiteFamily('swamp');
+  bus.flush();
+  assert.equal(pieces.getWhiteFamily(), 'swamp');
+  assert.equal(pieces.getPieceAt('e1').glbUrl, 'assets/models/swamp/king-swamp-orco.glb');
+  pieces.setWhiteFamily('carlesso');
+  bus.flush();
+
   // Toggle back to canonical 'hat' (bishop-ale-1.glb) and restore family set
   pieces.setBishopVariant('hat');
   pieces.setRivalSetMode('family');

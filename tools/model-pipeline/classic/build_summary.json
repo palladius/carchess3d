@@ -1,10 +1,23 @@
 [
   {
-    "file": "king-classic-cesso.glb",
-    "vertices": 10418,
-    "faces": 20728,
+    "file": "king-classic-re.glb",
+    "vertices": 8568,
+    "faces": 17072,
     "watertight": true,
     "height_m": 1.8,
+    "min_y": 0.0,
+    "materials": [
+      "faction_primary",
+      "faction_trim",
+      "accent_crimson"
+    ]
+  },
+  {
+    "file": "queen-classic-regina.glb",
+    "vertices": 7444,
+    "faces": 14832,
+    "watertight": true,
+    "height_m": 1.65,
     "min_y": 0.0,
     "materials": [
       "faction_primary",
@@ -13,80 +26,58 @@
     ]
   },
   {
-    "file": "queen-classic-ciocco.glb",
-    "vertices": 8558,
-    "faces": 17040,
-    "watertight": true,
-    "height_m": 1.65,
-    "min_y": 0.0,
-    "materials": [
-      "faction_primary",
-      "faction_trim",
-      "accent_obsidian",
-      "accent_choco"
-    ]
-  },
-  {
-    "file": "bishop-classic-drago.glb",
-    "vertices": 6694,
-    "faces": 13320,
+    "file": "bishop-classic-vescovo.glb",
+    "vertices": 9934,
+    "faces": 19744,
     "watertight": true,
     "height_m": 1.45,
     "min_y": 0.0,
     "materials": [
       "faction_primary",
       "faction_trim",
+      "accent_crimson",
       "accent_obsidian",
-      "accent_ruby",
-      "accent_amethyst"
+      "accent_emerald",
+      "accent_porcelain"
     ]
   },
   {
-    "file": "knight-classic-turbo.glb",
-    "vertices": 6468,
-    "faces": 12840,
+    "file": "knight-classic-cavallo.glb",
+    "vertices": 5542,
+    "faces": 11008,
     "watertight": true,
     "height_m": 1.35,
     "min_y": 0.0,
     "materials": [
       "faction_primary",
       "faction_trim",
-      "accent_orange",
-      "accent_obsidian",
-      "accent_cyan",
-      "accent_steel"
+      "accent_obsidian"
     ]
   },
   {
-    "file": "rook-classic-puffo.glb",
-    "vertices": 6194,
-    "faces": 12320,
+    "file": "rook-classic-torre.glb",
+    "vertices": 10496,
+    "faces": 20784,
     "watertight": true,
     "height_m": 1.3,
     "min_y": 0.0,
     "materials": [
       "faction_primary",
       "faction_trim",
-      "accent_puffo",
-      "accent_porcelain",
-      "accent_cyan",
+      "accent_terracotta",
       "accent_obsidian"
     ]
   },
   {
-    "file": "pawn-classic-puffin.glb",
-    "vertices": 6360,
-    "faces": 12660,
+    "file": "pawn-classic-pedone.glb",
+    "vertices": 4832,
+    "faces": 9648,
     "watertight": true,
     "height_m": 0.95,
     "min_y": 0.0,
     "materials": [
       "faction_primary",
-      "faction_trim",
-      "accent_obsidian",
-      "accent_orange",
-      "accent_steel",
-      "accent_crimson"
+      "faction_trim"
     ]
   }
 ]

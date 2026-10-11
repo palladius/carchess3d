@@ -8,3 +8,6 @@ node_modules/
 .cache/
 private/
 .worktrees/
+
+# Local-only Riccardo policy markers (autopush-enabled). Never commit.
+.riccardo/

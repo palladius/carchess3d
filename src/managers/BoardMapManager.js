@@ -25,6 +25,19 @@ export class BoardMapManager {
 
   init(ctx) {
     this.ctx = ctx;
+    if (ctx?.bus?.on) {
+      this.offs.push(
+        ctx.bus.on('AI_MOVE_READY', (e) => this.onAiMoveReady(e)),
+      );
+    }
+  }
+
+  /** Applies a CPU move only if it is still that color's turn (ignores stale replies). */
+  onAiMoveReady(e) {
+    if (!e?.move) return;
+    if (this.isGameOver()) return;
+    if (e.color && e.color !== this.turn()) return;
+    this.move(e.move.from, e.move.to, e.move.promotion || 'q');
   }
 
   reset() {

@@ -70,10 +70,98 @@ function bootstrapCarChess3D() {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.07;
-  controls.minDistance = 3.2;
+  controls.rotateSpeed = 0.95;
+  controls.zoomSpeed = 1.25;
+  controls.panSpeed = 0.85;
+  controls.minDistance = 2.6;
   controls.maxDistance = 24.0;
+  controls.minPolarAngle = 0.06;
   controls.maxPolarAngle = Math.PI * 0.485; // Keep camera above the swamp water plane
   controls.target.set(0.0, 2.15, -2.2);
+  controls.trackpadTwoFingerRotate = true;
+
+  // Mac Trackpad 2-Finger Gesture Upgrade:
+  // - 2-finger swipe (deltaX, deltaY without ctrl/meta/alt) -> Rotates Left/Right & Up/Down!
+  // - 2-finger pinch (event.ctrlKey === true) or Cmd/Option/Ctrl + 2-finger scroll -> Zooms In/Out!
+  // - Shift + 2-finger swipe -> Pans camera target!
+  controls._handleMouseWheel = function (event) {
+    this._updateZoomParameters(event.clientX, event.clientY);
+    const isPinchOrZoomMod =
+      event.ctrlKey || event.metaKey || event.altKey || !this.trackpadTwoFingerRotate;
+    if (isPinchOrZoomMod) {
+      const pinchScale = Math.pow(
+        0.95,
+        this.zoomSpeed * Math.min(8.0, Math.abs(event.deltaY) * 0.025 + 0.35),
+      );
+      if (event.deltaY < 0) {
+        this._dollyIn(pinchScale);
+      } else if (event.deltaY > 0) {
+        this._dollyOut(pinchScale);
+      }
+    } else if (event.shiftKey) {
+      this._pan(-event.deltaX * 0.65, -event.deltaY * 0.65);
+    } else {
+      const h = Math.max(1, this.domElement.clientHeight || window.innerHeight || 800);
+      const twoPi = Math.PI * 2;
+      this._rotateLeft((twoPi * event.deltaX * this.rotateSpeed * 0.85) / h);
+      this._rotateUp((twoPi * event.deltaY * this.rotateSpeed * 0.85) / h);
+    }
+    this.update();
+  };
+
+  // Safari macOS native 2-finger trackpad pinch gesture support (`gesturestart` / `gesturechange`)
+  let lastSafariScale = 1.0;
+  renderer.domElement.addEventListener(
+    'gesturestart',
+    (e) => {
+      e.preventDefault();
+      lastSafariScale = e.scale || 1.0;
+    },
+    { passive: false },
+  );
+  renderer.domElement.addEventListener(
+    'gesturechange',
+    (e) => {
+      e.preventDefault();
+      const currentScale = e.scale || 1.0;
+      const ratio = currentScale / Math.max(0.01, lastSafariScale);
+      lastSafariScale = currentScale;
+      if (ratio > 1.002) {
+        controls._dollyOut(Math.min(1.18, ratio));
+      } else if (ratio < 0.998) {
+        controls._dollyIn(Math.max(0.84, ratio));
+      }
+      controls.update();
+    },
+    { passive: false },
+  );
+
+  // Keyboard Zoom (+ / -) and Arrow Orbit shortcuts
+  window.addEventListener('keydown', (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
+      return;
+    }
+    if (e.key === '+' || e.key === '=') {
+      controls._dollyOut(0.88);
+      controls.update();
+    } else if (e.key === '-' || e.key === '_') {
+      controls._dollyIn(0.88);
+      controls.update();
+    } else if (e.key === 'ArrowLeft') {
+      controls._rotateLeft(0.08);
+      controls.update();
+    } else if (e.key === 'ArrowRight') {
+      controls._rotateLeft(-0.08);
+      controls.update();
+    } else if (e.key === 'ArrowUp') {
+      controls._rotateUp(0.08);
+      controls.update();
+    } else if (e.key === 'ArrowDown') {
+      controls._rotateUp(-0.08);
+      controls.update();
+    }
+  });
+
   controls.update();
 
   // Post-processing bloom pipeline
@@ -198,35 +286,8 @@ function bootstrapCarChess3D() {
   ctx.profileStorage = profileStorage;
   const hud = new HudListener(ctx);
 
-  // 6. Wire CPU AI Move Orchestration
-  let aiMovePendingAfterCutscene = false;
-  const maybeTriggerCpuMove = () => {
-    if (!ai.enabled || board.isGameOver()) return;
-    if (board.turn() !== ai.cpuColor) return;
-    if (flow.state() === FLOW_STATES.CAPTURE_CUTSCENE || combat.isActive()) {
-      aiMovePendingAfterCutscene = true;
-      return;
-    }
-    aiMovePendingAfterCutscene = false;
-    setTimeout(() => {
-      if (ai.enabled && board.turn() === ai.cpuColor && !board.isGameOver()) {
-        ai.requestMove(board.fen(), ai.difficulty).then(() => bus.flush());
-      }
-    }, 260);
-  };
-
-  bus.on('MOVE_EXECUTED', () => maybeTriggerCpuMove());
-  bus.on('BATTLE_COMPLETED', () => {
-    if (aiMovePendingAfterCutscene) maybeTriggerCpuMove();
-  });
-  bus.on('BATTLE_SKIPPED', () => {
-    if (aiMovePendingAfterCutscene) maybeTriggerCpuMove();
-  });
-  bus.on('AI_MOVE_READY', (e) => {
-    if (e.move && board.turn() === e.color && !board.isGameOver()) {
-      board.move(e.move.from, e.move.to, e.move.promotion || 'q');
-    }
-  });
+  // 6. CPU AI Move Orchestration lives in AIWorkerManager (reacts to MOVE_EXECUTED /
+  //    OPPONENT_CHANGED / BATTLE_*), and BoardMapManager applies AI_MOVE_READY.
 
   // 7. Art Director Live Control Panel (?debug=1 & ?cam=...)
   const debugPanel = new DebugPanelView({
@@ -245,8 +306,21 @@ function bootstrapCarChess3D() {
   bus.flush();
   bus.flush();
 
-  // Re-apply URL camera preset after initial board sync
+  // Re-apply URL camera preset & family selectors after initial board sync
   const urlParams = new URLSearchParams(window.location.search);
+  const familyParam = urlParams.get('family');
+  const whiteParam = urlParams.get('white') || familyParam;
+  const blackParam = urlParams.get('black') || urlParams.get('rival') || familyParam;
+  if (whiteParam) {
+    pieces.setWhiteFamily(whiteParam);
+  }
+  if (blackParam) {
+    pieces.setRivalSetMode(blackParam);
+  }
+  if (whiteParam || blackParam) {
+    bus.flush();
+    bus.flush();
+  }
   if (urlParams.get('mode') === 'wow') {
     flow.startWowMode({
       submode: urlParams.get('submode') || 'turntable',

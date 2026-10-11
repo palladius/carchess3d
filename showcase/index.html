@@ -95,7 +95,7 @@
       <div class="btn-group" id="family-tabs" role="tablist" aria-label="Famiglia di Scacchi">
         <button type="button" data-family="all" aria-pressed="true">✨ Tutte le Famiglie (18)</button>
         <button type="button" data-family="carlesso" aria-pressed="false">👨‍👩‍👦‍👦 Famiglia Carlesso (6)</button>
-        <button type="button" data-family="classic" aria-pressed="false">🗿🚽 Classici Carlessiani (6)</button>
+        <button type="button" data-family="classic" aria-pressed="false">♔🏛️ Scacchi Classici Vanilla (6)</button>
         <button type="button" data-family="swamp" aria-pressed="false">🐸🧅 Famiglia della Palude (6)</button>
       </div>
       <div class="btn-group" id="faction-tabs" role="group" aria-label="Colore Squadra 3D">
@@ -109,11 +109,11 @@
 
   <section class="family-banner" id="family-banner">
     <div>
-      <h2 id="banner-title">✨ Tutte le 3 Famiglie — 18 Pezzi (Carlesso · Classici Carlessiani · Palude)</h2>
+      <h2 id="banner-title">✨ Tutte le 3 Famiglie — 18 Pezzi (Carlesso · Classici Vanilla · Palude)</h2>
       <p id="banner-desc">Confronta i concept 2D Nano Banana 2.1 e i modelli 3D .glb verificati da <code>fable-5.1-high</code> (0 💩 rimasti!).</p>
     </div>
     <div class="family-links">
-      <a href="../tools/model-pipeline/classic/classic_contact_sheet.png" target="_blank">📸 Contact Sheet Classici (6×4)</a>
+      <a href="../tools/model-pipeline/classic/classic_contact_sheet.png" target="_blank">📸 Contact Sheet Classici Vanilla (6×4)</a>
       <a href="../tools/model-pipeline/swamp/swamp_contact_sheet.png" target="_blank">📸 Contact Sheet Palude (6×4)</a>
       <a href="../docs/qa-scores.classic.yaml" target="_blank">📋 QA Scores Classic</a>
       <a href="../docs/qa-scores.swamp.yaml" target="_blank">📋 QA Scores Swamp</a>
@@ -128,7 +128,7 @@
 
     const FAMILY_META = {
       all: {
-        title: '✨ Tutte le 3 Famiglie — 18 Pezzi (Carlesso · Classici Carlessiani · Palude)',
+        title: '✨ Tutte le 3 Famiglie — 18 Pezzi (Carlesso · Classici Vanilla · Palude)',
         desc: 'Tutte le 18 carte personaggio: 2D Nano Banana 2.1 + modelli 3D .glb con controllo colore squadra Bianco/Nero.',
       },
       carlesso: {
@@ -136,8 +136,8 @@
         desc: 'Riccardo, Kate, Ale (con drago rosso riggato a 26 ossa), Seby, Pupurabbu e la Guardia Svizzera Puffin.',
       },
       classic: {
-        title: '🗿🚽 Classici Carlessiani — Set Staunton con Easter Egg Carlessiani & Zurighesi',
-        desc: '6/6 ritratti Nano Banana 2.1 (media 8.6/10 🟢) + 6/6 modelli 3D .glb watertight a y=0 (media 7.67/10 🟡).',
+        title: '♔🏛️ Scacchi Classici (San Gennaro & Torre Matildea) — Set Staunton & Tradizione Italiana',
+        desc: '100% Scacchi Classici senza riferimenti Carlessiani: Re con Croce Reale, Regina coronata di perle, Alfiere Busto di San Gennaro con Ampolla del Sangue e mitria gemmata, Destriero Staunton, Torre Matildea / Rocca Estense dei Lidi Ferraresi e Pedone tornito.',
       },
       swamp: {
         title: '🐸🧅 Famiglia della Palude — Parodia Fiabesca 100% IP-Safe',
@@ -218,60 +218,60 @@
         modelNote: 'TRELLIS v2 watertight (13,142 facce).',
       },
 
-      // ── 2. CLASSICI CARLESSIANI (Track classic_default_pieces_20261010) ──
+      // ── 2. SCACCHI CLASSICI VANILLA (Track classic_default_pieces_20261010) ──
       {
-        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 8.5 · 🟡 3D 7.6',
-        glyph: '♔', piece: 'King (1.80m)', name: 'Re Cesso d’Oro (king-classic-cesso)', defaultConfirmed: true,
-        tagline: 'Corona Staunton a 8 punte + Trono-WC d’Oro Zecchino in cima',
-        front: '../assets/characters/king-classic-cesso.jpg',
-        model: '../assets/models/classic/king-classic-cesso.glb',
-        modelNote: '20,728 tris · watertight · min.y = 0.0 · 1.80m · attacco: royal_flush_quake',
-        details: 'Re Staunton in marmo d’avorio e oro con Trono-WC reale ("Carlesso al Cesso!") in cima alla corona e piedistallo runico.',
+        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.0 · 🟢 3D 8.9',
+        glyph: '♔', piece: 'King (1.80m)', name: 'Re Classico (king-classic-re)', defaultConfirmed: true,
+        tagline: 'Re Staunton tradizionale con corona a 8 punte su cuscino cremisi e Croce Reale in oro',
+        front: '../assets/characters/king-classic-re.jpg',
+        model: '../assets/models/classic/king-classic-re.glb',
+        modelNote: '17,072 tris · watertight · min.y = 0.0 · 1.80m · attacco: royal_cross_decree',
+        details: 'Re Staunton vanilla scolpito in marmo d’avorio scanalato con anelli d’oro, corona reale su velluto cremisi e Croce Pattee d’oro.',
       },
       {
-        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 8.7 · 🟡 3D 7.9',
-        glyph: '♕', piece: 'Queen (1.65m)', name: 'Regina Ciocco-Kate (queen-classic-ciocco)', defaultConfirmed: true,
-        tagline: 'Coronet di cioccolato svizzero fondente, perle d’oro e occhialini',
-        front: '../assets/characters/queen-classic-ciocco.jpg',
-        model: '../assets/models/classic/queen-classic-ciocco.glb',
-        modelNote: '17,040 tris · watertight · min.y = 0.0 · 1.65m · attacco: marble_choco_crush',
-        details: 'Regina Staunton scanalata con corona a onda di cioccolato fondente, 8 perle dorate e occhiali tartarugati.',
+        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.1 · 🟢 3D 8.9',
+        glyph: '♕', piece: 'Queen (1.65m)', name: 'Regina Classica (queen-classic-regina)', defaultConfirmed: true,
+        tagline: 'Regina Staunton tradizionale con coronet d’oro a 8 punte e perle d’avorio',
+        front: '../assets/characters/queen-classic-regina.jpg',
+        model: '../assets/models/classic/queen-classic-regina.glb',
+        modelNote: '14,832 tris · watertight · min.y = 0.0 · 1.65m · attacco: imperial_coronet_wave',
+        details: 'Regina Staunton vanilla con colonna scanalata in marmo d’avorio, triplo collare d’oro, corona a 8 punte con perle e globo centrale.',
       },
       {
-        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 8.6 · 🟡 3D 7.2',
-        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Alfiere Drago-Runa (bishop-classic-drago)', defaultConfirmed: true,
-        tagline: 'Mitria Staunton con testa, ala e coda di draghetto rubino + ametista',
-        front: '../assets/characters/bishop-classic-drago.jpg',
-        model: '../assets/models/classic/bishop-classic-drago.glb',
-        modelNote: '13,320 tris · watertight · min.y = 0.0 · 1.45m · attacco: rune_laser_cleave',
-        details: 'Alfiere Staunton con taglio diagonale in ossidiana da cui spuntano la testa cornuta, l’ala e la coda del drago rosso.',
+        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.3 · 🟢 3D 9.0',
+        glyph: '♗', piece: 'Bishop (1.45m)', name: 'San Gennaro (bishop-classic-vescovo)', winner: true, defaultConfirmed: true,
+        tagline: 'Busto reliquiario barocco di San Gennaro con Ampolla del Sangue rubino, mitria gemmata e pastorale d’oro',
+        front: '../assets/characters/bishop-classic-vescovo.jpg',
+        model: '../assets/models/classic/bishop-classic-vescovo.glb',
+        modelNote: '19,744 tris · watertight · min.y = 0.0 · 1.45m · attacco: crosier_blessing_beam',
+        details: 'Alfiere ispirato al Busto del Tesoro di San Gennaro: piviale rosso e oro, medaglione con la Sacra Ampolla del Sangue sul petto, mitria tempestata di rubini/smeraldi/perle e pastorale.',
       },
       {
-        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 9.0 · 🟡 3D 7.6',
-        glyph: '♘', piece: 'Knight (1.35m)', name: 'Cavallo Turbo-Goggles (knight-classic-turbo)', winner: true, defaultConfirmed: true,
-        tagline: 'Cavallo Staunton con occhialoni da corsa ciano, doppi scarichi turbo e pista arancione',
-        front: '../assets/characters/knight-classic-turbo.jpg',
-        model: '../assets/models/classic/knight-classic-turbo.glb',
-        modelNote: '12,840 tris · watertight · min.y = 0.0 · 1.35m · attacco: stone_hoon_charge',
-        details: 'Destriero Staunton scolpito con occhialoni da pilota in ottone e lenti ciano, marmitte laterali inclinate a 30° e anello pista loop.',
+        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.2 · 🟢 3D 8.9',
+        glyph: '♘', piece: 'Knight (1.35m)', name: 'Destriero Classico (knight-classic-cavallo)', winner: true, defaultConfirmed: true,
+        tagline: 'Nobile destriero Staunton in marmo d’avorio con criniera scolpita e briglie dorate',
+        front: '../assets/characters/knight-classic-cavallo.jpg',
+        model: '../assets/models/classic/knight-classic-cavallo.glb',
+        modelNote: '11,008 tris · watertight · min.y = 0.0 · 1.35m · attacco: warhorse_cavalry_charge',
+        details: 'Cavallo Staunton tradizionale scolpito in marmo d’avorio con collo arcuato, criniera fluente e briglie medievali in oro spazzolato.',
       },
       {
-        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 8.6 · 🟢 3D 8.0',
-        glyph: '♖', piece: 'Rook (1.30m)', name: 'Torre Grossmünster Puffo (rook-classic-puffo)', winner: true, defaultConfirmed: true,
-        tagline: 'Torre merlata con mostriciattolo viola che sbircia tra i merli',
-        front: '../assets/characters/rook-classic-puffo.jpg',
-        model: '../assets/models/classic/rook-classic-puffo.glb',
-        modelNote: '12,320 tris · watertight · min.y = 0.0 · 1.30m · TOP_QUALITY 🟢 (8.0/10)',
-        details: 'Torre in pietra ispirata al Grossmünster di Zurigo con 6 merli e un simpatico mostriciattolo viola con zampe e occhioni.',
+        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.4 · 🟢 3D 9.1',
+        glyph: '♖', piece: 'Rook (1.30m)', name: 'Torre Matildea (rook-classic-torre)', winner: true, defaultConfirmed: true,
+        tagline: 'Torre Matildea / Rocca Estense dei Lidi Ferraresi in cotto rosso, bugnato d’avorio, beccatelli e lanterna',
+        front: '../assets/characters/rook-classic-torre.jpg',
+        model: '../assets/models/classic/rook-classic-torre.glb',
+        modelNote: '20,784 tris · watertight · min.y = 0.0 · 1.30m · attacco: fortress_slam',
+        details: 'Torre ispirata alla Torre Matildea e al Castello Estense di Ferrara: fusto in mattoni di cotto, cantonali in marmo d’avorio, caditoie su beccatelli, merli e torretta ottagonale.',
       },
       {
-        family: 'classic', familyBadge: '🗿🚽 Classico', criticScore: '🟢 2D 8.4 · 🟡 3D 7.7',
-        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Pedone Guardia Puffin (pawn-classic-puffin)', defaultConfirmed: true,
-        tagline: 'Pedone Staunton con becco da pulcinella di mare, elmo morione e piuma cremisi',
-        front: '../assets/characters/pawn-classic-puffin.jpg',
-        model: '../assets/models/classic/pawn-classic-puffin.glb',
-        modelNote: '12,660 tris · watertight · min.y = 0.0 · 0.95m · attacco: pike_bonk',
-        details: 'Pedone classico con becco arancione/nero striato, elmo da Guardia Svizzera in acciaio e oro e triplo pennacchio rosso.',
+        family: 'classic', familyBadge: '♔🏛️ Vanilla', criticScore: '🟢 2D 9.1 · 🟢 3D 9.0',
+        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Pedone Classico (pawn-classic-pedone)', defaultConfirmed: true,
+        tagline: 'Iconico pedone Staunton tornito con collare d’oro e sfera liscia in marmo d’avorio',
+        front: '../assets/characters/pawn-classic-pedone.jpg',
+        model: '../assets/models/classic/pawn-classic-pedone.glb',
+        modelNote: '9,648 tris · watertight · min.y = 0.0 · 0.95m · attacco: staunton_march_strike',
+        details: 'Pedone Staunton tradizionale puro: base a gradini, fusto concavo tornito, doppio collare d’oro e testa sferica liscia in marmo d’avorio.',
       },
 
       // ── 3. FAMIGLIA DELLA PALUDE (Track swamp_family_pieces_20261010) ──

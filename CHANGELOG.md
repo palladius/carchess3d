@@ -1,32 +1,84 @@
 # Changelog
 
-## [0.2.5] - 2026-10-11
+## [0.3.3] - 2026-10-10
 
-- 🎬 **16:9 Video Discreet in Idle, Full-Screen Behind the 3D Chessboard During Combat (`src/views/VeoCinemaView.js`, `src/views/VFXPoolView.js`)**:
-  - In `idle` mode, `VeoCinemaView` stays discreet ("in disparte" at `z = -10.8m, scale = 0.65`) between the Grossmünster towers without distracting video loops.
-  - On `BATTLE_STARTED` or `CHECKMATE`, `VeoCinemaView` smoothly expands into a giant full-screen 16:9 IMAX backdrop (`z = -5.5m, y = 3.35m, scale = 2.05` → `16.4m × 9.2m`) directly behind the North edge of the 8×8 chessboard, while `VFXPoolView.updateCameraOrbit` frames the camera at a low heroic angle (`y = 2.65m, z = +8.4m` looking through the 3D clash toward `z = -5.5m`) so the **3D chessboard & fighting pieces are in the foreground** and **behind them the 16:9 video fills the screen**.
-- 👑💥 **Spectacular 3D King Capitulation on Checkmate (`src/managers/BoardMapManager.js`, `src/views/PieceView.js`, `src/views/VFXPoolView.js`, `src/listeners/HudListener.js`)**:
-  - `BoardMapManager` now emits `loserKingSquare` and `winnerKingSquare` on `CHECKMATE`.
-  - `PieceView.animateKingCapitulation` plays a 3-stage **`king_capitulation`** animation on the defeated King (violent royal earthquake tremble → slow-motion leap → 84° collapse onto the chessboard with damped bounce) while all surviving winning pieces perform celebratory `victory_jump` hops.
-  - `VFXPoolView.onCheckmate` triggers a 4.2s Royal Capitulation spectacle on the defeated King's square (Golden Sky-Beam, Rune Circle, Lightning Bolts, Shockwave Ring, and 4 waves of golden sparks, gem shards, stone shrapnel, and confetti), and `HudListener.onCheckmate` displays the `👑 CAPITOLAZIONE DEL RE! SCACCO MATTO! 💥` banner for 4.2s before opening the Game Over modal.
-- ⚔️ **In-App 6×6 Capture Matrix Explorer & Asset Inventory (`src/core/Registry.js`, `src/listeners/HudListener.js`)**:
-  - Added `FAMILY_ROSTERS` (`carlesso`, `classic`, `swamp`), `resolveFamilyMatchup`, and a top-bar `⚔️ 6×6` button (`#hud-matrix-btn`) opening an interactive **6×6 Capture Matrix Explorer (`#hud-matrix-modal`)** where any `(Family/Attacker A → Defender B)` combination can be inspected (showing badges for `📹 MP4 Dedicato`, `🎞️ Video + Canvas`, `🦴 GLB Rigged`, and `🌟 Easter Egg`) and launched live on the 3D chessboard with 1 click.
-- ⏱️ **+50% Longer Combat Cutscenes (`src/managers/CombatAnimationManager.js`, `src/views/VFXPoolView.js`, `tests/combat.test.mjs`)**:
-  - Increased `DEFAULT_BATTLE_DURATION_MS` from `2800ms` to **`4200ms` (+50%)** and `DEBRIS_LIFETIME_S` from `3.0s` to **`4.5s` (+50%)** so every 3D clash and background video can be savored.
+- 🍌📺 **Wire Nano Banana 16:9 Keyframes & `1.65×` Veo Playback (`BattleMatrix36.js`, `VeoCinemaView.js`, `battles.html`)**:
+  - Added `keyframeUrl: assets/battles/keyframes/<id>.png` across all 36 entries in [`src/core/BattleMatrix36.js`](src/core/BattleMatrix36.js) and wired `poster="assets/battles/keyframes/<id>.png"` into the 6×6 video player in [`battles.html`](battles.html).
+  - Updated [`src/views/VeoCinemaView.js`](src/views/VeoCinemaView.js) to preload and render the Nano Banana 16:9 Initial Battle Keyframe as Tier-2 fallback on the 16:9 Magic Cinema Mirror while the video buffers, and set `videoEl.playbackRate = 1.65` so the full 6–8s Veo 3.1 battle movie plays within the 4.0s 3D Scazzottata cutscene.
+
+## [0.3.2] - 2026-10-10
+
+- 🍌🎬 **2-Stage Generative AI Battle Cinema Pipeline (`Nano Banana 2.1` Keyframe → `Veo 3.1` I2V Video) (`scripts/generate_nb_veo_battle.py`, `assets/battles/keyframes/{b_x_n,n_x_b}.png`, `assets/battles/videos/{b_x_n,n_x_b}.{mp4,webm}`)**:
+  - Added [`scripts/generate_nb_veo_battle.py`](scripts/generate_nb_veo_battle.py): composes the clean front portraits of Attacker (Left) + Defender (Right) + 16:9 side-by-side layout guide (`assets/battles/refs/<pair>_ref.png`) into a cohesive 16:9 Pixar-style starting frame via `gemini-nano-banana-2.1`, then animates that exact frame into a 16:9 `.mp4` + `.webm` battle movie via `veo-3.1-fast-generate-preview`.
+  - Generated full-fidelity 16:9 Nano Banana 2.1 keyframes and Veo 3.1 I2V movies for **`b_x_n` (Bishop Ale & Red Dragon vs Knight Seby)** and **`n_x_b` (Knight Seby & Hot-Wheels Loop-Track vs Bishop Ale)**.
+
+## [0.3.1] - 2026-10-10
+
+- 🐛🧹 **Merge `refactor_ui_cleanup_ux` — Idempotent UI Clicks, Async GLTF Load-Token Guard & Mirror-Safe Camera Flip (`PieceManager.js`, `WowModeView.js`, `ZurichSwampView.js`, `CombatAnimationManager.js`, `HudListener.js`, `main.js`, `tests/pieces.test.mjs`)**:
+  - **Idempotent `🐸 Palude` (`PieceManager.seedSwampParty` / `handlePieceCaptured`)**: Clicking `🐸 Palude` or opening `?demo=swamp` now calls `PieceManager.seedSwampParty()`, which is idempotent (`swampDemoPiece: true`) and never spawns duplicate dead pieces or deletes living pieces (`c1, g1, e2, b8, f8, h8`) from the 3D board. Covered by unit test in [`tests/pieces.test.mjs`](tests/pieces.test.mjs).
+  - **WOW Mode Async Load-Token Guard & Skeleton Preservation (`WowModeView.js`)**: Added `_heroLoadToken` so rapid clicks on WOW character/variant buttons never attach stale GLTF hero roots out of order, while preserving 3D skeleton rigs (`SkeletonRigHelper`) and prevented `WowModeView.onArenaClash` from mutating Mode 1 `pieceView.pieceBySquare`.
+  - **Duplicate Highlight Ring Cleanup (`ZurichSwampView.js`)**: Removed duplicate selection/check highlight rings from `ZurichSwampView` (now exclusively owned by `BoardInteractionView`).
+  - **Mirror-Safe Camera Flip (`HudListener.js`, `main.js`)**: Flipping the camera (`🔄 Flip`) now parks at `z = -8.2m` in front of the `z = -10.2m` 16:9 Magic Cinema Mirror instead of clipping behind it, and added `CombatAnimationManager.isBusy()` alias for backward compatibility.
+
+## [0.3.0] - 2026-10-10
+
+- 🐝🎬 **Adversarial Swarm Complete — All 36 (`6×6`) Bespoke 3D Brawls, 72 16:9 Videos (`36 .mp4` + `36 .webm`), Interactive 6×6 Matrix Explorer & Visible 3D Skeletons (GitHub Issues `#10`–`#16` ✅)**:
+  - **Issue `#11` (`@matrix36-choreo` & `@explorer6x6-ux`) — All 36 (`6 vs 6`) Animations & Videos + `battles.html` Explorer**:
+    - Added [`src/core/BattleMatrix36.js`](src/core/BattleMatrix36.js) defining all 36 (`6 × 6`) combinations with bespoke bilingual titles, comic banners, attacker 3D weapons, Act 2 defender counter-attack moves (`defenderCounter`), and finisher reactions, plus [`tests/matrix36.test.mjs`](tests/matrix36.test.mjs).
+    - Upgraded [`scripts/render_battle_videos.py`](scripts/render_battle_videos.py) and generated **all 36 `.mp4` and all 36 `.webm` 16:9 3-Act videos** (`assets/battles/videos/k_x_k.mp4` .. `p_x_p.mp4`, 72 video files total).
+    - Built the standalone **[`battles.html`](battles.html) 6×6 Battle Matrix Explorer** (`https://palladius.github.io/carchess3d/battles.html`) and the in-game **`🎬 Matrice 6×6 (36 Scontri)`** modal in [`src/listeners/HudListener.js`](src/listeners/HudListener.js) with 1-click **`🥊 Scazzottata 3D + Cinema`**, built-in 16:9 `<video>` preview player, and **`▶️ Maratona 36 Scontri`**.
+  - **Issue `#10` & `#15` (`@brawl3d-vfx`) — 3D Weapons, Defender Counter-Attacks, Floating 3D Comic Words & Shrek Swamp Splash**:
+    - Attached 3D weapons & props (`buildFighterWeaponProp`) to both fighters in [`src/views/VFXPoolView.js`](src/views/VFXPoolView.js) (Puffin's Halberd + 3D Silver Fish, Ale's Amethyst Staff + Dragon Fireball stream, Seby's Twin Orange Turbo Boosters + orbiting race car, Pupurabbu's Giant Purple Plushie Boxing Gloves + Belly Aura, Kate's Golden-Lilac Choco Wand + Magic Shield, Riccardo's Lightning Sceptre + Golden Plunger-Crown).
+    - Added active **Defender Counter-Attacks in Act 2** (`horse_rear_hoof_kick`, `dragon_flame_puff`, `halberd_fish_parry`, `plush_belly_bounce`, `lilac_choco_shield_spin`, `royal_sceptre_zap`), floating 3D comic impact words (`CHARGE!` → `CLANG! ⚔️` → `CONTRATTACCO! 💥` → `KAPOW! 🌪️` → `K.O.! 🐸💦`), hit-pulse camera shake, and a 3D emerald water-column splash (`swampKoSplash`) in Shrek's Swamp.
+    - Updated [`src/views/VeoCinemaView.js`](src/views/VeoCinemaView.js) to play all 36 `<atk>_x_<def>.mp4`/`.webm` videos and render pair-specific titles & Act 2 counter-attack badges.
+  - **Issue `#12` & `#14` (`@skeletons-locomotion`) — Visible 23-Joint 3D Articulated Skeletons & Footprints/Hoofprints**:
+    - Added [`src/views/SkeletonRigHelper.js`](src/views/SkeletonRigHelper.js) and integrated it into [`src/views/PieceView.js`](src/views/PieceView.js) and [`src/views/WowModeView.js`](src/views/WowModeView.js): 23 articulated 3D bone/joint pivots (including Knight Seby's 4-legged warhorse skeleton and Bishop Ale's dragon wing skeleton), glowing footprint/hoofprint trails along `2.0s–2.2s` moves, **`🦴 Scheletri 3D`** HUD toggle, and sculpted 3D notched lily-pad leaves + pink lotus flowers under every Shrek Swamp swimmer.
+  - **Issue `#13` & `#16` (`@explorer6x6-ux` & `@adversarial-critic`) — Mac Trackpad `_customWheelEvent` Fix, Legal Dots Hover Preview & Full Adversarial Audit**:
+    - Fixed Three.js `OrbitControls._customWheelEvent` stripping `deltaX` & `ctrlKey` in [`src/views/BoardInteractionView.js`](src/views/BoardInteractionView.js) (caught by `@adversarial-critic`), added 3D floating capture hover preview badges (`"⚔️ ♙ Puffin vs ♙ Puffin"`), and added [`scripts/adversarial_swarm_audit.py`](scripts/adversarial_swarm_audit.py) verifying all 7 GitHub Issues (`#10`–`#16`) end-to-end.
+
+## [0.2.7] - 2026-10-10
+
+- ♔🏛️ **Pure Vanilla Classic Chess Family (`classic`) with San Gennaro Bishop & Torre Matildea Rook**:
+  - Replaced the Carlessian-hybrid Classic pieces with a 100% pure traditional Staunton & Italian heritage chess set (`assets/characters/*-classic-{re,regina,vescovo,cavallo,torre,pedone}.jpg` via `gemini-nano-banana-2.1` + watertight 3D `.glb` models in `assets/models/classic/`):
+    - **♔ Re Classico (`king-classic-re.glb`, `1.80m`)**: Fluted ivory marble & royal gold Staunton King with crimson velvet crown cushion & Cross Pattee finial.
+    - **♕ Regina Classica (`queen-classic-regina.glb`, `1.65m`)**: Fluted Staunton Queen with 8-spike gold coronet, 8 ivory pearls & central golden orb.
+    - **♗ San Gennaro (`bishop-classic-vescovo.glb`, `1.45m`)**: Neapolitan Baroque reliquary bust of St. Januarius (`Busto del Tesoro di San Gennaro`) with crimson-and-gold brocade cope, glowing ruby **Ampolla del Sangue** medallion on the chest, jewel-encrusted Baroque mitre (rubies, emeralds, pearls, cross), and golden pastoral crosier.
+    - **♘ Destriero Classico (`knight-classic-cavallo.glb`, `1.35m`)**: Sculpted Staunton warhorse head with arched neck, scalloped marble mane & golden bridle.
+    - **♖ Torre Matildea (`rook-classic-torre.glb`, `1.30m`)**: Renaissance fortress tower inspired by the **Torre Matildea / Castello Estense** of Ferrara & Lidi Ferraresi in warm terracotta brickwork, ivory marble corner quoins, overhanging corbel machicolations (`beccatelli e caditoie`), battlements & octagonal roof lantern.
+    - **♙ Pedone Classico (`pawn-classic-pedone.glb`, `0.95m`)**: Pure turned Staunton Pawn with baluster shaft, double gold collar & smooth ivory sphere.
+- 🐸♟️ **Playable Multi-Family Selector on the 3D Chessboard (`index.html`, `Registry.js`, `PieceManager.js`, `PieceView.js`, `HudListener.js`)**:
+  - Wired all 3 piece families (`carlesso`, `swamp`, `classic`) + `stone` directly into the playable 3D chessboard via HUD topbar selectors (`#hud-white-select` for White, `#hud-rival-select` for Black) and URL query parameters (`?family=swamp`, `?family=classic`, `?white=...`, `?black=...`).
+  - Updated `PieceView.attachGlbToPiece` to preserve multi-material untextured PBR colors on `swamp` and `classic` `.glb` models while dynamically tinting `faction_primary` and `faction_trim` slots by team color (White Ivory & Gold vs Black Obsidian & Silver).
+
+## [0.2.6] - 2026-10-10
+
+- 🐛🤖 **Fix: CPU opponent only moved once** (`src/main.js`, `src/managers/AIWorkerManager.js`, `src/managers/BoardMapManager.js`, `src/listeners/HudListener.js`):
+  - Root cause: the ad-hoc CPU wiring in `main.js` called the non-existent `combat.isBusy()` inside the `MOVE_EXECUTED` handler, throwing `TypeError` during `bus.flush()` on every CPU turn. The first move only worked because the HUD called `ai.requestMove()` directly; afterwards the user had to re-select the CPU to force each move.
+  - Per Niccolò rule #2/#3/#4, the "it is the CPU's turn → think → move" rule now lives in `AIWorkerManager` (reacts to `OPPONENT_CHANGED`, `MOVE_EXECUTED`, `BOARD_RESET`, `BATTLE_COMPLETED`, `BATTLE_SKIPPED`; queries `board`/`flow`/`combat.isActive()` read-only via `ctx`; generation-guarded timer, no double-think). `BoardMapManager` now applies `AI_MOVE_READY` itself (ignoring stale replies). `main.js` and `HudListener` no longer call the AI directly.
+  - Spec drift fixed in `docs/spec/SPEC.md` (§Architecture › `ai/`): CPU turn-taking ownership is now documented.
+  - TDD: added `tests/cpu-opponent.test.mjs` (5 headless regression tests: replies to every human move, takes a pending turn right after being enabled, stops on hotseat, waits for the capture cutscene, board ignores stale AI moves). Verified end-to-end in headless Chromium (3 consecutive CPU replies, zero page errors).
+- 📐🏠 **Self-sufficient spec**: `docs/spec/SPEC.md` + `docs/spec/input_prompt.md` imported from `palladius/respec` (`carlesso-family/chess3d`, last respec commit `9c5c2a7`). `respec` is no longer a dependency: `AGENTS.md`/`GEMINI.md`, `README.md` and the `justfile` (`sync-assets` → `spec`) now point to the in-repo spec, which may be edited together with the code.
+
+## [0.2.5] - 2026-10-10
+
+- 🌐📖 **GitHub Pages Live Banner in `README.md` & GitHub Issues `#10`–`#16`**:
+  - Added prominent live GitHub Pages links (`https://palladius.github.io/carchess3d/`, WOW Mode, 3D Brawl demo, Shrek Swamp demo, 3-Family Showcase, and Visual Progress Gallery) at the top of [`README.md`](README.md).
+  - Created 7 tracked GitHub Issues (`#10`–`#16`) for every single gameplay/3D/UX requirement and launched the Adversarial Swarm to implement all 36 (`6×6`) bespoke 3D combat animations, all 36 `.mp4`/`.webm` 16:9 videos, the interactive 6×6 Battle Matrix Explorer, and visible 3D skeletal rigs.
 
 ## [0.2.4] - 2026-10-10
 
-- 🧹 **Minimal Desktop UI & Bottom Mini-Log (`src/listeners/HudListener.js`, `src/core/Registry.js`)**:
-  - Stripped verbose labels and text walls from the top bar, bottom bar, and WOW Mode drawer in favor of compact icon-first controls.
-  - Added a compact **Bottom Mini-Log (`#hud-minilog`)** that displays the active player's turn (`⚪ Turno di Riccardo 👑` / `⚪ Riccardo 👑's turn`, `Ale 🐉`, `Seby 🏎️`, `Kate 💜`, or `⚫ Turno CPU 🤖`), inline Luck meter (`🍀 0/12`), and a live 3-line move/event feed instead of full-screen turn banners or floating mid-screen toasts.
-- 🎬 **16:9 Magic Cinema Mirror Dedicated to WOW Videos (`src/views/VeoCinemaView.js`, `src/core/Registry.js`)**:
-  - Fixed `BATTLE_MATRIX` `videoUrl` resolution to point to existing 16:9 `.mp4`/`.webm` clips (`b_x_n.mp4`, `n_x_b.mp4`, `n_x_r.mp4`) instead of non-existent `${pairId}.mp4` paths.
-  - Updated `VeoCinemaView` so the 16:9 mirror continuously cycles and plays the 16:9 WOW battle videos in `idle` mode as well as `battle` mode, removing the full-screen `"Turno del Bianco"` / `"Ultima mossa"` text slide.
-- 🐛 **Idempotent UI Clicks & State Bug Fixes**:
-  - **Idempotent `🐸 Palude` (`PieceManager.seedSwampParty` / `handlePieceCaptured`)**: Clicking `🐸 Palude` no longer spawns 6 duplicate dead pieces on every click or deletes living pieces (`c1, g1, e2, b8, f8, h8`) from the 3D board.
-  - **CPU AI non-capture move fix (`CombatAnimationManager.isBusy`, `src/main.js`)**: Fixed `combat.isBusy is not a function` TypeError after non-capture human moves against CPU.
-  - **Camera Flip & Top-Down idempotency (`HudListener._applyBoardCameraPose`)**: Flipping the camera now stays at `z = -8.2m` in front of the `z = -10.2m` 16:9 cinema mirror instead of clipping behind it, and toggling Top-Down restores the exact canonical overview pose.
-  - **WOW Mode & Highlight fixes (`WowModeView.js`, `PieceView.js`, `ZurichSwampView.js`)**: Made WOW character/variant buttons idempotent with an async GLTF load token guard, prevented `WowModeView.onArenaClash` from mutating Mode 1 `pieceView.pieceBySquare`, added `PieceView.playClipOnSquare`, and removed duplicate selection/check rings from `ZurichSwampView`.
+- 🥊⚔️ **3D Scazzottata / Real 3D Character Brawl (`VFXPoolView.js` + `CombatAnimationManager.js` + `PieceView.js`)**:
+  - Replaced untextured stage proxy cones with the **two actual 3D `.glb` combatant statues** (`attackerFighter` vs `defenderFighter`) staged directly on the capture square across a `4.0s` 3-Act 3D Brawl:
+    1. *Act 1 (Walk/Gallop Charge & Guard Stance)*: Attacker A charges in from `fromSquare` while Defender B turns to face them in a combat guard stance.
+    2. *Act 2 (La Scazzottata 3D — 5 Physical Combat Exchanges)*: Attacker A and Defender B trade 5 rapid back-and-forth lunges, counter-attacks, mid-air whirlwind clashes, uppercuts, and signature finishers inside a swirling 3D cartoon brawl dust cloud + comic impact starburst (`KAPOW!`), framed by a close-up orbiting camera (`dist = 4.0m..4.6m`).
+    3. *Act 3 (Knockout Launch into Shrek's Swamp & Victory Pose)*: Defender B is flattened/melted or launched spinning into the Enchanted Swamp moat while Attacker A celebrates on the captured square.
+- 🏃‍♂️🐎 **2.0-Second Articulated Skeletal Piece Locomotion (`PieceView.js`)**:
+  - Injected a real-time procedural skeletal limb & horse-gallop vertex shader (`injectLocomotionShader` on `MeshStandardMaterial.onBeforeCompile`) so every `.glb` statue's left/right legs, feet, horse hooves, arms, and weapons visibly stride and swing during movement and combat.
+  - Upgraded board moves (`c2 -> c4`, `g1 -> f3`, etc.) to **`2.0s` (`2.2s` for Knight Seby)** with distinct character gaits: Pawn Puffin's 8-step Swiss-Guard waddle-march (`Camminata di Puffin`), Knight Seby's horse rear-up + 4-bound curved L-gallop (`Cavalcata di Seby`), Bishop Ale's 6-beat winged diagonal glide, Rook Pupurabbu's 5 squash-and-stretch plushie bounds, Queen Kate's royal stride & pirouette, and King Riccardo's solemn swagger.
+- 🖐️🍎 **Mac Trackpad 2-Finger Rotate & Pinch Zoom Controls (`src/main.js` + `HudListener.js`)**:
+  - Upgraded `OrbitControls._handleMouseWheel` so a two-finger swipe on the Mac trackpad (`deltaX`, `deltaY`) smoothly rotates the 3D camera left/right and up/down, while two-finger pinch (`ctrlKey` / Safari `gesturechange`) or `Cmd/Option/Ctrl + scroll` (plus keyboard `+`/`-` and new HUD `🔍+`, `🔍−`, `🖐️ 2-Dita: Ruota` buttons) zooms in and out.
+- ♟️🧭 **White vs Black Army Facing Orientation (`PieceView.js`)**:
+  - Oriented all 16 White pieces (`homeYaw = Math.PI`, facing North `-Z`) to directly confront all 16 Black pieces (`homeYaw = 0`, facing South `+Z`) across the chessboard.
 
 ## [0.2.3] - 2026-10-10
 

@@ -2,15 +2,15 @@ family: classic
 evaluated_by: heuristic-self
 models:
 - piece: king
-  character: cesso
-  model_name: king-classic-cesso.glb
-  concept_file: assets/characters/king-classic-cesso.jpg
-  model_file: assets/models/classic/king-classic-cesso.glb
+  character: re
+  model_name: king-classic-re.glb
+  concept_file: assets/characters/king-classic-re.jpg
+  model_file: assets/models/classic/king-classic-re.glb
   evaluated_at: '2026-10-10'
   evaluated_by: heuristic-self
   geometry:
-    faces: 20728
-    vertices: 10418
+    faces: 17072
+    vertices: 8568
     is_watertight: true
     tallest_axis: Y
     height: 1.8
@@ -20,28 +20,27 @@ models:
     materials:
     - faction_primary
     - faction_trim
-    - accent_porcelain
+    - accent_crimson
   scores:
-    critic_2d: 8.5
-    critic_overall: 7.6
-    overall: 7.6
-  tier: ACCEPTABLE 🟡
+    critic_2d: 9.0
+    critic_overall: 8.9
+    overall: 8.9
+  tier: TOP_QUALITY 🟢
   passed: true
-  summary: 'Watertight Staunton king (1.80m): Oversized Golden Royal Toilet-Throne
-    finial (square tank, porcelain seat, armrests), 8-point crown over marble dome
-    & embossed rune pedestal.'
+  summary: 'Watertight Staunton king (1.80m): Pure Staunton King with fluted ivory
+    shaft, 8-point gold crown over crimson velvet dome & classic Cross Pattee finial.'
   structural_flaws: []
   aesthetic_flaws: []
 - piece: queen
-  character: ciocco
-  model_name: queen-classic-ciocco.glb
-  concept_file: assets/characters/queen-classic-ciocco.jpg
-  model_file: assets/models/classic/queen-classic-ciocco.glb
+  character: regina
+  model_name: queen-classic-regina.glb
+  concept_file: assets/characters/queen-classic-regina.jpg
+  model_file: assets/models/classic/queen-classic-regina.glb
   evaluated_at: '2026-10-10'
   evaluated_by: heuristic-self
   geometry:
-    faces: 17040
-    vertices: 8558
+    faces: 14832
+    vertices: 7444
     is_watertight: true
     tallest_axis: Y
     height: 1.65
@@ -51,28 +50,27 @@ models:
     materials:
     - faction_primary
     - faction_trim
-    - accent_obsidian
-    - accent_choco
+    - accent_porcelain
   scores:
-    critic_2d: 8.7
-    critic_overall: 7.9
-    overall: 7.9
-  tier: ACCEPTABLE 🟡
+    critic_2d: 9.1
+    critic_overall: 8.9
+    overall: 8.9
+  tier: TOP_QUALITY 🟢
   passed: true
-  summary: 'Watertight Staunton queen (1.65m): Swiss dark-chocolate wave coronet with
-    8 gold pearls, thickened tortoise-shell glasses & fluted marble gown.'
+  summary: 'Watertight Staunton queen (1.65m): Pure fluted Staunton Queen with 8-spike
+    royal gold coronet, 8 ivory pearls & golden orb finial.'
   structural_flaws: []
   aesthetic_flaws: []
 - piece: bishop
-  character: drago
-  model_name: bishop-classic-drago.glb
-  concept_file: assets/characters/bishop-classic-drago.jpg
-  model_file: assets/models/classic/bishop-classic-drago.glb
+  character: vescovo
+  model_name: bishop-classic-vescovo.glb
+  concept_file: assets/characters/bishop-classic-vescovo.jpg
+  model_file: assets/models/classic/bishop-classic-vescovo.glb
   evaluated_at: '2026-10-10'
   evaluated_by: heuristic-self
   geometry:
-    faces: 13320
-    vertices: 6694
+    faces: 19744
+    vertices: 9934
     is_watertight: true
     tallest_axis: Y
     height: 1.45
@@ -82,30 +80,31 @@ models:
     materials:
     - faction_primary
     - faction_trim
+    - accent_crimson
     - accent_obsidian
-    - accent_ruby
-    - accent_amethyst
+    - accent_emerald
+    - accent_porcelain
   scores:
-    critic_2d: 8.6
-    critic_overall: 7.2
-    overall: 7.2
-  tier: ACCEPTABLE 🟡
+    critic_2d: 9.3
+    critic_overall: 9.0
+    overall: 9.0
+  tier: TOP_QUALITY 🟢
   passed: true
-  summary: 'Watertight Staunton bishop (1.45m): Pointed mitre with dark obsidian diagonal
-    slit, ruby dragon head sphere + horn cones + eyes + triangular wing plate + coiled
-    tail & amethyst.'
+  summary: 'Watertight Staunton bishop (1.45m): San Gennaro Neapolitan Baroque reliquary
+    bust with crimson-and-gold brocade cope, ruby Ampolla del Sangue medallion, jeweled
+    mitre & golden pastoral crosier.'
   structural_flaws: []
   aesthetic_flaws: []
 - piece: knight
-  character: turbo
-  model_name: knight-classic-turbo.glb
-  concept_file: assets/characters/knight-classic-turbo.jpg
-  model_file: assets/models/classic/knight-classic-turbo.glb
+  character: cavallo
+  model_name: knight-classic-cavallo.glb
+  concept_file: assets/characters/knight-classic-cavallo.jpg
+  model_file: assets/models/classic/knight-classic-cavallo.glb
   evaluated_at: '2026-10-10'
   evaluated_by: heuristic-self
   geometry:
-    faces: 12840
-    vertices: 6468
+    faces: 11008
+    vertices: 5542
     is_watertight: true
     tallest_axis: Y
     height: 1.35
@@ -115,31 +114,27 @@ models:
     materials:
     - faction_primary
     - faction_trim
-    - accent_orange
     - accent_obsidian
-    - accent_cyan
-    - accent_steel
   scores:
-    critic_2d: 9.0
-    critic_overall: 7.6
-    overall: 7.6
-  tier: ACCEPTABLE 🟡
+    critic_2d: 9.2
+    critic_overall: 8.9
+    overall: 8.9
+  tier: TOP_QUALITY 🟢
   passed: true
-  summary: 'Watertight Staunton knight (1.35m): Carved horse with muzzle/jaw break,
-    flared nostrils, wavy mane, cyan racing goggles, 30°-swept turbo pipes & orange
-    rim.'
+  summary: 'Watertight Staunton knight (1.35m): Noble carved Staunton Warhorse with
+    arched neck, crisp jaw break, scalloped marble mane & golden bridle.'
   structural_flaws: []
   aesthetic_flaws: []
 - piece: rook
-  character: puffo
-  model_name: rook-classic-puffo.glb
-  concept_file: assets/characters/rook-classic-puffo.jpg
-  model_file: assets/models/classic/rook-classic-puffo.glb
+  character: torre
+  model_name: rook-classic-torre.glb
+  concept_file: assets/characters/rook-classic-torre.jpg
+  model_file: assets/models/classic/rook-classic-torre.glb
   evaluated_at: '2026-10-10'
   evaluated_by: heuristic-self
   geometry:
-    faces: 12320
-    vertices: 6194
+    faces: 20784
+    vertices: 10496
     is_watertight: true
     tallest_axis: Y
     height: 1.3
@@ -149,30 +144,29 @@ models:
     materials:
     - faction_primary
     - faction_trim
-    - accent_puffo
-    - accent_porcelain
-    - accent_cyan
+    - accent_terracotta
     - accent_obsidian
   scores:
-    critic_2d: 8.6
-    critic_overall: 8.0
-    overall: 8.0
+    critic_2d: 9.4
+    critic_overall: 9.1
+    overall: 9.1
   tier: TOP_QUALITY 🟢
   passed: true
-  summary: 'Watertight Staunton rook (1.30m): Grossmünster masonry turret with 6 deep
-    merlons & smooth purple monster peeker with eyes and 4 paws.'
+  summary: 'Watertight Staunton rook (1.30m): Torre Matildea / Rocca Estense (Ferrara
+    & Lidi Ferraresi) in terracotta brickwork & ivory marble quoins, corbel machicolations,
+    battlements & octagonal roof lantern.'
   structural_flaws: []
   aesthetic_flaws: []
 - piece: pawn
-  character: puffin
-  model_name: pawn-classic-puffin.glb
-  concept_file: assets/characters/pawn-classic-puffin.jpg
-  model_file: assets/models/classic/pawn-classic-puffin.glb
+  character: pedone
+  model_name: pawn-classic-pedone.glb
+  concept_file: assets/characters/pawn-classic-pedone.jpg
+  model_file: assets/models/classic/pawn-classic-pedone.glb
   evaluated_at: '2026-10-10'
   evaluated_by: heuristic-self
   geometry:
-    faces: 12660
-    vertices: 6360
+    faces: 9648
+    vertices: 4832
     is_watertight: true
     tallest_axis: Y
     height: 0.95
@@ -182,17 +176,13 @@ models:
     materials:
     - faction_primary
     - faction_trim
-    - accent_obsidian
-    - accent_orange
-    - accent_steel
-    - accent_crimson
   scores:
-    critic_2d: 8.4
-    critic_overall: 7.7
-    overall: 7.7
-  tier: ACCEPTABLE 🟡
+    critic_2d: 9.1
+    critic_overall: 9.0
+    overall: 9.0
+  tier: TOP_QUALITY 🟢
   passed: true
-  summary: 'Watertight Staunton pawn (0.95m): Staunton pawn with striped puffin beak
-    (dark + gold bands), morion helmet & 3-tuft crimson plume.'
+  summary: 'Watertight Staunton pawn (0.95m): Pure iconic Staunton Pawn with turned
+    baluster shaft, double gold collar & smooth ivory marble sphere top.'
   structural_flaws: []
   aesthetic_flaws: []
