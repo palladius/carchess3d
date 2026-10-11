@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.14] - 2026-10-11
+
+- 🎬✨ **36/36 Complete 16:9 Battle Cinema Video Suite (`assets/battles/videos/`, `assets/battles/keyframes/`)**:
+  - Upgraded the remaining 6 battle pairs (`r_x_k`, `r_x_q`, `r_x_b`, `p_x_n`, `p_x_r`, `p_x_p`) from old split-screen placeholders to `1280×720` 16:9 animated battle movies rendered directly from their cohesive Nano Banana 2.1 16:9 keyframes (`~1.0 MB` `.mp4` + `.webm`, `4.8s` duration so `scripts/generate_nb_veo_battle.py` will automatically replace them with 8s Veo 3.1 clips once the 30/day AI Studio Veo quota resets).
+  - **All 36/36 (100%)** `Attacker × Defender` combinations now play cohesive 16:9 Nano Banana 2.1 / Veo 3.1 cinema scenes on the IMAX `VeoCinemaView` backdrop and in [`battles.html`](battles.html).
+
 ## [0.3.13] - 2026-10-11
 
 - 🎬🍫💜🐟 **Stage 2 Veo 3.1 16:9 Battle Videos — Batch B (`q_x_*`, `r_x_*`, `p_x_*` — 30/36 Total) + Vertex AI Fallback (`assets/battles/videos/`, `scripts/generate_nb_veo_battle.py`)**:
