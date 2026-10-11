@@ -186,6 +186,17 @@ export class VFXPoolView {
       bus.on('BATTLE_SKIPPED', (e) => this.onBattleEnded(e)),
       bus.on('CHECKMATE', (e) => this.onCheckmate(e)),
       bus.on('BOARD_RESET', () => this.clearAllActive()),
+      bus.on('CAMERA_VIEW_REQUESTED', (e) => {
+        if (e?.pos && this.camSaved) {
+          this.camSaved.pos.set(e.pos.x, e.pos.y, e.pos.z);
+          if (e.target) {
+            this.camSaved.target.set(e.target.x, e.target.y, e.target.z);
+          }
+          if (typeof e.fov === 'number') {
+            this.camSaved.fov = e.fov;
+          }
+        }
+      }),
     );
   }
 

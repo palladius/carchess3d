@@ -278,6 +278,15 @@ is the "victim" and is removed at the end.
     - Seby (`n`) raises and clasps his hands high above his head like Aquarius Camus while a celestial Water-Bearer Woman (`Fanciulla dell'Acquario`) pours a freezing torrent from a giant Golden Amphora (`Anfora d'Oro`), encasing the Puffin inside an unbreakable diamond-blue Ice Coffin (`Teca di Ghiaccio`, `sacro_acquarius_ice_coffin`) that crumbles into sparkling diamond-ice crystals (`diamond_ice_crystals`, `frozen_coffin_crumble`).
   - **Knight Seby ↔ Rook Pupurabbu (`n_x_r`, `r_x_n`) — Best-Friends Cuddle (`mega_cuddle_bounce`)**: Non-lethal joyful cuddle storm with 3D purple hearts.
 
+## Mobile Simplified UX ("Easy Adopter" Mode — v0.3.22)
+
+- **Strictly Scoped to Mobile Phones (`isMobilePhoneViewport`)**: Activated only when `Math.min(width, height) < 600 && Math.max(width, height) <= 1024` (or via `?mobile=1`, disabled via `?desktop=1`/`?mobile=0`). iPads (`768×1024`) and Desktop viewports remain **100% untouched**.
+- **Portrait ➔ Landscape Friendly Prompt (`#hud-rotate-overlay`)**: When a phone is held in Portrait (`height > width`), a friendly overlay invites the player to rotate the phone to Landscape so 16:9 battle movies and the 3D board fill the screen horizontally, with a 1-tap escape button (`📱 Play in vertical anyway →` / `📱 Gioca comunque in verticale →`) in case OS rotation lock is active.
+- **1-Tap Quick Start Card (`#hud-mobile-quick-setup`)**: Replaces the 8-input desktop setup form on phones with a 1-screen Quick Start card: **Guest (`ospite`, Papino's Carlesso Team) vs Computer (`classic` Rivals)**, 3 mode pills (`🤖 Easy`, `🧠 Medium`, `👥 2P`), and a giant **`▶️ PLAY NOW! ✨` / `▶️ GIOCA SUBITO! ✨`** button (with an optional `"⚙️ Advanced options"` toggle).
+- **Progressive Camera Onboarding (`Alto-Basso` ➔ `3D` on First Attack)**:
+  - On mobile phones, the match starts in **Easy Top-Down (`Alto-Basso`)** camera mode (`topDownCamera = true`) so all 64 squares are large and effortless to tap for opening moves.
+  - Upon the **very first capture (`BATTLE_STARTED` ➔ `BATTLE_COMPLETED`)**, the game plays the 3D brawl + 16:9 Veo cinema and **automatically unlocks and stays in full 3D panoramic mode** (`topDownCamera = false`), with a persistent 1-tap toggle (`📐 View: Top` ⇄ `🎬 View: 3D`) in the compact mobile dock.
+
 ## Open Questions
 
 - ~~Implementation repo~~ → **[palladius/carchess3d](https://github.com/palladius/carchess3d)** (public), deployed live on GitHub Pages at **https://palladius.github.io/carchess3d/**.
