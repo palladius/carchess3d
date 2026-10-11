@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.17] - 2026-10-11
+
+- 💋🥀🌕 **`k_x_q` Kiss of Death Refinement — Throne-Free Open Moonlit Chessboard (`assets/battles/keyframes/k_x_q.png`, `assets/battles/videos/k_x_q.mp4`, `VFXPoolView.js`, `scripts/generate_nb_veo_battle.py`)**:
+  - Regenerated `assets/battles/keyframes/k_x_q.png` and `assets/battles/videos/k_x_q.{mp4,webm}` **without any throne**: both King Riccardo and Queen Kate stand directly on the moonlit chessboard under the full moon as Riccardo blows the Black Rose Kiss of Death and Queen Kate withers into an ashen-pale lifeless gothic figurine swooning backward onto the board as her wand drops from her hand.
+  - Hid `goldenThrone` and `dndPetrifyStatue` during `kiss_of_death_blight` in [`src/views/VFXPoolView.js`](src/views/VFXPoolView.js) so the 3D chessboard scene is also 100% throne-free.
+
 ## [0.3.16] - 2026-10-11
 
 - 💋🥀💀 **`k_x_q` Re Riccardo vs Regina Kate — *"D&D Vampiric Kiss of Death & Avvizzimento Gotico"* (`Registry.js`, `BattleMatrix36.js`, `VFXPoolView.js`, `assets/battles/keyframes/k_x_q.png`, `assets/battles/videos/k_x_q.mp4`)**:

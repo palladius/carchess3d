@@ -2136,9 +2136,13 @@ export class VFXPoolView {
       this.props.lightningBolts.visible = t > 0.25 && t < 0.85;
     }
     if (this.props.goldenThrone?.visible) {
-      const dropT = Math.min(1, Math.max(0, (t - 0.35) * 2.5));
-      this.props.goldenThrone.position.y = (1 - dropT) * 2.6 + 0.05;
-      this.props.goldenThrone.rotation.y = elapsedS * 3.2;
+      if (clash.dndSpell === 'kiss_of_death_blight') {
+        this.props.goldenThrone.visible = false;
+      } else {
+        const dropT = Math.min(1, Math.max(0, (t - 0.35) * 2.5));
+        this.props.goldenThrone.position.y = (1 - dropT) * 2.6 + 0.05;
+        this.props.goldenThrone.rotation.y = elapsedS * 3.2;
+      }
     }
     if (this.props.chocoWave?.visible) {
       const waveT = Math.max(0, (t - 0.25) / 0.75);
@@ -2272,7 +2276,7 @@ export class VFXPoolView {
           if (beam) beam.scale.set(1 + Math.sin(elapsedS * 30) * 0.3, 1, 1 + Math.sin(elapsedS * 30) * 0.3);
           if (dustPile) dustPile.scale.setScalar(Math.min(1.4, Math.max(0.2, (t - 0.30) * 2.5)));
         }
-      } else if ((dndSpell === 'flesh_to_stone_petrification' || dndSpell === 'kiss_of_death_blight') && this.props.dndPetrifyStatue) {
+      } else if (dndSpell === 'flesh_to_stone_petrification' && this.props.dndPetrifyStatue) {
         this.props.dndPetrifyStatue.visible = showDnd;
         if (showDnd) {
           this.props.dndPetrifyStatue.position.set(toPos.x, 0.66, toPos.z);
