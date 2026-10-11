@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.4] - 2026-10-11
+## [0.3.5] - 2026-10-11
 
 - 🐴🐧🗣️ **Living Idle Animations & Hover/Select Character Voices (`idle_animations_and_voices_20261011`)**:
   - **Continuous Per-Character 3D Living Idle Motion (`src/views/PieceView.js`, `src/views/SkeletonRigHelper.js`)**:
@@ -18,6 +18,15 @@
 - 🍌🎬 **All 36 Nano Banana 2.1 Battle Keyframes & 15 Veo 3.1 16:9 Videos (`scripts/generate_nb_veo_battle.py`, `assets/battles/prompts_36.json`)**:
   - **Stage 1**: Generated all **36/36** 16:9 initial battle keyframes (`assets/battles/keyframes/<atk>_x_<def>.png`, `1376×768`) using **Photo 1 (Attacker Left)** + **Photo 2 (Defender Right)** + side-by-side layout guide (`assets/battles/refs/<id>_ref.png`) via Nano Banana 2.1 (`gemini-3.1-flash-image-preview`).
   - **Stage 2**: Generated 15/36 full 8-second 16:9 Veo 3.1 (`veo-3.1-generate-preview`) battle videos with audio (`assets/battles/videos/<id>.{mp4,webm}`) including all 4 Easter Eggs (`n_x_r`, `r_x_n`, `k_x_q`, `q_x_k`), all 6 Bishop Ale battles (`b_x_*`), and all 6 Knight Seby battles (`n_x_*`).
+
+## [0.3.4] - 2026-10-10
+
+- 🔗🏷️ **Footer GitHub Links & Game Version Display (`src/listeners/HudListener.js`, `src/core/Registry.js`, `battles.html`, `showcase/index.html`, `tests/core.test.mjs`)**:
+  - Added dedicated `.hud-footer-meta` row inside the game HUD `<footer class="hud-bottombar">` (and matching footers in [`battles.html`](battles.html) and [`showcase/index.html`](showcase/index.html)):
+    - **`v0.3.4` Game Version Tag**: Displays current game version (`v${APP_VERSION}`), dynamically refreshed at runtime via `fetch('./VERSION')`.
+    - **🐙 GitHub Code**: Direct clickable link to the repository source code (`https://github.com/palladius/carchess3d`).
+    - **🐛 Open a Bug**: Direct clickable link to open a new GitHub Issue (`https://github.com/palladius/carchess3d/issues/new`).
+  - Added unit test in [`tests/core.test.mjs`](tests/core.test.mjs) verifying `APP_VERSION`, `GITHUB_REPO_URL`, and `GITHUB_NEW_ISSUE_URL` match `VERSION` and repo endpoints.
 
 ## [0.3.3] - 2026-10-10
 
