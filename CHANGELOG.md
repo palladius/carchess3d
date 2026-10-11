@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.27] - 2026-10-11
+
+- 📱✨♟️ **Mobile Simplified UX ("Easy Adopter" Mode for Pixel 10 & Smartphones — Desktop & iPad 100% Untouched) (`HudListener.js`, `Registry.js`, `BoardInteractionView.js`, `VFXPoolView.js`, `main.js`, `index.html`, `manifest.webmanifest`, `docs/spec/SPEC.md`)**:
+  - **Mobile Phone Detection (`isMobilePhoneViewport`)**: Activates exclusively on smartphone viewports (`shortSide < 600 && longSide <= 1024`, or `?mobile=1`, disabled with `?desktop=1`/`?mobile=0`), keeping Desktop and iPad/Tablet (`768×1024+`) 100% identical to before.
+  - **Fixed Mobile Touch & Scroll Blockers (`index.html`, `BoardInteractionView.js`)**:
+    - Moved `touch-action: none` from `html, body` to `canvas#game-canvas` and added `touch-action: pan-y` on modal cards so mobile Chrome/Safari never freezes touch scrolling inside modals.
+    - Increased touch-tap tolerance from `8px` to `18px` (`event.pointerType === 'touch' ? 18 : 8`) and added a multi-touch pinch guard (`activePointers`) so thumb taps on high-DPI phones (e.g., Pixel 10) select and move squares reliably on the first tap.
+  - **Portrait ➔ Landscape Friendly Prompt (`#hud-rotate-overlay`)**: When held vertically (`isPortraitOrientation`), displays a friendly `"Rotate your phone to Landscape 🔄📱"` card for 16:9 battle movies and full-width board framing, with a `"📱 Play in vertical anyway →"` escape button if rotation lock is active, and auto-dismisses when rotated to landscape.
+  - **1-Tap Quick Start Setup (`#hud-mobile-quick-setup`)**: Replaces the 8-input desktop setup form on phones with an instant 1-screen card (**`🧑 Guest (Papino's Team)` vs `🤖 Computer (Classic Rivals)`**, 3 quick pills `🤖 Easy` / `🧠 Medium` / `👥 2P`, giant **`▶️ PLAY NOW! ✨`** button, and optional `"⚙️ Advanced options"` toggle).
+  - **Progressive Camera Flow (`Alto-Basso` ➔ `3D` on First Attack)**: Mobile matches start in **Easy Top-Down (`Alto-Basso`)** view (`topDownCamera = true`) for effortless opening moves, and **automatically unlock and transition to full 3D panoramic mode** (`topDownCamera = false` via `CAMERA_VIEW_REQUESTED` in `VFXPoolView`) upon the first capture (`BATTLE_STARTED` ➔ `BATTLE_COMPLETED`), with a persistent 1-tap `📐 View: Top` ⇄ `🎬 View: 3D` button in the sleek 1-line mobile dock.
+
 ## [0.3.26] - 2026-10-11
 
 - 🎬🕵️‍♂️🏆 **Full 36-Video Adversarial Critic Audit, Veo 3.1 `firstFrame` + `lastFrame` Regeneration & Historical Video Archive (`assets/battles/video_audit.yaml`, `assets/battles/archive/`, `assets/battles/videos/`, `assets/battles/keyframes/`, `docs/spec/SPEC.md`)**:
