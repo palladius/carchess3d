@@ -64,8 +64,8 @@
     "bishop": {
       "slug": "bishop-swamp-focaccina",
       "name": {
-        "it": "Mago Focaccina",
-        "en": "Mago Focaccina (Ligurian Bread Mage)"
+        "it": "Don Gatto Zorro-Vescovo",
+        "en": "Don Puss in Boots (Zorro-Bishop)"
       },
       "model": "assets/models/swamp/bishop-swamp-focaccina.glb",
       "portrait": "assets/characters/bishop-swamp-focaccina.jpg",
@@ -100,8 +100,8 @@
     "pawn": {
       "slug": "pawn-swamp-tappo",
       "name": {
-        "it": "Guardia Re Tappo",
-        "en": "Guardia Re Tappo (Tiny Stool Guard)"
+        "it": "Uomo Focaccina Ligure",
+        "en": "Uomo Focaccina Ligure (Focaccia Warrior Pawn)"
       },
       "model": "assets/models/swamp/pawn-swamp-tappo.glb",
       "portrait": "assets/characters/pawn-swamp-tappo.jpg",

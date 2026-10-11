@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.6';
+export const APP_VERSION = '0.3.9';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -516,14 +516,14 @@ export const SWAMP_REGISTRY = Object.freeze({
   },
   b: {
     ...CHARACTER_REGISTRY.b,
-    name: 'Mago Focaccina',
-    title: { it: 'Mago Focaccina Ligure 🫒🥖', en: 'Ligurian Focaccia Wizard 🫒🥖' },
-    frontPortrait: 'assets/characters/bishop-swamp-focaccina.jpg',
-    altPortrait: 'assets/characters/bishop-swamp-focaccina.jpg',
-    backPortrait: 'assets/characters/bishop-swamp-focaccina.jpg',
+    name: 'Gatto Zorro-Vescovo',
+    title: { it: 'Don Gatto con gli Stivali (Zorro-Vescovo) 🐱⚔️♗', en: 'Don Puss in Boots (Zorro-Bishop) 🐱⚔️♗' },
+    frontPortrait: 'assets/characters/bishop-swamp-gatto.jpg',
+    altPortrait: 'assets/characters/bishop-swamp-gatto.jpg',
+    backPortrait: 'assets/characters/bishop-swamp-gatto.jpg',
     glbUrl: 'assets/models/swamp/bishop-swamp-focaccina.glb',
     optionalGlbCandidates: ['assets/models/swamp/bishop-swamp-focaccina.glb'],
-    accentColor: 0xd49b4b,
+    accentColor: 0xd84315,
   },
   n: {
     ...CHARACTER_REGISTRY.n,
@@ -549,14 +549,14 @@ export const SWAMP_REGISTRY = Object.freeze({
   },
   p: {
     ...CHARACTER_REGISTRY.p,
-    name: 'Guardia Re Tappo',
-    title: { it: 'Pedone Guardia di Re Tappo 🛡️🧅', en: 'Short-Lord Guard Pawn 🛡️🧅' },
-    frontPortrait: 'assets/characters/pawn-swamp-tappo.jpg',
-    altPortrait: 'assets/characters/pawn-swamp-tappo.jpg',
-    backPortrait: 'assets/characters/pawn-swamp-tappo.jpg',
+    name: 'Uomo Focaccina',
+    title: { it: 'Pedone Uomo Focaccina Ligure 🫒🥖', en: 'Ligurian Focaccina Warrior Pawn 🫒🥖' },
+    frontPortrait: 'assets/characters/pawn-swamp-focaccina.jpg',
+    altPortrait: 'assets/characters/pawn-swamp-zenzy.jpg',
+    backPortrait: 'assets/characters/pawn-swamp-porcellini.jpg',
     glbUrl: 'assets/models/swamp/pawn-swamp-tappo.glb',
     optionalGlbCandidates: ['assets/models/swamp/pawn-swamp-tappo.glb'],
-    accentColor: 0xb71c1c,
+    accentColor: 0xd49b4b,
   },
 });
 
@@ -593,6 +593,13 @@ export const CLASSIC_REGISTRY = Object.freeze({
     glbUrl: 'assets/models/classic/bishop-classic-vescovo.glb',
     optionalGlbCandidates: ['assets/models/classic/bishop-classic-vescovo.glb'],
     accentColor: 0xc62828,
+    signatureId: 'san_gennaro_miracle',
+    animations: {
+      idle: 'Idle_Track',
+      fire: 'San_Gennaro_Miracle',
+      attack: 'San_Gennaro_Miracle',
+      victory: 'San_Gennaro_Miracle',
+    },
   },
   n: {
     ...CHARACTER_REGISTRY.n,
@@ -663,7 +670,7 @@ export const I18N = Object.freeze({
     hintBtn: '💡 Suggerimento',
     flipCamBtn: '🔄 Gira Scacchiera',
     topCamBtn: '📐 Vista dall’Alto',
-    newGameBtn: '✨ Nuova Partita',
+    newGameBtn: '🔄 Nuova Partita',
     fenBtn: '📋 FEN / PGN',
     musicBtn: '🎵 Inno Ale & Seby',
     sfxBtn: '🔊 Effetti',
@@ -675,6 +682,20 @@ export const I18N = Object.freeze({
     wowInspectorTab: '🔍 Ispettore 3D 360°',
     wowArenaTab: '🎬 Arena Battaglie & Cinema Veo',
     triggerBattleBtn: '⚔️ Lancia Sfida 3D + Cinema!',
+    setupBtn: '⚙️ Modifica Partita',
+    setupTitle: '🏰🚽 Setup & Modifica Partita · Fazioni & AI',
+    setupSub: 'Scegli chi gioca al Bianco, chi al Nero, se Giocatore Umano o Computer AI!',
+    applyCurrentBtn: '💾 Modifica Partita in Corso (Senza Reset)',
+    startMatchBtn: '🔄 Nuova Partita (Reset Pezzi) ✨',
+    whiteSide: '⚪ Squadra Bianca (Avorio & Oro / Sud)',
+    blackSide: '⚫ Squadra Nera (Ossidiana & Argento / Nord)',
+    playerHuman: '👤 Giocatore Umano',
+    playerAi: '🤖 Computer AI',
+    difficultyLabel: 'Livello AI:',
+    profileLabel: 'Profilo Giocatore:',
+    toggleTopbarBtn: '☰ Menu / Barra',
+    quakeConsoleBtn: '~_ Console',
+    defaultSetupBadge: '✨ Default: Famiglia Carlesso (Bianco / Umano) vs Scacchi Classici (Nero / AI Facile)',
   },
   en: {
     title: 'CarChess3D · Family Wizard Chess',
@@ -702,7 +723,7 @@ export const I18N = Object.freeze({
     hintBtn: '💡 Magic Hint',
     flipCamBtn: '🔄 Flip Board',
     topCamBtn: '📐 Top-Down View',
-    newGameBtn: '✨ New Match',
+    newGameBtn: '🔄 New Match',
     fenBtn: '📋 FEN / PGN',
     musicBtn: '🎵 Ale & Seby Anthem',
     sfxBtn: '🔊 SFX',
@@ -714,5 +735,19 @@ export const I18N = Object.freeze({
     wowInspectorTab: '🔍 360° 3D Character Inspector',
     wowArenaTab: '🎬 Battle Cinema Stage',
     triggerBattleBtn: '⚔️ Launch 3D Clash + Veo Cinema!',
+    setupBtn: '⚙️ Edit Match',
+    setupTitle: '🏰🚽 Match Setup & Edit · Factions & AI',
+    setupSub: 'Choose who plays White, who plays Black, Human Player or AI Opponent!',
+    applyCurrentBtn: '💾 Update Current Match (No Reset)',
+    startMatchBtn: '🔄 New Match (Reset Board) ✨',
+    whiteSide: '⚪ White Team (Ivory & Gold / South)',
+    blackSide: '⚫ Black Team (Obsidian & Silver / North)',
+    playerHuman: '👤 Human Player',
+    playerAi: '🤖 Computer AI',
+    difficultyLabel: 'AI Level:',
+    profileLabel: 'Player Profile:',
+    toggleTopbarBtn: '☰ Menu / Bar',
+    quakeConsoleBtn: '~_ Console',
+    defaultSetupBadge: '✨ Default: Carlesso Family (White / Human) vs Classic Chess (Black / AI Easy)',
   },
 });

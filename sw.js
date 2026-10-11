@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v7';
+const CACHE_NAME = 'carchess3d-offline-v10';
 
 const PRECACHE_URLS = [
   './',
@@ -49,6 +49,16 @@ const PRECACHE_URLS = [
   './assets/characters/knight-seby-4.jpg',
   './assets/characters/rook-pupurabbu.jpg',
   './assets/characters/pawn-puffin.jpg',
+  './assets/characters/king-swamp-orco.jpg',
+  './assets/characters/queen-swamp-orchessa.jpg',
+  './assets/characters/bishop-swamp-focaccina.jpg',
+  './assets/characters/bishop-swamp-gatto.jpg',
+  './assets/characters/knight-swamp-asinello.jpg',
+  './assets/characters/rook-swamp-draghessa.jpg',
+  './assets/characters/pawn-swamp-tappo.jpg',
+  './assets/characters/pawn-swamp-focaccina.jpg',
+  './assets/characters/pawn-swamp-porcellini.jpg',
+  './assets/characters/pawn-swamp-zenzy.jpg',
   './assets/models/king-riccardo.glb',
   './assets/models/queen-kate.glb',
   './assets/models/bishop-ale-rigged.glb',
@@ -102,6 +112,13 @@ self.addEventListener('fetch', (event) => {
   const reqUrl = new URL(event.request.url);
   if (reqUrl.origin !== self.location.origin) return;
 
+  const isCodeOrDoc =
+    event.request.mode === 'navigate' ||
+    reqUrl.pathname.endsWith('/') ||
+    reqUrl.pathname.endsWith('.html') ||
+    reqUrl.pathname.endsWith('.js') ||
+    reqUrl.pathname.endsWith('VERSION');
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const networkFetch = fetch(event.request)
@@ -114,7 +131,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cachedResponse);
 
-      return cachedResponse || networkFetch;
+      return isCodeOrDoc ? networkFetch.then((res) => res || cachedResponse) : cachedResponse || networkFetch;
     }),
   );
 });

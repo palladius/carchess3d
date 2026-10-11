@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.6] - 2026-10-11
+## [0.3.9] - 2026-10-11
 
 - 📺🌌 **IMAX 16:9 Battle Cinema World Transformation (`ZurichSwampView.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `docs/spec/SPEC.md`, `conductor/product.md`)**:
   - **Combat Theater Isolation (`ZurichSwampView.setCombatCinemaMode(true)`)**: Whenever a capture combat begins (`BATTLE_STARTED` / `WOW_ARENA_CLASH`), the surrounding 3D world clutter (`Grossmünster`, `ZurichSkyline`, `SwissAlps`, `EmeraldSwampMoat`, `WizardBraziers`, `SwampFireflies`, `SkyDome`) hides automatically and the background dims to a cinema theater void (`0x05070e`), keeping **only the 8×8 Chessboard (`CarvedStoneAltar`) and the 3D Chess Pieces** in the foreground.
@@ -16,6 +16,51 @@
     - `k_x_k` (vs Rival King Riccardo): **D&D Disintegrate (`disintegrate`, 10d6+40 emerald laser ray turning the rival King into green arcane dust)** 🟢✨
     - `k_x_q` (vs Queen Kate): **D&D Flesh to Stone / Petrification + Golden Throne (`flesh_to_stone_petrification`)** 🗿🚽👑
   - Backfilled into [`docs/spec/SPEC.md`](docs/spec/SPEC.md), [`conductor/product.md`](conductor/product.md), and [`conductor/tracks/idle_animations_and_voices_20261011/spec.md`](conductor/tracks/idle_animations_and_voices_20261011/spec.md), and covered by unit tests in [`tests/combat.test.mjs`](tests/combat.test.mjs).
+
+## [0.3.8] - 2026-10-11
+
+- 🐛🤖 **Fix CPU Opponent Disabled After Setup & Separate "Nuova Partita" (Reset) vs "Modifica Partita" (In-Place) (`src/listeners/HudListener.js`, `src/managers/AIWorkerManager.js`, `src/core/Registry.js`, `sw.js`, `tests/cpu-opponent.test.mjs`)**:
+  - **Bug #1 Fix — Default Human vs CPU AI Now Moves Properly**:
+    - Fixed `HudListener.applySetup()` emitting `OPPONENT_CHANGED` without `enabled`, which caused `AIWorkerManager`'s `OPPONENT_CHANGED` handler to set `this.enabled = Boolean(undefined) = false` and turn the match into Human vs Human.
+    - Hardened `AIWorkerManager` so `OPPONENT_CHANGED` derives `enabled` from `e.enabled` or `e.mode !== 'hotseat' && cpuColor !== 'none'`.
+  - **Bug #2 Fix & UX Split — Two Distinct Actions: "🔄 Nuova Partita" (Reset) vs "⚙️ Modifica Partita" (Senza Reset)**:
+    - Fixed `HudListener.applySetup()` emitting `PROFILE_CHANGED` without `restoreBoard: false` before `board.reset()`, which had caused `ProfileStorageListener` to reload the saved mid-game FEN from `localStorage` and overwrite the reset board.
+    - Wired `PieceManager.setWhiteFamily()` and `PieceManager.setRivalSetMode()` inside `applySetup()` so 3D factions update reliably both on new games and mid-game edits.
+    - Split the bottom dock and Setup Modal into two distinct actions:
+      1. **🔄 Nuova Partita (`#hud-new-btn` & `#hud-setup-start-btn`)**: Resets all 32 pieces to the initial board (`resetBoard: true`).
+      2. **⚙️ Modifica Partita / 💾 Modifica Partita in Corso (`#hud-setup-btn` & `#hud-setup-apply-btn`)**: Updates White/Black factions, Human/AI control, and AI difficulty in-place on the active board without resetting the pieces (`resetBoard: false`).
+  - **Service Worker Cache Bump (`sw.js`)**:
+    - Bumped `CACHE_NAME` to `carchess3d-offline-v9` and switched HTML/JS/`VERSION` requests to network-first with offline cache fallback so GitHub Pages deployments take effect immediately.
+
+## [0.3.7] - 2026-10-11
+
+- 🏰🎮 **Startup Match Setup Modal, Auto-Hiding Top Bar, Footer Overlay & Quake-Style Console (`HudListener.js`, `AIWorkerManager.js`, `BoardInteractionView.js`, `main.js`, `Registry.js`, `tests/cpu-opponent.test.mjs`)**:
+  - **Inizio Partita Setup Modal (`#hud-setup-modal`)**:
+    - Interactive 2-column modal at game boot asking who plays White and who plays Black (Human vs Computer AI), with character profiles and CPU difficulty settings (`easy`, `medium`, `hard`).
+    - Explicit default: ⚪ **Famiglia Carlesso** (Human, profile Ale/Riccardo) vs ⚫ **Scacchi Classici** with **AI Facile** (`easy`).
+    - Can be reopened at any time via `⚙️ Nuova Partita` or `⚙️ Setup Fazioni` in the bottom action dock.
+  - **Auto-Hiding Top Bar for Maximum 3D Viewport (`#hud-topbar.hidden`)**:
+    - Once the match starts, the top navigation/status bar smoothly slides up and disappears (`translateY(-130%)`, `opacity: 0`), granting full screen immersion to the 3D board, the swamp, and the 16:9 cinema mirror.
+    - Togglable back anytime via the `☰ Mostra Barra` button in the bottom dock or pressing hotkey `M`.
+  - **Overlay Footer with Branding & Open Source Links (`.hud-bottombar`, `.hud-footer-brand`)**:
+    - Bottom bar rendered in overlay/sovrimpressione featuring game branding (`🏰🚽 CarChess3D · Carlesso al Cesso`), direct GitHub repository link (`https://github.com/palladius/carchess3d`), 3D Gallery, and 36 Battles Matrix shortcuts alongside gameplay controls.
+  - **Quake-Style Dropdown Terminal Console (`#hud-quake-console`)**:
+    - Retro top-sliding terminal toggled via `~`, `` ` ``, `\`, `§`, or the `~_ Console` button in the dock.
+    - Real-time logging of game events: moves, checks, checkmate, draws, luck meter bursts, loot drops, 3D brawls, and AI thinking/calculation time.
+    - Interactive command prompt supporting `help`, `setup`, `topbar`, `fen`, `pgn`, `hint`, `reset`, `matrix`, `swamp`, `skeletons`, `clear`, and `close`.
+  - **Multi-Side AI Worker Architecture (`AIWorkerManager.js`, `BoardInteractionView.js`)**:
+    - Upgraded `AIWorkerManager` to support `cpuColor = 'b' | 'w' | 'both' | 'none'` with independent white/black difficulty levels, enabling AI vs AI demo matches and White CPU play. Gated mouse raycasting in `BoardInteractionView` so human clicks are safely ignored during CPU turns. Tested via `tests/cpu-opponent.test.mjs`.
+
+## [0.3.6] - 2026-10-11
+
+- 🐱🎭⛪ **Swamp Family Lineup Upgrade: Don Gatto Zorro-Vescovo (`Bishop`, `1.45m`) & Uomo Focaccina Ligure (`Pawn`, `0.95m`)**:
+  - Generated and approved `assets/characters/bishop-swamp-gatto.jpg` (Variant 1, synced to `bishop-swamp-focaccina.jpg` for manifest compatibility): a swashbuckler ginger tabby cat wearing a black Zorro domino eye-mask, tall black-and-gold Papal Bishop Mitre with glowing ruby cross & sweeping yellow ostrich feather, black-and-gold embroidered Zorro cape with `"Z"` clasp, tall cuffed leather boots, golden swept-hilt rapier-crosier, and solemn Bishop blessing paw.
+  - Promoted **Uomo Focaccina Ligure** (`assets/characters/pawn-swamp-focaccina.jpg`, synced to `pawn-swamp-tappo.jpg`) to the canonical Swamp **Pawn (`0.95m`)**, and added two alternate Italian fairytale Pawn portraits: **I 3 Porcellini della Palude** (`assets/characters/pawn-swamp-porcellini.jpg`) and **Zenzy Pan di Zenzero & Focaccina** (`assets/characters/pawn-swamp-zenzy.jpg`).
+  - Rebuilt the watertight 3D `.glb` statues in `tools/model-pipeline/swamp/build_swamp_models.py` (`assets/models/swamp/bishop-swamp-focaccina.glb` `21,640 tris`, `1.45m`; `assets/models/swamp/pawn-swamp-tappo.glb` `16,032 tris`, `0.95m`) and updated `tools/model-pipeline/swamp/swamp_contact_sheet.png`.
+- 🩸✨ **3D Miracolo di San Gennaro Blood Liquefaction Animation (`VFXPoolView.js`, `CombatAnimationManager.js`, `Registry.js`)**:
+  - Implemented the bespoke 3D **Miracolo del Sangue di San Gennaro** (`san_gennaro_miracle` / `san_gennaro_blood_drops`) triggered when the Classic Bishop (**San Gennaro**) attacks: a golden Baroque reliquary ampoule (`sanGennaroAmpoule`) rises above the capture square, tilts side-to-side while its dark clotted blood core (`#3b0308`) liquefies and boils into glowing ruby-crimson (`#ff1744`) at `t >= 0.28`, and unleashes a 64-particle burst of crimson-ruby droplets and golden sparks with banner `"MIRACOLO DI SAN GENNARO! SANGUE SCIOLTO! 🩸✨"`.
+- 🧊🏛️ **TRELLIS.2 3D Reconstruction Pipeline for Classic Family (`tools/model-pipeline/classic/gen_trellis2_batch.py`)**:
+  - Added automated `microsoft/TRELLIS.2` image-to-3D reconstruction + contract normalizer (`faction_primary` / `faction_trim` material slots, `min.y = 0.0`, exact target height) and reconstructed `assets/models/classic/king-classic-re.glb` (`99,267 tris`, `1.80m`).
 
 ## [0.3.5] - 2026-10-11
 
@@ -44,6 +89,7 @@
     - **🐙 GitHub Code**: Direct clickable link to the repository source code (`https://github.com/palladius/carchess3d`).
     - **🐛 Open a Bug**: Direct clickable link to open a new GitHub Issue (`https://github.com/palladius/carchess3d/issues/new`).
   - Added unit test in [`tests/core.test.mjs`](tests/core.test.mjs) verifying `APP_VERSION`, `GITHUB_REPO_URL`, and `GITHUB_NEW_ISSUE_URL` match `VERSION` and repo endpoints.
+>>>>>>> origin/main
 
 ## [0.3.3] - 2026-10-10
 
