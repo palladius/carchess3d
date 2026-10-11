@@ -1,5 +1,50 @@
 # Changelog
 
+## [0.3.38] - 2026-10-11
+
+- 🧹⚡📱 **Zero-Cache Mobile Permalink (`nocache.html` & `?nocache=1`) + Mobile HUD Flexbox Fix (`nocache.html`, `index.html`, `sw.js`, `HudListener.js`, `Registry.js`)**:
+  - **Standalone `nocache.html` Permalink (`https://palladius.github.io/carchess3d/nocache.html`)**: Added a brand-new entry-point HTML page that is never in any legacy Service Worker precache list; on load it unregisters all Service Workers (`navigator.serviceWorker.getRegistrations()`), deletes all `CacheStorage` caches (`caches.keys()`), forces Chrome's HTTP disk cache (`max-age=600`) to re-fetch all `src/**/*.js` ES modules (`fetch(u, { cache: 'reload' })`), displays a green confirmation pill (`⚡ NO-CACHE LIVE v0.3.38`), and boots `./src/main.js?nocache=1&t=<timestamp>` directly without redirecting back to a cached `index.html`.
+  - **`?nocache=1` / `?fresh=1` Query Support (`index.html`, `sw.js`)**: Passing `?nocache=1` or `?fresh=1` to `index.html` unregisters Service Workers and purges caches instead of registering `sw.js`, while `sw.js` (`v26`) bypasses cache lookup (`fetch(req, { cache: 'no-store' })`) for `nocache.html` and `?nocache=1`.
+  - **Visible Mobile Version Badge, 1-Tap `🧹 No-Cache` Button & Bottom Bar Flexbox Fix (`HudListener.js`)**: Added `⚡ v0.3.38` and a 1-tap `🧹 No-Cache` link right inside `#hud-rotate-overlay` and `#hud-mobile-quick-setup`, and fixed `#carchess-hud-root.mobile-simplified .hud-status-card` (`flex-shrink: 0`) so the bottom dock buttons never squish the turn status card.
+
+## [0.3.37] - 2026-10-11
+
+- 👨‍👩‍👦‍👦🏛️🐸 **Showcase Divided Into 3 Families (`Carlesso`, `Classic`, `Shrek / Palude` = Strictly 6 Pieces at a Time) + Lazy Per-Family Loading & TDD Guard (`showcase/index.html`, `tests/showcase-webgl.test.mjs`)**:
+  - **Strictly 3 Family Tabs (`6` Pieces Visible at a Time)**: Removed the `"Tutte le Famiglie (18)"` (`data-family="all"`) tab so `showcase/index.html` presents the **3 dedicated family tabs** — `👨‍👩‍👦‍👦 Famiglia Carlesso (6)` (default), `♔🏛️ Scacchi Classici Vanilla (6)`, and `🐸🧅 Famiglia Shrek / Palude (6)` (supporting `#carlesso`, `#classic`, `#swamp`, and `#shrek` URL hashes) — showing and lazily loading **only 6 pieces at a time** (`ensureFamilyViews(validFam)`).
+  - **Double Protection Against Chrome's 16-WebGL-Context Limit (`kMaxActiveWebGLContexts = 16`)**: Combining **6 visible pieces per family tab** (`6 << 16`) with a **single shared `THREE.WebGLRenderer`** (`sharedRenderer` blitting via `ctx.drawImage` into lightweight 2D canvases) guarantees **Ale 1** and **Re Riccardo** never suffer WebGL context eviction (`webglcontextlost` white box) on any desktop or mobile browser.
+  - **TDD Regression Suite (`tests/showcase-webgl.test.mjs`)**: Verifies that (1) no `data-family="all"` tab exists, (2) `#family-tabs` contains strictly `['carlesso', 'classic', 'swamp']` with `6` pieces each, (3) `makeView()` never instantiates per-card `THREE.WebGLRenderer` instances, and (4) all 2D/3D `.glb` assets exist and have valid `glTF` v2 headers.
+
+## [0.3.36] - 2026-10-11
+
+- 🎬⏱️⚔️ **10-Second Battle Cutscene (`1s Pre-Padding + 8s Veo Video + 1s Post-Padding`), `1.52x` Hero Combatant Scale & Radial Neighbor Dilation (`CombatAnimationManager.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `tests/combat.test.mjs`)**:
+  - **`10.0s` Total Duel Timeline (`DEFAULT_BATTLE_DURATION_MS = 10000`)**:
+    - **`1.0s` Pre-Padding (`0.0s .. 1.0s`)**: `VeoCinemaView` cues Frame 0 of the 16:9 Veo battle video and holds it while the camera glides into position so the player never misses the first second of the film.
+    - **`8.0s` Full Veo Video Playback (`1.0s .. 9.0s`, `loop = false`)**: Plays the entire 8-second Veo 3.1 clip from start to finish with configurable translucency (`combatVideoAlpha = 0.78`, `?videoAlpha=0.78`).
+    - **`1.0s` Post-Padding (`9.0s .. 10.0s`)**: Holds the final K.O. frame before completing the duel.
+  - **`1.52x` Heroic Combatant Scale & Radial Neighbor Dilation (`VFXPoolView.js`)**:
+    - Enlarged the 2 active 3D fighters to `1.52x` hero scale and hid the `brawlCloud` dust blob for crisp silhouettes.
+    - Smoothly dilates neighboring board pieces radially outward (`> 0.6m`) and scales them down (`< 72%`) during combat so they frame the arena without crowding the two heroes, restoring their exact board positions and scale afterward.
+
+## [0.3.35] - 2026-10-11
+
+- 🎙️🇬🇧🇮🇹 **Gemini 3.8 TTS Multi-Clip Character Voice Pool + Smart Anti-Repetition & Anti-Spam Engine (`scripts/generate_voice_lines.py`, `assets/audio/voices/voice-*.mp3`, `src/core/Registry.js`, `src/listeners/AudioListener.js`, `src/views/BoardInteractionView.js`, `src/listeners/HudListener.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
+  - **25 Character Voice Clips via `gemini-3.8-flash-tts` (`scripts/generate_voice_lines.py`)**:
+    - Upgraded the voice pipeline to **`gemini-3.8-flash-tts`** using `parts[].speech_metadata.style` for acting persona and inline `<sigh>`, `<pff>`, `<giggle>` tags (so stage directions are never spoken aloud).
+    - **Queen Kate (`q`, 40-Year-Old British UK Woman — Extended Voice `en-gb-csagent-4`, Winchester UK)**:
+      - Signature sentences: *"That's... interesting."*, *"Ok, Puffin McMuffin!"*, *"You... love me! I tell myself EVERY day!"*
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Hmm-hmm..."* (`voice-q-hmm.mp3`) & *"Pff... oh, honestly!"* (`voice-q-sbuffo.mp3`).
+    - **Knight Seby (`n`, Young Italian Boy)**:
+      - Signature sentences: *"Dimmi papino!"*, *"Papinoooooo!!!"*, *"Ti manco tantissimo, papino!"*, *"My body, my choice!"* (in English), *"Mi scappa la cacca!"*
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Mmh-hmm! Ehehe!"* (`voice-n-hmm.mp3`) & *"Pff... uffaaa!"* (`voice-n-sbuffo.mp3`).
+    - **Bishop Ale (`b`, 10-Year-Old Italian Boy Wizard)**:
+      - Signature sentences: *"Agli ordini, Signore!"*, *"Ti manco tantissimo, papino!"*, *"Papino, qual è il più forte?"*, *"Papino, quando mi compri un regalo?"*, *"Cafonazzo!"*
+      - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Mmh-hmm... vediamo!"* (`voice-b-hmm.mp3`) & *"Pff... ma dai!"* (`voice-b-sbuffo.mp3`).
+    - **King Riccardo (`k`), Rook Pupurabbu (`r`), Pawn Puffin (`p`)**: Added high-probability non-verbal `voice-{k,r,p}-hmm.mp3` clips alongside `voice-{k,r,p}.mp3`.
+  - **3-Layer Anti-Repetition Voice Selector (`AudioListener.selectVoiceVariant`)**:
+    - First selection of each character plays a full `signature` quote; subsequent selections blend higher-probability `mumble` clips (`hmm-hmm` / `sbuffo`, `55%–65%` for heroes, `78%` for Puffin pawns) with a Fisher-Yates shuffled `signature` deck (`signatureDeckByType`) and a per-type ring buffer (`recentVariantIdsByType`) so **no clip ever plays twice in a row**.
+    - Emits `VOICE_LINE_SPOKEN` so `HudListener` displays the exact randomized quote spoken in the HUD speech bubble.
+  - **Pawn Hover Anti-Spam (`BoardInteractionView.js`, `AudioListener.playHoverSfxWithAntiSpam`)**: Added a per-piece-type hover cooldown (`2800ms` for pawns `'p'`, `950ms` for other pieces), softened the Puffin chirp pitch/volume, and alternated repeated hovers with a soft WebAudio `"hmm-hmm / sbuffo"` breath (`synthSoftSbuffo`).
+
 ## [0.3.34] - 2026-10-11
 
 - 🔄🛡️🌐 **Zero-Split-Brain PWA Cache & Version Drift Detector (`sw.js`, `index.html`, `src/listeners/HudListener.js`, `tests/core.test.mjs`)**:

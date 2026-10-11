@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v22';
+const CACHE_NAME = 'carchess3d-offline-v26';
 
 const PRECACHE_URLS = [
   './',
@@ -73,11 +73,30 @@ const PRECACHE_URLS = [
   './assets/models/pawn-puffin.glb',
   './assets/audio/combat-suspense.mp3',
   './assets/audio/voices/voice-k.mp3',
+  './assets/audio/voices/voice-k-hmm.mp3',
   './assets/audio/voices/voice-q.mp3',
+  './assets/audio/voices/voice-q-mcmuffin.mp3',
+  './assets/audio/voices/voice-q-loveme.mp3',
+  './assets/audio/voices/voice-q-hmm.mp3',
+  './assets/audio/voices/voice-q-sbuffo.mp3',
   './assets/audio/voices/voice-b.mp3',
+  './assets/audio/voices/voice-b-timanco.mp3',
+  './assets/audio/voices/voice-b-piuforte.mp3',
+  './assets/audio/voices/voice-b-regalo.mp3',
+  './assets/audio/voices/voice-b-cafonazzo.mp3',
+  './assets/audio/voices/voice-b-hmm.mp3',
+  './assets/audio/voices/voice-b-sbuffo.mp3',
   './assets/audio/voices/voice-n.mp3',
+  './assets/audio/voices/voice-n-papinooo.mp3',
+  './assets/audio/voices/voice-n-timanco.mp3',
+  './assets/audio/voices/voice-n-mybody.mp3',
+  './assets/audio/voices/voice-n-cacca.mp3',
+  './assets/audio/voices/voice-n-hmm.mp3',
+  './assets/audio/voices/voice-n-sbuffo.mp3',
   './assets/audio/voices/voice-r.mp3',
+  './assets/audio/voices/voice-r-hmm.mp3',
   './assets/audio/voices/voice-p.mp3',
+  './assets/audio/voices/voice-p-hmm.mp3',
   './docs/logo/logo.svg',
 ];
 
@@ -124,8 +143,14 @@ self.addEventListener('fetch', (event) => {
   const reqUrl = new URL(event.request.url);
   if (reqUrl.origin !== self.location.origin) return;
 
-  // Never cache VERSION in Service Worker: it is our live truth probe to detect version drift!
-  if (reqUrl.pathname.endsWith('/VERSION') || reqUrl.pathname === 'VERSION') {
+  // Never cache VERSION or nocache.html / ?nocache=1 in Service Worker
+  if (
+    reqUrl.pathname.endsWith('/VERSION') ||
+    reqUrl.pathname === 'VERSION' ||
+    reqUrl.pathname.endsWith('nocache.html') ||
+    reqUrl.searchParams.get('nocache') === '1' ||
+    reqUrl.searchParams.get('fresh') === '1'
+  ) {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' }).catch(
         () => new Response('', { status: 404, statusText: 'Offline' }),
