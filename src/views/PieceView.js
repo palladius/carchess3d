@@ -17,7 +17,12 @@
 import * as THREE from 'three';
 import { GLTFLoader } from '../../vendor/three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from '../../vendor/three/addons/utils/SkeletonUtils.js';
-import { CHARACTER_REGISTRY, squareToWorld } from '../core/Registry.js';
+import {
+  CHARACTER_REGISTRY,
+  squareToWorld,
+  isMobileOrTabletDevice,
+  shouldUseMobileLite3D,
+} from '../core/Registry.js';
 import {
   groundAndNormalizeObject3D,
   CANONICAL_PIECE_HEIGHTS,
@@ -89,6 +94,13 @@ export class PieceView {
           searchParams.get('skeletons') === 'true' ||
           expList.includes('showskeletons')),
     );
+    this.isMobileOrTablet = isMobileOrTabletDevice();
+    this.mobileLite3D = shouldUseMobileLite3D();
+    this.forceMobileShaders = Boolean(
+      searchParams &&
+        (searchParams.get('shaders') === '1' || searchParams.get('shaders') === 'true'),
+    );
+    this._lastSyncSignature = null;
     this.swampTime = 0;
     this.offs = [];
 
@@ -268,7 +280,24 @@ export class PieceView {
   }
 
   /**
+   * Switches between Mobile Lite 3D Mode (fast sculpted 3D pedestals + portrait medallions + crowns,
+   * zero 850k-vertex GLB download storm) and Full GLB 3D Mode, rebuilding pieces immediately.
+   * @param {boolean} [enabled]
+   * @returns {boolean}
+   */
+  setMobileLite3D(enabled) {
+    const next = typeof enabled === 'boolean' ? enabled : !this.mobileLite3D;
+    if (this.mobileLite3D === next) return this.mobileLite3D;
+    this.mobileLite3D = next;
+    this._lastSyncSignature = null;
+    this.syncPiecesFromManager();
+    return this.mobileLite3D;
+  }
+
+  /**
    * Synchronizes all 3D living and captured tray pieces with `PieceManager`.
+   * Deduplicates identical back-to-back syncs by resetting positions/rotations in-place
+   * instead of destroying and re-cloning all 32 piece hierarchies.
    * @param {Array<object>} [livingDescriptors]
    * @param {{ w: Array<object>, b: Array<object> }} [capturedTrays]
    */
@@ -277,11 +306,54 @@ export class PieceView {
     const list = livingDescriptors || pm?.getLivingPieces?.() || this.ctx?.board?.pieces?.() || [];
     const trays = capturedTrays || pm?.getCapturedTrays?.() || { w: [], b: [] };
 
+    const resolvedList = list.map((raw) =>
+      pm?.resolveDescriptor ? pm.resolveDescriptor(raw) : this._fallbackDescriptor(raw),
+    );
+    const trayCount = (trays.w?.length || 0) + (trays.b?.length || 0);
+    const sig =
+      `${this.mobileLite3D ? 'L' : 'G'}|${trayCount}|` +
+      resolvedList
+        .map(
+          (d) =>
+            `${d.square}:${d.color}:${d.type}:${d.family || ''}:${d.isStoneSet ? 1 : 0}:${d.glbUrl || ''}`,
+        )
+        .join(',');
+
+    if (
+      sig === this._lastSyncSignature &&
+      this.livingGroup.children.length === resolvedList.length &&
+      this.pieceBySquare.size === resolvedList.length &&
+      this.trayGroup.children.length === trayCount
+    ) {
+      let allMatched = true;
+      for (const desc of resolvedList) {
+        if (!this.pieceBySquare.has(desc.square)) {
+          allMatched = false;
+          break;
+        }
+      }
+      if (allMatched) {
+        for (const desc of resolvedList) {
+          const group = this.pieceBySquare.get(desc.square);
+          const pos = squareToWorld(desc.square);
+          const isWhite = String(desc.color || 'w').toLowerCase() !== 'b';
+          const homeYaw = isWhite ? Math.PI : 0;
+          group.userData.homeYaw = homeYaw;
+          group.position.set(pos.x, 0, pos.z);
+          group.rotation.set(0, homeYaw, 0);
+          group.scale.setScalar(this.globalPieceScale);
+          group.visible = true;
+          this.applyPoseToPiece(group, {});
+        }
+        return;
+      }
+    }
+
+    this._lastSyncSignature = sig;
     this.clearGroup(this.livingGroup);
     this.pieceBySquare.clear();
 
-    for (const raw of list) {
-      const desc = pm?.resolveDescriptor ? pm.resolveDescriptor(raw) : this._fallbackDescriptor(raw);
+    for (const desc of resolvedList) {
       const group = this.buildPieceGroup(desc);
       const pos = squareToWorld(desc.square);
       const isWhite = String(desc.color || 'w').toLowerCase() !== 'b';
@@ -571,17 +643,18 @@ export class PieceView {
     group.add(bodyContainer);
     group.userData.bodyContainer = bodyContainer;
 
-    if (desc.isStoneSet) {
+    if (desc.isStoneSet || (this.mobileLite3D && desc.family === 'classic')) {
       const stoneMesh = this.buildStoneWarriorFigure(desc.type, normColor);
       bodyContainer.add(stoneMesh);
+      group.userData.fallbackFigure = stoneMesh;
     } else {
       // Build luxury double-sided portrait medallion + 3D crown fallback immediately
       const fallback = this.buildMedallionFallbackFigure(desc);
       bodyContainer.add(fallback);
       group.userData.fallbackFigure = fallback;
 
-      // If a GLB path is configured, asynchronously load, clone, ground at y = PEDESTAL_HEIGHT, and swap!
-      if (desc.glbUrl) {
+      // If a GLB path is configured AND not in Mobile Lite 3D mode, asynchronously load, clone, ground at y = PEDESTAL_HEIGHT, and swap!
+      if (desc.glbUrl && !this.mobileLite3D) {
         this.attachGlbToPiece(group, bodyContainer, desc);
       }
     }
@@ -1063,12 +1136,14 @@ export class PieceView {
                     dragonCoilMode = 2.0; // UV-mapped TRELLIS.2 single-mesh: outer radial dragon coils around inner stone tower!
                   }
                 }
-                this.injectLocomotionShader(
-                  mat,
-                  desc.type,
-                  pieceGroup.userData.locomotionUniforms,
-                  dragonCoilMode,
-                );
+                if (!this.isMobileOrTablet || this.forceMobileShaders) {
+                  this.injectLocomotionShader(
+                    mat,
+                    desc.type,
+                    pieceGroup.userData.locomotionUniforms,
+                    dragonCoilMode,
+                  );
+                }
                 mat.needsUpdate = true;
               }
               child.material = Array.isArray(child.material) ? mats : mats[0];
