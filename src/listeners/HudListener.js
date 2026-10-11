@@ -401,26 +401,24 @@ export class HudListener {
         gap: 5px;
         align-items: center;
       }
-      /* Comic Impact Banner & Skip Cutscene (docked at bottom so 16:9 Cinema Screen is 100% clear) */
+      /* Compact Top-Right Skip Pill (100% clear of the center 3D combat & 16:9 Cinema Backdrop!) */
       .hud-comic-banner {
         position: absolute;
-        bottom: 62px;
-        left: 50%;
-        transform: translateX(-50%) scale(0.9);
-        padding: 8px 20px;
+        top: 52px;
+        right: 14px;
+        padding: 5px 12px;
         border-radius: 999px;
-        background: linear-gradient(135deg, #ffca28 0%, #ff6f00 100%);
-        border: 3px solid #fff8e1;
-        color: #1a0f00;
-        font-weight: 900;
-        font-size: 18px;
-        letter-spacing: 0.6px;
-        box-shadow: 0 12px 35px rgba(255, 111, 0, 0.65);
+        background: rgba(14, 18, 27, 0.86);
+        border: 1.5px solid #ffd54f;
+        color: #ffe082;
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
         display: none;
         align-items: center;
-        gap: 14px;
+        gap: 10px;
         z-index: 860;
-        animation: hudPopIn 0.24s cubic-bezier(0.18, 1.25, 0.4, 1) forwards;
       }
       /* Toast & Hint Bubble */
       .hud-toast {
@@ -1516,6 +1514,195 @@ export class HudListener {
         this._updateMatrixPreviewPane(atk, def, true);
       });
     });
+
+    // 6x6 Family Capture Matrix Explorer & Asset Inventory Modal controls
+    const openMatrixModal = () => {
+      const modal = q('#hud-matrix-modal');
+      if (!modal) return;
+      this._renderMatrixExplorerGrid();
+      modal.style.display = 'grid';
+    };
+
+    q('#hud-matrix-btn')?.addEventListener('click', openMatrixModal);
+    q('#hud-matrix-close')?.addEventListener('click', () => {
+      const modal = q('#hud-matrix-modal');
+      if (modal) modal.style.display = 'none';
+    });
+
+    root.querySelectorAll('button[data-matrix-family]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const famId = btn.dataset.matrixFamily || 'carlesso';
+        if (this.matrixFamily === famId) return;
+        this.matrixFamily = famId;
+        root.querySelectorAll('button[data-matrix-family]').forEach((b) =>
+          b.classList.toggle('active', b === btn),
+        );
+        this._renderMatrixExplorerGrid();
+      });
+    });
+
+    q('#hud-matrix-play-btn')?.addEventListener('click', () => {
+      this._launchMatrixPair(this.matrixSelectedAtk, this.matrixSelectedDef);
+    });
+  }
+
+  _renderMatrixExplorerGrid() {
+    if (!this.rootEl) return;
+    const container = this.rootEl.querySelector('#hud-matrix-grid-container');
+    if (!container) return;
+
+    const fam = FAMILY_ROSTERS[this.matrixFamily] || FAMILY_ROSTERS.carlesso;
+    const pieceKeys = ['k', 'q', 'b', 'n', 'r', 'p'];
+
+    const headerCells = pieceKeys
+      .map((defKey) => {
+        const p = fam.pieces[defKey];
+        return `<th>🛡️ ${p.glyph} ${p.name}</th>`;
+      })
+      .join('');
+
+    const rowsHtml = pieceKeys
+      .map((atkKey) => {
+        const atkP = fam.pieces[atkKey];
+        const cellsHtml = pieceKeys
+          .map((defKey) => {
+            const m = resolveFamilyMatchup(this.matrixFamily, atkKey, defKey);
+            const isSelected =
+              this.matrixSelectedAtk === atkKey && this.matrixSelectedDef === defKey;
+            const classes = [
+              'hud-matrix-cell',
+              isSelected ? 'selected' : '',
+              m.hasDedicatedVideo ? 'dedicated-video' : '',
+            ]
+              .filter(Boolean)
+              .join(' ');
+
+            const videoBadge = m.hasDedicatedVideo
+              ? '<span class="hud-badge-pill hud-badge-mp4">📹 Veo MP4</span>'
+              : '<span class="hud-badge-pill hud-badge-mix">🎞️ 3D MP4</span>';
+            const glbBadge = m.hasSkeletalGlbClip
+              ? '<span class="hud-badge-pill hud-badge-glb">🦴 GLB</span>'
+              : '';
+            const eggBadge = m.easterEgg
+              ? '<span class="hud-badge-pill hud-badge-egg">🌟 Egg</span>'
+              : '';
+
+            return `
+              <td>
+                <button
+                  class="${classes}"
+                  data-matrix-atk="${atkKey}"
+                  data-matrix-def="${defKey}"
+                  title="${m.attackerDisplayName} → ${m.defenderDisplayName}"
+                >
+                  <strong>${atkP.glyph} → ${fam.pieces[defKey].glyph}</strong>
+                  <div class="hud-matrix-badges">${videoBadge}${glbBadge}${eggBadge}</div>
+                </button>
+              </td>
+            `;
+          })
+          .join('');
+
+        return `
+          <tr>
+            <th style="text-align:left;white-space:nowrap;">
+              ⚔️ ${atkP.glyph} ${atkP.name}
+              <div style="font-size:9.5px;color:#9be7c4;font-weight:500;">${atkP.attackLabel}</div>
+            </th>
+            ${cellsHtml}
+          </tr>
+        `;
+      })
+      .join('');
+
+    container.innerHTML = `
+      <table class="hud-matrix-table">
+        <thead>
+          <tr>
+            <th>Attaccante (A) \\ Difensore (B)</th>
+            ${headerCells}
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    `;
+
+    container.querySelectorAll('button[data-matrix-atk]').forEach((btn) => {
+      btn.addEventListener('mouseenter', () => {
+        this.matrixSelectedAtk = btn.dataset.matrixAtk || 'n';
+        this.matrixSelectedDef = btn.dataset.matrixDef || 'b';
+        container.querySelectorAll('.hud-matrix-cell').forEach((c) =>
+          c.classList.toggle('selected', c === btn),
+        );
+        this._updateMatrixDetailBar();
+      });
+      btn.addEventListener('click', () => {
+        const atk = btn.dataset.matrixAtk || 'n';
+        const def = btn.dataset.matrixDef || 'b';
+        this.matrixSelectedAtk = atk;
+        this.matrixSelectedDef = def;
+        this._launchMatrixPair(atk, def);
+      });
+    });
+
+    this._updateMatrixDetailBar();
+  }
+
+  _updateMatrixDetailBar() {
+    if (!this.rootEl) return;
+    const detailEl = this.rootEl.querySelector('#hud-matrix-detail-text');
+    if (!detailEl) return;
+    const m = resolveFamilyMatchup(
+      this.matrixFamily,
+      this.matrixSelectedAtk,
+      this.matrixSelectedDef,
+    );
+    const animDesc = m.anim3dDesc?.[this.lang] || m.anim3dDesc?.it || m.effect;
+    const videoKind = m.hasDedicatedVideo
+      ? `📹 Film Veo/MP4 Dedicato (${m.videoUrl})`
+      : `🎞️ Film 3D MP4 (${m.videoUrl}) + Card 2D Canvas`;
+    const glbKind = m.hasSkeletalGlbClip
+      ? '🦴 Clip GLB Scheletrica: FireBreath_Track'
+      : '✨ Animazione 3D Procedurale & Pool VFX';
+
+    detailEl.innerHTML = `
+      <div><strong style="color:#ffe082;">${m.attackerDisplayName} mangia ${m.defenderDisplayName}</strong> — <em>${m.banner?.[this.lang] || m.banner?.it}</em></div>
+      <div><strong>3D Scacchiera:</strong> ${animDesc} · <strong>Reazione Vittima:</strong> <code>${m.victimReaction}</code> · ${glbKind}</div>
+      <div><strong>Sfondo 16:9:</strong> ${videoKind}</div>
+    `;
+  }
+
+  _launchMatrixPair(attacker, defender) {
+    if (this.rootEl) {
+      const modal = this.rootEl.querySelector('#hud-matrix-modal');
+      if (modal) modal.style.display = 'none';
+      if (this.rootEl.querySelector('#hud-wow-atk')) {
+        this.rootEl.querySelector('#hud-wow-atk').value = attacker;
+      }
+      if (this.rootEl.querySelector('#hud-wow-def')) {
+        this.rootEl.querySelector('#hud-wow-def').value = defender;
+      }
+    }
+
+    const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+    if (pm?.setWhiteFamily && pm?.setRivalSetMode) {
+      pm.setWhiteFamily(this.matrixFamily);
+      pm.setRivalSetMode(this.matrixFamily === 'carlesso' ? 'family' : this.matrixFamily);
+    }
+
+    this.ctx?.bus?.emit({
+      type: 'WOW_ARENA_CLASH',
+      attacker,
+      defender,
+      goldenCrit: true,
+      tier: 'golden_crit',
+      from: 'd4',
+      to: 'e5',
+      square: 'e5',
+    });
+    this.ctx?.bus?.flush?.();
   }
 
   /**
@@ -1835,6 +2022,12 @@ export class HudListener {
           : `Epic victory for: ${winnerName}!`;
     }
 
+    const bannerText =
+      this.lang === 'it'
+        ? '👑 CAPITOLAZIONE DEL RE! SCACCO MATTO! 💥'
+        : '👑 KING CAPITULATION! CHECKMATE! 💥';
+    this.activeBanner = bannerText;
+
     // Show the Royal Capitulation comic banner while the 4.2s 3D King Capitulation plays on the board!
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
     const textEl = this.rootEl.querySelector('#hud-comic-text');
@@ -1900,6 +2093,12 @@ export class HudListener {
     this.activeBanner = text;
 
     if (!this.rootEl) return;
+    // Hide the left WOW drawer and any center toast during combat so the auto-zoomed 3D fight is 100% clear!
+    const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
+    if (wowPanel) wowPanel.style.display = 'none';
+    const toastEl = this.rootEl.querySelector('#hud-toast');
+    if (toastEl) toastEl.style.display = 'none';
+
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
     const textEl = this.rootEl.querySelector('#hud-comic-text');
     if (textEl) textEl.textContent = text;
@@ -1911,6 +2110,11 @@ export class HudListener {
     if (!this.rootEl) return;
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
     if (bannerEl) bannerEl.style.display = 'none';
+    // Restore WOW drawer if we returned to Mode2_WowArena
+    const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
+    if (wowPanel) {
+      wowPanel.style.display = this.flowState === 'Mode2_WowArena' ? 'flex' : 'none';
+    }
   }
 
   onHintSuggested(e) {

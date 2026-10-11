@@ -147,6 +147,7 @@ export class VFXPoolView {
     // Orbiting camera state
     this.camSaved = null;
     this.camRestoreTimer = 0;
+    this.hiddenBoardNodes = [];
     this.offs = [];
 
     if (this.scene) {
@@ -556,14 +557,14 @@ export class VFXPoolView {
     this.props.puffinFish = fishGroup;
     this.rootGroup.add(fishGroup);
 
-    // 7. Golden Crit Sky-Beam Pillar
+    // 7. Golden Crit Sky-Beam Pillar (subtle halo so fighters remain crisp)
     const beamGeo = new THREE.CylinderGeometry(0.45, 0.65, 5.5, 20, 1, true);
     this.props.skyBeam = new THREE.Mesh(
       beamGeo,
       new THREE.MeshBasicMaterial({
         color: 0xffd700,
         transparent: true,
-        opacity: 0.42,
+        opacity: 0.14,
         side: THREE.DoubleSide,
       }),
     );
@@ -578,11 +579,12 @@ export class VFXPoolView {
     this.defenderFighter = null;
     this.attackerWeaponProp = null;
     this.defenderWeaponProp = null;
+    this.hiddenBoardNodes = [];
 
     this.props.brawlCloud = this.createBrawlCloudProp();
     this.rootGroup.add(this.props.brawlCloud);
 
-    // 9. Pre-allocated 3D Floating Comic Impact Word Sprite (`y = 1.95m`)
+    // 9. Pre-allocated 3D Floating Comic Impact Word Sprite (kept hidden to prevent occluding the 3D fighters)
     this.props.comicWordSprite = this.createComicWordSpriteProp();
     this.rootGroup.add(this.props.comicWordSprite);
 
@@ -597,9 +599,8 @@ export class VFXPoolView {
   }
 
   /**
-   * Builds a pre-allocated `THREE.Sprite` with a dynamic `512x160` `CanvasTexture`
-   * positioned above the brawl (`y = 1.95m`) that flashes comic onomatopoeia in 3D:
-   * `"CHARGE!"` -> `"CLANG! ⚔️"` -> `"CONTRATTACCO! 💥"` -> `"KAPOW! 🌪️"` -> `"K.O.! 🐸💦"`.
+   * Builds a pre-allocated `THREE.Sprite` with a dynamic `512x160` `CanvasTexture`.
+   * Kept hidden during 3D close-up combat so it never occludes the two fighting pieces.
    */
   createComicWordSpriteProp() {
     let tex = null;
@@ -622,7 +623,7 @@ export class VFXPoolView {
     const mat = new THREE.SpriteMaterial({
       map: tex,
       transparent: true,
-      depthTest: false,
+      depthTest: true,
       depthWrite: false,
     });
     const sprite = new THREE.Sprite(mat);
@@ -641,7 +642,7 @@ export class VFXPoolView {
   }
 
   /**
-   * Updates the 3D Comic Impact Word Sprite canvas texture only when the word changes.
+   * Updates the Comic Impact Word state without displaying an occluding 3D billboard over the fighters.
    * @param {string} word
    * @param {string} [bgHex='#ff3d00']
    * @param {string} [borderHex='#ffea00']
@@ -649,7 +650,8 @@ export class VFXPoolView {
   setComicWordText(word, bgHex = '#ff3d00', borderHex = '#ffea00') {
     const sprite = this.props.comicWordSprite;
     if (!sprite) return;
-    sprite.visible = true;
+    // Never show the 3D text billboard over the close-up auto-zoomed fighters!
+    sprite.visible = false;
     if (this.currentComicWord === word) return;
     this.currentComicWord = word;
     sprite.userData.currentWord = word;
@@ -1070,33 +1072,33 @@ export class VFXPoolView {
     const dustMat = new THREE.MeshStandardMaterial({
       color: 0xf5f0e6,
       emissive: 0xffe0b2,
-      emissiveIntensity: 0.35,
+      emissiveIntensity: 0.25,
       roughness: 0.78,
       metalness: 0.05,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.35,
     });
-    const puffGeo = new THREE.SphereGeometry(0.19, 10, 10);
+    const puffGeo = new THREE.SphereGeometry(0.15, 10, 10);
     for (let i = 0; i < 8; i++) {
       const ang = (i * Math.PI * 2) / 8;
       const puff = new THREE.Mesh(puffGeo, dustMat);
       puff.position.set(
         Math.cos(ang) * 0.26,
-        i % 2 === 0 ? 0.08 : -0.06,
+        i % 2 === 0 ? 0.04 : -0.02,
         Math.sin(ang) * 0.26,
       );
-      puff.scale.setScalar(0.85 + (i % 3) * 0.22);
+      puff.scale.setScalar(0.75 + (i % 3) * 0.16);
       cloudGroup.add(puff);
     }
 
     // Comic orange-gold & crimson impact spikes ("SCAZZOTTATA!")
-    const spikeGeo = new THREE.ConeGeometry(0.08, 0.36, 5);
+    const spikeGeo = new THREE.ConeGeometry(0.06, 0.28, 5);
     const goldSpikeMat = new THREE.MeshBasicMaterial({ color: 0xffea00 });
     const redSpikeMat = new THREE.MeshBasicMaterial({ color: 0xff3d00 });
     for (let i = 0; i < 6; i++) {
       const ang = (i * Math.PI * 2) / 6 + 0.25;
       const spike = new THREE.Mesh(spikeGeo, i % 2 === 0 ? goldSpikeMat : redSpikeMat);
-      spike.position.set(Math.cos(ang) * 0.32, 0.05, Math.sin(ang) * 0.32);
+      spike.position.set(Math.cos(ang) * 0.30, 0.04, Math.sin(ang) * 0.30);
       spike.rotation.z = -Math.sin(ang) * 1.2;
       spike.rotation.x = Math.cos(ang) * 1.2;
       cloudGroup.add(spike);
@@ -1128,6 +1130,12 @@ export class VFXPoolView {
   }
 
   clearBrawlFighters() {
+    if (this.hiddenBoardNodes?.length) {
+      for (const node of this.hiddenBoardNodes) {
+        if (node) node.visible = true;
+      }
+      this.hiddenBoardNodes = [];
+    }
     if (this.brawlStageGroup) {
       if (this.pieceView?.clearGroup) {
         this.pieceView.clearGroup(this.brawlStageGroup);
@@ -1146,7 +1154,7 @@ export class VFXPoolView {
   /**
    * Triggered on `BATTLE_STARTED`: mounts the two real 3D `.glb` characters (`attackerFighter` &
    * `defenderFighter`) with their 3D weapons (`buildFighterWeaponProp`), activates pooled particles
-   * and stage props, and starts the close-up Orbiting Capture Camera.
+   * and stage props, and starts the close-up Auto-Zoom Capture Camera.
    * @param {object} e
    */
   onBattleStarted(e) {
@@ -1161,9 +1169,25 @@ export class VFXPoolView {
     const toPos = squareToWorld(e.square || e.to || 'd5');
     const rawFrom = squareToWorld(e.from || 'e4');
     const sameSq = Math.hypot(toPos.x - rawFrom.x, toPos.z - rawFrom.z) < 0.15;
-    const fromPos = sameSq ? { x: toPos.x, y: 0, z: toPos.z + 1.45 } : rawFrom;
+    const fromPos = sameSq ? { x: toPos.x, y: 0, z: toPos.z + 1.15 } : rawFrom;
     this.activeFromPos = fromPos;
     this.activeToPos = toPos;
+
+    // Temporarily hide static board pieces on the active clash squares (`from` & `to`) so they
+    // don't double-render with the brawling fighters, while keeping neighboring pieces visible!
+    const boardMap = this.pieceView?.pieceBySquare || this.pieceView?.pieceNodes;
+    if (boardMap) {
+      const clashSquares = new Set(
+        [e.from, e.to, e.square, e.capturedSquare].filter(Boolean).map((s) => String(s).toLowerCase()),
+      );
+      for (const [sqKey, node] of boardMap.entries()) {
+        const sq = String(node?.userData?.square || sqKey || '').toLowerCase();
+        if (sq && clashSquares.has(sq) && node?.visible) {
+          node.visible = false;
+          this.hiddenBoardNodes.push(node);
+        }
+      }
+    }
 
     const atkType = String(e.attacker || 'p').toLowerCase();
     const defType = String(e.defender || 'p').toLowerCase();
@@ -1231,7 +1255,7 @@ export class VFXPoolView {
       }
     }
 
-    // Prime the 3D Comic Impact Word Sprite above the brawl (`y = 1.95m`)
+    // Prime the Comic Impact Word state (sprite stays hidden so it never occludes the fighters)
     if (this.props.comicWordSprite) {
       this.props.comicWordSprite.position.set(toPos.x, 1.95, toPos.z);
       this.setComicWordText('CHARGE! ⚔️', '#1e88e5', '#ffea00');
@@ -1336,7 +1360,7 @@ export class VFXPoolView {
       });
     }
 
-    // Start Orbiting Capture Camera choreography
+    // Start Auto-Zoom Capture Camera choreography
     this.startCameraOrbit(toPos);
   }
 
@@ -1414,7 +1438,7 @@ export class VFXPoolView {
   }
 
   /**
-   * Saves the player's camera pose and prepares smooth close-up orbital framing around `targetPos`.
+   * Saves the player's camera pose + FOV and prepares tight close-up auto-zoom framing around `targetPos`.
    */
   startCameraOrbit(targetPos) {
     if (!this.camera) return;
@@ -1422,10 +1446,102 @@ export class VFXPoolView {
       this.camSaved = {
         pos: this.camera.position.clone(),
         target: this.controls?.target ? this.controls.target.clone() : new THREE.Vector3(0, 0, 0),
+        fov: this.camera.fov || 46,
       };
     }
-    this.camOrbitCenter = new THREE.Vector3(targetPos.x, 0.7, targetPos.z);
+    this.camOrbitCenter = new THREE.Vector3(targetPos.x, 0.75, targetPos.z);
     this.camRestoreTimer = 0;
+  }
+
+  /**
+   * Triggered on `CHECKMATE`: stages a spectacular 4.2s Royal Capitulation 3D sequence
+   * over the defeated King's square (descending Golden Throne, lightning bolts, sky-beam,
+   * golden sparks, gem shards, and confetti) while orbiting the camera around the fallen King.
+   * @param {object} e
+   */
+  onCheckmate(e) {
+    this.hideStageProps();
+    const kingSq = e.loserKingSquare || (e.loser === 'w' ? 'e1' : 'e8');
+    const winKingSq = e.winnerKingSquare || (e.winner === 'w' ? 'e1' : 'e8');
+    const kingPos = squareToWorld(kingSq);
+    const winPos = squareToWorld(winKingSq);
+
+    this.activeClash = {
+      type: 'CHECKMATE_CAPITULATION',
+      square: kingSq,
+      to: kingSq,
+      from: winKingSq,
+      effect: 'golden_toilet_throne',
+      victimReaction: 'royal_throne_whirl',
+      durationMs: 4200,
+    };
+    this.clashElapsed = 0;
+    this.activeFromPos = winPos;
+    this.activeToPos = kingPos;
+
+    if (this.clashLight) {
+      this.clashLight.color.setHex(0xffd700);
+      this.clashLight.intensity = 7.5;
+      this.clashLight.position.set(kingPos.x, 2.2, kingPos.z);
+      this.clashLight.visible = true;
+    }
+
+    if (this.props.skyBeam) {
+      this.props.skyBeam.position.set(kingPos.x, 2.75, kingPos.z);
+      this.props.skyBeam.visible = true;
+    }
+    if (this.props.runeCircle) {
+      this.props.runeCircle.position.set(kingPos.x, 0.03, kingPos.z);
+      this.props.runeCircle.visible = true;
+    }
+    if (this.props.lightningBolts) {
+      this.props.lightningBolts.position.set(kingPos.x, 0, kingPos.z);
+      this.props.lightningBolts.visible = true;
+    }
+    if (this.props.goldenThrone) {
+      this.props.goldenThrone.position.set(kingPos.x, 3.0, kingPos.z);
+      this.props.goldenThrone.visible = true;
+    }
+    if (this.props.shockwaveRing) {
+      this.props.shockwaveRing.position.set(kingPos.x, 0.04, kingPos.z);
+      this.props.shockwaveRing.scale.setScalar(0.5);
+      this.props.shockwaveRing.visible = true;
+    }
+
+    // Royal Capitulation multi-wave fireworks on both the fallen King and victorious King
+    this.spawnFromPool('golden_sparks', kingPos, 55, {
+      speedMin: 1.8,
+      speedMax: 5.0,
+      upMin: 3.2,
+      upMax: 6.4,
+      restitution: 0.7,
+    });
+    this.spawnFromPool('amethyst_ruby_shards', kingPos, 45, {
+      speedMin: 1.6,
+      speedMax: 4.5,
+      upMin: 2.8,
+      upMax: 5.8,
+      restitution: 0.72,
+      delayS: 0.35,
+    });
+    this.spawnFromPool('choco_lilac_confetti', winPos, 50, {
+      speedMin: 1.5,
+      speedMax: 4.2,
+      upMin: 3.4,
+      upMax: 6.0,
+      restitution: 0.5,
+      delayS: 0.5,
+    });
+    this.spawnFromPool('floating_purple_hearts', winPos, 30, {
+      speedMin: 0.9,
+      speedMax: 2.6,
+      upMin: 2.4,
+      upMax: 5.0,
+      restitution: 0.6,
+      floatUp: true,
+    });
+
+    this.startCameraOrbit(kingPos);
   }
 
   /**
@@ -1461,7 +1577,7 @@ export class VFXPoolView {
 
   /**
    * Advances all active pooled particles, 3D Scazzottata character brawl, stage prop animations,
-   * and the Orbiting Capture Camera.
+   * and the Auto-Zoom Capture Camera.
    * @param {number} dt - Delta time in seconds
    */
   update(dt) {
@@ -1471,7 +1587,7 @@ export class VFXPoolView {
     // 1. Update active 3-Act 3D Scazzottata & stage props
     if (this.activeClash) {
       this.clashElapsed += step;
-      const durationS = (this.activeClash.durationMs || 4000) / 1000;
+      const durationS = (this.activeClash.durationMs || 6000) / 1000;
       const t = Math.min(1, this.clashElapsed / durationS);
       this.updateActiveChoreography(this.activeClash, t, this.clashElapsed);
       this.updateCameraOrbit(t, step);
@@ -1486,6 +1602,10 @@ export class VFXPoolView {
       this.camRestoreTimer = Math.max(0, this.camRestoreTimer - step);
       const alpha = Math.min(1, step * 8.0);
       this.camera.position.lerp(this.camSaved.pos, alpha);
+      if (this.camSaved.fov && this.camera.fov !== undefined) {
+        this.camera.fov += (this.camSaved.fov - this.camera.fov) * alpha;
+        this.camera.updateProjectionMatrix?.();
+      }
       if (this.controls?.target) {
         this.controls.target.lerp(this.camSaved.target, alpha);
         this.controls.update?.();
@@ -1494,6 +1614,10 @@ export class VFXPoolView {
       }
       if (this.camRestoreTimer === 0) {
         this.camera.position.copy(this.camSaved.pos);
+        if (this.camSaved.fov && this.camera.fov !== undefined) {
+          this.camera.fov = this.camSaved.fov;
+          this.camera.updateProjectionMatrix?.();
+        }
         if (this.controls?.target) {
           this.controls.target.copy(this.camSaved.target);
           this.controls.update?.();
@@ -1641,7 +1765,7 @@ export class VFXPoolView {
     const reaction = clash.victimReaction;
 
     if (atk && def) {
-      const scale = this.pieceView?.globalPieceScale || 1.0;
+      const scale = (this.pieceView?.globalPieceScale || 1.0) * 1.22;
 
       if (reaction === 'happy_cuddle_hop' || clash.effect === 'mega_cuddle_bounce') {
         // Seby <-> Pupurabbu Easter Egg: Synchronized Mega Cuddle Bounce!
@@ -1717,14 +1841,14 @@ export class VFXPoolView {
         // ACT 2 (25..74%): LA SCAZZOTTATA 3D! (5-Hit Back-and-Forth 3D Character Brawl + Defender Counter-Attacks!)
         const brawlU = (t - 0.25) / 0.49;
 
-        // Swirl the 3D Cartoon Brawl Cloud & Starburst between the two fighters!
+        // Swirl the low-profile 3D Cartoon Brawl Dust at the fighters' feet (`y = 0.16m`) so bodies stay 100% clear!
         const strike = Math.abs(Math.sin(brawlU * Math.PI * 5.0));
         if (this.props.brawlCloud) {
           this.props.brawlCloud.visible = true;
-          this.props.brawlCloud.position.set(toPos.x, 0.46 + strike * 0.14, toPos.z);
+          this.props.brawlCloud.position.set(toPos.x, 0.16 + strike * 0.06, toPos.z);
           this.props.brawlCloud.rotation.y = elapsedS * 11.0;
           this.props.brawlCloud.rotation.z = elapsedS * 7.5;
-          const cScale = 0.68 + strike * 0.48;
+          const cScale = 0.42 + strike * 0.20;
           this.props.brawlCloud.scale.setScalar(cScale);
         }
 
@@ -1977,16 +2101,23 @@ export class VFXPoolView {
   }
 
   /**
-   * Smoothly orbits the camera close around the clashing 3D characters (`dist = 3.9m..4.6m, y = 2.2m..2.5m`),
-   * angled from `+Z` looking toward `-Z` so BOTH the close-up 3D Scazzottata AND the 16:9 Veo Mirror stay in frame!
-   * Includes subtle impact camera shake on heavy hits in Act 2 and swamp splash impact in Act 3.
+   * Auto-Zoom Close-Up Combat Camera (`dist = 1.82m..2.10m, y = 1.28m..1.44m, fov = 30°`),
+   * tightly framing the 2 fighting pieces, their immediately adjacent neighbors on the board
+   * ("i pezzi vicini e poco altro!"), and the full-screen 16:9 Veo video backdrop right behind them!
    */
   updateCameraOrbit(t, step) {
     if (!this.camera || !this.camOrbitCenter) return;
     const c = this.camOrbitCenter;
-    const orbitAngle = (t - 0.5) * 0.62; // Sweeps dynamically around the 3D brawl
-    const dist = 4.65 - Math.sin(t * Math.PI) * 0.65; // Zooms in close (4.0m .. 4.65m) for the 3D Scazzottata!
-    const camY = 2.25 + Math.sin(t * Math.PI) * 0.28; // Heroic low-medium brawl angle
+    let focusX = c.x;
+    let focusZ = c.z;
+    if (this.attackerFighter && this.defenderFighter && t < 0.74) {
+      focusX = (this.attackerFighter.position.x + this.defenderFighter.position.x) * 0.5;
+      focusZ = (this.attackerFighter.position.z + this.defenderFighter.position.z) * 0.5;
+    }
+
+    const orbitAngle = (t - 0.5) * 0.48; // Smooth close-up sweep around the 2 fighters
+    const dist = 2.10 - Math.sin(t * Math.PI) * 0.28; // Tight auto-zoom (1.82m .. 2.10m)
+    const camY = 1.28 + Math.sin(t * Math.PI) * 0.16; // Heroic close-up eye level
 
     // Impact camera shake on heavy hits in Act 2 (`t = 0.25..0.74`) and swamp splash (`t = 0.88..0.98`)
     let shakeX = 0;
@@ -1995,30 +2126,35 @@ export class VFXPoolView {
       const brawlU = (t - 0.25) / 0.49;
       const exFrac = (brawlU * 5.0) % 1;
       const hitPulse = Math.pow(Math.sin(exFrac * Math.PI), 4);
-      const amp = 0.095 * hitPulse;
+      const amp = 0.065 * hitPulse;
       shakeX = Math.sin(this.clashElapsed * 65.0) * amp;
       shakeY = Math.cos(this.clashElapsed * 53.0) * amp * 0.85;
     } else if (t >= 0.88 && t < 0.98) {
       const splashPulse = Math.sin(((t - 0.88) / 0.10) * Math.PI);
-      shakeX = Math.sin(this.clashElapsed * 48.0) * 0.045 * splashPulse;
-      shakeY = Math.cos(this.clashElapsed * 42.0) * 0.055 * splashPulse;
+      shakeX = Math.sin(this.clashElapsed * 48.0) * 0.035 * splashPulse;
+      shakeY = Math.cos(this.clashElapsed * 42.0) * 0.045 * splashPulse;
     }
     this.lastCameraShake = Math.hypot(shakeX, shakeY);
 
     const desiredPos = new THREE.Vector3(
-      c.x + Math.sin(orbitAngle) * dist + shakeX,
+      focusX + Math.sin(orbitAngle) * dist + shakeX,
       camY + shakeY,
-      c.z + Math.cos(orbitAngle) * dist,
+      focusZ + Math.cos(orbitAngle) * dist,
     );
-    // Focus directly on the two brawling 3D characters while keeping the 16:9 Cinema Mirror in the upper background
+    // Focus tightly on the 2 brawling characters while keeping the 16:9 Cinema Mirror filling the backdrop
     const desiredTarget = new THREE.Vector3(
-      c.x * 0.82 + shakeX * 0.5,
-      1.05 + shakeY * 0.5,
-      c.z * 0.75 - 1.15,
+      focusX + shakeX * 0.4,
+      0.78 + shakeY * 0.4,
+      focusZ - 0.35,
     );
 
-    const alpha = Math.min(1, step * 6.0);
+    const alpha = Math.min(1, step * 7.5);
     this.camera.position.lerp(desiredPos, alpha);
+    if (this.camera.fov !== undefined) {
+      const targetFov = 30;
+      this.camera.fov += (targetFov - this.camera.fov) * alpha;
+      this.camera.updateProjectionMatrix?.();
+    }
     if (this.controls?.target) {
       this.controls.target.lerp(desiredTarget, alpha);
       this.controls.update?.();

@@ -215,6 +215,9 @@ export class PieceView {
             }
           }
         }),
+        bus.on('CHECKMATE', (e) => {
+          this.animateKingCapitulation(e);
+        }),
       );
     }
 
@@ -1593,6 +1596,56 @@ if (uCombatAmp > 0.001) {
       elapsed: 0,
       duration: 0.28,
     });
+    this.activeMoves = this.activeTweens;
+  }
+
+  /**
+   * Spectacular 3D Royal Capitulation (`CHECKMATE`):
+   * - The defeated King trembles violently, leaps in slow-motion, and topples 84° onto the board!
+   * - All surviving victorious pieces jump in celebratory waves!
+   */
+  animateKingCapitulation(e = {}) {
+    const loserColor = e.loser ? String(e.loser).toLowerCase() : (e.winner === 'w' ? 'b' : 'w');
+    const winnerColor = loserColor === 'w' ? 'b' : 'w';
+    let kingGroup = e.kingSquare ? this.pieceBySquare.get(e.kingSquare) : null;
+
+    if (!kingGroup) {
+      for (const grp of this.pieceBySquare.values()) {
+        if (grp.userData?.type === 'k' && grp.userData?.color === loserColor) {
+          kingGroup = grp;
+          break;
+        }
+      }
+    }
+
+    if (kingGroup) {
+      const fallSign = loserColor === 'w' ? 1 : -1;
+      this.activeTweens.push({
+        kind: 'king_capitulation',
+        group: kingGroup,
+        baseX: kingGroup.position.x,
+        baseZ: kingGroup.position.z,
+        fallSign,
+        elapsed: 0,
+        duration: 2.8,
+      });
+    }
+
+    let idx = 0;
+    for (const grp of this.pieceBySquare.values()) {
+      if (grp.userData?.color === winnerColor) {
+        this.activeTweens.push({
+          kind: 'victory_jump',
+          group: grp,
+          baseY: 0,
+          baseRotY: grp.rotation.y,
+          phaseOffset: (idx % 5) * 0.14,
+          elapsed: 0,
+          duration: 3.2,
+        });
+        idx += 1;
+      }
+    }
     this.activeMoves = this.activeTweens;
   }
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.4] - 2026-10-11
+
+- 🔍⚔️ **Auto-Zoom Close-Up Combat Camera, Zero Text Occlusion, Full-Screen 16:9 Video Backdrop, 3D King Capitulation & +50% Combat Duration (`VFXPoolView.js`, `VeoCinemaView.js`, `WowModeView.js`, `PieceView.js`, `HudListener.js`, `CombatAnimationManager.js`, `Registry.js`, `main.js`, `tests/combat.test.mjs`)**:
+  - **Auto-Zoom Close-Up Combat Camera (`VFXPoolView.js`, `WowModeView.js`, `main.js`)**: During any capture or `⚔️ Lancia Sfida (Ale vs Seby)`, the camera smoothly auto-zooms (`FOV 46° → 30°`, `dist = 1.82m..2.10m`, `camY = 1.28m..1.44m`) onto the live midpoint of the two `1.22×`-scaled fighting pieces. Static board pieces on the active clash squares (`from`/`to`) are temporarily hidden via `pieceView.pieceBySquare`, while neighboring chess pieces (`"i pezzi vicini e poco altro!"`) remain visible around the brawl.
+  - **Zero Text/UI Occlusion During Combat (`VFXPoolView.js`, `VeoCinemaView.js`, `HudListener.js`)**: Disabled the floating 3D `comicWordSprite` billboard (`CHARGE!` / `KAPOW!`) over the fighters' heads, lowered the dust cloud to pedestal level (`y = 0.16m`, `opacity = 0.35`), auto-hid the 310px `#hud-wow-panel` drawer during active combat, moved `#hud-comic-banner` to a compact top-right pill (`top: 52px; right: 14px`), and removed the bottom text box from the 16:9 cinema canvas.
+  - **16:9 Video Discreet in Idle, Full-Screen Backdrop Behind the Board in Combat (`VeoCinemaView.js`)**: In `idle`, the 16:9 screen parks discreetly in the background (`scale = 0.65`, `(0, 3.65, -10.8)`); during `battle` or `checkmate`, it expands behind the auto-zoomed fighters (`scale = 1.85`, `(0, 2.45, -5.2)`).
+  - **Spectacular 3D King Capitulation on Checkmate (`PieceView.js`, `VFXPoolView.js`, `BoardMapManager.js`, `HudListener.js`)**: `CHECKMATE` now triggers a 4.2s 3D Royal Capitulation sequence (`animateKingCapitulation` + `onCheckmate` golden throne & lightning VFX + celebratory jumps for surviving pieces) before displaying the Game Over modal.
+  - **In-App 6×6 Family Capture Matrix & +50% Slower Combats (`Registry.js`, `CombatAnimationManager.js`, `HudListener.js`)**: Extended `DEFAULT_BATTLE_DURATION_MS` by +50% (`4000ms → 6000ms`, `videoEl.playbackRate = 1.0`) and added family selector tabs (`👨‍👩‍👦‍👦 Famiglia Carlesso`, `🏛️ Classici Carlessiani`, `🐸 Famiglia della Palude`) with asset badges (`📹 Veo MP4`, `🎞️ 3D MP4`, `🦴 GLB`, `🌟 Egg`).
+
 ## [0.3.3] - 2026-10-10
 
 - 🍌📺 **Wire Nano Banana 16:9 Keyframes & `1.65×` Veo Playback (`BattleMatrix36.js`, `VeoCinemaView.js`, `battles.html`)**:

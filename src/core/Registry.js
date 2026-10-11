@@ -210,6 +210,109 @@ const BASE_SIGNATURES = Object.freeze({
   },
 });
 
+export const WOW_VIDEO_PLAYLIST = Object.freeze([
+  {
+    id: 'b_x_n',
+    attacker: 'b',
+    defender: 'n',
+    url: 'assets/battles/videos/b_x_n.mp4',
+    webmUrl: 'assets/battles/videos/b_x_n.webm',
+    caption: { it: '🐉 Ale × Seby 🐴', en: '🐉 Ale × Seby 🐴' },
+  },
+  {
+    id: 'n_x_b',
+    attacker: 'n',
+    defender: 'b',
+    url: 'assets/battles/videos/n_x_b.mp4',
+    webmUrl: 'assets/battles/videos/n_x_b.webm',
+    caption: { it: '🏎️ Seby × Ale 💎', en: '🏎️ Seby × Ale 💎' },
+  },
+  {
+    id: 'n_x_r',
+    attacker: 'n',
+    defender: 'r',
+    url: 'assets/battles/videos/n_x_r.mp4',
+    webmUrl: 'assets/battles/videos/n_x_r.webm',
+    caption: { it: '💜 Seby & Pupurabbu 🤗', en: '💜 Seby & Pupurabbu 🤗' },
+  },
+]);
+
+export const DEDICATED_VIDEO_PAIRS = Object.freeze(new Set(['b_x_n', 'n_x_b', 'n_x_r', 'r_x_n']));
+
+export const ANIM_3D_DESCRIPTIONS = Object.freeze({
+  sceptre_lightning: {
+    it: '⚡ Scettro Fulmine + Cerchio Runico + 28 Scintille d’Oro',
+    en: '⚡ Sceptre Lightning + Rune Circle + 28 Golden Sparks',
+  },
+  golden_toilet_throne: {
+    it: '🚽👑 Trono d’Oro Reale dal Cielo + Fulmini + Vortice',
+    en: '🚽👑 Descending Golden Throne + Lightning + Whirl',
+  },
+  chocolate_wave: {
+    it: '🍫✨ Onda Ciocco-Lilla Lucida + 40 Coriandoli + Fusione Dolce',
+    en: '🍫✨ Glossy Choco-Wave + 40 Confetti + Sweet Melt',
+  },
+  crystal_shatter: {
+    it: '🐉💎 Clip GLB FireBreath_Track + Teca Ametista + 52 Gemme',
+    en: '🐉💎 GLB FireBreath_Track + Amethyst Case + 52 Gem Shards',
+  },
+  loop_track_cars: {
+    it: '🏎️✨ Pista Loop Arancione + 8 Macchinine + Stelle Giramento',
+    en: '🏎️✨ Orange Loop-Track + 8 Toy Cars + Dizzy Stars',
+  },
+  plush_ground_pound: {
+    it: '💥💜 Salto 2.6m + Schiacciata Pancake + 32 Nuvole Puffose',
+    en: '💥💜 2.6m Leap + Pancake Squash + 32 Plush Poof Clouds',
+  },
+  halberd_fish_slap: {
+    it: '🐟⚔️ Schiaffo Pesce Azzurro 3D + Volo Fuori Scacchiera',
+    en: '🐟⚔️ 3D Silver-Blue Fish Slap + Off-Board Spin Arc',
+  },
+  mega_cuddle_bounce: {
+    it: '💜🤗 Rimbalzo Abbraccio Sincronizzato + 36 Cuori 3D Fluttuanti',
+    en: '💜🤗 Synchronized Cuddle Hop + 36 Floating 3D Hearts',
+  },
+});
+
+export const FAMILY_ROSTERS = Object.freeze({
+  carlesso: {
+    id: 'carlesso',
+    label: { it: '👨‍👩‍👦‍👦 Famiglia Carlesso', en: '👨‍👩‍👦‍👦 Carlesso Family' },
+    pieces: {
+      k: { name: 'Riccardo', glyph: '♔', badge: '👑', attackLabel: 'Scettro Fulmine / Trono d’Oro 🚽⚡' },
+      q: { name: 'Kate', glyph: '♕', badge: '💜', attackLabel: 'Ciocco-Onda Lilla 🍫✨' },
+      b: { name: 'Ale', glyph: '♗', badge: '🐉', attackLabel: 'Soffio Drago & Cristallo 💎🐉' },
+      n: { name: 'Seby', glyph: '♘', badge: '🏎️', attackLabel: 'Pista Loop & 8 Macchinine 🏎️🔥' },
+      r: { name: 'Pupurabbu', glyph: '♖', badge: '🤗', attackLabel: 'Schiacciata Puffosa / Abbraccio 💜' },
+      p: { name: 'Puffin', glyph: '♙', badge: '🐟', attackLabel: 'Alabarda & Pesce Slap 🐟⚔️' },
+    },
+  },
+  classic: {
+    id: 'classic',
+    label: { it: '🏛️ Classici Carlessiani', en: '🏛️ Classic Set' },
+    pieces: {
+      k: { name: 'Re Classico', glyph: '♔', badge: '🏛️', attackLabel: 'Decreto Croce Reale & Scintille ♔⚡' },
+      q: { name: 'Regina Classica', glyph: '♕', badge: '✨', attackLabel: 'Onda Corona Imperiale ♕✨' },
+      b: { name: 'San Gennaro', glyph: '♗', badge: '🩸', attackLabel: 'Raggio Ampolla Sacra & Gemme ♗🩸' },
+      n: { name: 'Destriero Classico', glyph: '♘', badge: '🐎', attackLabel: 'Carica Cavalleria & Stelle 💥🐎' },
+      r: { name: 'Torre Matildea', glyph: '♖', badge: '🏰', attackLabel: 'Schianto Rocca Estense 🏰💥' },
+      p: { name: 'Pedone Classico', glyph: '♙', badge: '🛡️', attackLabel: 'Colpo Marcia Staunton 🛡️⚔️' },
+    },
+  },
+  swamp: {
+    id: 'swamp',
+    label: { it: '🐸 Famiglia della Palude', en: '🐸 Swamp Family' },
+    pieces: {
+      k: { name: 'Orco Brontolo', glyph: '♔', badge: '🐸', attackLabel: 'Rutto Cipolla di Palude 🐸🧅' },
+      q: { name: 'Principessa Orchessa', glyph: '♕', badge: '🥋', attackLabel: 'Calcio Kung-Fu Slow-Mo 👑🥋' },
+      b: { name: 'Mago Focaccina', glyph: '♗', badge: '🥖', attackLabel: 'Colpo Focaccina Ligure 🫒🥖' },
+      n: { name: 'Asinello', glyph: '♘', badge: '🫏', attackLabel: 'Calcio Doppio d’Asinello 🫏✨' },
+      r: { name: 'Draghessa', glyph: '♖', badge: '🐉', attackLabel: 'Fumo Cuore di Draghessa 🐉🏰' },
+      p: { name: 'Guardia Re Tappo', glyph: '♙', badge: '🧅', attackLabel: 'Pergamena Re Tappo Flatten 🛡️🧅' },
+    },
+  },
+});
+
 /**
  * Build the complete 6x6 declarative `BATTLE_MATRIX[attacker][defender]` with
  * family Easter Eggs baked directly into the table (zero runtime if/else ladders!).
@@ -240,7 +343,13 @@ function buildBattleMatrix() {
         banner: baseSig.banner,
         easterEgg: null,
         nonLethalCuddle: false,
+        hasDedicatedVideo,
+        videoSourceType: hasDedicatedVideo ? 'veo_mp4' : 'rendered_3d_mp4',
+        hasSkeletalGlbClip,
+        skeletalClipName: hasSkeletalGlbClip ? 'FireBreath_Track' : null,
+        anim3dDesc: ANIM_3D_DESCRIPTIONS[baseSig.effect],
         videoUrl: `assets/battles/videos/${atk}_x_${def}.mp4`,
+        webmUrl: `assets/battles/videos/${atk}_x_${def}.webm`,
         compositeUrl: `assets/battles/keyframes/${pairId}.svg`,
         attackerImg: atkChar.frontPortrait,
         defenderImg: defChar.frontPortrait,
@@ -252,7 +361,8 @@ function buildBattleMatrix() {
   for (const [a, d] of [['n', 'r'], ['r', 'n']]) {
     matrix[a][d] = {
       ...matrix[a][d],
-      videoUrl: 'assets/battles/videos/n_x_r.mp4',
+      videoUrl: `assets/battles/videos/${a}_x_${d}.mp4`,
+      webmUrl: `assets/battles/videos/${a}_x_${d}.webm`,
       effect: 'mega_cuddle_bounce',
       debrisType: 'floating_purple_hearts',
       victimReaction: 'happy_cuddle_hop',
@@ -311,11 +421,14 @@ export const BATTLE_MATRIX = buildBattleMatrix();
  */
 export function resolveFamilyMatchup(familyId = 'carlesso', attacker = 'n', defender = 'b') {
   const fam = FAMILY_ROSTERS[familyId] || FAMILY_ROSTERS.carlesso;
+  const reg = FAMILY_REGISTRIES[fam.id] || CHARACTER_REGISTRY;
   const atkKey = String(attacker || 'p').toLowerCase();
   const defKey = String(defender || 'p').toLowerCase();
   const base = BATTLE_MATRIX[atkKey]?.[defKey] || BATTLE_MATRIX.p.p;
   const atkPiece = fam.pieces[atkKey] || fam.pieces.p;
   const defPiece = fam.pieces[defKey] || fam.pieces.p;
+  const atkReg = reg[atkKey] || CHARACTER_REGISTRY[atkKey];
+  const defReg = reg[defKey] || CHARACTER_REGISTRY[defKey];
   return {
     ...base,
     familyId: fam.id,
@@ -323,6 +436,8 @@ export function resolveFamilyMatchup(familyId = 'carlesso', attacker = 'n', defe
     attackerDisplayName: `${atkPiece.badge} ${atkPiece.name}`,
     defenderDisplayName: `${defPiece.badge} ${defPiece.name}`,
     attackSignatureLabel: atkPiece.attackLabel,
+    attackerImg: atkReg?.frontPortrait || base.attackerImg,
+    defenderImg: defReg?.frontPortrait || base.defenderImg,
   };
 }
 
