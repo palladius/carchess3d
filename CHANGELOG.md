@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.20] - 2026-10-11
+
+- 👑🫏📚 **2D→3D Pipeline (Mode A & Mode B) Applied to Re Riccardo (`king-riccardo.glb`) & Ciuchino (`knight-swamp-asinello.glb`) + `niccolo-game-design` Skill `v0.2.0`**:
+  - **`niccolo-game-design` Skill (`v0.2.0`)**: Added [`references/2d-to-3d-sdf-uv-baking.md`](.agents/skills/niccolo-game-design/references/2d-to-3d-sdf-uv-baking.md) documenting **Mode A** (*Full 2D→3D SDF Visual-Hull + Relief Sculpting + Seamless `1024×1024` UV Baking*) and **Mode B** (*Dual-Chart `2048×1024` UV Face-Grafting & Laplacian Multi-Band Skin Blending onto Existing 3D Meshes*).
+  - **Re Riccardo Turnaround Sheet (`tools/model-pipeline/king/side.png`, `king_turnaround_sheet.png`, `generate_side_noglasses.py`)**: Fixed prompt bug in [`tools/model-pipeline/king/generate_side_noglasses.py`](tools/model-pipeline/king/generate_side_noglasses.py) and regenerated the 90° side profile (`side.png`) and 4-panel turnaround sheet (`king_turnaround_sheet.png`) so Riccardo is 100% clean-shaven, without glasses, and wearing the matching royal blue velvet cape with white ermine collar.
+  - **Re Riccardo 3D — Mode B Face-Grafting (`assets/models/king-riccardo.glb`, `tools/model-pipeline/king/graft_papino_face_3d.py`)**: Built [`tools/model-pipeline/king/graft_papino_face_3d.py`](tools/model-pipeline/king/graft_papino_face_3d.py) to upgrade `king-riccardo.glb` (`4.1 MB`, `96,958` triangles) with a **Dual-Chart `2048×1024` UV Atlas** — preserving the original `TRELLIS.2` texture (`u ∈ [0, 0.5]`) for the crown, hair, ears, ermine cape, sceptre, orb, and `"KING RICCARDO"` pedestal while assigning a continuous `1024×1024` Planar Face Chart (`u ∈ [0.5, 1.0]`) mapped from `tools/model-pipeline/king/front.png` with Laplacian multi-band skin harmonization.
+  - **Asinello Chiacchierone 3D — Mode A SDF + 40-Tooth Relief Reconstruction (`assets/models/swamp/knight-swamp-asinello.glb`, `tools/model-pipeline/swamp/reconstruct_asinello_3d.py`)**: Reconstructed `knight-swamp-asinello.glb` (`2.1 MB`, `16,508` triangles, `1.35m` height, `min.y == 0.0`) from `assets/characters/knight-swamp-asinello.jpg` with 3D embossed 40-tooth Eddie Murphy smile, golden onion medallion, dorsal mane, and seamless `1024×1024` UV atlas.
+
 ## [0.3.19] - 2026-10-11
 
 - 🔄🐴 **Showcase 3D GLB Cache-Busting (`showcase/index.html`, `sw.js`)**:
