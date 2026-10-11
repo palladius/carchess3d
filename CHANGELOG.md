@@ -1,11 +1,11 @@
 # Changelog
 
-## [0.3.33] - 2026-10-11
+## [0.3.34] - 2026-10-11
 
-- 🧪🖼️🔧 **Fix White 3D GLB Boxes on Ale 1 & Re Riccardo in `showcase/index.html` + TDD WebGL Context Budget Guard (`showcase/index.html`, `tests/showcase-webgl.test.mjs`)**:
-  - **Root Cause (`kMaxActiveWebGLContexts = 16` in Chromium/Blink)**: `showcase/index.html` displays **18 character cards** (`6 Carlesso + 6 Classic + 6 Swamp`). Previously, `makeView()` instantiated a separate `new THREE.WebGLRenderer({ antialias: true, alpha: true })` per card (`18` total). Because Chromium enforces a hard cap of **16 active WebGL contexts per page**, creating contexts `#17` (*Draghessa della Palude*) and `#18` (*Zenzy Pan di Zenzero*) automatically evicted the 2 oldest WebGL contexts — **Card `#0` (`Ale 1`)** and **Card `#1` (`Re Riccardo`)** — turning their `<canvas>` elements into blank white rectangles (`WARNING: Too many active WebGL contexts. Oldest context will be lost`).
-  - **Single Shared `THREE.WebGLRenderer` + 2D Canvas Blitting (`showcase/index.html`)**: Replaced per-card WebGL contexts with a single shared `sharedRenderer` (`1` WebGL context for the entire page) that renders each visible card's `scene` + `camera` and blits to the card's lightweight 2D `<canvas>` (`ctx.drawImage(sharedRenderer.domElement, ...)`), keeping pointer drag, auto-rotation, faction tinting, and fullscreen working identically across all 18+ cards with zero context loss.
-  - **TDD Regression Suite (`tests/showcase-webgl.test.mjs`)**: Added automated tests verifying that (1) every 2D image and 3D `.glb` referenced in `showcase/index.html` exists and has a valid `glTF` v2 binary header, and (2) `makeView()` never instantiates `new THREE.WebGLRenderer` per card (`webglRendererInstantiations.length === 1`).
+- 👨‍👩‍👦‍👦🏛️🐸 **Showcase Divided Into 3 Families (`Carlesso`, `Classic`, `Shrek / Palude` = Strictly 6 Pieces at a Time) + Lazy Per-Family Loading & TDD Guard (`showcase/index.html`, `tests/showcase-webgl.test.mjs`)**:
+  - **Strictly 3 Family Tabs (`6` Pieces Visible at a Time)**: Removed the `"Tutte le Famiglie (18)"` (`data-family="all"`) tab so `showcase/index.html` presents the **3 dedicated family tabs** — `👨‍👩‍👦‍👦 Famiglia Carlesso (6)` (default), `♔🏛️ Scacchi Classici Vanilla (6)`, and `🐸🧅 Famiglia Shrek / Palude (6)` (supporting `#carlesso`, `#classic`, `#swamp`, and `#shrek` URL hashes) — showing and lazily loading **only 6 pieces at a time** (`ensureFamilyViews(validFam)`).
+  - **Double Protection Against Chrome's 16-WebGL-Context Limit (`kMaxActiveWebGLContexts = 16`)**: Combining **6 visible pieces per family tab** (`6 << 16`) with a **single shared `THREE.WebGLRenderer`** (`sharedRenderer` blitting via `ctx.drawImage` into lightweight 2D canvases) guarantees **Ale 1** and **Re Riccardo** never suffer WebGL context eviction (`webglcontextlost` white box) on any desktop or mobile browser.
+  - **TDD Regression Suite (`tests/showcase-webgl.test.mjs`)**: Verifies that (1) no `data-family="all"` tab exists, (2) `#family-tabs` contains strictly `['carlesso', 'classic', 'swamp']` with `6` pieces each, (3) `makeView()` never instantiates per-card `THREE.WebGLRenderer` instances, and (4) all 2D/3D `.glb` assets exist and have valid `glTF` v2 headers.
 
 ## [0.3.32] - 2026-10-11
 
