@@ -464,3 +464,21 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
   - `200×150` 3D Signed Distance Field combining turned Staunton pedestal axial symmetry (`y <= 0.36m`) with elliptical visual-hull carving + gold-bridle & mane luminance relief embossing (`y > 0.33m`), resampled to `54×74×54` for Marching Cubes + 10-iteration Taubin surface fairing (`lamb=0.5, nu=-0.53`).
   - Seamless `1024×1024` 2-panel UV `baseColorTexture` PNG atlas (with lateral edge color matching between Front facial bridge and Side cheek contour) embedded in glTF 2.0 binary `.glb` alongside `faction_primary` and `faction_trim` PBR materials.
 - **Output**: `assets/models/classic/knight-classic-cavallo.glb` (`22,080` triangles, `2,827 KB`, `1.35m` height, `min.y == 0.0`) and 4-angle per-pixel Gouraud + UV preview `tools/model-pipeline/classic/knight_classic_3d_preview.png`.
+
+### 10.8 Re Riccardo Turnaround Side-Profile Fix & Mode B Dual-Chart 2048×1024 Face-Grafting (`tools/model-pipeline/king/`)
+- **Side-Profile Regeneration (`tools/model-pipeline/king/generate_side_noglasses.py`)**:
+  - Fixed prompt bug that previously requested a dark beard/mustache and crimson cape; regenerated `tools/model-pipeline/king/side.png` and rebuilt `tools/model-pipeline/king/king_turnaround_sheet.png` via `gemini-3-pro-image-preview` using `front.png`, `threequarter.png`, and `back.png` as multi-image references so Riccardo is 100% clean-shaven, without glasses, and wearing the royal blue velvet cape with white ermine collar.
+- **Mode B 3D Face-Grafting (`tools/model-pipeline/king/graft_papino_face_3d.py`)**:
+  - Expanded `Image 0` (`baseColorTexture`) of `assets/models/king-riccardo.glb` (`4,113 KB`, `96,958` triangles) to a `2048×1024` Dual-Chart WebP atlas:
+    - Left half (`u ∈ [0, 0.5]`, `1024×1024`): original `TRELLIS.2` `xatlas` texture for the crown, hair, ears, ermine collar, blue velvet cape, lion crest, sceptre, orb, and `"KING RICCARDO"` pedestal.
+    - Right half (`u ∈ [0.5, 1.0]`, `1024×1024`): dedicated continuous Planar Face Chart (`1,483` front-head triangles) mapped from `tools/model-pipeline/king/front.png` (`scale_x=920 px/m, scale_y=960 px/m`) with strict interior facial skin dilation (`85` iterations) and Laplacian multi-band frequency-separated skin harmonization (`sigma=26.0`).
+  - **Outputs**: `assets/models/king-riccardo.glb`, `tools/model-pipeline/king/out/papino_face_graft_preview.png`, and `tools/model-pipeline/king/out/papino_3d_turntable.gif`.
+
+### 10.9 Asinello Chiacchierone Mode A 3D SDF + 40-Tooth Relief Reconstruction (`tools/model-pipeline/swamp/reconstruct_asinello_3d.py`)
+- **Input**: `assets/characters/knight-swamp-asinello.jpg` (confirmed Variante 1: rearing talking donkey with 40-tooth Eddie Murphy smile, raised eyebrow, and golden onion medallion).
+- **Pipeline**:
+  - `rembg` neural segmentation + 40-iteration boundary color dilation + synthesized dorsal mane (`y ∈ [0.58, 1.22]m`) and crimson/gold caparison collar strap (`y ∈ [0.50, 0.58]m`) on the rear panel.
+  - `210×160` 3D Signed Distance Field with anatomical S-curve posture (`z_center(y)`), 40-tooth & onion-medallion luminance relief embossing, Marching Cubes (`54×74×54`), and Taubin smoothing.
+  - Seamless `1024×1024` UV `baseColorTexture` PNG atlas + `faction_primary` / `faction_trim` materials.
+- **Outputs**: `assets/models/swamp/knight-swamp-asinello.glb` (`16,508` triangles, `2,160 KB`, `1.35m` height, `min.y == 0.0`), `tools/model-pipeline/swamp/asinello_3d_preview.png`, and `tools/model-pipeline/swamp/asinello_3d_turntable.gif`.
+

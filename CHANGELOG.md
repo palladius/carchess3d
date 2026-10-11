@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.24] - 2026-10-11
+## [0.3.25] - 2026-10-11
 
 - 🎬🕵️‍♂️🏆 **Full 36-Video Adversarial Critic Audit, Veo 3.1 `firstFrame` + `lastFrame` Regeneration & Historical Video Archive (`assets/battles/video_audit.yaml`, `assets/battles/archive/`, `assets/battles/videos/`, `assets/battles/keyframes/`, `docs/spec/SPEC.md`)**:
   - **36/36 Temporal Contact-Sheet Audit by Adversarial Video Critic**: Extracted 4-frame (`0.5s, 2.8s, 5.2s, 7.4s`) temporal contact sheets across all 36 battle videos and scored every video against a `6.5 / 10` quality threshold.
@@ -11,6 +11,14 @@
     - **`k_x_q` (*Kiss of Death*, Throne-Free)** (`9.4/10`): Start frame (`k_x_q_start.png`) with standing Riccardo holding a gothic Black Rose to his lips and vibrant alive Kate on right (zero throne) → blows necrotic purple-crimson kiss mist → End frame (`k_x_q_end.png`) with Kate withering into an ashen-pale lifeless gothic figurine.
     - **Eliminated Duplicate Clones, Vanishing/Teleporting Rook Towers & Bizarre Morphs (`9.0–9.3/10`)**: Regenerated `k_x_p` (fixed duplicate Puffin clone during Fireball), `k_x_b` (fixed duplicate Ale clone during Meteor Swarm), `k_x_r` (fixed vanishing/reappearing rook tower & King jumping into swamp), `q_x_q` (fixed wrong Black-Queen winner), `q_x_b` (fixed duplicate dragon & Ale clones), `q_x_r` (fixed vanishing/reappearing rook tower), `b_x_k` (fixed King morphing into crowned green dragon), `b_x_n` (fixed horse morphing into giant dragon + `"1 G"` golden letters), `b_x_r` (fixed teleporting rook tower), `b_x_p` (fixed 2nd Puffin clone + balloon chest), `n_x_k` (fixed vanishing horse & Seby wearing King's cloak), `n_x_r` (fixed blurry duplicate Seby clone & missing tower), `r_x_k` (fixed duplicate mini-Pupurabbu clone & breakfast pancake morph), `r_x_q` (fixed Pupurabbu wearing Queen Kate's corset dress), `r_x_b`, `r_x_r`, `r_x_p`, `p_x_q` (fixed tall humanoid Puffin morph), `p_x_n`, `p_x_r`, and `p_x_p`.
   - Updated [`docs/spec/SPEC.md`](docs/spec/SPEC.md) to document the `firstFrame` + `lastFrame` Veo 3.1 pipeline, `assets/battles/video_audit.yaml`, and `assets/battles/archive/`.
+
+## [0.3.24] - 2026-10-11
+
+- 👑🫏📚 **2D→3D Pipeline (Mode A & Mode B) Applied to Re Riccardo (`king-riccardo.glb`) & Ciuchino (`knight-swamp-asinello.glb`) + `niccolo-game-design` Skill `v0.2.0`**:
+  - **`niccolo-game-design` Skill (`v0.2.0`)**: Added [`references/2d-to-3d-sdf-uv-baking.md`](.agents/skills/niccolo-game-design/references/2d-to-3d-sdf-uv-baking.md) documenting **Mode A** (*Full 2D→3D SDF Visual-Hull + Relief Sculpting + Seamless `1024×1024` UV Baking*) and **Mode B** (*Dual-Chart `2048×1024` UV Face-Grafting & Laplacian Multi-Band Skin Blending onto Existing 3D Meshes*).
+  - **Re Riccardo Turnaround Sheet (`tools/model-pipeline/king/side.png`, `king_turnaround_sheet.png`, `generate_side_noglasses.py`)**: Fixed prompt bug in [`tools/model-pipeline/king/generate_side_noglasses.py`](tools/model-pipeline/king/generate_side_noglasses.py) and regenerated the 90° side profile (`side.png`) and 4-panel turnaround sheet (`king_turnaround_sheet.png`) so Riccardo is 100% clean-shaven, without glasses, and wearing the matching royal blue velvet cape with white ermine collar.
+  - **Re Riccardo 3D — Mode B Face-Grafting (`assets/models/king-riccardo.glb`, `tools/model-pipeline/king/graft_papino_face_3d.py`)**: Built [`tools/model-pipeline/king/graft_papino_face_3d.py`](tools/model-pipeline/king/graft_papino_face_3d.py) to upgrade `king-riccardo.glb` (`4.1 MB`, `96,958` triangles) with a **Dual-Chart `2048×1024` UV Atlas** — preserving the original `TRELLIS.2` texture (`u ∈ [0, 0.5]`) for the crown, hair, ears, ermine cape, sceptre, orb, and `"KING RICCARDO"` pedestal while assigning a continuous `1024×1024` Planar Face Chart (`u ∈ [0.5, 1.0]`) mapped from `tools/model-pipeline/king/front.png` with Laplacian multi-band skin harmonization.
+  - **Asinello Chiacchierone 3D — Mode A SDF + 40-Tooth Relief Reconstruction (`assets/models/swamp/knight-swamp-asinello.glb`, `tools/model-pipeline/swamp/reconstruct_asinello_3d.py`)**: Reconstructed `knight-swamp-asinello.glb` (`2.1 MB`, `16,508` triangles, `1.35m` height, `min.y == 0.0`) from `assets/characters/knight-swamp-asinello.jpg` with 3D embossed 40-tooth Eddie Murphy smile, golden onion medallion, dorsal mane, and seamless `1024×1024` UV atlas.
 
 ## [0.3.23] - 2026-10-11
 
