@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.12] - 2026-10-11
+
+- 🎬🏺🎲 **Stage 2 Veo 3.1 16:9 Battle Videos — Batch A (`n_x_p` Sacro Acquarius + All 6 `k_x_*` D&D Spells) (`assets/battles/videos/`)**:
+  - Generated and bundled all 7 priority 8-second `1280×720` 16:9 Veo 3.1 animated videos (`.mp4` + `.webm`) from their Nano Banana 2.1 initial battle keyframes:
+    - `n_x_p.{mp4,webm}`: **Knight Seby — Saint Seiya *"Sacro Acquarius & Teca di Ghiaccio Eterno"* vs Pawn Puffin** (`4.8 MB`) 🏺❄️
+    - `k_x_p.{mp4,webm}`: **King Riccardo — D&D *"Fireball (`8d6` + Natural 20 `d20`)"* vs Pawn Puffin** (`3.7 MB`) 🔥🎲
+    - `k_x_n.{mp4,webm}`: **King Riccardo — D&D *"Chain Lightning"* vs Knight Seby** (`3.7 MB`) ⚡⛓️
+    - `k_x_b.{mp4,webm}`: **King Riccardo — D&D *"Meteor Swarm"* vs Bishop Ale** (`4.1 MB`) ☄️🌋
+    - `k_x_r.{mp4,webm}`: **King Riccardo — D&D *"Summon Greater Comic Daemon with Pizza"* vs Rook Pupurabbu** (`3.1 MB`) 😈🍕
+    - `k_x_k.{mp4,webm}`: **King Riccardo — D&D *"Disintegrate (`10d6+40`)"* vs Rival King Riccardo** (`3.2 MB`) 🟢✨
+    - `k_x_q.{mp4,webm}`: **King Riccardo — D&D *"Flesh to Stone Petrification & Golden Throne"* vs Queen Kate** (`3.1 MB`) 🗿🚽👑
+
 ## [0.3.11] - 2026-10-11
 
 - 📺🌌 **IMAX 16:9 Battle Cinema World Transformation (`ZurichSwampView.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `docs/spec/SPEC.md`, `conductor/product.md`)**:
