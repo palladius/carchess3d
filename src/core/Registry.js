@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.35';
+export const APP_VERSION = '0.3.36';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -143,6 +143,16 @@ export const VOICE_LINES = Object.freeze({
         },
       },
       {
+        id: 'q_facetious',
+        kind: 'signature',
+        weight: 1.6,
+        audioUrl: 'assets/audio/voices/voice-q-facetious.mp3',
+        quote: {
+          it: "Don't be FACETIOUS!",
+          en: "Don't be FACETIOUS!",
+        },
+      },
+      {
         id: 'q_hmm',
         kind: 'mumble',
         weight: 2.8,
@@ -196,8 +206,8 @@ export const VOICE_LINES = Object.freeze({
         weight: 1.5,
         audioUrl: 'assets/audio/voices/voice-b-timanco.mp3',
         quote: {
-          it: 'Ti manco tantissimo, papino!',
-          en: 'Ti manco tantissimo, papino!',
+          it: 'Papino, ti manco tantissimo!',
+          en: 'Papino, ti manco tantissimo!',
         },
       },
       {
@@ -223,11 +233,11 @@ export const VOICE_LINES = Object.freeze({
       {
         id: 'b_cafonazzo',
         kind: 'signature',
-        weight: 1.6,
+        weight: 1.7,
         audioUrl: 'assets/audio/voices/voice-b-cafonazzo.mp3',
         quote: {
-          it: 'Cafonazzo!',
-          en: 'Cafonazzo!',
+          it: 'Sei proprio un cafoNAZZO!',
+          en: 'Sei proprio un cafoNAZZO!',
         },
       },
       {
@@ -294,8 +304,8 @@ export const VOICE_LINES = Object.freeze({
         weight: 1.5,
         audioUrl: 'assets/audio/voices/voice-n-timanco.mp3',
         quote: {
-          it: 'Ti manco tantissimo, papino!',
-          en: 'Ti manco tantissimo, papino!',
+          it: 'Papino, ti manco tantissimo!',
+          en: 'Papino, ti manco tantissimo!',
         },
       },
       {
@@ -317,6 +327,17 @@ export const VOICE_LINES = Object.freeze({
         quote: {
           it: 'Mi scappa la cacca!',
           en: 'Mi scappa la cacca!',
+        },
+      },
+      {
+        id: 'n_bottom',
+        kind: 'signature',
+        weight: 1.7,
+        audioUrl: 'assets/audio/voices/voice-n-bottom.mp3',
+        speechLang: 'en-GB',
+        quote: {
+          it: 'Mummy, can you clean my bottooooom?',
+          en: 'Mummy, can you clean my bottooooom?',
         },
       },
       {

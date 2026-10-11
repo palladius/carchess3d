@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.36] - 2026-10-11
+
+- 🎙️🇬🇧🇮🇹 **New Iconic Family Voice Lines (`"Don't be FACETIOUS!"`, `"Mummy, can you clean my bottooooom?"`, `"Papino, ti manco tantissimo!"`, `"Sei proprio un cafoNAZZO!"`) (`scripts/generate_voice_lines.py`, `assets/audio/voices/`, `src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
+  - **Queen Kate (`q`)**: Added *"Don't be FACETIOUS!"* (`voice-q-facetious.mp3`) spoken by the 40yo Winchester UK voice (`en-gb-csagent-4`) with crisp dry-witted British emphasis on `FACETIOUS!`.
+  - **Knight Seby (`n`)**: Added *"Mummy, can you clean my bottooooom?"* (`voice-n-bottom.mp3`) with the long dragged-out final syllable (`bottooooooom?`), and updated `voice-n-timanco.mp3` to *"Papino, ti manco tantissimo!"* (capturing the adorable 3rd-language inversion of *"I miss you"*).
+  - **Bishop Ale (`b`)**: Updated `voice-b-cafonazzo.mp3` to *"Sei proprio un cafoNAZZO!"* with the funny rising comic accent on `-NÀZZO!` at the end, and `voice-b-timanco.mp3` to *"Papino, ti manco tantissimo!"*.
+
 ## [0.3.35] - 2026-10-11
 
 - 🎙️🇬🇧🇮🇹 **Gemini 3.8 TTS Multi-Clip Character Voice Pool + Smart Anti-Repetition & Anti-Spam Engine (`scripts/generate_voice_lines.py`, `assets/audio/voices/voice-*.mp3`, `src/core/Registry.js`, `src/listeners/AudioListener.js`, `src/views/BoardInteractionView.js`, `src/listeners/HudListener.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:

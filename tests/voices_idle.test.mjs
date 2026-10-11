@@ -52,19 +52,21 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
     assert.ok(kateQuotes.includes("That's... interesting."));
     assert.ok(kateQuotes.includes('Ok, Puffin McMuffin!'));
     assert.ok(kateQuotes.includes('You... love me! I tell myself EVERY day!'));
+    assert.ok(kateQuotes.includes("Don't be FACETIOUS!"));
 
     const sebyQuotes = VOICE_LINES.n.variants.map((v) => v.quote.it);
     assert.ok(sebyQuotes.includes('Papinoooooo!!!'));
-    assert.ok(sebyQuotes.includes('Ti manco tantissimo, papino!'));
+    assert.ok(sebyQuotes.includes('Papino, ti manco tantissimo!'));
     assert.ok(sebyQuotes.includes('My body, my choice!'));
     assert.ok(sebyQuotes.includes('Mi scappa la cacca!'));
+    assert.ok(sebyQuotes.includes('Mummy, can you clean my bottooooom?'));
 
     const aleQuotes = VOICE_LINES.b.variants.map((v) => v.quote.it);
     assert.ok(aleQuotes.includes('Agli ordini, Signore!'));
-    assert.ok(aleQuotes.includes('Ti manco tantissimo, papino!'));
+    assert.ok(aleQuotes.includes('Papino, ti manco tantissimo!'));
     assert.ok(aleQuotes.includes('Papino, qual è il più forte?'));
     assert.ok(aleQuotes.includes('Papino, quando mi compri un regalo?'));
-    assert.ok(aleQuotes.includes('Cafonazzo!'));
+    assert.ok(aleQuotes.includes('Sei proprio un cafoNAZZO!'));
   });
 
   it('AudioListener plays creature sound on PIECE_HOVERED, avoids back-to-back voice repeats, and mixes signature lines with mumble/sbuffo reactions', () => {

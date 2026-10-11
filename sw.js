@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v23';
+const CACHE_NAME = 'carchess3d-offline-v24';
 
 const PRECACHE_URLS = [
   './',
@@ -77,6 +77,7 @@ const PRECACHE_URLS = [
   './assets/audio/voices/voice-q.mp3',
   './assets/audio/voices/voice-q-mcmuffin.mp3',
   './assets/audio/voices/voice-q-loveme.mp3',
+  './assets/audio/voices/voice-q-facetious.mp3',
   './assets/audio/voices/voice-q-hmm.mp3',
   './assets/audio/voices/voice-q-sbuffo.mp3',
   './assets/audio/voices/voice-b.mp3',
@@ -91,6 +92,7 @@ const PRECACHE_URLS = [
   './assets/audio/voices/voice-n-timanco.mp3',
   './assets/audio/voices/voice-n-mybody.mp3',
   './assets/audio/voices/voice-n-cacca.mp3',
+  './assets/audio/voices/voice-n-bottom.mp3',
   './assets/audio/voices/voice-n-hmm.mp3',
   './assets/audio/voices/voice-n-sbuffo.mp3',
   './assets/audio/voices/voice-r.mp3',
