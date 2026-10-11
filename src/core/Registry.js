@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.7';
+export const APP_VERSION = '0.3.8';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -604,7 +604,7 @@ export const I18N = Object.freeze({
     hintBtn: '💡 Suggerimento',
     flipCamBtn: '🔄 Gira Scacchiera',
     topCamBtn: '📐 Vista dall’Alto',
-    newGameBtn: '✨ Nuova Partita',
+    newGameBtn: '🔄 Nuova Partita',
     fenBtn: '📋 FEN / PGN',
     musicBtn: '🎵 Inno Ale & Seby',
     sfxBtn: '🔊 Effetti',
@@ -616,10 +616,11 @@ export const I18N = Object.freeze({
     wowInspectorTab: '🔍 Ispettore 3D 360°',
     wowArenaTab: '🎬 Arena Battaglie & Cinema Veo',
     triggerBattleBtn: '⚔️ Lancia Sfida 3D + Cinema!',
-    setupBtn: '⚙️ Nuova Partita',
-    setupTitle: '🏰🚽 Nuova Partita · Setup Fazioni',
+    setupBtn: '⚙️ Modifica Partita',
+    setupTitle: '🏰🚽 Setup & Modifica Partita · Fazioni & AI',
     setupSub: 'Scegli chi gioca al Bianco, chi al Nero, se Giocatore Umano o Computer AI!',
-    startMatchBtn: '🚀 Inizia Partita!',
+    applyCurrentBtn: '💾 Modifica Partita in Corso (Senza Reset)',
+    startMatchBtn: '🔄 Nuova Partita (Reset Pezzi) ✨',
     whiteSide: '⚪ Squadra Bianca (Avorio & Oro / Sud)',
     blackSide: '⚫ Squadra Nera (Ossidiana & Argento / Nord)',
     playerHuman: '👤 Giocatore Umano',
@@ -656,7 +657,7 @@ export const I18N = Object.freeze({
     hintBtn: '💡 Magic Hint',
     flipCamBtn: '🔄 Flip Board',
     topCamBtn: '📐 Top-Down View',
-    newGameBtn: '✨ New Match',
+    newGameBtn: '🔄 New Match',
     fenBtn: '📋 FEN / PGN',
     musicBtn: '🎵 Ale & Seby Anthem',
     sfxBtn: '🔊 SFX',
@@ -668,10 +669,11 @@ export const I18N = Object.freeze({
     wowInspectorTab: '🔍 360° 3D Character Inspector',
     wowArenaTab: '🎬 Battle Cinema Stage',
     triggerBattleBtn: '⚔️ Launch 3D Clash + Veo Cinema!',
-    setupBtn: '⚙️ New Match',
-    setupTitle: '🏰🚽 New Match · Faction Setup',
+    setupBtn: '⚙️ Edit Match',
+    setupTitle: '🏰🚽 Match Setup & Edit · Factions & AI',
     setupSub: 'Choose who plays White, who plays Black, Human Player or AI Opponent!',
-    startMatchBtn: '🚀 Start Match!',
+    applyCurrentBtn: '💾 Update Current Match (No Reset)',
+    startMatchBtn: '🔄 New Match (Reset Board) ✨',
     whiteSide: '⚪ White Team (Ivory & Gold / South)',
     blackSide: '⚫ Black Team (Obsidian & Silver / North)',
     playerHuman: '👤 Human Player',

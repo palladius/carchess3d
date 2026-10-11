@@ -57,12 +57,17 @@ export class AIWorkerManager {
     if (bus?.on) {
       this.offs.push(
         bus.on('OPPONENT_CHANGED', (e) => {
+          const cpuColor = e.cpuColor ?? this.cpuColor ?? 'b';
+          const enabled =
+            typeof e.enabled === 'boolean'
+              ? e.enabled
+              : e.mode !== 'hotseat' && cpuColor !== 'none';
           this.configure({
-            enabled: e.enabled,
-            cpuColor: e.cpuColor,
-            difficulty: e.difficulty,
-            whiteDifficulty: e.whiteDifficulty,
-            blackDifficulty: e.blackDifficulty,
+            enabled,
+            cpuColor,
+            difficulty: e.difficulty || e.mode || this.difficulty || 'easy',
+            whiteDifficulty: e.whiteDifficulty || e.difficulty || this.whiteDifficulty || 'easy',
+            blackDifficulty: e.blackDifficulty || e.difficulty || e.mode || this.blackDifficulty || 'easy',
           });
         }),
         bus.on('MOVE_EXECUTED', () => this.scheduleCpuTurn()),
