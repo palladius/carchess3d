@@ -302,6 +302,12 @@ export class VeoCinemaView {
     this.mode = 'battle';
     this.battleElapsed = 0;
 
+    // Expand 16:9 Veo Cinema Screen into giant near-fullscreen IMAX backdrop right behind the board!
+    if (this.root) {
+      this.root.position.set(0, 2.75, -4.65);
+      this.root.scale.setScalar(1.55);
+    }
+
     // Preload portraits, Nano Banana 16:9 initial battle keyframe, & optional SVG composite
     this.getOrLoadImage(choreo.attackerImg);
     this.getOrLoadImage(choreo.defenderImg);
@@ -380,6 +386,10 @@ export class VeoCinemaView {
     this.stopVideoPlayback();
     if (this.mode === 'battle') {
       this.mode = 'idle';
+    }
+    if (this.root) {
+      this.root.position.set(0, 3.65, -10.2);
+      this.root.scale.setScalar(0.86);
     }
   }
 

@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.6] - 2026-10-11
+
+- 📺🌌 **IMAX 16:9 Battle Cinema World Transformation (`ZurichSwampView.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `docs/spec/SPEC.md`, `conductor/product.md`)**:
+  - **Combat Theater Isolation (`ZurichSwampView.setCombatCinemaMode(true)`)**: Whenever a capture combat begins (`BATTLE_STARTED` / `WOW_ARENA_CLASH`), the surrounding 3D world clutter (`Grossmünster`, `ZurichSkyline`, `SwissAlps`, `EmeraldSwampMoat`, `WizardBraziers`, `SwampFireflies`, `SkyDome`) hides automatically and the background dims to a cinema theater void (`0x05070e`), keeping **only the 8×8 Chessboard (`CarvedStoneAltar`) and the 3D Chess Pieces** in the foreground.
+  - **Near-Fullscreen 16:9 IMAX Veo Screen (`VeoCinemaView.js`)**: Expands `VeoCinemaView` to `(0, 2.75, -4.65)` with `scale = 1.55×` (`12.4m × 7.0m` IMAX screen directly behind the chessboard) and frames it via `VFXPoolView.updateCameraOrbit` so the 16:9 Veo battle movie fills almost the entire viewport. Automatically restores the full Zurich Swamp world when combat finishes or is skipped.
+- 🏺❄️ **Knight Seby vs Pawn Puffin (`n_x_p`) — Saint Seiya *"Sacro Acquarius & Teca di Ghiaccio Eterno"* (`Registry.js`, `BattleMatrix36.js`, `VFXPoolView.js`, `AudioListener.js`, `scripts/generate_nb_veo_battle.py`)**:
+  - When Seby (`n`) captures a Pawn Puffin (`p`), he raises and clasps his hands high above his head like Aquarius Camus while a 3D celestial Water-Bearer Woman (`aquariusMaiden`) pours a freezing torrent from a giant Golden Amphora (`Anfora d'Oro`), encasing the Puffin inside an unbreakable diamond-blue Ice Coffin (`iceCoffin`, `sacro_acquarius_ice_coffin`) that crumbles into 64 pooled diamond-ice crystals (`diamond_ice_crystals`, `frozen_coffin_crumble`) with custom `synthSacroAcquariusIce()` WebAudio SFX.
+- 🎲🔥 **King Riccardo ("Papino" `k`) — 6 Distinct Dungeons & Dragons (D&D) Spells (`k_x_*`) (`Registry.js`, `BattleMatrix36.js`, `CombatAnimationManager.js`, `VFXPoolView.js`, `scripts/generate_nb_veo_battle.py`)**:
+  - Every King Riccardo (`k`) battle now casts a unique D&D spell in both the 3D on-board brawl and the 16:9 Nano Banana 2.1 + Veo 3.1 cinema pipeline:
+    - `k_x_p` (vs Pawn Puffin): **D&D Fireball (`fireball`, 8d6 + Natural 20 d20)** 🔥🎲
+    - `k_x_n` (vs Knight Seby): **D&D Chain Lightning (`chain_lightning`)** ⚡⛓️
+    - `k_x_b` (vs Bishop Ale): **D&D Meteor Swarm (`meteor_swarm`, 9th-level)** ☄️🌋
+    - `k_x_r` (vs Rook Pupurabbu): **D&D Summon Greater Comic Daemon (`summon_comic_daemon`, chubby red baby Balor with toy pitchfork & pizza slice)** 😈🍕
+    - `k_x_k` (vs Rival King Riccardo): **D&D Disintegrate (`disintegrate`, 10d6+40 emerald laser ray turning the rival King into green arcane dust)** 🟢✨
+    - `k_x_q` (vs Queen Kate): **D&D Flesh to Stone / Petrification + Golden Throne (`flesh_to_stone_petrification`)** 🗿🚽👑
+  - Backfilled into [`docs/spec/SPEC.md`](docs/spec/SPEC.md), [`conductor/product.md`](conductor/product.md), and [`conductor/tracks/idle_animations_and_voices_20261011/spec.md`](conductor/tracks/idle_animations_and_voices_20261011/spec.md), and covered by unit tests in [`tests/combat.test.mjs`](tests/combat.test.mjs).
+
 ## [0.3.5] - 2026-10-11
 
 - 🐴🐧🗣️ **Living Idle Animations & Hover/Select Character Voices (`idle_animations_and_voices_20261011`)**:

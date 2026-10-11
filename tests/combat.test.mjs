@@ -90,6 +90,32 @@ test('CombatAnimationManager: Easter Egg overrides (Seby <-> Pupurabbu cuddle & 
   combat.onDropSpawned({ attacker: 'b', defender: 'n', square: 'f3' });
   bus.flush();
   assert.equal(events[events.length - 1].easterEgg, 'brothers_dragon_vs_turbo');
+
+  // 4. Knight Seby (n) vs Pawn Puffin (p): Saint Seiya Sacro Acquarius & Teca di Ghiaccio Eterno!
+  combat.onDropSpawned({ attacker: 'n', defender: 'p', square: 'e5' });
+  bus.flush();
+  const acqEv = events[events.length - 1];
+  assert.equal(acqEv.effect, 'sacro_acquarius_ice_coffin');
+  assert.equal(acqEv.debrisType, 'diamond_ice_crystals');
+  assert.equal(acqEv.victimReaction, 'frozen_coffin_crumble');
+  assert.equal(acqEv.easterEgg, 'seby_sacro_acquarius');
+  assert.match(acqEv.banner.it, /SACRO ACQUARIUS/);
+
+  // 5. King Riccardo ("Papino" k) casts a different D&D spell for each of his 6 targets!
+  const expectedDndSpells = {
+    k: 'disintegrate',
+    q: 'flesh_to_stone_petrification',
+    b: 'meteor_swarm',
+    n: 'chain_lightning',
+    r: 'summon_comic_daemon',
+    p: 'fireball',
+  };
+  for (const [def, expectedSpell] of Object.entries(expectedDndSpells)) {
+    combat.onDropSpawned({ attacker: 'k', defender: def, square: 'd5' });
+    bus.flush();
+    const dndEv = events[events.length - 1];
+    assert.equal(dndEv.dndSpell, expectedSpell, `k vs ${def} must cast D&D spell ${expectedSpell}`);
+  }
 });
 
 test('CombatAnimationManager: update(dt) completes cutscene after 4000ms and skip() aborts immediately', () => {

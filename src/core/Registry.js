@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.5';
+export const APP_VERSION = '0.3.6';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -402,6 +402,72 @@ function buildBattleMatrix() {
       en: 'ALE vs SEBY: CRYSTAL HORSE FREEZE! 💎🐴',
     },
   };
+
+  // Easter Egg #4: Seby (n) -> Pawn Puffin (p): "Sacro Acquarius & Teca di Ghiaccio Eterno" ♒❄️💎
+  matrix.n.p = {
+    ...matrix.n.p,
+    effect: 'sacro_acquarius_ice_coffin',
+    debrisType: 'diamond_ice_crystals',
+    victimReaction: 'frozen_coffin_crumble',
+    easterEgg: 'seby_sacro_acquarius',
+    banner: {
+      it: 'SACRO ACQUARIUS! SEBY CONGELA PUFFIN NELLA TECA DI GHIACCIO! ♒❄️💎',
+      en: 'SACRED AQUARIUS! SEBY FREEZES PUFFIN IN THE ICE COFFIN! ♒❄️💎',
+    },
+  };
+
+  // Easter Egg #5: King Riccardo ("Papino" `k`) casts a DIFFERENT D&D Spell for each of his 6 targets! 🎲🧙‍♂️
+  const PAPINO_DND_SPELLS = {
+    k: {
+      dndSpell: 'disintegrate',
+      banner: {
+        it: 'D&D DISINTEGRATE (10d6+40)! RAGGIO VERDE POLVERIZZA IL RE RIVALE! 🟢✨🎲',
+        en: 'D&D DISINTEGRATE (10d6+40)! EMERALD RAY VAPORIZES THE RIVAL KING! 🟢✨🎲',
+      },
+    },
+    q: {
+      dndSpell: 'flesh_to_stone_petrification',
+      banner: {
+        it: 'CARLESSO AL CESSO & D&D PIETRIFICAZIONE! STATUA SUL TRONO D’ORO! 🗿🚽👑',
+        en: 'CARLESSO AL CESSO & D&D PETRIFICATION! STATUE ON THE GOLDEN THRONE! 🗿🚽👑',
+      },
+    },
+    b: {
+      dndSpell: 'meteor_swarm',
+      banner: {
+        it: 'D&D METEOR SWARM (9° LIV)! PIOGGIA DI METEORE SU ALE & DRAGO! ☄️🌋🎲',
+        en: 'D&D METEOR SWARM (LVL 9)! BLAZING METEORS RAIN ON ALE & DRAGON! ☄️🌋🎲',
+      },
+    },
+    n: {
+      dndSpell: 'chain_lightning',
+      banner: {
+        it: 'D&D CHAIN LIGHTNING! CATENA DI FULMINI REALE SU SEBY TURBO! ⚡⛓️🎲',
+        en: 'D&D CHAIN LIGHTNING! ARCING ROYAL BOLTS STRIKE TURBO SEBY! ⚡⛓️🎲',
+      },
+    },
+    r: {
+      dndSpell: 'summon_comic_daemon',
+      banner: {
+        it: 'D&D SUMMON DAEMON! DEMONE BUFFO CON PIZZA CONTRO PUPURABBU! 😈🍕🎲',
+        en: 'D&D SUMMON COMIC DAEMON! CHUBBY PIZZA DEMON VS PUPURABBU! 😈🍕🎲',
+      },
+    },
+    p: {
+      dndSpell: 'fireball',
+      banner: {
+        it: 'D&D FIREBALL (8d6)! PAPINO LANCIA PALLA DI FUOCO SUL PUFFIN! 🔥🎲',
+        en: 'D&D FIREBALL (8d6)! PAPINO HURLS A BLAZING FIREBALL AT PUFFIN! 🔥🎲',
+      },
+    },
+  };
+  for (const [defKey, dndSpec] of Object.entries(PAPINO_DND_SPELLS)) {
+    matrix.k[defKey] = {
+      ...matrix.k[defKey],
+      dndSpell: dndSpec.dndSpell,
+      banner: dndSpec.banner,
+    };
+  }
 
   return Object.freeze(matrix);
 }

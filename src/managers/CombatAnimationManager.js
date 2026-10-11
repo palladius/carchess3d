@@ -171,6 +171,7 @@ export class CombatAnimationManager {
       spectacle: params.spectacle || 'Standard Signature Clash ⚔️',
       sticker: params.sticker || null,
       effect: entry.effect,
+      dndSpell: entry.dndSpell || null,
       debrisType: entry.debrisType,
       victimReaction: entry.victimReaction,
       banner: entry.banner,

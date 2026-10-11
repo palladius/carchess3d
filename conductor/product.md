@@ -45,23 +45,30 @@ To prevent a quadratic explosion of battle combinations ($12 \times 12 = 144$), 
 ### 🎨 Faction Readability (White vs Black on Textured GLBs)
 Every piece keeps its natural cutie facial colours while sitting on a **Bicolor Royal Pedestal** (**Ivory & Gold** for White vs **Obsidian & Silver** for Black) with a **glowing ground ring** and a subtle **faction rim/outfit tint shader** (warm gold vs deep obsidian-violet), making even *Carlesso vs Carlesso* mirror matches unambiguous at a glance.
 
-## 5. Dual-Layer Capture System: 3D Board Choreography + 16:9 Veo 3D Cinema
+## 5. Dual-Layer Capture System: 3D Board Choreography + IMAX 16:9 Veo 3D Cinema
 
 Every capture combines two synchronized visual layers orchestrated by `CombatAnimationManager`:
 
 1. **Foreground (3D On-Board Battle Matrix — Max 6×6 `Attacker × Defender`):**
-   - **Orbiting Capture Camera:** The camera swoops down and orbits around the attacking and defending 3D pieces on the board so the player sees the clash from multiple angles while keeping the **16:9 3D Cinema Screen** visible in the background.
+   - **IMAX Battle Cinema World Transformation (`ZurichSwampView.setCombatCinemaMode(true)`):** During combat (`BATTLE_STARTED` / `WOW_ARENA_CLASH`), the surrounding 3D world clutter (Grossmünster towers, Zurich skyline, Swiss Alps, emerald swamp moat, corner braziers, fireflies, sky dome) hides automatically, leaving **only the 8×8 Chessboard (`CarvedStoneAltar`) and the 3D Chess Pieces** in the foreground against a dark cinema theater void (`0x05070e`), while the **16:9 Veo Cinema Screen (`VeoCinemaView`)** moves right behind the board (`(0, 2.75, -4.65)`) at near-fullscreen IMAX scale (`1.55×`, `12.4m × 7.0m`).
    - **Attacker Signature + Victim Reaction:** Each attacker triggers its signature 3D effect while the victim reacts in character (Ale's dragon puffs defensive smoke and his mitre spins off; Seby's wooden horse drops spinning toy wheels; Pupurabbu squeaks like a plushie into indigo fluff; Puffin loses his morion helmet; Classic Stone pieces shatter into rock shrapnel).
    - **Bespoke Family Easter Eggs:**
+     - **♔ Riccardo ("Papino" `k`) — 6 Distinct Dungeons & Dragons (D&D) Spells (`k_x_*`):**
+       - `k_x_p`: **D&D Fireball (`fireball`, 8d6 + Natural 20 d20)** 🔥🎲
+       - `k_x_n`: **D&D Chain Lightning (`chain_lightning`)** ⚡⛓️
+       - `k_x_b`: **D&D Meteor Swarm (`meteor_swarm`, 9th-level)** ☄️🌋
+       - `k_x_r`: **D&D Summon Greater Comic Daemon (`summon_comic_daemon`, chubby red baby Balor with toy pitchfork & pizza slice)** 😈🍕
+       - `k_x_k`: **D&D Disintegrate (`disintegrate`, 10d6+40 emerald laser ray turning rival King into green arcane dust)** 🟢✨
+       - `k_x_q`: **D&D Flesh to Stone / Petrification + Golden Throne (`flesh_to_stone_petrification`)** 🗿🚽👑
+     - **♘ Seby vs ♙ Puffin (`n_x_p`) — Saint Seiya "Sacro Acquarius & Teca di Ghiaccio Eterno":** Seby unites his hands overhead like Aquarius Camus while a celestial Water-Bearer Woman (`Fanciulla dell'Acquario`) pours freezing cosmos from a giant Golden Amphora (`Anfora d'Oro`), sealing the Puffin inside an unbreakable diamond-blue Ice Coffin (`Teca di Ghiaccio`) that crumbles into diamond-ice crystals (`sacro_acquarius_ice_coffin`).
      - **♘ Seby ↔ ♖ Pupurabbu (Special Best-Friends Bond 💜):** Seby and his magical companion Pupurabbu *never* hurt each other! Capturing triggers a joyful **Mega Cuddle Bounce ("SUPER ABBRACCIO PUFFOSO! 💜")** with floating hearts before the captured friend happily hops to the tray.
      - **♘ Seby ↔ ♗ Ale:** Loop-track toy cars distracting Ale's red dragon vs Ale crystallizing Seby's wooden horse mid-jump.
-     - **♔ Riccardo ↔ ♕ Kate:** Golden toilet-throne (*Carlesso al Cesso*) summon vs lilac-chocolate tsunami.
-   - **Temporary Physics Debris:** Shards, toy cars, chocolate drops, feathers, and stone shrapnel bounce on the board and gently fade after 3–4 seconds.
+   - **Temporary Physics Debris:** Shards, diamond-ice crystals, toy cars, chocolate drops, feathers, and stone shrapnel bounce on the board and gently fade after 3–4 seconds.
 
-2. **Background (The 16:9 Veo 3D Cinema & MD5 Asset Pipeline):**
-   - Behind the chessboard, a 16:9 3D screen (`THREE.VideoTexture`) projects a pre-generated **Veo battle movie** for that specific `(attacker, defender)` pair, providing cinematic redundancy right behind the 3D pieces (with a procedural Magic Mirror shader fallback for pairs awaiting Veo rendering).
-   - **Reproducible Pipeline (`Nano Banana Composite → Veo Video`):**
-     - Input 1 (`attacker_img`) + Input 2 (`defender_img`) → **Nano Banana** generates a composite battle keyframe (`composite_img`) → **Veo** animates the battle into an `.mp4` clip (starting with flagship battles: `Seby vs Ale`, `Ale vs Seby`, `Seby ↔ Pupurabbu`).
+2. **Background (The Near-Fullscreen 16:9 Veo 3D Cinema & MD5 Asset Pipeline):**
+   - Behind the chessboard, a 16:9 3D screen (`THREE.VideoTexture`) projects a pre-generated **Veo 3.1 battle movie** for that specific `(attacker, defender)` pair (`assets/battles/videos/<atk>_x_<def>.mp4`), expanding to near-fullscreen IMAX scale (`12.4m × 7.0m`) during combat so the Veo animation is never lost in background clutter.
+   - **Reproducible 2-Stage Pipeline (`Nano Banana 2.1 Initial Keyframe → Veo 3.1 Video`):**
+     - Input 1 (`attacker_img` Left) + Input 2 (`defender_img` Right) + 16:9 layout reference → **Nano Banana 2.1 (`gemini-3.1-flash-image-preview`)** generates the 16:9 initial battle keyframe (`assets/battles/keyframes/<id>.png`) → **Veo 3.1 (`veo-3.1-generate-preview`)** animates the battle into an 8s 16:9 `.mp4`/`.webm` clip (`scripts/generate_nb_veo_battle.py`).
    - **Declarative MD5 Tracking (`assets/battles/manifest.yaml`):**
      - Tracks every `(attacker, defender)` pair with `attacker_img`, `attacker_md5`, `defender_img`, `defender_md5`, `composite_img`, `composite_md5`, `prompt`, `veo_video`, and `status`.
      - **`just test` Validation (`scripts/check.py`):** Automatically hashes the source images and verifies them against `manifest.yaml`. If a character's starting image changes, `just test` flags the affected battle videos as `stale` ("Hey, the source image changed — regenerate the battle video!").

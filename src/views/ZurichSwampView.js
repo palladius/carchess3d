@@ -1017,11 +1017,42 @@ export class ZurichSwampView {
         this.clearHighlights();
         if (e.move) this.renderLastMoveHighlight(e.move.from, e.move.to);
       }),
-      this.bus.on('BOARD_RESET', () => this.clearHighlights()),
+      this.bus.on('BOARD_RESET', () => {
+        this.clearHighlights();
+        this.setCombatCinemaMode(false);
+      }),
       this.bus.on('FLOW_STATE_CHANGED', (e) => {
         if (e.to === 'Mode2_WowArena') this.clearHighlights();
       }),
+      this.bus.on('BATTLE_STARTED', () => this.setCombatCinemaMode(true)),
+      this.bus.on('WOW_ARENA_CLASH', () => this.setCombatCinemaMode(true)),
+      this.bus.on('BATTLE_COMPLETED', () => this.setCombatCinemaMode(false)),
+      this.bus.on('BATTLE_SKIPPED', () => this.setCombatCinemaMode(false)),
     );
+  }
+
+  /**
+   * During combat (`BATTLE_STARTED`), hides the surrounding 3D world clutter (skyline, Alps,
+   * swamp moat, fireflies, corner braziers, sky dome) so ONLY the 8x8 Chessboard (`CarvedStoneAltar`),
+   * the 3D chess pieces, and the giant fullscreen-filling 16:9 Veo Cinema Screen remain visible!
+   * @param {boolean} active
+   */
+  setCombatCinemaMode(active) {
+    this.inCombatCinemaMode = Boolean(active);
+    if (this.scene) {
+      this.scene.background = new THREE.Color(active ? 0x05070e : 0x0b1528);
+    }
+    for (const child of this.root.children) {
+      if (
+        child.isLight ||
+        child.name === 'CarvedStoneAltar' ||
+        child.name === 'BoardHighlights'
+      ) {
+        child.visible = true;
+      } else {
+        child.visible = !active;
+      }
+    }
   }
 
   clearHighlights() {

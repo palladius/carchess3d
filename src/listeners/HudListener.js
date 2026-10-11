@@ -1414,23 +1414,16 @@ export class HudListener {
     q('#hud-swamp-btn')?.addEventListener('click', () => {
       const pm = this.ctx?.pieces || this.ctx?.pieceManager;
       if (pm) {
+        let added = 0;
         if (typeof pm.seedSwampParty === 'function') {
-          pm.seedSwampParty();
-        } else {
-          for (const [color, victimColor, atk, def, sq] of [
-            ['b', 'w', 'n', 'b', 'c1'],
-            ['b', 'w', 'b', 'n', 'g1'],
-            ['b', 'w', 'r', 'p', 'e2'],
-            ['w', 'b', 'b', 'n', 'b8'],
-            ['w', 'b', 'n', 'b', 'f8'],
-            ['w', 'b', 'q', 'r', 'h8'],
-          ]) {
-            pm.handlePieceCaptured({ color, victimColor, attacker: atk, defender: def, capturedSquare: sq });
-          }
-          pm.emitPiecesSynced('swamp_party');
+          added = pm.seedSwampParty();
         }
         this.ctx?.bus?.flush?.();
-        this.showToast('🐸 Splash! I pezzi catturati sguazzano nella Palude di Shrek! 💦');
+        this.showToast(
+          added > 0
+            ? '🐸 Splash! I 6 pezzi demo si tuffano nella Palude! 💦'
+            : '🐸 Palude già attiva (idempotente: i 6 nuotatori sono già sulle ninfee! 🪷)',
+        );
       }
     });
 

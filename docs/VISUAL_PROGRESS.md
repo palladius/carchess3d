@@ -67,8 +67,8 @@ Ad ogni cattura sulla scacchiera (o nella WOW Arena), i **due veri modelli 3D `.
 
 ## 🐸🎬 Round 4 (v0.2.0) — Pezzi Catturati nella Palude di Shrek + 3 Video 16:9 Reali (`.mp4`/`.webm`) + Puntini Colorati Mosse Legali
 
-### 4.1 I Pezzi Catturati Sguazzano nella Palude di Shrek (`?swamp_party=1`)
-Invece di restare all'asciutto sui bordi del tavolo, ogni pezzo mangiato compie un **tuffo parabolico** dentro il fossato verde smeraldo della Palude di Shrek (Bianchi a Ovest `x = -6.2m..-7.2m`, Neri a Est `x = +6.2m..+7.2m`, `y = -0.28m`), galleggiando su una ninfea verde mentre beccheggia, oscilla e genera **anelli d'acqua verdi luminescenti** e **bollicine palustri**!
+### 4.1 I Pezzi Catturati Sguazzano nella Palude di Shrek (`?swamp_party=1` — 100% Idempotente)
+Invece di restare all'asciutto sui bordi del tavolo, ogni pezzo mangiato compie un **tuffo parabolico** dentro il fossato verde smeraldo della Palude di Shrek (Bianchi a Ovest `x = -6.2m..-7.2m`, Neri a Est `x = +6.2m..+7.2m`, `y = -0.28m`), galleggiando su una ninfea verde mentre beccheggia, oscilla e genera **anelli d'acqua verdi luminescenti** e **bollicine palustri**! Il pulsante HUD **`🐸 Palude`** invoca `PieceManager.seedSwampParty()`, che è **strettamente idempotente** (deduplicato tramite ID deterministico `swamp_<color>_<type>_<square>`: cliccare 1, 3 o 10 volte mantiene esattamente i 6 nuotatori demo senza mai duplicarli né rimuovere pezzi vivi dalla scacchiera).
 
 ![Round 4 Swamp Party Overview](./visual-progress/round4_1_swamp_party.png)
 
