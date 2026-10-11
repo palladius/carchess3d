@@ -5,7 +5,7 @@ import { describe, it } from 'node:test';
 import * as THREE from '../vendor/three/three.module.js';
 import { GameEventBus } from '../src/core/EventBus.js';
 import { CHARACTER_REGISTRY, VOICE_LINES } from '../src/core/Registry.js';
-import { AudioListener } from '../src/listeners/AudioListener.js';
+import { AudioListener, COMBAT_AUDIO_URL } from '../src/listeners/AudioListener.js';
 import { HudListener } from '../src/listeners/HudListener.js';
 import {
   createArticulatedSkeletonRig,
@@ -79,6 +79,22 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
     bus.flush();
     assert.equal(audio.playedSfx.at(-1), 'voice_q');
     assert.equal(audio.playedVoices.at(-1)?.quote, 'This is an interesting choice...');
+
+    // Verify fiery combat music MP3 exists on disk and starts/stops on BATTLE_STARTED / BATTLE_COMPLETED
+    const combatMp3Path = path.resolve(process.cwd(), COMBAT_AUDIO_URL);
+    assert.ok(fs.existsSync(combatMp3Path), `Expected ${COMBAT_AUDIO_URL} to exist on disk`);
+    assert.ok(fs.statSync(combatMp3Path).size > 100_000, 'Expected non-empty Lyria 3 combat MP3');
+
+    bus.emit({ type: 'BATTLE_STARTED', effect: 'halberd_fish_slap', attacker: 'p', defender: 'p' });
+    bus.flush();
+    assert.equal(audio.combatMusicActive, true);
+    assert.ok(audio.playedSfx.includes('combat_music_started'));
+
+    bus.emit({ type: 'BATTLE_COMPLETED', attacker: 'p', defender: 'p' });
+    bus.flush();
+    assert.equal(audio.combatMusicActive, false);
+    assert.ok(audio.playedSfx.includes('combat_music_stopped'));
+    audio.dispose();
   });
 
   it('HudListener defaults to English, switches to Italian on setLanguage("it"), and keeps voice quotes intact', () => {

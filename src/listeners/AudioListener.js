@@ -44,6 +44,19 @@ const ADVENTURE_MELODY_HZ = Object.freeze([
   659.25, 783.99, 880.0, 987.77, 1046.5, 783.99, 659.25, 523.25,
 ]);
 
+// Fiery 152 BPM D-Minor Phrygian Dominant 16th-note ostinato for combat suspense (D3, F3, G3, G#3, A3, Bb3, C#4, D4)
+export const COMBAT_AUDIO_URL = 'assets/audio/combat-suspense.mp3';
+const COMBAT_CUE_POINTS_S = Object.freeze([0.0, 7.6, 15.2, 22.0]);
+const COMBAT_OSTINATO_HZ = Object.freeze([
+  146.83, 146.83, 174.61, 196.00, 207.65, 220.00, 233.08, 220.00,
+  146.83, 220.00, 233.08, 277.18, 293.66, 277.18, 233.08, 220.00,
+]);
+
+// Rising high-tension Phrygian/Harmonic-Minor brass & string stabs (A4, Bb4, C#5, D5, E5, F5, G#5, A5)
+const COMBAT_SUSPENSE_LEAD_HZ = Object.freeze([
+  440.00, 466.16, 554.37, 587.33, 659.25, 698.46, 830.61, 880.00,
+]);
+
 export class AudioListener {
   /**
    * @param {object} [ctx]
@@ -56,6 +69,14 @@ export class AudioListener {
     this.musicPlaying = false;
     this.audioCtx = null;
     this.audioEl = null;
+    this.combatAudioEl = null;
+    this.combatMusicActive = false;
+    this.combatFadingOut = false;
+    this.combatEnvelope = 0.0;
+    this.combatStep = 0;
+    this.combatCueIndex = 0;
+    this.combatTimer = null;
+    this.combatFadeTimer = null;
     this.voiceEl = null;
     this.voiceAudioCache = new Map();
     this.loopTimer = null;
@@ -78,6 +99,7 @@ export class AudioListener {
       halberd_fish_slap: () => this.synthFishSlapPling(),
       mega_cuddle_bounce: () => this.synthCuddleHarpArpeggio(),
       sacro_acquarius_ice_coffin: () => this.synthSacroAcquariusIce(),
+      tanzanite_crystal_coffin: () => this.synthSacroAcquariusIce(),
     });
 
     // Declarative table of per-piece hover creature sound effects (snort, fiuu, piu-piu, boing)
@@ -130,6 +152,16 @@ export class AudioListener {
         const effectKey = e.effect || 'sceptre_lightning';
         const recipe = this.battleSynthTable[effectKey] || this.battleSynthTable.sceptre_lightning;
         this.playSfx(`battle_${effectKey}`, recipe);
+        this.startCombatMusic(e);
+      }),
+      bus.on('BATTLE_COMPLETED', () => {
+        this.stopCombatMusic(false);
+      }),
+      bus.on('BATTLE_SKIPPED', () => {
+        this.stopCombatMusic(true);
+      }),
+      bus.on('BOARD_RESET', () => {
+        this.stopCombatMusic(true);
       }),
       bus.on('CHECK_DETECTED', () => {
         this.playSfx('check_alarm', () => this.synthCheckAlarm());
@@ -161,6 +193,9 @@ export class AudioListener {
       }),
       bus.on('SFX_TOGGLE_REQUESTED', (e) => {
         this.sfxEnabled = typeof e.enabled === 'boolean' ? e.enabled : !this.sfxEnabled;
+        if (!this.sfxEnabled && !this.musicPlaying) {
+          this.stopCombatMusic(true);
+        }
       }),
     );
   }
@@ -475,7 +510,7 @@ export class AudioListener {
       try {
         const audio = new Audio(`assets/audio/theme-${this.lang}.mp3`);
         audio.loop = true;
-        audio.volume = 0.45;
+        audio.volume = this.combatMusicActive ? 0.06 : 0.45;
         this.audioEl = audio;
         audio.play().catch(() => {
           this.audioEl = null;
@@ -487,7 +522,7 @@ export class AudioListener {
 
     this._emitNextLyricCaption();
     this.loopTimer = setInterval(() => {
-      if (!this.musicPlaying) return;
+      if (!this.musicPlaying || this.combatMusicActive) return;
       if (!this.audioEl || this.audioEl.paused || this.audioEl.error) {
         const freq = ADVENTURE_MELODY_HZ[this.melodyStep % ADVENTURE_MELODY_HZ.length];
         this.synthTone(freq, freq, 0.24, 'triangle', 0.09, 0);
@@ -500,6 +535,7 @@ export class AudioListener {
         this._emitNextLyricCaption();
       }
     }, 320);
+    this.loopTimer.unref?.();
   }
 
   restartThemeForLanguage() {
@@ -535,7 +571,265 @@ export class AudioListener {
     this.ctx?.bus?.flush?.();
   }
 
+  // ===========================================================================
+  // 3. FIERY, FAST-PACED, SUSPENSEFUL COMBAT SOUNDTRACK (LYRIA 3 + WEBAUDIO)
+  // ===========================================================================
+
+  /**
+   * Starts the fiery, fast-paced, suspenseful combat soundtrack on `BATTLE_STARTED`:
+   * 1. Plays the Lyria 3 orchestral-rock D-Minor Phrygian battle track (`assets/audio/combat-suspense.mp3`)
+   *    cycling across 4 dramatic cue points (`0.0s, 7.6s, 15.2s, 22.0s`).
+   * 2. Launches a synchronized 152 BPM (`98ms` 16th-note) WebAudio D-Minor Phrygian suspense sequencer
+   *    (Netflix "TUDUM" + Brass Braaam entry, driving staccato ostinato, Taiko war drums, and rising
+   *    minor-second suspense stabs that escalate into the Act 3 K.O. climax).
+   * @param {object} [battleEvent]
+   */
+  startCombatMusic(battleEvent = null) {
+    this._clearCombatTimers();
+    this.combatMusicActive = true;
+    this.combatFadingOut = false;
+    this.combatEnvelope = 1.0;
+    this.combatStep = 0;
+
+    this.playedSfx.push('combat_music_started');
+    if (this.playedSfx.length > 100) this.playedSfx.shift();
+
+    if (!this.sfxEnabled && !this.musicPlaying) return;
+
+    // Duck peaceful adventure theme if playing
+    if (this.audioEl) {
+      try {
+        this.audioEl.volume = 0.06;
+      } catch {}
+    }
+
+    // 1. Start Lyria 3 Fiery Combat MP3 (`assets/audio/combat-suspense.mp3`)
+    if (typeof Audio !== 'undefined') {
+      try {
+        if (!this.combatAudioEl) {
+          this.combatAudioEl = new Audio(COMBAT_AUDIO_URL);
+          this.combatAudioEl.preload = 'auto';
+          this.combatAudioEl.loop = true;
+        }
+        const cueS = COMBAT_CUE_POINTS_S[this.combatCueIndex % COMBAT_CUE_POINTS_S.length];
+        this.combatCueIndex++;
+        try {
+          this.combatAudioEl.currentTime = cueS;
+        } catch {}
+        this.combatAudioEl.volume = 0.78;
+        const p = this.combatAudioEl.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {});
+        }
+      } catch {}
+    }
+
+    // 2. Immediate Netflix "TUDUM" + Suspenseful Brass Braaam on combat entry (`t = 0.0s`)
+    this.synthCombatEntryBraaam();
+
+    // 3. 152 BPM (98ms 16th-note) Fiery & Suspenseful D-Minor Phrygian Sequencer
+    this.combatTimer = setInterval(() => {
+      if (!this.combatMusicActive) return;
+      this._stepCombatSequencer(battleEvent);
+    }, 98);
+    this.combatTimer.unref?.();
+  }
+
+  /**
+   * Cinema-style "TUDUM" double sub-bass punch + rising Phrygian minor-second brass swell.
+   */
+  synthCombatEntryBraaam() {
+    const ac = this.ensureAudioContext();
+    if (!ac) return;
+    // Double "TU-DUM" sub-bass impact (D2 -> D3)
+    this.synthTone(73.42, 48.0, 0.16, 'triangle', 0.24, 0.0);
+    this.synthTone(146.83, 55.0, 0.28, 'sine', 0.26, 0.13);
+    // Fiery Phrygian brass tension chord (D3 + A3 + Bb3 + C#4 + D4)
+    [146.83, 220.0, 233.08, 277.18, 293.66].forEach((f, idx) => {
+      this.synthTone(f * 0.99, f, 0.42, 'sawtooth', 0.065, 0.14 + idx * 0.025);
+    });
+  }
+
+  /**
+   * Advances 1 step (`98ms` = 16th note at 152 BPM) of the fiery, suspenseful combat score.
+   * Escalates across:
+   * - Act 1 (`step = 0..14`): Tense creeping Phrygian ostinato + heartbeat Taiko pulse
+   * - Act 2 (`step = 15..45`): Full-throttle double-time Scazzottata drums + rising minor-2nd brass suspense
+   * - Act 3 (`step = 46..60`): Dramatic K.O. climax fanfare & swamp splash crescendo
+   * - Exit Sliding Window (`combatFadingOut = true`): Smoothly attenuates with `this.combatEnvelope` (`1.0 -> 0.0`)
+   */
+  _stepCombatSequencer() {
+    if (!this.sfxEnabled && !this.musicPlaying) return;
+    const ac = this.ensureAudioContext();
+    if (!ac) return;
+
+    const env = Math.max(0, Math.min(1, this.combatEnvelope));
+    if (env <= 0.01) return;
+
+    // When the real Lyria 3 MP3 (`combat-suspense.mp3`) is actively playing, mix the WebAudio
+    // synth at 0.42x as a tight rhythmic/sub-bass enhancer; otherwise play at 1.0x full power!
+    const mp3Playing = Boolean(
+      this.combatAudioEl && !this.combatAudioEl.paused && !this.combatAudioEl.error,
+    );
+    const mix = (mp3Playing ? 0.42 : 1.0) * env;
+
+    const s = this.combatStep++;
+    const step16 = s % 16;
+    const isAct2Brawl = s >= 14 && s < 46 && !this.combatFadingOut;
+    const isAct3Climax = s >= 46 && s < 62 && !this.combatFadingOut;
+
+    // A. Driving 16th-note D-Minor Phrygian Ostinato (`D3 - F3 - G3 - G#3 - A3 - Bb3 - C#4 - D4`)
+    const ostFreq = COMBAT_OSTINATO_HZ[step16];
+    const accent = step16 % 4 === 0 ? 1.35 : step16 % 2 === 0 ? 1.1 : 0.85;
+    this.synthTone(
+      ostFreq,
+      ostFreq * 1.004,
+      0.085,
+      isAct2Brawl || isAct3Climax ? 'sawtooth' : 'triangle',
+      0.075 * accent * mix,
+      0,
+    );
+
+    // Sub-bass octave lock on every 8th note (`D2 / A1 / Bb1`)
+    if (step16 % 2 === 0) {
+      this.synthTone(ostFreq * 0.5, ostFreq * 0.5, 0.11, 'sine', 0.095 * mix, 0);
+    }
+
+    // B. Thunderous Taiko War Drums & Syncopated Off-Beat Percussion
+    if (step16 === 0 || step16 === 6 || step16 === 8 || step16 === 12 || (isAct2Brawl && step16 % 2 === 1)) {
+      const isHeavyDownbeat = step16 === 0 || step16 === 8;
+      this.synthTone(
+        isHeavyDownbeat ? 125 : 95,
+        isHeavyDownbeat ? 36 : 44,
+        isHeavyDownbeat ? 0.14 : 0.09,
+        'triangle',
+        (isHeavyDownbeat ? 0.16 : 0.10) * mix,
+        0,
+      );
+    }
+
+    // Metallic sword/halberd rim-shot pulse on off-beats (`step16 === 4, 12` or rapid snare build in Act 2/3)
+    if (step16 === 4 || step16 === 12 || (isAct2Brawl && step16 === 14) || (isAct3Climax && step16 % 2 === 0)) {
+      this.synthTone(920, 260, 0.055, 'sawtooth', 0.065 * mix, 0);
+      this.synthTone(1680, 640, 0.04, 'square', 0.04 * mix, 0.01);
+    }
+
+    // C. Suspenseful Rising Phrygian Brass & Tremolo Lead (`A4 - Bb4 - C#5 - D5 - E5 - F5 - G#5 - A5`)
+    if (isAct2Brawl && step16 % 2 === 0) {
+      const leadIdx = Math.min(
+        COMBAT_SUSPENSE_LEAD_HZ.length - 1,
+        Math.floor(((s - 14) / 4) % COMBAT_SUSPENSE_LEAD_HZ.length),
+      );
+      const leadFreq = COMBAT_SUSPENSE_LEAD_HZ[leadIdx];
+      this.synthTone(leadFreq, leadFreq * 1.01, 0.13, 'sawtooth', 0.068 * mix, 0);
+      // Minor-second / tritone suspense harmony on every bar boundary
+      if (step16 === 0 || step16 === 8) {
+        this.synthTone(leadFreq * 1.05946, leadFreq * 1.05946, 0.16, 'triangle', 0.05 * mix, 0.02);
+      }
+    }
+
+    // D. Act 3 K.O. Climax Chord Hit (`s === 46`, ~4.5s into duel when victim is launched into the swamp!)
+    if (s === 46 && !this.combatFadingOut) {
+      [293.66, 349.23, 440.0, 587.33, 698.46, 880.0].forEach((f, idx) => {
+        this.synthTone(f, f * 1.015, 0.45, 'sawtooth', 0.08 * mix, idx * 0.03);
+      });
+    }
+  }
+
+  _getExitWindowMs(immediate = false) {
+    if (immediate) return 450;
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const q = new URLSearchParams(window.location.search).get('transitionSeconds');
+      if (q !== null && Number.isFinite(Number(q))) {
+        return Math.max(500, Math.min(8000, Number(q) * 1000));
+      }
+    }
+    return 3500;
+  }
+
+  /**
+   * Smoothly fades out the fiery combat music over the `3.5s` sliding window (`immediate = false`)
+   * when the duel finishes (`BATTLE_COMPLETED`), or stops immediately in headless unit tests / `BOARD_RESET`.
+   * @param {boolean} [immediate=false]
+   */
+  stopCombatMusic(immediate = false) {
+    if (!this.combatMusicActive && !this.combatFadingOut) return;
+
+    this.playedSfx.push('combat_music_stopped');
+    if (this.playedSfx.length > 100) this.playedSfx.shift();
+
+    // In headless Node tests (no `window`), clean up synchronously so test runners exit immediately
+    if (immediate || typeof window === 'undefined') {
+      this._haltCombatMusicNow();
+      return;
+    }
+
+    this.combatFadingOut = true;
+    if (this.combatFadeTimer) {
+      clearInterval(this.combatFadeTimer);
+      this.combatFadeTimer = null;
+    }
+
+    const fadeDurationMs = this._getExitWindowMs(false);
+    const tickMs = 80;
+    const totalTicks = Math.max(1, Math.round(fadeDurationMs / tickMs));
+    let tick = 0;
+
+    this.combatFadeTimer = setInterval(() => {
+      tick++;
+      const progress = Math.min(1, tick / totalTicks);
+      // Smoothstep fade curve matching VFXPoolView's 3.5s visual sliding window
+      const smooth = progress * progress * (3 - 2 * progress);
+      this.combatEnvelope = Math.max(0, 1.0 - smooth);
+
+      if (this.combatAudioEl) {
+        try {
+          this.combatAudioEl.volume = Math.max(0, 0.78 * this.combatEnvelope);
+        } catch {}
+      }
+      if (this.audioEl && this.musicPlaying) {
+        try {
+          this.audioEl.volume = 0.06 + 0.39 * (1.0 - this.combatEnvelope);
+        } catch {}
+      }
+
+      if (progress >= 1.0) {
+        this._haltCombatMusicNow();
+      }
+    }, tickMs);
+    this.combatFadeTimer.unref?.();
+  }
+
+  _clearCombatTimers() {
+    if (this.combatTimer) {
+      clearInterval(this.combatTimer);
+      this.combatTimer = null;
+    }
+    if (this.combatFadeTimer) {
+      clearInterval(this.combatFadeTimer);
+      this.combatFadeTimer = null;
+    }
+  }
+
+  _haltCombatMusicNow() {
+    this._clearCombatTimers();
+    this.combatMusicActive = false;
+    this.combatFadingOut = false;
+    this.combatEnvelope = 0.0;
+    if (this.combatAudioEl) {
+      try {
+        this.combatAudioEl.pause();
+      } catch {}
+    }
+    if (this.audioEl && this.musicPlaying) {
+      try {
+        this.audioEl.volume = 0.45;
+      } catch {}
+    }
+  }
+
   dispose() {
+    this._haltCombatMusicNow();
     this.stopThemeSong();
     for (const off of this.offs) off();
     this.offs = [];

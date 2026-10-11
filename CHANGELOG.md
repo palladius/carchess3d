@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.30] - 2026-10-11
+
+- 🔥🥁🎻 **Fiery, Fast-Paced, Suspenseful Combat Soundtrack — Lyria 3 Orchestral-Rock Track + 152 BPM D-Minor Phrygian WebAudio Sequencer (`assets/audio/combat-suspense.mp3`, `src/listeners/AudioListener.js`, `sw.js`, `tests/voices_idle.test.mjs`)**:
+  - **Lyria 3 Fiery Duel Soundtrack (`assets/audio/combat-suspense.mp3` & `.txt`)**: Generated a `30.8s` `152 BPM` D-Minor Phrygian orchestral-rock combat track via Google Lyria 3 (driving staccato string ostinato, thunderous Taiko war drums, heroic brass stabs, electric cello suspense, and embedded ID3v2.3 metadata). Automatically triggers on `BATTLE_STARTED` cycling through 4 dramatic phrase cue points (`0.0s, 7.6s, 15.2s, 22.0s`).
+  - **152 BPM (`98ms` 16th-Note) WebAudio Suspense Sequencer (`AudioListener.startCombatMusic`)**:
+    - Opens with a Netflix-style **"TUDUM" double sub-bass punch** + Phrygian minor-second brass swell (`synthCombatEntryBraaam`).
+    - Drives a relentless 16th-note D-Minor Phrygian ostinato (`D3 - F3 - G3 - G#3 - A3 - Bb3 - C#4 - D4`), Taiko war-drum downbeats, metallic sword/halberd off-beat rim clangs, and a rising suspense lead (`A4 -> A5`) that accelerates in Act 2 (*La Scazzottata*) and erupts into a 6-note K.O. climax chord in Act 3.
+  - **Smooth `3.5s` Sliding-Window Audio Cross-Fade (`AudioListener.stopCombatMusic`)**: On `BATTLE_COMPLETED`, instead of cutting the combat soundtrack abruptly, smoothly ramps down the combat music volume along the exact same `3.5s` `smoothstep` sliding window (`?transitionSeconds=3.5`) as the visual Netflix-to-Zurich transition while restoring the peaceful theme song if active.
+
 ## [0.3.29] - 2026-10-11
 
 - 🎞️🌊🏰 **Smooth `3.5s` Sliding-Window Transitions Into & Out Of Netflix Cinema (`VFXPoolView.js`, `VeoCinemaView.js`, `ZurichSwampView.js`, `tests/combat.test.mjs`)**:
