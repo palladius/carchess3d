@@ -1245,11 +1245,13 @@ export class HudListener {
         gap: 6px;
       }
       #carchess-hud-root.mobile-simplified .hud-status-card {
-        min-width: 0;
-        max-width: 205px;
-        padding: 5px 9px;
+        flex-shrink: 0;
+        min-width: 120px;
+        max-width: 185px;
+        padding: 5px 10px;
         gap: 2px;
       }
+      #carchess-hud-root.mobile-simplified .hud-luck-wrap,
       #carchess-hud-root.mobile-simplified .hud-footer-meta,
       #carchess-hud-root.mobile-simplified .hud-stickers-row {
         display: none !important;
@@ -1258,6 +1260,15 @@ export class HudListener {
         padding: 4px 6px;
         gap: 4px;
         flex-wrap: nowrap;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      #carchess-hud-root.mobile-simplified .hud-actions-dock .hud-btn {
+        padding: 5px 8px;
+        font-size: 11.5px;
+        white-space: nowrap;
+        flex-shrink: 0;
       }
       #carchess-hud-root.mobile-simplified .hud-footer-brand,
       #carchess-hud-root.mobile-simplified #hud-dock-gallery,
@@ -1276,6 +1287,11 @@ export class HudListener {
       }
       #carchess-hud-root.mobile-simplified .hud-actions-dock > a[href*="github.com"] {
         display: none !important;
+      }
+      @media (max-width: 520px) {
+        #carchess-hud-root.mobile-simplified .hud-status-card {
+          display: none !important;
+        }
       }
       #carchess-hud-root.mobile-simplified .hud-setup-card {
         width: min(95vw, 480px);

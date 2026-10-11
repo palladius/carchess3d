@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v20';
+const CACHE_NAME = 'carchess3d-offline-v21';
 
 const PRECACHE_URLS = [
   './',
@@ -19,6 +19,11 @@ const PRECACHE_URLS = [
   './vendor/three/addons/controls/OrbitControls.js',
   './vendor/three/addons/loaders/GLTFLoader.js',
   './vendor/three/addons/utils/SkeletonUtils.js',
+  './vendor/three/addons/postprocessing/EffectComposer.js',
+  './vendor/three/addons/postprocessing/RenderPass.js',
+  './vendor/three/addons/postprocessing/UnrealBloomPass.js',
+  './vendor/three/addons/postprocessing/OutputPass.js',
+  './src/main.js',
   './src/utils/glbGrounding.js',
   './src/core/EventBus.js',
   './src/core/GameLoop.js',
@@ -66,6 +71,7 @@ const PRECACHE_URLS = [
   './assets/models/knight-seby.glb',
   './assets/models/rook-pupurabbu.glb',
   './assets/models/pawn-puffin.glb',
+  './assets/audio/combat-suspense.mp3',
   './assets/audio/voices/voice-k.mp3',
   './assets/audio/voices/voice-q.mp3',
   './assets/audio/voices/voice-b.mp3',
@@ -131,7 +137,11 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cachedResponse);
 
-      return isCodeOrDoc ? networkFetch.then((res) => res || cachedResponse) : cachedResponse || networkFetch;
+      return (
+        isCodeOrDoc
+          ? networkFetch.then((res) => res || cachedResponse)
+          : Promise.resolve(cachedResponse || networkFetch)
+      ).then((res) => res || new Response('', { status: 404, statusText: 'Offline Not Cached' }));
     }),
   );
 });
