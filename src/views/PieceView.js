@@ -77,9 +77,18 @@ export class PieceView {
     this.gltfLoader = new GLTFLoader();
     this.textureLoader = new THREE.TextureLoader();
     this.globalPieceScale = 1.0;
-    this.skeletonsVisible =
-      typeof window !== 'undefined' &&
-      new URLSearchParams(window.location.search).get('skeletons') === '1';
+    const searchParams =
+      typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const expList = (searchParams?.get('experiments') || '')
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+    this.skeletonsVisible = Boolean(
+      searchParams &&
+        (searchParams.get('skeletons') === '1' ||
+          searchParams.get('skeletons') === 'true' ||
+          expList.includes('showskeletons')),
+    );
     this.swampTime = 0;
     this.offs = [];
 

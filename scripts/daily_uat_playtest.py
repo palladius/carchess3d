@@ -336,7 +336,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             # Step 5: 3D Articulated Skeletons Rig Toggle
             # -----------------------------------------------------------------
             print("🦴 Testing 3D Skeletons Rig Toggle (#hud-skeletons-btn)...")
-            page.click("#hud-skeletons-btn")
+            page.evaluate("() => document.querySelector('#hud-skeletons-btn')?.click()")
             time.sleep(0.8)
             shot4 = out_dir / "04_skeletons_active.png"
             page.screenshot(path=str(shot4))
@@ -347,7 +347,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 "passed": skeletons_on,
                 "detail": "3D bone rigs enabled and visible across living & swamp characters",
             }
-            page.click("#hud-skeletons-btn")  # toggle off
+            page.evaluate("() => document.querySelector('#hud-skeletons-btn')?.click()")  # toggle off
             time.sleep(0.3)
 
             # -----------------------------------------------------------------

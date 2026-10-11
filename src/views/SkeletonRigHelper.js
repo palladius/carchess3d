@@ -546,16 +546,8 @@ export function updateSkeletonRigPose(rig, pieceType = 'p', pose = {}) {
     if (u.jointMat) u.jointMat.opacity = 0.98;
     if (u.footprintMat) u.footprintMat.opacity = isMovingOrFighting ? 0.90 : 0.55;
     u.holographicOpacity = pulse;
-  } else if (isMovingOrFighting) {
-    // Automatically pulse at ~35%..52% holographic opacity while walking, galloping, or brawling!
-    rig.visible = true;
-    const holoOpacity = 0.35 + 0.16 * Math.abs(Math.sin(walkPhase * 1.5 + combatPhase));
-    if (u.boneMat) u.boneMat.opacity = holoOpacity;
-    if (u.secondaryBoneMat) u.secondaryBoneMat.opacity = holoOpacity + 0.06;
-    if (u.jointMat) u.jointMat.opacity = Math.min(0.95, holoOpacity + 0.22);
-    if (u.footprintMat) u.footprintMat.opacity = Math.min(0.92, holoOpacity + 0.25);
-    u.holographicOpacity = holoOpacity;
   } else {
+    // Strictly hidden in production (even while walking, galloping, or brawling!)
     rig.visible = false;
     u.holographicOpacity = 0;
   }

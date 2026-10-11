@@ -179,15 +179,21 @@ export class AIWorkerManager {
     if (!result?.move) return null;
     const m = result.move;
     const charName = CHARACTER_REGISTRY[m.piece]?.name || m.piece;
-    const explanation = m.captured
-      ? `${charName} (${m.from} → ${m.to}) cattura ${CHARACTER_REGISTRY[m.captured]?.name || m.captured}! ⚔️`
+    const capName = m.captured ? CHARACTER_REGISTRY[m.captured]?.name || m.captured : '';
+    const explanationEn = m.captured
+      ? `${charName} (${m.from} → ${m.to}) captures ${capName}! ⚔️`
+      : `${charName} moves from ${m.from} to ${m.to} ✨`;
+    const explanationIt = m.captured
+      ? `${charName} (${m.from} → ${m.to}) cattura ${capName}! ⚔️`
       : `${charName} si muove da ${m.from} a ${m.to} ✨`;
     const event = {
       type: 'HINT_SUGGESTED',
       move: m,
       from: m.from,
       to: m.to,
-      explanation,
+      explanation: explanationEn,
+      explanationEn,
+      explanationIt,
     };
     this.ctx?.bus.emit(event);
     return event;

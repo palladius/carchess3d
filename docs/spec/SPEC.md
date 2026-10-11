@@ -155,7 +155,8 @@ is the "victim" and is removed at the end.
 - `ui/` — HTML/CSS HUD: turn indicator, captured pieces tray (mini
   portraits), move list, new game, family/side picker, mode & difficulty,
   sound toggle, reset camera; promotion picker showing the cast portraits.
-- Audio: synthesised with WebAudio (no audio files to license), mutable.
+  The UI text defaults to **English (`🇬🇧 EN`)** (with a dedicated **Nonna Susan 👵🇬🇧** profile) and includes explicit **`🇬🇧 EN` / `🇮🇹 IT` flag buttons** in the startup modal header, top bar, and bottom dock to switch the interface between English and Italian at any time while keeping all character voice lines and audio untouched.
+- Audio: synthesised with WebAudio + pre-recorded Chirp3 HD voice lines, mutable.
 
 ### Interaction
 

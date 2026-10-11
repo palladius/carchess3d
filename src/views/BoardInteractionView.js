@@ -310,7 +310,8 @@ export class BoardInteractionView {
     const defChar = CHARACTER_REGISTRY[cap.defender] || CHARACTER_REGISTRY.p;
     const pairEntry = BATTLE_MATRIX?.[cap.attacker]?.[cap.defender] || null;
     const pairCode = `${String(cap.attacker).toUpperCase()}×${String(cap.defender).toUpperCase()}`;
-    const toastText = `⚔️ Cattura possibile: ${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`;
+    const toastTextEn = `⚔️ Possible capture: ${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name} (${pairCode}) — Click for 3D Brawl!`;
+    const toastTextIt = `⚔️ Cattura possibile: ${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`;
 
     this.ctx?.bus?.emit?.({
       type: 'CAPTURE_PREVIEW_HOVER',
@@ -326,7 +327,9 @@ export class BoardInteractionView {
       pairCode,
       banner: pairEntry?.banner || null,
       videoUrl: `assets/battles/videos/${cap.attacker}_x_${cap.defender}.mp4`,
-      toastText,
+      toastText: toastTextEn,
+      toastTextEn,
+      toastTextIt,
       source,
     });
   }

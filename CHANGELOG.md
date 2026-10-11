@@ -1,12 +1,44 @@
 # Changelog
 
-## [0.3.20] - 2026-10-11
+## [0.3.24] - 2026-10-11
 
 - 👑🫏📚 **2D→3D Pipeline (Mode A & Mode B) Applied to Re Riccardo (`king-riccardo.glb`) & Ciuchino (`knight-swamp-asinello.glb`) + `niccolo-game-design` Skill `v0.2.0`**:
   - **`niccolo-game-design` Skill (`v0.2.0`)**: Added [`references/2d-to-3d-sdf-uv-baking.md`](.agents/skills/niccolo-game-design/references/2d-to-3d-sdf-uv-baking.md) documenting **Mode A** (*Full 2D→3D SDF Visual-Hull + Relief Sculpting + Seamless `1024×1024` UV Baking*) and **Mode B** (*Dual-Chart `2048×1024` UV Face-Grafting & Laplacian Multi-Band Skin Blending onto Existing 3D Meshes*).
   - **Re Riccardo Turnaround Sheet (`tools/model-pipeline/king/side.png`, `king_turnaround_sheet.png`, `generate_side_noglasses.py`)**: Fixed prompt bug in [`tools/model-pipeline/king/generate_side_noglasses.py`](tools/model-pipeline/king/generate_side_noglasses.py) and regenerated the 90° side profile (`side.png`) and 4-panel turnaround sheet (`king_turnaround_sheet.png`) so Riccardo is 100% clean-shaven, without glasses, and wearing the matching royal blue velvet cape with white ermine collar.
   - **Re Riccardo 3D — Mode B Face-Grafting (`assets/models/king-riccardo.glb`, `tools/model-pipeline/king/graft_papino_face_3d.py`)**: Built [`tools/model-pipeline/king/graft_papino_face_3d.py`](tools/model-pipeline/king/graft_papino_face_3d.py) to upgrade `king-riccardo.glb` (`4.1 MB`, `96,958` triangles) with a **Dual-Chart `2048×1024` UV Atlas** — preserving the original `TRELLIS.2` texture (`u ∈ [0, 0.5]`) for the crown, hair, ears, ermine cape, sceptre, orb, and `"KING RICCARDO"` pedestal while assigning a continuous `1024×1024` Planar Face Chart (`u ∈ [0.5, 1.0]`) mapped from `tools/model-pipeline/king/front.png` with Laplacian multi-band skin harmonization.
   - **Asinello Chiacchierone 3D — Mode A SDF + 40-Tooth Relief Reconstruction (`assets/models/swamp/knight-swamp-asinello.glb`, `tools/model-pipeline/swamp/reconstruct_asinello_3d.py`)**: Reconstructed `knight-swamp-asinello.glb` (`2.1 MB`, `16,508` triangles, `1.35m` height, `min.y == 0.0`) from `assets/characters/knight-swamp-asinello.jpg` with 3D embossed 40-tooth Eddie Murphy smile, golden onion medallion, dorsal mane, and seamless `1024×1024` UV atlas.
+
+## [0.3.23] - 2026-10-11
+
+- 🍿🔴🎬 **Netflix Cinema 16:9 Look & Feel — Minimal `1.1%` `#E50914` Red Bezel, `"N"` Badge, Scrubber Bar & Zero-Distortion `16:9` Camera Alignment (`VeoCinemaView.js`, `VFXPoolView.js`)**:
+  - **Minimal `1.1%` Netflix Red (`#E50914`) Cinema Bezel**: Replaced the thick `0.32m` yellow frame, corner cylinders, and top crown hook (`6.12m` tall, which compressed the outer silhouette toward `4:3`) with a razor-thin `0.05m` (`~1.1%`) `#E50914` Netflix-red neon bezel on a matte obsidian-black theatre casing (`8.12m × 4.62m`).
+  - **Netflix Cinema HUD Overlay (`drawNetflixCinemaOverlay`)**: Added the iconic red **`N`** ribbon badge, `CARCHESS CINEMA · 16:9 UHD` series header, episode title, and a `4px` `#E50914` bottom timeline scrubber bar with glowing playhead dot.
+  - **True `16:9` Rectangular Projection (`camera.quaternion`)**: Aligned `VeoMagicCinemaMirror` strictly parallel to the actual camera image plane (`mirrorRoot.quaternion.copy(this.camera.quaternion)`) along `camFwd`/`camUp`, eliminating horizontal yaw foreshortening and vertical pitch trapezoid distortion so the `1280×720` (`16:9`) Veo videos always render as a true `16:9` rectangle from any camera angle.
+
+## [0.3.22] - 2026-10-11
+
+- 🎬♟️✨ **Cinema XXL (`+75%`, `1.75x`) Veo Combat Video & 90% Transparent Chessboard (`opacity = 0.10`) (`ZurichSwampView.js`, `VFXPoolView.js`, `tests/combat.test.mjs`)**:
+  - **90% Transparent Chessboard During Combat (`opacity = 0.10`, *"che si veda appena"*)**: In `ZurichSwampView.setCombatCinemaMode(true)`, the 64 black and white chessboard tiles switch to 90% transparency (`opacity = 0.10`, `depthWrite = false`, flattened to `0.02` wafer height) while hiding the solid stone foundation, island, and outer chunky border rims beneath the board, so the chessboard becomes a subtle ghost grid and all 3D chess characters remain at **100% solid opacity** on top.
+  - **Cinema XXL (`+75%`, `videoBoost = 1.75`) Veo Backdrop**: Enlarged the 16:9 `VeoMagicCinemaMirror` by `+75%` (`defaultBoost = 1.75`) and positioned its plane strictly behind all 4 corners of the altar (`backdropDist = Math.max(5.6, maxAltarCornerDist + 0.65)`), so the video spans across the screen with minimal black side bars and extends all the way underneath the 90%-transparent chessboard.
+  - **Live URL Tuning Parameters**: Added `?videoBoost=1.75` and `?boardAlpha=0.10` query parameters (plus `swampView.setCombatBoardAlpha(alpha)` and `vfxView.combatVideoBoost`) for instant live experimentation.
+
+## [0.3.21] - 2026-10-11
+
+- 🇬🇧🇮🇹👵 **English Default UI for Nonna Susan & One-Click `🇬🇧 EN` / `🇮🇹 IT` Flag Switcher (`HudListener.js`, `Registry.js`, `AIWorkerManager.js`, `BoardInteractionView.js`, `index.html`, `docs/spec/SPEC.md`)**:
+  - **English Default Language (`lang = 'en'`)**: Set the game's default UI language to English so Nonna Susan can immediately read every screen, modal, tooltip, and toast in English out of the box (also added `Nonna Susan 👵🇬🇧` to the player profile selector).
+  - **Dedicated `🇬🇧 EN` and `🇮🇹 IT` Flag Buttons**: Added side-by-side clickable British (`🇬🇧 EN`) and Italian (`🇮🇹 IT`) flag pills in three places:
+    1. Top-right of the **Startup Game Setup Modal** (`#hud-setup-flag-en`, `#hud-setup-flag-it`) so players can switch languages before starting a match.
+    2. Persistent **Bottom Action Dock** (`#hud-flag-en`, `#hud-flag-it`) with active gold border highlight.
+    3. **Top HUD Bar** (`#hud-top-flag-en`, `#hud-top-flag-it`).
+  - **Complete UI Localization**: Translated all previously Italian-only strings in `I18N.en` / `I18N.it` (Setup modal sides, factions, controls, hot-seat description, gallery/video/matrix/skeleton/swamp/trackpad buttons, WOW panel sliders, 6×6 Battle Matrix Explorer headers, FEN/PGN modal, AI hints, and capture preview hover toasts).
+  - **All Sounds & Voice Lines Preserved**: Character voices (`AudioListener.js`, `VOICE_LINES.audioUrl`, `VOICE_LINES.quote`) and sound effects remain 100% untouched.
+
+## [0.3.20] - 2026-10-11
+
+- 🎥♟️✨ **Combat Camera ~5×5 Board Framing, 100% Visible 16:9 Veo Backdrop & Production Skeleton Removal (`VFXPoolView.js`, `VeoCinemaView.js`, `SkeletonRigHelper.js`, `PieceView.js`, `HudListener.js`, `justfile`)**:
+  - **~5×5 Chessboard Combat Zoom**: Widened `VFXPoolView.updateCameraOrbit` (`dist = 4.90 - Math.sin(t * Math.PI) * 0.35`, `camY = 2.42 + Math.sin(t * Math.PI) * 0.16`, `targetY = 1.62`, `FOV = 45°`) so the combat camera frames roughly half the chessboard (~5×5 squares) around the two combatants while keeping neighboring pieces and board context visible.
+  - **100% Unobstructed 16:9 Veo Video Backdrop**: Dynamically aligns `VeoMagicCinemaMirror` perpendicular to the camera sightline (`mirrorRoot.rotation.set(0, orbitAngle, 0)`) and scales it (`yBottom = Math.max(0.18, rayCenterY - 0.14 * hHalf)`, `yTopFrame = rayCenterY + 0.64 * hHalf`) so 100% of the 16:9 video and all 4 golden corner rosettes are visible behind the fighters from any camera angle without being clipped or covered by the top HUD bar or Skip pill.
+  - **Yellow Skeleton Balls Removed in Production**: Removed the `else if (isMovingOrFighting)` override in [`src/views/SkeletonRigHelper.js`](src/views/SkeletonRigHelper.js) so yellow joint spheres and cyan bone sticks (`ArticulatedSkeletonRig`) stay strictly invisible (`rig.visible = false`) in production during idle, walking, and combat. Added opt-in debug/experiment flags (`?debug=1`, `?skeletons=1`, `?experiments=ToggleSkeleton,ShowSkeletons`, plus `just serve-debug` and `just serve experiments="ToggleSkeleton"`).
 
 ## [0.3.19] - 2026-10-11
 

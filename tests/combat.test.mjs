@@ -310,10 +310,10 @@ test('VFXPoolView: auto-zooms camera tightly onto the 2 fighting pieces, hides o
   // 1. 3D floating comic text billboard must be hidden so it never occludes the fighters!
   assert.equal(vfxView.props.comicWordSprite.visible, false, '3D comicWordSprite must stay hidden');
 
-  // 2. Camera must auto-zoom tightly onto the 2 fighters (FOV ~30 deg, distance < 2.6m to target)
-  assert.ok(camera.fov < 32, `Expected close-up FOV < 32, got ${camera.fov}`);
+  // 2. Camera must zoom onto the 2 fighters while framing ~5x5 board squares (FOV ~45 deg, distance ~4.5m..5.2m)
+  assert.ok(camera.fov <= 46 && camera.fov >= 42, `Expected half-board FOV ~45, got ${camera.fov}`);
   const camDist = camera.position.distanceTo(controls.target);
-  assert.ok(camDist < 2.6, `Expected tight close-up camera distance < 2.6m, got ${camDist.toFixed(2)}m`);
+  assert.ok(camDist > 4.0 && camDist < 5.5, `Expected ~5x5 half-board camera distance 4.0m..5.5m, got ${camDist.toFixed(2)}m`);
 
   // 3. Static board pieces on d4 & e5 are temporarily hidden (replaced by 1.22x brawl fighters),
   //    while neighboring piece c4 remains visible!
@@ -323,4 +323,43 @@ test('VFXPoolView: auto-zooms camera tightly onto the 2 fighting pieces, hides o
   assert.ok(vfxView.attackerFighter?.visible, 'Animated 3D attacker fighter is visible');
   assert.ok(vfxView.defenderFighter?.visible, 'Animated 3D defender fighter is visible');
 });
+
+test('ZurichSwampView: switches 64 chessboard tiles to 50% translucency during combat and restores 100% opacity after', async () => {
+  const THREE = await import('three');
+  const { ZurichSwampView } = await import('../src/views/ZurichSwampView.js');
+
+  const scene = new THREE.Scene();
+  const bus = new GameEventBus();
+  const swampView = new ZurichSwampView(scene, bus);
+
+  assert.equal(swampView.squareMeshes.length, 64);
+  assert.equal(swampView.squareMeshes[0].material.transparent, false);
+  assert.equal(swampView.squareMeshes[0].material.opacity, 1.0);
+  assert.equal(swampView.foundationMesh.visible, true);
+
+  bus.emit({ type: 'BATTLE_STARTED', attacker: 'p', defender: 'p', from: 'e4', to: 'd5' });
+  bus.flush();
+
+  assert.equal(swampView.inCombatCinemaMode, true);
+  assert.equal(swampView.foundationMesh.visible, false, 'Under-board stone foundation hidden during combat');
+  assert.equal(swampView.islandMesh.visible, false, 'Under-board stone island hidden during combat');
+  for (const sq of swampView.squareMeshes) {
+    assert.equal(sq.material.transparent, true);
+    assert.equal(sq.material.opacity, 0.10);
+    assert.equal(sq.material.depthWrite, false);
+  }
+
+  bus.emit({ type: 'BATTLE_COMPLETED', attacker: 'p', defender: 'p', from: 'e4', to: 'd5' });
+  bus.flush();
+
+  assert.equal(swampView.inCombatCinemaMode, false);
+  assert.equal(swampView.foundationMesh.visible, true);
+  assert.equal(swampView.islandMesh.visible, true);
+  for (const sq of swampView.squareMeshes) {
+    assert.equal(sq.material.transparent, false);
+    assert.equal(sq.material.opacity, 1.0);
+    assert.equal(sq.material.depthWrite, true);
+  }
+});
+
 

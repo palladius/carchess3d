@@ -81,14 +81,25 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
     assert.equal(audio.playedVoices.at(-1)?.quote, 'This is an interesting choice...');
   });
 
-  it('HudListener updates toast and tracks lastHoverSound and lastVoiceQuote', () => {
+  it('HudListener defaults to English, switches to Italian on setLanguage("it"), and keeps voice quotes intact', () => {
     const bus = new GameEventBus();
     const hud = new HudListener({ bus });
+
+    assert.equal(hud.lang, 'en');
+    assert.equal(hud.t('title'), 'CarChess3D · Family Wizard Chess');
+
+    bus.emit({ type: 'PIECE_HOVERED', square: 'c1', piece: { type: 'b', color: 'w' } });
+    bus.flush();
+    assert.equal(hud.lastHoverSound, VOICE_LINES.b.hoverSound.label.en);
+    assert.ok(hud.lastToast.includes('Ale'));
+
+    hud.setLanguage('it');
+    assert.equal(hud.lang, 'it');
+    assert.equal(hud.t('title'), 'CarChess3D · Carlesso al Cesso');
 
     bus.emit({ type: 'PIECE_HOVERED', square: 'c1', piece: { type: 'b', color: 'w' } });
     bus.flush();
     assert.equal(hud.lastHoverSound, VOICE_LINES.b.hoverSound.label.it);
-    assert.ok(hud.lastToast.includes('Ale'));
 
     bus.emit({
       type: 'PIECE_SELECTED',
@@ -101,7 +112,7 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
     assert.ok(hud.lastToast.includes('Agli ordini, Signore!'));
   });
 
-  it('SkeletonRigHelper includes tail bone and animates continuous living idle poses', () => {
+  it('SkeletonRigHelper includes tail bone, animates continuous living idle poses, and stays hidden in production during walk/combat unless skeletonsVisible is true', () => {
     for (const type of ['n', 'p', 'b', 'r', 'q', 'k']) {
       const rig = createArticulatedSkeletonRig(THREE, type, 1.35, 'w');
       assert.ok(rig.userData.joints.tail, `Expected tail joint on ${type}`);
@@ -125,6 +136,27 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
         0,
         `Expected head Y rotation to be non-zero during living idle for piece type ${type}`,
       );
+      assert.equal(rig.visible, false, `Expected rig.visible === false in production idle for ${type}`);
+
+      // Even during walking and combat, rig.visible must stay false in production unless skeletonsVisible is true
+      updateSkeletonRigPose(rig, type, {
+        walkPhase: 1.2,
+        walkAmp: 1.5,
+        combatPhase: 2.0,
+        combatAmp: 1.8,
+        skeletonsVisible: false,
+      });
+      assert.equal(rig.visible, false, `Expected rig.visible === false in production combat for ${type}`);
+
+      // When debug/experiment toggle enables skeletonsVisible, rig.visible becomes true
+      updateSkeletonRigPose(rig, type, {
+        walkPhase: 1.2,
+        walkAmp: 1.5,
+        combatPhase: 2.0,
+        combatAmp: 1.8,
+        skeletonsVisible: true,
+      });
+      assert.equal(rig.visible, true, `Expected rig.visible === true when skeletonsVisible is true for ${type}`);
     }
   });
 });
