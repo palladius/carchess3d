@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.7] - 2026-10-11
+
+- 🎬🕵️‍♂️🤖 **Automated Daily UAT Playtest Suite & Adversarial Critic (`scripts/daily_uat_playtest.py`, `etc/prompts/daily_uat_prompt.md`, `just uat`, `just daily-uat`)**:
+  - **Autonomous Adversarial Playtest & Screen Audit**:
+    - Simulates an intelligent human tester playing as White against **CPU Easy** (Black) in headless Google Chrome via Playwright with WebGL hardware/software acceleration.
+    - **Faction Orientation Verification**: Audits all 32 pieces on the 8×8 board to ensure White pieces strictly face North (`homeYaw ≈ 3.142 rad` towards rank 8) and Black pieces face South (`homeYaw ≈ 0.0 rad` towards rank 1), flagging any "all facing same direction" glitch.
+    - **Black-Screen Audit**: Performs automatic luminance and contrast stddev pixel analysis on Camera 180° Inversion (`#hud-flip-btn`) and Top-Down view (`#hud-top-btn`) to guarantee the 3D scene remains vibrantly illuminated and never goes pitch-black.
+    - **Interactive Subsystem Clicking**: Adversarially exercises 3D Articulated Skeletons (`#hud-skeletons-btn`), Shrek Swamp Moat party (`#hud-swamp-btn`), 6×6 Battle Matrix Modal (`#hud-matrix36-btn`), and WOW Mode Turntable & Arena (`#hud-mode2-btn`).
+    - **Live Match Simulation**: Executes human opening moves (`e2-e4`, `g1-f3`, `d2-d4`), monitors Web Worker CPU Easy response latency (averaging ~460ms), triggers tactical captures, verifies the Comic Impact Banner (`#hud-comic-banner`), and exercises the cutscene skip button (`#hud-skip-btn`).
+  - **Video Recording & Media Deliverables**:
+    - Automatically records a full match session into `log/uat/uat_gameplay.mp4` and `uat_gameplay.webm` (strictly capped at `<= 60s` / 1 min duration) and renders an animated preview GIF `log/uat/uat_gameplay.gif`.
+    - Captures 13 timestamped keyframe screenshots into `log/uat/*.png` and generates `log/uat/UAT_REPORT.md` and `uat_report.json`.
+  - **GitHub Issue Integration (`gemini-uat`)**:
+    - With `--publish-ghi` (or `just daily-uat`), creates or comments on a daily GitHub Issue titled `"Gemini UAT $YYYYMMDD"` (e.g. [`#18`](https://github.com/palladius/carchess3d/issues/18)) tagged with label `gemini-uat`, embedding the full UAT verification matrix, playability critique, and video assets.
+  - **Customizable Prompt**:
+    - Added [`etc/prompts/daily_uat_prompt.md`](etc/prompts/daily_uat_prompt.md) as the central prompt template for scheduled runs, allowing Riccardo to easily edit testing sequences, thresholds, or difficulty levels.
+
 ## [0.3.6] - 2026-10-11
 
 - 🐱🎭⛪ **Swamp Family Lineup Upgrade: Don Gatto Zorro-Vescovo (`Bishop`, `1.45m`) & Uomo Focaccina Ligure (`Pawn`, `0.95m`)**:

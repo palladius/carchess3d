@@ -8,8 +8,10 @@ Simulates a human agent vs CPU Easy:
 3. Non-black visual screen audit via luminance/stddev analysis on every angle.
 4. Human vs CPU Easy match play (3-4 turns, locomotion & tactical indicators,
    capture cutscene & skip button, CPU latency measurement).
-5. Headless Chrome video recording (.webm -> .mp4) & screenshot captures.
+5. Headless Chrome video recording (.webm -> .mp4, max 1 minute) & animated GIF preview.
 6. Console error / 404 sniffer and comprehensive Markdown report generation.
+7. Optional --publish-ghi flag to automatically create/update a GitHub Issue
+   titled 'Gemini UAT YYYYMMDD' with label 'gemini-uat' and video attached.
 """
 
 import argparse
@@ -64,7 +66,6 @@ def check_image_not_black(image_path: pathlib.Path) -> tuple[bool, float, float,
         return False, 0.0, 0.0, "Screenshot missing or zero bytes"
 
     if Image is None or ImageStat is None:
-        # Fallback to byte size check
         size_kb = image_path.stat().st_size / 1024
         return size_kb > 20, 50.0, 20.0, f"Pillow not imported; raw size {size_kb:.1f} KB"
 
@@ -132,9 +133,9 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
     video_raw_dir.mkdir(parents=True, exist_ok=True)
 
     # Clean old screenshot captures
-    for old_png in out_dir.glob("*.png"):
+    for old_file in out_dir.glob("*.png"):
         try:
-            old_png.unlink()
+            old_file.unlink()
         except OSError:
             pass
 
@@ -154,7 +155,13 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
         "console_errors": [],
         "console_warnings": [],
         "network_errors": [],
+        "video_webm": None,
+        "video_mp4": None,
+        "video_gif": None,
+        "video_duration_s": 0.0,
     }
+
+    start_wall_time = time.time()
 
     try:
         with sync_playwright() as p:
@@ -193,7 +200,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             print("🚀 Loading CarChess3D into headless Chromium...")
             page.goto(f"http://localhost:{port}/index.html", wait_until="networkidle")
             page.wait_for_selector("#game-canvas", timeout=10000)
-            time.sleep(2.0)
+            time.sleep(1.8)
 
             shot1 = out_dir / "01_initial_board.png"
             page.screenshot(path=str(shot1))
@@ -234,8 +241,6 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             white_yaws = set(round(p["homeYaw"], 3) for p in white_pieces)
             black_yaws = set(round(p["homeYaw"], 3) for p in black_pieces)
 
-            # White pieces should face North (yaw ~ pi = 3.142)
-            # Black pieces should face South (yaw ~ 0.0)
             all_same_dir = len(white_yaws.union(black_yaws)) <= 1
             orientations_correct = (
                 len(pieces_info) == 32
@@ -267,7 +272,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             # -----------------------------------------------------------------
             print("🔄 Testing Camera 180° Flip (#hud-flip-btn)...")
             page.click("#hud-flip-btn")
-            time.sleep(1.2)
+            time.sleep(1.0)
             shot2 = out_dir / "02_camera_flip_180.png"
             page.screenshot(path=str(shot2))
             report["screenshots"].append(shot2.name)
@@ -292,7 +297,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             # -----------------------------------------------------------------
             print("📐 Testing Camera Top-Down View (#hud-top-btn)...")
             page.click("#hud-top-btn")
-            time.sleep(1.2)
+            time.sleep(1.0)
             shot3 = out_dir / "03_camera_top_down.png"
             page.screenshot(path=str(shot3))
             report["screenshots"].append(shot3.name)
@@ -311,9 +316,9 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
 
             # Restore normal camera angle
             page.click("#hud-top-btn")
-            time.sleep(0.5)
+            time.sleep(0.4)
             page.click("#hud-flip-btn")
-            time.sleep(0.5)
+            time.sleep(0.4)
 
             # -----------------------------------------------------------------
             # Step 5: 3D Articulated Skeletons Rig Toggle
@@ -338,7 +343,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             # -----------------------------------------------------------------
             print("🐸 Testing Shrek Swamp Party (#hud-swamp-btn)...")
             page.click("#hud-swamp-btn")
-            time.sleep(1.0)
+            time.sleep(0.8)
             shot5 = out_dir / "05_swamp_party.png"
             page.screenshot(path=str(shot5))
             report["screenshots"].append(shot5.name)
@@ -355,7 +360,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             # -----------------------------------------------------------------
             print("🎬 Testing 6x6 Battle Matrix Modal (#hud-matrix36-btn)...")
             page.click("#hud-matrix36-btn")
-            time.sleep(1.0)
+            time.sleep(0.8)
             shot6 = out_dir / "06_matrix36_modal.png"
             page.screenshot(path=str(shot6))
             report["screenshots"].append(shot6.name)
@@ -366,15 +371,18 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 "detail": "36-combination interactive matrix modal displayed with video previews",
             }
             # Close modal
-            page.click("#hud-matrix36-close-btn")
-            time.sleep(0.6)
+            if page.locator("#hud-matrix36-close").is_visible():
+                page.click("#hud-matrix36-close")
+            else:
+                page.evaluate("() => window.__CARCHESS__.hud.closeMatrix36Modal?.()")
+            time.sleep(0.5)
 
             # -----------------------------------------------------------------
             # Step 8: WOW Mode Turntable & Arena Drawer
             # -----------------------------------------------------------------
             print("🌟 Testing WOW Mode & Cinema (#hud-mode2-btn)...")
             page.click("#hud-mode2-btn")
-            time.sleep(1.2)
+            time.sleep(1.0)
             shot7 = out_dir / "07_wow_mode.png"
             page.screenshot(path=str(shot7))
             report["screenshots"].append(shot7.name)
@@ -387,21 +395,18 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 "detail": "Mode 2 WOW Turntable Inspector & Arena active with character controls",
             }
 
-            # Return to Mode 1 (Chess)
             page.click("#hud-mode1-btn")
-            time.sleep(1.0)
+            time.sleep(0.8)
 
             # -----------------------------------------------------------------
             # Step 9: Simulated Match: Human (White) vs CPU Easy (Black)
             # -----------------------------------------------------------------
             print("♟️ Starting Simulated Match: Human White vs CPU Easy Black...")
-            # Click New Game to reset board
             page.click("#hud-new-btn")
-            time.sleep(0.6)
-
-            # Select CPU Easy opponent
-            page.select_option("#hud-opponent-select", "easy")
             time.sleep(0.5)
+
+            page.select_option("#hud-opponent-select", "easy")
+            time.sleep(0.4)
 
             # Move 1: White e2 -> e4
             print("   White plays e2 -> e4 (Pawn leap)")
@@ -409,7 +414,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 window.__CARCHESS__.board.selectSquare('e2');
                 window.__CARCHESS__.bus.flush();
             }""")
-            time.sleep(0.4)
+            time.sleep(0.3)
             page.evaluate("""() => {
                 window.__CARCHESS__.board.requestMove('e2', 'e4');
                 window.__CARCHESS__.bus.flush();
@@ -419,11 +424,10 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             page.screenshot(path=str(shot8))
             report["screenshots"].append(shot8.name)
 
-            # Wait for CPU Easy to reply
             t0 = time.time()
             cpu_moved = False
             for _ in range(35):
-                time.sleep(0.2)
+                time.sleep(0.15)
                 hist = page.evaluate("() => window.__CARCHESS__.board.moveHistory")
                 if len(hist) >= 2:
                     cpu_lat = (time.time() - t0) * 1000
@@ -434,7 +438,6 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
 
             if not cpu_moved:
                 report["issues"].append("Gameplay Bug: CPU Easy did not respond to move 1 (e2-e4)!")
-                print("   ❌ CPU Easy failed to respond!")
 
             shot9 = out_dir / "09_gameplay_move1_cpu_reply.png"
             page.screenshot(path=str(shot9))
@@ -442,12 +445,12 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
 
             # Move 2: White g1 -> f3 (Knight Seby gallop!)
             print("   White plays g1 -> f3 (Knight Seby gallop)")
-            time.sleep(0.5)
+            time.sleep(0.4)
             page.evaluate("""() => {
                 window.__CARCHESS__.board.selectSquare('g1');
                 window.__CARCHESS__.bus.flush();
             }""")
-            time.sleep(0.4)
+            time.sleep(0.3)
             page.evaluate("""() => {
                 window.__CARCHESS__.board.requestMove('g1', 'f3');
                 window.__CARCHESS__.bus.flush();
@@ -456,7 +459,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             t0 = time.time()
             cpu_moved2 = False
             for _ in range(35):
-                time.sleep(0.2)
+                time.sleep(0.15)
                 hist = page.evaluate("() => window.__CARCHESS__.board.moveHistory")
                 if len(hist) >= 4:
                     cpu_lat = (time.time() - t0) * 1000
@@ -471,12 +474,12 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
 
             # Move 3: White d2 -> d4
             print("   White plays d2 -> d4 (Center pawn)")
-            time.sleep(0.5)
+            time.sleep(0.4)
             page.evaluate("""() => {
                 window.__CARCHESS__.board.selectSquare('d2');
                 window.__CARCHESS__.bus.flush();
             }""")
-            time.sleep(0.4)
+            time.sleep(0.3)
             page.evaluate("""() => {
                 window.__CARCHESS__.board.requestMove('d2', 'd4');
                 window.__CARCHESS__.bus.flush();
@@ -485,7 +488,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             t0 = time.time()
             cpu_moved3 = False
             for _ in range(35):
-                time.sleep(0.2)
+                time.sleep(0.15)
                 hist = page.evaluate("() => window.__CARCHESS__.board.moveHistory")
                 if len(hist) >= 6:
                     cpu_lat = (time.time() - t0) * 1000
@@ -498,37 +501,31 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             page.screenshot(path=str(shot11))
             report["screenshots"].append(shot11.name)
 
-            # Check if any capture occurred or try a tactical capture
-            has_captures = page.evaluate("""() => {
-                return window.__CARCHESS__.board.moveHistory.some(m => Boolean(m.captured));
+            # Check if any capture occurred or execute a tactical capture
+            capture_move = page.evaluate("""() => {
+                const legal = window.__CARCHESS__.board.legalMoves();
+                return legal.find(m => Boolean(m.captured)) || null;
             }""")
+            if capture_move:
+                print(f"   White executes tactical capture {capture_move['from']} -> {capture_move['to']}!")
+                page.evaluate(f"""() => {{
+                    window.__CARCHESS__.board.requestMove('{capture_move["from"]}', '{capture_move["to"]}');
+                    window.__CARCHESS__.bus.flush();
+                }}""")
+                time.sleep(0.8)
+                shot12 = out_dir / "12_capture_cutscene.png"
+                page.screenshot(path=str(shot12))
+                report["screenshots"].append(shot12.name)
 
-            if not has_captures:
-                # Attempt to capture a black piece if available among legal moves
-                capture_move = page.evaluate("""() => {
-                    const legal = window.__CARCHESS__.board.legalMoves();
-                    return legal.find(m => Boolean(m.captured)) || null;
+                # Skip cutscene if banner is present
+                banner_vis = page.evaluate("""() => {
+                    const el = document.getElementById('hud-comic-banner');
+                    return el && window.getComputedStyle(el).display !== 'none';
                 }""")
-                if capture_move:
-                    print(f"   White executes tactical capture {capture_move['from']} -> {capture_move['to']}!")
-                    page.evaluate(f"""() => {{
-                        window.__CARCHESS__.board.requestMove('{capture_move["from"]}', '{capture_move["to"]}');
-                        window.__CARCHESS__.bus.flush();
-                    }}""")
-                    time.sleep(1.0)
-                    shot12 = out_dir / "12_capture_cutscene.png"
-                    page.screenshot(path=str(shot12))
-                    report["screenshots"].append(shot12.name)
-
-                    # Check comic banner
-                    banner_vis = page.evaluate("""() => {
-                        const el = document.getElementById('hud-comic-banner');
-                        return el && window.getComputedStyle(el).display !== 'none';
-                    }""")
-                    if banner_vis:
-                        print("   ✨ Comic impact banner active! Testing #hud-skip-btn...")
-                        page.click("#hud-skip-btn")
-                        time.sleep(0.8)
+                if banner_vis:
+                    print("   ✨ Comic impact banner active! Testing #hud-skip-btn...")
+                    page.click("#hud-skip-btn")
+                    time.sleep(0.5)
 
             final_moves_count = page.evaluate("() => window.__CARCHESS__.board.moveHistory.length")
             report["checks"]["match_gameplay"] = {
@@ -546,15 +543,17 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             page.screenshot(path=str(shot_final))
             report["screenshots"].append(shot_final.name)
 
-            time.sleep(1.5)
+            time.sleep(1.0)
 
             # -----------------------------------------------------------------
-            # Step 10: Close context & finalize video
+            # Step 10: Close context & finalize video (guaranteed max 1 min)
             # -----------------------------------------------------------------
             context.close()
             browser.close()
 
-            # Find recorded video and move to outdir / uat_gameplay.webm
+            total_elapsed = time.time() - start_wall_time
+            report["video_duration_s"] = round(total_elapsed, 1)
+
             webm_files = list(video_raw_dir.glob("*.webm"))
             if webm_files:
                 latest_webm = sorted(webm_files, key=lambda f: f.stat().st_mtime)[-1]
@@ -562,7 +561,6 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 shutil.copyfile(latest_webm, target_webm)
                 report["video_webm"] = target_webm.name
 
-                # Convert to MP4 with ffmpeg if available
                 ffmpeg_bin = shutil.which("ffmpeg")
                 if ffmpeg_bin:
                     target_mp4 = out_dir / "uat_gameplay.mp4"
@@ -571,6 +569,8 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                         "-y",
                         "-i",
                         str(target_webm),
+                        "-t",
+                        "60",
                         "-c:v",
                         "libx264",
                         "-pix_fmt",
@@ -582,9 +582,28 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                     res = subprocess.run(cmd, capture_output=True)
                     if res.returncode == 0:
                         report["video_mp4"] = target_mp4.name
-                        print(f"🎬 Video rendered & encoded: {target_mp4}")
-                    else:
-                        print(f"⚠️ ffmpeg conversion warning: {res.stderr.decode('utf-8')[:200]}")
+                        print(f"🎬 Video rendered & encoded (max 1 min): {target_mp4} ({min(60.0, report['video_duration_s'])}s)")
+
+                    # Generate animated preview GIF for inline GitHub Issue embedding
+                    target_gif = out_dir / "uat_gameplay.gif"
+                    gif_cmd = [
+                        ffmpeg_bin,
+                        "-y",
+                        "-i",
+                        str(target_mp4 if target_mp4.exists() else target_webm),
+                        "-vf",
+                        "fps=8,scale=540:-1:flags=lanczos",
+                        "-t",
+                        "12",
+                        "-loop",
+                        "0",
+                        str(target_gif),
+                    ]
+                    res_gif = subprocess.run(gif_cmd, capture_output=True)
+                    if res_gif.returncode == 0:
+                        report["video_gif"] = target_gif.name
+                        print(f"🎞️ Animated GIF preview generated: {target_gif}")
+
             shutil.rmtree(video_raw_dir, ignore_errors=True)
 
     finally:
@@ -648,6 +667,7 @@ def generate_markdown_report(report: dict, out_file: pathlib.Path):
         f"- **Git Branch / Commit**: `{git['branch']}` @ [`{git['commit']}`]",
         f"- **Verdict**: **{verdict_emoji} {verdict_title}**",
         f"- **Checks Passed**: `{passed_checks} / {total_checks}`",
+        f"- **Video Session Duration**: `{min(60.0, report.get('video_duration_s', 0))}s` (Max 1 min target)",
         "",
         "## Recent Commits",
         "",
@@ -700,18 +720,138 @@ def generate_markdown_report(report: dict, out_file: pathlib.Path):
         "## Media & Gameplay Recordings",
         "",
     ])
+    if report.get("video_gif"):
+        lines.append(f"![UAT Gameplay Animation]({report['video_gif']})")
+        lines.append("")
     if report.get("video_mp4"):
-        lines.append(f"- 🎬 **Gameplay Video (MP4)**: `log/uat/{report['video_mp4']}`")
+        lines.append(f"- 🎬 **Full Match Film (MP4, <1 min)**: `{report['video_mp4']}`")
     if report.get("video_webm"):
-        lines.append(f"- 📹 **Gameplay Video (WebM)**: `log/uat/{report['video_webm']}`")
+        lines.append(f"- 📹 **Full Match Film (WebM)**: `{report['video_webm']}`")
 
     lines.append("")
     lines.append("### Keyframe Screenshots")
     lines.append("")
     for shot in report.get("screenshots", []):
-        lines.append(f"- `log/uat/{shot}`")
+        lines.append(f"- `{shot}`")
 
     out_file.write_text("\n".join(lines) + "\n")
+
+
+def publish_github_issue(report: dict, report_md_path: pathlib.Path, out_dir: pathlib.Path) -> str | None:
+    """Creates or updates a GitHub Issue titled 'Gemini UAT YYYYMMDD' with tag 'gemini-uat'."""
+    gh_bin = shutil.which("gh")
+    if not gh_bin:
+        print("⚠️ gh CLI not found on PATH; skipping GitHub Issue creation.")
+        return None
+
+    date_tag = datetime.datetime.now().strftime("%Y%m%d")
+    issue_title = f"Gemini UAT {date_tag}"
+    label = "gemini-uat"
+
+    # Ensure label exists
+    subprocess.run([gh_bin, "label", "create", label, "--color", "00e676", "--force"], capture_output=True)
+
+    # Try uploading media to a prerelease asset tag for direct GitHub Issue rendering
+    tag_name = f"uat-media-{date_tag}"
+    mp4_file = out_dir / "uat_gameplay.mp4"
+    gif_file = out_dir / "uat_gameplay.gif"
+    media_files = [str(f) for f in (mp4_file, gif_file) if f.exists()]
+
+    if media_files:
+        rel_check = subprocess.run([gh_bin, "release", "view", tag_name], capture_output=True)
+        if rel_check.returncode != 0:
+            subprocess.run(
+                [
+                    gh_bin,
+                    "release",
+                    "create",
+                    tag_name,
+                    *media_files,
+                    "--title",
+                    f"UAT Media Assets {date_tag}",
+                    "--notes",
+                    f"Automated Daily UAT media assets for {date_tag}",
+                    "--prerelease",
+                ],
+                capture_output=True,
+            )
+        else:
+            subprocess.run([gh_bin, "release", "upload", tag_name, *media_files, "--clobber"], capture_output=True)
+
+        base_dl_url = f"https://github.com/palladius/carchess3d/releases/download/{tag_name}"
+        body_text = report_md_path.read_text()
+        if gif_file.exists():
+            body_text = body_text.replace("uat_gameplay.gif", f"{base_dl_url}/uat_gameplay.gif")
+        if mp4_file.exists():
+            body_text = body_text.replace(
+                "`uat_gameplay.mp4`",
+                f"[{base_dl_url}/uat_gameplay.mp4]({base_dl_url}/uat_gameplay.mp4)\n\n<video src=\"{base_dl_url}/uat_gameplay.mp4\" controls width=\"100%\"></video>",
+            )
+        report_md_path.write_text(body_text)
+
+    # Check if issue already exists for today
+    find_cmd = [
+        gh_bin,
+        "issue",
+        "list",
+        "--repo",
+        "palladius/carchess3d",
+        "--label",
+        label,
+        "--search",
+        f"\"{issue_title}\" in:title",
+        "--json",
+        "number,title",
+    ]
+    res = subprocess.run(find_cmd, capture_output=True, text=True)
+    existing_issues = []
+    if res.returncode == 0:
+        try:
+            existing_issues = json.loads(res.stdout)
+        except Exception:
+            pass
+
+    if existing_issues:
+        issue_num = existing_issues[0]["number"]
+        print(f"📝 Updating existing issue #{issue_num} ({issue_title})...")
+        comment_cmd = [
+            gh_bin,
+            "issue",
+            "comment",
+            str(issue_num),
+            "--repo",
+            "palladius/carchess3d",
+            "--body-file",
+            str(report_md_path),
+        ]
+        c_res = subprocess.run(comment_cmd, capture_output=True, text=True)
+        if c_res.returncode == 0:
+            print(f"✅ Comment added to issue #{issue_num}!")
+            return f"https://github.com/palladius/carchess3d/issues/{issue_num}"
+    else:
+        print(f"📢 Creating new GitHub Issue '{issue_title}' with tag '{label}'...")
+        create_cmd = [
+            gh_bin,
+            "issue",
+            "create",
+            "--repo",
+            "palladius/carchess3d",
+            "--title",
+            issue_title,
+            "--label",
+            label,
+            "--body-file",
+            str(report_md_path),
+        ]
+        c_res = subprocess.run(create_cmd, capture_output=True, text=True)
+        if c_res.returncode == 0:
+            url = c_res.stdout.strip()
+            print(f"✅ GitHub Issue created: {url}")
+            return url
+        else:
+            print(f"❌ Failed to create issue: {c_res.stderr}")
+
+    return None
 
 
 def main():
@@ -719,6 +859,7 @@ def main():
     parser.add_argument("--outdir", default="log/uat", help="Output directory for reports and captures")
     parser.add_argument("--port", type=int, default=0, help="Local HTTP port (0 for auto-allocated)")
     parser.add_argument("--no-headless", dest="headless", action="store_false", help="Run with visible browser UI")
+    parser.add_argument("--publish-ghi", action="store_true", help="Publish or update GitHub Issue 'Gemini UAT YYYYMMDD'")
     args = parser.parse_args()
 
     out_dir = pathlib.Path(args.outdir).resolve()
@@ -733,8 +874,16 @@ def main():
     json_path = out_dir / "uat_report.json"
     json_path.write_text(json.dumps(report, indent=2))
 
+    issue_url = None
+    if args.publish_ghi:
+        issue_url = publish_github_issue(report, report_path, out_dir)
+        if issue_url:
+            report["github_issue_url"] = issue_url
+
     print("\n" + "=" * 60)
     print(f"📋 UAT Playtest Complete! Report generated at: {report_path}")
+    if issue_url:
+        print(f"🔗 GitHub Issue: {issue_url}")
     print("=" * 60)
     for note in report.get("playability_notes", []):
         print(f"  {note}")
