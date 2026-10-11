@@ -244,7 +244,33 @@ export class BoardInteractionView {
   onPointerMove(event) {
     if (this.pointerDownPos.active) return;
     const board = this.ctx?.board;
-    if (!board || !board.selectedSquare) {
+    if (!board) return;
+
+    const sq = this.pickSquareFromPointerEvent(event);
+    const hoveredPiece = sq ? board.pieceAt?.(sq) : null;
+    this.pieceView?.setHoveredSquare?.(hoveredPiece ? sq : null);
+
+    // Emit PIECE_HOVERED when pointer enters a living piece (with 650ms anti-spam cooldown)
+    const pieceSq = hoveredPiece ? sq : null;
+    if (pieceSq !== this.hoveredPieceSquare) {
+      this.hoveredPieceSquare = pieceSq;
+      if (hoveredPiece && pieceSq) {
+        const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+        if (!this.lastHoverEmitMs || now - this.lastHoverEmitMs >= 650) {
+          this.lastHoverEmitMs = now;
+          this.ctx?.bus?.emit?.({
+            type: 'PIECE_HOVERED',
+            square: pieceSq,
+            piece: hoveredPiece,
+            pieceType: hoveredPiece.type,
+            color: hoveredPiece.color,
+          });
+          this.ctx?.bus?.flush?.();
+        }
+      }
+    }
+
+    if (!board.selectedSquare) {
       if (this.hoveredSquare) {
         this.hoveredSquare = null;
         this.clearHoverPreview();
@@ -252,7 +278,6 @@ export class BoardInteractionView {
       return;
     }
 
-    const sq = this.pickSquareFromPointerEvent(event);
     if (sq === this.hoveredSquare) return;
     this.hoveredSquare = sq;
 

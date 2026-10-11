@@ -1,6 +1,36 @@
 # Changelog
 
-## [0.3.4] - 2026-10-11
+## [0.3.6] - 2026-10-11
+
+- 🐱🎭⛪ **Swamp Family Lineup Upgrade: Don Gatto Zorro-Vescovo (`Bishop`, `1.45m`) & Uomo Focaccina Ligure (`Pawn`, `0.95m`)**:
+  - Generated and approved `assets/characters/bishop-swamp-gatto.jpg` (Variant 1, synced to `bishop-swamp-focaccina.jpg` for manifest compatibility): a swashbuckler ginger tabby cat wearing a black Zorro domino eye-mask, tall black-and-gold Papal Bishop Mitre with glowing ruby cross & sweeping yellow ostrich feather, black-and-gold embroidered Zorro cape with `"Z"` clasp, tall cuffed leather boots, golden swept-hilt rapier-crosier, and solemn Bishop blessing paw.
+  - Promoted **Uomo Focaccina Ligure** (`assets/characters/pawn-swamp-focaccina.jpg`, synced to `pawn-swamp-tappo.jpg`) to the canonical Swamp **Pawn (`0.95m`)**, and added two alternate Italian fairytale Pawn portraits: **I 3 Porcellini della Palude** (`assets/characters/pawn-swamp-porcellini.jpg`) and **Zenzy Pan di Zenzero & Focaccina** (`assets/characters/pawn-swamp-zenzy.jpg`).
+  - Rebuilt the watertight 3D `.glb` statues in `tools/model-pipeline/swamp/build_swamp_models.py` (`assets/models/swamp/bishop-swamp-focaccina.glb` `21,640 tris`, `1.45m`; `assets/models/swamp/pawn-swamp-tappo.glb` `16,032 tris`, `0.95m`) and updated `tools/model-pipeline/swamp/swamp_contact_sheet.png`.
+- 🩸✨ **3D Miracolo di San Gennaro Blood Liquefaction Animation (`VFXPoolView.js`, `CombatAnimationManager.js`, `Registry.js`)**:
+  - Implemented the bespoke 3D **Miracolo del Sangue di San Gennaro** (`san_gennaro_miracle` / `san_gennaro_blood_drops`) triggered when the Classic Bishop (**San Gennaro**) attacks: a golden Baroque reliquary ampoule (`sanGennaroAmpoule`) rises above the capture square, tilts side-to-side while its dark clotted blood core (`#3b0308`) liquefies and boils into glowing ruby-crimson (`#ff1744`) at `t >= 0.28`, and unleashes a 64-particle burst of crimson-ruby droplets and golden sparks with banner `"MIRACOLO DI SAN GENNARO! SANGUE SCIOLTO! 🩸✨"`.
+- 🧊🏛️ **TRELLIS.2 3D Reconstruction Pipeline for Classic Family (`tools/model-pipeline/classic/gen_trellis2_batch.py`)**:
+  - Added automated `microsoft/TRELLIS.2` image-to-3D reconstruction + contract normalizer (`faction_primary` / `faction_trim` material slots, `min.y = 0.0`, exact target height) and reconstructed `assets/models/classic/king-classic-re.glb` (`99,267 tris`, `1.80m`).
+
+## [0.3.5] - 2026-10-11
+
+- 🐴🐧🗣️ **Living Idle Animations & Hover/Select Character Voices (`idle_animations_and_voices_20261011`)**:
+  - **Continuous Per-Character 3D Living Idle Motion (`src/views/PieceView.js`, `src/views/SkeletonRigHelper.js`)**:
+    - Every living piece on the 8×8 board now moves organically even when standing still: Knight Seby's warhorse steps/trots gently in place and swishes its tail (`tail` bone), Pawn Puffins sway fluidly in an S-curve and wag their tail feathers (`tail` bone), Bishop Ale's shoulder dragon beats its wings (`leftWing`/`rightWing`) and waves its wand, Rook Pupurabbu squishes and breathes, and King Riccardo & Queen Kate breathe with regal poise.
+    - Hovering or selecting a piece boosts its idle amplitude (`1.55×` on hover, `1.95×` on select) so characters visibly perk up under the cursor.
+  - **Hover Creature SFX & Authentic Spoken Character Voice Lines (`src/core/Registry.js`, `src/listeners/AudioListener.js`, `src/listeners/HudListener.js`, `src/views/BoardInteractionView.js`)**:
+    - Generated all 6 authentic character voice MP3s via `gemini-2.5-flash-preview-tts` ([`scripts/generate_voice_lines.py`](scripts/generate_voice_lines.py) → `assets/audio/voices/voice-{k,q,b,n,r,p}.mp3`):
+      - **Seby (`n`)**: *"Dimmi papino!"* + hover horse snort (`🐴 Snort! Prrr!`)
+      - **Ale (`b`)**: *"Agli ordini, Signore!"* + hover dragon whistle (`🐉 Fiuuu!`)
+      - **Kate (`q`)**: *"This is an interesting choice..."* (sarcastic British English `en-GB`) + hover crystal chime (`♕ Hmm...`)
+      - **Puffin (`p`)**: *"Piu piu! Eccomi, pronta guardia Puffin!"* + hover cute double chirp (`🐧 Piu-piu!`)
+      - **Riccardo (`k`)**: *"Avanti tutta! Re Carlesso al comando!"* + hover royal sceptre hum (`♔ Zzt-hum!`)
+      - **Pupurabbu (`r`)**: *"Boing boing! Super abbraccio Pupurabbu!"* + hover plushie boing (`🟣 Boing-pfiu!`)
+    - Added [`tests/voices_idle.test.mjs`](tests/voices_idle.test.mjs) and synced [`docs/spec/SPEC.md`](docs/spec/SPEC.md) and [`sw.js`](sw.js) (`v7`).
+- 🍌🎬 **All 36 Nano Banana 2.1 Battle Keyframes & 15 Veo 3.1 16:9 Videos (`scripts/generate_nb_veo_battle.py`, `assets/battles/prompts_36.json`)**:
+  - **Stage 1**: Generated all **36/36** 16:9 initial battle keyframes (`assets/battles/keyframes/<atk>_x_<def>.png`, `1376×768`) using **Photo 1 (Attacker Left)** + **Photo 2 (Defender Right)** + side-by-side layout guide (`assets/battles/refs/<id>_ref.png`) via Nano Banana 2.1 (`gemini-3.1-flash-image-preview`).
+  - **Stage 2**: Generated 15/36 full 8-second 16:9 Veo 3.1 (`veo-3.1-generate-preview`) battle videos with audio (`assets/battles/videos/<id>.{mp4,webm}`) including all 4 Easter Eggs (`n_x_r`, `r_x_n`, `k_x_q`, `q_x_k`), all 6 Bishop Ale battles (`b_x_*`), and all 6 Knight Seby battles (`n_x_*`).
+
+## [0.3.4] - 2026-10-10
 
 - 🔗🏷️ **Footer GitHub Links & Game Version Display (`src/listeners/HudListener.js`, `src/core/Registry.js`, `battles.html`, `showcase/index.html`, `tests/core.test.mjs`)**:
   - Added dedicated `.hud-footer-meta` row inside the game HUD `<footer class="hud-bottombar">` (and matching footers in [`battles.html`](battles.html) and [`showcase/index.html`](showcase/index.html)):

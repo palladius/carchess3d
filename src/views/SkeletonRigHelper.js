@@ -414,6 +414,36 @@ export function createArticulatedSkeletonRig(THREE, pieceType = 'p', pieceHeight
     horseChest.add(horseHead, frontLeftLeg, frontRightLeg, hindLeftLeg, hindRightLeg);
   }
 
+  // ===========================================================================
+  // 5. TAIL JOINT ('tail'): Puffin Tail-Feather Wag & Knight Horse Tail Swish
+  // ===========================================================================
+  const tail = createPivotJoint(
+    THREE,
+    'tail',
+    0,
+    isKnight ? 0.04 : -0.02,
+    isKnight ? -0.17 : -hipWidth * 0.85,
+  );
+  if (isKnight) {
+    horseChest.add(tail);
+  } else {
+    pelvis.add(tail);
+  }
+  addJointSphere(tail, 0, 0, 0, 0.78);
+  const tailLen = type === 'p' ? 0.13 : isKnight ? 0.18 : 0.09;
+  tail.add(
+    createBoneSegmentMesh(
+      THREE,
+      0,
+      type === 'p' ? 0.04 : -0.06,
+      -tailLen,
+      0.016,
+      0.008,
+      secondaryBoneMat,
+    ),
+  );
+  addJointSphere(tail, 0, type === 'p' ? 0.04 : -0.06, -tailLen, 0.72);
+
   // Expose joints both as direct properties on `rig` and in `rig.joints` / `rig.userData`
   const joints = {
     pelvis,
@@ -439,6 +469,7 @@ export function createArticulatedSkeletonRig(THREE, pieceType = 'p', pieceHeight
     frontRightKnee,
     hindLeftKnee,
     hindRightKnee,
+    tail,
   };
 
   Object.assign(rig, joints);
@@ -480,6 +511,8 @@ export function createArticulatedSkeletonRig(THREE, pieceType = 'p', pieceHeight
  * @param {number} [pose.walkAmp=0]
  * @param {number} [pose.combatPhase=0]
  * @param {number} [pose.combatAmp=0]
+ * @param {number} [pose.idlePhase=0]
+ * @param {number} [pose.idleAmp=0.35]
  * @param {number} [pose.rearUp=0]
  * @param {number} [pose.pitchX=0]
  * @param {boolean} [pose.skeletonsVisible]
@@ -493,6 +526,8 @@ export function updateSkeletonRigPose(rig, pieceType = 'p', pose = {}) {
   const walkAmp = Number(pose.walkAmp) || 0;
   const combatPhase = Number(pose.combatPhase) || 0;
   const combatAmp = Number(pose.combatAmp) || 0;
+  const idlePhase = Number(pose.idlePhase) || 0;
+  const idleAmp = pose.idleAmp !== undefined ? Number(pose.idleAmp) : 0.35;
   const pitchX = Number(pose.pitchX) || 0;
   const rearUp = Math.max(
     Number(pose.rearUp) || 0,
@@ -505,7 +540,7 @@ export function updateSkeletonRigPose(rig, pieceType = 'p', pose = {}) {
 
   if (alwaysVis) {
     rig.visible = true;
-    const pulse = 0.88 + 0.10 * Math.sin(walkPhase * 2 + combatPhase);
+    const pulse = 0.88 + 0.10 * Math.sin((walkPhase || idlePhase) * 2 + combatPhase);
     if (u.boneMat) u.boneMat.opacity = pulse;
     if (u.secondaryBoneMat) u.secondaryBoneMat.opacity = pulse;
     if (u.jointMat) u.jointMat.opacity = 0.98;
@@ -525,10 +560,18 @@ export function updateSkeletonRigPose(rig, pieceType = 'p', pose = {}) {
     u.holographicOpacity = 0;
   }
 
-  // Even when skeletonsVisible is toggled on at rest, provide a subtle ready-stance articulation
-  const idleBreath = alwaysVis && !isMovingOrFighting ? 0.12 : 0;
-  const effWalkAmp = Math.max(walkAmp, idleBreath);
-  const effPhase = isMovingOrFighting ? walkPhase : (pose.idlePhase ?? 0.65);
+  // Living idle articulation: when a piece is standing on the board (!isMovingOrFighting),
+  // drive character-specific organic idle movements (Knight horse stepping in place, Puffin
+  // fluid body sway & tail wag, Ale dragon wing flap, Pupurabbu bounce, Royal breathing)
+  const livingIdleAmp = !isMovingOrFighting ? Math.max(0.28, idleAmp) : 0;
+  const effWalkAmp = isMovingOrFighting
+    ? walkAmp
+    : type === 'n'
+      ? livingIdleAmp * 0.55 // Knight Seby's horse gently steps/trots in place!
+      : type === 'p'
+        ? livingIdleAmp * 0.42 // Puffin gentle weight-shift & fluid body sway!
+        : livingIdleAmp * 0.30;
+  const effPhase = isMovingOrFighting ? walkPhase : (idlePhase || 0.65);
 
   const strideSin = Math.sin(effPhase);
   const strideCos = Math.cos(effPhase);
@@ -536,10 +579,14 @@ export function updateSkeletonRigPose(rig, pieceType = 'p', pose = {}) {
 
   // 1. Pelvis bounce, sway & twist
   if (u.pelvis) {
+    const fluidSwayZ =
+      type === 'p' && !isMovingOrFighting
+        ? Math.sin(effPhase * 1.6) * 0.16 * livingIdleAmp
+        : strideCos * 0.08 * effWalkAmp;
     u.pelvis.position.y =
       u.basePelvisY + Math.abs(strideSin) * 0.042 * effWalkAmp + rearUp * 0.14;
     u.pelvis.rotation.y = strideSin * 0.16 * effWalkAmp;
-    u.pelvis.rotation.z = strideCos * 0.08 * effWalkAmp;
+    u.pelvis.rotation.z = fluidSwayZ;
     u.pelvis.rotation.x = type === 'n' ? -rearUp * 0.32 : 0;
   }
 
@@ -590,10 +637,18 @@ export function updateSkeletonRigPose(rig, pieceType = 'p', pose = {}) {
   if (u.spine) {
     u.spine.rotation.y = -strideSin * 0.18 * effWalkAmp + combatSlash * 0.34;
     u.spine.rotation.x = 0.09 * effWalkAmp + Math.abs(combatSlash) * 0.22;
+    u.spine.rotation.z =
+      type === 'p' && !isMovingOrFighting
+        ? Math.sin(effPhase * 1.6 - 0.8) * 0.14 * livingIdleAmp
+        : 0;
   }
   if (u.head) {
-    u.head.rotation.y = strideSin * 0.10 * effWalkAmp - combatSlash * 0.18;
-    u.head.rotation.x = strideCos * 0.07 * effWalkAmp - rearUp * 0.15;
+    u.head.rotation.y = strideSin * 0.12 * effWalkAmp - combatSlash * 0.18;
+    u.head.rotation.x = strideCos * 0.08 * effWalkAmp - rearUp * 0.15;
+    u.head.rotation.z =
+      type === 'p' && !isMovingOrFighting
+        ? Math.cos(effPhase * 1.6) * 0.12 * livingIdleAmp
+        : 0;
   }
 
   const armSwing = -stride * 0.62;
@@ -614,15 +669,15 @@ export function updateSkeletonRigPose(rig, pieceType = 'p', pose = {}) {
 
   // 4. Bishop Ale ('b') Dragon Wings
   if (u.leftWing && u.rightWing) {
-    const wingDrive = Math.max(effWalkAmp, combatAmp);
-    const wingFlap = Math.sin(effPhase * 1.2 + combatPhase) * wingDrive;
+    const wingDrive = Math.max(effWalkAmp, combatAmp, type === 'b' ? livingIdleAmp * 0.65 : 0);
+    const wingFlap = Math.sin(effPhase * 1.6 + combatPhase) * wingDrive;
     u.leftWing.rotation.z = 0.24 + wingFlap * 0.72;
     u.rightWing.rotation.z = -0.24 - wingFlap * 0.72;
     u.leftWing.rotation.y = -0.14 + strideCos * 0.26 * wingDrive;
     u.rightWing.rotation.y = 0.14 - strideCos * 0.26 * wingDrive;
   }
 
-  // 5. Knight Seby ('n') 4-Legged Warhorse Rear-Up & Rotary Gallop
+  // 5. Knight Seby ('n') 4-Legged Warhorse Stepping-in-Place & Rotary Gallop
   if (u.horseChest) {
     u.horseChest.position.y = u.baseHorseY + rearUp * 0.18 + Math.abs(strideSin) * 0.05 * effWalkAmp;
     u.horseChest.rotation.x = -rearUp * 0.58 + strideCos * 0.20 * effWalkAmp;
@@ -630,14 +685,14 @@ export function updateSkeletonRigPose(rig, pieceType = 'p', pose = {}) {
   if (u.horseHead) {
     u.horseHead.rotation.x =
       rearUp * 0.38 + strideSin * 0.26 * effWalkAmp + combatSlash * 0.32;
-    u.horseHead.rotation.y = strideCos * 0.10 * effWalkAmp;
+    u.horseHead.rotation.y = strideCos * 0.12 * effWalkAmp;
   }
 
-  // 4-beat rotary gallop phase offsets
+  // 4-beat rotary gallop / stepping-in-place phase offsets
   const flPhase = effPhase;
-  const frPhase = effPhase + 0.75;
+  const frPhase = effPhase + (isMovingOrFighting ? 0.75 : Math.PI);
   const hlPhase = effPhase + Math.PI;
-  const hrPhase = effPhase + Math.PI + 0.75;
+  const hrPhase = effPhase + (isMovingOrFighting ? Math.PI + 0.75 : 0);
 
   if (u.frontLeftLeg) {
     u.frontLeftLeg.rotation.x =
@@ -668,4 +723,13 @@ export function updateSkeletonRigPose(rig, pieceType = 'p', pose = {}) {
   if (u.hindRightKnee) {
     u.hindRightKnee.rotation.x = -Math.max(0, Math.cos(hrPhase)) * 0.62 * effWalkAmp;
   }
+
+  // 6. Tail Wag ('tail'): Puffin rapid cute tail-feather wag & Knight horse tail swish
+  if (u.tail) {
+    const tailFreq = type === 'p' ? 3.4 : type === 'n' ? 2.2 : 1.8;
+    const tailAmp = Math.max(livingIdleAmp, effWalkAmp);
+    u.tail.rotation.y = Math.sin(effPhase * tailFreq) * (type === 'p' ? 0.62 : 0.44) * tailAmp;
+    u.tail.rotation.x = Math.cos(effPhase * tailFreq * 0.5) * 0.18 * tailAmp;
+  }
 }
+

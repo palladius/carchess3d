@@ -581,85 +581,132 @@ def sculpt_queen_orchessa() -> list[tuple[str, trimesh.Trimesh]]:
 
 
 def sculpt_bishop_focaccina() -> list[tuple[str, trimesh.Trimesh]]:
-    """Bishop: Mago Focaccina (1.45m) - Golden-baked Ligurian focaccia mage with 3 black Taggiasca
-    olive buttons, green rosemary needles, tall split-peak focaccia Bishop mitre, plump cylindrical
-    bread arms, and thick (1.5x) twisted sesame grissino breadstick crosier staff.
+    """Bishop: Don Gatto Zorro-Vescovo (1.45m) - Swashbuckler ginger tabby cat in cuffed leather
+    buccaneer boots, flowing black-and-gold Zorro cape with golden 'Z' clasp, black Zorro domino
+    eye-mask over big emerald-green eyes, pointed feline ears, tall black-and-gold Papal Bishop
+    Mitre with glowing ruby cross & sweeping yellow ostrich feather, left paw in solemn Bishop
+    blessing gesture, right paw on golden swept-hilt rapier-crosier.
     """
     parts = build_swamp_pedestal()
 
+    # Tall cuffed buccaneer leather boots + golden boot buckles
     for sx in (-1.0, 1.0):
-        parts.append(("focaccia_crust", capsule_limb((sx * 0.095, 0.215, 0.0), (sx * 0.095, 0.36, 0.0), 0.068, 0.072)))
+        parts.append(("dark_leather", ellipsoid(0.068, 0.042, 0.095, center=(sx * 0.095, 0.245, 0.025))))
+        parts.append(("dark_leather", capsule_limb((sx * 0.095, 0.245, 0.0), (sx * 0.095, 0.455, 0.0), 0.056, 0.066)))
+        parts.append(("dark_leather", torus_ring(0.068, 0.018, center=(sx * 0.095, 0.445, 0.0), tilt_deg=(6, 0, -sx * 5))))
+        parts.append(("faction_trim", superellipsoid(0.024, 0.022, 0.016, center=(sx * 0.095, 0.365, 0.064), power=0.35)))
 
-    # Plump round focaccia bread torso (full depth in Z so side profile is round & chubby)
-    torso = ellipsoid(0.238, 0.252, 0.208, center=(0.0, 0.56, 0.0), subdivisions=3)
-    parts.append(("focaccia_crust", torso))
-    parts.append(("focaccia_crumb", ellipsoid(0.208, 0.212, 0.182, center=(0.0, 0.56, 0.038), subdivisions=2)))
+    # Sleek ginger tabby torso + cream fur chest + dark leather belt with golden 'Z' buckle
+    torso = lathe_profile(
+        [
+            (0.165, 0.43),
+            (0.195, 0.54),
+            (0.205, 0.66),
+            (0.185, 0.77),
+            (0.135, 0.83),
+        ],
+        sections=28,
+    )
+    parts.append(("ginger_hair", torso))
+    parts.append(("linen_cream", ellipsoid(0.135, 0.165, 0.145, center=(0.0, 0.65, 0.075), subdivisions=2)))
+    parts.append(("dark_leather", torus_ring(0.198, 0.026, center=(0.0, 0.555, 0.0))))
+    parts.append(("faction_trim", superellipsoid(0.048, 0.038, 0.024, center=(0.0, 0.555, 0.212), power=0.35)))
 
-    for by, bz in ((0.65, 0.208), (0.55, 0.218), (0.45, 0.205)):
-        parts.append(("olive_black", ellipsoid(0.034, 0.044, 0.028, center=(0.0, by, bz), rot_xyz=(0, 0, 12))))
+    # Flowing Black-and-Gold Zorro Cape with crimson inner lining & golden collar chain
+    parts.append(("olive_black", ellipsoid(0.255, 0.295, 0.165, center=(0.0, 0.60, -0.115), subdivisions=3, rot_xyz=(10, 0, 0))))
+    parts.append(("crimson_velvet", ellipsoid(0.235, 0.265, 0.135, center=(0.0, 0.59, -0.095), subdivisions=2, rot_xyz=(10, 0, 0))))
+    parts.append(("faction_trim", torus_ring(0.158, 0.020, center=(0.0, 0.805, 0.01), tilt_deg=(10, 0, 0))))
+    # Golden 'Z' clasp on the upper chest
+    z_top = [(-0.045, 0.775, 0.185), (0.045, 0.775, 0.185)]
+    z_diag = [(0.042, 0.772, 0.188), (-0.042, 0.715, 0.195)]
+    z_bot = [(-0.045, 0.712, 0.195), (0.045, 0.712, 0.195)]
+    parts.append(("faction_trim", curved_tube(z_top, [0.012, 0.012], sections=12)))
+    parts.append(("faction_trim", curved_tube(z_diag, [0.012, 0.012], sections=12)))
+    parts.append(("faction_trim", curved_tube(z_bot, [0.012, 0.012], sections=12)))
 
-    rosemary_sprigs = [
-        ((-0.08, 0.63, 0.198), (-0.14, 0.67, 0.185)),
-        ((0.08, 0.59, 0.202), (0.14, 0.63, 0.190)),
-        ((-0.07, 0.49, 0.198), (-0.13, 0.52, 0.185)),
-        ((0.07, 0.48, 0.198), (0.13, 0.45, 0.185)),
+    # Curving ginger tabby tail at the back
+    tail_pts = [
+        (0.0, 0.48, -0.18),
+        (0.08, 0.44, -0.27),
+        (0.14, 0.56, -0.31),
+        (0.12, 0.68, -0.28),
     ]
-    for p0, p1 in rosemary_sprigs:
-        parts.append(("rosemary_green", capsule_limb(p0, p1, 0.013, 0.006)))
+    parts.append(("ginger_hair", curved_tube(tail_pts, [0.032, 0.030, 0.028, 0.022], sections=14)))
 
-    # Thick cylindrical bread arms extending forward in Z so side view shows full round capsules
-    parts.append(("focaccia_crust", capsule_limb((0.20, 0.66, 0.01), (0.29, 0.55, 0.11), 0.066, 0.058)))
-    parts.append(("focaccia_crumb", ellipsoid(0.058, 0.056, 0.062, center=(0.29, 0.53, 0.12))))
-    parts.append(("focaccia_crust", capsule_limb((-0.20, 0.66, 0.01), (-0.28, 0.49, 0.09), 0.066, 0.058)))
-    parts.append(("focaccia_crumb", ellipsoid(0.058, 0.056, 0.062, center=(-0.28, 0.47, 0.10))))
+    # Left arm & white paw raised in solemn Bishop 2-finger blessing gesture
+    parts.append(("ginger_hair", capsule_limb((-0.175, 0.76, 0.02), (-0.245, 0.68, 0.11), 0.052, 0.044)))
+    parts.append(("ginger_hair", capsule_limb((-0.245, 0.68, 0.11), (-0.215, 0.79, 0.18), 0.044, 0.040)))
+    parts.append(("linen_cream", ellipsoid(0.045, 0.048, 0.042, center=(-0.210, 0.82, 0.19))))
+    parts.append(("linen_cream", capsule_limb((-0.220, 0.84, 0.19), (-0.220, 0.895, 0.195), 0.012, 0.009)))
+    parts.append(("linen_cream", capsule_limb((-0.198, 0.84, 0.19), (-0.198, 0.892, 0.195), 0.012, 0.009)))
 
-    parts.append(("focaccia_crumb", ellipsoid(0.205, 0.165, 0.185, center=(0.0, 0.87, 0.01), subdivisions=3)))
-    parts.append(("focaccia_crust", ellipsoid(0.034, 0.028, 0.034, center=(0.0, 0.87, 0.192))))
-    smile_pts = [(-0.055, 0.835, 0.182), (-0.025, 0.818, 0.192), (0.025, 0.818, 0.192), (0.055, 0.835, 0.182)]
-    parts.append(("linen_cream", curved_tube(smile_pts, [0.013, 0.015, 0.015, 0.013], sections=14)))
+    # Right arm & white paw resting on the golden swept-hilt rapier-crosier
+    parts.append(("ginger_hair", capsule_limb((0.175, 0.76, 0.02), (0.255, 0.61, 0.12), 0.052, 0.042)))
+    parts.append(("linen_cream", ellipsoid(0.046, 0.044, 0.046, center=(0.258, 0.57, 0.14))))
+
+    # Expressive Ginger Tabby Cat Head + Cream Muzzle + Pointed Feline Ears
+    parts.append(("ginger_hair", ellipsoid(0.185, 0.162, 0.175, center=(0.0, 0.94, 0.02), subdivisions=3)))
     for sx in (-1.0, 1.0):
-        parts.append(("olive_black", ellipsoid(0.025, 0.027, 0.022, center=(sx * 0.062, 0.895, 0.182))))
-        parts.append(("linen_cream", ellipsoid(0.038, 0.014, 0.018, center=(sx * 0.062, 0.938, 0.175), rot_xyz=(0, 0, -sx * 10))))
-
-    parts.append(("faction_trim", torus_ring(0.185, 0.018, center=(0.0, 0.99, 0.01))))
-    for sx in (-1.0, 1.0):
-        lobe_pts = [
-            (sx * 0.065, 0.99, 0.01),
-            (sx * 0.095, 1.14, 0.01),
-            (sx * 0.082, 1.30, 0.01),
-            (sx * 0.038, 1.44, 0.01),
-        ]
-        parts.append(("focaccia_crust", curved_tube(lobe_pts, [0.125, 0.135, 0.095, 0.018], sections=20)))
-
-    for leaf_dx, leaf_dy in ((-0.03, 0.14), (0.01, 0.16), (0.04, 0.12)):
+        parts.append(("linen_cream", ellipsoid(0.068, 0.052, 0.058, center=(sx * 0.052, 0.895, 0.165))))
+        # Pointed ginger cat ears peeking out from under the Bishop mitre
         parts.append(
             (
-                "rosemary_green",
-                capsule_limb((-0.08, 1.05, 0.135), (-0.08 + leaf_dx, 1.05 + leaf_dy, 0.145), 0.014, 0.006),
+                "ginger_hair",
+                capsule_limb(
+                    (sx * 0.145, 1.01, 0.02),
+                    (sx * 0.225, 1.11, 0.03),
+                    0.048,
+                    0.014,
+                ),
             )
         )
-    for sc in ((0.08, 1.22, 0.11), (-0.09, 1.25, 0.10), (0.06, 1.31, 0.09), (-0.06, 1.16, 0.12)):
-        parts.append(("eye_white", ellipsoid(0.016, 0.016, 0.016, center=sc)))
+    parts.append(("dragon_ruby", ellipsoid(0.024, 0.018, 0.022, center=(0.0, 0.915, 0.198))))
 
-    # 1.5x Thicker Twisted Golden Sesame Grissino Breadstick Bishop Crosier Staff
-    staff_pts = []
-    staff_r = []
-    for k in range(18):
-        t = k / 17.0
-        yk = 0.22 + t * (1.12 - 0.22)
-        twist_x = 0.295 + 0.015 * math.sin(t * 6.0 * math.pi)
-        twist_z = 0.11 + 0.015 * math.cos(t * 6.0 * math.pi)
-        staff_pts.append((twist_x, yk, twist_z))
-        staff_r.append(0.038)
-    for k in range(1, 16):
-        ang = -0.25 + (k / 15.0) * (1.80 * math.pi)
-        rad = 0.118 * (1.0 - 0.50 * (k / 15.0))
-        cx = 0.195 + rad * math.cos(ang)
-        cy = 1.23 + rad * math.sin(ang)
-        cz = 0.11
-        staff_pts.append((cx, cy, cz))
-        staff_r.append(0.038 * (1.0 - 0.30 * (k / 15.0)))
-    parts.append(("focaccia_crumb", curved_tube(staff_pts, staff_r, sections=16)))
+    # Black Zorro Domino Eye-Mask + Huge Glossy Emerald-Green Cat Eyes
+    parts.append(("olive_black", superellipsoid(0.168, 0.055, 0.065, center=(0.0, 0.955, 0.145), power=0.45)))
+    parts.append(("olive_black", torus_ring(0.172, 0.016, center=(0.0, 0.955, 0.015))))
+    for sx in (-1.0, 1.0):
+        parts.append(("dragon_emerald", ellipsoid(0.048, 0.048, 0.028, center=(sx * 0.068, 0.958, 0.192))))
+        parts.append(("eye_dark", ellipsoid(0.024, 0.028, 0.020, center=(sx * 0.068, 0.958, 0.208))))
+        parts.append(("eye_white", ellipsoid(0.013, 0.013, 0.013, center=(sx * 0.056, 0.970, 0.218))))
+
+    # Tall Black-and-Gold Papal Bishop Mitre (y = 1.04 .. 1.45m) + Ruby Cross + Yellow Ostrich Feather
+    parts.append(("faction_trim", torus_ring(0.168, 0.020, center=(0.0, 1.045, 0.015))))
+    mitre_front = [
+        (0.0, 1.05, 0.055),
+        (0.0, 1.19, 0.075),
+        (0.0, 1.33, 0.055),
+        (0.0, 1.44, 0.025),
+    ]
+    mitre_back = [
+        (0.0, 1.05, -0.035),
+        (0.0, 1.18, -0.055),
+        (0.0, 1.31, -0.040),
+        (0.0, 1.42, -0.015),
+    ]
+    parts.append(("olive_black", curved_tube(mitre_front, [0.155, 0.162, 0.108, 0.024], sections=22)))
+    parts.append(("olive_black", curved_tube(mitre_back, [0.148, 0.152, 0.098, 0.022], sections=22)))
+    # Gold vertical & horizontal orphrey bands + glowing Ruby Cross on front of Mitre
+    parts.append(("faction_trim", capsule_limb((0.0, 1.06, 0.215), (0.0, 1.39, 0.095), 0.022, 0.015)))
+    parts.append(("dragon_ruby", capsule_limb((0.0, 1.14, 0.232), (0.0, 1.30, 0.182), 0.026, 0.024)))
+    parts.append(("dragon_ruby", capsule_limb((-0.065, 1.22, 0.208), (0.065, 1.22, 0.208), 0.024, 0.024)))
+    parts.append(("faction_trim", ellipsoid(0.026, 0.026, 0.026, center=(0.0, 1.442, 0.025))))
+
+    # Sweeping Yellow-Gold Ostrich Feather Plume tucked into the side of the Mitre
+    plume_pts = [
+        (-0.145, 1.08, 0.02),
+        (-0.205, 1.22, 0.01),
+        (-0.185, 1.36, -0.02),
+        (-0.115, 1.445, -0.04),
+    ]
+    parts.append(("onion_gold", curved_tube(plume_pts, [0.024, 0.048, 0.042, 0.018], sections=16)))
+
+    # Ornate Golden Swept-Hilt Rapier-Crosier held on right side (x = 0.258)
+    parts.append(("faction_trim", ellipsoid(0.065, 0.048, 0.065, center=(0.258, 0.615, 0.14))))
+    parts.append(("faction_trim", torus_ring(0.072, 0.014, center=(0.258, 0.595, 0.14), tilt_deg=(90, 0, 0))))
+    parts.append(("faction_trim", capsule_limb((0.185, 0.595, 0.14), (0.330, 0.595, 0.14), 0.014, 0.014)))
+    parts.append(("linen_cream", capsule_limb((0.258, 0.220, 0.14), (0.258, 0.590, 0.14), 0.018, 0.012)))
+    parts.append(("faction_trim", capsule_limb((0.258, 0.615, 0.14), (0.258, 0.720, 0.14), 0.020, 0.024)))
 
     return parts
 
@@ -903,79 +950,96 @@ def sculpt_rook_draghessa() -> list[tuple[str, trimesh.Trimesh]]:
 
 
 def sculpt_pawn_tappo() -> list[tuple[str, trimesh.Trimesh]]:
-    """Pawn: Guardia Re Tappo (0.95m) - Pompous short adult Renaissance palace herald-guard with
-    plump rosy cheeks (round chin, no cleft) and bouncy golden-blond curls, standing on a neat
-    stack of 3 thick leather-bound royal decree law-books on the mossy pedestal, wearing royal
-    sapphire-blue & gold livery, white silk cape, holding a wax-sealed decree scroll, and topped
-    with a tall domed sapphire-blue velvet capotain hat & golden Pawn sphere finial (0.95m).
+    """Pawn: Uomo Focaccina Ligure (0.95m) - Golden-baked Ligurian focaccia bread guard with
+    3 black Taggiasca olive buttons, green rosemary needles, split-peak focaccia cap with coarse
+    sea-salt crystals, plump cylindrical bread arms, and twisted sesame grissino breadstick staff.
     """
     parts = build_swamp_pedestal()
+    body_parts: list[tuple[str, trimesh.Trimesh]] = []
 
-    # Stack of 3 Thick Leather-Bound Royal Decree Law-Books on top of the stone pedestal (y = 0.21..0.37)
-    book_specs = [
-        (0.238, 0.175, 0.026, 0.145, "oak_wood", 6.0),
-        (0.288, 0.160, 0.025, 0.132, "crimson_velvet", -8.0),
-        (0.336, 0.148, 0.024, 0.122, "emerald_velvet", 4.0),
+    for sx in (-1.0, 1.0):
+        body_parts.append(("focaccia_crust", capsule_limb((sx * 0.095, 0.215, 0.0), (sx * 0.095, 0.36, 0.0), 0.068, 0.072)))
+
+    # Plump round focaccia bread torso (full depth in Z so side profile is round & chubby)
+    torso = ellipsoid(0.238, 0.252, 0.208, center=(0.0, 0.56, 0.0), subdivisions=3)
+    body_parts.append(("focaccia_crust", torso))
+    body_parts.append(("focaccia_crumb", ellipsoid(0.208, 0.212, 0.182, center=(0.0, 0.56, 0.038), subdivisions=2)))
+
+    for by, bz in ((0.65, 0.208), (0.55, 0.218), (0.45, 0.205)):
+        body_parts.append(("olive_black", ellipsoid(0.034, 0.044, 0.028, center=(0.0, by, bz), rot_xyz=(0, 0, 12))))
+
+    rosemary_sprigs = [
+        ((-0.08, 0.63, 0.198), (-0.14, 0.67, 0.185)),
+        ((0.08, 0.59, 0.202), (0.14, 0.63, 0.190)),
+        ((-0.07, 0.49, 0.198), (-0.13, 0.52, 0.185)),
+        ((0.07, 0.48, 0.198), (0.13, 0.45, 0.185)),
     ]
-    for by, brx, bry, brz, cover_mat, yaw in book_specs:
-        parts.append((cover_mat, superellipsoid(brx, bry, brz, center=(0.0, by, 0.0), power=0.25, rot_xyz=(0, yaw, 0))))
-        parts.append(("linen_cream", superellipsoid(brx * 0.94, bry * 0.82, brz * 0.94, center=(0.0, by, 0.01), power=0.25, rot_xyz=(0, yaw, 0))))
-    # Hanging red wax seal on the decree book stack
-    parts.append(("crimson_velvet", ellipsoid(0.028, 0.028, 0.018, center=(0.12, 0.29, 0.135))))
+    for p0, p1 in rosemary_sprigs:
+        body_parts.append(("rosemary_green", capsule_limb(p0, p1, 0.013, 0.006)))
 
-    # Short boots & royal sapphire-blue hose standing on the book stack
+    # Thick cylindrical bread arms extending forward in Z
+    body_parts.append(("focaccia_crust", capsule_limb((0.20, 0.66, 0.01), (0.29, 0.55, 0.11), 0.066, 0.058)))
+    body_parts.append(("focaccia_crumb", ellipsoid(0.058, 0.056, 0.062, center=(0.29, 0.53, 0.12))))
+    body_parts.append(("focaccia_crust", capsule_limb((-0.20, 0.66, 0.01), (-0.28, 0.49, 0.09), 0.066, 0.058)))
+    body_parts.append(("focaccia_crumb", ellipsoid(0.058, 0.056, 0.062, center=(-0.28, 0.47, 0.10))))
+
+    body_parts.append(("focaccia_crumb", ellipsoid(0.205, 0.165, 0.185, center=(0.0, 0.87, 0.01), subdivisions=3)))
+    body_parts.append(("focaccia_crust", ellipsoid(0.034, 0.028, 0.034, center=(0.0, 0.87, 0.192))))
+    smile_pts = [(-0.055, 0.835, 0.182), (-0.025, 0.818, 0.192), (0.025, 0.818, 0.192), (0.055, 0.835, 0.182)]
+    body_parts.append(("linen_cream", curved_tube(smile_pts, [0.013, 0.015, 0.015, 0.013], sections=14)))
     for sx in (-1.0, 1.0):
-        parts.append(("dark_leather", ellipsoid(0.045, 0.028, 0.062, center=(sx * 0.058, 0.382, 0.015))))
-        parts.append(("sapphire_blue", capsule_limb((sx * 0.058, 0.385, 0.0), (sx * 0.058, 0.455, 0.0), 0.034, 0.038)))
+        body_parts.append(("olive_black", ellipsoid(0.025, 0.027, 0.022, center=(sx * 0.062, 0.895, 0.182))))
+        body_parts.append(("linen_cream", ellipsoid(0.038, 0.014, 0.018, center=(sx * 0.062, 0.938, 0.175), rot_xyz=(0, 0, -sx * 10))))
 
-    # Royal Sapphire-Blue & Gold Brocade Doublet Livery + White Silk Cape
-    doublet = lathe_profile(
-        [
-            (0.125, 0.445),
-            (0.136, 0.495),
-            (0.116, 0.555),
-            (0.134, 0.615),
-            (0.095, 0.650),
-        ],
-        sections=26,
-    )
-    parts.append(("sapphire_blue", doublet))
-    parts.append(("faction_trim", torus_ring(0.122, 0.016, center=(0.0, 0.520, 0.0))))
-    parts.append(("linen_cream", torus_ring(0.118, 0.024, center=(0.0, 0.635, 0.0))))
-    parts.append(("linen_cream", ellipsoid(0.155, 0.145, 0.075, center=(0.0, 0.525, -0.090), rot_xyz=(10, 0, 0))))
-
-    # Arms + Rolled Parchment Royal Decree Scroll with Red Wax Seal
+    body_parts.append(("faction_trim", torus_ring(0.185, 0.018, center=(0.0, 0.99, 0.01))))
     for sx in (-1.0, 1.0):
-        parts.append(("sapphire_blue", ellipsoid(0.050, 0.042, 0.050, center=(sx * 0.132, 0.605, 0.01))))
-    parts.append(("sapphire_blue", capsule_limb((-0.132, 0.59, 0.01), (-0.175, 0.52, 0.06), 0.032, 0.026)))
-    parts.append(("sapphire_blue", capsule_limb((0.132, 0.59, 0.01), (0.165, 0.51, 0.03), 0.032, 0.026)))
-    parts.append(("linen_cream", capsule_limb((-0.178, 0.46, 0.11), (-0.178, 0.60, 0.07), 0.028, 0.028)))
-    parts.append(("crimson_velvet", ellipsoid(0.022, 0.022, 0.018, center=(-0.178, 0.53, 0.118))))
+        lobe_pts = [
+            (sx * 0.065, 0.99, 0.01),
+            (sx * 0.095, 1.14, 0.01),
+            (sx * 0.082, 1.30, 0.01),
+            (sx * 0.038, 1.44, 0.01),
+        ]
+        body_parts.append(("focaccia_crust", curved_tube(lobe_pts, [0.125, 0.135, 0.095, 0.018], sections=20)))
 
-    # Plump Rosy-Cheeked Herald Head (round chin, no cleft) + Bouncy Golden-Blond Curls
-    parts.append(("peach_skin", ellipsoid(0.106, 0.096, 0.104, center=(0.0, 0.720, 0.015), subdivisions=3)))
-    parts.append(("onion_gold", ellipsoid(0.118, 0.085, 0.112, center=(0.0, 0.738, -0.015), subdivisions=2)))
-    for sx in (-1.0, 1.0):
-        parts.append(("onion_gold", ellipsoid(0.045, 0.058, 0.052, center=(sx * 0.105, 0.715, 0.01))))
-        parts.append(("onion_gold", ellipsoid(0.038, 0.042, 0.042, center=(sx * 0.088, 0.685, 0.02))))
-        parts.append(("dark_leather", ellipsoid(0.030, 0.011, 0.015, center=(sx * 0.042, 0.750, 0.105), rot_xyz=(0, 0, sx * 10))))
-        parts.append(("eye_white", ellipsoid(0.020, 0.020, 0.016, center=(sx * 0.042, 0.725, 0.108))))
-        parts.append(("eye_dark", ellipsoid(0.012, 0.012, 0.012, center=(sx * 0.042, 0.725, 0.118))))
+    for leaf_dx, leaf_dy in ((-0.03, 0.14), (0.01, 0.16), (0.04, 0.12)):
+        body_parts.append(
+            (
+                "rosemary_green",
+                capsule_limb((-0.08, 1.05, 0.135), (-0.08 + leaf_dx, 1.05 + leaf_dy, 0.145), 0.014, 0.006),
+            )
+        )
+    for sc in ((0.08, 1.22, 0.11), (-0.09, 1.25, 0.10), (0.06, 1.31, 0.09), (-0.06, 1.16, 0.12)):
+        body_parts.append(("eye_white", ellipsoid(0.016, 0.016, 0.016, center=sc)))
 
-    # Tall Domed Sapphire-Blue Velvet Capotain Hat + Golden Pawn Sphere Finial (up to 0.95m)
-    parts.append(("sapphire_blue", torus_ring(0.145, 0.018, center=(0.0, 0.775, 0.005))))
-    parts.append(("faction_trim", torus_ring(0.118, 0.015, center=(0.0, 0.792, 0.005))))
-    capotain = lathe_profile(
-        [
-            (0.118, 0.780),
-            (0.112, 0.835),
-            (0.098, 0.885),
-            (0.062, 0.908),
-        ],
-        sections=28,
-    )
-    parts.append(("sapphire_blue", capotain))
-    parts.append(("faction_trim", ellipsoid(0.044, 0.042, 0.044, center=(0.0, 0.930, 0.0), subdivisions=2)))
+    # Twisted Golden Sesame Grissino Breadstick Staff
+    staff_pts = []
+    staff_r = []
+    for k in range(18):
+        t = k / 17.0
+        yk = 0.22 + t * (1.12 - 0.22)
+        twist_x = 0.295 + 0.015 * math.sin(t * 6.0 * math.pi)
+        twist_z = 0.11 + 0.015 * math.cos(t * 6.0 * math.pi)
+        staff_pts.append((twist_x, yk, twist_z))
+        staff_r.append(0.038)
+    for k in range(1, 16):
+        ang = -0.25 + (k / 15.0) * (1.80 * math.pi)
+        rad = 0.118 * (1.0 - 0.50 * (k / 15.0))
+        cx = 0.195 + rad * math.cos(ang)
+        cy = 1.23 + rad * math.sin(ang)
+        cz = 0.11
+        staff_pts.append((cx, cy, cz))
+        staff_r.append(0.038 * (1.0 - 0.30 * (k / 15.0)))
+    body_parts.append(("focaccia_crumb", curved_tube(staff_pts, staff_r, sections=16)))
+
+    # Scale Focaccina character proportionally from 1.45m down to 0.95m Pawn scale on the 0.215m pedestal
+    scale_y = (0.95 - 0.215) / (1.45 - 0.215)
+    scale_xz = 0.72
+    for mat_name, m in body_parts:
+        m.vertices[:, 0] *= scale_xz
+        m.vertices[:, 2] *= scale_xz
+        m.vertices[:, 1] = 0.215 + (m.vertices[:, 1] - 0.215) * scale_y
+        m.fix_normals()
+        parts.append((mat_name, m))
 
     return parts
 

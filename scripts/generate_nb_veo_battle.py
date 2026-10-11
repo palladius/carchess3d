@@ -430,13 +430,39 @@ def transcode_mp4_and_webm(raw_mp4: Path, final_mp4: Path, final_webm: Path):
     )
 
 
-def generate_veo_video(client: genai.Client, atk_code: str, def_code: str, keyframe_png: Path, duration: int = 6) -> tuple[Path, Path]:
+def is_real_veo_video(mp4_path: Path) -> bool:
+    """Return True if mp4_path exists and has duration >= 5.0s (Veo 3.1 videos are 8s; procedural fallbacks are 1.8s)."""
+    if not mp4_path.exists() or mp4_path.stat().st_size < 500_000:
+        return False
+    try:
+        out = subprocess.check_output(
+            [
+                "ffprobe", "-v", "error", "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1", str(mp4_path),
+            ],
+            text=True,
+        ).strip()
+        return float(out) >= 5.0
+    except Exception:
+        return False
+
+
+def generate_veo_video(
+    client: genai.Client,
+    atk_code: str,
+    def_code: str,
+    keyframe_png: Path,
+    force: bool = False,
+) -> tuple[Path, Path]:
     pair_id = f"{atk_code}_x_{def_code}"
     VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
     final_mp4 = VIDEOS_DIR / f"{pair_id}.mp4"
     final_webm = VIDEOS_DIR / f"{pair_id}.webm"
-    raw_mp4 = VIDEOS_DIR / f".tmp_{pair_id}_veo.mp4"
+    if not force and is_real_veo_video(final_mp4):
+        print(f"  🎬 [Skip] Real Veo 3.1 video already exists: {final_mp4.relative_to(ROOT)}")
+        return final_mp4, final_webm
 
+    raw_mp4 = VIDEOS_DIR / f".tmp_{pair_id}_veo.mp4"
     _, veo_prompt = get_prompts_for_pair(atk_code, def_code)
     img_bytes = keyframe_png.read_bytes()
 
@@ -492,16 +518,43 @@ def generate_veo_video(client: genai.Client, atk_code: str, def_code: str, keyfr
     raise RuntimeError(f"Failed to generate Veo video for {pair_id}: {last_err}")
 
 
+def export_prompts_manifest():
+    keys = ["k", "q", "b", "n", "r", "p"]
+    manifest = {}
+    for a in keys:
+        for d in keys:
+            pid = f"{a}_x_{d}"
+            nb_p, veo_p = get_prompts_for_pair(a, d)
+            manifest[pid] = {
+                "id": pid,
+                "attacker": a,
+                "defender": d,
+                "attacker_name": CHARACTER_SPECS[a]["name"],
+                "defender_name": CHARACTER_SPECS[d]["name"],
+                "keyframe": f"assets/battles/keyframes/{pid}.png",
+                "video": f"assets/battles/videos/{pid}.mp4",
+                "nb_prompt": nb_p,
+                "veo_prompt": veo_p,
+            }
+    out_json = ROOT / "assets/battles/prompts_36.json"
+    out_json.parent.mkdir(parents=True, exist_ok=True)
+    out_json.write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
+    return out_json
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate Nano Banana 16:9 Keyframe + Veo 3.1 Video for CarChess3D battles")
     parser.add_argument("pairs", nargs="*", help="Battle pair IDs (e.g., b_x_n n_x_b) or 'all' for all 36")
     parser.add_argument("--keyframe-only", action="store_true", help="Only run Stage 1 (Nano Banana keyframe)")
     parser.add_argument("--force-keyframe", action="store_true", help="Regenerate Nano Banana keyframe even if it exists")
+    parser.add_argument("--force-video", action="store_true", help="Regenerate Veo video even if an 8s Veo video exists")
     args = parser.parse_args()
+
+    export_prompts_manifest()
 
     keys = ["k", "q", "b", "n", "r", "p"]
     all_pairs = [f"{a}_x_{d}" for a in keys for d in keys]
-    if not args.pairs or args.pairs == ["all"]:
+    if not args.pairs:
         target_pairs = ["b_x_n", "n_x_b"]
     else:
         target_pairs = []
@@ -512,13 +565,20 @@ def main():
                 target_pairs.append(p.lower().strip())
 
     client = genai.Client(api_key=load_api_key())
-    for pair_id in target_pairs:
+    for idx, pair_id in enumerate(target_pairs, 1):
         atk_code, def_code = pair_id.split("_x_")
-        print(f"\n🚀 === Processing Battle Pair `{pair_id}` ({CHARACTER_SPECS[atk_code]['name']} vs {CHARACTER_SPECS[def_code]['name']}) ===")
-        kf_path = generate_nanobanana_keyframe(client, atk_code, def_code, force=args.force_keyframe)
-        if not args.keyframe_only:
-            generate_veo_video(client, atk_code, def_code, kf_path)
+        print(
+            f"\n🚀 [{idx}/{len(target_pairs)}] === Processing Battle Pair `{pair_id}` "
+            f"({CHARACTER_SPECS[atk_code]['name']} vs {CHARACTER_SPECS[def_code]['name']}) ==="
+        )
+        try:
+            kf_path = generate_nanobanana_keyframe(client, atk_code, def_code, force=args.force_keyframe)
+            if not args.keyframe_only:
+                generate_veo_video(client, atk_code, def_code, kf_path, force=args.force_video)
+        except Exception as err:
+            print(f"  ❌ Error on `{pair_id}`: {err}", file=sys.stderr)
 
 
 if __name__ == "__main__":
     main()
+

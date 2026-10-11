@@ -361,6 +361,28 @@ export class VFXPoolView {
       return new THREE.Mesh(dropletGeo, mat);
     });
 
+    // 10. San Gennaro Liquefied Blood Droplets & Golden Miracle Sparks (`san_gennaro_blood_drops`) — 64 droplets
+    const dropGeo = new THREE.SphereGeometry(0.072, 10, 10);
+    const bloodColors = [0xd50000, 0xff1744, 0xb71c1c, 0xffd700];
+    this.createPool('san_gennaro_blood_drops', 64, (i) => {
+      const col = bloodColors[i % bloodColors.length];
+      const isGold = col === 0xffd700;
+      const mat = new THREE.MeshPhysicalMaterial({
+        color: col,
+        emissive: isGold ? 0xffab00 : 0xd50000,
+        emissiveIntensity: isGold ? 1.3 : 1.05,
+        roughness: 0.08,
+        metalness: isGold ? 0.85 : 0.12,
+        transmission: isGold ? 0.0 : 0.55,
+        clearcoat: 1.0,
+        transparent: true,
+        opacity: 0.96,
+      });
+      const mesh = new THREE.Mesh(dropGeo, mat);
+      if (!isGold) mesh.scale.set(0.85, 1.35, 0.85);
+      return mesh;
+    });
+
     this.buildStageProps();
   }
 
@@ -568,6 +590,52 @@ export class VFXPoolView {
     );
     this.props.skyBeam.visible = false;
     this.rootGroup.add(this.props.skyBeam);
+
+    // 7b. San Gennaro Sacred Reliquary Ampoule (`Ampolla del Sangue di San Gennaro 🩸✨`)
+    const ampouleGroup = new THREE.Group();
+    ampouleGroup.name = 'SanGennaroReliquaryAmpoule';
+    const reliquaryGoldMat = new THREE.MeshStandardMaterial({
+      color: 0xffd54f,
+      emissive: 0xff8f00,
+      emissiveIntensity: 0.65,
+      roughness: 0.18,
+      metalness: 0.92,
+    });
+    const reliquaryRing = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.055, 16, 32), reliquaryGoldMat);
+    const topCrossV = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.24, 0.05), reliquaryGoldMat);
+    topCrossV.position.set(0, 0.50, 0);
+    const topCrossH = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.05, 0.05), reliquaryGoldMat);
+    topCrossH.position.set(0, 0.52, 0);
+    const stemPed = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.16, 0.28, 16), reliquaryGoldMat);
+    stemPed.position.set(0, -0.48, 0);
+    const glassVial = new THREE.Mesh(
+      new THREE.SphereGeometry(0.29, 20, 16),
+      new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        roughness: 0.06,
+        metalness: 0.05,
+        transmission: 0.86,
+        transparent: true,
+        opacity: 0.52,
+      }),
+    );
+    glassVial.scale.set(1.0, 1.12, 0.58);
+    const bloodCoreMat = new THREE.MeshPhysicalMaterial({
+      color: 0x4a000b,
+      emissive: 0x3b0008,
+      emissiveIntensity: 0.35,
+      roughness: 0.35,
+      metalness: 0.1,
+      clearcoat: 1.0,
+    });
+    const bloodCore = new THREE.Mesh(new THREE.SphereGeometry(0.22, 20, 16), bloodCoreMat);
+    bloodCore.scale.set(0.9, 0.52, 0.48);
+    bloodCore.position.set(0, -0.05, 0);
+    ampouleGroup.add(reliquaryRing, topCrossV, topCrossH, stemPed, glassVial, bloodCore);
+    ampouleGroup.userData = { bloodCore, bloodCoreMat, reliquaryRing };
+    ampouleGroup.visible = false;
+    this.props.sanGennaroAmpoule = ampouleGroup;
+    this.rootGroup.add(ampouleGroup);
 
     // 8. 3D Scazzottata Brawl Stage & Cartoon Brawl Cloud + Starburst
     this.brawlStageGroup = new THREE.Group();
@@ -1333,6 +1401,24 @@ export class VFXPoolView {
         restitution: 0.6,
         floatUp: true,
       });
+    } else if (effect === 'san_gennaro_miracle' || effect === 'crosier_blessing_beam') {
+      if (this.props.sanGennaroAmpoule) {
+        this.props.sanGennaroAmpoule.position.set(toPos.x, 1.75, toPos.z);
+        this.props.sanGennaroAmpoule.scale.setScalar(1.0);
+        this.props.sanGennaroAmpoule.visible = true;
+      }
+      if (this.props.runeCircle) {
+        this.props.runeCircle.position.set(toPos.x, 0.03, toPos.z);
+        this.props.runeCircle.visible = true;
+      }
+      this.spawnFromPool('san_gennaro_blood_drops', toPos, Math.round(52 * countMult), {
+        speedMin: 1.6,
+        speedMax: 4.4,
+        upMin: 2.8,
+        upMax: 5.8,
+        restitution: 0.68,
+        delayS: 1.15,
+      });
     }
 
     // Start Orbiting Capture Camera choreography
@@ -1613,6 +1699,37 @@ export class VFXPoolView {
         fromPos.z + (toPos.z - fromPos.z) * slapT,
       );
       this.props.puffinFish.rotation.y = elapsedS * 9.5;
+    }
+    if (this.props.sanGennaroAmpoule?.visible) {
+      const amp = this.props.sanGennaroAmpoule;
+      const { bloodCore, bloodCoreMat } = amp.userData || {};
+      // Tilts side-to-side like the Cardinal showing the Ampoule to Naples, then spins radiantly!
+      amp.position.y = 1.68 + Math.sin(elapsedS * 5.0) * 0.14;
+      amp.rotation.y = elapsedS * 2.8;
+      amp.rotation.z = t < 0.28 ? Math.sin(elapsedS * 14.0) * 0.42 : Math.sin(elapsedS * 6.0) * 0.16;
+      if (bloodCore && bloodCoreMat) {
+        if (t < 0.28) {
+          // Clotted dark solid garnet before the miracle
+          bloodCoreMat.color.setHex(0x4a000b);
+          bloodCoreMat.emissive.setHex(0x2b0005);
+          bloodCoreMat.emissiveIntensity = 0.35;
+          bloodCore.scale.set(0.88, 0.50, 0.48);
+          bloodCore.position.y = -0.06;
+        } else {
+          // IL MIRACOLO! The blood liquefies, swells, and boils with radiant ruby-gold glow!
+          const liqT = Math.min(1, (t - 0.28) / 0.25);
+          bloodCoreMat.color.setHex(0xff1744);
+          bloodCoreMat.emissive.setHex(0xd50000);
+          bloodCoreMat.emissiveIntensity = 1.4 + Math.sin(elapsedS * 22.0) * 0.6;
+          const slosh = Math.sin(elapsedS * 18.0) * 0.12;
+          bloodCore.scale.set(
+            0.94 + slosh * 0.5,
+            0.52 + liqT * 0.54 - slosh * 0.4,
+            0.54,
+          );
+          bloodCore.position.y = -0.05 + liqT * 0.05 + Math.cos(elapsedS * 15.0) * 0.03;
+        }
+      }
     }
 
     // Animate 3D Comic Impact Word Sprite bobbing & pulsing above the brawl (`y = 2.08m`)
