@@ -16,6 +16,7 @@
 
 import {
   CHARACTER_REGISTRY,
+  VOICE_LINES,
   BATTLE_MATRIX,
   FAMILY_STICKERS,
   PROFILES,
@@ -61,6 +62,7 @@ export class HudListener {
     this.luck = { w: 0, b: 0, max: 12 };
     this.unlockedStickers = new Set();
     this.lastToast = null;
+    this.lastVoiceQuote = null;
     this.activeBanner = null;
     this.pendingPromotion = null;
     this.wowSubMode = 'inspector';
@@ -109,6 +111,7 @@ export class HudListener {
       this.offs.push(
         bus.on('FLOW_STATE_CHANGED', (e) => this.onFlowStateChanged(e)),
         bus.on('BOARD_RESET', (e) => this.onBoardReset(e)),
+        bus.on('PIECE_HOVERED', (e) => this.onPieceHovered(e)),
         bus.on('PIECE_SELECTED', (e) => this.onPieceSelected(e)),
         bus.on('CAPTURE_PREVIEW_HOVER', (e) => this.onCapturePreviewHover(e)),
         bus.on('MOVE_EXECUTED', (e) => this.onMoveExecuted(e)),
@@ -1625,9 +1628,26 @@ export class HudListener {
     }
   }
 
+  onPieceHovered(e) {
+    const type = String(e?.piece?.type || e?.pieceType || e?.type || '').toLowerCase();
+    const char = CHARACTER_REGISTRY[type];
+    const v = VOICE_LINES[type];
+    if (!char || !v) return;
+    const hoverLabel = v.hoverSound?.label?.[this.lang] || v.hoverSound?.label?.it || '';
+    this.lastHoverSound = hoverLabel;
+    // Show subtle creature sound cue if not currently showing a battle or selection toast
+    if (!this.activeBanner && hoverLabel) {
+      this.showToast(`${char.glyph} ${char.name} (${e.square || ''}) — ${hoverLabel}`, 1100);
+    }
+  }
+
   onPieceSelected(e) {
-    const char = CHARACTER_REGISTRY[e.piece?.type];
+    const type = String(e.piece?.type || e.pieceType || '').toLowerCase();
+    const char = CHARACTER_REGISTRY[type];
     if (!char) return;
+    const v = VOICE_LINES[type];
+    const quote = v?.quote?.[this.lang] || v?.quote?.it || '';
+    this.lastVoiceQuote = quote;
 
     const legalMoves = e.legalMoves || [];
     const firstCapture = legalMoves.find(
@@ -1641,18 +1661,20 @@ export class HudListener {
         firstCapture.captured || this.ctx?.board?.pieceAt?.(firstCapture.to)?.type || 'p';
       const defChar = CHARACTER_REGISTRY[defType] || CHARACTER_REGISTRY.p;
       const pairCode = `${char.type.toUpperCase()}×${defChar.type.toUpperCase()}`;
+      const voicePart = quote ? ` 💬 "${quote}" · ` : ' ';
       this.showToast(
-        `⚔️ Cattura possibile: ${char.glyph} ${char.name} vs ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`,
-        3200,
+        `${char.glyph} ${char.name}:${voicePart}⚔️ Cattura ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`,
+        3400,
       );
       return;
     }
 
+    const voicePrefix = quote ? `💬 "${quote}" — ` : '';
     const msg =
       this.lang === 'it'
-        ? `${char.glyph} ${char.name} (${e.square}) — ${legalMoves.length} mosse possibili`
-        : `${char.glyph} ${char.name} (${e.square}) — ${legalMoves.length} legal moves`;
-    this.showToast(msg, 1800);
+        ? `${char.glyph} ${char.name} (${e.square}): ${voicePrefix}${legalMoves.length} mosse possibili`
+        : `${char.glyph} ${char.name} (${e.square}): ${voicePrefix}${legalMoves.length} legal moves`;
+    this.showToast(msg, 2400);
   }
 
   onCapturePreviewHover(e) {

@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.1] - 2026-10-11
+
+- 🐴🐧🗣️ **Living Idle Animations & Hover/Select Character Voices (`idle_animations_and_voices_20261011`)**:
+  - **Continuous Per-Character 3D Living Idle Motion (`src/views/PieceView.js`, `src/views/SkeletonRigHelper.js`)**:
+    - Every living piece on the 8×8 board now moves organically even when standing still: Knight Seby's warhorse steps/trots gently in place and swishes its tail (`tail` bone), Pawn Puffins sway fluidly in an S-curve and wag their tail feathers (`tail` bone), Bishop Ale's shoulder dragon beats its wings (`leftWing`/`rightWing`) and waves its wand, Rook Pupurabbu squishes and breathes, and King Riccardo & Queen Kate breathe with regal poise.
+    - Hovering or selecting a piece boosts its idle amplitude (`1.55×` on hover, `1.95×` on select) so characters visibly perk up under the cursor.
+  - **Hover Creature SFX & Authentic Spoken Character Voice Lines (`src/core/Registry.js`, `src/listeners/AudioListener.js`, `src/listeners/HudListener.js`, `src/views/BoardInteractionView.js`)**:
+    - Generated all 6 authentic character voice MP3s via `gemini-2.5-flash-preview-tts` ([`scripts/generate_voice_lines.py`](scripts/generate_voice_lines.py) → `assets/audio/voices/voice-{k,q,b,n,r,p}.mp3`):
+      - **Seby (`n`)**: *"Dimmi papino!"* + hover horse snort (`🐴 Snort! Prrr!`)
+      - **Ale (`b`)**: *"Agli ordini, Signore!"* + hover dragon whistle (`🐉 Fiuuu!`)
+      - **Kate (`q`)**: *"This is an interesting choice..."* (sarcastic British English `en-GB`) + hover crystal chime (`♕ Hmm...`)
+      - **Puffin (`p`)**: *"Piu piu! Eccomi, pronta guardia Puffin!"* + hover cute double chirp (`🐧 Piu-piu!`)
+      - **Riccardo (`k`)**: *"Avanti tutta! Re Carlesso al comando!"* + hover royal sceptre hum (`♔ Zzt-hum!`)
+      - **Pupurabbu (`r`)**: *"Boing boing! Super abbraccio Pupurabbu!"* + hover plushie boing (`🟣 Boing-pfiu!`)
+    - Added [`tests/voices_idle.test.mjs`](tests/voices_idle.test.mjs) and synced [`docs/spec/SPEC.md`](docs/spec/SPEC.md) and [`sw.js`](sw.js) (`v7`).
+- 🍌🎬 **2-Stage 36-Combination Battle Cinema Pipeline (`Nano Banana 2.1 → Veo 3.1`)**:
+  - Added [`scripts/generate_nb_veo_battle.py`](scripts/generate_nb_veo_battle.py) and [`assets/battles/prompts_36.json`](assets/battles/prompts_36.json):
+    - **Stage 1**: Generated all **36/36** 16:9 initial battle keyframes (`assets/battles/keyframes/<atk>_x_<def>.png`, `1376×768`) using **Photo 1 (Attacker Left)** + **Photo 2 (Defender Right)** + side-by-side layout guide (`assets/battles/refs/<id>_ref.png`) via Nano Banana 2.1 (`gemini-3.1-flash-image-preview`).
+    - **Stage 2**: Generated 15/36 full 8-second 16:9 Veo 3.1 (`veo-3.1-generate-preview`) battle videos with audio (`assets/battles/videos/<id>.{mp4,webm}`) including all 4 Easter Eggs (`n_x_r`, `r_x_n`, `k_x_q`, `q_x_k`), all 6 Bishop Ale battles (`b_x_*`), and all 6 Knight Seby battles (`n_x_*`).
+
 ## [0.3.0] - 2026-10-10
 
 - 🐝🎬 **Adversarial Swarm Complete — All 36 (`6×6`) Bespoke 3D Brawls, 72 16:9 Videos (`36 .mp4` + `36 .webm`), Interactive 6×6 Matrix Explorer & Visible 3D Skeletons (GitHub Issues `#10`–`#16` ✅)**:

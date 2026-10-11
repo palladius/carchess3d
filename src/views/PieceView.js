@@ -493,27 +493,39 @@ export class PieceView {
   buildPieceGroup(desc) {
     const group = new THREE.Group();
     const normColor = String(desc.color || 'w').toLowerCase() === 'b' ? 'b' : 'w';
-    group.name = `Piece_${normColor}_${desc.type}_${desc.square || 'standalone'}`;
+    const pieceType = String(desc.type || 'p').toLowerCase();
+    group.name = `Piece_${normColor}_${pieceType}_${desc.square || 'standalone'}`;
     // White pieces (South, Ranks 1-2, z > 0) face North (-Z -> Math.PI) to confront Black pieces (North, Ranks 7-8, z < 0) facing South (+Z -> 0)!
     const homeYaw = normColor === 'w' ? Math.PI : 0;
+    const KIND_ID_MAP = { p: 0.0, n: 1.0, b: 2.0, r: 3.0, q: 4.0, k: 5.0 };
+    const sqStr = String(desc.square || 'e4');
+    const idlePhaseOffset =
+      ((sqStr.charCodeAt(0) || 97) * 1.37 + (parseInt(sqStr[1], 10) || 1) * 2.19) %
+      (Math.PI * 2);
+
     const locomotionUniforms = {
       uWalkPhase: { value: 0.0 },
       uWalkAmp: { value: 0.0 },
       uCombatPhase: { value: 0.0 },
       uCombatAmp: { value: 0.0 },
-      uGaitMode: { value: desc.type === 'n' ? 1.0 : 0.0 },
+      uGaitMode: { value: pieceType === 'n' ? 1.0 : 0.0 },
+      uIdlePhase: { value: idlePhaseOffset },
+      uIdleAmp: { value: 1.0 },
+      uPieceKind: { value: KIND_ID_MAP[pieceType] ?? 0.0 },
     };
 
     // Build Articulated 3D Hierarchical Skeleton & Joint Rig (Issue #12)
-    const pieceHeight = desc.height || CANONICAL_PIECE_HEIGHTS[desc.type] || 1.25;
+    const pieceHeight = desc.height || CANONICAL_PIECE_HEIGHTS[pieceType] || 1.25;
     const skeletonRig = createArticulatedSkeletonRig(
       THREE,
-      desc.type,
+      pieceType,
       pieceHeight,
       normColor,
     );
     skeletonRig.userData.alwaysVisible = this.skeletonsVisible;
-    updateSkeletonRigPose(skeletonRig, desc.type, {
+    updateSkeletonRigPose(skeletonRig, pieceType, {
+      idlePhase: idlePhaseOffset,
+      idleAmp: 0.45,
       skeletonsVisible: this.skeletonsVisible,
     });
 
@@ -521,7 +533,7 @@ export class PieceView {
       isChessPiece: true,
       pieceId: desc.id,
       square: desc.square,
-      type: desc.type,
+      type: pieceType,
       color: normColor,
       role: desc.role,
       name: desc.name,
@@ -531,6 +543,9 @@ export class PieceView {
       locomotionUniforms,
       skeletonRig,
       emotePhase: 0,
+      idlePhaseOffset,
+      idleTime: idlePhaseOffset,
+      hoverBoost: 0,
     };
     group.rotation.set(0, homeYaw, 0);
 
@@ -1078,13 +1093,16 @@ export class PieceView {
   injectLocomotionShader(mat, pieceType, uniforms) {
     if (!mat || !uniforms) return;
     mat.customProgramCacheKey = () =>
-      `carchess_loco_v2_${pieceType}_${mat.wireframe ? 'w' : 's'}_${mat.map ? 't' : 'u'}`;
+      `carchess_loco_v3_${pieceType}_${mat.wireframe ? 'w' : 's'}_${mat.map ? 't' : 'u'}`;
     mat.onBeforeCompile = (shader) => {
       shader.uniforms.uWalkPhase = uniforms.uWalkPhase;
       shader.uniforms.uWalkAmp = uniforms.uWalkAmp;
       shader.uniforms.uCombatPhase = uniforms.uCombatPhase;
       shader.uniforms.uCombatAmp = uniforms.uCombatAmp;
       shader.uniforms.uGaitMode = uniforms.uGaitMode;
+      shader.uniforms.uIdlePhase = uniforms.uIdlePhase;
+      shader.uniforms.uIdleAmp = uniforms.uIdleAmp;
+      shader.uniforms.uPieceKind = uniforms.uPieceKind;
 
       shader.vertexShader =
         `
@@ -1093,12 +1111,52 @@ uniform float uWalkAmp;
 uniform float uCombatPhase;
 uniform float uCombatAmp;
 uniform float uGaitMode;
+uniform float uIdlePhase;
+uniform float uIdleAmp;
+uniform float uPieceKind;
 ` +
         shader.vertexShader.replace(
           '#include <begin_vertex>',
           `#include <begin_vertex>
 float normY = clamp(position.y + 0.5, 0.0, 1.0);
 float side = clamp(position.x * 6.5, -1.0, 1.0);
+if (uIdleAmp > 0.001 && uWalkAmp < 0.05 && uCombatAmp < 0.05) {
+  if (abs(uPieceKind - 1.0) < 0.25) {
+    // Knight Seby ('n'): Horse steps/trots in place, nods head & swishes tail!
+    float legMask = smoothstep(0.45, 0.03, normY);
+    float hoofTrot = sin(uIdlePhase * 2.8 + side * 1.57);
+    transformed.y += max(0.0, hoofTrot) * 0.065 * uIdleAmp * legMask;
+    transformed.z += hoofTrot * 0.045 * uIdleAmp * legMask;
+    float tailMask = smoothstep(-0.04, -0.22, position.z) * smoothstep(0.15, 0.58, normY);
+    transformed.x += sin(uIdlePhase * 4.2) * 0.065 * uIdleAmp * tailMask;
+    float headMask = smoothstep(0.05, 0.24, position.z) * smoothstep(0.38, 0.78, normY);
+    transformed.y += sin(uIdlePhase * 2.1) * 0.035 * uIdleAmp * headMask;
+  } else if (uPieceKind < 0.25) {
+    // Pawn Puffin ('p'): Fluid S-curve body wave + cute tail-feather wag (scodinzolio)!
+    float bodyWave = sin(uIdlePhase * 2.4 - normY * 3.6);
+    transformed.x += bodyWave * 0.034 * uIdleAmp * smoothstep(0.08, 0.88, normY);
+    float tailMask = smoothstep(0.0, -0.16, position.z) * smoothstep(0.48, 0.08, normY);
+    transformed.x += sin(uIdlePhase * 6.8) * 0.068 * uIdleAmp * tailMask;
+    transformed.y += abs(cos(uIdlePhase * 6.8)) * 0.025 * uIdleAmp * tailMask;
+  } else if (abs(uPieceKind - 2.0) < 0.25) {
+    // Bishop Ale ('b'): Shoulder dragon wing-flap & wand gentle figure-8 wave!
+    float upperWingMask = smoothstep(0.42, 0.85, normY) * abs(side);
+    transformed.y += sin(uIdlePhase * 3.4 + abs(side)) * 0.048 * uIdleAmp * upperWingMask;
+    transformed.x += cos(uIdlePhase * 2.2) * 0.024 * uIdleAmp * smoothstep(0.25, 0.85, normY);
+  } else if (abs(uPieceKind - 3.0) < 0.25) {
+    // Rook Pupurabbu ('r'): Squishy plush monster belly breathing & ear wiggle!
+    float breath = sin(uIdlePhase * 2.6) * 0.045 * uIdleAmp;
+    float plushMask = smoothstep(0.18, 0.78, normY);
+    transformed.x *= (1.0 + breath * plushMask);
+    transformed.z *= (1.0 + breath * plushMask);
+    transformed.y += cos(uIdlePhase * 2.6) * 0.032 * uIdleAmp * plushMask;
+  } else {
+    // King Riccardo ('k') & Queen Kate ('q'): Royal chest breathing & sceptre/wand float!
+    float regalBreath = sin(uIdlePhase * 2.0) * 0.026 * uIdleAmp;
+    transformed.y += regalBreath * smoothstep(0.25, 0.88, normY);
+    transformed.x += cos(uIdlePhase * 1.5) * 0.018 * uIdleAmp * smoothstep(0.30, 0.85, normY);
+  }
+}
 if (uWalkAmp > 0.001) {
   if (uGaitMode > 0.5) {
     // Knight Seby Horse Gallop: front legs (z > 0) and hind legs (z < 0) scissor & bound!
@@ -1140,7 +1198,7 @@ if (uCombatAmp > 0.001) {
 
   /**
    * Drives the vertex-shader skeletal limb uniforms, the 3D articulated joint hierarchy (`skeletonRig`),
-   * and the `bodyContainer` pose on any piece group (used during 2.0s–2.2s board locomotion AND 3D Scazzottata combat!).
+   * and the `bodyContainer` pose on any piece group (used during 2.0s–2.2s board locomotion, 3D Scazzottata combat, AND living idle!).
    */
   applyPoseToPiece(
     pieceGroup,
@@ -1149,6 +1207,8 @@ if (uCombatAmp > 0.001) {
       walkAmp = 0,
       combatPhase = 0,
       combatAmp = 0,
+      idlePhase = undefined,
+      idleAmp = undefined,
       rearUp = 0,
       bodyY = 0,
       pitchX = 0,
@@ -1163,6 +1223,8 @@ if (uCombatAmp > 0.001) {
       u.uWalkAmp.value = walkAmp;
       u.uCombatPhase.value = combatPhase;
       u.uCombatAmp.value = combatAmp;
+      if (idlePhase !== undefined && u.uIdlePhase) u.uIdlePhase.value = idlePhase;
+      if (idleAmp !== undefined && u.uIdleAmp) u.uIdleAmp.value = idleAmp;
     }
     const body = pieceGroup.userData?.bodyContainer;
     if (body) {
@@ -1179,6 +1241,8 @@ if (uCombatAmp > 0.001) {
         walkAmp,
         combatPhase,
         combatAmp,
+        idlePhase: idlePhase ?? u?.uIdlePhase?.value ?? 0.65,
+        idleAmp: idleAmp ?? u?.uIdleAmp?.value ?? 0.45,
         rearUp,
         pitchX,
         skeletonsVisible: this.skeletonsVisible,
@@ -1630,6 +1694,10 @@ if (uCombatAmp > 0.001) {
     return Array.from(this.pieceBySquare.values());
   }
 
+  setHoveredSquare(square = null) {
+    this.hoveredSquare = square || null;
+  }
+
   setPieceScale(scale = 1.0) {
     this.globalPieceScale = Math.max(0.5, Math.min(1.6, Number(scale) || 1.0));
     for (const group of this.pieceBySquare.values()) {
@@ -1659,7 +1727,8 @@ if (uCombatAmp > 0.001) {
   }
 
   /**
-   * Advances all `AnimationMixer` instances, footstep trails, swamp swimmers, and active character locomotion tweens.
+   * Advances all `AnimationMixer` instances, living idle animations for all 32 board pieces,
+   * footstep trails, swamp swimmers, and active character locomotion tweens.
    * @param {number} dt - Delta time in seconds
    */
   update(dt = 1 / 60) {
@@ -1683,20 +1752,103 @@ if (uCombatAmp > 0.001) {
       }
     }
 
-    // 2. When skeletonsVisible is toggled on globally, keep idle piece skeletons gently breathing
-    if (this.skeletonsVisible) {
-      for (const group of this.pieceBySquare.values()) {
-        const u = group.userData?.locomotionUniforms;
-        if (u && u.uWalkAmp.value <= 0.02 && u.uCombatAmp.value <= 0.04) {
-          const rig = group.userData?.skeletonRig;
-          if (rig) {
-            rig.userData.alwaysVisible = true;
-            updateSkeletonRigPose(rig, group.userData.type, {
-              idlePhase: this.swampTime * 2.2 + (group.position.x + group.position.z) * 0.4,
-              skeletonsVisible: true,
-            });
-          }
+    // 2. Continuous Living Idle Animations for all 32 pieces on the board!
+    //    (Knight horse stepping in place, Puffin fluid body sway & tail wag,
+    //     Ale dragon wing-flap, Pupurabbu squishy bounce, Riccardo & Kate royal breathing)
+    for (const group of this.pieceBySquare.values()) {
+      const isTweening = this.activeTweens.some(
+        (tw) => tw.group === group || tw.kingGroup === group || tw.rookGroup === group,
+      );
+      if (isTweening) continue;
+
+      const u = group.userData?.locomotionUniforms;
+      if (u && (u.uWalkAmp.value > 0.02 || u.uCombatAmp.value > 0.04)) continue;
+
+      const sq = group.userData?.square;
+      const isHovered = Boolean(sq && this.hoveredSquare === sq);
+      const prevBoost = group.userData.hoverBoost || 0;
+      const nextBoost = isHovered
+        ? Math.min(1, prevBoost + dt * 7.5)
+        : Math.max(0, prevBoost - dt * 5.0);
+      group.userData.hoverBoost = nextBoost;
+
+      const phaseOffset =
+        group.userData.idlePhaseOffset ??
+        (group.position.x * 1.3 + group.position.z * 1.7);
+      const speedMult = 1.0 + nextBoost * 0.85;
+      group.userData.idleTime = (group.userData.idleTime ?? phaseOffset) + dt * speedMult;
+      const tIdle = group.userData.idleTime;
+      const ampMult = 1.0 + nextBoost * 0.75;
+      const pType = group.userData.type || 'p';
+
+      let bodyY = nextBoost * 0.045;
+      let pitchX = 0;
+      let rollZ = 0;
+      let yawOffset = 0;
+      const body = group.userData.bodyContainer;
+
+      if (pType === 'n') {
+        // Knight Seby: Horse gently steps/trots in place, nods head & swishes tail
+        const trot = Math.abs(Math.sin(tIdle * 2.8));
+        bodyY += trot * 0.036 * ampMult;
+        pitchX = Math.sin(tIdle * 2.8) * 0.048 * ampMult;
+        rollZ = Math.cos(tIdle * 1.4) * 0.035 * ampMult;
+        yawOffset = Math.sin(tIdle * 1.1) * 0.055 * ampMult;
+      } else if (pType === 'p') {
+        // Pawn Puffin: Fluid S-curve waddle sway + cute tail-feather wag
+        bodyY += Math.abs(Math.sin(tIdle * 2.4)) * 0.028 * ampMult;
+        rollZ = Math.sin(tIdle * 2.4) * 0.078 * ampMult;
+        pitchX = Math.cos(tIdle * 4.8) * 0.032 * ampMult;
+        yawOffset = Math.sin(tIdle * 3.4) * 0.085 * ampMult;
+      } else if (pType === 'b') {
+        // Bishop Ale: Shoulder dragon wing-beat lift & arcane wand sway
+        bodyY += (Math.sin(tIdle * 3.2) * 0.5 + 0.5) * 0.042 * ampMult;
+        rollZ = Math.cos(tIdle * 1.6) * 0.042 * ampMult;
+        yawOffset = Math.sin(tIdle * 1.6) * 0.052 * ampMult;
+      } else if (pType === 'r') {
+        // Rook Pupurabbu: Squishy plush monster bounce & squash-stretch breathing
+        const bounce = Math.sin(tIdle * 2.6);
+        bodyY += Math.max(0, bounce) * 0.045 * ampMult;
+        rollZ = Math.sin(tIdle * 1.3) * 0.055 * ampMult;
+        if (body) {
+          const sqFactor = 1 + bounce * 0.038 * ampMult;
+          body.scale.set(1 / Math.sqrt(sqFactor), sqFactor, 1 / Math.sqrt(sqFactor));
         }
+      } else if (pType === 'q') {
+        // Queen Kate: Poised royal breathing & graceful wand sway
+        bodyY += (Math.sin(tIdle * 1.9) * 0.5 + 0.5) * 0.028 * ampMult;
+        rollZ = Math.sin(tIdle * 1.2) * 0.036 * ampMult;
+        yawOffset = Math.cos(tIdle * 1.1) * 0.045 * ampMult;
+      } else {
+        // King Riccardo: Proud dad-king chest breathing & sceptre bob
+        bodyY += (Math.sin(tIdle * 2.1) * 0.5 + 0.5) * 0.032 * ampMult;
+        pitchX = Math.sin(tIdle * 2.1) * 0.028 * ampMult;
+        yawOffset = Math.sin(tIdle * 1.05) * 0.042 * ampMult;
+      }
+
+      if (pType !== 'r' && body) {
+        body.scale.set(1, 1, 1);
+      }
+
+      if (u) {
+        if (u.uIdlePhase) u.uIdlePhase.value = tIdle;
+        if (u.uIdleAmp) u.uIdleAmp.value = ampMult;
+      }
+      if (body) {
+        body.position.y = bodyY;
+        body.rotation.x = pitchX;
+        body.rotation.z = rollZ;
+        body.rotation.y = yawOffset;
+      }
+
+      const rig = group.userData?.skeletonRig;
+      if (rig) {
+        rig.userData.alwaysVisible = this.skeletonsVisible;
+        updateSkeletonRigPose(rig, pType, {
+          idlePhase: tIdle * 2.2,
+          idleAmp: 0.45 * ampMult,
+          skeletonsVisible: this.skeletonsVisible,
+        });
       }
     }
 
