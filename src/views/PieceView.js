@@ -215,6 +215,9 @@ export class PieceView {
             }
           }
         }),
+        bus.on('CHECKMATE', (e) => {
+          this.animateKingCapitulation(e);
+        }),
       );
     }
 
@@ -1661,6 +1664,56 @@ if (uCombatAmp > 0.001) {
   }
 
   /**
+   * Spectacular 3D Royal Capitulation (`CHECKMATE`):
+   * - The defeated King trembles violently, leaps in slow-motion, and topples 84° onto the board!
+   * - All surviving victorious pieces jump in celebratory waves!
+   */
+  animateKingCapitulation(e = {}) {
+    const loserColor = e.loser ? String(e.loser).toLowerCase() : (e.winner === 'w' ? 'b' : 'w');
+    const winnerColor = loserColor === 'w' ? 'b' : 'w';
+    let kingGroup = e.kingSquare ? this.pieceBySquare.get(e.kingSquare) : null;
+
+    if (!kingGroup) {
+      for (const grp of this.pieceBySquare.values()) {
+        if (grp.userData?.type === 'k' && grp.userData?.color === loserColor) {
+          kingGroup = grp;
+          break;
+        }
+      }
+    }
+
+    if (kingGroup) {
+      const fallSign = loserColor === 'w' ? 1 : -1;
+      this.activeTweens.push({
+        kind: 'king_capitulation',
+        group: kingGroup,
+        baseX: kingGroup.position.x,
+        baseZ: kingGroup.position.z,
+        fallSign,
+        elapsed: 0,
+        duration: 2.8,
+      });
+    }
+
+    let idx = 0;
+    for (const grp of this.pieceBySquare.values()) {
+      if (grp.userData?.color === winnerColor) {
+        this.activeTweens.push({
+          kind: 'victory_jump',
+          group: grp,
+          baseY: 0,
+          baseRotY: grp.rotation.y,
+          phaseOffset: (idx % 5) * 0.14,
+          elapsed: 0,
+          duration: 3.2,
+        });
+        idx += 1;
+      }
+    }
+    this.activeMoves = this.activeTweens;
+  }
+
+  /**
    * Creates a standalone 3D piece Group for Mode 2 WOW 360° Turntable Inspector & 3D Scazzottata Stage.
    * @param {string} type - 'k'|'q'|'b'|'n'|'r'|'p'
    * @param {'w'|'b'} [color='w']
@@ -2198,6 +2251,41 @@ if (uCombatAmp > 0.001) {
           group.rotation.z = 0;
           group.userData.isDivingToSwamp = false;
           group.userData.celebrationSplashTimer = 1.1;
+        }
+      } else if (tw.kind === 'king_capitulation') {
+        const { group, baseX, baseZ, fallSign } = tw;
+        if (t < 0.28) {
+          // Phase 1: Violent royal earthquake tremble
+          const shake = Math.sin(tw.elapsed * 52) * 0.12;
+          group.position.set(baseX + shake, Math.abs(Math.sin(tw.elapsed * 24)) * 0.08, baseZ - shake * 0.6);
+          group.rotation.z = Math.sin(tw.elapsed * 42) * 0.22;
+        } else if (t < 0.56) {
+          // Phase 2: Slow-motion dramatic leap & tilt
+          const u = (t - 0.28) / 0.28;
+          group.position.set(baseX, Math.sin(u * Math.PI) * 0.92, baseZ);
+          group.rotation.y += dt * 8.5;
+          group.rotation.z = fallSign * u * 0.72;
+        } else {
+          // Phase 3: 84° Royal Topple onto the chessboard with damped bounce!
+          const u = (t - 0.56) / 0.44;
+          const bounce = Math.abs(Math.sin(u * Math.PI * 2.5)) * (1 - u) * 0.28;
+          group.position.set(baseX + fallSign * u * 0.18, bounce + 0.12, baseZ);
+          group.rotation.z = fallSign * (0.72 + Math.min(1, u * 1.4) * 0.76);
+        }
+        if (t < 1) {
+          remaining.push(tw);
+        }
+      } else if (tw.kind === 'victory_jump') {
+        const { group, baseY, baseRotY, phaseOffset } = tw;
+        const localT = Math.max(0, tw.elapsed - phaseOffset);
+        const hop = Math.abs(Math.sin(localT * 6.5)) * 0.48 * (1 - t * 0.5);
+        group.position.y = baseY + hop;
+        group.rotation.y = baseRotY + Math.sin(localT * 4.5) * 0.45;
+        if (t < 1) {
+          remaining.push(tw);
+        } else {
+          group.position.y = baseY;
+          group.rotation.y = baseRotY;
         }
       }
     }
