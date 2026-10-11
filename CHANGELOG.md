@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.1] - 2026-10-11
+## [0.3.4] - 2026-10-11
 
 - 🐴🐧🗣️ **Living Idle Animations & Hover/Select Character Voices (`idle_animations_and_voices_20261011`)**:
   - **Continuous Per-Character 3D Living Idle Motion (`src/views/PieceView.js`, `src/views/SkeletonRigHelper.js`)**:
@@ -15,10 +15,29 @@
       - **Riccardo (`k`)**: *"Avanti tutta! Re Carlesso al comando!"* + hover royal sceptre hum (`♔ Zzt-hum!`)
       - **Pupurabbu (`r`)**: *"Boing boing! Super abbraccio Pupurabbu!"* + hover plushie boing (`🟣 Boing-pfiu!`)
     - Added [`tests/voices_idle.test.mjs`](tests/voices_idle.test.mjs) and synced [`docs/spec/SPEC.md`](docs/spec/SPEC.md) and [`sw.js`](sw.js) (`v7`).
-- 🍌🎬 **2-Stage 36-Combination Battle Cinema Pipeline (`Nano Banana 2.1 → Veo 3.1`)**:
-  - Added [`scripts/generate_nb_veo_battle.py`](scripts/generate_nb_veo_battle.py) and [`assets/battles/prompts_36.json`](assets/battles/prompts_36.json):
-    - **Stage 1**: Generated all **36/36** 16:9 initial battle keyframes (`assets/battles/keyframes/<atk>_x_<def>.png`, `1376×768`) using **Photo 1 (Attacker Left)** + **Photo 2 (Defender Right)** + side-by-side layout guide (`assets/battles/refs/<id>_ref.png`) via Nano Banana 2.1 (`gemini-3.1-flash-image-preview`).
-    - **Stage 2**: Generated 15/36 full 8-second 16:9 Veo 3.1 (`veo-3.1-generate-preview`) battle videos with audio (`assets/battles/videos/<id>.{mp4,webm}`) including all 4 Easter Eggs (`n_x_r`, `r_x_n`, `k_x_q`, `q_x_k`), all 6 Bishop Ale battles (`b_x_*`), and all 6 Knight Seby battles (`n_x_*`).
+- 🍌🎬 **All 36 Nano Banana 2.1 Battle Keyframes & 15 Veo 3.1 16:9 Videos (`scripts/generate_nb_veo_battle.py`, `assets/battles/prompts_36.json`)**:
+  - **Stage 1**: Generated all **36/36** 16:9 initial battle keyframes (`assets/battles/keyframes/<atk>_x_<def>.png`, `1376×768`) using **Photo 1 (Attacker Left)** + **Photo 2 (Defender Right)** + side-by-side layout guide (`assets/battles/refs/<id>_ref.png`) via Nano Banana 2.1 (`gemini-3.1-flash-image-preview`).
+  - **Stage 2**: Generated 15/36 full 8-second 16:9 Veo 3.1 (`veo-3.1-generate-preview`) battle videos with audio (`assets/battles/videos/<id>.{mp4,webm}`) including all 4 Easter Eggs (`n_x_r`, `r_x_n`, `k_x_q`, `q_x_k`), all 6 Bishop Ale battles (`b_x_*`), and all 6 Knight Seby battles (`n_x_*`).
+
+## [0.3.3] - 2026-10-10
+
+- 🍌📺 **Wire Nano Banana 16:9 Keyframes & `1.65×` Veo Playback (`BattleMatrix36.js`, `VeoCinemaView.js`, `battles.html`)**:
+  - Added `keyframeUrl: assets/battles/keyframes/<id>.png` across all 36 entries in [`src/core/BattleMatrix36.js`](src/core/BattleMatrix36.js) and wired `poster="assets/battles/keyframes/<id>.png"` into the 6×6 video player in [`battles.html`](battles.html).
+  - Updated [`src/views/VeoCinemaView.js`](src/views/VeoCinemaView.js) to preload and render the Nano Banana 16:9 Initial Battle Keyframe as Tier-2 fallback on the 16:9 Magic Cinema Mirror while the video buffers, and set `videoEl.playbackRate = 1.65` so the full 6–8s Veo 3.1 battle movie plays within the 4.0s 3D Scazzottata cutscene.
+
+## [0.3.2] - 2026-10-10
+
+- 🍌🎬 **2-Stage Generative AI Battle Cinema Pipeline (`Nano Banana 2.1` Keyframe → `Veo 3.1` I2V Video) (`scripts/generate_nb_veo_battle.py`, `assets/battles/keyframes/{b_x_n,n_x_b}.png`, `assets/battles/videos/{b_x_n,n_x_b}.{mp4,webm}`)**:
+  - Added [`scripts/generate_nb_veo_battle.py`](scripts/generate_nb_veo_battle.py): composes the clean front portraits of Attacker (Left) + Defender (Right) + 16:9 side-by-side layout guide (`assets/battles/refs/<pair>_ref.png`) into a cohesive 16:9 Pixar-style starting frame via `gemini-nano-banana-2.1`, then animates that exact frame into a 16:9 `.mp4` + `.webm` battle movie via `veo-3.1-fast-generate-preview`.
+  - Generated full-fidelity 16:9 Nano Banana 2.1 keyframes and Veo 3.1 I2V movies for **`b_x_n` (Bishop Ale & Red Dragon vs Knight Seby)** and **`n_x_b` (Knight Seby & Hot-Wheels Loop-Track vs Bishop Ale)**.
+
+## [0.3.1] - 2026-10-10
+
+- 🐛🧹 **Merge `refactor_ui_cleanup_ux` — Idempotent UI Clicks, Async GLTF Load-Token Guard & Mirror-Safe Camera Flip (`PieceManager.js`, `WowModeView.js`, `ZurichSwampView.js`, `CombatAnimationManager.js`, `HudListener.js`, `main.js`, `tests/pieces.test.mjs`)**:
+  - **Idempotent `🐸 Palude` (`PieceManager.seedSwampParty` / `handlePieceCaptured`)**: Clicking `🐸 Palude` or opening `?demo=swamp` now calls `PieceManager.seedSwampParty()`, which is idempotent (`swampDemoPiece: true`) and never spawns duplicate dead pieces or deletes living pieces (`c1, g1, e2, b8, f8, h8`) from the 3D board. Covered by unit test in [`tests/pieces.test.mjs`](tests/pieces.test.mjs).
+  - **WOW Mode Async Load-Token Guard & Skeleton Preservation (`WowModeView.js`)**: Added `_heroLoadToken` so rapid clicks on WOW character/variant buttons never attach stale GLTF hero roots out of order, while preserving 3D skeleton rigs (`SkeletonRigHelper`) and prevented `WowModeView.onArenaClash` from mutating Mode 1 `pieceView.pieceBySquare`.
+  - **Duplicate Highlight Ring Cleanup (`ZurichSwampView.js`)**: Removed duplicate selection/check highlight rings from `ZurichSwampView` (now exclusively owned by `BoardInteractionView`).
+  - **Mirror-Safe Camera Flip (`HudListener.js`, `main.js`)**: Flipping the camera (`🔄 Flip`) now parks at `z = -8.2m` in front of the `z = -10.2m` 16:9 Magic Cinema Mirror instead of clipping behind it, and added `CombatAnimationManager.isBusy()` alias for backward compatibility.
 
 ## [0.3.0] - 2026-10-10
 
