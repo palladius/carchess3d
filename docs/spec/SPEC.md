@@ -252,15 +252,15 @@ is the "victim" and is removed at the end.
   - `q` (Kate): Sarcastic crystal chime (`♕ Hmm...`)
   - `k` (Riccardo): Warm royal sceptre hum (`♔ Zzt-hum!`)
 - **Multi-Clip Character Voice Pool (`gemini-3.8-flash-tts`) & Smart Anti-Repetition Engine (`PIECE_SELECTED` → `VOICE_LINE_SPOKEN`)**:
-  - Pre-generated 25 authentic character voice MP3s (`assets/audio/voices/voice-*.mp3`) via **`gemini-3.8-flash-tts`** (`scripts/generate_voice_lines.py`) using `speech_metadata.style` acting directions and inline expressive vocal tags (`<sigh>`, `<pff>`, `<giggle>`), with automatic `window.speechSynthesis` fallback:
+  - Pre-generated 27 authentic character voice MP3s (`assets/audio/voices/voice-*.mp3`) via **`gemini-3.8-flash-tts`** (`scripts/generate_voice_lines.py`) using `speech_metadata.style` acting directions and inline expressive vocal tags (`<sigh>`, `<pff>`, `<giggle>`), with automatic `window.speechSynthesis` fallback:
     - **Queen Kate (`q`, 40yo British UK Woman — `en-gb-csagent-4` Winchester UK voice)**:
-      - Signature sentences (`kind: 'signature'`): *"That's... interesting."*, *"Ok, Puffin McMuffin!"*, *"You... love me! I tell myself EVERY day!"*
+      - Signature sentences (`kind: 'signature'`): *"That's... interesting."*, *"Ok, Puffin McMuffin!"*, *"You... love me! I tell myself EVERY day!"*, *"Don't be FACETIOUS!"*
       - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Hmm-hmm..."* (`voice-q-hmm.mp3`), *"Pff... oh, honestly!"* (`voice-q-sbuffo.mp3`).
-    - **Knight Seby (`n`, Young Italian Boy — `Puck` + pitch shift)**:
-      - Signature sentences (`kind: 'signature'`): *"Dimmi papino!"*, *"Papinoooooo!!!"*, *"Ti manco tantissimo, papino!"*, *"My body, my choice!"* (in English), *"Mi scappa la cacca!"*
+    - **Knight Seby (`n`, Young Trilingual Boy — `Puck` + pitch shift)**:
+      - Signature sentences (`kind: 'signature'`): *"Dimmi papino!"*, *"Papinoooooo!!!"*, *"Papino, ti manco tantissimo!"* (3rd-language cute inversion of *I miss you*), *"My body, my choice!"* (in English), *"Mi scappa la cacca!"*, *"Mummy, can you clean my bottooooom?"* (with dragged-out final syllable).
       - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Mmh-hmm! Ehehe!"* (`voice-n-hmm.mp3`), *"Pff... uffaaa!"* (`voice-n-sbuffo.mp3`).
-    - **Bishop Ale (`b`, 10yo Italian Boy Wizard — `Puck` + pitch shift)**:
-      - Signature sentences (`kind: 'signature'`): *"Agli ordini, Signore!"*, *"Ti manco tantissimo, papino!"*, *"Papino, qual è il più forte?"*, *"Papino, quando mi compri un regalo?"*, *"Cafonazzo!"*
+    - **Bishop Ale (`b`, 10yo Trilingual Boy Wizard — `Puck` + pitch shift)**:
+      - Signature sentences (`kind: 'signature'`): *"Agli ordini, Signore!"*, *"Papino, ti manco tantissimo!"*, *"Papino, qual è il più forte?"*, *"Papino, quando mi compri un regalo?"*, *"Sei proprio un cafoNAZZO!"* (with rising comic emphasis on `-NAZZO!`).
       - Higher-probability non-verbal reactions (`kind: 'mumble'`): *"Mmh-hmm... vediamo!"* (`voice-b-hmm.mp3`), *"Pff... ma dai!"* (`voice-b-sbuffo.mp3`).
     - **King Riccardo (`k`), Rook Pupurabbu (`r`), Pawn Puffin (`p`)**:
       - Signature greetings (`voice-k.mp3`, `voice-r.mp3`, `voice-p.mp3`) paired with higher-probability short hums/sighs (`voice-k-hmm.mp3`, `voice-r-hmm.mp3`, `voice-p-hmm.mp3`).

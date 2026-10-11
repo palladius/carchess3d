@@ -58,6 +58,14 @@ VOICE_CLIPS = [
         "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.35:stop_threshold=-45dB,volume=1.45",
     },
     {
+        "filename": "voice-q-facetious.mp3",
+        "piece": "q",
+        "voice_name": "en-gb-csagent-4",
+        "transcript": "Don't be... <short pause> FACETIOUS!",
+        "style": "40-year-old posh British UK woman speaking British English, dry-witted, playfully scolding her husband with crisp British pronunciation and strong theatrical emphasis on FACETIOUS!",
+        "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.35:stop_threshold=-45dB,volume=1.45",
+    },
+    {
         "filename": "voice-q-hmm.mp3",
         "piece": "q",
         "voice_name": "en-gb-csagent-4",
@@ -97,8 +105,8 @@ VOICE_CLIPS = [
         "filename": "voice-n-timanco.mp3",
         "piece": "n",
         "voice_name": "Puck",
-        "transcript": "Ti manco tantissimo, papino!",
-        "style": "7-year-old Italian boy speaking native Italian, sweet, tender, affectionate and playful little son voice",
+        "transcript": "Papino, <short pause> ti manco tantissimo!",
+        "style": "7-year-old trilingual boy (English/Swiss-German/Italian) speaking Italian as his adorable 3rd language, sweetly and enthusiastically saying 'Papino, ti manco tantissimo!' with a super cute kid inflection",
         "ffmpeg_filter": "asetrate=24000*1.13,aresample=24000,atempo=0.95,silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.45",
     },
     {
@@ -116,6 +124,14 @@ VOICE_CLIPS = [
         "transcript": "Mi scappa la cacca!",
         "style": "7-year-old Italian boy speaking native Italian, funny urgent cheeky kid confession with a giggle",
         "ffmpeg_filter": "asetrate=24000*1.14,aresample=24000,atempo=0.96,silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.45",
+    },
+    {
+        "filename": "voice-n-bottom.mp3",
+        "piece": "n",
+        "voice_name": "Puck",
+        "transcript": "Mummy, <short pause> can you clean my bottooooooom?",
+        "style": "7-year-old British-Italian boy calling out to his mum from the bathroom in cute British English, stretching and dragging out the final word 'bottooooooom?' in a long, funny, sing-song pleading kid drawl at the end",
+        "ffmpeg_filter": "asetrate=24000*1.14,aresample=24000,atempo=0.94,silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.45",
     },
     {
         "filename": "voice-n-hmm.mp3",
@@ -149,8 +165,8 @@ VOICE_CLIPS = [
         "filename": "voice-b-timanco.mp3",
         "piece": "b",
         "voice_name": "Puck",
-        "transcript": "Ti manco tantissimo, papino!",
-        "style": "10-year-old Italian boy speaking native Italian, warm, affectionate, cheerful son talking to his dad",
+        "transcript": "Papino, <short pause> ti manco tantissimo!",
+        "style": "10-year-old trilingual boy (English/Swiss-German/Italian) speaking Italian as his 3rd language, affectionate and super cute kid telling his dad 'Papino, ti manco tantissimo!'",
         "ffmpeg_filter": "asetrate=24000*1.06,aresample=24000,atempo=0.98,silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.45",
     },
     {
@@ -173,8 +189,8 @@ VOICE_CLIPS = [
         "filename": "voice-b-cafonazzo.mp3",
         "piece": "b",
         "voice_name": "Puck",
-        "transcript": "Cafonazzo!",
-        "style": "10-year-old Italian boy speaking native Italian, funny, teasing, dramatic playful exclamation",
+        "transcript": "Sei proprio un cafo-nàzzo!",
+        "style": "10-year-old Italian boy teasing his dad in Italian with a cheeky grin, building up playfully on 'Sei proprio un cafo-' and putting a big, hilarious, rising comic emphasis and loud punchy accent on the final '-NÀZZO!' at the very end",
         "ffmpeg_filter": "asetrate=24000*1.06,aresample=24000,atempo=0.98,silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.45",
     },
     {

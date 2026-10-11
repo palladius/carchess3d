@@ -1,10 +1,26 @@
 # Changelog
 
-## [0.3.39] - 2026-10-11
+## [0.3.41] - 2026-10-11
 
 - 🗿📱✨ **Full 3D `.glb` Models Enabled by Default on Pixel 10 & Mobile Phones (`src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`)**:
   - Verified on real Google Pixel 10 hardware that with `HalfFloatType` `UnrealBloomPass` and hidden transmission FBOs bypassed, all 32 full 3D `.glb` character meshes render smoothly on mobile GPUs.
   - Updated `shouldUseMobileLite3D()` to default to `false` (Full 3D `.glb` mode on all devices without needing `?glb=1`), while keeping lightweight 3D portrait medallions available via `?lite=1` or `?lite3d=1`.
+
+## [0.3.40] - 2026-10-11
+
+- 🎙️🇬🇧🇮🇹 **New Iconic Family Voice Lines (`"Don't be FACETIOUS!"`, `"Mummy, can you clean my bottooooom?"`, `"Papino, ti manco tantissimo!"`, `"Sei proprio un cafoNAZZO!"`) (`scripts/generate_voice_lines.py`, `assets/audio/voices/`, `src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
+  - **Queen Kate (`q`)**: Added *"Don't be FACETIOUS!"* (`voice-q-facetious.mp3`) spoken by the 40yo Winchester UK voice (`en-gb-csagent-4`) with crisp dry-witted British emphasis on `FACETIOUS!`.
+  - **Knight Seby (`n`)**: Added *"Mummy, can you clean my bottooooom?"* (`voice-n-bottom.mp3`) with the long dragged-out final syllable (`bottooooooom?`), and updated `voice-n-timanco.mp3` to *"Papino, ti manco tantissimo!"* (capturing the adorable 3rd-language inversion of *"I miss you"*).
+  - **Bishop Ale (`b`)**: Updated `voice-b-cafonazzo.mp3` to *"Sei proprio un cafoNAZZO!"* with the funny rising comic accent on `-NÀZZO!` at the end, and `voice-b-timanco.mp3` to *"Papino, ti manco tantissimo!"*.
+
+## [0.3.39] - 2026-10-11
+
+- 🎛️✨📱 **Clean Angular/Material SVG Icon Footer Toolbar (`src/listeners/HudListener.js`, `sw.js`)**:
+  - **Replaced Gaudy Emoji/Text Footer Buttons with Crisp Material Design Vector SVG Icon Buttons (`.hud-icon-btn`)**:
+    - Removed noisy emojis, long multi-word button labels, and bright yellow/green gradient buttons from `.hud-actions-dock` in favor of uniform `34×34px` matte-slate Material SVG icon buttons (`#hud-new-btn` `restart_alt`, `#hud-setup-btn` `tune`, `#hud-refresh-btn` `sync`, `#hud-top-btn` `view_in_ar` + `2D`/`3D` badge, `#hud-flip-btn` `swap_vert`, `#hud-hint-btn` `lightbulb`, `#hud-matrix36-btn` `grid_view`, `#hud-sfx-btn` `volume_up`, `#hud-music-btn` `music_note`, `#hud-dock-gallery` `museum`, `#hud-fen-btn` `code`, `#hud-console-btn` `terminal`, `#hud-toggle-topbar-btn` `menu`, plus a compact `EN | IT` segmented pill).
+    - Added a dedicated **Update / Refresh App** icon button (`#hud-refresh-btn`, Material `sync` icon) in the footer toolbar that checks `./VERSION` (`cache: 'no-store'`), purges Service Worker caches, and reloads on click (`checkAndRefreshVersion()`).
+    - Removed duplicate brand/GitHub links and hidden secondary/debug buttons from the bottom bar so both Desktop and Mobile (`#carchess-hud-root.mobile-simplified`) remain clean, readable, and single-row without overflowing.
+    - Updated `refreshTranslations()`, `setTopbarVisible()`, and `applyMobileCameraMode()` to update `title` and `aria-label` tooltips without overwriting `<svg>` icons.
 
 ## [0.3.38] - 2026-10-11
 
