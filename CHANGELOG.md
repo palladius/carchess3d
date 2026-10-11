@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.33] - 2026-10-11
+
+- 🧪🖼️🔧 **Fix White 3D GLB Boxes on Ale 1 & Re Riccardo in `showcase/index.html` + TDD WebGL Context Budget Guard (`showcase/index.html`, `tests/showcase-webgl.test.mjs`)**:
+  - **Root Cause (`kMaxActiveWebGLContexts = 16` in Chromium/Blink)**: `showcase/index.html` displays **18 character cards** (`6 Carlesso + 6 Classic + 6 Swamp`). Previously, `makeView()` instantiated a separate `new THREE.WebGLRenderer({ antialias: true, alpha: true })` per card (`18` total). Because Chromium enforces a hard cap of **16 active WebGL contexts per page**, creating contexts `#17` (*Draghessa della Palude*) and `#18` (*Zenzy Pan di Zenzero*) automatically evicted the 2 oldest WebGL contexts — **Card `#0` (`Ale 1`)** and **Card `#1` (`Re Riccardo`)** — turning their `<canvas>` elements into blank white rectangles (`WARNING: Too many active WebGL contexts. Oldest context will be lost`).
+  - **Single Shared `THREE.WebGLRenderer` + 2D Canvas Blitting (`showcase/index.html`)**: Replaced per-card WebGL contexts with a single shared `sharedRenderer` (`1` WebGL context for the entire page) that renders each visible card's `scene` + `camera` and blits to the card's lightweight 2D `<canvas>` (`ctx.drawImage(sharedRenderer.domElement, ...)`), keeping pointer drag, auto-rotation, faction tinting, and fullscreen working identically across all 18+ cards with zero context loss.
+  - **TDD Regression Suite (`tests/showcase-webgl.test.mjs`)**: Added automated tests verifying that (1) every 2D image and 3D `.glb` referenced in `showcase/index.html` exists and has a valid `glTF` v2 binary header, and (2) `makeView()` never instantiates `new THREE.WebGLRenderer` per card (`webglRendererInstantiations.length === 1`).
+
 ## [0.3.32] - 2026-10-11
 
 - 📱🔥♟️ **Pixel 10 & Samsung Galaxy Tab S10 Ultra 3D WebGL Fix + Mobile Lite 3D Mode + Multi-Device Simulation (`main.js`, `PieceView.js`, `VFXPoolView.js`, `ZurichSwampView.js`, `HudListener.js`, `Registry.js`, `index.html`, `sw.js`, `scripts/simulate_mobile_devices.py`, `docs/spec/SPEC.md`)**:
