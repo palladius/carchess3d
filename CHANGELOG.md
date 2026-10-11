@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.36] - 2026-10-11
+
+- 🎬⏱️⚔️ **10-Second Battle Cutscene (`1s Pre-Padding + 8s Veo Video + 1s Post-Padding`), `1.52x` Hero Combatant Scale & Radial Neighbor Dilation (`CombatAnimationManager.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `tests/combat.test.mjs`)**:
+  - **`10.0s` Total Duel Timeline (`DEFAULT_BATTLE_DURATION_MS = 10000`)**:
+    - **`1.0s` Pre-Padding (`0.0s .. 1.0s`)**: `VeoCinemaView` cues Frame 0 of the 16:9 Veo battle video and holds it while the camera glides into position so the player never misses the first second of the film.
+    - **`8.0s` Full Veo Video Playback (`1.0s .. 9.0s`, `loop = false`)**: Plays the entire 8-second Veo 3.1 clip from start to finish with configurable translucency (`combatVideoAlpha = 0.78`, `?videoAlpha=0.78`).
+    - **`1.0s` Post-Padding (`9.0s .. 10.0s`)**: Holds the final K.O. frame before completing the duel.
+  - **`1.52x` Heroic Combatant Scale & Radial Neighbor Dilation (`VFXPoolView.js`)**:
+    - Enlarged the 2 active 3D fighters to `1.52x` hero scale and hid the `brawlCloud` dust blob for crisp silhouettes.
+    - Smoothly dilates neighboring board pieces radially outward (`> 0.6m`) and scales them down (`< 72%`) during combat so they frame the arena without crowding the two heroes, restoring their exact board positions and scale afterward.
+
 ## [0.3.35] - 2026-10-11
 
 - 🎙️🇬🇧🇮🇹 **Gemini 3.8 TTS Multi-Clip Character Voice Pool + Smart Anti-Repetition & Anti-Spam Engine (`scripts/generate_voice_lines.py`, `assets/audio/voices/voice-*.mp3`, `src/core/Registry.js`, `src/listeners/AudioListener.js`, `src/views/BoardInteractionView.js`, `src/listeners/HudListener.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
