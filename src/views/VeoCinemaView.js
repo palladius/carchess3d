@@ -442,6 +442,14 @@ export class VeoCinemaView {
       mat.opacity = meshAlpha;
     }
 
+    if (this.videoEl && this.mode === 'idle' && this.outroBattle) {
+      try {
+        this.videoEl.volume = Math.max(0, Math.min(1, clamped));
+      } catch {
+        // Ignore volume assignment in headless environments
+      }
+    }
+
     // Once the outro sliding window reaches 0.0, stop the hidden <video> element cleanly
     if (clamped <= 0.002 && this.mode === 'idle' && (this.usingVideoTexture || this.outroBattle)) {
       this.stopVideoPlayback();
@@ -461,6 +469,15 @@ export class VeoCinemaView {
         this.root.position.copy(this.idlePos);
         this.root.rotation.set(0, 0, 0);
         this.root.scale.setScalar(this.idleScale || 0.65);
+      }
+    } else if (this.videoWaitingPrePadding && this.videoEl && this.videoEl.paused) {
+      // If the user forced an early exit during the 1s pre-padding, let the video flow smoothly during the zoom-out!
+      this.videoWaitingPrePadding = false;
+      try {
+        const p = this.videoEl.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      } catch {
+        // Ignore play errors in headless environments
       }
     }
   }
@@ -739,55 +756,20 @@ export class VeoCinemaView {
   }
 
   /**
-   * Draws a minimal, high-contrast Netflix Cinema player overlay on the 1280x720 (16:9) screen:
-   * - Top subtle vignette gradient
-   * - Iconic `#E50914` Netflix-red "N" ribbon + `CARCHESS CINEMA` series header + episode title
-   * - Minimal 4px `#E50914` playback scrubber bar at the bottom edge with a glowing red playhead dot
+   * Draws a completely text-free Netflix Maxischermo frame on the 1280x720 (16:9) screen:
+   * Zero header text or titles covering the movie — only a discreet 3px `#E50914` progress hairline at the bottom edge.
    */
-  drawNetflixCinemaOverlay(ctx, w, h, titleText, progress = 0.35, phaseTag = '8s VEO FILM · LIVE 🎬') {
+  drawNetflixCinemaOverlay(ctx, w, h, _titleText, progress = 0.35, _phaseTag = '') {
     ctx.save();
 
-    // Subtle top cinema gradient vignette for crisp typography
-    const topGrad = ctx.createLinearGradient(0, 0, 0, 92);
-    topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.78)');
-    topGrad.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
-    ctx.fillStyle = topGrad;
-    ctx.fillRect(0, 0, w, 92);
+    // Discreet 3px Netflix Red playback scrubber hairline along the bottom edge
+    const barY = h - 5;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+    ctx.fillRect(16, barY, w - 32, 3);
 
-    // Iconic Netflix Red "N" Badge (28x38 at x=24, y=16)
+    const progW = Math.max(12, Math.min(w - 32, (w - 32) * progress));
     ctx.fillStyle = '#E50914';
-    ctx.beginPath();
-    ctx.roundRect(24, 16, 28, 36, 4);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '900 24px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('N', 38, 43);
-
-    // "CARCHESS CINEMA" series tracking label + episode title
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#E50914';
-    ctx.font = '800 12px system-ui, -apple-system, sans-serif';
-    ctx.fillText(`C A R C H E S S   C I N E M A   ·   1 6 : 9   U H D   ·   ${phaseTag}`, 62, 28);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '700 20px system-ui, -apple-system, sans-serif';
-    ctx.fillText(String(titleText).slice(0, 54), 62, 50);
-
-    // Bottom minimal 5px Netflix Red playback scrubber bar
-    const barY = h - 8;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.24)';
-    ctx.fillRect(20, barY, w - 40, 4);
-
-    const progW = Math.max(24, Math.min(w - 40, (w - 40) * progress));
-    ctx.fillStyle = '#E50914';
-    ctx.fillRect(20, barY, progW, 4);
-
-    // Glowing red scrubber playhead dot
-    ctx.beginPath();
-    ctx.arc(20 + progW, barY + 2, 6, 0, Math.PI * 2);
-    ctx.fillStyle = '#E50914';
-    ctx.fill();
+    ctx.fillRect(16, barY, progW, 3);
 
     ctx.restore();
   }

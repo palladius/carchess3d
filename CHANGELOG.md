@@ -1,10 +1,28 @@
 # Changelog
 
-## [0.3.42] - 2026-10-11
+## [0.3.43] - 2026-10-11
 
 - 🎻🎼🏰 **Lyria 3 Baroque-Symphonic String Chess Overture (`assets/audio/chess-strings-theme.mp3`, `src/listeners/AudioListener.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
   - Generated a 100% instrumental 30-second **Baroque String Octet & Symphonic Chess Overture** (`assets/audio/chess-strings-theme.mp3`) via `lyria-3-clip-preview` in E Dorian minor (`128 BPM`), featuring a crisp double string quartet (`4 violins, 2 violas, 2 cellos`) playing urgent rhythmic staccato chords, descending chromatic violin melodies (`C# → C → B`), deep cello counter-melodies, and theatrical West End symphonic grandeur.
-  - Wired `CHESS_STRINGS_THEME_URL` (`assets/audio/chess-strings-theme.mp3`) as the primary musical soundtrack in `AudioListener.startThemeSong()`, upgraded the procedural WebAudio fallback to a multi-voice E-Dorian Baroque String Octet (`BAROQUE_VIOLIN_MELODY_HZ` + `BAROQUE_CELLO_STACCATO_HZ`), and added `chess-strings-theme.mp3` to `sw.js` (`v30`) offline precache and `tests/voices_idle.test.mjs`.
+  - Wired `CHESS_STRINGS_THEME_URL` (`assets/audio/chess-strings-theme.mp3`) as the primary musical soundtrack in `AudioListener.startThemeSong()`, upgraded the procedural WebAudio fallback to a multi-voice E-Dorian Baroque String Octet (`BAROQUE_VIOLIN_MELODY_HZ` + `BAROQUE_CELLO_STACCATO_HZ`), and added `chess-strings-theme.mp3` to `sw.js` (`v31`) offline precache and `tests/voices_idle.test.mjs`.
+
+## [0.3.42] - 2026-10-11
+
+- 🎬⚔️🍿 **10-Second Synchronized Combat (`1s Pre + 8s Veo Video + 1s Post`), Chrome-Free Netflix Maxischermo (`2.38x`, `78%` Alpha), Non-Linear Board Warp & Measured Space/Click Exit (`CombatAnimationManager.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `HudListener.js`, `AudioListener.js`, `tests/combat.test.mjs`, `docs/spec/SPEC.md`)**:
+  - **Exact 10.0s Combat Timeline (`1000ms Pre-Padding + 8000ms Full Veo Video + 1000ms Post-Padding = 10000ms`)**:
+    - Verified all 36 active battle videos in `assets/battles/videos/*.mp4` are `8.00s`.
+    - **`0.0s .. 1.0s` (1s Pre-Padding)**: Camera zooms in, Netflix screen expands to full viewport, non-linear board/piece warp opens the arena, the 2 contenders step into a wide Left/Right 3/4 profile Face-Off stance (`2.28m` apart), and the `<video>` is cued and held at Frame 0 (`0.0s`) so zero seconds of the movie are lost during entry.
+    - **`1.0s .. 9.0s` (8s Full Veo Video)**: At `t = 1.0s`, `<video>.play()` starts from `0.0s` (`loop = false`) and plays all `8.0s` uninterrupted while the Netflix screen remains at 100% full viewport size (`combatBlend = 1.0`).
+    - **`9.0s .. 10.0s` (1s Post-Padding)**: The video holds its final frame (`8.0s`) at full viewport while the victorious 3D piece holds a calm Victory Pose on the conquered square for 1 full second.
+    - **`10.0s .. 13.5s` (3.5s Sliding-Window Exit)**: Smoothly zooms the Netflix screen out to the "Cinema Vecchio" between the Grossmünster towers while cross-fading alpha and restoring the board, camera, HUD chrome, and soundtrack.
+  - **Full-Viewport Chrome-Free Netflix Maxischermo (`videoBoost = 2.38`, `videoAlpha = 0.78`)**:
+    - Expanded default `videoBoost` from `1.75` to **`2.38`** (`19.04m × 10.71m` at `z = -4.65m`), filling ~93% of the 16:9 viewport with minimal black margin.
+    - **Pure Text-Free & Header/Footer-Free Cinema**: Smoothly fades out and slides away all HTML HUD chrome (`#hud-topbar`, `.hud-bottombar`, `#hud-comic-banner`, `#hud-toast`, `#hud-lyria-caption`) via `HudListener.setCombatBlend(blend)` during combat, and stripped all canvas text/titles from `VeoCinemaView.drawNetflixCinemaOverlay` (leaving only a discreet 3px `#E50914` progress hairline at the bottom edge).
+    - **Visual Harmony (`100%` Solid 3D Fighters + `78%` Alpha Veo Video)**: Draws the Veo video at `78%` opacity (`?videoAlpha=0.78`) with a soft lower-center radial contrast cushion (`_drawMediaWithArenaContrast`) so both the 16:9 movie and the 100% solid 3D foreground fighters are crystal clear simultaneously.
+  - **Spaced, Readable 3D Choreography (`1.52x` Hero Scale, `2.28m` Left/Right Separation) & Non-Linear Board/Piece Transformation (`_applyArenaNonLinearWarp`)**:
+    - Radially dilates non-fighting neighboring pieces outward (`+1.52m` fisheye clearing) and scales them down non-linearly to `56%..70%`, while scaling the 2 protagonists to `1.52x` (`?heroScale=1.52`) separated by `2.28m` (`baseSep = 1.14m`, minimum lunge gap `1.52m`) in 3/4 front-profile with zero `brawlCloud` dust blob and no occluding orange `loopTrack` ring.
+  - **Measured, Unbroken Video + Audio Exit on `SPACEBAR` or `CLICK / TAP` (`BATTLE_SKIPPED`)**:
+    - Pressing `Space` (or `Enter`/`Escape`) or clicking/tapping anywhere on the screen (with a `350ms` start guard and `<= 12px` drag threshold so camera orbiting still works) triggers a **measured `2.5s` sliding-window exit** where the `<video>` keeps playing uninterrupted while its alpha and volume smoothly fade `1.0 -> 0.0`, the combat soundtrack cross-fades out over `2.5s` (`AudioListener.stopCombatMusic(false, 2500)`), the victorious piece glides onto `toSquare`, and the HUD header/footer slide back in.
 
 ## [0.3.41] - 2026-10-11
 

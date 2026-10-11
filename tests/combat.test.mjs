@@ -337,6 +337,32 @@ test('VFXPoolView: auto-zooms camera tightly onto the 2 fighting pieces, hides o
     neighborPiece.scale.x < neighborInitialScale * 0.72,
     `Expected neighbor piece c4 to be scaled down <72% of initial scale, got ${(neighborPiece.scale.x / neighborInitialScale).toFixed(2)}`,
   );
+  assert.equal(vfxView.props.loopTrack.visible, false, 'loopTrack orange ring must stay hidden so it never occludes Knight Seby');
+
+  // 4. Verify Spacebar / Click forced exit (BATTLE_SKIPPED) triggers a measured 2.5s sliding-window transition
+  let lastHudBlend = 1.0;
+  scene.userData.applyHudCombatBlend = (b) => {
+    lastHudBlend = b;
+  };
+  combat.skipActiveCutscene('space_or_click');
+  bus.flush();
+  bus.flush();
+
+  assert.ok(vfxView.camRestoreTimer > 0, 'BATTLE_SKIPPED enters measured sliding-window exit instead of abrupt cut');
+  assert.equal(vfxView.exitWindowTotalS, 2.5, 'Forced exit uses measured 2.5s sliding window');
+
+  // Advance 1.25s (halfway through 2.5s exit, using 0.05s steps since VFXPoolView clamps step <= 0.1s)
+  for (let i = 0; i < 25; i++) {
+    vfxView.update(0.05);
+  }
+  assert.ok(lastHudBlend > 0.2 && lastHudBlend < 0.8, `Expected mid-exit HUD blend ~0.5, got ${lastHudBlend.toFixed(2)}`);
+
+  // Advance remaining 1.3s to complete exit
+  for (let i = 0; i < 26; i++) {
+    vfxView.update(0.05);
+  }
+  assert.equal(vfxView.camRestoreTimer, 0, 'Sliding-window exit finishes cleanly');
+  assert.equal(lastHudBlend, 0, 'HUD chrome is 100% restored at end of sliding-window exit');
 });
 
 test('ZurichSwampView: switches 64 chessboard tiles to 50% translucency during combat and restores 100% opacity after', async () => {
@@ -382,5 +408,3 @@ test('ZurichSwampView: switches 64 chessboard tiles to 50% translucency during c
     assert.equal(sq.material.depthWrite, true);
   }
 });
-
-

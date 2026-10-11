@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v30';
+const CACHE_NAME = 'carchess3d-offline-v31';
 
 const PRECACHE_URLS = [
   './',
