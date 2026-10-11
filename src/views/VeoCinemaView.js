@@ -46,11 +46,11 @@ export class VeoCinemaView {
     this.root = new THREE.Group();
     this.root.name = 'VeoMagicCinemaMirror';
     // In idle mode, keep the mirror discreet ("in disparte") between the Grossmünster towers;
-    // during combat/checkmate it expands to a full-screen 16:9 backdrop right behind the auto-zoomed fighters!
+    // during combat/checkmate it frames 100% of the 16:9 video cleanly behind the 5x5 board view!
     this.idlePos = new THREE.Vector3(0, 3.65, -10.8);
     this.idleScale = 0.65;
-    this.battlePos = new THREE.Vector3(0, 2.45, -5.2);
-    this.battleScale = 1.85;
+    this.battlePos = new THREE.Vector3(0, 2.15, -5.3);
+    this.battleScale = 0.75;
 
     this.root.position.copy(this.idlePos);
     this.root.scale.setScalar(this.idleScale);
@@ -306,10 +306,10 @@ export class VeoCinemaView {
     this.mode = 'battle';
     this.battleElapsed = 0;
 
-    // Expand 16:9 Veo Cinema Screen into giant near-fullscreen IMAX backdrop right behind the board!
+    // Position 16:9 Veo Cinema Screen behind the board so 100% of the video is visible!
     if (this.root && this.battlePos) {
       this.root.position.copy(this.battlePos);
-      this.root.scale.setScalar(this.battleScale || 1.85);
+      this.root.scale.setScalar(this.battleScale || 0.75);
     }
 
     // Preload portraits, Nano Banana 16:9 initial battle keyframe, & optional SVG composite
@@ -392,6 +392,7 @@ export class VeoCinemaView {
     }
     if (this.root && this.idlePos) {
       this.root.position.copy(this.idlePos);
+      this.root.rotation.set(0, 0, 0);
       this.root.scale.setScalar(this.idleScale || 0.65);
     }
   }

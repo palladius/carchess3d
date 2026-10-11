@@ -9,8 +9,14 @@ test:
     python3 scripts/check.py
     python3 -m unittest discover -s tests -p "test_*.py" -v
 
-# serve the repo statically on http://localhost:8000 (service workers need localhost)
-serve port="8000":
+# serve the repo statically on http://localhost:8000 (pass experiments="ToggleSkeleton,..." or use serve-debug)
+serve port="8000" experiments="":
+    @if [ -n "{{experiments}}" ]; then echo "🧪 Experiments URL: http://localhost:{{port}}/?experiments={{experiments}}"; else echo "👉 http://localhost:{{port}}/"; fi
+    python3 -m http.server {{port}}
+
+# serve with debug mode & ToggleSkeleton experiment enabled (?debug=1&experiments=ToggleSkeleton)
+serve-debug port="8000" experiments="ToggleSkeleton":
+    @echo "🛠️ Debug + Experiments URL: http://localhost:{{port}}/?debug=1&experiments={{experiments}}"
     python3 -m http.server {{port}}
 
 # throwaway character showcase (2D + auto-rotating 3D) on http://localhost:8000/showcase/

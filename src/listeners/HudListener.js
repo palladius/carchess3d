@@ -1976,8 +1976,28 @@ export class HudListener {
       }
     });
 
-    // 🦴 Scheletri 3D toggle button (#12)
-    q('#hud-skeletons-btn')?.addEventListener('click', () => {
+    // 🦴 Scheletri 3D toggle button (#12) — hidden in production unless ?debug=1, ?skeletons=1, or ?experiments=ToggleSkeleton
+    const skelBtn = q('#hud-skeletons-btn');
+    if (skelBtn && typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const exps = (sp.get('experiments') || '')
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+      const showSkelBtn =
+        sp.get('debug') === '1' ||
+        sp.get('debug') === 'true' ||
+        sp.get('skeletons') === '1' ||
+        sp.get('skeletons') === 'true' ||
+        exps.includes('toggleskeleton') ||
+        exps.includes('showskeletons');
+      skelBtn.style.display = showSkelBtn ? '' : 'none';
+      if (sp.get('skeletons') === '1' || exps.includes('showskeletons')) {
+        this.skeletonsVisible = true;
+        skelBtn.classList.add('active');
+      }
+    }
+    skelBtn?.addEventListener('click', () => {
       const next = !this.skeletonsVisible;
       this.skeletonsVisible = next;
       q('#hud-skeletons-btn')?.classList.toggle('active', next);
@@ -1985,8 +2005,8 @@ export class HudListener {
       this.ctx?.bus?.flush?.();
       this.showToast(
         next
-          ? '🦴 Scheletri 3D Attivi: Giunture e locomozione articolata visibili su tutti i 32 pezzi!'
-          : '🦴 Scheletri 3D Nascosti (visibili automaticamente durante la camminata/cavalcata)',
+          ? '🦴 Scheletri 3D Attivi (Debug): Giunture e locomozione articolata visibili su tutti i 32 pezzi!'
+          : '🦴 Scheletri 3D Nascosti (100% invisibili in partita e combattimento)',
       );
     });
 

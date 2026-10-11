@@ -1965,6 +1965,10 @@ export class VFXPoolView {
     if (this.activeClash?.type === 'CHECKMATE_CAPITULATION') return;
     this.activeClash = null;
     this.hideStageProps();
+    const mirrorRoot = this.scene?.getObjectByName?.('VeoMagicCinemaMirror');
+    if (mirrorRoot) {
+      mirrorRoot.rotation.set(0, 0, 0);
+    }
     if (this.camSaved) {
       this.camRestoreTimer = 0.45;
     }
@@ -2723,9 +2727,9 @@ export class VFXPoolView {
   }
 
   /**
-   * Auto-Zoom Close-Up Combat Camera (`dist = 1.82m..2.10m, y = 1.28m..1.44m, fov = 30°`),
-   * tightly framing the 2 fighting pieces, their immediately adjacent neighbors on the board
-   * ("i pezzi vicini e poco altro!"), and the full-screen 16:9 Veo video backdrop right behind them!
+   * Half-Board (~5x5 Squares) Combat Camera (`dist = 4.55m..4.90m, y = 2.42m..2.58m, fov = 45°`),
+   * framing the 2 fighting pieces, ~5x5 squares of neighboring pieces around them,
+   * and 100% of the 16:9 Veo video backdrop right behind the board from any camera angle!
    */
   updateCameraOrbit(t, step) {
     if (!this.camera || !this.camOrbitCenter) return;
@@ -2737,9 +2741,10 @@ export class VFXPoolView {
       focusZ = (this.attackerFighter.position.z + this.defenderFighter.position.z) * 0.5;
     }
 
-    const orbitAngle = (t - 0.5) * 0.48; // Smooth close-up sweep around the 2 fighters
-    const dist = 2.10 - Math.sin(t * Math.PI) * 0.28; // Tight auto-zoom (1.82m .. 2.10m)
-    const camY = 1.28 + Math.sin(t * Math.PI) * 0.16; // Heroic close-up eye level
+    const angleOffset = Number.isFinite(this.combatAngleOffset) ? this.combatAngleOffset : 0;
+    const orbitAngle = (t - 0.5) * 0.48 + angleOffset; // Smooth sweep around the 2 fighters + optional angle offset
+    const dist = 4.90 - Math.sin(t * Math.PI) * 0.35; // Frames ~5x5 chessboard squares (~half board)
+    const camY = 2.42 + Math.sin(t * Math.PI) * 0.16; // Elevated angle showing 5x5 board + full 16:9 backdrop
 
     // Impact camera shake on heavy hits in Act 2 (`t = 0.25..0.74`) and swamp splash (`t = 0.88..0.98`)
     let shakeX = 0;
@@ -2758,22 +2763,27 @@ export class VFXPoolView {
     }
     this.lastCameraShake = Math.hypot(shakeX, shakeY);
 
+    const dirX = Math.sin(orbitAngle);
+    const dirZ = Math.cos(orbitAngle);
+    const targetY = 1.62;
+
     const desiredPos = new THREE.Vector3(
-      focusX + Math.sin(orbitAngle) * dist + shakeX,
+      focusX + dirX * dist + shakeX,
       camY + shakeY,
-      focusZ + Math.cos(orbitAngle) * dist,
+      focusZ + dirZ * dist,
     );
-    // Focus tightly on the 2 brawling characters while keeping the 16:9 Cinema Mirror filling the backdrop
+    // Focus on the 2 brawling characters + ~5x5 board squares in the lower half,
+    // while keeping 100% of the 16:9 Cinema Mirror framed in the upper half!
     const desiredTarget = new THREE.Vector3(
       focusX + shakeX * 0.4,
-      0.78 + shakeY * 0.4,
-      focusZ - 0.35,
+      targetY + shakeY * 0.4,
+      focusZ,
     );
 
+    const targetFov = 45;
     const alpha = Math.min(1, step * 7.5);
     this.camera.position.lerp(desiredPos, alpha);
     if (this.camera.fov !== undefined) {
-      const targetFov = 30;
       this.camera.fov += (targetFov - this.camera.fov) * alpha;
       this.camera.updateProjectionMatrix?.();
     }
@@ -2782,6 +2792,34 @@ export class VFXPoolView {
       this.controls.update?.();
     } else {
       this.camera.lookAt(desiredTarget);
+    }
+
+    // Align the 16:9 Veo Cinema Mirror behind the altar along the camera sightline so 100% of the video
+    // is visible in the upper half of the frame from ANY camera direction without cutting into the board!
+    const mirrorRoot = this.scene?.getObjectByName?.('VeoMagicCinemaMirror');
+    if (mirrorRoot) {
+      let backdropDist = 4.8;
+      while (
+        backdropDist < 9.5 &&
+        Math.abs(focusX - dirX * backdropDist) < 5.15 &&
+        Math.abs(focusZ - dirZ * backdropDist) < 5.15
+      ) {
+        backdropDist += 0.25;
+      }
+      const mirrorX = focusX - dirX * backdropDist;
+      const mirrorZ = focusZ - dirZ * backdropDist;
+      const dMirror = dist + backdropDist;
+      const halfTan = Math.tan((targetFov * 0.5 * Math.PI) / 180);
+      const hHalf = dMirror * halfTan;
+      const rayCenterY = camY + ((targetY - camY) / dist) * dMirror;
+      const yBottom = Math.max(0.18, rayCenterY - 0.14 * hHalf);
+      const yTopFrame = rayCenterY + 0.64 * hHalf;
+      const mirrorScale = Math.max(0.52, Math.min(1.05, (yTopFrame - yBottom) / 5.1));
+      const mirrorY = yBottom + 2.55 * mirrorScale;
+
+      mirrorRoot.position.set(mirrorX, mirrorY, mirrorZ);
+      mirrorRoot.scale.setScalar(mirrorScale);
+      mirrorRoot.rotation.set(0, orbitAngle, 0);
     }
   }
 
