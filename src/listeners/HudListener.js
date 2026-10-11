@@ -18,6 +18,8 @@ import {
   CHARACTER_REGISTRY,
   VOICE_LINES,
   BATTLE_MATRIX,
+  FAMILY_ROSTERS,
+  resolveFamilyMatchup,
   FAMILY_STICKERS,
   PROFILES,
   I18N,
@@ -56,9 +58,17 @@ export class HudListener {
     /** @type {'it'|'en'} */
     this.lang = 'it';
     this.activeProfile = 'ale';
-    this.opponentMode = 'hotseat';
+    this.opponentMode = 'easy';
     this.whiteFamily = 'carlesso';
-    this.rivalSet = 'family';
+    this.rivalSet = 'classic';
+    this.whitePlayerType = 'human';
+    this.blackPlayerType = 'ai';
+    this.whiteDifficulty = 'easy';
+    this.blackDifficulty = 'easy';
+    this.topbarVisible = true;
+    this.setupModalOpen = false;
+    this.quakeConsoleOpen = false;
+    this.quakeLogs = [];
     this.flowState = 'Mode1_Chess';
     this.turn = 'w';
     this.inCheck = false;
@@ -76,6 +86,9 @@ export class HudListener {
     this.wowAttacker = 'b';
     this.wowDefender = 'n';
     this.wowGoldenCrit = false;
+    this.matrixFamily = 'carlesso';
+    this.matrixSelectedAtk = 'n';
+    this.matrixSelectedDef = 'b';
     this.topDownCamera = false;
     this.musicPlaying = false;
     this.sfxEnabled = true;
@@ -91,6 +104,7 @@ export class HudListener {
     this.rootEl = null;
     this.els = {};
     this.toastTimer = null;
+    this.checkmateModalTimer = null;
     this.offs = [];
 
     this._boundKeyDown = (e) => this.onKeyDown(e);
@@ -151,7 +165,18 @@ export class HudListener {
         bus.on('LYRIA_CAPTION', (e) => this.onLyriaCaption(e)),
         bus.on('TOGGLE_SKELETONS', (e) => this.onSkeletonsToggled(e)),
         bus.on('PIECE_SET_CHANGED', (e) => this.onPieceSetChanged(e)),
+        bus.on('AI_THINKING', (e) => this.onAiThinking(e)),
+        bus.on('AI_MOVE_READY', (e) => this.onAiMoveReady(e)),
       );
+    }
+
+    if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const skipSetup = params.has('nosetup') || params.has('skipsetup') || params.get('mode') === 'wow';
+      if (!skipSetup && !this._hasAutoOpenedSetup) {
+        this._hasAutoOpenedSetup = true;
+        setTimeout(() => this.openSetupModal(), 350);
+      }
     }
   }
 
@@ -266,6 +291,38 @@ export class HudListener {
         justify-content: space-between;
         gap: 8px;
         padding: 5px 12px;
+        transform: translateY(0);
+        opacity: 1;
+        transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.28s ease;
+      }
+      .hud-topbar.hidden {
+        transform: translateY(-130%);
+        opacity: 0;
+        pointer-events: none !important;
+      }
+      .hud-footer-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #ffe082;
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 12.5px;
+        padding: 4px 8px;
+        border-radius: 8px;
+        background: rgba(255, 213, 79, 0.12);
+        border: 1px solid rgba(255, 213, 79, 0.35);
+        white-space: nowrap;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .hud-footer-brand:hover {
+        background: rgba(255, 213, 79, 0.22);
+        border-color: #ffd54f;
+      }
+      .hud-footer-sub {
+        font-size: 10.5px;
+        color: #9be7c4;
+        font-weight: 600;
       }
       .hud-brand {
         display: flex;
@@ -462,26 +519,24 @@ export class HudListener {
         gap: 5px;
         align-items: center;
       }
-      /* Comic Impact Banner & Skip Cutscene (docked at bottom so 16:9 Cinema Screen is 100% clear) */
+      /* Compact Top-Right Skip Pill (100% clear of the center 3D combat & 16:9 Cinema Backdrop!) */
       .hud-comic-banner {
         position: absolute;
-        bottom: 62px;
-        left: 50%;
-        transform: translateX(-50%) scale(0.9);
-        padding: 8px 20px;
+        top: 52px;
+        right: 14px;
+        padding: 5px 12px;
         border-radius: 999px;
-        background: linear-gradient(135deg, #ffca28 0%, #ff6f00 100%);
-        border: 3px solid #fff8e1;
-        color: #1a0f00;
-        font-weight: 900;
-        font-size: 18px;
-        letter-spacing: 0.6px;
-        box-shadow: 0 12px 35px rgba(255, 111, 0, 0.65);
+        background: rgba(14, 18, 27, 0.86);
+        border: 1.5px solid #ffd54f;
+        color: #ffe082;
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
         display: none;
         align-items: center;
-        gap: 14px;
+        gap: 10px;
         z-index: 860;
-        animation: hudPopIn 0.24s cubic-bezier(0.18, 1.25, 0.4, 1) forwards;
       }
       /* Toast & Hint Bubble */
       .hud-toast {
@@ -745,6 +800,70 @@ export class HudListener {
         border-radius: 50%;
         border: 2px solid #ffe082;
       }
+      /* 6x6 Capture Matrix Explorer Modal */
+      .hud-matrix-card {
+        width: min(96vw, 880px);
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 12px 14px;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .hud-matrix-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 4px;
+      }
+      .hud-matrix-table th {
+        font-size: 11px;
+        color: #ffe082;
+        padding: 4px;
+        text-align: center;
+        background: rgba(24, 32, 48, 0.85);
+        border-radius: 6px;
+      }
+      .hud-matrix-cell {
+        width: 100%;
+        padding: 5px 4px;
+        border-radius: 7px;
+        border: 1px solid rgba(255, 213, 79, 0.32);
+        background: rgba(20, 26, 40, 0.9);
+        color: #f5efe0;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 10.5px;
+        transition: transform 0.12s ease, border-color 0.12s ease;
+      }
+      .hud-matrix-cell:hover, .hud-matrix-cell.selected {
+        border-color: #ffe082;
+        background: rgba(45, 58, 86, 0.95);
+        transform: translateY(-1px);
+      }
+      .hud-matrix-cell.dedicated-video {
+        border-color: rgba(105, 240, 174, 0.75);
+        background: linear-gradient(180deg, rgba(18, 52, 44, 0.9) 0%, rgba(18, 28, 42, 0.92) 100%);
+      }
+      .hud-matrix-badges {
+        display: flex;
+        gap: 3px;
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 9.5px;
+      }
+      .hud-badge-pill {
+        padding: 1px 4px;
+        border-radius: 4px;
+        font-weight: 700;
+      }
+      .hud-badge-mp4 { background: #00695c; color: #a7ffeb; }
+      .hud-badge-mix { background: #283593; color: #c5cae9; }
+      .hud-badge-glb { background: #6a1b9a; color: #f3e5f5; }
+      .hud-badge-egg { background: #ef6c00; color: #fff8e1; }
       @keyframes hudPulse {
         from { transform: scale(1); }
         to { transform: scale(1.05); }
@@ -753,14 +872,255 @@ export class HudListener {
         from { opacity: 0; transform: translateX(-50%) scale(0.75); }
         to { opacity: 1; transform: translateX(-50%) scale(1); }
       }
+
+      /* QUAKE CONSOLE */
+      .hud-quake-console {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 290px;
+        max-height: 48vh;
+        background: rgba(9, 13, 22, 0.96);
+        border-bottom: 3px solid #ffd54f;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.88), 0 2px 14px rgba(255, 213, 79, 0.35);
+        backdrop-filter: blur(10px);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(-100%);
+        transition: transform 0.24s cubic-bezier(0.1, 0.9, 0.2, 1);
+        user-select: text;
+        font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      }
+      .hud-quake-console.open {
+        transform: translateY(0);
+      }
+      .quake-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 12px;
+        background: rgba(18, 25, 40, 0.98);
+        border-bottom: 1px solid rgba(255, 213, 79, 0.3);
+        font-size: 11.5px;
+        color: #ffe082;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+      }
+      .quake-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .quake-help-pill {
+        font-size: 10px;
+        color: #80cbc4;
+        background: rgba(0, 230, 118, 0.12);
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 230, 118, 0.3);
+      }
+      .quake-btn {
+        font: 700 11px system-ui, sans-serif;
+        padding: 2px 8px;
+        border-radius: 5px;
+        background: #1e2638;
+        color: #ffe082;
+        border: 1px solid rgba(255, 213, 79, 0.4);
+        cursor: pointer;
+      }
+      .quake-btn:hover {
+        background: #2a354d;
+        border-color: #ffd54f;
+      }
+      .quake-btn.gold {
+        background: linear-gradient(180deg, #ffe082 0%, #d49b27 100%);
+        color: #1a1200;
+        border-color: #fff3c4;
+      }
+      .quake-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 12px;
+        font-size: 12px;
+        line-height: 1.4;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        color: #00e676;
+      }
+      .quake-line {
+        display: flex;
+        gap: 6px;
+        align-items: baseline;
+      }
+      .quake-time {
+        color: #80cbc4;
+        font-size: 10.5px;
+        flex-shrink: 0;
+      }
+      .quake-tag {
+        font-weight: 800;
+        font-size: 11px;
+        flex-shrink: 0;
+        padding: 0 4px;
+        border-radius: 3px;
+        background: rgba(0, 0, 0, 0.4);
+      }
+      .quake-tag.move { color: #ffe082; }
+      .quake-tag.brawl { color: #ff9100; }
+      .quake-tag.check { color: #ff5252; }
+      .quake-tag.ai { color: #40c4ff; }
+      .quake-tag.luck { color: #b9f6ca; }
+      .quake-tag.sys { color: #ce93d8; }
+      .quake-tag.cmd { color: #81d4fa; }
+      .quake-msg {
+        color: #f1f8e9;
+      }
+      .quake-prompt-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        background: rgba(14, 19, 30, 0.98);
+        border-top: 1px solid rgba(255, 213, 79, 0.25);
+      }
+      .quake-prompt-symbol {
+        color: #ffd54f;
+        font-weight: 900;
+        font-size: 13.5px;
+      }
+      .quake-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #00e676;
+        font-family: inherit;
+        font-size: 12px;
+      }
+
+      /* SETUP MODAL */
+      .hud-setup-card {
+        width: min(94vw, 680px);
+        max-height: 92vh;
+        overflow-y: auto;
+        padding: 18px 22px;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .hud-setup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1.5px solid rgba(255, 213, 79, 0.35);
+        padding-bottom: 10px;
+      }
+      .hud-setup-sides {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 600px) {
+        .hud-setup-sides {
+          grid-template-columns: 1fr;
+        }
+      }
+      .hud-side-box {
+        background: rgba(20, 27, 42, 0.88);
+        border: 1.5px solid rgba(255, 213, 79, 0.4);
+        border-radius: 12px;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .hud-side-box.white-side {
+        border-color: rgba(255, 224, 130, 0.8);
+        box-shadow: inset 0 0 16px rgba(255, 213, 79, 0.12);
+      }
+      .hud-side-box.black-side {
+        border-color: rgba(144, 164, 174, 0.7);
+        box-shadow: inset 0 0 16px rgba(120, 144, 156, 0.12);
+      }
+      .hud-side-title {
+        font-size: 13.5px;
+        font-weight: 800;
+        color: #ffe082;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .hud-setup-label {
+        font-size: 11.5px;
+        color: #b0bec5;
+        font-weight: 700;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .hud-setup-radio-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.35);
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 213, 79, 0.25);
+      }
+      .hud-setup-radio-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #eceff1;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .hud-setup-badge {
+        font-size: 11.5px;
+        color: #b9f6ca;
+        background: rgba(0, 200, 83, 0.15);
+        border: 1px solid rgba(0, 200, 83, 0.4);
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
     `;
     document.head.appendChild(style);
 
     const root = document.createElement('div');
     root.id = 'carchess-hud-root';
     root.innerHTML = `
-      <!-- TOP BAR -->
-      <header class="hud-topbar hud-glass hud-interactive">
+      <!-- QUAKE CONSOLE DROPDOWN (Toggle with ~ or \\ or §) -->
+      <aside id="hud-quake-console" class="hud-quake-console hud-interactive" aria-label="Console Quake">
+        <div class="quake-header">
+          <div class="quake-title-wrap">
+            <span style="color:#ffd54f;">~</span>
+            <strong>CARCHESS3D QUAKE CONSOLE</strong>
+            <span class="quake-help-pill">[~] / [\\] / [ESC]</span>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button id="quake-clear-btn" class="quake-btn" title="Pulisci log">🗑️ Pulisci</button>
+            <button id="quake-close-btn" class="quake-btn" title="Chiudi console">✕</button>
+          </div>
+        </div>
+        <div id="quake-log-body" class="quake-body"></div>
+        <form id="quake-form" class="quake-prompt-row">
+          <span class="quake-prompt-symbol">&gt;</span>
+          <input id="quake-input" class="quake-input" type="text" placeholder="help, fen, pgn, hint, setup, reset, topbar, clear, close..." autocomplete="off" spellcheck="false">
+          <button type="submit" class="quake-btn gold">Invia</button>
+        </form>
+      </aside>
+
+      <!-- TOP BAR (Togglable for max screen space) -->
+      <header id="hud-topbar" class="hud-topbar hud-glass hud-interactive">
         <div class="hud-brand">
           <span style="font-size:24px;">🏰🚽</span>
           <div>
@@ -772,6 +1132,7 @@ export class HudListener {
         <div class="hud-controls-row">
           <button id="hud-mode1-btn" class="hud-btn active">${this.t('mode1Btn')}</button>
           <button id="hud-mode2-btn" class="hud-btn">${this.t('mode2Btn')}</button>
+          <button id="hud-matrix-btn" class="hud-btn gold" title="Matrice 6×6 Combattimenti & Video">${this.t('matrixBtn')}</button>
 
           <label style="font-size:11px;color:#b0bac9;margin-left:4px;" id="hud-who-label">${this.t('whoPlays')}</label>
           <select id="hud-profile-select" class="hud-select" aria-label="Chi gioca">
@@ -780,21 +1141,21 @@ export class HudListener {
 
           <select id="hud-opponent-select" class="hud-select" aria-label="Avversario">
             <option value="hotseat">${this.t('hotseat')}</option>
-            <option value="easy">${this.t('cpuEasy')}</option>
+            <option value="easy" selected>${this.t('cpuEasy')}</option>
             <option value="medium">${this.t('cpuMed')}</option>
             <option value="hard">${this.t('cpuHard')}</option>
           </select>
 
           <select id="hud-white-select" class="hud-select" aria-label="Set Bianco" title="Famiglia Bianco (Sud)">
-            <option value="carlesso">${this.t('setWhiteCarlesso')}</option>
+            <option value="carlesso" selected>${this.t('setWhiteCarlesso')}</option>
             <option value="swamp">${this.t('setWhiteSwamp')}</option>
             <option value="classic">${this.t('setWhiteClassic')}</option>
           </select>
 
           <select id="hud-rival-select" class="hud-select" aria-label="Set Nero" title="Famiglia Nero (Nord)">
+            <option value="classic" selected>${this.t('setClassic')}</option>
             <option value="family">${this.t('setFamily')}</option>
             <option value="swamp">${this.t('setSwamp')}</option>
-            <option value="classic">${this.t('setClassic')}</option>
             <option value="stone">${this.t('setStone')}</option>
           </select>
 
@@ -894,7 +1255,133 @@ export class HudListener {
         </div>
       </aside>
 
-      <!-- BOTTOM STATUS & ACTION DOCK -->
+      <!-- MODAL 0: GAME STARTUP & FACTION / PLAYER SETUP -->
+      <div id="hud-setup-modal" class="hud-modal-backdrop hud-interactive">
+        <div class="hud-modal-card hud-setup-card hud-glass">
+          <div class="hud-setup-header">
+            <div>
+              <div style="font-size:18px;font-weight:900;color:#ffe082;display:flex;align-items:center;gap:8px;">
+                <span>🏰🚽</span>
+                <span id="hud-setup-title">${this.t('setupTitle')}</span>
+              </div>
+              <span id="hud-setup-sub" style="font-size:11.5px;color:#9be7c4;display:block;margin-top:2px;">
+                ${this.t('setupSub')}
+              </span>
+            </div>
+            <button id="hud-setup-close" class="hud-btn" title="Chiudi">✕</button>
+          </div>
+
+          <div class="hud-setup-sides">
+            <!-- WHITE SIDE -->
+            <div class="hud-side-box white-side">
+              <div class="hud-side-title">
+                <span>⚪</span>
+                <span>${this.t('whiteSide')}</span>
+              </div>
+
+              <label class="hud-setup-label">
+                <span>Fazione / Set:</span>
+                <select id="hud-setup-white-set" class="hud-select" style="width:100%;">
+                  <option value="carlesso" selected>🏰 Famiglia Carlesso (Ale, Seby, Riccardo, Kate...)</option>
+                  <option value="swamp">🐸 Palude di Zurigo (Orco & Focaccina)</option>
+                  <option value="classic">♔ Scacchi Classici (San Gennaro & Matildea)</option>
+                </select>
+              </label>
+
+              <div class="hud-setup-label">
+                <span>Controllo:</span>
+                <div class="hud-setup-radio-group">
+                  <label class="hud-setup-radio-label">
+                    <input type="radio" name="white-player-type" value="human" checked>
+                    <span>👤 Umano</span>
+                  </label>
+                  <label class="hud-setup-radio-label">
+                    <input type="radio" name="white-player-type" value="ai">
+                    <span>🤖 Computer AI</span>
+                  </label>
+                </div>
+              </div>
+
+              <label id="hud-setup-white-profile-wrap" class="hud-setup-label">
+                <span id="hud-setup-profile-lbl">${this.t('profileLabel')}</span>
+                <select id="hud-setup-white-profile" class="hud-select" style="width:100%;">
+                  ${PROFILES.map((p) => `<option value="${p.id}" ${p.id === 'ale' ? 'selected' : ''}>${p.name}</option>`).join('')}
+                </select>
+              </label>
+
+              <label id="hud-setup-white-ai-wrap" class="hud-setup-label" style="display:none;">
+                <span>${this.t('difficultyLabel')}</span>
+                <select id="hud-setup-white-diff" class="hud-select" style="width:100%;">
+                  <option value="easy" selected>${this.t('cpuEasy')}</option>
+                  <option value="medium">${this.t('cpuMed')}</option>
+                  <option value="hard">${this.t('cpuHard')}</option>
+                </select>
+              </label>
+            </div>
+
+            <!-- BLACK SIDE -->
+            <div class="hud-side-box black-side">
+              <div class="hud-side-title">
+                <span>⚫</span>
+                <span>${this.t('blackSide')}</span>
+              </div>
+
+              <label class="hud-setup-label">
+                <span>Fazione / Set:</span>
+                <select id="hud-setup-black-set" class="hud-select" style="width:100%;">
+                  <option value="classic" selected>♔ Scacchi Classici (San Gennaro & Matildea)</option>
+                  <option value="swamp">🐸 Palude di Zurigo (Orco & Focaccina)</option>
+                  <option value="family">🏰 Famiglia Carlesso (Specchio)</option>
+                  <option value="stone">🗿 Pietra Magica (Wizard)</option>
+                </select>
+              </label>
+
+              <div class="hud-setup-label">
+                <span>Controllo:</span>
+                <div class="hud-setup-radio-group">
+                  <label class="hud-setup-radio-label">
+                    <input type="radio" name="black-player-type" value="ai" checked>
+                    <span>🤖 Computer AI</span>
+                  </label>
+                  <label class="hud-setup-radio-label">
+                    <input type="radio" name="black-player-type" value="human">
+                    <span>👤 Umano (Hotseat)</span>
+                  </label>
+                </div>
+              </div>
+
+              <label id="hud-setup-black-ai-wrap" class="hud-setup-label">
+                <span>${this.t('difficultyLabel')}</span>
+                <select id="hud-setup-black-diff" class="hud-select" style="width:100%;">
+                  <option value="easy" selected>${this.t('cpuEasy')}</option>
+                  <option value="medium">${this.t('cpuMed')}</option>
+                  <option value="hard">${this.t('cpuHard')}</option>
+                </select>
+              </label>
+
+              <div id="hud-setup-black-human-wrap" class="hud-setup-label" style="display:none;color:#90caf9;font-size:11.5px;padding-top:4px;">
+                👥 Modalità 2 Giocatori Locale sullo stesso schermo.
+              </div>
+            </div>
+          </div>
+
+          <div class="hud-setup-badge">
+            <span>✨</span>
+            <span id="hud-setup-badge-text">${this.t('defaultSetupBadge')}</span>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:center;margin-top:4px;">
+            <button id="hud-setup-apply-btn" class="hud-btn" style="padding:10px 18px;font-size:13px;" title="Modifica fazioni, giocatori e AI nella partita attuale senza resettare i pezzi sulla scacchiera">
+              ${this.t('applyCurrentBtn')}
+            </button>
+            <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 22px;font-size:14px;" title="Applica le scelte e inizia una nuova partita da zero (resetta tutti i 32 pezzi)">
+              ${this.t('startMatchBtn')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM STATUS & FOOTER BAR (Sovrimpressione) -->
       <footer class="hud-bottombar">
         <div class="hud-status-card hud-glass hud-interactive">
           <div class="hud-turn-pill">
@@ -925,19 +1412,41 @@ export class HudListener {
         </div>
 
         <div class="hud-actions-dock hud-glass hud-interactive">
-          <button id="hud-matrix36-btn" class="hud-btn gold-emerald" title="Apri la Matrice Interattiva 6×6 con tutte le 36 Scazzottate 3D e i 36 Video 16:9!">🎬 Matrice 6×6 (36 Scontri)</button>
-          <button id="hud-skeletons-btn" class="hud-btn" title="Mostra/Nascondi gli Scheletri Articolati 3D su tutti i personaggi">🦴 Scheletri 3D</button>
+          <!-- Game Brand & Community Links -->
+          <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener" class="hud-footer-brand" title="CarChess3D su GitHub (Open Source)">
+            <span style="font-size:15px;">🏰🚽</span>
+            <span>CarChess3D</span>
+            <span class="hud-footer-sub">Carlesso al Cesso</span>
+          </a>
+          <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener" class="hud-btn" title="Codice sorgente GitHub">🐙 GitHub</a>
+          <a href="./showcase/" class="hud-btn" style="text-decoration:none;" title="Galleria 3D dei 18 Pezzi">🎨 Galleria</a>
+          <a href="./battles.html" class="hud-btn" style="text-decoration:none;" title="Galleria Video 16:9 dei 36 Scontri">🎬 36 Video</a>
+
+          <span style="width:1px;height:18px;background:rgba(255,213,79,0.3);margin:0 2px;"></span>
+
+          <!-- Console & Setup Buttons -->
+          <button id="hud-console-btn" class="hud-btn" title="Apri/Chiudi la Console Quake (~ o \\)">~_ Console</button>
+          <button id="hud-setup-btn" class="hud-btn gold" title="Configura Fazioni e Giocatori">${this.t('setupBtn')}</button>
+          <button id="hud-matrix36-btn" class="hud-btn gold-emerald" title="Apri la Matrice Interattiva 6×6 con tutte le 36 Scazzottate 3D e i 36 Video 16:9!">🎬 Matrice 6×6</button>
+
+          <!-- In-game Actions -->
           <button id="hud-hint-btn" class="hud-btn gold">${this.t('hintBtn')}</button>
-          <button id="hud-swamp-btn" class="hud-btn" title="Fai sguazzare i pezzi catturati nella Palude di Shrek!">🐸 Palude Shrek</button>
+          <button id="hud-skeletons-btn" class="hud-btn" title="Mostra/Nascondi gli Scheletri Articolati 3D">🦴 Scheletri</button>
+          <button id="hud-swamp-btn" class="hud-btn" title="Fai sguazzare i pezzi catturati nella Palude di Shrek!">🐸 Palude</button>
+          <button id="hud-flip-btn" class="hud-btn">${this.t('flipCamBtn')}</button>
+          <button id="hud-top-btn" class="hud-btn">${this.t('topCamBtn')}</button>
           <button id="hud-zoom-in-btn" class="hud-btn" title="Zoom In (+)">🔍+</button>
           <button id="hud-zoom-out-btn" class="hud-btn" title="Zoom Out (-)">🔍−</button>
           <button id="hud-trackpad-btn" class="hud-btn active" title="Mac Trackpad 2 dita: Ruota (Alto/Basso/Sx/Dx) + Pizzica o Cmd per Zoom">🖐️ 2-Dita: Ruota</button>
-          <button id="hud-flip-btn" class="hud-btn">${this.t('flipCamBtn')}</button>
-          <button id="hud-top-btn" class="hud-btn">${this.t('topCamBtn')}</button>
           <button id="hud-new-btn" class="hud-btn">${this.t('newGameBtn')}</button>
           <button id="hud-fen-btn" class="hud-btn">${this.t('fenBtn')}</button>
           <button id="hud-music-btn" class="hud-btn">${this.t('musicBtn')}</button>
           <button id="hud-sfx-btn" class="hud-btn active">${this.t('sfxBtn')}</button>
+
+          <span style="width:1px;height:18px;background:rgba(255,213,79,0.3);margin:0 2px;"></span>
+
+          <!-- Topbar Toggle Button -->
+          <button id="hud-toggle-topbar-btn" class="hud-btn" title="Mostra o Nascondi la barra in alto">${this.t('toggleTopbarBtn')}</button>
         </div>
       </footer>
 
@@ -1032,10 +1541,51 @@ export class HudListener {
           </div>
         </div>
       </div>
+
+      <!-- MODAL 4: 6x6 CAPTURE MATRIX EXPLORER & ASSET INVENTORY -->
+      <div id="hud-matrix-modal" class="hud-modal-backdrop hud-interactive">
+        <div class="hud-matrix-card hud-glass">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div>
+              <strong style="color:#ffe082;font-size:15px;">⚔️ Matrice 6×6 Combattimenti: Chi Mangia Chi (3D VFX & Film Veo 16:9)</strong>
+              <div style="font-size:11px;color:#b8f5d8;margin-top:2px;">
+                <span class="hud-badge-pill hud-badge-mp4">📹 MP4 Dedicato (4/36: b×n, n×b, n↔r)</span>
+                <span class="hud-badge-pill hud-badge-mix">🎞️ Video + Canvas (32/36)</span>
+                <span class="hud-badge-pill hud-badge-glb">🦴 GLB Rigged (Ale #2 FireBreath_Track)</span>
+                <span class="hud-badge-pill hud-badge-egg">🌟 Easter Egg (6/36)</span>
+              </div>
+            </div>
+            <button id="hud-matrix-close" class="hud-btn">✕</button>
+          </div>
+
+          <!-- Family Selector Tabs -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+            <span style="font-size:11px;color:#ffe082;font-weight:700;">Famiglia Attaccante (A):</span>
+            ${Object.values(FAMILY_ROSTERS)
+              .map(
+                (fam) =>
+                  `<button class="hud-btn ${fam.id === this.matrixFamily ? 'active' : ''}" data-matrix-family="${fam.id}">${fam.label.it}</button>`,
+              )
+              .join('')}
+          </div>
+
+          <!-- Dynamic 6x6 Grid Container -->
+          <div id="hud-matrix-grid-container"></div>
+
+          <!-- Selected Pair Detail & Launch Bar -->
+          <div id="hud-matrix-detail-bar" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(10,14,24,0.88);border:1px solid rgba(255,213,79,0.4);">
+            <div id="hud-matrix-detail-text" style="font-size:11.5px;line-height:1.35;color:#e6eef8;"></div>
+            <button id="hud-matrix-play-btn" class="hud-btn gold" style="padding:6px 12px;font-size:12px;">
+              ▶ Guarda in 3D + Video
+            </button>
+          </div>
+        </div>
+      </div>
     `;
 
     document.body.appendChild(root);
     this.rootEl = root;
+    this._renderMatrixExplorerGrid();
     this._bindDomActions(root);
   }
 
@@ -1189,8 +1739,7 @@ export class HudListener {
     });
 
     q('#hud-new-btn')?.addEventListener('click', () => {
-      this.ctx?.board?.reset?.();
-      this.ctx?.bus?.flush?.();
+      this.startNewGame();
     });
 
     q('#hud-fen-btn')?.addEventListener('click', () => {
@@ -1482,6 +2031,264 @@ export class HudListener {
         this._updateMatrixPreviewPane(atk, def, true);
       });
     });
+
+    // Topbar Toggle
+    q('#hud-toggle-topbar-btn')?.addEventListener('click', () => this.toggleTopbar());
+
+    // Setup Modal open & close
+    q('#hud-setup-btn')?.addEventListener('click', () => this.openSetupModal());
+    q('#hud-setup-close')?.addEventListener('click', () => this.closeSetupModal());
+
+    // Setup radio changes (White and Black player types)
+    root.querySelectorAll('input[name="white-player-type"]').forEach((radio) => {
+      radio.addEventListener('change', (e) => {
+        const isHuman = e.target.value === 'human';
+        const profWrap = q('#hud-setup-white-profile-wrap');
+        const aiWrap = q('#hud-setup-white-ai-wrap');
+        if (profWrap) profWrap.style.display = isHuman ? 'block' : 'none';
+        if (aiWrap) aiWrap.style.display = isHuman ? 'none' : 'block';
+      });
+    });
+
+    root.querySelectorAll('input[name="black-player-type"]').forEach((radio) => {
+      radio.addEventListener('change', (e) => {
+        const isAi = e.target.value === 'ai';
+        const aiWrap = q('#hud-setup-black-ai-wrap');
+        const humanWrap = q('#hud-setup-black-human-wrap');
+        if (aiWrap) aiWrap.style.display = isAi ? 'block' : 'none';
+        if (humanWrap) humanWrap.style.display = isAi ? 'none' : 'block';
+      });
+    });
+
+    // Apply setup in-place (Modifica Partita in Corso) OR start new match (Nuova Partita con Reset)
+    const submitSetupFromModal = (resetBoard) => {
+      const whiteFamily = q('#hud-setup-white-set')?.value || 'carlesso';
+      const whitePlayerType =
+        root.querySelector('input[name="white-player-type"]:checked')?.value || 'human';
+      const whiteProfile = q('#hud-setup-white-profile')?.value || 'ale';
+      const whiteDiff = q('#hud-setup-white-diff')?.value || 'easy';
+
+      const rivalSet = q('#hud-setup-black-set')?.value || 'classic';
+      const blackPlayerType =
+        root.querySelector('input[name="black-player-type"]:checked')?.value || 'ai';
+      const blackDiff = q('#hud-setup-black-diff')?.value || 'easy';
+
+      this.applySetup({
+        whiteFamily,
+        whitePlayerType,
+        whiteProfile,
+        whiteDiff,
+        rivalSet,
+        blackPlayerType,
+        blackDiff,
+        resetBoard,
+      });
+    };
+
+    q('#hud-setup-apply-btn')?.addEventListener('click', () => submitSetupFromModal(false));
+    q('#hud-setup-start-btn')?.addEventListener('click', () => submitSetupFromModal(true));
+
+    // Quake Console bindings
+    q('#hud-console-btn')?.addEventListener('click', () => this.toggleQuakeConsole());
+    q('#quake-close-btn')?.addEventListener('click', () => this.closeQuakeConsole());
+    q('#quake-clear-btn')?.addEventListener('click', () => this.clearQuakeLogs());
+    q('#quake-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inp = q('#quake-input');
+      if (!inp) return;
+      const val = inp.value;
+      inp.value = '';
+      this.handleQuakeCommand(val);
+    });
+
+    // 6x6 Family Capture Matrix Explorer & Asset Inventory Modal controls
+    const openMatrixModal = () => {
+      const modal = q('#hud-matrix-modal');
+      if (!modal) return;
+      this._renderMatrixExplorerGrid();
+      modal.style.display = 'grid';
+    };
+
+    q('#hud-matrix-btn')?.addEventListener('click', openMatrixModal);
+    q('#hud-matrix-close')?.addEventListener('click', () => {
+      const modal = q('#hud-matrix-modal');
+      if (modal) modal.style.display = 'none';
+    });
+
+    root.querySelectorAll('button[data-matrix-family]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const famId = btn.dataset.matrixFamily || 'carlesso';
+        if (this.matrixFamily === famId) return;
+        this.matrixFamily = famId;
+        root.querySelectorAll('button[data-matrix-family]').forEach((b) =>
+          b.classList.toggle('active', b === btn),
+        );
+        this._renderMatrixExplorerGrid();
+      });
+    });
+
+    q('#hud-matrix-play-btn')?.addEventListener('click', () => {
+      this._launchMatrixPair(this.matrixSelectedAtk, this.matrixSelectedDef);
+    });
+  }
+
+  _renderMatrixExplorerGrid() {
+    if (!this.rootEl) return;
+    const container = this.rootEl.querySelector('#hud-matrix-grid-container');
+    if (!container) return;
+
+    const fam = FAMILY_ROSTERS[this.matrixFamily] || FAMILY_ROSTERS.carlesso;
+    const pieceKeys = ['k', 'q', 'b', 'n', 'r', 'p'];
+
+    const headerCells = pieceKeys
+      .map((defKey) => {
+        const p = fam.pieces[defKey];
+        return `<th>🛡️ ${p.glyph} ${p.name}</th>`;
+      })
+      .join('');
+
+    const rowsHtml = pieceKeys
+      .map((atkKey) => {
+        const atkP = fam.pieces[atkKey];
+        const cellsHtml = pieceKeys
+          .map((defKey) => {
+            const m = resolveFamilyMatchup(this.matrixFamily, atkKey, defKey);
+            const isSelected =
+              this.matrixSelectedAtk === atkKey && this.matrixSelectedDef === defKey;
+            const classes = [
+              'hud-matrix-cell',
+              isSelected ? 'selected' : '',
+              m.hasDedicatedVideo ? 'dedicated-video' : '',
+            ]
+              .filter(Boolean)
+              .join(' ');
+
+            const videoBadge = m.hasDedicatedVideo
+              ? '<span class="hud-badge-pill hud-badge-mp4">📹 Veo MP4</span>'
+              : '<span class="hud-badge-pill hud-badge-mix">🎞️ 3D MP4</span>';
+            const glbBadge = m.hasSkeletalGlbClip
+              ? '<span class="hud-badge-pill hud-badge-glb">🦴 GLB</span>'
+              : '';
+            const eggBadge = m.easterEgg
+              ? '<span class="hud-badge-pill hud-badge-egg">🌟 Egg</span>'
+              : '';
+
+            return `
+              <td>
+                <button
+                  class="${classes}"
+                  data-matrix-atk="${atkKey}"
+                  data-matrix-def="${defKey}"
+                  title="${m.attackerDisplayName} → ${m.defenderDisplayName}"
+                >
+                  <strong>${atkP.glyph} → ${fam.pieces[defKey].glyph}</strong>
+                  <div class="hud-matrix-badges">${videoBadge}${glbBadge}${eggBadge}</div>
+                </button>
+              </td>
+            `;
+          })
+          .join('');
+
+        return `
+          <tr>
+            <th style="text-align:left;white-space:nowrap;">
+              ⚔️ ${atkP.glyph} ${atkP.name}
+              <div style="font-size:9.5px;color:#9be7c4;font-weight:500;">${atkP.attackLabel}</div>
+            </th>
+            ${cellsHtml}
+          </tr>
+        `;
+      })
+      .join('');
+
+    container.innerHTML = `
+      <table class="hud-matrix-table">
+        <thead>
+          <tr>
+            <th>Attaccante (A) \\ Difensore (B)</th>
+            ${headerCells}
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    `;
+
+    container.querySelectorAll('button[data-matrix-atk]').forEach((btn) => {
+      btn.addEventListener('mouseenter', () => {
+        this.matrixSelectedAtk = btn.dataset.matrixAtk || 'n';
+        this.matrixSelectedDef = btn.dataset.matrixDef || 'b';
+        container.querySelectorAll('.hud-matrix-cell').forEach((c) =>
+          c.classList.toggle('selected', c === btn),
+        );
+        this._updateMatrixDetailBar();
+      });
+      btn.addEventListener('click', () => {
+        const atk = btn.dataset.matrixAtk || 'n';
+        const def = btn.dataset.matrixDef || 'b';
+        this.matrixSelectedAtk = atk;
+        this.matrixSelectedDef = def;
+        this._launchMatrixPair(atk, def);
+      });
+    });
+
+    this._updateMatrixDetailBar();
+  }
+
+  _updateMatrixDetailBar() {
+    if (!this.rootEl) return;
+    const detailEl = this.rootEl.querySelector('#hud-matrix-detail-text');
+    if (!detailEl) return;
+    const m = resolveFamilyMatchup(
+      this.matrixFamily,
+      this.matrixSelectedAtk,
+      this.matrixSelectedDef,
+    );
+    const animDesc = m.anim3dDesc?.[this.lang] || m.anim3dDesc?.it || m.effect;
+    const videoKind = m.hasDedicatedVideo
+      ? `📹 Film Veo/MP4 Dedicato (${m.videoUrl})`
+      : `🎞️ Film 3D MP4 (${m.videoUrl}) + Card 2D Canvas`;
+    const glbKind = m.hasSkeletalGlbClip
+      ? '🦴 Clip GLB Scheletrica: FireBreath_Track'
+      : '✨ Animazione 3D Procedurale & Pool VFX';
+
+    detailEl.innerHTML = `
+      <div><strong style="color:#ffe082;">${m.attackerDisplayName} mangia ${m.defenderDisplayName}</strong> — <em>${m.banner?.[this.lang] || m.banner?.it}</em></div>
+      <div><strong>3D Scacchiera:</strong> ${animDesc} · <strong>Reazione Vittima:</strong> <code>${m.victimReaction}</code> · ${glbKind}</div>
+      <div><strong>Sfondo 16:9:</strong> ${videoKind}</div>
+    `;
+  }
+
+  _launchMatrixPair(attacker, defender) {
+    if (this.rootEl) {
+      const modal = this.rootEl.querySelector('#hud-matrix-modal');
+      if (modal) modal.style.display = 'none';
+      if (this.rootEl.querySelector('#hud-wow-atk')) {
+        this.rootEl.querySelector('#hud-wow-atk').value = attacker;
+      }
+      if (this.rootEl.querySelector('#hud-wow-def')) {
+        this.rootEl.querySelector('#hud-wow-def').value = defender;
+      }
+    }
+
+    const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+    if (pm?.setWhiteFamily && pm?.setRivalSetMode) {
+      pm.setWhiteFamily(this.matrixFamily);
+      pm.setRivalSetMode(this.matrixFamily === 'carlesso' ? 'family' : this.matrixFamily);
+    }
+
+    this.ctx?.bus?.emit({
+      type: 'WOW_ARENA_CLASH',
+      attacker,
+      defender,
+      goldenCrit: true,
+      tier: 'golden_crit',
+      from: 'd4',
+      to: 'e5',
+      square: 'e5',
+    });
+    this.ctx?.bus?.flush?.();
   }
 
   /**
@@ -1685,6 +2492,362 @@ export class HudListener {
   }
 
   // ===========================================================================
+  // 1.5 SETUP MODAL, TOPBAR TOGGLE & QUAKE CONSOLE METHODS
+  // ===========================================================================
+
+  openSetupModal() {
+    this.setupModalOpen = true;
+    if (!this.rootEl) return;
+    const modal = this.rootEl.querySelector('#hud-setup-modal');
+    if (modal) {
+      modal.style.display = 'grid';
+      const wSet = this.rootEl.querySelector('#hud-setup-white-set');
+      if (wSet) wSet.value = this.whiteFamily || 'carlesso';
+      const bSet = this.rootEl.querySelector('#hud-setup-black-set');
+      if (bSet) bSet.value = this.rivalSet || 'classic';
+      const wProf = this.rootEl.querySelector('#hud-setup-white-profile');
+      if (wProf) wProf.value = this.activeProfile || 'ale';
+      const bDiff = this.rootEl.querySelector('#hud-setup-black-diff');
+      if (bDiff) bDiff.value = this.blackDifficulty || this.opponentMode || 'easy';
+      const wDiff = this.rootEl.querySelector('#hud-setup-white-diff');
+      if (wDiff) wDiff.value = this.whiteDifficulty || 'easy';
+
+      const wType = this.whitePlayerType || 'human';
+      this.rootEl.querySelectorAll('input[name="white-player-type"]').forEach((r) => {
+        r.checked = r.value === wType;
+      });
+      const profWrap = this.rootEl.querySelector('#hud-setup-white-profile-wrap');
+      const wAiWrap = this.rootEl.querySelector('#hud-setup-white-ai-wrap');
+      if (profWrap) profWrap.style.display = wType === 'human' ? 'block' : 'none';
+      if (wAiWrap) wAiWrap.style.display = wType === 'human' ? 'none' : 'block';
+
+      const bType = this.blackPlayerType || 'ai';
+      this.rootEl.querySelectorAll('input[name="black-player-type"]').forEach((r) => {
+        r.checked = r.value === bType;
+      });
+      const bAiWrap = this.rootEl.querySelector('#hud-setup-black-ai-wrap');
+      const bHumanWrap = this.rootEl.querySelector('#hud-setup-black-human-wrap');
+      if (bAiWrap) bAiWrap.style.display = bType === 'ai' ? 'block' : 'none';
+      if (bHumanWrap) bHumanWrap.style.display = bType === 'ai' ? 'none' : 'block';
+    }
+  }
+
+  closeSetupModal() {
+    this.setupModalOpen = false;
+    if (!this.rootEl) return;
+    const modal = this.rootEl.querySelector('#hud-setup-modal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  /**
+   * Resets all 32 pieces to the starting board position while preserving current factions & AI setup.
+   */
+  startNewGame() {
+    this.closeSetupModal();
+    if (this.rootEl) {
+      const goModal = this.rootEl.querySelector('#hud-gameover-modal');
+      if (goModal) goModal.style.display = 'none';
+      const promoModal = this.rootEl.querySelector('#hud-promo-modal');
+      if (promoModal) promoModal.style.display = 'none';
+    }
+    this.ctx?.board?.reset?.();
+    this.ctx?.bus?.flush?.();
+    this.ctx?.bus?.flush?.();
+    this.logToQuake(
+      'RESET',
+      '🔄 Nuova partita iniziata! Tutti i 32 pezzi sono tornati al via.',
+      'green',
+    );
+    this.showToast('🔄 Nuova Partita! Tutti i 32 pezzi sono tornati al via! ✨', 3200);
+  }
+
+  applySetup(settings = {}) {
+    this.closeSetupModal();
+
+    // Hide topbar to maximize 3D board view per spec!
+    this.setTopbarVisible(false);
+
+    const whiteFamily = settings.whiteFamily || this.whiteFamily || 'carlesso';
+    const rivalSet = settings.rivalSet || this.rivalSet || 'classic';
+    const whitePlayerType = settings.whitePlayerType || this.whitePlayerType || 'human'; // 'human' | 'ai'
+    const blackPlayerType = settings.blackPlayerType || this.blackPlayerType || 'ai'; // 'human' | 'ai'
+    const whiteDiff = settings.whiteDiff || this.whiteDifficulty || 'easy';
+    const blackDiff = settings.blackDiff || this.blackDifficulty || 'easy';
+    const whiteProfile = settings.whiteProfile || this.activeProfile || 'ale';
+    const resetBoard = settings.resetBoard !== false;
+
+    this.whiteFamily = whiteFamily;
+    this.rivalSet = rivalSet;
+    this.whitePlayerType = whitePlayerType;
+    this.blackPlayerType = blackPlayerType;
+    this.whiteDifficulty = whiteDiff;
+    this.blackDifficulty = blackDiff;
+    this.activeProfile = whiteProfile;
+
+    // Configure CPU AI side(s)
+    let cpuColor = 'none';
+    if (whitePlayerType === 'ai' && blackPlayerType === 'ai') {
+      cpuColor = 'both';
+    } else if (whitePlayerType === 'ai') {
+      cpuColor = 'w';
+    } else if (blackPlayerType === 'ai') {
+      cpuColor = 'b';
+    }
+    const aiEnabled = cpuColor !== 'none';
+    this.opponentMode = aiEnabled ? blackDiff : 'hotseat';
+
+    // Sync topbar dropdowns so UI stays consistent
+    if (this.rootEl) {
+      const wSel = this.rootEl.querySelector('#hud-white-select');
+      if (wSel) wSel.value = whiteFamily;
+      const bSel = this.rootEl.querySelector('#hud-rival-select');
+      if (bSel) bSel.value = rivalSet;
+      const pSel = this.rootEl.querySelector('#hud-profile-select');
+      if (pSel) pSel.value = whiteProfile;
+      const oSel = this.rootEl.querySelector('#hud-opponent-select');
+      if (oSel) oSel.value = this.opponentMode;
+    }
+
+    if (this.ctx?.ai?.configure) {
+      this.ctx.ai.configure({
+        enabled: aiEnabled,
+        cpuColor,
+        whiteDifficulty: whiteDiff,
+        blackDifficulty: blackDiff,
+        difficulty: blackDiff,
+      });
+    }
+
+    // Update 3D PieceManager families (works both mid-game and on reset)
+    const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+    if (pm?.setWhiteFamily) pm.setWhiteFamily(whiteFamily);
+    if (pm?.setRivalSetMode) pm.setRivalSetMode(rivalSet);
+
+    // Emit configuration changes to Bus & Piece Manager
+    if (this.ctx?.bus) {
+      if (!pm?.setWhiteFamily && !pm?.setRivalSetMode) {
+        this.ctx.bus.emit({
+          type: 'PIECE_SET_CHANGED',
+          whiteFamily,
+          rivalSetMode: rivalSet,
+        });
+      }
+
+      if (whitePlayerType === 'human') {
+        this.ctx.bus.emit({
+          type: 'PROFILE_CHANGED',
+          profileId: whiteProfile,
+          restoreBoard: false,
+        });
+      }
+
+      this.ctx.bus.emit({
+        type: 'OPPONENT_CHANGED',
+        mode: this.opponentMode,
+        enabled: aiEnabled,
+        whitePlayerType,
+        blackPlayerType,
+        cpuColor,
+        difficulty: blackDiff,
+        whiteDifficulty: whiteDiff,
+        blackDifficulty: blackDiff,
+      });
+
+      // Reset chess board only when starting a New Game (resetBoard !== false)
+      if (resetBoard) {
+        this.ctx.board?.reset?.();
+      }
+      this.ctx.bus.flush?.();
+      this.ctx.bus.flush?.();
+    }
+
+    const wDesc = whitePlayerType === 'ai' ? `AI (${whiteDiff})` : `Umano (${whiteProfile})`;
+    const bDesc = blackPlayerType === 'ai' ? `AI (${blackDiff})` : 'Umano (Hotseat)';
+    const actionLabel = resetBoard ? 'Nuova partita' : 'Partita aggiornata';
+    this.logToQuake(
+      'SETUP',
+      `${actionLabel}: ⚪ Bianco: ${whiteFamily} [${wDesc}] vs ⚫ Nero: ${rivalSet} [${bDesc}]`,
+      'green',
+    );
+    this.showToast(
+      resetBoard
+        ? `🏰 Nuova partita! Bianco: ${whiteFamily} [${wDesc}] vs Nero: ${rivalSet} [${bDesc}] · Barra nascosta ('M' o '☰')`
+        : `⚙️ Partita aggiornata (senza reset)! Bianco: ${whiteFamily} [${wDesc}] vs Nero: ${rivalSet} [${bDesc}]`,
+      4000,
+    );
+  }
+
+  setTopbarVisible(visible) {
+    this.topbarVisible = Boolean(visible);
+    if (!this.rootEl) return;
+    const topbar = this.rootEl.querySelector('#hud-topbar');
+    if (topbar) {
+      topbar.classList.toggle('hidden', !this.topbarVisible);
+    }
+    const btn = this.rootEl.querySelector('#hud-toggle-topbar-btn');
+    if (btn) {
+      btn.textContent = this.topbarVisible ? this.t('toggleTopbarBtn') : '☰ Mostra Barra';
+      btn.title = this.topbarVisible ? 'Nascondi la barra in alto' : 'Mostra la barra in alto';
+    }
+  }
+
+  toggleTopbar() {
+    this.setTopbarVisible(!this.topbarVisible);
+    this.logToQuake('UI', `Barra superiore ${this.topbarVisible ? 'visibile' : 'nascosta'}.`);
+  }
+
+  openQuakeConsole() {
+    this.quakeConsoleOpen = true;
+    if (!this.rootEl) return;
+    const con = this.rootEl.querySelector('#hud-quake-console');
+    if (con) {
+      con.classList.add('open');
+      const input = this.rootEl.querySelector('#quake-input');
+      setTimeout(() => input?.focus(), 50);
+    }
+  }
+
+  closeQuakeConsole() {
+    this.quakeConsoleOpen = false;
+    if (!this.rootEl) return;
+    const con = this.rootEl.querySelector('#hud-quake-console');
+    if (con) con.classList.remove('open');
+  }
+
+  toggleQuakeConsole() {
+    if (this.quakeConsoleOpen) {
+      this.closeQuakeConsole();
+    } else {
+      this.openQuakeConsole();
+    }
+  }
+
+  clearQuakeLogs() {
+    this.quakeLogs = [];
+    if (!this.rootEl) return;
+    const out = this.rootEl.querySelector('#quake-log-body, #quake-output');
+    if (out) out.innerHTML = '';
+  }
+
+  logToQuake(tag = 'LOG', message = '', colorClass = '') {
+    const time = new Date().toTimeString().slice(0, 8);
+    const entry = { time, tag, message, colorClass };
+    this.quakeLogs.push(entry);
+    if (this.quakeLogs.length > 250) {
+      this.quakeLogs.shift();
+    }
+
+    if (!this.rootEl) return;
+    const out = this.rootEl.querySelector('#quake-log-body, #quake-output');
+    if (!out) return;
+
+    const row = document.createElement('div');
+    row.className = 'quake-line';
+    const tagCls = colorClass ? `quake-tag ${colorClass}` : 'quake-tag';
+    row.innerHTML = `<span class="quake-time">[${time}]</span> <span class="${tagCls}">[${tag}]</span> <span class="quake-msg">${this._escapeHtml(message)}</span>`;
+    out.appendChild(row);
+    out.scrollTop = out.scrollHeight;
+  }
+
+  _escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  handleQuakeCommand(cmdRaw = '') {
+    const cmd = cmdRaw.trim();
+    if (!cmd) return;
+    this.logToQuake('USER', `> ${cmd}`, 'cyan');
+
+    const [action, ...args] = cmd.toLowerCase().split(/\s+/);
+    switch (action) {
+      case 'help':
+      case '?':
+        this.logToQuake('INFO', 'Comandi disponibili:', 'gold');
+        this.logToQuake('INFO', '  help             - Mostra questo elenco');
+        this.logToQuake('INFO', '  setup            - Apri finestra configurazione giocatori/fazioni');
+        this.logToQuake('INFO', '  topbar           - Mostra/Nascondi la barra superiore');
+        this.logToQuake('INFO', '  fen              - Mostra e copia il FEN attuale');
+        this.logToQuake('INFO', '  pgn              - Mostra lo storico PGN attuale');
+        this.logToQuake('INFO', '  hint             - Chiedi un consiglio alla mossa');
+        this.logToQuake('INFO', '  reset / new      - Riavvia la scacchiera');
+        this.logToQuake('INFO', '  matrix           - Apri la matrice interattiva 6x6 dei 36 scontri');
+        this.logToQuake('INFO', '  swamp            - Fai sguazzare i pezzi nella palude di Shrek');
+        this.logToQuake('INFO', '  skeletons        - Alterna gli scheletri 3D');
+        this.logToQuake('INFO', '  clear            - Pulisci la console');
+        this.logToQuake('INFO', '  close / exit     - Chiudi la console Quake');
+        break;
+
+      case 'setup':
+        this.openSetupModal();
+        break;
+
+      case 'topbar':
+        this.toggleTopbar();
+        break;
+
+      case 'fen': {
+        const fen = this.ctx?.board?.fen?.() || 'FEN non disponibile';
+        this.logToQuake('FEN', fen, 'gold');
+        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+          navigator.clipboard.writeText(fen).catch(() => {});
+        }
+        break;
+      }
+
+      case 'pgn': {
+        const pgn = this.ctx?.board?.pgn?.() || 'PGN non disponibile';
+        this.logToQuake('PGN', pgn, 'gold');
+        break;
+      }
+
+      case 'hint':
+        this.rootEl?.querySelector('#hud-hint-btn')?.click();
+        this.logToQuake('HINT', 'Richiesta di suggerimento inviata.');
+        break;
+
+      case 'reset':
+      case 'new':
+        this.ctx?.board?.reset?.();
+        this.ctx?.bus?.flush?.();
+        this.logToQuake('RESET', 'Scacchiera resettata alla posizione iniziale.', 'green');
+        break;
+
+      case 'matrix':
+        this.openMatrix36Modal();
+        break;
+
+      case 'swamp':
+        this.rootEl?.querySelector('#hud-swamp-btn')?.click();
+        break;
+
+      case 'skeletons':
+        this.rootEl?.querySelector('#hud-skeletons-btn')?.click();
+        break;
+
+      case 'clear':
+        this.clearQuakeLogs();
+        break;
+
+      case 'close':
+      case 'exit':
+      case 'quit':
+        this.closeQuakeConsole();
+        break;
+
+      default:
+        this.logToQuake(
+          'ERR',
+          `Comando non riconosciuto: "${cmd}". Digita "help" per i comandi.`,
+          'red',
+        );
+        break;
+    }
+  }
+
+  // ===========================================================================
   // 2. EVENT BUS HANDLERS
   // ===========================================================================
 
@@ -1790,16 +2953,22 @@ export class HudListener {
     this.turn = e.turn || 'w';
     this.inCheck = false;
     this.updateTurnAndCheckUi();
+    const side = e.color === 'w' ? '⚪ Bianco' : '⚫ Nero';
+    const moveStr = e.san || (e.from && e.to ? `${e.from} → ${e.to}` : 'mossa');
+    this.logToQuake('MOVE', `${side}: ${moveStr}`);
   }
 
   onCheckDetected(e) {
     this.inCheck = true;
     this.turn = e.color || this.turn;
     this.updateTurnAndCheckUi();
+    const side = e.color === 'w' ? '⚪ Re Bianco' : '⚫ Re Nero';
+    this.logToQuake('CHECK', `⚠️ ${side} è sotto scacco!`, 'gold');
   }
 
   onCheckmate(e) {
     if (!this.rootEl) return;
+
     const modal = this.rootEl.querySelector('#hud-gameover-modal');
     const title = this.rootEl.querySelector('#hud-gameover-title');
     const sub = this.rootEl.querySelector('#hud-gameover-sub');
@@ -1818,7 +2987,27 @@ export class HudListener {
           ? `Vittoria epica per: ${winnerName}!`
           : `Epic victory for: ${winnerName}!`;
     }
-    if (modal) modal.style.display = 'grid';
+    const winnerTag = e.winner === 'w' ? '⚪ Bianco' : '⚫ Nero';
+    this.logToQuake('MATE', `🏆 SCACCO MATTO! Vittoria per ${winnerTag}!`, 'green');
+
+    const bannerText =
+      this.lang === 'it'
+        ? '👑 CAPITOLAZIONE DEL RE! SCACCO MATTO! 💥'
+        : '👑 KING CAPITULATION! CHECKMATE! 💥';
+    this.activeBanner = bannerText;
+
+    // Show the Royal Capitulation comic banner while the 4.2s 3D King Capitulation plays on the board!
+    const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
+    const textEl = this.rootEl.querySelector('#hud-comic-text');
+    if (textEl) textEl.textContent = bannerText;
+    if (bannerEl) bannerEl.style.display = 'inline-flex';
+
+    if (this.checkmateModalTimer) clearTimeout(this.checkmateModalTimer);
+    this.checkmateModalTimer = setTimeout(() => {
+      this.checkmateModalTimer = null;
+      this.onBattleEnded();
+      if (modal) modal.style.display = 'grid';
+    }, 4200);
   }
 
   onDraw(e) {
@@ -1834,6 +3023,7 @@ export class HudListener {
           : `Match drawn (${e.reason || 'magical balance'}) 🤝`;
     }
     if (modal) modal.style.display = 'grid';
+    this.logToQuake('DRAW', `🤝 Partita patta: ${e.reason || 'parità'}`, 'cyan');
   }
 
   onPromotionPending(e) {
@@ -1848,6 +3038,13 @@ export class HudListener {
     this.luck[pid] = e.luck ?? 0;
     this.luck.max = e.maxLuck ?? 12;
     this.updateLuckUi(pid);
+    if (this.luck[pid] >= (this.luck.max || 12)) {
+      this.logToQuake(
+        'LUCK',
+        `✨ FORTUNA AL MASSIMO per ${pid === 'w' ? '⚪ Bianco' : '⚫ Nero'}! Golden Crit garantito alla prossima cattura!`,
+        'gold',
+      );
+    }
   }
 
   onDropSpawned(e) {
@@ -1856,6 +3053,7 @@ export class HudListener {
       this.renderStickersUi();
       const stickerLabel = e.sticker.name?.[this.lang] || e.sticker.name?.it || e.sticker.id;
       this.showToast(`🌟 STICKER SBLOCCATO: ${stickerLabel}!`, 3600);
+      this.logToQuake('STICKER', `🌟 Sticker sbloccato: ${stickerLabel}!`, 'gold');
     }
   }
 
@@ -1872,10 +3070,22 @@ export class HudListener {
     this.activeBanner = text;
 
     if (!this.rootEl) return;
+    // Hide the left WOW drawer and any center toast during combat so the auto-zoomed 3D fight is 100% clear!
+    const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
+    if (wowPanel) wowPanel.style.display = 'none';
+    const toastEl = this.rootEl.querySelector('#hud-toast');
+    if (toastEl) toastEl.style.display = 'none';
+
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
     const textEl = this.rootEl.querySelector('#hud-comic-text');
     if (textEl) textEl.textContent = text;
     if (bannerEl) bannerEl.style.display = 'inline-flex';
+
+    this.logToQuake(
+      'BATTLE',
+      `🥊 Scazzottata 3D: ${e.attacker?.toUpperCase()} vs ${e.defender?.toUpperCase()} (${e.square || ''}) — "${text}"`,
+      'gold',
+    );
   }
 
   onBattleEnded() {
@@ -1883,11 +3093,36 @@ export class HudListener {
     if (!this.rootEl) return;
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
     if (bannerEl) bannerEl.style.display = 'none';
+    // Restore WOW drawer if we returned to Mode2_WowArena
+    const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
+    if (wowPanel) {
+      wowPanel.style.display = this.flowState === 'Mode2_WowArena' ? 'flex' : 'none';
+    }
+    this.logToQuake('BATTLE', '✨ Scontro concluso.');
+  }
+
+  onAiThinking(e) {
+    const side = e?.color === 'w' ? '⚪ Bianco' : '⚫ Nero';
+    const diff =
+      e?.difficulty ||
+      (e?.color === 'w' ? this.whiteDifficulty : this.blackDifficulty) ||
+      'easy';
+    this.logToQuake('AI', `🤖 AI sta pensando (${side} - livello ${diff})...`, 'cyan');
+  }
+
+  onAiMoveReady(e) {
+    const move = e?.move;
+    const notation = move
+      ? `${move.from} → ${move.to}${move.promotion ? '=' + move.promotion : ''}`
+      : '?';
+    const ms = typeof e?.timeMs === 'number' ? ` in ${e.timeMs}ms` : '';
+    this.logToQuake('AI', `🎯 AI mossa pronta: ${notation}${ms}`, 'green');
   }
 
   onHintSuggested(e) {
     if (e.explanation) {
       this.showToast(`💡 ${e.explanation}`, 3500);
+      this.logToQuake('HINT', `💡 Suggerimento: ${e.explanation}`, 'gold');
     }
   }
 
@@ -1939,12 +3174,50 @@ export class HudListener {
   }
 
   onKeyDown(e) {
-    if (e.code === 'Escape' && this.matrixModalOpen) {
+    const targetTag = e.target?.tagName?.toLowerCase();
+    const isTextInput =
+      targetTag === 'input' || targetTag === 'textarea' || targetTag === 'select';
+
+    // Toggle Quake console with `, ~, \, §
+    if (e.key === '`' || e.key === '~' || e.key === '\\' || e.key === '§') {
+      if (!isTextInput || e.target?.id === 'quake-input') {
+        e.preventDefault();
+        this.toggleQuakeConsole();
+        return;
+      }
+    }
+
+    if (e.code === 'Escape') {
+      if (this.quakeConsoleOpen) {
+        e.preventDefault();
+        this.closeQuakeConsole();
+        return;
+      }
+      if (this.setupModalOpen) {
+        e.preventDefault();
+        this.closeSetupModal();
+        return;
+      }
+      if (this.matrixModalOpen) {
+        e.preventDefault();
+        this.closeMatrix36Modal();
+        return;
+      }
+      if (this.activeBanner || this.flowState === 'CaptureCutscene') {
+        e.preventDefault();
+        this.skipActiveCutscene();
+        return;
+      }
+    }
+
+    // Hotkey 'm' / 'M' to toggle topbar when not typing in an input
+    if (!isTextInput && (e.key === 'm' || e.key === 'M')) {
       e.preventDefault();
-      this.closeMatrix36Modal();
+      this.toggleTopbar();
       return;
     }
-    if (e.code === 'Space' || e.code === 'Escape') {
+
+    if (e.code === 'Space' && !isTextInput) {
       if (this.activeBanner || this.flowState === 'CaptureCutscene') {
         e.preventDefault();
         this.skipActiveCutscene();
@@ -1953,6 +3226,14 @@ export class HudListener {
   }
 
   skipActiveCutscene() {
+    if (this.checkmateModalTimer) {
+      clearTimeout(this.checkmateModalTimer);
+      this.checkmateModalTimer = null;
+      this.onBattleEnded();
+      const modal = this.rootEl?.querySelector('#hud-gameover-modal');
+      if (modal) modal.style.display = 'grid';
+      return;
+    }
     const combat = this.ctx?.combat || this.ctx?.combatManager;
     if (combat?.skip) {
       combat.skip('user_skip');
@@ -2049,8 +3330,16 @@ export class HudListener {
     setTxt('#hud-rival-select option[value="swamp"]', 'setSwamp');
     setTxt('#hud-rival-select option[value="classic"]', 'setClassic');
     setTxt('#hud-rival-select option[value="stone"]', 'setStone');
+    setTxt('#hud-setup-title', 'setupTitle');
+    setTxt('#hud-setup-sub', 'setupSub');
+    setTxt('#hud-setup-apply-btn', 'applyCurrentBtn');
+    setTxt('#hud-setup-start-btn', 'startMatchBtn');
+    setTxt('#hud-setup-badge-text', 'defaultSetupBadge');
+    setTxt('#hud-setup-btn', 'setupBtn');
+    setTxt('#hud-toggle-topbar-btn', 'toggleTopbarBtn');
     this.updateTurnAndCheckUi();
     this.renderStickersUi();
+    this._renderMatrixExplorerGrid();
   }
 
   dispose() {
@@ -2058,6 +3347,7 @@ export class HudListener {
     for (const off of this.offs) off();
     this.offs = [];
     if (this.toastTimer) clearTimeout(this.toastTimer);
+    if (this.checkmateModalTimer) clearTimeout(this.checkmateModalTimer);
     if (typeof window !== 'undefined') {
       window.removeEventListener('keydown', this._boundKeyDown);
     }

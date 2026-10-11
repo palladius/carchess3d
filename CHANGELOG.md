@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.7] - 2026-10-11
+## [0.3.10] - 2026-10-11
 
 - 😁🦷🐴 **Asinello Chiacchierone (`Knight`, `1.35m`) — Sorrisone Assurdo a 40 Denti (`tools/model-pipeline/swamp/gen_asinello_40teeth.py`, `assets/characters/knight-swamp-asinello.jpg`, `assets/characters/knight-swamp-asinello-2.jpg`)**:
   - Regenerated the Swamp Knight in two expressive comedy variants featuring a non-negotiable, ear-to-ear **40-tooth sparkling white grin**, raised cheeky eyebrow, crimson-and-gold tournament collar, and golden onion shoulder medallion, and updated the watertight 3D `.glb` mesh (`assets/models/swamp/knight-swamp-asinello.glb`, `18,288 tris`, `1.35m`).
@@ -11,6 +11,62 @@
 - 🧊🖥️ **GitHub Issue #20 for `pupurabbux` Home GPU TRELLIS.2 Batch Reconstruction (`tools/model-pipeline/classic/gen_trellis2_batch.py`)**:
   - Added PEP 723 inline `uv` script dependencies to `tools/model-pipeline/classic/gen_trellis2_batch.py` and filed [GHI #20](https://github.com/palladius/carchess3d/issues/20) so `pupurabbux` can reconstruct all 11 remaining high-res UV-textured Classic & Swamp `.glb` models in one command (`uv run tools/model-pipeline/classic/gen_trellis2_batch.py --family all`).
 
+## [0.3.9] - 2026-10-11
+
+- 🔍⚔️👑 **Merge `refactor_ui_cleanup_ux` (#19) — Auto-Zoom Close-Up Combat Camera, Zero Text Occlusion, Full-Screen 16:9 Video Backdrop, 3D King Capitulation & +50% Combat Duration (`VFXPoolView.js`, `VeoCinemaView.js`, `WowModeView.js`, `PieceView.js`, `HudListener.js`, `CombatAnimationManager.js`, `Registry.js`, `main.js`, `tests/combat.test.mjs`)**:
+  - **Auto-Zoom Close-Up Combat Camera (`VFXPoolView.js`, `WowModeView.js`, `main.js`)**: During any capture or `⚔️ Lancia Sfida (Ale vs Seby)`, the camera smoothly auto-zooms (`FOV 46° → 30°`, `dist = 1.82m..2.10m`, `camY = 1.28m..1.44m`) onto the live midpoint of the two `1.22×`-scaled fighting pieces. Static board pieces on the active clash squares (`from`/`to`) are temporarily hidden via `pieceView.pieceBySquare`, while neighboring chess pieces (`"i pezzi vicini e poco altro!"`) remain visible around the brawl.
+  - **Zero Text/UI Occlusion During Combat (`VFXPoolView.js`, `VeoCinemaView.js`, `HudListener.js`)**: Disabled the floating 3D `comicWordSprite` billboard (`CHARGE!` / `KAPOW!`) over the fighters' heads, lowered the dust cloud to pedestal level (`y = 0.16m`, `opacity = 0.35`), auto-hid the 310px `#hud-wow-panel` drawer during active combat, moved `#hud-comic-banner` to a compact top-right pill (`top: 52px; right: 14px`), and removed the bottom text box from the 16:9 cinema canvas.
+  - **16:9 Video Discreet in Idle, Full-Screen Backdrop Behind the Board in Combat (`VeoCinemaView.js`)**: In `idle`, the 16:9 screen parks discreetly in the background (`scale = 0.65`, `(0, 3.65, -10.8)`); during `battle` or `checkmate`, it expands behind the auto-zoomed fighters (`scale = 1.85`, `(0, 2.45, -5.2)`).
+  - **Spectacular 3D King Capitulation on Checkmate (`PieceView.js`, `VFXPoolView.js`, `BoardMapManager.js`, `HudListener.js`)**: `CHECKMATE` now triggers a 4.2s 3D Royal Capitulation sequence (`animateKingCapitulation` + `onCheckmate` golden throne & lightning VFX + celebratory jumps for surviving pieces) before displaying the Game Over modal.
+  - **In-App 6×6 Family Capture Matrix & +50% Slower Combats (`Registry.js`, `CombatAnimationManager.js`, `HudListener.js`)**: Extended `DEFAULT_BATTLE_DURATION_MS` by +50% (`4000ms → 6000ms`, `videoEl.playbackRate = 1.0`) and added family selector tabs (`👨‍👩‍👦‍👦 Famiglia Carlesso`, `🏛️ Classici Carlessiani`, `🐸 Famiglia della Palude`) with asset badges (`📹 Veo MP4`, `🎞️ 3D MP4`, `🦴 GLB`, `🌟 Egg`).
+
+## [0.3.8] - 2026-10-11
+
+- 🎬🕵️‍♂️🤖 **Automated Daily UAT Playtest Suite & Adversarial Critic (`scripts/daily_uat_playtest.py`, `etc/prompts/daily_uat_prompt.md`, `just uat`, `just daily-uat`)**:
+  - **Autonomous Adversarial Playtest & Screen Audit**:
+    - Simulates an intelligent human tester playing as White against **CPU Easy** (Black) in headless Google Chrome via Playwright with WebGL hardware/software acceleration.
+    - **Faction Orientation Verification**: Audits all 32 pieces on the 8×8 board to ensure White pieces strictly face North (`homeYaw ≈ 3.142 rad` towards rank 8) and Black pieces face South (`homeYaw ≈ 0.0 rad` towards rank 1), flagging any "all facing same direction" glitch.
+    - **Black-Screen Audit**: Performs automatic luminance and contrast stddev pixel analysis on Camera 180° Inversion (`#hud-flip-btn`) and Top-Down view (`#hud-top-btn`) to guarantee the 3D scene remains vibrantly illuminated and never goes pitch-black.
+    - **Interactive Subsystem Clicking**: Adversarially exercises 3D Articulated Skeletons (`#hud-skeletons-btn`), Shrek Swamp Moat party (`#hud-swamp-btn`), 6×6 Battle Matrix Modal (`#hud-matrix36-btn`), and WOW Mode Turntable & Arena (`#hud-mode2-btn`).
+    - **Live Match Simulation**: Executes human opening moves (`e2-e4`, `g1-f3`, `d2-d4`), monitors Web Worker CPU Easy response latency (averaging ~460ms), triggers tactical captures, verifies the Comic Impact Banner (`#hud-comic-banner`), and exercises the cutscene skip button (`#hud-skip-btn`).
+  - **Video Recording & Media Deliverables**:
+    - Automatically records a full match session into `log/uat/uat_gameplay.mp4` and `uat_gameplay.webm` (strictly capped at `<= 60s` / 1 min duration) and renders an animated preview GIF `log/uat/uat_gameplay.gif`.
+    - Captures 13 timestamped keyframe screenshots into `log/uat/*.png` and generates `log/uat/UAT_REPORT.md` and `uat_report.json`.
+  - **GitHub Issue Integration (`gemini-uat`)**:
+    - With `--publish-ghi` (or `just daily-uat`), creates or comments on a daily GitHub Issue titled `"Gemini UAT $YYYYMMDD"` (e.g. [`#18`](https://github.com/palladius/carchess3d/issues/18)) tagged with label `gemini-uat`, embedding the full UAT verification matrix, playability critique, and video assets.
+  - **Customizable Prompt**:
+    - Added [`etc/prompts/daily_uat_prompt.md`](etc/prompts/daily_uat_prompt.md) as the central prompt template for scheduled runs, allowing Riccardo to easily edit testing sequences, thresholds, or difficulty levels.
+- 🐛🤖 **Fix CPU Opponent Disabled After Setup & Separate "Nuova Partita" (Reset) vs "Modifica Partita" (In-Place) (`src/listeners/HudListener.js`, `src/managers/AIWorkerManager.js`, `src/core/Registry.js`, `sw.js`, `tests/cpu-opponent.test.mjs`)**:
+  - **Bug #1 Fix — Default Human vs CPU AI Now Moves Properly**:
+    - Fixed `HudListener.applySetup()` emitting `OPPONENT_CHANGED` without `enabled`, which caused `AIWorkerManager`'s `OPPONENT_CHANGED` handler to set `this.enabled = Boolean(undefined) = false` and turn the match into Human vs Human.
+    - Hardened `AIWorkerManager` so `OPPONENT_CHANGED` derives `enabled` from `e.enabled` or `e.mode !== 'hotseat' && cpuColor !== 'none'`.
+  - **Bug #2 Fix & UX Split — Two Distinct Actions: "🔄 Nuova Partita" (Reset) vs "⚙️ Modifica Partita" (Senza Reset)**:
+    - Fixed `HudListener.applySetup()` emitting `PROFILE_CHANGED` without `restoreBoard: false` before `board.reset()`, which had caused `ProfileStorageListener` to reload the saved mid-game FEN from `localStorage` and overwrite the reset board.
+    - Wired `PieceManager.setWhiteFamily()` and `PieceManager.setRivalSetMode()` inside `applySetup()` so 3D factions update reliably both on new games and mid-game edits.
+    - Split the bottom dock and Setup Modal into two distinct actions:
+      1. **🔄 Nuova Partita (`#hud-new-btn` & `#hud-setup-start-btn`)**: Resets all 32 pieces to the initial board (`resetBoard: true`).
+      2. **⚙️ Modifica Partita / 💾 Modifica Partita in Corso (`#hud-setup-btn` & `#hud-setup-apply-btn`)**: Updates White/Black factions, Human/AI control, and AI difficulty in-place on the active board without resetting the pieces (`resetBoard: false`).
+  - **Service Worker Cache Bump (`sw.js`)**:
+    - Bumped `CACHE_NAME` to `carchess3d-offline-v9` and switched HTML/JS/`VERSION` requests to network-first with offline cache fallback so GitHub Pages deployments take effect immediately.
+
+## [0.3.7] - 2026-10-11
+
+- 🏰🎮 **Startup Match Setup Modal, Auto-Hiding Top Bar, Footer Overlay & Quake-Style Console (`HudListener.js`, `AIWorkerManager.js`, `BoardInteractionView.js`, `main.js`, `Registry.js`, `tests/cpu-opponent.test.mjs`)**:
+  - **Inizio Partita Setup Modal (`#hud-setup-modal`)**:
+    - Interactive 2-column modal at game boot asking who plays White and who plays Black (Human vs Computer AI), with character profiles and CPU difficulty settings (`easy`, `medium`, `hard`).
+    - Explicit default: ⚪ **Famiglia Carlesso** (Human, profile Ale/Riccardo) vs ⚫ **Scacchi Classici** with **AI Facile** (`easy`).
+    - Can be reopened at any time via `⚙️ Nuova Partita` or `⚙️ Setup Fazioni` in the bottom action dock.
+  - **Auto-Hiding Top Bar for Maximum 3D Viewport (`#hud-topbar.hidden`)**:
+    - Once the match starts, the top navigation/status bar smoothly slides up and disappears (`translateY(-130%)`, `opacity: 0`), granting full screen immersion to the 3D board, the swamp, and the 16:9 cinema mirror.
+    - Togglable back anytime via the `☰ Mostra Barra` button in the bottom dock or pressing hotkey `M`.
+  - **Overlay Footer with Branding & Open Source Links (`.hud-bottombar`, `.hud-footer-brand`)**:
+    - Bottom bar rendered in overlay/sovrimpressione featuring game branding (`🏰🚽 CarChess3D · Carlesso al Cesso`), direct GitHub repository link (`https://github.com/palladius/carchess3d`), 3D Gallery, and 36 Battles Matrix shortcuts alongside gameplay controls.
+  - **Quake-Style Dropdown Terminal Console (`#hud-quake-console`)**:
+    - Retro top-sliding terminal toggled via `~`, `` ` ``, `\`, `§`, or the `~_ Console` button in the dock.
+    - Real-time logging of game events: moves, checks, checkmate, draws, luck meter bursts, loot drops, 3D brawls, and AI thinking/calculation time.
+    - Interactive command prompt supporting `help`, `setup`, `topbar`, `fen`, `pgn`, `hint`, `reset`, `matrix`, `swamp`, `skeletons`, `clear`, and `close`.
+  - **Multi-Side AI Worker Architecture (`AIWorkerManager.js`, `BoardInteractionView.js`)**:
+    - Upgraded `AIWorkerManager` to support `cpuColor = 'b' | 'w' | 'both' | 'none'` with independent white/black difficulty levels, enabling AI vs AI demo matches and White CPU play. Gated mouse raycasting in `BoardInteractionView` so human clicks are safely ignored during CPU turns. Tested via `tests/cpu-opponent.test.mjs`.
 ## [0.3.6] - 2026-10-11
 
 - 🐱🎭⛪ **Swamp Family Lineup Upgrade: Don Gatto Zorro-Vescovo (`Bishop`, `1.45m`) & Uomo Focaccina Ligure (`Pawn`, `0.95m`)**:

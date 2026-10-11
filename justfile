@@ -62,4 +62,13 @@ shittest:
 provenance:
     python3 scripts/test_provenance.py
 
+# run headless Playwright UAT playtest with video recording & visual checks
+uat *args:
+    UV_INDEX_URL=https://pypi.org/simple uv run --with playwright --with pillow python3 scripts/daily_uat_playtest.py {{args}}
+
+# run full daily UAT: unit tests, headless match vs CPU Easy, video (<1 min) & create/update GHI "Gemini UAT YYYYMMDD"
+daily-uat:
+    just test
+    just uat --publish-ghi
+
 
