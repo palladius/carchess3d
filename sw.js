@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v5';
+const CACHE_NAME = 'carchess3d-offline-v6';
 
 const PRECACHE_URLS = [
   './',
@@ -46,6 +46,16 @@ const PRECACHE_URLS = [
   './assets/characters/knight-seby-4.jpg',
   './assets/characters/rook-pupurabbu.jpg',
   './assets/characters/pawn-puffin.jpg',
+  './assets/characters/king-swamp-orco.jpg',
+  './assets/characters/queen-swamp-orchessa.jpg',
+  './assets/characters/bishop-swamp-focaccina.jpg',
+  './assets/characters/bishop-swamp-gatto.jpg',
+  './assets/characters/knight-swamp-asinello.jpg',
+  './assets/characters/rook-swamp-draghessa.jpg',
+  './assets/characters/pawn-swamp-tappo.jpg',
+  './assets/characters/pawn-swamp-focaccina.jpg',
+  './assets/characters/pawn-swamp-porcellini.jpg',
+  './assets/characters/pawn-swamp-zenzy.jpg',
   './assets/models/king-riccardo.glb',
   './assets/models/queen-kate.glb',
   './assets/models/bishop-ale-rigged.glb',

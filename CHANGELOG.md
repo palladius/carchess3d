@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.8] - 2026-10-11
+
+- 🐱🎭⛪ **Swamp Family Lineup Upgrade: Don Gatto Zorro-Vescovo (`Bishop`, `1.45m`) & Uomo Focaccina Ligure (`Pawn`, `0.95m`)**:
+  - Generated and approved `assets/characters/bishop-swamp-gatto.jpg` (Variant 1, synced to `bishop-swamp-focaccina.jpg` for manifest compatibility): a swashbuckler ginger tabby cat wearing a black Zorro domino eye-mask, tall black-and-gold Papal Bishop Mitre with glowing ruby cross & sweeping yellow ostrich feather, black-and-gold embroidered Zorro cape with `"Z"` clasp, tall cuffed leather boots, golden swept-hilt rapier-crosier, and solemn Bishop blessing paw.
+  - Promoted **Uomo Focaccina Ligure** (`assets/characters/pawn-swamp-focaccina.jpg`, synced to `pawn-swamp-tappo.jpg`) to the canonical Swamp **Pawn (`0.95m`)**, and added two alternate Italian fairytale Pawn portraits: **I 3 Porcellini della Palude** (`assets/characters/pawn-swamp-porcellini.jpg`) and **Zenzy Pan di Zenzero & Focaccina** (`assets/characters/pawn-swamp-zenzy.jpg`).
+  - Rebuilt the watertight 3D `.glb` statues in `tools/model-pipeline/swamp/build_swamp_models.py` (`assets/models/swamp/bishop-swamp-focaccina.glb` `21,640 tris`, `1.45m`; `assets/models/swamp/pawn-swamp-tappo.glb` `16,032 tris`, `0.95m`) and updated `tools/model-pipeline/swamp/swamp_contact_sheet.png`.
+- 🩸✨ **3D Miracolo di San Gennaro Blood Liquefaction Animation (`VFXPoolView.js`, `CombatAnimationManager.js`, `Registry.js`)**:
+  - Implemented the bespoke 3D **Miracolo del Sangue di San Gennaro** (`san_gennaro_miracle` / `san_gennaro_blood_drops`) triggered when the Classic Bishop (**San Gennaro**) attacks: a golden Baroque reliquary ampoule (`sanGennaroAmpoule`) rises above the capture square, tilts side-to-side while its dark clotted blood core (`#3b0308`) liquefies and boils into glowing ruby-crimson (`#ff1744`) at `t >= 0.28`, and unleashes a 64-particle burst of crimson-ruby droplets and golden sparks with banner `"MIRACOLO DI SAN GENNARO! SANGUE SCIOLTO! 🩸✨"`.
+- 🧊🏛️ **TRELLIS.2 3D Reconstruction Pipeline for Classic Family (`tools/model-pipeline/classic/gen_trellis2_batch.py`)**:
+  - Added automated `microsoft/TRELLIS.2` image-to-3D reconstruction + contract normalizer (`faction_primary` / `faction_trim` material slots, `min.y = 0.0`, exact target height) and reconstructed `assets/models/classic/king-classic-re.glb` (`99,267 tris`, `1.80m`).
+
 ## [0.2.7] - 2026-10-10
 
 - ♔🏛️ **Pure Vanilla Classic Chess Family (`classic`) with San Gennaro Bishop & Torre Matildea Rook**:
