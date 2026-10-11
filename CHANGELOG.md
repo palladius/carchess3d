@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.7] - 2026-10-11
+## [0.3.8] - 2026-10-11
 
 - 🎬🕵️‍♂️🤖 **Automated Daily UAT Playtest Suite & Adversarial Critic (`scripts/daily_uat_playtest.py`, `etc/prompts/daily_uat_prompt.md`, `just uat`, `just daily-uat`)**:
   - **Autonomous Adversarial Playtest & Screen Audit**:
@@ -16,6 +16,25 @@
     - With `--publish-ghi` (or `just daily-uat`), creates or comments on a daily GitHub Issue titled `"Gemini UAT $YYYYMMDD"` (e.g. [`#18`](https://github.com/palladius/carchess3d/issues/18)) tagged with label `gemini-uat`, embedding the full UAT verification matrix, playability critique, and video assets.
   - **Customizable Prompt**:
     - Added [`etc/prompts/daily_uat_prompt.md`](etc/prompts/daily_uat_prompt.md) as the central prompt template for scheduled runs, allowing Riccardo to easily edit testing sequences, thresholds, or difficulty levels.
+
+## [0.3.7] - 2026-10-11
+
+- 🏰🎮 **Startup Match Setup Modal, Auto-Hiding Top Bar, Footer Overlay & Quake-Style Console (`HudListener.js`, `AIWorkerManager.js`, `BoardInteractionView.js`, `main.js`, `Registry.js`, `tests/cpu-opponent.test.mjs`)**:
+  - **Inizio Partita Setup Modal (`#hud-setup-modal`)**:
+    - Interactive 2-column modal at game boot asking who plays White and who plays Black (Human vs Computer AI), with character profiles and CPU difficulty settings (`easy`, `medium`, `hard`).
+    - Explicit default: ⚪ **Famiglia Carlesso** (Human, profile Ale/Riccardo) vs ⚫ **Scacchi Classici** with **AI Facile** (`easy`).
+    - Can be reopened at any time via `⚙️ Nuova Partita` or `⚙️ Setup Fazioni` in the bottom action dock.
+  - **Auto-Hiding Top Bar for Maximum 3D Viewport (`#hud-topbar.hidden`)**:
+    - Once the match starts, the top navigation/status bar smoothly slides up and disappears (`translateY(-130%)`, `opacity: 0`), granting full screen immersion to the 3D board, the swamp, and the 16:9 cinema mirror.
+    - Togglable back anytime via the `☰ Mostra Barra` button in the bottom dock or pressing hotkey `M`.
+  - **Overlay Footer with Branding & Open Source Links (`.hud-bottombar`, `.hud-footer-brand`)**:
+    - Bottom bar rendered in overlay/sovrimpressione featuring game branding (`🏰🚽 CarChess3D · Carlesso al Cesso`), direct GitHub repository link (`https://github.com/palladius/carchess3d`), 3D Gallery, and 36 Battles Matrix shortcuts alongside gameplay controls.
+  - **Quake-Style Dropdown Terminal Console (`#hud-quake-console`)**:
+    - Retro top-sliding terminal toggled via `~`, `` ` ``, `\`, `§`, or the `~_ Console` button in the dock.
+    - Real-time logging of game events: moves, checks, checkmate, draws, luck meter bursts, loot drops, 3D brawls, and AI thinking/calculation time.
+    - Interactive command prompt supporting `help`, `setup`, `topbar`, `fen`, `pgn`, `hint`, `reset`, `matrix`, `swamp`, `skeletons`, `clear`, and `close`.
+  - **Multi-Side AI Worker Architecture (`AIWorkerManager.js`, `BoardInteractionView.js`)**:
+    - Upgraded `AIWorkerManager` to support `cpuColor = 'b' | 'w' | 'both' | 'none'` with independent white/black difficulty levels, enabling AI vs AI demo matches and White CPU play. Gated mouse raycasting in `BoardInteractionView` so human clicks are safely ignored during CPU turns. Tested via `tests/cpu-opponent.test.mjs`.
 
 ## [0.3.6] - 2026-10-11
 
@@ -55,6 +74,7 @@
     - **🐙 GitHub Code**: Direct clickable link to the repository source code (`https://github.com/palladius/carchess3d`).
     - **🐛 Open a Bug**: Direct clickable link to open a new GitHub Issue (`https://github.com/palladius/carchess3d/issues/new`).
   - Added unit test in [`tests/core.test.mjs`](tests/core.test.mjs) verifying `APP_VERSION`, `GITHUB_REPO_URL`, and `GITHUB_NEW_ISSUE_URL` match `VERSION` and repo endpoints.
+>>>>>>> origin/main
 
 ## [0.3.3] - 2026-10-10
 

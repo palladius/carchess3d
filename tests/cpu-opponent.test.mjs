@@ -138,3 +138,30 @@ test('CPU opponent: BoardMapManager applies AI_MOVE_READY only when it is still 
   assert.equal(board.turn(), 'w');
   assert.equal(board.pieceAt('e5')?.type, 'p');
 });
+
+test('CPU opponent: White CPU plays immediately on initial board turn', async () => {
+  const { bus, board, ai } = makeGame();
+  const whiteCpuMoves = [];
+  bus.on('AI_MOVE_READY', (e) => {
+    if (e.color === 'w') whiteCpuMoves.push(e);
+  });
+
+  // Configure White CPU: since board.turn() === 'w', it must take turn
+  ai.configure({ enabled: true, cpuColor: 'w', whiteDifficulty: 'easy' });
+  await settle(bus);
+  assert.equal(whiteCpuMoves.length, 1, 'White CPU must play its first move');
+  assert.equal(board.turn(), 'b', 'Board turn must advance to black');
+  ai.dispose();
+});
+
+test('CPU opponent: Dual CPU (cpuColor="both") plays consecutive turns', async () => {
+  const { bus, board, ai } = makeGame();
+  const readyMoves = [];
+  bus.on('AI_MOVE_READY', (e) => readyMoves.push(e));
+
+  ai.configure({ enabled: true, cpuColor: 'both', whiteDifficulty: 'easy', blackDifficulty: 'easy' });
+  await settle(bus, 16);
+  assert.ok(readyMoves.length >= 2, 'Both White CPU and Black CPU must take turns in dual CPU mode');
+  ai.dispose();
+});
+
