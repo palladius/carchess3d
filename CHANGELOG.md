@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.20] - 2026-10-11
+
+- 🎥♟️✨ **Combat Camera ~5×5 Board Framing, 100% Visible 16:9 Veo Backdrop & Production Skeleton Removal (`VFXPoolView.js`, `VeoCinemaView.js`, `SkeletonRigHelper.js`, `PieceView.js`, `HudListener.js`, `justfile`)**:
+  - **~5×5 Chessboard Combat Zoom**: Widened `VFXPoolView.updateCameraOrbit` (`dist = 4.90 - Math.sin(t * Math.PI) * 0.35`, `camY = 2.42 + Math.sin(t * Math.PI) * 0.16`, `targetY = 1.62`, `FOV = 45°`) so the combat camera frames roughly half the chessboard (~5×5 squares) around the two combatants while keeping neighboring pieces and board context visible.
+  - **100% Unobstructed 16:9 Veo Video Backdrop**: Dynamically aligns `VeoMagicCinemaMirror` perpendicular to the camera sightline (`mirrorRoot.rotation.set(0, orbitAngle, 0)`) and scales it (`yBottom = Math.max(0.18, rayCenterY - 0.14 * hHalf)`, `yTopFrame = rayCenterY + 0.64 * hHalf`) so 100% of the 16:9 video and all 4 golden corner rosettes are visible behind the fighters from any camera angle without being clipped or covered by the top HUD bar or Skip pill.
+  - **Yellow Skeleton Balls Removed in Production**: Removed the `else if (isMovingOrFighting)` override in [`src/views/SkeletonRigHelper.js`](src/views/SkeletonRigHelper.js) so yellow joint spheres and cyan bone sticks (`ArticulatedSkeletonRig`) stay strictly invisible (`rig.visible = false`) in production during idle, walking, and combat. Added opt-in debug/experiment flags (`?debug=1`, `?skeletons=1`, `?experiments=ToggleSkeleton,ShowSkeletons`, plus `just serve-debug` and `just serve experiments="ToggleSkeleton"`).
+
 ## [0.3.19] - 2026-10-11
 
 - 🔄🐴 **Showcase 3D GLB Cache-Busting (`showcase/index.html`, `sw.js`)**:
