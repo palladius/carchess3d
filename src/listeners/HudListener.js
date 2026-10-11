@@ -52,9 +52,17 @@ export class HudListener {
     /** @type {'it'|'en'} */
     this.lang = 'it';
     this.activeProfile = 'ale';
-    this.opponentMode = 'hotseat';
+    this.opponentMode = 'easy';
     this.whiteFamily = 'carlesso';
-    this.rivalSet = 'family';
+    this.rivalSet = 'classic';
+    this.whitePlayerType = 'human';
+    this.blackPlayerType = 'ai';
+    this.whiteDifficulty = 'easy';
+    this.blackDifficulty = 'easy';
+    this.topbarVisible = true;
+    this.setupModalOpen = false;
+    this.quakeConsoleOpen = false;
+    this.quakeLogs = [];
     this.flowState = 'Mode1_Chess';
     this.turn = 'w';
     this.inCheck = false;
@@ -129,7 +137,18 @@ export class HudListener {
         bus.on('LYRIA_CAPTION', (e) => this.onLyriaCaption(e)),
         bus.on('TOGGLE_SKELETONS', (e) => this.onSkeletonsToggled(e)),
         bus.on('PIECE_SET_CHANGED', (e) => this.onPieceSetChanged(e)),
+        bus.on('AI_THINKING', (e) => this.onAiThinking(e)),
+        bus.on('AI_MOVE_READY', (e) => this.onAiMoveReady(e)),
       );
+    }
+
+    if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const skipSetup = params.has('nosetup') || params.has('skipsetup') || params.get('mode') === 'wow';
+      if (!skipSetup && !this._hasAutoOpenedSetup) {
+        this._hasAutoOpenedSetup = true;
+        setTimeout(() => this.openSetupModal(), 350);
+      }
     }
   }
 
@@ -244,6 +263,38 @@ export class HudListener {
         justify-content: space-between;
         gap: 8px;
         padding: 5px 12px;
+        transform: translateY(0);
+        opacity: 1;
+        transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.28s ease;
+      }
+      .hud-topbar.hidden {
+        transform: translateY(-130%);
+        opacity: 0;
+        pointer-events: none !important;
+      }
+      .hud-footer-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #ffe082;
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 12.5px;
+        padding: 4px 8px;
+        border-radius: 8px;
+        background: rgba(255, 213, 79, 0.12);
+        border: 1px solid rgba(255, 213, 79, 0.35);
+        white-space: nowrap;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .hud-footer-brand:hover {
+        background: rgba(255, 213, 79, 0.22);
+        border-color: #ffd54f;
+      }
+      .hud-footer-sub {
+        font-size: 10.5px;
+        color: #9be7c4;
+        font-weight: 600;
       }
       .hud-brand {
         display: flex;
@@ -686,14 +737,255 @@ export class HudListener {
         from { opacity: 0; transform: translateX(-50%) scale(0.75); }
         to { opacity: 1; transform: translateX(-50%) scale(1); }
       }
+
+      /* QUAKE CONSOLE */
+      .hud-quake-console {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 290px;
+        max-height: 48vh;
+        background: rgba(9, 13, 22, 0.96);
+        border-bottom: 3px solid #ffd54f;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.88), 0 2px 14px rgba(255, 213, 79, 0.35);
+        backdrop-filter: blur(10px);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(-100%);
+        transition: transform 0.24s cubic-bezier(0.1, 0.9, 0.2, 1);
+        user-select: text;
+        font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      }
+      .hud-quake-console.open {
+        transform: translateY(0);
+      }
+      .quake-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 12px;
+        background: rgba(18, 25, 40, 0.98);
+        border-bottom: 1px solid rgba(255, 213, 79, 0.3);
+        font-size: 11.5px;
+        color: #ffe082;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+      }
+      .quake-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .quake-help-pill {
+        font-size: 10px;
+        color: #80cbc4;
+        background: rgba(0, 230, 118, 0.12);
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 230, 118, 0.3);
+      }
+      .quake-btn {
+        font: 700 11px system-ui, sans-serif;
+        padding: 2px 8px;
+        border-radius: 5px;
+        background: #1e2638;
+        color: #ffe082;
+        border: 1px solid rgba(255, 213, 79, 0.4);
+        cursor: pointer;
+      }
+      .quake-btn:hover {
+        background: #2a354d;
+        border-color: #ffd54f;
+      }
+      .quake-btn.gold {
+        background: linear-gradient(180deg, #ffe082 0%, #d49b27 100%);
+        color: #1a1200;
+        border-color: #fff3c4;
+      }
+      .quake-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 12px;
+        font-size: 12px;
+        line-height: 1.4;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        color: #00e676;
+      }
+      .quake-line {
+        display: flex;
+        gap: 6px;
+        align-items: baseline;
+      }
+      .quake-time {
+        color: #80cbc4;
+        font-size: 10.5px;
+        flex-shrink: 0;
+      }
+      .quake-tag {
+        font-weight: 800;
+        font-size: 11px;
+        flex-shrink: 0;
+        padding: 0 4px;
+        border-radius: 3px;
+        background: rgba(0, 0, 0, 0.4);
+      }
+      .quake-tag.move { color: #ffe082; }
+      .quake-tag.brawl { color: #ff9100; }
+      .quake-tag.check { color: #ff5252; }
+      .quake-tag.ai { color: #40c4ff; }
+      .quake-tag.luck { color: #b9f6ca; }
+      .quake-tag.sys { color: #ce93d8; }
+      .quake-tag.cmd { color: #81d4fa; }
+      .quake-msg {
+        color: #f1f8e9;
+      }
+      .quake-prompt-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        background: rgba(14, 19, 30, 0.98);
+        border-top: 1px solid rgba(255, 213, 79, 0.25);
+      }
+      .quake-prompt-symbol {
+        color: #ffd54f;
+        font-weight: 900;
+        font-size: 13.5px;
+      }
+      .quake-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #00e676;
+        font-family: inherit;
+        font-size: 12px;
+      }
+
+      /* SETUP MODAL */
+      .hud-setup-card {
+        width: min(94vw, 680px);
+        max-height: 92vh;
+        overflow-y: auto;
+        padding: 18px 22px;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .hud-setup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1.5px solid rgba(255, 213, 79, 0.35);
+        padding-bottom: 10px;
+      }
+      .hud-setup-sides {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 600px) {
+        .hud-setup-sides {
+          grid-template-columns: 1fr;
+        }
+      }
+      .hud-side-box {
+        background: rgba(20, 27, 42, 0.88);
+        border: 1.5px solid rgba(255, 213, 79, 0.4);
+        border-radius: 12px;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .hud-side-box.white-side {
+        border-color: rgba(255, 224, 130, 0.8);
+        box-shadow: inset 0 0 16px rgba(255, 213, 79, 0.12);
+      }
+      .hud-side-box.black-side {
+        border-color: rgba(144, 164, 174, 0.7);
+        box-shadow: inset 0 0 16px rgba(120, 144, 156, 0.12);
+      }
+      .hud-side-title {
+        font-size: 13.5px;
+        font-weight: 800;
+        color: #ffe082;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .hud-setup-label {
+        font-size: 11.5px;
+        color: #b0bec5;
+        font-weight: 700;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .hud-setup-radio-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.35);
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 213, 79, 0.25);
+      }
+      .hud-setup-radio-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #eceff1;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .hud-setup-badge {
+        font-size: 11.5px;
+        color: #b9f6ca;
+        background: rgba(0, 200, 83, 0.15);
+        border: 1px solid rgba(0, 200, 83, 0.4);
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
     `;
     document.head.appendChild(style);
 
     const root = document.createElement('div');
     root.id = 'carchess-hud-root';
     root.innerHTML = `
-      <!-- TOP BAR -->
-      <header class="hud-topbar hud-glass hud-interactive">
+      <!-- QUAKE CONSOLE DROPDOWN (Toggle with ~ or \\ or §) -->
+      <aside id="hud-quake-console" class="hud-quake-console hud-interactive" aria-label="Console Quake">
+        <div class="quake-header">
+          <div class="quake-title-wrap">
+            <span style="color:#ffd54f;">~</span>
+            <strong>CARCHESS3D QUAKE CONSOLE</strong>
+            <span class="quake-help-pill">[~] / [\\] / [ESC]</span>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button id="quake-clear-btn" class="quake-btn" title="Pulisci log">🗑️ Pulisci</button>
+            <button id="quake-close-btn" class="quake-btn" title="Chiudi console">✕</button>
+          </div>
+        </div>
+        <div id="quake-log-body" class="quake-body"></div>
+        <form id="quake-form" class="quake-prompt-row">
+          <span class="quake-prompt-symbol">&gt;</span>
+          <input id="quake-input" class="quake-input" type="text" placeholder="help, fen, pgn, hint, setup, reset, topbar, clear, close..." autocomplete="off" spellcheck="false">
+          <button type="submit" class="quake-btn gold">Invia</button>
+        </form>
+      </aside>
+
+      <!-- TOP BAR (Togglable for max screen space) -->
+      <header id="hud-topbar" class="hud-topbar hud-glass hud-interactive">
         <div class="hud-brand">
           <span style="font-size:24px;">🏰🚽</span>
           <div>
@@ -713,21 +1005,21 @@ export class HudListener {
 
           <select id="hud-opponent-select" class="hud-select" aria-label="Avversario">
             <option value="hotseat">${this.t('hotseat')}</option>
-            <option value="easy">${this.t('cpuEasy')}</option>
+            <option value="easy" selected>${this.t('cpuEasy')}</option>
             <option value="medium">${this.t('cpuMed')}</option>
             <option value="hard">${this.t('cpuHard')}</option>
           </select>
 
           <select id="hud-white-select" class="hud-select" aria-label="Set Bianco" title="Famiglia Bianco (Sud)">
-            <option value="carlesso">${this.t('setWhiteCarlesso')}</option>
+            <option value="carlesso" selected>${this.t('setWhiteCarlesso')}</option>
             <option value="swamp">${this.t('setWhiteSwamp')}</option>
             <option value="classic">${this.t('setWhiteClassic')}</option>
           </select>
 
           <select id="hud-rival-select" class="hud-select" aria-label="Set Nero" title="Famiglia Nero (Nord)">
+            <option value="classic" selected>${this.t('setClassic')}</option>
             <option value="family">${this.t('setFamily')}</option>
             <option value="swamp">${this.t('setSwamp')}</option>
-            <option value="classic">${this.t('setClassic')}</option>
             <option value="stone">${this.t('setStone')}</option>
           </select>
 
@@ -827,7 +1119,130 @@ export class HudListener {
         </div>
       </aside>
 
-      <!-- BOTTOM STATUS & ACTION DOCK -->
+      <!-- MODAL 0: GAME STARTUP & FACTION / PLAYER SETUP -->
+      <div id="hud-setup-modal" class="hud-modal-backdrop hud-interactive">
+        <div class="hud-modal-card hud-setup-card hud-glass">
+          <div class="hud-setup-header">
+            <div>
+              <div style="font-size:18px;font-weight:900;color:#ffe082;display:flex;align-items:center;gap:8px;">
+                <span>🏰🚽</span>
+                <span id="hud-setup-title">${this.t('setupTitle')}</span>
+              </div>
+              <span id="hud-setup-sub" style="font-size:11.5px;color:#9be7c4;display:block;margin-top:2px;">
+                ${this.t('setupSub')}
+              </span>
+            </div>
+            <button id="hud-setup-close" class="hud-btn" title="Chiudi">✕</button>
+          </div>
+
+          <div class="hud-setup-sides">
+            <!-- WHITE SIDE -->
+            <div class="hud-side-box white-side">
+              <div class="hud-side-title">
+                <span>⚪</span>
+                <span>${this.t('whiteSide')}</span>
+              </div>
+
+              <label class="hud-setup-label">
+                <span>Fazione / Set:</span>
+                <select id="hud-setup-white-set" class="hud-select" style="width:100%;">
+                  <option value="carlesso" selected>🏰 Famiglia Carlesso (Ale, Seby, Riccardo, Kate...)</option>
+                  <option value="swamp">🐸 Palude di Zurigo (Orco & Focaccina)</option>
+                  <option value="classic">♔ Scacchi Classici (San Gennaro & Matildea)</option>
+                </select>
+              </label>
+
+              <div class="hud-setup-label">
+                <span>Controllo:</span>
+                <div class="hud-setup-radio-group">
+                  <label class="hud-setup-radio-label">
+                    <input type="radio" name="white-player-type" value="human" checked>
+                    <span>👤 Umano</span>
+                  </label>
+                  <label class="hud-setup-radio-label">
+                    <input type="radio" name="white-player-type" value="ai">
+                    <span>🤖 Computer AI</span>
+                  </label>
+                </div>
+              </div>
+
+              <label id="hud-setup-white-profile-wrap" class="hud-setup-label">
+                <span id="hud-setup-profile-lbl">${this.t('profileLabel')}</span>
+                <select id="hud-setup-white-profile" class="hud-select" style="width:100%;">
+                  ${PROFILES.map((p) => `<option value="${p.id}" ${p.id === 'ale' ? 'selected' : ''}>${p.name}</option>`).join('')}
+                </select>
+              </label>
+
+              <label id="hud-setup-white-ai-wrap" class="hud-setup-label" style="display:none;">
+                <span>${this.t('difficultyLabel')}</span>
+                <select id="hud-setup-white-diff" class="hud-select" style="width:100%;">
+                  <option value="easy" selected>${this.t('cpuEasy')}</option>
+                  <option value="medium">${this.t('cpuMed')}</option>
+                  <option value="hard">${this.t('cpuHard')}</option>
+                </select>
+              </label>
+            </div>
+
+            <!-- BLACK SIDE -->
+            <div class="hud-side-box black-side">
+              <div class="hud-side-title">
+                <span>⚫</span>
+                <span>${this.t('blackSide')}</span>
+              </div>
+
+              <label class="hud-setup-label">
+                <span>Fazione / Set:</span>
+                <select id="hud-setup-black-set" class="hud-select" style="width:100%;">
+                  <option value="classic" selected>♔ Scacchi Classici (San Gennaro & Matildea)</option>
+                  <option value="swamp">🐸 Palude di Zurigo (Orco & Focaccina)</option>
+                  <option value="family">🏰 Famiglia Carlesso (Specchio)</option>
+                  <option value="stone">🗿 Pietra Magica (Wizard)</option>
+                </select>
+              </label>
+
+              <div class="hud-setup-label">
+                <span>Controllo:</span>
+                <div class="hud-setup-radio-group">
+                  <label class="hud-setup-radio-label">
+                    <input type="radio" name="black-player-type" value="ai" checked>
+                    <span>🤖 Computer AI</span>
+                  </label>
+                  <label class="hud-setup-radio-label">
+                    <input type="radio" name="black-player-type" value="human">
+                    <span>👤 Umano (Hotseat)</span>
+                  </label>
+                </div>
+              </div>
+
+              <label id="hud-setup-black-ai-wrap" class="hud-setup-label">
+                <span>${this.t('difficultyLabel')}</span>
+                <select id="hud-setup-black-diff" class="hud-select" style="width:100%;">
+                  <option value="easy" selected>${this.t('cpuEasy')}</option>
+                  <option value="medium">${this.t('cpuMed')}</option>
+                  <option value="hard">${this.t('cpuHard')}</option>
+                </select>
+              </label>
+
+              <div id="hud-setup-black-human-wrap" class="hud-setup-label" style="display:none;color:#90caf9;font-size:11.5px;padding-top:4px;">
+                👥 Modalità 2 Giocatori Locale sullo stesso schermo.
+              </div>
+            </div>
+          </div>
+
+          <div class="hud-setup-badge">
+            <span>✨</span>
+            <span id="hud-setup-badge-text">${this.t('defaultSetupBadge')}</span>
+          </div>
+
+          <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;margin-top:4px;">
+            <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 24px;font-size:14px;">
+              ${this.t('startMatchBtn')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM STATUS & FOOTER BAR (Sovrimpressione) -->
       <footer class="hud-bottombar">
         <div class="hud-status-card hud-glass hud-interactive">
           <div class="hud-turn-pill">
@@ -847,19 +1262,41 @@ export class HudListener {
         </div>
 
         <div class="hud-actions-dock hud-glass hud-interactive">
-          <button id="hud-matrix36-btn" class="hud-btn gold-emerald" title="Apri la Matrice Interattiva 6×6 con tutte le 36 Scazzottate 3D e i 36 Video 16:9!">🎬 Matrice 6×6 (36 Scontri)</button>
-          <button id="hud-skeletons-btn" class="hud-btn" title="Mostra/Nascondi gli Scheletri Articolati 3D su tutti i personaggi">🦴 Scheletri 3D</button>
+          <!-- Game Brand & Community Links -->
+          <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener" class="hud-footer-brand" title="CarChess3D su GitHub (Open Source)">
+            <span style="font-size:15px;">🏰🚽</span>
+            <span>CarChess3D</span>
+            <span class="hud-footer-sub">Carlesso al Cesso</span>
+          </a>
+          <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener" class="hud-btn" title="Codice sorgente GitHub">🐙 GitHub</a>
+          <a href="./showcase/" class="hud-btn" style="text-decoration:none;" title="Galleria 3D dei 18 Pezzi">🎨 Galleria</a>
+          <a href="./battles.html" class="hud-btn" style="text-decoration:none;" title="Galleria Video 16:9 dei 36 Scontri">🎬 36 Video</a>
+
+          <span style="width:1px;height:18px;background:rgba(255,213,79,0.3);margin:0 2px;"></span>
+
+          <!-- Console & Setup Buttons -->
+          <button id="hud-console-btn" class="hud-btn" title="Apri/Chiudi la Console Quake (~ o \\)">~_ Console</button>
+          <button id="hud-setup-btn" class="hud-btn gold" title="Configura Fazioni e Giocatori">${this.t('setupBtn')}</button>
+          <button id="hud-matrix36-btn" class="hud-btn gold-emerald" title="Apri la Matrice Interattiva 6×6 con tutte le 36 Scazzottate 3D e i 36 Video 16:9!">🎬 Matrice 6×6</button>
+
+          <!-- In-game Actions -->
           <button id="hud-hint-btn" class="hud-btn gold">${this.t('hintBtn')}</button>
-          <button id="hud-swamp-btn" class="hud-btn" title="Fai sguazzare i pezzi catturati nella Palude di Shrek!">🐸 Palude Shrek</button>
+          <button id="hud-skeletons-btn" class="hud-btn" title="Mostra/Nascondi gli Scheletri Articolati 3D">🦴 Scheletri</button>
+          <button id="hud-swamp-btn" class="hud-btn" title="Fai sguazzare i pezzi catturati nella Palude di Shrek!">🐸 Palude</button>
+          <button id="hud-flip-btn" class="hud-btn">${this.t('flipCamBtn')}</button>
+          <button id="hud-top-btn" class="hud-btn">${this.t('topCamBtn')}</button>
           <button id="hud-zoom-in-btn" class="hud-btn" title="Zoom In (+)">🔍+</button>
           <button id="hud-zoom-out-btn" class="hud-btn" title="Zoom Out (-)">🔍−</button>
           <button id="hud-trackpad-btn" class="hud-btn active" title="Mac Trackpad 2 dita: Ruota (Alto/Basso/Sx/Dx) + Pizzica o Cmd per Zoom">🖐️ 2-Dita: Ruota</button>
-          <button id="hud-flip-btn" class="hud-btn">${this.t('flipCamBtn')}</button>
-          <button id="hud-top-btn" class="hud-btn">${this.t('topCamBtn')}</button>
           <button id="hud-new-btn" class="hud-btn">${this.t('newGameBtn')}</button>
           <button id="hud-fen-btn" class="hud-btn">${this.t('fenBtn')}</button>
           <button id="hud-music-btn" class="hud-btn">${this.t('musicBtn')}</button>
           <button id="hud-sfx-btn" class="hud-btn active">${this.t('sfxBtn')}</button>
+
+          <span style="width:1px;height:18px;background:rgba(255,213,79,0.3);margin:0 2px;"></span>
+
+          <!-- Topbar Toggle Button -->
+          <button id="hud-toggle-topbar-btn" class="hud-btn" title="Mostra o Nascondi la barra in alto">${this.t('toggleTopbarBtn')}</button>
         </div>
       </footer>
 
@@ -1111,8 +1548,7 @@ export class HudListener {
     });
 
     q('#hud-new-btn')?.addEventListener('click', () => {
-      this.ctx?.board?.reset?.();
-      this.ctx?.bus?.flush?.();
+      this.openSetupModal();
     });
 
     q('#hud-fen-btn')?.addEventListener('click', () => {
@@ -1404,6 +1840,71 @@ export class HudListener {
         this._updateMatrixPreviewPane(atk, def, true);
       });
     });
+
+    // Topbar Toggle
+    q('#hud-toggle-topbar-btn')?.addEventListener('click', () => this.toggleTopbar());
+
+    // Setup Modal open & close
+    q('#hud-setup-btn')?.addEventListener('click', () => this.openSetupModal());
+    q('#hud-setup-close')?.addEventListener('click', () => this.closeSetupModal());
+
+    // Setup radio changes (White and Black player types)
+    root.querySelectorAll('input[name="white-player-type"]').forEach((radio) => {
+      radio.addEventListener('change', (e) => {
+        const isHuman = e.target.value === 'human';
+        const profWrap = q('#hud-setup-white-profile-wrap');
+        const aiWrap = q('#hud-setup-white-ai-wrap');
+        if (profWrap) profWrap.style.display = isHuman ? 'block' : 'none';
+        if (aiWrap) aiWrap.style.display = isHuman ? 'none' : 'block';
+      });
+    });
+
+    root.querySelectorAll('input[name="black-player-type"]').forEach((radio) => {
+      radio.addEventListener('change', (e) => {
+        const isAi = e.target.value === 'ai';
+        const aiWrap = q('#hud-setup-black-ai-wrap');
+        const humanWrap = q('#hud-setup-black-human-wrap');
+        if (aiWrap) aiWrap.style.display = isAi ? 'block' : 'none';
+        if (humanWrap) humanWrap.style.display = isAi ? 'none' : 'block';
+      });
+    });
+
+    // Start match button in setup modal
+    q('#hud-setup-start-btn')?.addEventListener('click', () => {
+      const whiteFamily = q('#hud-setup-white-set')?.value || 'carlesso';
+      const whitePlayerType =
+        root.querySelector('input[name="white-player-type"]:checked')?.value || 'human';
+      const whiteProfile = q('#hud-setup-white-profile')?.value || 'ale';
+      const whiteDiff = q('#hud-setup-white-diff')?.value || 'easy';
+
+      const rivalSet = q('#hud-setup-black-set')?.value || 'classic';
+      const blackPlayerType =
+        root.querySelector('input[name="black-player-type"]:checked')?.value || 'ai';
+      const blackDiff = q('#hud-setup-black-diff')?.value || 'easy';
+
+      this.applySetup({
+        whiteFamily,
+        whitePlayerType,
+        whiteProfile,
+        whiteDiff,
+        rivalSet,
+        blackPlayerType,
+        blackDiff,
+      });
+    });
+
+    // Quake Console bindings
+    q('#hud-console-btn')?.addEventListener('click', () => this.toggleQuakeConsole());
+    q('#quake-close-btn')?.addEventListener('click', () => this.closeQuakeConsole());
+    q('#quake-clear-btn')?.addEventListener('click', () => this.clearQuakeLogs());
+    q('#quake-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inp = q('#quake-input');
+      if (!inp) return;
+      const val = inp.value;
+      inp.value = '';
+      this.handleQuakeCommand(val);
+    });
   }
 
   /**
@@ -1607,6 +2108,287 @@ export class HudListener {
   }
 
   // ===========================================================================
+  // 1.5 SETUP MODAL, TOPBAR TOGGLE & QUAKE CONSOLE METHODS
+  // ===========================================================================
+
+  openSetupModal() {
+    this.setupModalOpen = true;
+    if (!this.rootEl) return;
+    const modal = this.rootEl.querySelector('#hud-setup-modal');
+    if (modal) {
+      modal.style.display = 'grid';
+      const wSet = this.rootEl.querySelector('#hud-setup-white-set');
+      if (wSet) wSet.value = this.whiteFamily || 'carlesso';
+      const bSet = this.rootEl.querySelector('#hud-setup-black-set');
+      if (bSet) bSet.value = this.rivalSet || 'classic';
+      const bDiff = this.rootEl.querySelector('#hud-setup-black-diff');
+      if (bDiff) bDiff.value = this.blackDifficulty || this.opponentMode || 'easy';
+      const wDiff = this.rootEl.querySelector('#hud-setup-white-diff');
+      if (wDiff) wDiff.value = this.whiteDifficulty || 'easy';
+    }
+  }
+
+  closeSetupModal() {
+    this.setupModalOpen = false;
+    if (!this.rootEl) return;
+    const modal = this.rootEl.querySelector('#hud-setup-modal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  applySetup(settings = {}) {
+    this.closeSetupModal();
+
+    // Hide topbar to maximize 3D board view per spec!
+    this.setTopbarVisible(false);
+
+    const whiteFamily = settings.whiteFamily || 'carlesso';
+    const rivalSet = settings.rivalSet || 'classic';
+    const whitePlayerType = settings.whitePlayerType || 'human'; // 'human' | 'ai'
+    const blackPlayerType = settings.blackPlayerType || 'ai'; // 'human' | 'ai'
+    const whiteDiff = settings.whiteDiff || 'easy';
+    const blackDiff = settings.blackDiff || 'easy';
+    const whiteProfile = settings.whiteProfile || 'ale';
+
+    this.whiteFamily = whiteFamily;
+    this.rivalSet = rivalSet;
+    this.whitePlayerType = whitePlayerType;
+    this.blackPlayerType = blackPlayerType;
+    this.whiteDifficulty = whiteDiff;
+    this.blackDifficulty = blackDiff;
+    this.opponentMode = blackDiff;
+
+    // Configure CPU AI side(s)
+    let cpuColor = 'none';
+    if (whitePlayerType === 'ai' && blackPlayerType === 'ai') {
+      cpuColor = 'both';
+    } else if (whitePlayerType === 'ai') {
+      cpuColor = 'w';
+    } else if (blackPlayerType === 'ai') {
+      cpuColor = 'b';
+    }
+
+    if (this.ctx?.ai?.configure) {
+      this.ctx.ai.configure({
+        enabled: cpuColor !== 'none',
+        cpuColor,
+        whiteDifficulty: whiteDiff,
+        blackDifficulty: blackDiff,
+        difficulty: blackDiff,
+      });
+    }
+
+    // Emit configuration changes to Bus & Piece Manager
+    if (this.ctx?.bus) {
+      this.ctx.bus.emit({
+        type: 'PIECE_SET_CHANGED',
+        whiteFamily,
+        rivalSetMode: rivalSet,
+      });
+
+      if (whitePlayerType === 'human') {
+        this.ctx.bus.emit({
+          type: 'PROFILE_CHANGED',
+          profileId: whiteProfile,
+        });
+      }
+
+      this.ctx.bus.emit({
+        type: 'OPPONENT_CHANGED',
+        mode: blackDiff,
+        whitePlayerType,
+        blackPlayerType,
+        cpuColor,
+      });
+
+      // Reset chess board
+      this.ctx.board?.reset?.();
+      this.ctx.bus.flush?.();
+    }
+
+    const wDesc = whitePlayerType === 'ai' ? `AI (${whiteDiff})` : `Umano (${whiteProfile})`;
+    const bDesc = blackPlayerType === 'ai' ? `AI (${blackDiff})` : 'Umano (Hotseat)';
+    this.logToQuake(
+      'SETUP',
+      `Partita configurata: ⚪ Bianco: ${whiteFamily} [${wDesc}] vs ⚫ Nero: ${rivalSet} [${bDesc}]`,
+      'green',
+    );
+    this.showToast(
+      `🏰 Nuova partita! Bianco: ${whiteFamily} vs Nero: ${rivalSet} · Barra nascosta (premi 'M' o '☰' per riaprirla)`,
+      4000,
+    );
+  }
+
+  setTopbarVisible(visible) {
+    this.topbarVisible = Boolean(visible);
+    if (!this.rootEl) return;
+    const topbar = this.rootEl.querySelector('#hud-topbar');
+    if (topbar) {
+      topbar.classList.toggle('hidden', !this.topbarVisible);
+    }
+    const btn = this.rootEl.querySelector('#hud-toggle-topbar-btn');
+    if (btn) {
+      btn.textContent = this.topbarVisible ? this.t('toggleTopbarBtn') : '☰ Mostra Barra';
+      btn.title = this.topbarVisible ? 'Nascondi la barra in alto' : 'Mostra la barra in alto';
+    }
+  }
+
+  toggleTopbar() {
+    this.setTopbarVisible(!this.topbarVisible);
+    this.logToQuake('UI', `Barra superiore ${this.topbarVisible ? 'visibile' : 'nascosta'}.`);
+  }
+
+  openQuakeConsole() {
+    this.quakeConsoleOpen = true;
+    if (!this.rootEl) return;
+    const con = this.rootEl.querySelector('#hud-quake-console');
+    if (con) {
+      con.classList.add('open');
+      const input = this.rootEl.querySelector('#quake-input');
+      setTimeout(() => input?.focus(), 50);
+    }
+  }
+
+  closeQuakeConsole() {
+    this.quakeConsoleOpen = false;
+    if (!this.rootEl) return;
+    const con = this.rootEl.querySelector('#hud-quake-console');
+    if (con) con.classList.remove('open');
+  }
+
+  toggleQuakeConsole() {
+    if (this.quakeConsoleOpen) {
+      this.closeQuakeConsole();
+    } else {
+      this.openQuakeConsole();
+    }
+  }
+
+  clearQuakeLogs() {
+    this.quakeLogs = [];
+    if (!this.rootEl) return;
+    const out = this.rootEl.querySelector('#quake-output');
+    if (out) out.innerHTML = '';
+  }
+
+  logToQuake(tag = 'LOG', message = '', colorClass = '') {
+    const time = new Date().toTimeString().slice(0, 8);
+    const entry = { time, tag, message, colorClass };
+    this.quakeLogs.push(entry);
+    if (this.quakeLogs.length > 250) {
+      this.quakeLogs.shift();
+    }
+
+    if (!this.rootEl) return;
+    const out = this.rootEl.querySelector('#quake-output');
+    if (!out) return;
+
+    const row = document.createElement('div');
+    row.className = 'quake-line';
+    const tagCls = colorClass ? `quake-tag ${colorClass}` : 'quake-tag';
+    row.innerHTML = `<span class="quake-time">[${time}]</span> <span class="${tagCls}">[${tag}]</span> <span>${this._escapeHtml(message)}</span>`;
+    out.appendChild(row);
+    out.scrollTop = out.scrollHeight;
+  }
+
+  _escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  handleQuakeCommand(cmdRaw = '') {
+    const cmd = cmdRaw.trim();
+    if (!cmd) return;
+    this.logToQuake('USER', `> ${cmd}`, 'cyan');
+
+    const [action, ...args] = cmd.toLowerCase().split(/\s+/);
+    switch (action) {
+      case 'help':
+      case '?':
+        this.logToQuake('INFO', 'Comandi disponibili:', 'gold');
+        this.logToQuake('INFO', '  help             - Mostra questo elenco');
+        this.logToQuake('INFO', '  setup            - Apri finestra configurazione giocatori/fazioni');
+        this.logToQuake('INFO', '  topbar           - Mostra/Nascondi la barra superiore');
+        this.logToQuake('INFO', '  fen              - Mostra e copia il FEN attuale');
+        this.logToQuake('INFO', '  pgn              - Mostra lo storico PGN attuale');
+        this.logToQuake('INFO', '  hint             - Chiedi un consiglio alla mossa');
+        this.logToQuake('INFO', '  reset / new      - Riavvia la scacchiera');
+        this.logToQuake('INFO', '  matrix           - Apri la matrice interattiva 6x6 dei 36 scontri');
+        this.logToQuake('INFO', '  swamp            - Fai sguazzare i pezzi nella palude di Shrek');
+        this.logToQuake('INFO', '  skeletons        - Alterna gli scheletri 3D');
+        this.logToQuake('INFO', '  clear            - Pulisci la console');
+        this.logToQuake('INFO', '  close / exit     - Chiudi la console Quake');
+        break;
+
+      case 'setup':
+        this.openSetupModal();
+        break;
+
+      case 'topbar':
+        this.toggleTopbar();
+        break;
+
+      case 'fen': {
+        const fen = this.ctx?.board?.fen?.() || 'FEN non disponibile';
+        this.logToQuake('FEN', fen, 'gold');
+        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+          navigator.clipboard.writeText(fen).catch(() => {});
+        }
+        break;
+      }
+
+      case 'pgn': {
+        const pgn = this.ctx?.board?.pgn?.() || 'PGN non disponibile';
+        this.logToQuake('PGN', pgn, 'gold');
+        break;
+      }
+
+      case 'hint':
+        this.rootEl?.querySelector('#hud-hint-btn')?.click();
+        this.logToQuake('HINT', 'Richiesta di suggerimento inviata.');
+        break;
+
+      case 'reset':
+      case 'new':
+        this.ctx?.board?.reset?.();
+        this.ctx?.bus?.flush?.();
+        this.logToQuake('RESET', 'Scacchiera resettata alla posizione iniziale.', 'green');
+        break;
+
+      case 'matrix':
+        this.openMatrix36Modal();
+        break;
+
+      case 'swamp':
+        this.rootEl?.querySelector('#hud-swamp-btn')?.click();
+        break;
+
+      case 'skeletons':
+        this.rootEl?.querySelector('#hud-skeletons-btn')?.click();
+        break;
+
+      case 'clear':
+        this.clearQuakeLogs();
+        break;
+
+      case 'close':
+      case 'exit':
+      case 'quit':
+        this.closeQuakeConsole();
+        break;
+
+      default:
+        this.logToQuake(
+          'ERR',
+          `Comando non riconosciuto: "${cmd}". Digita "help" per i comandi.`,
+          'red',
+        );
+        break;
+    }
+  }
+
+  // ===========================================================================
   // 2. EVENT BUS HANDLERS
   // ===========================================================================
 
@@ -1693,12 +2475,17 @@ export class HudListener {
     this.turn = e.turn || 'w';
     this.inCheck = false;
     this.updateTurnAndCheckUi();
+    const side = e.color === 'w' ? '⚪ Bianco' : '⚫ Nero';
+    const moveStr = e.san || (e.from && e.to ? `${e.from} → ${e.to}` : 'mossa');
+    this.logToQuake('MOVE', `${side}: ${moveStr}`);
   }
 
   onCheckDetected(e) {
     this.inCheck = true;
     this.turn = e.color || this.turn;
     this.updateTurnAndCheckUi();
+    const side = e.color === 'w' ? '⚪ Re Bianco' : '⚫ Re Nero';
+    this.logToQuake('CHECK', `⚠️ ${side} è sotto scacco!`, 'gold');
   }
 
   onCheckmate(e) {
@@ -1722,6 +2509,8 @@ export class HudListener {
           : `Epic victory for: ${winnerName}!`;
     }
     if (modal) modal.style.display = 'grid';
+    const winnerTag = e.winner === 'w' ? '⚪ Bianco' : '⚫ Nero';
+    this.logToQuake('MATE', `🏆 SCACCO MATTO! Vittoria per ${winnerTag}!`, 'green');
   }
 
   onDraw(e) {
@@ -1737,6 +2526,7 @@ export class HudListener {
           : `Match drawn (${e.reason || 'magical balance'}) 🤝`;
     }
     if (modal) modal.style.display = 'grid';
+    this.logToQuake('DRAW', `🤝 Partita patta: ${e.reason || 'parità'}`, 'cyan');
   }
 
   onPromotionPending(e) {
@@ -1751,6 +2541,13 @@ export class HudListener {
     this.luck[pid] = e.luck ?? 0;
     this.luck.max = e.maxLuck ?? 12;
     this.updateLuckUi(pid);
+    if (this.luck[pid] >= (this.luck.max || 12)) {
+      this.logToQuake(
+        'LUCK',
+        `✨ FORTUNA AL MASSIMO per ${pid === 'w' ? '⚪ Bianco' : '⚫ Nero'}! Golden Crit garantito alla prossima cattura!`,
+        'gold',
+      );
+    }
   }
 
   onDropSpawned(e) {
@@ -1759,6 +2556,7 @@ export class HudListener {
       this.renderStickersUi();
       const stickerLabel = e.sticker.name?.[this.lang] || e.sticker.name?.it || e.sticker.id;
       this.showToast(`🌟 STICKER SBLOCCATO: ${stickerLabel}!`, 3600);
+      this.logToQuake('STICKER', `🌟 Sticker sbloccato: ${stickerLabel}!`, 'gold');
     }
   }
 
@@ -1779,6 +2577,12 @@ export class HudListener {
     const textEl = this.rootEl.querySelector('#hud-comic-text');
     if (textEl) textEl.textContent = text;
     if (bannerEl) bannerEl.style.display = 'inline-flex';
+
+    this.logToQuake(
+      'BATTLE',
+      `🥊 Scazzottata 3D: ${e.attacker?.toUpperCase()} vs ${e.defender?.toUpperCase()} (${e.square || ''}) — "${text}"`,
+      'gold',
+    );
   }
 
   onBattleEnded() {
@@ -1786,11 +2590,31 @@ export class HudListener {
     if (!this.rootEl) return;
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
     if (bannerEl) bannerEl.style.display = 'none';
+    this.logToQuake('BATTLE', '✨ Scontro concluso.');
+  }
+
+  onAiThinking(e) {
+    const side = e?.color === 'w' ? '⚪ Bianco' : '⚫ Nero';
+    const diff =
+      e?.difficulty ||
+      (e?.color === 'w' ? this.whiteDifficulty : this.blackDifficulty) ||
+      'easy';
+    this.logToQuake('AI', `🤖 AI sta pensando (${side} - livello ${diff})...`, 'cyan');
+  }
+
+  onAiMoveReady(e) {
+    const move = e?.move;
+    const notation = move
+      ? `${move.from} → ${move.to}${move.promotion ? '=' + move.promotion : ''}`
+      : '?';
+    const ms = typeof e?.timeMs === 'number' ? ` in ${e.timeMs}ms` : '';
+    this.logToQuake('AI', `🎯 AI mossa pronta: ${notation}${ms}`, 'green');
   }
 
   onHintSuggested(e) {
     if (e.explanation) {
       this.showToast(`💡 ${e.explanation}`, 3500);
+      this.logToQuake('HINT', `💡 Suggerimento: ${e.explanation}`, 'gold');
     }
   }
 
@@ -1842,12 +2666,50 @@ export class HudListener {
   }
 
   onKeyDown(e) {
-    if (e.code === 'Escape' && this.matrixModalOpen) {
+    const targetTag = e.target?.tagName?.toLowerCase();
+    const isTextInput =
+      targetTag === 'input' || targetTag === 'textarea' || targetTag === 'select';
+
+    // Toggle Quake console with `, ~, \, §
+    if (e.key === '`' || e.key === '~' || e.key === '\\' || e.key === '§') {
+      if (!isTextInput || e.target?.id === 'quake-input') {
+        e.preventDefault();
+        this.toggleQuakeConsole();
+        return;
+      }
+    }
+
+    if (e.code === 'Escape') {
+      if (this.quakeConsoleOpen) {
+        e.preventDefault();
+        this.closeQuakeConsole();
+        return;
+      }
+      if (this.setupModalOpen) {
+        e.preventDefault();
+        this.closeSetupModal();
+        return;
+      }
+      if (this.matrixModalOpen) {
+        e.preventDefault();
+        this.closeMatrix36Modal();
+        return;
+      }
+      if (this.activeBanner || this.flowState === 'CaptureCutscene') {
+        e.preventDefault();
+        this.skipActiveCutscene();
+        return;
+      }
+    }
+
+    // Hotkey 'm' / 'M' to toggle topbar when not typing in an input
+    if (!isTextInput && (e.key === 'm' || e.key === 'M')) {
       e.preventDefault();
-      this.closeMatrix36Modal();
+      this.toggleTopbar();
       return;
     }
-    if (e.code === 'Space' || e.code === 'Escape') {
+
+    if (e.code === 'Space' && !isTextInput) {
       if (this.activeBanner || this.flowState === 'CaptureCutscene') {
         e.preventDefault();
         this.skipActiveCutscene();
@@ -1952,6 +2814,12 @@ export class HudListener {
     setTxt('#hud-rival-select option[value="swamp"]', 'setSwamp');
     setTxt('#hud-rival-select option[value="classic"]', 'setClassic');
     setTxt('#hud-rival-select option[value="stone"]', 'setStone');
+    setTxt('#hud-setup-title', 'setupTitle');
+    setTxt('#hud-setup-sub', 'setupSub');
+    setTxt('#hud-setup-start-btn', 'startMatchBtn');
+    setTxt('#hud-setup-badge-text', 'defaultSetupBadge');
+    setTxt('#hud-setup-btn', 'setupBtn');
+    setTxt('#hud-toggle-topbar-btn', 'toggleTopbarBtn');
     this.updateTurnAndCheckUi();
     this.renderStickersUi();
   }

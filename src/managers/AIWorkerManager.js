@@ -57,7 +57,13 @@ export class AIWorkerManager {
     if (bus?.on) {
       this.offs.push(
         bus.on('OPPONENT_CHANGED', (e) => {
-          this.configure({ enabled: e.enabled, cpuColor: e.cpuColor, difficulty: e.difficulty });
+          this.configure({
+            enabled: e.enabled,
+            cpuColor: e.cpuColor,
+            difficulty: e.difficulty,
+            whiteDifficulty: e.whiteDifficulty,
+            blackDifficulty: e.blackDifficulty,
+          });
         }),
         bus.on('MOVE_EXECUTED', () => this.scheduleCpuTurn()),
         bus.on('BOARD_RESET', () => this.scheduleCpuTurn()),
@@ -67,10 +73,18 @@ export class AIWorkerManager {
     }
   }
 
-  configure({ enabled = false, cpuColor = 'b', difficulty = 'easy' } = {}) {
+  configure({
+    enabled = false,
+    cpuColor = 'b',
+    difficulty = 'easy',
+    whiteDifficulty = 'easy',
+    blackDifficulty = 'easy',
+  } = {}) {
     this.enabled = Boolean(enabled);
     this.cpuColor = cpuColor;
     this.difficulty = difficulty;
+    this.whiteDifficulty = whiteDifficulty || difficulty;
+    this.blackDifficulty = blackDifficulty || difficulty;
     this.scheduleCpuTurn();
   }
 
@@ -79,7 +93,10 @@ export class AIWorkerManager {
     const board = this.ctx?.board;
     if (!this.enabled || !board) return false;
     if (board.isGameOver?.()) return false;
-    return board.turn?.() === this.cpuColor;
+    const currentTurn = board.turn?.();
+    if (this.cpuColor === 'both') return true;
+    if (this.cpuColor === 'none') return false;
+    return currentTurn === this.cpuColor;
   }
 
   /** True while a capture cutscene / combat choreography is running: the CPU waits. */
@@ -102,7 +119,7 @@ export class AIWorkerManager {
       if (generation !== this.turnGeneration) return;
       if (!this.isCpuTurn() || this.isCutsceneRunning() || this.thinking) return;
       this.thinking = true;
-      this.requestMove(this.ctx.board.fen(), this.difficulty)
+      this.requestMove(this.ctx.board.fen())
         .catch(() => null)
         .finally(() => {
           this.thinking = false;
@@ -120,20 +137,25 @@ export class AIWorkerManager {
   /**
    * Computes the best move for `fen` at `difficulty` and emits `AI_THINKING` + `AI_MOVE_READY`.
    */
-  async requestMove(fen, difficulty = this.difficulty) {
+  async requestMove(fen, difficulty = null) {
     const color = fen.split(' ')[1] || 'b';
+    const activeDifficulty =
+      difficulty ||
+      (color === 'w' ? this.whiteDifficulty : this.blackDifficulty) ||
+      this.difficulty ||
+      'easy';
     this.ctx?.bus.emit({
       type: 'AI_THINKING',
-      difficulty,
+      difficulty: activeDifficulty,
       color,
       fen,
     });
 
-    const result = await this.compute(fen, difficulty);
+    const result = await this.compute(fen, activeDifficulty);
     if (result?.move) {
       this.ctx?.bus.emit({
         type: 'AI_MOVE_READY',
-        difficulty,
+        difficulty: activeDifficulty,
         color,
         move: result.move,
         score: result.score,

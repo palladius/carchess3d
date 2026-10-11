@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.4] - 2026-10-11
+
+- 🏰🎮 **Startup Match Setup Modal, Auto-Hiding Top Bar, Footer Overlay & Quake-Style Console (`HudListener.js`, `AIWorkerManager.js`, `BoardInteractionView.js`, `main.js`, `Registry.js`, `tests/cpu-opponent.test.mjs`)**:
+  - **Inizio Partita Setup Modal (`#hud-setup-modal`)**:
+    - Interactive 2-column modal at game boot asking who plays White and who plays Black (Human vs Computer AI), with character profiles and CPU difficulty settings (`easy`, `medium`, `hard`).
+    - Explicit default: ⚪ **Famiglia Carlesso** (Human, profile Ale/Riccardo) vs ⚫ **Scacchi Classici** with **AI Facile** (`easy`).
+    - Can be reopened at any time via `⚙️ Nuova Partita` or `⚙️ Setup Fazioni` in the bottom action dock.
+  - **Auto-Hiding Top Bar for Maximum 3D Viewport (`#hud-topbar.hidden`)**:
+    - Once the match starts, the top navigation/status bar smoothly slides up and disappears (`translateY(-130%)`, `opacity: 0`), granting full screen immersion to the 3D board, the swamp, and the 16:9 cinema mirror.
+    - Togglable back anytime via the `☰ Mostra Barra` button in the bottom dock or pressing hotkey `M`.
+  - **Overlay Footer with Branding & Open Source Links (`.hud-bottombar`, `.hud-footer-brand`)**:
+    - Bottom bar rendered in overlay/sovrimpressione featuring game branding (`🏰🚽 CarChess3D · Carlesso al Cesso`), direct GitHub repository link (`https://github.com/palladius/carchess3d`), 3D Gallery, and 36 Battles Matrix shortcuts alongside gameplay controls.
+  - **Quake-Style Dropdown Terminal Console (`#hud-quake-console`)**:
+    - Retro top-sliding terminal toggled via `~`, `` ` ``, `\`, `§`, or the `~_ Console` button in the dock.
+    - Real-time logging of game events: moves, checks, checkmate, draws, luck meter bursts, loot drops, 3D brawls, and AI thinking/calculation time.
+    - Interactive command prompt supporting `help`, `setup`, `topbar`, `fen`, `pgn`, `hint`, `reset`, `matrix`, `swamp`, `skeletons`, `clear`, and `close`.
+  - **Multi-Side AI Worker Architecture (`AIWorkerManager.js`, `BoardInteractionView.js`)**:
+    - Upgraded `AIWorkerManager` to support `cpuColor = 'b' | 'w' | 'both' | 'none'` with independent white/black difficulty levels, enabling AI vs AI demo matches and White CPU play. Gated mouse raycasting in `BoardInteractionView` so human clicks are safely ignored during CPU turns. Tested via `tests/cpu-opponent.test.mjs`.
+
 ## [0.3.3] - 2026-10-10
 
 - 🍌📺 **Wire Nano Banana 16:9 Keyframes & `1.65×` Veo Playback (`BattleMatrix36.js`, `VeoCinemaView.js`, `battles.html`)**:
