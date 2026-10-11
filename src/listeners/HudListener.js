@@ -1370,8 +1370,11 @@ export class HudListener {
             <span id="hud-setup-badge-text">${this.t('defaultSetupBadge')}</span>
           </div>
 
-          <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;margin-top:4px;">
-            <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 24px;font-size:14px;">
+          <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:center;margin-top:4px;">
+            <button id="hud-setup-apply-btn" class="hud-btn" style="padding:10px 18px;font-size:13px;" title="Modifica fazioni, giocatori e AI nella partita attuale senza resettare i pezzi sulla scacchiera">
+              ${this.t('applyCurrentBtn')}
+            </button>
+            <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 22px;font-size:14px;" title="Applica le scelte e inizia una nuova partita da zero (resetta tutti i 32 pezzi)">
               ${this.t('startMatchBtn')}
             </button>
           </div>
@@ -1736,7 +1739,7 @@ export class HudListener {
     });
 
     q('#hud-new-btn')?.addEventListener('click', () => {
-      this.openSetupModal();
+      this.startNewGame();
     });
 
     q('#hud-fen-btn')?.addEventListener('click', () => {
@@ -2057,8 +2060,8 @@ export class HudListener {
       });
     });
 
-    // Start match button in setup modal
-    q('#hud-setup-start-btn')?.addEventListener('click', () => {
+    // Apply setup in-place (Modifica Partita in Corso) OR start new match (Nuova Partita con Reset)
+    const submitSetupFromModal = (resetBoard) => {
       const whiteFamily = q('#hud-setup-white-set')?.value || 'carlesso';
       const whitePlayerType =
         root.querySelector('input[name="white-player-type"]:checked')?.value || 'human';
@@ -2078,8 +2081,12 @@ export class HudListener {
         rivalSet,
         blackPlayerType,
         blackDiff,
+        resetBoard,
       });
-    });
+    };
+
+    q('#hud-setup-apply-btn')?.addEventListener('click', () => submitSetupFromModal(false));
+    q('#hud-setup-start-btn')?.addEventListener('click', () => submitSetupFromModal(true));
 
     // Quake Console bindings
     q('#hud-console-btn')?.addEventListener('click', () => this.toggleQuakeConsole());
@@ -2498,10 +2505,30 @@ export class HudListener {
       if (wSet) wSet.value = this.whiteFamily || 'carlesso';
       const bSet = this.rootEl.querySelector('#hud-setup-black-set');
       if (bSet) bSet.value = this.rivalSet || 'classic';
+      const wProf = this.rootEl.querySelector('#hud-setup-white-profile');
+      if (wProf) wProf.value = this.activeProfile || 'ale';
       const bDiff = this.rootEl.querySelector('#hud-setup-black-diff');
       if (bDiff) bDiff.value = this.blackDifficulty || this.opponentMode || 'easy';
       const wDiff = this.rootEl.querySelector('#hud-setup-white-diff');
       if (wDiff) wDiff.value = this.whiteDifficulty || 'easy';
+
+      const wType = this.whitePlayerType || 'human';
+      this.rootEl.querySelectorAll('input[name="white-player-type"]').forEach((r) => {
+        r.checked = r.value === wType;
+      });
+      const profWrap = this.rootEl.querySelector('#hud-setup-white-profile-wrap');
+      const wAiWrap = this.rootEl.querySelector('#hud-setup-white-ai-wrap');
+      if (profWrap) profWrap.style.display = wType === 'human' ? 'block' : 'none';
+      if (wAiWrap) wAiWrap.style.display = wType === 'human' ? 'none' : 'block';
+
+      const bType = this.blackPlayerType || 'ai';
+      this.rootEl.querySelectorAll('input[name="black-player-type"]').forEach((r) => {
+        r.checked = r.value === bType;
+      });
+      const bAiWrap = this.rootEl.querySelector('#hud-setup-black-ai-wrap');
+      const bHumanWrap = this.rootEl.querySelector('#hud-setup-black-human-wrap');
+      if (bAiWrap) bAiWrap.style.display = bType === 'ai' ? 'block' : 'none';
+      if (bHumanWrap) bHumanWrap.style.display = bType === 'ai' ? 'none' : 'block';
     }
   }
 
@@ -2512,19 +2539,42 @@ export class HudListener {
     if (modal) modal.style.display = 'none';
   }
 
+  /**
+   * Resets all 32 pieces to the starting board position while preserving current factions & AI setup.
+   */
+  startNewGame() {
+    this.closeSetupModal();
+    if (this.rootEl) {
+      const goModal = this.rootEl.querySelector('#hud-gameover-modal');
+      if (goModal) goModal.style.display = 'none';
+      const promoModal = this.rootEl.querySelector('#hud-promo-modal');
+      if (promoModal) promoModal.style.display = 'none';
+    }
+    this.ctx?.board?.reset?.();
+    this.ctx?.bus?.flush?.();
+    this.ctx?.bus?.flush?.();
+    this.logToQuake(
+      'RESET',
+      '🔄 Nuova partita iniziata! Tutti i 32 pezzi sono tornati al via.',
+      'green',
+    );
+    this.showToast('🔄 Nuova Partita! Tutti i 32 pezzi sono tornati al via! ✨', 3200);
+  }
+
   applySetup(settings = {}) {
     this.closeSetupModal();
 
     // Hide topbar to maximize 3D board view per spec!
     this.setTopbarVisible(false);
 
-    const whiteFamily = settings.whiteFamily || 'carlesso';
-    const rivalSet = settings.rivalSet || 'classic';
-    const whitePlayerType = settings.whitePlayerType || 'human'; // 'human' | 'ai'
-    const blackPlayerType = settings.blackPlayerType || 'ai'; // 'human' | 'ai'
-    const whiteDiff = settings.whiteDiff || 'easy';
-    const blackDiff = settings.blackDiff || 'easy';
-    const whiteProfile = settings.whiteProfile || 'ale';
+    const whiteFamily = settings.whiteFamily || this.whiteFamily || 'carlesso';
+    const rivalSet = settings.rivalSet || this.rivalSet || 'classic';
+    const whitePlayerType = settings.whitePlayerType || this.whitePlayerType || 'human'; // 'human' | 'ai'
+    const blackPlayerType = settings.blackPlayerType || this.blackPlayerType || 'ai'; // 'human' | 'ai'
+    const whiteDiff = settings.whiteDiff || this.whiteDifficulty || 'easy';
+    const blackDiff = settings.blackDiff || this.blackDifficulty || 'easy';
+    const whiteProfile = settings.whiteProfile || this.activeProfile || 'ale';
+    const resetBoard = settings.resetBoard !== false;
 
     this.whiteFamily = whiteFamily;
     this.rivalSet = rivalSet;
@@ -2532,7 +2582,7 @@ export class HudListener {
     this.blackPlayerType = blackPlayerType;
     this.whiteDifficulty = whiteDiff;
     this.blackDifficulty = blackDiff;
-    this.opponentMode = blackDiff;
+    this.activeProfile = whiteProfile;
 
     // Configure CPU AI side(s)
     let cpuColor = 'none';
@@ -2543,10 +2593,24 @@ export class HudListener {
     } else if (blackPlayerType === 'ai') {
       cpuColor = 'b';
     }
+    const aiEnabled = cpuColor !== 'none';
+    this.opponentMode = aiEnabled ? blackDiff : 'hotseat';
+
+    // Sync topbar dropdowns so UI stays consistent
+    if (this.rootEl) {
+      const wSel = this.rootEl.querySelector('#hud-white-select');
+      if (wSel) wSel.value = whiteFamily;
+      const bSel = this.rootEl.querySelector('#hud-rival-select');
+      if (bSel) bSel.value = rivalSet;
+      const pSel = this.rootEl.querySelector('#hud-profile-select');
+      if (pSel) pSel.value = whiteProfile;
+      const oSel = this.rootEl.querySelector('#hud-opponent-select');
+      if (oSel) oSel.value = this.opponentMode;
+    }
 
     if (this.ctx?.ai?.configure) {
       this.ctx.ai.configure({
-        enabled: cpuColor !== 'none',
+        enabled: aiEnabled,
         cpuColor,
         whiteDifficulty: whiteDiff,
         blackDifficulty: blackDiff,
@@ -2554,43 +2618,61 @@ export class HudListener {
       });
     }
 
+    // Update 3D PieceManager families (works both mid-game and on reset)
+    const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+    if (pm?.setWhiteFamily) pm.setWhiteFamily(whiteFamily);
+    if (pm?.setRivalSetMode) pm.setRivalSetMode(rivalSet);
+
     // Emit configuration changes to Bus & Piece Manager
     if (this.ctx?.bus) {
-      this.ctx.bus.emit({
-        type: 'PIECE_SET_CHANGED',
-        whiteFamily,
-        rivalSetMode: rivalSet,
-      });
+      if (!pm?.setWhiteFamily && !pm?.setRivalSetMode) {
+        this.ctx.bus.emit({
+          type: 'PIECE_SET_CHANGED',
+          whiteFamily,
+          rivalSetMode: rivalSet,
+        });
+      }
 
       if (whitePlayerType === 'human') {
         this.ctx.bus.emit({
           type: 'PROFILE_CHANGED',
           profileId: whiteProfile,
+          restoreBoard: false,
         });
       }
 
       this.ctx.bus.emit({
         type: 'OPPONENT_CHANGED',
-        mode: blackDiff,
+        mode: this.opponentMode,
+        enabled: aiEnabled,
         whitePlayerType,
         blackPlayerType,
         cpuColor,
+        difficulty: blackDiff,
+        whiteDifficulty: whiteDiff,
+        blackDifficulty: blackDiff,
       });
 
-      // Reset chess board
-      this.ctx.board?.reset?.();
+      // Reset chess board only when starting a New Game (resetBoard !== false)
+      if (resetBoard) {
+        this.ctx.board?.reset?.();
+      }
+      this.ctx.bus.flush?.();
       this.ctx.bus.flush?.();
     }
 
     const wDesc = whitePlayerType === 'ai' ? `AI (${whiteDiff})` : `Umano (${whiteProfile})`;
     const bDesc = blackPlayerType === 'ai' ? `AI (${blackDiff})` : 'Umano (Hotseat)';
+    const actionLabel = resetBoard ? 'Nuova partita' : 'Partita aggiornata';
     this.logToQuake(
       'SETUP',
-      `Partita configurata: ⚪ Bianco: ${whiteFamily} [${wDesc}] vs ⚫ Nero: ${rivalSet} [${bDesc}]`,
+      `${actionLabel}: ⚪ Bianco: ${whiteFamily} [${wDesc}] vs ⚫ Nero: ${rivalSet} [${bDesc}]`,
       'green',
     );
     this.showToast(
-      `🏰 Nuova partita! Bianco: ${whiteFamily} vs Nero: ${rivalSet} · Barra nascosta (premi 'M' o '☰' per riaprirla)`,
+      resetBoard
+        ? `🏰 Nuova partita! Bianco: ${whiteFamily} [${wDesc}] vs Nero: ${rivalSet} [${bDesc}] · Barra nascosta ('M' o '☰')`
+        : `⚙️ Partita aggiornata (senza reset)! Bianco: ${whiteFamily} [${wDesc}] vs Nero: ${rivalSet} [${bDesc}]`,
       4000,
     );
   }
@@ -2643,7 +2725,7 @@ export class HudListener {
   clearQuakeLogs() {
     this.quakeLogs = [];
     if (!this.rootEl) return;
-    const out = this.rootEl.querySelector('#quake-output');
+    const out = this.rootEl.querySelector('#quake-log-body, #quake-output');
     if (out) out.innerHTML = '';
   }
 
@@ -2656,13 +2738,13 @@ export class HudListener {
     }
 
     if (!this.rootEl) return;
-    const out = this.rootEl.querySelector('#quake-output');
+    const out = this.rootEl.querySelector('#quake-log-body, #quake-output');
     if (!out) return;
 
     const row = document.createElement('div');
     row.className = 'quake-line';
     const tagCls = colorClass ? `quake-tag ${colorClass}` : 'quake-tag';
-    row.innerHTML = `<span class="quake-time">[${time}]</span> <span class="${tagCls}">[${tag}]</span> <span>${this._escapeHtml(message)}</span>`;
+    row.innerHTML = `<span class="quake-time">[${time}]</span> <span class="${tagCls}">[${tag}]</span> <span class="quake-msg">${this._escapeHtml(message)}</span>`;
     out.appendChild(row);
     out.scrollTop = out.scrollHeight;
   }
@@ -3250,6 +3332,7 @@ export class HudListener {
     setTxt('#hud-rival-select option[value="stone"]', 'setStone');
     setTxt('#hud-setup-title', 'setupTitle');
     setTxt('#hud-setup-sub', 'setupSub');
+    setTxt('#hud-setup-apply-btn', 'applyCurrentBtn');
     setTxt('#hud-setup-start-btn', 'startMatchBtn');
     setTxt('#hud-setup-badge-text', 'defaultSetupBadge');
     setTxt('#hud-setup-btn', 'setupBtn');
