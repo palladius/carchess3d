@@ -81,14 +81,25 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
     assert.equal(audio.playedVoices.at(-1)?.quote, 'This is an interesting choice...');
   });
 
-  it('HudListener updates toast and tracks lastHoverSound and lastVoiceQuote', () => {
+  it('HudListener defaults to English, switches to Italian on setLanguage("it"), and keeps voice quotes intact', () => {
     const bus = new GameEventBus();
     const hud = new HudListener({ bus });
+
+    assert.equal(hud.lang, 'en');
+    assert.equal(hud.t('title'), 'CarChess3D · Family Wizard Chess');
+
+    bus.emit({ type: 'PIECE_HOVERED', square: 'c1', piece: { type: 'b', color: 'w' } });
+    bus.flush();
+    assert.equal(hud.lastHoverSound, VOICE_LINES.b.hoverSound.label.en);
+    assert.ok(hud.lastToast.includes('Ale'));
+
+    hud.setLanguage('it');
+    assert.equal(hud.lang, 'it');
+    assert.equal(hud.t('title'), 'CarChess3D · Carlesso al Cesso');
 
     bus.emit({ type: 'PIECE_HOVERED', square: 'c1', piece: { type: 'b', color: 'w' } });
     bus.flush();
     assert.equal(hud.lastHoverSound, VOICE_LINES.b.hoverSound.label.it);
-    assert.ok(hud.lastToast.includes('Ale'));
 
     bus.emit({
       type: 'PIECE_SELECTED',
