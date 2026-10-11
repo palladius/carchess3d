@@ -411,7 +411,17 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
   - **🗿🚽 Carlessian Classic Family (`classic_default_pieces_20261010`)**: see [`tools/model-pipeline/classic/RUNNING_DOC.md`](classic/RUNNING_DOC.md) and `docs/qa-scores.classic.yaml` (2D NB 2.1 avg **8.6/10 🟢**, 3D avg **7.67/10 🟡**, 0 `💩`).
   - **🐸🧅 Swamp Parody Family (`swamp_family_pieces_20261010`)**: see [`tools/model-pipeline/swamp/RUNNING_DOC.md`](swamp/RUNNING_DOC.md) and `docs/qa-scores.swamp.yaml` (2D NB 2.1 avg **8.7/10 🟢**, 3D avg **7.45/10 🟡**, 0 `💩`).
 
+## 28. 2026-10-11 — Swamp Bishop & Pawn Upgrade (Don Gatto Zorro-Vescovo + Uomo Focaccina) & Classic TRELLIS.2
+
+- **2D Nano Banana 2.1 (`gemini-nano-banana-2.1`)**:
+  - `assets/characters/bishop-swamp-gatto.jpg` (Variant 1 approved by Riccardo; Variant 2 deleted): Ginger tabby cat with black Zorro domino mask, tall black-and-gold Papal Bishop Mitre with ruby cross & yellow ostrich plume, black-and-gold Zorro cape with `"Z"` clasp, leather boots, golden rapier, and blessing paw.
+  - `assets/characters/pawn-swamp-focaccina.jpg` (promoted from Bishop to Pawn `0.95m`), plus alternates `assets/characters/pawn-swamp-porcellini.jpg` (Three Little Pigs on one mossy pedestal) and `assets/characters/pawn-swamp-zenzy.jpg` (Italian Gingerbread/Focaccina Guard).
+- **3D Models**:
+  - Updated `tools/model-pipeline/swamp/build_swamp_models.py` to sculpt 3D **Don Gatto Zorro-Vescovo** (`assets/models/swamp/bishop-swamp-focaccina.glb`, `21,640 tris`, `1.45m`) and 3D **Uomo Focaccina Ligure** (`assets/models/swamp/pawn-swamp-tappo.glb`, `16,032 tris`, `0.95m`).
+  - Added `tools/model-pipeline/classic/gen_trellis2_batch.py` (`microsoft/TRELLIS.2`, `seed=42`, `decimation_target=100000`, `texture_size=1024`) and reconstructed `assets/models/classic/king-classic-re.glb` (`99,267 tris`, `1.80m`, `min.y = 0.0`).
+
 ---
+
 
 ## Artifacts index (committed in `tools/model-pipeline/`)
 

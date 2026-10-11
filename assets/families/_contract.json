@@ -6,7 +6,7 @@
   "pedestal_diameter_m": 0.75,
   "grounding_y_m": 0.0,
   "grounding_tolerance_m": 0.001,
-  "max_triangles_per_piece": 25000,
+  "max_triangles_per_piece": 120000,
   "piece_heights_m": {
     "pawn": 0.95,
     "rook": 1.30,

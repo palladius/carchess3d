@@ -16,10 +16,14 @@
 
 import {
   CHARACTER_REGISTRY,
+  VOICE_LINES,
   BATTLE_MATRIX,
   FAMILY_STICKERS,
   PROFILES,
   I18N,
+  APP_VERSION,
+  GITHUB_REPO_URL,
+  GITHUB_NEW_ISSUE_URL,
 } from '../core/Registry.js';
 import { BATTLE_MATRIX_36 } from '../core/BattleMatrix36.js';
 
@@ -69,6 +73,7 @@ export class HudListener {
     this.luck = { w: 0, b: 0, max: 12 };
     this.unlockedStickers = new Set();
     this.lastToast = null;
+    this.lastVoiceQuote = null;
     this.activeBanner = null;
     this.pendingPromotion = null;
     this.wowSubMode = 'inspector';
@@ -88,6 +93,8 @@ export class HudListener {
     this.matrixMarathonTimer = null;
     this.matrixMarathonIndex = 0;
     this.battleMatrix36 = BATTLE_MATRIX_36 || null;
+
+    this.appVersion = APP_VERSION.startsWith('v') ? APP_VERSION : `v${APP_VERSION}`;
 
     this.rootEl = null;
     this.els = {};
@@ -113,10 +120,25 @@ export class HudListener {
       window.addEventListener('keydown', this._boundKeyDown);
     }
 
+    if (typeof fetch === 'function') {
+      fetch('./VERSION')
+        .then((r) => (r.ok ? r.text() : null))
+        .then((txt) => {
+          if (txt && txt.trim()) {
+            const v = txt.trim();
+            this.appVersion = v.startsWith('v') ? v : `v${v}`;
+            const el = this.rootEl?.querySelector?.('#hud-version-tag');
+            if (el) el.textContent = this.appVersion;
+          }
+        })
+        .catch(() => {});
+    }
+
     if (bus && this.offs.length === 0) {
       this.offs.push(
         bus.on('FLOW_STATE_CHANGED', (e) => this.onFlowStateChanged(e)),
         bus.on('BOARD_RESET', (e) => this.onBoardReset(e)),
+        bus.on('PIECE_HOVERED', (e) => this.onPieceHovered(e)),
         bus.on('PIECE_SELECTED', (e) => this.onPieceSelected(e)),
         bus.on('CAPTURE_PREVIEW_HOVER', (e) => this.onCapturePreviewHover(e)),
         bus.on('MOVE_EXECUTED', (e) => this.onMoveExecuted(e)),
@@ -383,6 +405,51 @@ export class HudListener {
         display: flex;
         flex-direction: column;
         gap: 4px;
+      }
+      .hud-footer-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        font-size: 10.5px;
+        color: #b0bec5;
+        padding-top: 5px;
+        margin-top: 3px;
+        border-top: 1px solid rgba(255, 213, 79, 0.20);
+      }
+      .hud-version-pill {
+        font-weight: 700;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        color: #ffe082;
+        background: rgba(255, 224, 130, 0.12);
+        border: 1px solid rgba(255, 224, 130, 0.35);
+        padding: 1px 6px;
+        border-radius: 6px;
+        font-size: 10px;
+        letter-spacing: 0.3px;
+      }
+      .hud-footer-sep {
+        color: rgba(255, 255, 255, 0.35);
+      }
+      .hud-footer-link {
+        color: #9be7c4;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 600;
+        transition: color 0.15s ease, transform 0.1s ease;
+      }
+      .hud-footer-link:hover {
+        color: #fff;
+        text-decoration: underline;
+        transform: translateY(-1px);
+      }
+      .hud-footer-link.hud-bug-link {
+        color: #ffab91;
+      }
+      .hud-footer-link.hud-bug-link:hover {
+        color: #ffccbc;
       }
       .hud-turn-pill {
         display: flex;
@@ -1259,6 +1326,17 @@ export class HudListener {
             </div>
           </div>
           <div id="hud-stickers-row" class="hud-stickers-row" title="Sticker Collezionabili Sbloccati"></div>
+          <div class="hud-footer-meta">
+            <span id="hud-version-tag" class="hud-version-pill" title="Versione di CarChess3D">${this.appVersion}</span>
+            <span class="hud-footer-sep">·</span>
+            <a href="${GITHUB_REPO_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link" title="Visualizza il codice sorgente su GitHub">
+              <span>🐙</span> <span>GitHub Code</span>
+            </a>
+            <span class="hud-footer-sep">·</span>
+            <a href="${GITHUB_NEW_ISSUE_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link hud-bug-link" title="Segnala un bug o apri una nuova issue su GitHub">
+              <span>🐛</span> <span>Open a bug</span>
+            </a>
+          </div>
         </div>
 
         <div class="hud-actions-dock hud-glass hud-interactive">
@@ -2417,9 +2495,26 @@ export class HudListener {
     }
   }
 
+  onPieceHovered(e) {
+    const type = String(e?.piece?.type || e?.pieceType || e?.type || '').toLowerCase();
+    const char = CHARACTER_REGISTRY[type];
+    const v = VOICE_LINES[type];
+    if (!char || !v) return;
+    const hoverLabel = v.hoverSound?.label?.[this.lang] || v.hoverSound?.label?.it || '';
+    this.lastHoverSound = hoverLabel;
+    // Show subtle creature sound cue if not currently showing a battle or selection toast
+    if (!this.activeBanner && hoverLabel) {
+      this.showToast(`${char.glyph} ${char.name} (${e.square || ''}) — ${hoverLabel}`, 1100);
+    }
+  }
+
   onPieceSelected(e) {
-    const char = CHARACTER_REGISTRY[e.piece?.type];
+    const type = String(e.piece?.type || e.pieceType || '').toLowerCase();
+    const char = CHARACTER_REGISTRY[type];
     if (!char) return;
+    const v = VOICE_LINES[type];
+    const quote = v?.quote?.[this.lang] || v?.quote?.it || '';
+    this.lastVoiceQuote = quote;
 
     const legalMoves = e.legalMoves || [];
     const firstCapture = legalMoves.find(
@@ -2433,18 +2528,20 @@ export class HudListener {
         firstCapture.captured || this.ctx?.board?.pieceAt?.(firstCapture.to)?.type || 'p';
       const defChar = CHARACTER_REGISTRY[defType] || CHARACTER_REGISTRY.p;
       const pairCode = `${char.type.toUpperCase()}×${defChar.type.toUpperCase()}`;
+      const voicePart = quote ? ` 💬 "${quote}" · ` : ' ';
       this.showToast(
-        `⚔️ Cattura possibile: ${char.glyph} ${char.name} vs ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`,
-        3200,
+        `${char.glyph} ${char.name}:${voicePart}⚔️ Cattura ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`,
+        3400,
       );
       return;
     }
 
+    const voicePrefix = quote ? `💬 "${quote}" — ` : '';
     const msg =
       this.lang === 'it'
-        ? `${char.glyph} ${char.name} (${e.square}) — ${legalMoves.length} mosse possibili`
-        : `${char.glyph} ${char.name} (${e.square}) — ${legalMoves.length} legal moves`;
-    this.showToast(msg, 1800);
+        ? `${char.glyph} ${char.name} (${e.square}): ${voicePrefix}${legalMoves.length} mosse possibili`
+        : `${char.glyph} ${char.name} (${e.square}): ${voicePrefix}${legalMoves.length} legal moves`;
+    this.showToast(msg, 2400);
   }
 
   onCapturePreviewHover(e) {

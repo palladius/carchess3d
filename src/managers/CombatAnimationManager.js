@@ -152,12 +152,20 @@ export class CombatAnimationManager {
     const defChar = CHARACTER_REGISTRY[entry.defender];
     const durationMs = params.durationMs ?? this.durationMs;
 
+    const playerId = params.playerId || 'w';
+    const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+    const atkFamily = pm?.getPieceSetForColor?.(playerId) || 'carlesso';
+    const isSanGennaro =
+      (atkFamily === 'classic' && entry.attacker === 'b') ||
+      params.effect === 'san_gennaro_miracle' ||
+      params.effect === 'crosier_blessing_beam';
+
     const battleEvent = {
       type: 'BATTLE_STARTED',
-      id: entry.id,
+      id: isSanGennaro ? 'san_gennaro_miracle_clash' : entry.id,
       attacker: entry.attacker,
       defender: entry.defender,
-      attackerName: entry.attackerName,
+      attackerName: isSanGennaro ? 'San Gennaro ♗🩸' : entry.attackerName,
       defenderName: entry.defenderName,
       attackerAnimations: atkChar?.animations || null,
       defenderAnimations: defChar?.animations || null,
@@ -165,20 +173,29 @@ export class CombatAnimationManager {
       to: params.to || params.square || 'd5',
       square: params.square || params.to || 'd5',
       capturedSquare: params.capturedSquare || params.square || 'd5',
-      playerId: params.playerId || 'w',
+      playerId,
       victimColor: params.victimColor || 'b',
       tier: params.tier || 'normal',
-      spectacle: params.spectacle || 'Standard Signature Clash ⚔️',
+      spectacle: isSanGennaro
+        ? 'Miracolo del Sangue di San Gennaro! 🩸✨'
+        : params.spectacle || 'Standard Signature Clash ⚔️',
       sticker: params.sticker || null,
-      effect: entry.effect,
-      debrisType: entry.debrisType,
-      victimReaction: entry.victimReaction,
-      banner: entry.banner,
-      easterEgg: entry.easterEgg,
+      effect: isSanGennaro ? 'san_gennaro_miracle' : entry.effect,
+      debrisType: isSanGennaro ? 'san_gennaro_blood_drops' : entry.debrisType,
+      victimReaction: isSanGennaro ? 'levitate_dissolve' : entry.victimReaction,
+      banner: isSanGennaro
+        ? {
+            it: 'MIRACOLO DI SAN GENNARO! SANGUE SCIOLTO! 🩸✨',
+            en: 'MIRACLE OF ST. JANUARIUS! BLOOD LIQUEFIED! 🩸✨',
+          }
+        : entry.banner,
+      easterEgg: isSanGennaro ? 'san_gennaro_miracle' : entry.easterEgg,
       nonLethalCuddle: entry.nonLethalCuddle,
       videoUrl: entry.videoUrl,
       compositeUrl: entry.compositeUrl,
-      attackerImg: entry.attackerImg,
+      attackerImg: isSanGennaro
+        ? 'assets/characters/bishop-classic-vescovo.jpg'
+        : entry.attackerImg,
       defenderImg: entry.defenderImg,
       source: params.source || 'board_capture',
       durationMs,

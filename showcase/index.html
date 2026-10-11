@@ -294,13 +294,13 @@
         details: 'Principessa guerriera della palude con tiara dorata a punte, chignon alto con anello d’oro e abito rinascimentale bordeaux e senape.',
       },
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 8.3 · 🟡 3D 7.7',
-        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Mago Focaccina Ligure (bishop-swamp-focaccina)', winner: true, defaultConfirmed: true,
-        tagline: 'Alfiere di focaccia ligure dorata con olive taggiasche, rosmarino e pastorale di grissino al sesamo',
-        front: '../assets/characters/bishop-swamp-focaccina.jpg',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.4 · 🟢 3D 8.8',
+        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Don Gatto con gli Stivali — Zorro-Vescovo (bishop-swamp-gatto)', winner: true, defaultConfirmed: true,
+        tagline: 'Il Gatto con gli Stivali in versione Zorro-Vescovo: mascherina nera, mitra vescovile nera/oro con piuma gialla, mantello ricamato e stocco d’oro',
+        front: '../assets/characters/bishop-swamp-gatto.jpg',
         model: '../assets/models/swamp/bishop-swamp-focaccina.glb',
-        modelNote: '16,032 tris · watertight · min.y = 0.0 · 1.45m · attacco: focaccina_crumb_bonk',
-        details: 'Mago di focaccia ligure appena sfornata con 3 bottoni di oliva nera taggiasca, aghi di rosmarino, mitria di crosta salata e bastone grissino.',
+        modelNote: 'TRELLIS.2 / 3D mesh · min.y = 0.0 · 1.45m · attacco: focaccina_crumb_bonk',
+        details: 'Mix comico tra il Gatto con gli Stivali, Zorro e un Vescovo solenne: mascherina da bandito sugli occhioni verdi, mitra papale nera e oro con croce rubino e piuma di struzzo gialla, mantello nero con medaglione Z, stivaloni e spada-pastorale.',
       },
       {
         family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.0 · 🟡 3D 7.4',
@@ -321,13 +321,14 @@
         details: 'Torre di guardia in pietra muschiosa avvolta da una draghessa rubino con pancia smeraldo, corna dorate, ali spiegate e punta della coda a cuore.',
       },
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 8.7 · 🟡 3D 7.2',
-        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Guardia Re Tappo (pawn-swamp-tappo)', defaultConfirmed: true,
-        tagline: 'Pomposo araldo in livrea blu zaffiro in piedi su una pila di 3 tomi di decreti reali',
-        front: '../assets/characters/pawn-swamp-tappo.jpg',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.2 · 🟢 3D 8.5',
+        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Uomo Focaccina Ligure (pawn-swamp-focaccina)', winner: true, defaultConfirmed: true,
+        tagline: 'Pedone di focaccia ligure dorata con olive taggiasche, aghi di rosmarino e bastone di grissino al sesamo (alt: I 3 Porcellini & Zenzy)',
+        front: '../assets/characters/pawn-swamp-focaccina.jpg',
+        back: '../assets/characters/pawn-swamp-porcellini.jpg',
         model: '../assets/models/swamp/pawn-swamp-tappo.glb',
-        modelNote: '16,468 tris · watertight · min.y = 0.0 · 0.95m · attacco: decree_scroll_flatten',
-        details: 'Piccolo araldo pomposo dai boccoli biondi in piedi su 3 grossi volumi di leggi reali per sembrare più alto, con cappello blu zaffiro e pergamena.',
+        modelNote: 'TRELLIS.2 / 3D mesh · min.y = 0.0 · 0.95m · attacco: decree_scroll_flatten',
+        details: 'Promosso a Pedone per acclamazione! Focaccina ligure appena sfornata con 3 bottoni di oliva nera taggiasca, rosmarino e bastone grissino (con varianti alternative I 3 Porcellini e Zenzy).',
       },
     ];
 
@@ -594,5 +595,15 @@
     }
     tick();
   </script>
+
+  <footer style="text-align:center;padding:24px 16px 40px;color:#90a4ae;font-size:12px;border-top:1px solid rgba(255,213,79,0.2);margin-top:40px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.4</span>
+    <span>·</span>
+    <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener noreferrer" style="color:#9be7c4;text-decoration:none;font-weight:600;">🐙 GitHub Code</a>
+    <span>·</span>
+    <a href="https://github.com/palladius/carchess3d/issues/new" target="_blank" rel="noopener noreferrer" style="color:#ffab91;text-decoration:none;font-weight:600;">🐛 Open a bug</a>
+    <span>·</span>
+    <a href="../index.html" style="color:#ffe082;text-decoration:none;font-weight:600;">🏰 Gioca a CarChess3D</a>
+  </footer>
 </body>
 </html>
