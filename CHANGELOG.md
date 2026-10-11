@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.25] - 2026-10-11
+## [0.3.26] - 2026-10-11
 
 - 🎬🕵️‍♂️🏆 **Full 36-Video Adversarial Critic Audit, Veo 3.1 `firstFrame` + `lastFrame` Regeneration & Historical Video Archive (`assets/battles/video_audit.yaml`, `assets/battles/archive/`, `assets/battles/videos/`, `assets/battles/keyframes/`, `docs/spec/SPEC.md`)**:
   - **36/36 Temporal Contact-Sheet Audit by Adversarial Video Critic**: Extracted 4-frame (`0.5s, 2.8s, 5.2s, 7.4s`) temporal contact sheets across all 36 battle videos and scored every video against a `6.5 / 10` quality threshold.
@@ -11,6 +11,11 @@
     - **`k_x_q` (*Kiss of Death*, Throne-Free)** (`9.4/10`): Start frame (`k_x_q_start.png`) with standing Riccardo holding a gothic Black Rose to his lips and vibrant alive Kate on right (zero throne) → blows necrotic purple-crimson kiss mist → End frame (`k_x_q_end.png`) with Kate withering into an ashen-pale lifeless gothic figurine.
     - **Eliminated Duplicate Clones, Vanishing/Teleporting Rook Towers & Bizarre Morphs (`9.0–9.3/10`)**: Regenerated `k_x_p` (fixed duplicate Puffin clone during Fireball), `k_x_b` (fixed duplicate Ale clone during Meteor Swarm), `k_x_r` (fixed vanishing/reappearing rook tower & King jumping into swamp), `q_x_q` (fixed wrong Black-Queen winner), `q_x_b` (fixed duplicate dragon & Ale clones), `q_x_r` (fixed vanishing/reappearing rook tower), `b_x_k` (fixed King morphing into crowned green dragon), `b_x_n` (fixed horse morphing into giant dragon + `"1 G"` golden letters), `b_x_r` (fixed teleporting rook tower), `b_x_p` (fixed 2nd Puffin clone + balloon chest), `n_x_k` (fixed vanishing horse & Seby wearing King's cloak), `n_x_r` (fixed blurry duplicate Seby clone & missing tower), `r_x_k` (fixed duplicate mini-Pupurabbu clone & breakfast pancake morph), `r_x_q` (fixed Pupurabbu wearing Queen Kate's corset dress), `r_x_b`, `r_x_r`, `r_x_p`, `p_x_q` (fixed tall humanoid Puffin morph), `p_x_n`, `p_x_r`, and `p_x_p`.
   - Updated [`docs/spec/SPEC.md`](docs/spec/SPEC.md) to document the `firstFrame` + `lastFrame` Veo 3.1 pipeline, `assets/battles/video_audit.yaml`, and `assets/battles/archive/`.
+
+## [0.3.25] - 2026-10-11
+
+- 👑🔄 **Re Riccardo 3D Side-Profile Preview (`tools/model-pipeline/king/graft_papino_face_3d.py`, `out/papino_face_graft_preview.png`)**:
+  - Updated Panel 4 of `papino_face_graft_preview.png` to display the `+75°` 3D side profile of `assets/models/king-riccardo.glb`, confirming clean-shaven, no-glasses 3D consistency alongside the Mode B `2048×1024` Face-Grafted front view.
 
 ## [0.3.24] - 2026-10-11
 
