@@ -20,6 +20,9 @@ import {
   FAMILY_STICKERS,
   PROFILES,
   I18N,
+  APP_VERSION,
+  GITHUB_REPO_URL,
+  GITHUB_NEW_ISSUE_URL,
 } from '../core/Registry.js';
 import { BATTLE_MATRIX_36 } from '../core/BattleMatrix36.js';
 
@@ -81,6 +84,8 @@ export class HudListener {
     this.matrixMarathonIndex = 0;
     this.battleMatrix36 = BATTLE_MATRIX_36 || null;
 
+    this.appVersion = APP_VERSION.startsWith('v') ? APP_VERSION : `v${APP_VERSION}`;
+
     this.rootEl = null;
     this.els = {};
     this.toastTimer = null;
@@ -103,6 +108,20 @@ export class HudListener {
     if (typeof document !== 'undefined' && !this.rootEl) {
       this.buildDom();
       window.addEventListener('keydown', this._boundKeyDown);
+    }
+
+    if (typeof fetch === 'function') {
+      fetch('./VERSION')
+        .then((r) => (r.ok ? r.text() : null))
+        .then((txt) => {
+          if (txt && txt.trim()) {
+            const v = txt.trim();
+            this.appVersion = v.startsWith('v') ? v : `v${v}`;
+            const el = this.rootEl?.querySelector?.('#hud-version-tag');
+            if (el) el.textContent = this.appVersion;
+          }
+        })
+        .catch(() => {});
     }
 
     if (bus && this.offs.length === 0) {
@@ -332,6 +351,51 @@ export class HudListener {
         display: flex;
         flex-direction: column;
         gap: 4px;
+      }
+      .hud-footer-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        font-size: 10.5px;
+        color: #b0bec5;
+        padding-top: 5px;
+        margin-top: 3px;
+        border-top: 1px solid rgba(255, 213, 79, 0.20);
+      }
+      .hud-version-pill {
+        font-weight: 700;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        color: #ffe082;
+        background: rgba(255, 224, 130, 0.12);
+        border: 1px solid rgba(255, 224, 130, 0.35);
+        padding: 1px 6px;
+        border-radius: 6px;
+        font-size: 10px;
+        letter-spacing: 0.3px;
+      }
+      .hud-footer-sep {
+        color: rgba(255, 255, 255, 0.35);
+      }
+      .hud-footer-link {
+        color: #9be7c4;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 600;
+        transition: color 0.15s ease, transform 0.1s ease;
+      }
+      .hud-footer-link:hover {
+        color: #fff;
+        text-decoration: underline;
+        transform: translateY(-1px);
+      }
+      .hud-footer-link.hud-bug-link {
+        color: #ffab91;
+      }
+      .hud-footer-link.hud-bug-link:hover {
+        color: #ffccbc;
       }
       .hud-turn-pill {
         display: flex;
@@ -844,6 +908,17 @@ export class HudListener {
             </div>
           </div>
           <div id="hud-stickers-row" class="hud-stickers-row" title="Sticker Collezionabili Sbloccati"></div>
+          <div class="hud-footer-meta">
+            <span id="hud-version-tag" class="hud-version-pill" title="Versione di CarChess3D">${this.appVersion}</span>
+            <span class="hud-footer-sep">·</span>
+            <a href="${GITHUB_REPO_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link" title="Visualizza il codice sorgente su GitHub">
+              <span>🐙</span> <span>GitHub Code</span>
+            </a>
+            <span class="hud-footer-sep">·</span>
+            <a href="${GITHUB_NEW_ISSUE_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link hud-bug-link" title="Segnala un bug o apri una nuova issue su GitHub">
+              <span>🐛</span> <span>Open a bug</span>
+            </a>
+          </div>
         </div>
 
         <div class="hud-actions-dock hud-glass hud-interactive">

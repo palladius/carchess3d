@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.4] - 2026-10-11
+
+- 🔗🏷️ **Footer GitHub Links & Game Version Display (`src/listeners/HudListener.js`, `src/core/Registry.js`, `battles.html`, `showcase/index.html`, `tests/core.test.mjs`)**:
+  - Added dedicated `.hud-footer-meta` row inside the game HUD `<footer class="hud-bottombar">` (and matching footers in [`battles.html`](battles.html) and [`showcase/index.html`](showcase/index.html)):
+    - **`v0.3.4` Game Version Tag**: Displays current game version (`v${APP_VERSION}`), dynamically refreshed at runtime via `fetch('./VERSION')`.
+    - **🐙 GitHub Code**: Direct clickable link to the repository source code (`https://github.com/palladius/carchess3d`).
+    - **🐛 Open a Bug**: Direct clickable link to open a new GitHub Issue (`https://github.com/palladius/carchess3d/issues/new`).
+  - Added unit test in [`tests/core.test.mjs`](tests/core.test.mjs) verifying `APP_VERSION`, `GITHUB_REPO_URL`, and `GITHUB_NEW_ISSUE_URL` match `VERSION` and repo endpoints.
+
 ## [0.3.3] - 2026-10-10
 
 - 🍌📺 **Wire Nano Banana 16:9 Keyframes & `1.65×` Veo Playback (`BattleMatrix36.js`, `VeoCinemaView.js`, `battles.html`)**:

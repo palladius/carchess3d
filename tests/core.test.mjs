@@ -1,9 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { GameEventBus } from '../src/core/EventBus.js';
 import { mulberry32 } from '../src/core/Rng.js';
 import { GameLoop } from '../src/core/GameLoop.js';
 import { computeGroundingTransform, CANONICAL_PIECE_HEIGHTS } from '../src/utils/glbGrounding.js';
+import { APP_VERSION, GITHUB_REPO_URL, GITHUB_NEW_ISSUE_URL } from '../src/core/Registry.js';
+import { HudListener } from '../src/listeners/HudListener.js';
 
 test('GameEventBus: emit() queues events and flush() delivers once per tick in FIFO order', () => {
   const bus = new GameEventBus();
@@ -86,4 +89,14 @@ test('glbGrounding: grounds TRELLIS [-0.5..+0.5] bbox cleanly to min.y === 0 and
     assert.equal(t.finalMinY, 0, `${rank} must sit at y = 0`);
     assert.ok(Math.abs(t.finalHeight - expectedH) < 1e-6, `${rank} height should be ${expectedH}`);
   }
+});
+
+test('footer metadata: APP_VERSION matches VERSION file, and GitHub links point to correct repo endpoints', () => {
+  const versionFile = readFileSync(new URL('../VERSION', import.meta.url), 'utf-8').trim();
+  assert.equal(APP_VERSION, versionFile, 'APP_VERSION in Registry.js must match repo VERSION file');
+  assert.equal(GITHUB_REPO_URL, 'https://github.com/palladius/carchess3d');
+  assert.equal(GITHUB_NEW_ISSUE_URL, 'https://github.com/palladius/carchess3d/issues/new');
+
+  const hud = new HudListener();
+  assert.equal(hud.appVersion, `v${APP_VERSION}`);
 });
