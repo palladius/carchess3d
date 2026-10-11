@@ -15,7 +15,12 @@
  */
 
 import * as THREE from 'three';
-import { squareToWorld, worldToSquare } from '../core/Registry.js';
+import {
+  CHARACTER_REGISTRY,
+  BATTLE_MATRIX,
+  squareToWorld,
+  worldToSquare,
+} from '../core/Registry.js';
 
 const INDICATOR_Y = 0.015;
 
@@ -36,11 +41,14 @@ export class BoardInteractionView {
 
     this.selectionGroup = new THREE.Group();
     this.legalMovesGroup = new THREE.Group();
+    this.hoverPreviewGroup = new THREE.Group();
+    this.hoverPreviewGroup.name = 'CapturePreviewHoverGroup';
     this.checkGroup = new THREE.Group();
     this.hintGroup = new THREE.Group();
     this.rootGroup.add(
       this.selectionGroup,
       this.legalMovesGroup,
+      this.hoverPreviewGroup,
       this.checkGroup,
       this.hintGroup,
     );
@@ -58,12 +66,22 @@ export class BoardInteractionView {
     this.checkAuraMesh = null;
     /** @type {THREE.Object3D|null} */
     this.selectedRingMesh = null;
+    /** @type {THREE.Object3D|null} */
+    this.hoverRingMesh = null;
+
+    /** @type {string|null} */
+    this.hoveredSquare = null;
+    /** @type {Map<string, object>} */
+    this.captureTargetsBySquare = new Map();
+    /** @type {Map<string, object>} */
+    this.legalTargetsBySquare = new Map();
 
     this.elapsedTime = 0;
     this.pointerDownPos = { x: 0, y: 0, active: false };
     this.offs = [];
     this._boundPointerDown = (e) => this.onPointerDown(e);
     this._boundPointerUp = (e) => this.onPointerUp(e);
+    this._boundPointerMove = (e) => this.onPointerMove(e);
 
     this._applyOpts(opts);
   }
@@ -80,6 +98,72 @@ export class BoardInteractionView {
     if (this.scene && !this.rootGroup.parent) {
       this.scene.add(this.rootGroup);
     }
+    this._installTrackpadWheelFix();
+  }
+
+  /**
+   * Ensures `OrbitControls._customWheelEvent` preserves `deltaX` and modifier keys (`ctrlKey`,
+   * `metaKey`, `altKey`, `shiftKey`) so Mac Trackpad 2-finger rotate and pinch-zoom (`#13`)
+   * never produce `NaN` camera coordinates.
+   */
+  _installTrackpadWheelFix() {
+    const controls = this.ctx?.controls;
+    if (!controls) return;
+
+    controls._customWheelEvent = function (event) {
+      const mode = event.deltaMode;
+      let dx = Number(event.deltaX) || 0;
+      let dy = Number(event.deltaY) || 0;
+      if (mode === 1) {
+        dx *= 16;
+        dy *= 16;
+      } else if (mode === 2) {
+        dx *= 100;
+        dy *= 100;
+      }
+      if (event.ctrlKey && !this._controlActive) {
+        dy *= 10;
+      }
+      return {
+        clientX: Number(event.clientX) || 0,
+        clientY: Number(event.clientY) || 0,
+        deltaX: dx,
+        deltaY: dy,
+        ctrlKey: Boolean(event.ctrlKey),
+        metaKey: Boolean(event.metaKey),
+        altKey: Boolean(event.altKey),
+        shiftKey: Boolean(event.shiftKey),
+      };
+    };
+
+    controls._handleMouseWheel = function (event) {
+      const cx = Number(event.clientX) || 0;
+      const cy = Number(event.clientY) || 0;
+      const dx = Number(event.deltaX) || 0;
+      const dy = Number(event.deltaY) || 0;
+      this._updateZoomParameters(cx, cy);
+      const isPinchOrZoomMod =
+        Boolean(event.ctrlKey || event.metaKey || event.altKey) || !this.trackpadTwoFingerRotate;
+      if (isPinchOrZoomMod) {
+        const pinchScale = Math.pow(
+          0.95,
+          this.zoomSpeed * Math.min(8.0, Math.abs(dy) * 0.025 + 0.35),
+        );
+        if (dy < 0) {
+          this._dollyIn(pinchScale);
+        } else if (dy > 0) {
+          this._dollyOut(pinchScale);
+        }
+      } else if (event.shiftKey) {
+        this._pan(-dx * 0.65, -dy * 0.65);
+      } else {
+        const h = Math.max(1, this.domElement?.clientHeight || window.innerHeight || 800);
+        const twoPi = Math.PI * 2;
+        this._rotateLeft((twoPi * dx * this.rotateSpeed * 0.85) / h);
+        this._rotateUp((twoPi * dy * this.rotateSpeed * 0.85) / h);
+      }
+      this.update();
+    };
   }
 
   /**
@@ -92,13 +176,14 @@ export class BoardInteractionView {
     if (this.domElement && typeof this.domElement.addEventListener === 'function') {
       this.domElement.addEventListener('pointerdown', this._boundPointerDown);
       this.domElement.addEventListener('pointerup', this._boundPointerUp);
+      this.domElement.addEventListener('pointermove', this._boundPointerMove);
     }
 
     const bus = this.ctx?.bus;
     if (bus) {
       this.offs.push(
         bus.on('PIECE_SELECTED', (e) => {
-          this.renderSelectionAndLegalMoves(e.square, e.legalMoves || []);
+          this.renderSelectionAndLegalMoves(e.square, e.legalMoves || [], e.piece || null);
         }),
         bus.on('SELECTION_CLEARED', () => {
           this.clearSelectionIndicators();
@@ -149,6 +234,101 @@ export class BoardInteractionView {
     if (square) {
       this.handleSquareTap(square);
     }
+  }
+
+  /**
+   * Handles pointer hover over the 3D board to preview legal captures and moves (`#16`).
+   * Emits `CAPTURE_PREVIEW_HOVER` and renders a floating 3D ring glow on the hovered capture square.
+   * @param {PointerEvent|MouseEvent} event
+   */
+  onPointerMove(event) {
+    if (this.pointerDownPos.active) return;
+    const board = this.ctx?.board;
+    if (!board) return;
+
+    const sq = this.pickSquareFromPointerEvent(event);
+    const hoveredPiece = sq ? board.pieceAt?.(sq) : null;
+    this.pieceView?.setHoveredSquare?.(hoveredPiece ? sq : null);
+
+    // Emit PIECE_HOVERED when pointer enters a living piece (with 650ms anti-spam cooldown)
+    const pieceSq = hoveredPiece ? sq : null;
+    if (pieceSq !== this.hoveredPieceSquare) {
+      this.hoveredPieceSquare = pieceSq;
+      if (hoveredPiece && pieceSq) {
+        const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+        if (!this.lastHoverEmitMs || now - this.lastHoverEmitMs >= 650) {
+          this.lastHoverEmitMs = now;
+          this.ctx?.bus?.emit?.({
+            type: 'PIECE_HOVERED',
+            square: pieceSq,
+            piece: hoveredPiece,
+            pieceType: hoveredPiece.type,
+            color: hoveredPiece.color,
+          });
+          this.ctx?.bus?.flush?.();
+        }
+      }
+    }
+
+    if (!board.selectedSquare) {
+      if (this.hoveredSquare) {
+        this.hoveredSquare = null;
+        this.clearHoverPreview();
+      }
+      return;
+    }
+
+    if (sq === this.hoveredSquare) return;
+    this.hoveredSquare = sq;
+
+    if (sq && this.captureTargetsBySquare.has(sq)) {
+      const cap = this.captureTargetsBySquare.get(sq);
+      this.renderCaptureHoverPreview(sq, cap.attacker, cap.defender);
+      this.emitCapturePreviewHover(cap, 'hover');
+      this.ctx?.bus?.flush?.();
+    } else if (sq && this.legalTargetsBySquare.has(sq)) {
+      this.renderMoveHoverPreview(sq);
+    } else if (this.captureTargetsBySquare.size > 0) {
+      // Keep the primary capture target glowing when pointer is not on another target
+      const firstCap = this.captureTargetsBySquare.values().next().value;
+      if (firstCap) {
+        this.renderCaptureHoverPreview(firstCap.to, firstCap.attacker, firstCap.defender);
+      }
+    } else {
+      this.clearHoverPreview();
+    }
+  }
+
+  /**
+   * Emits `CAPTURE_PREVIEW_HOVER` with rich 6x6 matchup info and toast message.
+   * @param {object} cap
+   * @param {'selection'|'hover'} [source]
+   */
+  emitCapturePreviewHover(cap, source = 'hover') {
+    if (!cap) return;
+    const atkChar = CHARACTER_REGISTRY[cap.attacker] || CHARACTER_REGISTRY.p;
+    const defChar = CHARACTER_REGISTRY[cap.defender] || CHARACTER_REGISTRY.p;
+    const pairEntry = BATTLE_MATRIX?.[cap.attacker]?.[cap.defender] || null;
+    const pairCode = `${String(cap.attacker).toUpperCase()}×${String(cap.defender).toUpperCase()}`;
+    const toastText = `⚔️ Cattura possibile: ${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`;
+
+    this.ctx?.bus?.emit?.({
+      type: 'CAPTURE_PREVIEW_HOVER',
+      from: cap.from,
+      to: cap.to,
+      square: cap.to,
+      attacker: cap.attacker,
+      defender: cap.defender,
+      attackerName: atkChar.name,
+      defenderName: defChar.name,
+      attackerGlyph: atkChar.glyph,
+      defenderGlyph: defChar.glyph,
+      pairCode,
+      banner: pairEntry?.banner || null,
+      videoUrl: `assets/battles/videos/${cap.attacker}_x_${cap.defender}.mp4`,
+      toastText,
+      source,
+    });
   }
 
   /**
@@ -249,14 +429,19 @@ export class BoardInteractionView {
 
   /**
    * Renders the glowing golden selection ring (`0xffd54f`) and legal target indicators at `y = 0.015m`:
-   * - Legal empty target squares -> **pulsing yellow circles** (`0xffeb3b`)
-   * - Legal capture target squares -> **rotating red segmented target rings** (`0xff3d00`)
+   * - Legal empty target squares -> **pulsing emerald-yellow 3D dots** (`0x00e676` + `0xffeb3b`)
+   * - Legal capture target squares -> **rotating red segmented target rings** (`0xff3d00`) + floating 3D glow
    * @param {string} selectedSquare
    * @param {Array<object>} legalMoves
+   * @param {object|null} [selectedPiece]
    */
-  renderSelectionAndLegalMoves(selectedSquare, legalMoves = []) {
+  renderSelectionAndLegalMoves(selectedSquare, legalMoves = [], selectedPiece = null) {
     this.clearSelectionIndicators();
     if (!selectedSquare) return;
+
+    const boardPiece = selectedPiece || this.ctx?.board?.pieceAt?.(selectedSquare) || null;
+    const attackerType = boardPiece?.type || 'p';
+    const atkChar = CHARACTER_REGISTRY[attackerType] || CHARACTER_REGISTRY.p;
 
     // 1. Selected square glowing golden ring
     const selPos = squareToWorld(selectedSquare);
@@ -266,7 +451,7 @@ export class BoardInteractionView {
         color: 0xffd54f,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.92,
+        opacity: 0.94,
       }),
     );
     selRing.rotation.x = -Math.PI * 0.5;
@@ -286,14 +471,31 @@ export class BoardInteractionView {
     // 2. Legal move targets
     for (const [targetSq, move] of seenTargets.entries()) {
       const pos = squareToWorld(targetSq);
+      this.legalTargetsBySquare.set(targetSq, move);
+
+      const targetBoardPiece = this.ctx?.board?.pieceAt?.(targetSq) || null;
       const isCapture = Boolean(
         move.captured ||
-        (typeof move.flags === 'string' && (move.flags.includes('c') || move.flags.includes('e'))),
+        (typeof move.flags === 'string' && (move.flags.includes('c') || move.flags.includes('e'))) ||
+        (targetBoardPiece && boardPiece && targetBoardPiece.color !== boardPiece.color),
       );
 
       if (isCapture) {
-        // Rotating red segmented target ring (0xff3d00)
-        const capRing = this.buildSegmentedCaptureRing(targetSq);
+        const defenderType = move.captured || targetBoardPiece?.type || 'p';
+        const defChar = CHARACTER_REGISTRY[defenderType] || CHARACTER_REGISTRY.p;
+        const capInfo = {
+          from: selectedSquare,
+          to: targetSq,
+          attacker: attackerType,
+          defender: defenderType,
+          attackerName: atkChar.name,
+          defenderName: defChar.name,
+          move,
+        };
+        this.captureTargetsBySquare.set(targetSq, capInfo);
+
+        // Rotating red segmented target ring (0xff3d00) + elevated danger crown
+        const capRing = this.buildSegmentedCaptureRing(targetSq, attackerType, defenderType);
         capRing.position.set(pos.x, INDICATOR_Y + 0.012, pos.z);
         this.legalMovesGroup.add(capRing);
         this.rotatingCaptureRings.push(capRing);
@@ -301,37 +503,38 @@ export class BoardInteractionView {
         // Pulsing colored legal-move dot (glowing emerald-gold core + bright yellow halo ring)
         const circleGroup = new THREE.Group();
         circleGroup.name = `LegalMoveCircle_${targetSq}`;
+        circleGroup.userData = { square: targetSq, isCapture: false };
         circleGroup.position.set(pos.x, INDICATOR_Y + 0.008, pos.z);
 
         const disc = new THREE.Mesh(
-          new THREE.CircleGeometry(0.21, 32),
+          new THREE.CircleGeometry(0.22, 32),
           new THREE.MeshBasicMaterial({
             color: 0x00e676,
             side: THREE.DoubleSide,
             transparent: true,
-            opacity: 0.92,
+            opacity: 0.94,
           }),
         );
         disc.rotation.x = -Math.PI * 0.5;
 
         const innerDot = new THREE.Mesh(
-          new THREE.SphereGeometry(0.11, 16, 12),
+          new THREE.SphereGeometry(0.115, 16, 12),
           new THREE.MeshBasicMaterial({
             color: 0xffee58,
             transparent: true,
-            opacity: 0.96,
+            opacity: 0.98,
           }),
         );
-        innerDot.scale.set(1, 0.38, 1);
-        innerDot.position.y = 0.02;
+        innerDot.scale.set(1, 0.42, 1);
+        innerDot.position.y = 0.022;
 
         const halo = new THREE.Mesh(
-          new THREE.RingGeometry(0.23, 0.31, 32),
+          new THREE.RingGeometry(0.24, 0.32, 32),
           new THREE.MeshBasicMaterial({
             color: 0xffeb3b,
             side: THREE.DoubleSide,
             transparent: true,
-            opacity: 0.85,
+            opacity: 0.88,
           }),
         );
         halo.rotation.x = -Math.PI * 0.5;
@@ -341,20 +544,40 @@ export class BoardInteractionView {
         this.pulsingCircles.push(circleGroup);
       }
     }
+
+    // 3. If the selected piece has legal capture targets, immediately show the 3D floating
+    //    capture preview ring glow & emit CAPTURE_PREVIEW_HOVER for the HUD toast!
+    if (this.captureTargetsBySquare.size > 0) {
+      const firstCap = this.captureTargetsBySquare.values().next().value;
+      if (firstCap) {
+        this.renderCaptureHoverPreview(firstCap.to, firstCap.attacker, firstCap.defender);
+        this.emitCapturePreviewHover(firstCap, 'selection');
+      }
+    }
   }
 
   /**
    * Builds a rotating red segmented target reticle (`0xff3d00`) for capture squares.
+   * @param {string} square
+   * @param {string} [attackerType]
+   * @param {string} [defenderType]
    */
-  buildSegmentedCaptureRing(square) {
+  buildSegmentedCaptureRing(square, attackerType = 'b', defenderType = 'p') {
     const group = new THREE.Group();
     group.name = `CaptureTargetRing_${square}`;
+    group.userData = {
+      square,
+      isCapture: true,
+      attackerType,
+      defenderType,
+      pairCode: `${String(attackerType).toUpperCase()}×${String(defenderType).toUpperCase()}`,
+    };
 
     const segMat = new THREE.MeshBasicMaterial({
       color: 0xff3d00,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.92,
+      opacity: 0.95,
     });
 
     // 4 segmented arcs around the target piece pedestal
@@ -363,7 +586,7 @@ export class BoardInteractionView {
     for (let i = 0; i < segmentCount; i++) {
       const thetaStart = i * (Math.PI * 0.5) + 0.12;
       const seg = new THREE.Mesh(
-        new THREE.RingGeometry(0.35, 0.46, 16, 1, thetaStart, arcSpan),
+        new THREE.RingGeometry(0.35, 0.47, 16, 1, thetaStart, arcSpan),
         segMat,
       );
       seg.rotation.x = -Math.PI * 0.5;
@@ -372,18 +595,177 @@ export class BoardInteractionView {
 
     // Inner subtle danger ring
     const inner = new THREE.Mesh(
-      new THREE.RingGeometry(0.26, 0.30, 28),
+      new THREE.RingGeometry(0.25, 0.31, 28),
       new THREE.MeshBasicMaterial({
         color: 0xff8a65,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.65,
+        opacity: 0.72,
       }),
     );
     inner.rotation.x = -Math.PI * 0.5;
     group.add(inner);
 
+    // Floating elevated gold-crimson duel ring at y = 0.16m
+    const elevatedRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.38, 0.43, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0xffca28,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.75,
+      }),
+    );
+    elevatedRing.rotation.x = -Math.PI * 0.5;
+    elevatedRing.position.y = 0.16;
+    group.add(elevatedRing);
+
     return group;
+  }
+
+  /**
+   * Renders a floating 3D capture preview ring glow + clash badge over a capture target square.
+   * @param {string} square
+   * @param {string} [attackerType]
+   * @param {string} [defenderType]
+   */
+  renderCaptureHoverPreview(square, attackerType = 'b', defenderType = 'p') {
+    this.clearHoverPreview();
+    if (!square) return;
+
+    const pos = squareToWorld(square);
+    const previewGroup = new THREE.Group();
+    previewGroup.name = `CaptureHoverPreview_${square}`;
+    previewGroup.userData = {
+      square,
+      attackerType,
+      defenderType,
+      pairCode: `${String(attackerType).toUpperCase()}×${String(defenderType).toUpperCase()}`,
+    };
+    previewGroup.position.set(pos.x, INDICATOR_Y, pos.z);
+
+    // Floating outer golden-crimson ring at y = 0.24m
+    const floatingRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.34, 0.48, 36),
+      new THREE.MeshBasicMaterial({
+        color: 0xffd54f,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.92,
+      }),
+    );
+    floatingRing.rotation.x = -Math.PI * 0.5;
+    floatingRing.position.y = 0.24;
+    previewGroup.add(floatingRing);
+
+    // Subtle vertical holo-beacon cylinder around the target piece
+    const holoCylinder = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.43, 0.47, 0.38, 28, 1, true),
+      new THREE.MeshBasicMaterial({
+        color: 0xff3d00,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.25,
+      }),
+    );
+    holoCylinder.position.y = 0.20;
+    previewGroup.add(holoCylinder);
+
+    // Optional floating 3D sprite badge above the target piece when running in browser DOM
+    const sprite = this._buildFloatingPairSprite(attackerType, defenderType);
+    if (sprite) {
+      sprite.position.set(0, 1.55, 0);
+      previewGroup.add(sprite);
+    }
+
+    this.hoverPreviewGroup.add(previewGroup);
+    this.hoverRingMesh = previewGroup;
+  }
+
+  /**
+   * Renders a subtle floating emerald-gold hover ring over a legal empty target square.
+   * @param {string} square
+   */
+  renderMoveHoverPreview(square) {
+    this.clearHoverPreview();
+    if (!square) return;
+
+    const pos = squareToWorld(square);
+    const previewGroup = new THREE.Group();
+    previewGroup.name = `MoveHoverPreview_${square}`;
+    previewGroup.position.set(pos.x, INDICATOR_Y + 0.08, pos.z);
+
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.28, 0.37, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0x69f0ae,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.88,
+      }),
+    );
+    ring.rotation.x = -Math.PI * 0.5;
+    previewGroup.add(ring);
+
+    this.hoverPreviewGroup.add(previewGroup);
+    this.hoverRingMesh = previewGroup;
+  }
+
+  /**
+   * Builds a 3D floating `THREE.Sprite` badge showing `⚔️ ATK × DEF` above a capture target.
+   * Safe in headless Node environments where `document` is undefined.
+   */
+  _buildFloatingPairSprite(attackerType = 'b', defenderType = 'p') {
+    if (typeof document === 'undefined') return null;
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 64;
+      const ctx2d = canvas.getContext('2d');
+      if (!ctx2d) return null;
+
+      const atkChar = CHARACTER_REGISTRY[attackerType] || CHARACTER_REGISTRY.p;
+      const defChar = CHARACTER_REGISTRY[defenderType] || CHARACTER_REGISTRY.p;
+      const label = `⚔️ ${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name}`;
+
+      ctx2d.fillStyle = 'rgba(18, 12, 28, 0.88)';
+      ctx2d.strokeStyle = '#ffd54f';
+      ctx2d.lineWidth = 4;
+      ctx2d.beginPath();
+      if (typeof ctx2d.roundRect === 'function') {
+        ctx2d.roundRect(4, 4, 248, 56, 24);
+      } else {
+        ctx2d.rect(4, 4, 248, 56);
+      }
+      ctx2d.fill();
+      ctx2d.stroke();
+
+      ctx2d.font = 'bold 20px system-ui, sans-serif';
+      ctx2d.fillStyle = '#ffe082';
+      ctx2d.textAlign = 'center';
+      ctx2d.textBaseline = 'middle';
+      ctx2d.fillText(label, 128, 33);
+
+      const tex = new THREE.CanvasTexture(canvas);
+      const mat = new THREE.SpriteMaterial({
+        map: tex,
+        transparent: true,
+        depthTest: false,
+      });
+      const sprite = new THREE.Sprite(mat);
+      sprite.name = 'CapturePreviewPairSprite';
+      sprite.scale.set(1.45, 0.36, 1);
+      return sprite;
+    } catch {
+      return null;
+    }
+  }
+
+  clearHoverPreview() {
+    this.hoverRingMesh = null;
+    while (this.hoverPreviewGroup.children.length > 0) {
+      this.hoverPreviewGroup.remove(this.hoverPreviewGroup.children[0]);
+    }
   }
 
   /**
@@ -503,6 +885,10 @@ export class BoardInteractionView {
     this.pulsingCircles = [];
     this.rotatingCaptureRings = [];
     this.selectedRingMesh = null;
+    this.hoveredSquare = null;
+    this.captureTargetsBySquare.clear();
+    this.legalTargetsBySquare.clear();
+    this.clearHoverPreview();
     while (this.selectionGroup.children.length > 0) {
       this.selectionGroup.remove(this.selectionGroup.children[0]);
     }
@@ -526,15 +912,14 @@ export class BoardInteractionView {
 
   /**
    * Animates pulsing yellow legal circles, rotating red capture reticles,
-   * and pulsing crimson King-in-Check aura.
+   * floating capture hover preview ring, and pulsing crimson King-in-Check aura.
    * @param {number} dt
    */
   update(dt = 1 / 60) {
     this.elapsedTime += dt;
     const t = this.elapsedTime;
 
-    // Pulse yellow legal move circles
-    const pulseScale = 1.0 + 0.15 * Math.sin(t * 5.2);
+    // Pulse emerald/yellow legal move circles
     for (let i = 0; i < this.pulsingCircles.length; i++) {
       const circle = this.pulsingCircles[i];
       const phase = t * 5.2 + i * 0.4;
@@ -547,6 +932,12 @@ export class BoardInteractionView {
       ring.rotation.y += dt * 2.4;
       const s = 1.0 + 0.06 * Math.sin(t * 6.0);
       ring.scale.set(s, 1, s);
+    }
+
+    // Animate floating 3D hover preview ring
+    if (this.hoverRingMesh) {
+      const s = 1.0 + 0.09 * Math.sin(t * 6.5);
+      this.hoverRingMesh.scale.set(s, 1, s);
     }
 
     // Pulse selected ring subtly
@@ -568,6 +959,7 @@ export class BoardInteractionView {
     if (this.domElement && typeof this.domElement.removeEventListener === 'function') {
       this.domElement.removeEventListener('pointerdown', this._boundPointerDown);
       this.domElement.removeEventListener('pointerup', this._boundPointerUp);
+      this.domElement.removeEventListener('pointermove', this._boundPointerMove);
     }
     this.clearSelectionIndicators();
     this.clearCheckIndicator();

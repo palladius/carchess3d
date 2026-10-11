@@ -16,11 +16,36 @@
 
 import {
   CHARACTER_REGISTRY,
+  VOICE_LINES,
   BATTLE_MATRIX,
   FAMILY_STICKERS,
   PROFILES,
   I18N,
+  APP_VERSION,
+  GITHUB_REPO_URL,
+  GITHUB_NEW_ISSUE_URL,
 } from '../core/Registry.js';
+import { BATTLE_MATRIX_36 } from '../core/BattleMatrix36.js';
+
+const PIECE_ORDER = ['k', 'q', 'b', 'n', 'r', 'p'];
+
+const WEAPON_LABELS_IT = {
+  k: '⚡ Scettro Reale & Trono d’Oro',
+  q: '🍫 Bacchetta Ciocco-Onda Lilla',
+  b: '🐉 Draghetto & Cristallo Ametista',
+  n: '🏎️ Pista Loop Turbo & Destriero',
+  r: '💜 Guantoni Puffosi & Panciata',
+  p: '🐟 Alabarda Svizzera & Pesce',
+};
+
+const COUNTER_LABELS_IT = {
+  k: '⚡ Lampo Reale di Scettro (ZAP!)',
+  q: '🛡️ Scudo Ciocco-Vortice Lilla (SWIRL!)',
+  b: '🔥 Soffio Difensivo del Draghetto (FIAMMA!)',
+  n: '🐴 Impennata e Doppio Calcio (IMPENNATA!)',
+  r: '💜 Rimbalzo Pancia Gommoso (BOING!)',
+  p: '⚔️ Parata d’Alabarda & Slap (PARATA!)',
+};
 
 export class HudListener {
   /**
@@ -40,6 +65,7 @@ export class HudListener {
     this.luck = { w: 0, b: 0, max: 12 };
     this.unlockedStickers = new Set();
     this.lastToast = null;
+    this.lastVoiceQuote = null;
     this.activeBanner = null;
     this.pendingPromotion = null;
     this.wowSubMode = 'inspector';
@@ -53,6 +79,14 @@ export class HudListener {
     this.topDownCamera = false;
     this.musicPlaying = false;
     this.sfxEnabled = true;
+    this.skeletonsVisible = false;
+    this.matrixModalOpen = false;
+    this.matrixSelectedPair = { atk: 'b', def: 'n' };
+    this.matrixMarathonTimer = null;
+    this.matrixMarathonIndex = 0;
+    this.battleMatrix36 = BATTLE_MATRIX_36 || null;
+
+    this.appVersion = APP_VERSION.startsWith('v') ? APP_VERSION : `v${APP_VERSION}`;
 
     this.rootEl = null;
     this.els = {};
@@ -78,11 +112,27 @@ export class HudListener {
       window.addEventListener('keydown', this._boundKeyDown);
     }
 
+    if (typeof fetch === 'function') {
+      fetch('./VERSION')
+        .then((r) => (r.ok ? r.text() : null))
+        .then((txt) => {
+          if (txt && txt.trim()) {
+            const v = txt.trim();
+            this.appVersion = v.startsWith('v') ? v : `v${v}`;
+            const el = this.rootEl?.querySelector?.('#hud-version-tag');
+            if (el) el.textContent = this.appVersion;
+          }
+        })
+        .catch(() => {});
+    }
+
     if (bus && this.offs.length === 0) {
       this.offs.push(
         bus.on('FLOW_STATE_CHANGED', (e) => this.onFlowStateChanged(e)),
         bus.on('BOARD_RESET', (e) => this.onBoardReset(e)),
+        bus.on('PIECE_HOVERED', (e) => this.onPieceHovered(e)),
         bus.on('PIECE_SELECTED', (e) => this.onPieceSelected(e)),
+        bus.on('CAPTURE_PREVIEW_HOVER', (e) => this.onCapturePreviewHover(e)),
         bus.on('MOVE_EXECUTED', (e) => this.onMoveExecuted(e)),
         bus.on('CHECK_DETECTED', (e) => this.onCheckDetected(e)),
         bus.on('CHECKMATE', (e) => this.onCheckmate(e)),
@@ -99,6 +149,7 @@ export class HudListener {
         bus.on('PROFILE_CHANGED', (e) => this.onProfileChanged(e)),
         bus.on('PROFILE_RESTORED', (e) => this.onProfileRestored(e)),
         bus.on('LYRIA_CAPTION', (e) => this.onLyriaCaption(e)),
+        bus.on('TOGGLE_SKELETONS', (e) => this.onSkeletonsToggled(e)),
         bus.on('PIECE_SET_CHANGED', (e) => this.onPieceSetChanged(e)),
       );
     }
@@ -106,6 +157,68 @@ export class HudListener {
 
   t(key) {
     return I18N[this.lang]?.[key] || I18N.it[key] || key;
+  }
+
+  /**
+   * Resolves rich metadata for any of the 36 (6x6) Attacker x Defender combinations.
+   * @param {string} atk
+   * @param {string} def
+   */
+  getPairMeta36(atk = 'b', def = 'n') {
+    const atkChar = CHARACTER_REGISTRY[atk] || CHARACTER_REGISTRY.b;
+    const defChar = CHARACTER_REGISTRY[def] || CHARACTER_REGISTRY.n;
+    const baseEntry = BATTLE_MATRIX?.[atk]?.[def] || {};
+    const richEntry = this.battleMatrix36?.[atk]?.[def] || {};
+    const pairCode = `${atk.toUpperCase()}×${def.toUpperCase()}`;
+
+    let eggBadge = '';
+    let eggClass = '';
+    if ((atk === 'n' && def === 'r') || (atk === 'r' && def === 'n')) {
+      eggBadge = '💜 Abbraccio';
+      eggClass = 'cuddle';
+    } else if ((atk === 'k' && def === 'q') || (atk === 'q' && def === 'k')) {
+      eggBadge = "🚽 Trono d'Oro";
+      eggClass = 'throne';
+    } else if ((atk === 'b' && def === 'n') || (atk === 'n' && def === 'b')) {
+      eggBadge = '🐉 vs 🏎️';
+      eggClass = 'rivals';
+    } else if (atk === def) {
+      eggBadge = '🪞 Specchio';
+      eggClass = 'mirror';
+    }
+
+    const titleText =
+      richEntry.title?.[this.lang] ||
+      richEntry.title?.it ||
+      `${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name}`;
+    const bannerText =
+      richEntry.banner?.[this.lang] ||
+      richEntry.banner?.it ||
+      baseEntry.banner?.[this.lang] ||
+      baseEntry.banner?.it ||
+      `${atkChar.name.toUpperCase()} vs ${defChar.name.toUpperCase()}! ✨`;
+    const counterText =
+      richEntry.defenderCounter?.[this.lang] ||
+      richEntry.defenderCounter?.it ||
+      COUNTER_LABELS_IT[def] ||
+      'Contrattacco Eroico!';
+
+    return {
+      id: `${atk}_x_${def}`,
+      atk,
+      def,
+      pairCode,
+      atkChar,
+      defChar,
+      titleText,
+      bannerText,
+      weaponText: WEAPON_LABELS_IT[atk] || atkChar.signatureId,
+      counterText,
+      eggBadge,
+      eggClass,
+      videoUrl: `assets/battles/videos/${atk}_x_${def}.mp4`,
+      webmUrl: `assets/battles/videos/${atk}_x_${def}.webm`,
+    };
   }
 
   // ===========================================================================
@@ -203,6 +316,17 @@ export class HudListener {
         border-color: #fff3c4;
         font-weight: 800;
       }
+      .hud-btn.gold-emerald {
+        background: linear-gradient(135deg, #ffd54f 0%, #00c853 100%);
+        color: #0b1911;
+        border: 1.5px solid #fff8e1;
+        font-weight: 800;
+        box-shadow: 0 0 14px rgba(0, 200, 83, 0.45);
+      }
+      .hud-btn.gold-emerald:hover {
+        background: linear-gradient(135deg, #ffe082 0%, #00e676 100%);
+        box-shadow: 0 0 20px rgba(255, 213, 79, 0.75);
+      }
       .hud-select {
         font: 600 11.5px/1.15 system-ui, sans-serif;
         padding: 5px 8px;
@@ -230,6 +354,51 @@ export class HudListener {
         display: flex;
         flex-direction: column;
         gap: 4px;
+      }
+      .hud-footer-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        font-size: 10.5px;
+        color: #b0bec5;
+        padding-top: 5px;
+        margin-top: 3px;
+        border-top: 1px solid rgba(255, 213, 79, 0.20);
+      }
+      .hud-version-pill {
+        font-weight: 700;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        color: #ffe082;
+        background: rgba(255, 224, 130, 0.12);
+        border: 1px solid rgba(255, 224, 130, 0.35);
+        padding: 1px 6px;
+        border-radius: 6px;
+        font-size: 10px;
+        letter-spacing: 0.3px;
+      }
+      .hud-footer-sep {
+        color: rgba(255, 255, 255, 0.35);
+      }
+      .hud-footer-link {
+        color: #9be7c4;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 600;
+        transition: color 0.15s ease, transform 0.1s ease;
+      }
+      .hud-footer-link:hover {
+        color: #fff;
+        text-decoration: underline;
+        transform: translateY(-1px);
+      }
+      .hud-footer-link.hud-bug-link {
+        color: #ffab91;
+      }
+      .hud-footer-link.hud-bug-link:hover {
+        color: #ffccbc;
       }
       .hud-turn-pill {
         display: flex;
@@ -362,12 +531,12 @@ export class HudListener {
         grid-template-columns: repeat(3, 1fr);
         gap: 5px;
       }
-      /* Modals (Promotion, Checkmate, FEN/PGN) */
+      /* Modals (Promotion, Checkmate, FEN/PGN, 6x6 Matrix) */
       .hud-modal-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(6, 9, 15, 0.76);
-        backdrop-filter: blur(6px);
+        background: rgba(6, 9, 15, 0.82);
+        backdrop-filter: blur(7px);
         display: none;
         place-items: center;
         z-index: 920;
@@ -376,6 +545,174 @@ export class HudListener {
         width: min(92vw, 500px);
         padding: 20px 22px;
         text-align: center;
+      }
+      /* 6x6 Battle Choreography & Video Matrix Modal */
+      .hud-matrix36-card {
+        width: min(97vw, 1240px);
+        max-height: 94vh;
+        overflow-y: auto;
+        padding: 12px 14px;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .hud-matrix36-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        border-bottom: 1px solid rgba(255, 213, 79, 0.35);
+        padding-bottom: 8px;
+      }
+      .hud-matrix36-body {
+        display: grid;
+        grid-template-columns: 1fr 310px;
+        gap: 10px;
+        align-items: start;
+      }
+      @media (max-width: 1020px) {
+        .hud-matrix36-body {
+          grid-template-columns: 1fr;
+        }
+      }
+      .hud-matrix36-table {
+        display: grid;
+        grid-template-columns: 98px repeat(6, minmax(112px, 1fr));
+        gap: 5px;
+        align-items: stretch;
+      }
+      .hud-matrix-colhdr, .hud-matrix-rowhdr {
+        background: rgba(24, 31, 48, 0.92);
+        border: 1px solid rgba(255, 213, 79, 0.42);
+        border-radius: 8px;
+        padding: 4px 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 800;
+        color: #ffe082;
+        text-align: center;
+      }
+      .hud-matrix-colhdr img, .hud-matrix-rowhdr img {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #ffd54f;
+      }
+      .hud-matrix-cell {
+        background: linear-gradient(180deg, rgba(25, 32, 48, 0.95) 0%, rgba(15, 20, 32, 0.98) 100%);
+        border: 1px solid rgba(255, 213, 79, 0.34);
+        border-radius: 9px;
+        padding: 5px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 4px;
+        transition: border-color 0.14s ease, box-shadow 0.14s ease, transform 0.12s ease;
+      }
+      .hud-matrix-cell:hover, .hud-matrix-cell.active {
+        border-color: #00e676;
+        box-shadow: 0 0 12px rgba(0, 230, 118, 0.42);
+        transform: translateY(-1px);
+      }
+      .hud-matrix-cell-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 3px;
+      }
+      .hud-matrix-avatars {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+      }
+      .hud-matrix-avatars img {
+        width: 21px;
+        height: 21px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1.5px solid #ffd54f;
+      }
+      .hud-matrix-paircode {
+        font-size: 10.5px;
+        font-weight: 900;
+        color: #ffe082;
+        background: rgba(0, 0, 0, 0.45);
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+      .matrix-egg-badge {
+        font-size: 9px;
+        font-weight: 800;
+        padding: 1px 4px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .matrix-egg-badge.cuddle {
+        background: rgba(171, 71, 188, 0.35);
+        border: 1px solid #ce93d8;
+        color: #f3e5f5;
+      }
+      .matrix-egg-badge.throne {
+        background: rgba(255, 193, 7, 0.3);
+        border: 1px solid #ffd54f;
+        color: #fff8e1;
+      }
+      .matrix-egg-badge.rivals {
+        background: rgba(255, 87, 34, 0.32);
+        border: 1px solid #ff8a65;
+        color: #fbe9e7;
+      }
+      .matrix-egg-badge.mirror {
+        background: rgba(38, 166, 154, 0.3);
+        border: 1px solid #80cbc4;
+        color: #e0f2f1;
+      }
+      .hud-matrix-cell-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3px;
+      }
+      .matrix-cell-btn {
+        font: 700 9.5px/1.1 system-ui, sans-serif;
+        padding: 4px 3px;
+        border-radius: 5px;
+        cursor: pointer;
+        border: 1px solid rgba(255, 213, 79, 0.45);
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .matrix-cell-btn.clash {
+        background: linear-gradient(180deg, #ffd54f 0%, #c88719 100%);
+        color: #1a1100;
+      }
+      .matrix-cell-btn.video {
+        background: linear-gradient(180deg, #1b3b2f 0%, #10241d 100%);
+        color: #9be7c4;
+        border-color: rgba(0, 230, 118, 0.5);
+      }
+      .hud-matrix36-preview {
+        background: rgba(12, 16, 26, 0.94);
+        border: 1.5px solid rgba(255, 213, 79, 0.55);
+        border-radius: 12px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .hud-matrix36-preview video {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 8px;
+        background: #05070c;
+        border: 1.5px solid #ffd54f;
       }
       .hud-promo-grid {
         display: grid;
@@ -486,6 +823,10 @@ export class HudListener {
           <button id="hud-wow-tab-arena" class="hud-btn" style="flex:1;justify-content:center;">${this.t('wowArenaTab')}</button>
         </div>
 
+        <button id="hud-wow-matrix36-btn" class="hud-btn gold-emerald" style="justify-content:center;padding:7px 10px;">
+          🎬 Matrice 6×6 (36 Scontri)
+        </button>
+
         <!-- Sub-mode A: 360° Inspector Controls -->
         <div id="hud-wow-inspector-box" style="display:flex;flex-direction:column;gap:8px;">
           <div style="font-size:12px;color:#ffe082;font-weight:700;">🦸 Scegli l’Eroe della Famiglia:</div>
@@ -570,9 +911,22 @@ export class HudListener {
             </div>
           </div>
           <div id="hud-stickers-row" class="hud-stickers-row" title="Sticker Collezionabili Sbloccati"></div>
+          <div class="hud-footer-meta">
+            <span id="hud-version-tag" class="hud-version-pill" title="Versione di CarChess3D">${this.appVersion}</span>
+            <span class="hud-footer-sep">·</span>
+            <a href="${GITHUB_REPO_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link" title="Visualizza il codice sorgente su GitHub">
+              <span>🐙</span> <span>GitHub Code</span>
+            </a>
+            <span class="hud-footer-sep">·</span>
+            <a href="${GITHUB_NEW_ISSUE_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link hud-bug-link" title="Segnala un bug o apri una nuova issue su GitHub">
+              <span>🐛</span> <span>Open a bug</span>
+            </a>
+          </div>
         </div>
 
         <div class="hud-actions-dock hud-glass hud-interactive">
+          <button id="hud-matrix36-btn" class="hud-btn gold-emerald" title="Apri la Matrice Interattiva 6×6 con tutte le 36 Scazzottate 3D e i 36 Video 16:9!">🎬 Matrice 6×6 (36 Scontri)</button>
+          <button id="hud-skeletons-btn" class="hud-btn" title="Mostra/Nascondi gli Scheletri Articolati 3D su tutti i personaggi">🦴 Scheletri 3D</button>
           <button id="hud-hint-btn" class="hud-btn gold">${this.t('hintBtn')}</button>
           <button id="hud-swamp-btn" class="hud-btn" title="Fai sguazzare i pezzi catturati nella Palude di Shrek!">🐸 Palude Shrek</button>
           <button id="hud-zoom-in-btn" class="hud-btn" title="Zoom In (+)">🔍+</button>
@@ -632,6 +986,49 @@ export class HudListener {
           <div style="display:flex;gap:8px;justify-content:flex-end;">
             <button id="hud-fen-load-btn" class="hud-btn gold">📥 Carica FEN</button>
             <button id="hud-pgn-load-btn" class="hud-btn">📥 Carica PGN</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 4: INTERACTIVE 6x6 BATTLE CHOREOGRAPHY & VIDEO MATRIX (ALL 36 CLASHES) -->
+      <div id="hud-matrix36-modal" class="hud-modal-backdrop hud-interactive">
+        <div class="hud-matrix36-card hud-glass">
+          <div class="hud-matrix36-header">
+            <div>
+              <strong style="color:#ffe082;font-size:16px;">🎬 Matrice Interattiva 6×6 — Tutte le 36 Scazzottate 3D & Video 16:9</strong>
+              <span style="display:block;font-size:11.5px;color:#9be7c4;">6 Attaccanti (Righe) × 6 Difensori (Colonne) · Clicca 🥊 per la Scazzottata 3D + Specchio o ▶️ per il Video 16:9!</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+              <button id="hud-matrix36-marathon-btn" class="hud-btn gold">▶️ Riproduci Tutti i 36 Scontri (Maratona 6×6)</button>
+              <a id="hud-matrix36-page-link" href="./battles.html" class="hud-btn" style="text-decoration:none;">🌐 Galleria 36 Video (battles.html)</a>
+              <button id="hud-matrix36-close" class="hud-btn">✕ Chiudi</button>
+            </div>
+          </div>
+
+          <div class="hud-matrix36-body">
+            <!-- 6x6 Grid of all 36 Attacker x Defender combinations -->
+            <div id="hud-matrix36-grid" class="hud-matrix36-table">
+              ${this._renderMatrix36GridHtml()}
+            </div>
+
+            <!-- Built-in 16:9 Video Preview Player & Selected Pair Choreography Inspector -->
+            <div id="hud-matrix36-preview-pane" class="hud-matrix36-preview">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <strong id="hud-matrix36-preview-title" style="color:#ffe082;font-size:13.5px;">♗ Ale vs ♘ Seby (B×N)</strong>
+                <span id="hud-matrix36-preview-code" class="hud-matrix-paircode">B×N</span>
+              </div>
+              <video id="hud-matrix36-video" controls playsinline preload="metadata" src="assets/battles/videos/b_x_n.mp4"></video>
+              <div id="hud-matrix36-preview-banner" style="font-size:12px;font-weight:800;color:#ffca28;background:rgba(255,193,7,0.12);border:1px solid rgba(255,213,79,0.4);padding:5px 8px;border-radius:7px;">
+                ALE vs SEBY: CRISTALLO SUL CAVALLINO! 💎🐴
+              </div>
+              <div id="hud-matrix36-preview-details" style="font-size:11px;color:#d6e4f0;display:flex;flex-direction:column;gap:3px;">
+                <div>⚔️ <strong>Arma Attacco:</strong> <span id="hud-matrix36-preview-weapon">🐉 Draghetto & Cristallo Ametista</span></div>
+                <div>🛡️ <strong>Contrattacco Atto 2:</strong> <span id="hud-matrix36-preview-counter">🐴 Impennata e Doppio Calcio (IMPENNATA!)</span></div>
+              </div>
+              <button id="hud-matrix36-launch-selected" class="hud-btn gold" style="justify-content:center;padding:8px;">
+                🥊 Scazzottata 3D + Cinema sulla Scacchiera!
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -758,9 +1155,15 @@ export class HudListener {
     });
 
     q('#hud-flip-btn')?.addEventListener('click', () => {
+      this.cameraFlipped = !this.cameraFlipped;
+      this.topDownCamera = false;
       if (this.ctx?.camera) {
-        this.ctx.camera.position.x *= -1;
-        this.ctx.camera.position.z *= -1;
+        if (this.cameraFlipped) {
+          this.ctx.camera.position.set(0, 7.0, -8.2);
+        } else {
+          this.ctx.camera.position.set(0, 7.2, 9.8);
+        }
+        this.ctx.controls?.target?.set?.(0, 0.3, 0);
         this.ctx.controls?.update?.();
       }
       this.ctx?.bus?.emit({ type: 'CAMERA_VIEW_REQUESTED', view: 'flip' });
@@ -771,11 +1174,11 @@ export class HudListener {
       this.topDownCamera = !this.topDownCamera;
       if (this.ctx?.camera) {
         if (this.topDownCamera) {
-          this.ctx.camera.position.set(0, 12.8, 0.01);
+          this.ctx.camera.position.set(0, 12.8, this.cameraFlipped ? -0.01 : 0.01);
         } else {
-          this.ctx.camera.position.set(0, 7.2, 9.8);
+          this.ctx.camera.position.set(0, this.cameraFlipped ? 7.0 : 7.2, this.cameraFlipped ? -8.2 : 9.8);
         }
-        this.ctx.controls?. target?.set?.(0, 0.3, 0);
+        this.ctx.controls?.target?.set?.(0, 0.3, 0);
         this.ctx.controls?.update?.();
       }
       this.ctx?.bus?.emit({
@@ -1011,21 +1414,263 @@ export class HudListener {
     q('#hud-swamp-btn')?.addEventListener('click', () => {
       const pm = this.ctx?.pieces || this.ctx?.pieceManager;
       if (pm) {
-        for (const [color, victimColor, atk, def, sq] of [
-          ['b', 'w', 'n', 'b', 'c1'],
-          ['b', 'w', 'b', 'n', 'g1'],
-          ['b', 'w', 'r', 'p', 'e2'],
-          ['w', 'b', 'b', 'n', 'b8'],
-          ['w', 'b', 'n', 'b', 'f8'],
-          ['w', 'b', 'q', 'r', 'h8'],
-        ]) {
-          pm.handlePieceCaptured({ color, victimColor, attacker: atk, defender: def, capturedSquare: sq });
+        if (typeof pm.seedSwampParty === 'function') {
+          pm.seedSwampParty();
+        } else {
+          for (const [color, victimColor, atk, def, sq] of [
+            ['b', 'w', 'n', 'b', 'c1'],
+            ['b', 'w', 'b', 'n', 'g1'],
+            ['b', 'w', 'r', 'p', 'e2'],
+            ['w', 'b', 'b', 'n', 'b8'],
+            ['w', 'b', 'n', 'b', 'f8'],
+            ['w', 'b', 'q', 'r', 'h8'],
+          ]) {
+            pm.handlePieceCaptured({ color, victimColor, attacker: atk, defender: def, capturedSquare: sq });
+          }
+          pm.emitPiecesSynced('swamp_party');
         }
-        pm.emitPiecesSynced('swamp_party');
         this.ctx?.bus?.flush?.();
         this.showToast('🐸 Splash! I pezzi catturati sguazzano nella Palude di Shrek! 💦');
       }
     });
+
+    // 🦴 Scheletri 3D toggle button (#12)
+    q('#hud-skeletons-btn')?.addEventListener('click', () => {
+      const next = !this.skeletonsVisible;
+      this.skeletonsVisible = next;
+      q('#hud-skeletons-btn')?.classList.toggle('active', next);
+      this.ctx?.bus?.emit({ type: 'TOGGLE_SKELETONS', visible: next });
+      this.ctx?.bus?.flush?.();
+      this.showToast(
+        next
+          ? '🦴 Scheletri 3D Attivi: Giunture e locomozione articolata visibili su tutti i 32 pezzi!'
+          : '🦴 Scheletri 3D Nascosti (visibili automaticamente durante la camminata/cavalcata)',
+      );
+    });
+
+    // 🎬 Matrice 6×6 (36 Scontri) modal open/close & cell actions (#11)
+    q('#hud-matrix36-btn')?.addEventListener('click', () => this.openMatrix36Modal());
+    q('#hud-wow-matrix36-btn')?.addEventListener('click', () => this.openMatrix36Modal());
+    q('#hud-matrix36-close')?.addEventListener('click', () => this.closeMatrix36Modal());
+    q('#hud-matrix36-marathon-btn')?.addEventListener('click', () => this.toggleMatrix36Marathon());
+
+    q('#hud-matrix36-launch-selected')?.addEventListener('click', () => {
+      const { atk, def } = this.matrixSelectedPair;
+      this.launchMatrix36Clash(atk, def);
+    });
+
+    // 36 cells: 1-click Scazzottata 3D + Cinema OR 1-click Video 16:9 preview
+    root.querySelectorAll('button[data-matrix-clash]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const [atk, def] = (btn.dataset.matrixClash || 'b_n').split('_');
+        this.launchMatrix36Clash(atk, def);
+      });
+    });
+
+    root.querySelectorAll('button[data-matrix-video]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const [atk, def] = (btn.dataset.matrixVideo || 'b_n').split('_');
+        this._updateMatrixPreviewPane(atk, def, true);
+      });
+    });
+
+    root.querySelectorAll('.hud-matrix-cell[data-matrix-cell]').forEach((cell) => {
+      cell.addEventListener('click', () => {
+        const [atk, def] = (cell.dataset.matrixCell || 'b_n').split('_');
+        this._updateMatrixPreviewPane(atk, def, true);
+      });
+    });
+  }
+
+  /**
+   * Builds the HTML for the 6 Attacker rows x 6 Defender columns (all 36 combinations).
+   */
+  _renderMatrix36GridHtml() {
+    const colHeaders = [
+      `<div class="hud-matrix-colhdr" style="font-size:10px;color:#9be7c4;">⚔️ ATK \\ DEF 🛡️</div>`,
+      ...PIECE_ORDER.map((def) => {
+        const c = CHARACTER_REGISTRY[def];
+        return `
+          <div class="hud-matrix-colhdr" title="Difensore: ${c.name}">
+            <img src="${c.frontPortrait}" alt="${c.name}">
+            <span>${c.glyph} ${c.name}</span>
+          </div>
+        `;
+      }),
+    ].join('');
+
+    const rowsHtml = PIECE_ORDER.map((atk) => {
+      const atkChar = CHARACTER_REGISTRY[atk];
+      const rowHdr = `
+        <div class="hud-matrix-rowhdr" title="Attaccante: ${atkChar.name}">
+          <img src="${atkChar.frontPortrait}" alt="${atkChar.name}">
+          <span>${atkChar.glyph} ${atkChar.name}</span>
+        </div>
+      `;
+
+      const cells = PIECE_ORDER.map((def) => {
+        const meta = this.getPairMeta36(atk, def);
+        const isDefaultActive = atk === this.matrixSelectedPair.atk && def === this.matrixSelectedPair.def;
+        const badgeHtml = meta.eggBadge
+          ? `<span class="matrix-egg-badge ${meta.eggClass}">${meta.eggBadge}</span>`
+          : `<span class="hud-matrix-paircode">${meta.pairCode}</span>`;
+
+        return `
+          <div class="hud-matrix-cell ${isDefaultActive ? 'active' : ''}" data-matrix-cell="${atk}_${def}" data-atk="${atk}" data-def="${def}">
+            <div class="hud-matrix-cell-top">
+              <div class="hud-matrix-avatars">
+                <img src="${meta.atkChar.frontPortrait}" alt="${meta.atkChar.name}">
+                <span class="hud-matrix-paircode">${meta.pairCode}</span>
+                <img src="${meta.defChar.frontPortrait}" alt="${meta.defChar.name}">
+              </div>
+              ${meta.eggBadge ? badgeHtml : ''}
+            </div>
+            <div style="font-size:9.5px;color:#d6e4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${meta.bannerText}">
+              ${meta.atkChar.glyph}${meta.atkChar.name} vs ${meta.defChar.glyph}${meta.defChar.name}
+            </div>
+            <div class="hud-matrix-cell-actions">
+              <button class="matrix-cell-btn clash" data-matrix-clash="${atk}_${def}" title="Scazzottata 3D + Cinema (${meta.pairCode})">🥊 Scazzottata 3D + Cinema</button>
+              <button class="matrix-cell-btn video" data-matrix-video="${atk}_${def}" title="Riproduci Video 16:9 (${meta.videoUrl})">▶️ Video 16:9</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return rowHdr + cells;
+    }).join('');
+
+    return colHeaders + rowsHtml;
+  }
+
+  openMatrix36Modal(atk = null, def = null) {
+    this.matrixModalOpen = true;
+    if (!this.rootEl) return;
+    const modal = this.rootEl.querySelector('#hud-matrix36-modal');
+    if (modal) {
+      modal.style.display = 'grid';
+    }
+    const targetAtk = atk || this.matrixSelectedPair.atk || 'b';
+    const targetDef = def || this.matrixSelectedPair.def || 'n';
+    this._updateMatrixPreviewPane(targetAtk, targetDef, true);
+  }
+
+  closeMatrix36Modal() {
+    this.matrixModalOpen = false;
+    this.stopMatrix36Marathon();
+    if (!this.rootEl) return;
+    const modal = this.rootEl.querySelector('#hud-matrix36-modal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+    const vid = this.rootEl.querySelector('#hud-matrix36-video');
+    if (vid && typeof vid.pause === 'function') {
+      try {
+        vid.pause();
+      } catch {
+        // Ignore in headless environments
+      }
+    }
+  }
+
+  launchMatrix36Clash(atk = 'b', def = 'n') {
+    this.closeMatrix36Modal();
+    if (this.rootEl) {
+      const atkSel = this.rootEl.querySelector('#hud-wow-atk');
+      const defSel = this.rootEl.querySelector('#hud-wow-def');
+      if (atkSel) atkSel.value = atk;
+      if (defSel) defSel.value = def;
+    }
+    this.ctx?.bus?.emit({
+      type: 'WOW_ARENA_CLASH',
+      attacker: atk,
+      defender: def,
+      goldenCrit: true,
+      tier: 'golden_crit',
+      from: 'd4',
+      to: 'e5',
+      square: 'e5',
+    });
+    this.ctx?.bus?.flush?.();
+  }
+
+  _updateMatrixPreviewPane(atk = 'b', def = 'n', autoPlay = false) {
+    this.matrixSelectedPair = { atk, def };
+    if (!this.rootEl) return;
+
+    const meta = this.getPairMeta36(atk, def);
+    this.rootEl.querySelectorAll('.hud-matrix-cell[data-matrix-cell]').forEach((cell) => {
+      cell.classList.toggle('active', cell.dataset.matrixCell === `${atk}_${def}`);
+    });
+
+    const titleEl = this.rootEl.querySelector('#hud-matrix36-preview-title');
+    const codeEl = this.rootEl.querySelector('#hud-matrix36-preview-code');
+    const bannerEl = this.rootEl.querySelector('#hud-matrix36-preview-banner');
+    const weaponEl = this.rootEl.querySelector('#hud-matrix36-preview-weapon');
+    const counterEl = this.rootEl.querySelector('#hud-matrix36-preview-counter');
+    const vidEl = this.rootEl.querySelector('#hud-matrix36-video');
+
+    if (titleEl) titleEl.textContent = meta.titleText;
+    if (codeEl) codeEl.textContent = meta.pairCode;
+    if (bannerEl) bannerEl.textContent = meta.bannerText;
+    if (weaponEl) weaponEl.textContent = meta.weaponText;
+    if (counterEl) counterEl.textContent = meta.counterText;
+
+    if (vidEl) {
+      if (vidEl.getAttribute('src') !== meta.videoUrl) {
+        vidEl.setAttribute('src', meta.videoUrl);
+        vidEl.src = meta.videoUrl;
+      }
+      if (autoPlay && typeof vidEl.play === 'function') {
+        try {
+          const p = vidEl.play();
+          if (p && typeof p.catch === 'function') p.catch(() => {});
+        } catch {
+          // Ignore autoplay restrictions in headless browsers
+        }
+      }
+    }
+  }
+
+  toggleMatrix36Marathon() {
+    if (this.matrixMarathonTimer) {
+      this.stopMatrix36Marathon();
+      return;
+    }
+    const pairs = [];
+    for (const a of PIECE_ORDER) {
+      for (const d of PIECE_ORDER) {
+        pairs.push([a, d]);
+      }
+    }
+    this.matrixMarathonIndex = 0;
+    const btn = this.rootEl?.querySelector('#hud-matrix36-marathon-btn');
+    const step = () => {
+      if (this.matrixMarathonIndex >= pairs.length) {
+        this.stopMatrix36Marathon();
+        return;
+      }
+      const [atk, def] = pairs[this.matrixMarathonIndex];
+      this.matrixMarathonIndex++;
+      if (btn) {
+        btn.textContent = `⏹️ Ferma Maratona (${this.matrixMarathonIndex}/36 · ${atk.toUpperCase()}×${def.toUpperCase()})`;
+      }
+      this._updateMatrixPreviewPane(atk, def, true);
+    };
+    step();
+    this.matrixMarathonTimer = setInterval(step, 2900);
+  }
+
+  stopMatrix36Marathon() {
+    if (this.matrixMarathonTimer) {
+      clearInterval(this.matrixMarathonTimer);
+      this.matrixMarathonTimer = null;
+    }
+    const btn = this.rootEl?.querySelector('#hud-matrix36-marathon-btn');
+    if (btn) {
+      btn.textContent = '▶️ Riproduci Tutti i 36 Scontri (Maratona 6×6)';
+    }
   }
 
   _syncWowPanelTabs() {
@@ -1068,14 +1713,76 @@ export class HudListener {
     }
   }
 
+  onPieceHovered(e) {
+    const type = String(e?.piece?.type || e?.pieceType || e?.type || '').toLowerCase();
+    const char = CHARACTER_REGISTRY[type];
+    const v = VOICE_LINES[type];
+    if (!char || !v) return;
+    const hoverLabel = v.hoverSound?.label?.[this.lang] || v.hoverSound?.label?.it || '';
+    this.lastHoverSound = hoverLabel;
+    // Show subtle creature sound cue if not currently showing a battle or selection toast
+    if (!this.activeBanner && hoverLabel) {
+      this.showToast(`${char.glyph} ${char.name} (${e.square || ''}) — ${hoverLabel}`, 1100);
+    }
+  }
+
   onPieceSelected(e) {
-    const char = CHARACTER_REGISTRY[e.piece?.type];
-    if (char) {
-      const msg =
-        this.lang === 'it'
-          ? `${char.glyph} ${char.name} (${e.square}) — ${e.legalMoves?.length || 0} mosse possibili`
-          : `${char.glyph} ${char.name} (${e.square}) — ${e.legalMoves?.length || 0} legal moves`;
-      this.showToast(msg, 1800);
+    const type = String(e.piece?.type || e.pieceType || '').toLowerCase();
+    const char = CHARACTER_REGISTRY[type];
+    if (!char) return;
+    const v = VOICE_LINES[type];
+    const quote = v?.quote?.[this.lang] || v?.quote?.it || '';
+    this.lastVoiceQuote = quote;
+
+    const legalMoves = e.legalMoves || [];
+    const firstCapture = legalMoves.find(
+      (m) =>
+        m.captured ||
+        (typeof m.flags === 'string' && (m.flags.includes('c') || m.flags.includes('e'))),
+    );
+
+    if (firstCapture) {
+      const defType =
+        firstCapture.captured || this.ctx?.board?.pieceAt?.(firstCapture.to)?.type || 'p';
+      const defChar = CHARACTER_REGISTRY[defType] || CHARACTER_REGISTRY.p;
+      const pairCode = `${char.type.toUpperCase()}×${defChar.type.toUpperCase()}`;
+      const voicePart = quote ? ` 💬 "${quote}" · ` : ' ';
+      this.showToast(
+        `${char.glyph} ${char.name}:${voicePart}⚔️ Cattura ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`,
+        3400,
+      );
+      return;
+    }
+
+    const voicePrefix = quote ? `💬 "${quote}" — ` : '';
+    const msg =
+      this.lang === 'it'
+        ? `${char.glyph} ${char.name} (${e.square}): ${voicePrefix}${legalMoves.length} mosse possibili`
+        : `${char.glyph} ${char.name} (${e.square}): ${voicePrefix}${legalMoves.length} legal moves`;
+    this.showToast(msg, 2400);
+  }
+
+  onCapturePreviewHover(e) {
+    if (!e) return;
+    const atkChar = CHARACTER_REGISTRY[e.attacker] || CHARACTER_REGISTRY.b;
+    const defChar = CHARACTER_REGISTRY[e.defender] || CHARACTER_REGISTRY.p;
+    const pairCode = e.pairCode || `${atkChar.type.toUpperCase()}×${defChar.type.toUpperCase()}`;
+    const msg =
+      e.toastText ||
+      `⚔️ Cattura possibile: ${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`;
+    this.showToast(msg, 3200);
+  }
+
+  onSkeletonsToggled(e) {
+    if (typeof e?.visible === 'boolean') {
+      this.skeletonsVisible = e.visible;
+    } else {
+      this.skeletonsVisible = !this.skeletonsVisible;
+    }
+    if (this.rootEl) {
+      this.rootEl
+        .querySelector('#hud-skeletons-btn')
+        ?.classList.toggle('active', this.skeletonsVisible);
     }
   }
 
@@ -1159,7 +1866,8 @@ export class HudListener {
   }
 
   onBattleStarted(e) {
-    const bannerObj = e.banner || BATTLE_MATRIX[e.attacker]?.[e.defender]?.banner;
+    const richBanner = this.battleMatrix36?.[e.attacker]?.[e.defender]?.banner;
+    const bannerObj = e.banner || richBanner || BATTLE_MATRIX[e.attacker]?.[e.defender]?.banner;
     const text = bannerObj?.[this.lang] || bannerObj?.it || 'STECCHITO! ✨';
     this.activeBanner = text;
 
@@ -1231,6 +1939,11 @@ export class HudListener {
   }
 
   onKeyDown(e) {
+    if (e.code === 'Escape' && this.matrixModalOpen) {
+      e.preventDefault();
+      this.closeMatrix36Modal();
+      return;
+    }
     if (e.code === 'Space' || e.code === 'Escape') {
       if (this.activeBanner || this.flowState === 'CaptureCutscene') {
         e.preventDefault();
@@ -1341,6 +2054,7 @@ export class HudListener {
   }
 
   dispose() {
+    this.stopMatrix36Marathon();
     for (const off of this.offs) off();
     this.offs = [];
     if (this.toastTimer) clearTimeout(this.toastTimer);

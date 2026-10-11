@@ -17,6 +17,8 @@
  *   with synchronized bilingual karaoke captions (`LYRIA_CAPTION`).
  */
 
+import { VOICE_LINES } from '../core/Registry.js';
+
 const THEME_LYRICS = Object.freeze({
   it: [
     '🐉 Ale col draghetto rosso vola in diagonale!',
@@ -54,11 +56,15 @@ export class AudioListener {
     this.musicPlaying = false;
     this.audioCtx = null;
     this.audioEl = null;
+    this.voiceEl = null;
+    this.voiceAudioCache = new Map();
     this.loopTimer = null;
     this.melodyStep = 0;
     this.lyricStep = 0;
     /** @type {Array<string>} Log of triggered SFX for headless unit test verification */
     this.playedSfx = [];
+    /** @type {Array<object>} Log of spoken character voice lines for headless unit test verification */
+    this.playedVoices = [];
     this.offs = [];
 
     // Declarative table of signature battle synthesizer recipes (Rule #7: zero if/else chains)
@@ -71,6 +77,16 @@ export class AudioListener {
       plush_ground_pound: () => this.synthPlushieSqueakBoom(),
       halberd_fish_slap: () => this.synthFishSlapPling(),
       mega_cuddle_bounce: () => this.synthCuddleHarpArpeggio(),
+    });
+
+    // Declarative table of per-piece hover creature sound effects (snort, fiuu, piu-piu, boing)
+    this.hoverSynthTable = Object.freeze({
+      n: () => this.synthHorseSnort(),
+      b: () => this.synthDragonWhistle(),
+      p: () => this.synthPuffinPeep(),
+      r: () => this.synthPlushBoing(),
+      q: () => this.synthQueenChime(),
+      k: () => this.synthKingSceptreHum(),
     });
 
     if (ctx) {
@@ -87,6 +103,17 @@ export class AudioListener {
     if (!bus || this.offs.length > 0) return;
 
     this.offs.push(
+      bus.on('PIECE_HOVERED', (e) => {
+        const pType = String(e?.pieceType || e?.piece?.type || 'p').toLowerCase();
+        const recipe = this.hoverSynthTable[pType] || this.hoverSynthTable.p;
+        this.playSfx(`hover_${pType}`, recipe);
+      }),
+      bus.on('PIECE_SELECTED', (e) => {
+        const pType = String(e?.piece?.type || e?.pieceType || 'p').toLowerCase();
+        const recipe = this.hoverSynthTable[pType] || this.hoverSynthTable.p;
+        this.playSfx(`select_${pType}`, recipe);
+        this.playCharacterVoiceLine(pType, e?.square || null);
+      }),
       bus.on('MOVE_EXECUTED', (e) => {
         if (!e.captured && !e.isCastle) {
           this.playSfx('move_hop', () => this.synthStoneHop());
@@ -287,6 +314,132 @@ export class AudioListener {
     [659.25, 880, 1318.5].forEach((f, i) => {
       this.synthTone(f, f * 1.1, 0.16, 'sine', 0.13, i * 0.06);
     });
+  }
+
+  // ===========================================================================
+  // 1B. CREATURE HOVER SFX & SPOKEN CHARACTER VOICE LINES
+  // ===========================================================================
+
+  synthHorseSnort() {
+    // Horse snort ("prrr-snort!") + double hoof tap
+    this.synthTone(155, 82, 0.11, 'sawtooth', 0.12, 0);
+    this.synthTone(135, 68, 0.10, 'sawtooth', 0.11, 0.08);
+    this.synthTone(260, 110, 0.05, 'triangle', 0.14, 0.19);
+    this.synthTone(290, 120, 0.05, 'triangle', 0.14, 0.27);
+  }
+
+  synthDragonWhistle() {
+    // Magical dragon whistle ("fiuuu!") + wing flutter
+    this.synthTone(580, 1360, 0.16, 'sine', 0.13, 0);
+    this.synthTone(1360, 920, 0.14, 'sine', 0.11, 0.14);
+    this.synthTone(240, 160, 0.07, 'triangle', 0.09, 0.22);
+  }
+
+  synthPuffinPeep() {
+    // Super-cute double puffin chirp ("piu-piu!")
+    this.synthTone(980, 1580, 0.08, 'sine', 0.14, 0);
+    this.synthTone(1120, 1760, 0.09, 'sine', 0.14, 0.10);
+  }
+
+  synthPlushBoing() {
+    // Squishy plush monster bounce ("boing-purr!")
+    this.synthTone(220, 520, 0.14, 'sine', 0.15, 0);
+    this.synthTone(520, 340, 0.12, 'triangle', 0.12, 0.12);
+  }
+
+  synthQueenChime() {
+    // Elegant sarcastic British crystal chime
+    this.synthTone(783.99, 1174.66, 0.15, 'triangle', 0.12, 0);
+    this.synthTone(1046.5, 987.77, 0.18, 'sine', 0.11, 0.11);
+  }
+
+  synthKingSceptreHum() {
+    // Warm royal golden sceptre hum
+    this.synthTone(261.63, 392.0, 0.16, 'triangle', 0.13, 0);
+    this.synthTone(523.25, 659.25, 0.18, 'sine', 0.12, 0.10);
+  }
+
+  /**
+   * Plays the character's spoken voice line from `assets/audio/voices/voice-${type}.mp3`
+   * (generated via Gemini TTS / Chirp 3 HD), falling back to `window.speechSynthesis` if needed,
+   * and emits `VOICE_LINE_SPOKEN` on the bus for HUD comic speech bubbles.
+   * @param {string} pieceType - `'k' | 'q' | 'b' | 'n' | 'r' | 'p'`
+   * @param {string|null} [square]
+   */
+  playCharacterVoiceLine(pieceType = 'p', square = null) {
+    const type = String(pieceType || 'p').toLowerCase();
+    const spec = VOICE_LINES[type] || VOICE_LINES.p;
+    const quoteText = spec.quote?.[this.lang] || spec.quote?.it || '';
+
+    const voiceRecord = {
+      pieceType: type,
+      square,
+      name: spec.name,
+      quote: quoteText,
+      audioUrl: spec.audioUrl,
+      speechLang: spec.speechLang,
+    };
+    this.playedVoices.push(voiceRecord);
+    if (this.playedVoices.length > 50) this.playedVoices.shift();
+    this.playedSfx.push(`voice_${type}`);
+    if (this.playedSfx.length > 100) this.playedSfx.shift();
+
+    this.ctx?.bus?.emit?.({
+      ...voiceRecord,
+      type: 'VOICE_LINE_SPOKEN',
+    });
+
+    if (!this.sfxEnabled) return voiceRecord;
+
+    if (typeof Audio !== 'undefined' && spec.audioUrl) {
+      try {
+        if (this.voiceEl) {
+          try {
+            this.voiceEl.pause();
+            this.voiceEl.currentTime = 0;
+          } catch {}
+        }
+        let audio = this.voiceAudioCache.get(spec.audioUrl);
+        if (!audio) {
+          audio = new Audio(spec.audioUrl);
+          audio.preload = 'auto';
+          this.voiceAudioCache.set(spec.audioUrl, audio);
+        }
+        audio.currentTime = 0;
+        audio.volume = 0.92;
+        this.voiceEl = audio;
+        const playPromise = audio.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(() => {
+            this._speakFallbackUtterance(spec, quoteText);
+          });
+        }
+        return voiceRecord;
+      } catch {
+        this._speakFallbackUtterance(spec, quoteText);
+      }
+    } else {
+      this._speakFallbackUtterance(spec, quoteText);
+    }
+    return voiceRecord;
+  }
+
+  _speakFallbackUtterance(spec, quoteText) {
+    if (
+      typeof window === 'undefined' ||
+      !window.speechSynthesis ||
+      typeof window.SpeechSynthesisUtterance !== 'function'
+    ) {
+      return;
+    }
+    try {
+      window.speechSynthesis.cancel();
+      const u = new window.SpeechSynthesisUtterance(quoteText);
+      u.lang = spec.speechLang || 'it-IT';
+      u.pitch = spec.pitch ?? 1.0;
+      u.rate = spec.rate ?? 1.0;
+      window.speechSynthesis.speak(u);
+    } catch {}
   }
 
   // ===========================================================================

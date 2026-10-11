@@ -59,6 +59,13 @@ export class CombatAnimationManager {
   }
 
   /**
+   * @returns {boolean}
+   */
+  isBusy() {
+    return this.isActive();
+  }
+
+  /**
    * @returns {object|null}
    */
   getActiveBattle() {

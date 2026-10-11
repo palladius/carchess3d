@@ -234,6 +234,36 @@ is the "victim" and is removed at the end.
 7. Polish: intro, bloom, particles, audio, checkmate fireworks, adaptive
    quality; offline/Android testing.
 
+## Living Idle Animations & Hover/Select Character Voices (v0.3.1)
+
+- **Continuous Per-Character 3D Idle Motion**: Every living piece on the 8×8 board exhibits organic continuous movement even when no turn or capture is active (`PieceView.update` + `SkeletonRigHelper.updateSkeletonRigPose` + custom GLSL vertex shader `uIdlePhase` / `uIdleAmp` / `uPieceKind`):
+  - **Knight (Seby)**: Warhorse steps/trots gently in place with alternating 4-hoof weight shift, head nod, and horse-tail swish (`tail` bone).
+  - **Pawn (Puffin)**: Fluid S-curve body sway, head tilt, and rapid cute tail-feather wag (`tail` bone).
+  - **Bishop (Ale)**: Shoulder baby dragon rhythmic wing-beat (`leftWing`/`rightWing`) and gentle magic-wand wave.
+  - **Rook (Pupurabbu)**: Squishy plushie breathing and ear/cheek bounce.
+  - **King (Riccardo) & Queen (Kate)**: Regal breathing and sceptre/crown poise.
+  - Hovering or selecting a piece boosts its idle amplitude (`1.55×` on hover, `1.95×` on selection) for an immediate "perk-up" reaction.
+- **Hover Creature Sound Effects (`PIECE_HOVERED`)**: Raycast pointer-hover emits `PIECE_HOVERED` (with a `650 ms` anti-spam cooldown per square) and triggers procedural WebAudio creature sounds (`AudioListener`):
+  - `n` (Seby): Horse snort & hoof paw (`🐴 Snort! Prrr!`)
+  - `b` (Ale): Baby dragon whistle & wing flutter (`🐉 Fiuuu!`)
+  - `p` (Puffin): Cute high-pitched double chirp (`🐧 Piu-piu!`)
+  - `r` (Pupurabbu): Soft plushie boing (`🟣 Boing-pfiu!`)
+  - `q` (Kate): Sarcastic crystal chime (`♕ Hmm...`)
+  - `k` (Riccardo): Warm royal sceptre hum (`♔ Zzt-hum!`)
+- **Spoken Character Voice Lines on Select (`PIECE_SELECTED`)**: Selecting a piece plays its pre-generated authentic voice MP3 (`assets/audio/voices/voice-{k,q,b,n,r,p}.mp3`, generated via `gemini-2.5-flash-preview-tts` in `scripts/generate_voice_lines.py`, with automatic `window.speechSynthesis` fallback) and displays a comic speech bubble toast in the HUD:
+  - **Seby (`n`)**: *"Dimmi papino!"* (`it-IT`)
+  - **Ale (`b`)**: *"Agli ordini, Signore!"* (`it-IT`)
+  - **Kate (`q`)**: *"This is an interesting choice..."* (`en-GB`, dry sarcastic British tone)
+  - **Puffin (`p`)**: *"Piu piu! Eccomi, pronta guardia Puffin!"* (`it-IT`)
+  - **Riccardo (`k`)**: *"Avanti tutta! Re Carlesso al comando!"* (`it-IT`)
+  - **Pupurabbu (`r`)**: *"Boing boing! Super abbraccio Pupurabbu!"* (`it-IT`)
+
+## 2-Stage 36-Combination Battle Cinema Pipeline (`Nano Banana 2.1 → Veo 3.1`)
+
+- **Stage 1 (Nano Banana 2.1 16:9 Initial Keyframe)**: For each of the 36 `Attacker × Defender` combinations, `scripts/generate_nb_veo_battle.py` feeds **Photo 1 (Attacker on the LEFT)** + **Photo 2 (Defender on the RIGHT)** + a side-by-side 16:9 layout guide (`assets/battles/refs/<id>_ref.png`) into `gemini-3.1-flash-image-preview` to generate the 16:9 initial battle keyframe (`assets/battles/keyframes/<id>.png`).
+- **Stage 2 (Veo 3.1 16:9 Battle Video)**: Passes the Stage 1 keyframe as `image=` into `veo-3.1-generate-preview` with the pair's specific choreography prompt (`assets/battles/prompts_36.json`) to generate an 8-second 16:9 `.mp4` and `.webm` video (`assets/battles/videos/<id>.{mp4,webm}`), synchronized with the in-place 3D board brawl (`PieceView` + `VFXPoolView` + `VeoCinemaView`).
+
 ## Open Questions
 
-- ~~Implementation repo~~ → **[palladius/carchess3d](https://github.com/palladius/carchess3d)** (public). Hosting (GitHub Pages vs localhost/APK) still open.
+- ~~Implementation repo~~ → **[palladius/carchess3d](https://github.com/palladius/carchess3d)** (public), deployed live on GitHub Pages at **https://palladius.github.io/carchess3d/**.
+

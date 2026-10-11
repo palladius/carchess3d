@@ -150,3 +150,27 @@ test('PieceManager: tracks moves, captures into West/East trays, castling belly-
   assert.ok(clipEvt);
   assert.equal(clipEvt.resolvedClip, 'FireBreath_Track');
 });
+
+test('PieceManager: seedSwampParty and synthetic handlePieceCaptured are strictly idempotent and preserve living board pieces', () => {
+  const { bus, pieces } = createPieceSetup();
+
+  assert.equal(pieces.getLivingPieces().length, 32);
+
+  // First click on Palude populates 6 swimmers (3 White, 3 Black)
+  const firstAdded = pieces.seedSwampParty();
+  bus.flush();
+  assert.equal(firstAdded, 6);
+  assert.equal(pieces.getCapturedTrays().w.length, 3);
+  assert.equal(pieces.getCapturedTrays().b.length, 3);
+  assert.equal(pieces.getLivingPieces().length, 32, 'All 32 living board pieces must remain intact');
+  assert.ok(pieces.getPieceAt('c1'), 'White bishop on c1 must not be deleted by swamp demo');
+  assert.ok(pieces.getPieceAt('h8'), 'Black rook on h8 must not be deleted by swamp demo');
+
+  // Second and third clicks on Palude are no-ops (0 added, still 3 + 3 in trays)
+  assert.equal(pieces.seedSwampParty(), 0);
+  assert.equal(pieces.seedSwampParty(), 0);
+  assert.equal(pieces.getCapturedTrays().w.length, 3);
+  assert.equal(pieces.getCapturedTrays().b.length, 3);
+  assert.equal(pieces.getLivingPieces().length, 32);
+});
+

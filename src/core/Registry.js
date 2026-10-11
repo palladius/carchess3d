@@ -13,6 +13,10 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
+export const APP_VERSION = '0.3.6';
+export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
+export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
+
 export const FILES = Object.freeze(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
 
 /**
@@ -51,6 +55,105 @@ export function worldToSquare(x, z) {
   return `${FILES[col]}${rank}`;
 }
 
+export const VOICE_LINES = Object.freeze({
+  k: {
+    type: 'k',
+    name: 'Riccardo',
+    quote: {
+      it: 'Avanti tutta! Re Carlesso al comando!',
+      en: 'Avanti tutta! Re Carlesso al comando!',
+    },
+    hoverSound: {
+      id: 'king_sceptre_hum',
+      label: { it: '♔ Zzt-hum! *scettro reale*', en: '♔ Zzt-hum! *royal sceptre*' },
+    },
+    audioUrl: 'assets/audio/voices/voice-k.mp3',
+    speechLang: 'it-IT',
+    pitch: 0.95,
+    rate: 1.0,
+  },
+  q: {
+    type: 'q',
+    name: 'Kate',
+    quote: {
+      it: 'This is an interesting choice...',
+      en: 'This is an interesting choice...',
+    },
+    hoverSound: {
+      id: 'queen_chime',
+      label: { it: '♕ Hmm... *sarcastic British sigh*', en: '♕ Hmm... *sarcastic British sigh*' },
+    },
+    audioUrl: 'assets/audio/voices/voice-q.mp3',
+    speechLang: 'en-GB',
+    pitch: 1.04,
+    rate: 0.92,
+  },
+  b: {
+    type: 'b',
+    name: 'Ale',
+    quote: {
+      it: 'Agli ordini, Signore!',
+      en: 'Agli ordini, Signore!',
+    },
+    hoverSound: {
+      id: 'dragon_whistle',
+      label: { it: '🐉 Fiuuu! *sbuffo del draghetto*', en: '🐉 Fiuuu! *dragon wing flutter*' },
+    },
+    audioUrl: 'assets/audio/voices/voice-b.mp3',
+    speechLang: 'it-IT',
+    pitch: 1.18,
+    rate: 1.06,
+  },
+  n: {
+    type: 'n',
+    name: 'Seby',
+    quote: {
+      it: 'Dimmi papino!',
+      en: 'Dimmi papino!',
+    },
+    hoverSound: {
+      id: 'horse_snort',
+      label: { it: '🐴 Snort! Prrr! *cavallo scalpita*', en: '🐴 Snort! Prrr! *horse paws in place*' },
+    },
+    audioUrl: 'assets/audio/voices/voice-n.mp3',
+    speechLang: 'it-IT',
+    pitch: 1.28,
+    rate: 1.08,
+  },
+  r: {
+    type: 'r',
+    name: 'Pupurabbu',
+    quote: {
+      it: 'Boing boing! Super abbraccio Pupurabbu!',
+      en: 'Boing boing! Super abbraccio Pupurabbu!',
+    },
+    hoverSound: {
+      id: 'plush_boing',
+      label: { it: '💜 Boing-purr! *pancia morbida*', en: '💜 Boing-purr! *squishy plush bounce*' },
+    },
+    audioUrl: 'assets/audio/voices/voice-r.mp3',
+    speechLang: 'it-IT',
+    pitch: 1.22,
+    rate: 1.05,
+  },
+  p: {
+    type: 'p',
+    name: 'Puffin',
+    quote: {
+      it: 'Piu piu! Eccomi, pronta guardia Puffin!',
+      en: 'Piu piu! Eccomi, pronta guardia Puffin!',
+    },
+    hoverSound: {
+      id: 'puffin_peep',
+      label: { it: '🐧 Piu-piu! *codina scodinzola*', en: '🐧 Piu-piu! *cute tail wag*' },
+    },
+    audioUrl: 'assets/audio/voices/voice-p.mp3',
+    speechLang: 'it-IT',
+    pitch: 1.45,
+    rate: 1.12,
+  },
+});
+
 export const CHARACTER_REGISTRY = Object.freeze({
   k: {
     type: 'k',
@@ -67,6 +170,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
     optionalGlbCandidates: ['assets/models/king-riccardo.glb'],
     accentColor: 0xffca28,
     signatureId: 'sceptre_lightning',
+    voiceLine: VOICE_LINES.k,
     animations: { idle: 'Idle', fire: 'Royal_Strike', attack: 'Sceptre_Thunder', victory: 'Throne_Spin' },
   },
   q: {
@@ -89,6 +193,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
     ],
     accentColor: 0xab47bc,
     signatureId: 'chocolate_wave',
+    voiceLine: VOICE_LINES.q,
     animations: { idle: 'Idle', fire: 'Choco_Swirl', attack: 'Chocolate_Tsunami', victory: 'Queen_Bow' },
   },
   b: {
@@ -111,6 +216,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
     ],
     accentColor: 0x2d6cdf,
     signatureId: 'crystal_shatter',
+    voiceLine: VOICE_LINES.b,
     animations: {
       idle: 'Idle_Track',
       fire: 'FireBreath_Track',
@@ -133,6 +239,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
     optionalGlbCandidates: ['assets/models/knight-seby.glb'],
     accentColor: 0xff7043,
     signatureId: 'loop_track_cars',
+    voiceLine: VOICE_LINES.n,
     animations: { idle: 'Idle', fire: 'Turbo_Rev', attack: 'Loop_Track_Storm', victory: 'Wheelie_Spin' },
   },
   r: {
@@ -150,6 +257,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
     optionalGlbCandidates: ['assets/models/rook-pupurabbu.glb'],
     accentColor: 0x7e57c2,
     signatureId: 'plush_ground_pound',
+    voiceLine: VOICE_LINES.r,
     animations: { idle: 'Idle', fire: 'Plush_Bounce', attack: 'Ground_Pound_Poof', victory: 'Belly_Wiggle' },
   },
   p: {
@@ -167,6 +275,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
     optionalGlbCandidates: ['assets/models/pawn-puffin.glb'],
     accentColor: 0x26a69a,
     signatureId: 'halberd_fish_slap',
+    voiceLine: VOICE_LINES.p,
     animations: { idle: 'Idle', fire: 'Halberd_Salute', attack: 'Fish_Slap_Spin', victory: 'Puffin_Hop' },
   },
 });

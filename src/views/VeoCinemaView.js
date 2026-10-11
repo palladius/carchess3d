@@ -3,17 +3,20 @@
  * `(0, y = 4.5m, z = -10.0m)` between the Grossmünster Twin Towers.
  *
  * Implements the 3-Tier Visual Pipeline for all 36 `6x6` capture combinations:
- * - Tier 1 (Veo `.mp4` `THREE.VideoTexture`): Attempts to play `choreo.videoUrl` in a hidden
- *   `<video muted playsInline>` element and binds a live `THREE.VideoTexture` to the 16:9 mirror.
+ * - Tier 1 (Veo `.mp4` / `.webm` `THREE.VideoTexture` / Canvas Video Frame): Attempts to play
+ *   `choreo.videoUrl` (`assets/battles/videos/<atk>_x_<def>.mp4` or `.webm`) in a hidden
+ *   `<video muted playsInline>` element for all 36 `6x6` pairings!
  * - Tier 2 & 3 (Dynamic 2D `1280x720` `<canvas>` Composite Keyframe + Cutie Versus Card):
  *   Renders a 60fps `THREE.CanvasTexture` with preloaded `assets/characters/*.jpg` portraits
  *   (plus optional `assets/battles/keyframes/*.svg`), shader-style diagonal lightning /
  *   purple heart cuddle storm (`Seby <-> Pupurabbu`) / golden throne aura (`Riccardo <-> Kate`),
- *   and bilingual comic impact banners.
+ *   and bespoke pair-specific titles, Defender counter-attack badges, and comic impact banners
+ *   from `BattleMatrix36.js`!
  */
 
 import * as THREE from 'three';
 import { BATTLE_MATRIX, CHARACTER_REGISTRY } from '../core/Registry.js';
+import { BATTLE_MATRIX_36, getBattle36 } from '../core/BattleMatrix36.js';
 
 export class VeoCinemaView {
   /**
@@ -33,6 +36,7 @@ export class VeoCinemaView {
     this.activeBattle = null;
     this.battleElapsed = 0;
     this.usingVideoTexture = false;
+    this.activeVideoUrl = null;
 
     /** @type {Map<string, HTMLImageElement>} */
     this.imageCache = new Map();
@@ -271,11 +275,25 @@ export class VeoCinemaView {
   startBattlePresentation(e = {}) {
     const atkKey = (e.attacker || e.choreo?.attacker || 'b').toLowerCase();
     const defKey = (e.defender || e.choreo?.defender || 'p').toLowerCase();
-    const matrixEntry = BATTLE_MATRIX[atkKey]?.[defKey] || BATTLE_MATRIX.b.p;
+    const baseEntry = BATTLE_MATRIX[atkKey]?.[defKey] || BATTLE_MATRIX.b.p;
+    const matrix36Entry =
+      BATTLE_MATRIX_36?.[atkKey]?.[defKey] || getBattle36?.(atkKey, defKey) || {};
+
     const choreo = {
-      ...matrixEntry,
+      ...baseEntry,
+      ...matrix36Entry,
       ...(e.choreo || {}),
       ...e,
+      // Prefer the bespoke 36-pair title, banner, and defenderCounter from BattleMatrix36
+      title: e.title || matrix36Entry.title || baseEntry.title || null,
+      banner: matrix36Entry.banner || e.banner || baseEntry.banner,
+      defenderCounter: e.defenderCounter || matrix36Entry.defenderCounter || null,
+      videoUrl: e.videoUrl || matrix36Entry.videoUrl || baseEntry.videoUrl,
+      webmUrl: e.webmUrl || matrix36Entry.webmUrl || null,
+      keyframeUrl:
+        e.keyframeUrl ||
+        matrix36Entry.keyframeUrl ||
+        `assets/battles/keyframes/${atkKey}_x_${defKey}.png`,
       attacker: atkKey,
       defender: defKey,
     };
@@ -284,25 +302,34 @@ export class VeoCinemaView {
     this.mode = 'battle';
     this.battleElapsed = 0;
 
-    // Preload portraits & optional SVG composite keyframe
+    // Preload portraits, Nano Banana 16:9 initial battle keyframe, & optional SVG composite
     this.getOrLoadImage(choreo.attackerImg);
     this.getOrLoadImage(choreo.defenderImg);
+    if (choreo.keyframeUrl) {
+      this.getOrLoadImage(choreo.keyframeUrl);
+    }
     if (choreo.compositeUrl) {
       this.getOrLoadImage(choreo.compositeUrl);
     }
 
-    // Tier 1: Attempt Veo .mp4 VideoTexture if videoUrl is provided
+    // Tier 1: Attempt Veo .mp4 / .webm VideoTexture for ANY of the 36 `<atk>_x_<def>` videos!
     this.tryPlayVeoVideo(choreo.videoUrl);
   }
 
+  /**
+   * Loads and plays ANY of the 36 `<atk>_x_<def>.mp4` or `.webm` battle videos on the 16:9 Cinema Mirror.
+   * @param {string} videoUrl
+   * @param {boolean} [triedWebm=false]
+   */
   tryPlayVeoVideo(videoUrl, triedWebm = false) {
     this.stopVideoPlayback();
     if (!videoUrl || !this.videoEl) return;
-    if (!/(b_x_n|n_x_b|n_x_r)\.(mp4|webm)$/i.test(videoUrl)) return;
+    if (!/[kqbnrp]_x_[kqbnrp]\.(mp4|webm)$/i.test(videoUrl)) return;
 
     try {
       this.videoEl.src = videoUrl;
       this.videoEl.currentTime = 0;
+      this.videoEl.playbackRate = 1.65;
       const playPromise = this.videoEl.play();
       if (playPromise && typeof playPromise.then === 'function') {
         playPromise
@@ -319,7 +346,7 @@ export class VeoCinemaView {
               this.tryPlayVeoVideo(videoUrl.replace(/\.mp4$/i, '.webm'), true);
               return;
             }
-            // Tier 1 video not yet rendered -> stay on Tier 2/3 CanvasTexture
+            // Tier 1 video not yet decoded -> stay on Tier 2/3 CanvasTexture
             this.usingVideoTexture = false;
             this.activeVideoUrl = null;
           });
@@ -425,7 +452,7 @@ export class VeoCinemaView {
 
     ctx.fillStyle = '#9ec5ff';
     ctx.font = '600 26px system-ui, sans-serif';
-    ctx.fillText('Palude Incantata di Zurigo · Specchio Magico Veo 16:9', w / 2, 166);
+    ctx.fillText('Palude Incantata di Zurigo · Specchio Magico Veo 16:9 (36 Scontri)', w / 2, 166);
 
     // 6 Family Hero Circular Portrait Medallions across the center of the 16:9 screen
     const heroKeys = ['k', 'q', 'b', 'n', 'r', 'p'];
@@ -491,7 +518,7 @@ export class VeoCinemaView {
     } else {
       ctx.fillStyle = '#8be8c2';
       ctx.font = '600 25px system-ui, sans-serif';
-      ctx.fillText('Cattura un pezzo o apri 🌟 WOW Mode per lanciare le sfide 3D!', w / 2, 616);
+      ctx.fillText('Cattura un pezzo o apri 🎬 Matrice 6×6 per vedere i 36 scontri!', w / 2, 616);
     }
   }
 
@@ -518,41 +545,96 @@ export class VeoCinemaView {
     const atkChar = CHARACTER_REGISTRY[choreo.attacker] || CHARACTER_REGISTRY.b;
     const defChar = CHARACTER_REGISTRY[choreo.defender] || CHARACTER_REGISTRY.p;
 
+    const titleText =
+      typeof choreo.title === 'string'
+        ? choreo.title
+        : choreo.title?.it ||
+          choreo.title?.en ||
+          `${atkChar.glyph} ${atkChar.name.toUpperCase()}  ⚡  ${defChar.glyph} ${defChar.name.toUpperCase()}`;
+
     const bannerText =
       typeof choreo.banner === 'string'
         ? choreo.banner
         : choreo.banner?.it || choreo.banner?.en || 'SFIDA MAGICA 3D! ⚔️✨';
 
-    // TIER 1: If a Veo / 3D .mp4 video is loaded and playing, draw the live video frame!
+    const counterSfx = choreo.defenderCounter?.sfxText || '';
+    const counterDesc = choreo.defenderCounter?.it || choreo.defenderCounter?.en || '';
+
+    // TIER 1: If a Veo / 3D .mp4 or .webm video is loaded and playing, draw the live video frame!
     if (this.usingVideoTexture && this.videoEl && this.videoEl.readyState >= 2) {
       ctx.drawImage(this.videoEl, 0, 0, w, h);
 
+      ctx.save();
+      // Top-left bespoke 6x6 pair title pill
+      ctx.fillStyle = 'rgba(14, 18, 32, 0.85)';
+      ctx.strokeStyle = '#ffd54f';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(26, 20, 780, 52, 24);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ffe082';
+      ctx.font = 'bold 24px system-ui, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`⚔️ ${titleText}`.slice(0, 52), 48, 54);
+
       // Sleek top-right Tier 1 MP4 indicator badge
       const shortFile = (this.activeVideoUrl || '').split('/').pop() || 'battle.mp4';
-      ctx.save();
       ctx.fillStyle = 'rgba(12, 28, 22, 0.88)';
       ctx.strokeStyle = '#69f0ae';
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.roundRect(w - 430, 22, 404, 48, 24);
+      ctx.roundRect(w - 430, 20, 404, 52, 24);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = '#69f0ae';
       ctx.font = 'bold 21px system-ui, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`🎬 TIER 1 · MP4 LIVE (${shortFile})`, w - 228, 53);
+      ctx.fillText(`🎬 TIER 1 · MP4 LIVE (${shortFile})`, w - 228, 54);
 
       // Bottom comic impact banner overlay
-      ctx.fillStyle = 'rgba(14, 18, 32, 0.82)';
+      ctx.fillStyle = 'rgba(14, 18, 32, 0.86)';
       ctx.strokeStyle = '#ffd54f';
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.roundRect(140, h - 98, w - 280, 74, 18);
+      ctx.roundRect(80, h - 102, w - 160, 78, 18);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = '#ffeb3b';
-      ctx.font = 'bold 38px system-ui, sans-serif';
-      ctx.fillText(bannerText, w / 2, h - 49);
+      ctx.font = 'bold 34px system-ui, sans-serif';
+      ctx.fillText(bannerText, w / 2, h - 52);
+      ctx.restore();
+      return;
+    }
+
+    // TIER 2: If the Nano Banana 16:9 Initial Battle Keyframe (`assets/battles/keyframes/<id>.png`) is loaded, draw it!
+    const nbKeyframe = this.getOrLoadImage(choreo.keyframeUrl);
+    if (nbKeyframe) {
+      ctx.drawImage(nbKeyframe, 0, 0, w, h);
+      ctx.save();
+      ctx.fillStyle = 'rgba(14, 18, 32, 0.85)';
+      ctx.strokeStyle = '#ffd54f';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(26, 20, 780, 52, 24);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ffe082';
+      ctx.font = 'bold 24px system-ui, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`🍌 ${titleText}`.slice(0, 52), 48, 54);
+
+      ctx.fillStyle = 'rgba(14, 18, 32, 0.86)';
+      ctx.strokeStyle = '#ffd54f';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(80, h - 102, w - 160, 78, 18);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ffeb3b';
+      ctx.font = 'bold 34px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(bannerText, w / 2, h - 52);
       ctx.restore();
       return;
     }
@@ -598,7 +680,12 @@ export class VeoCinemaView {
 
     // 3. Left Attacker Portrait Card & Right Defender Portrait Card
     this.drawCharacterCard(ctx, 75, 130, 410, 440, atkChar, 'ATTACCANTE ⚔️', '#ffd54f', t);
-    this.drawCharacterCard(ctx, w - 485, 130, 410, 440, defChar, isCuddle ? 'AMICO COCCOLOSO 💜' : 'DIFENSORE 🛡️', '#90caf9', -t);
+    const defRoleLabel = isCuddle
+      ? 'AMICO COCCOLOSO 💜'
+      : counterSfx
+      ? `DIFENSORE 🛡️ · ${counterSfx}`
+      : 'DIFENSORE 🛡️';
+    this.drawCharacterCard(ctx, w - 485, 130, 410, 440, defChar, defRoleLabel, '#90caf9', -t);
 
     // 4. Center Diagonal Lightning / Cuddle Rainbow Clash
     ctx.save();
@@ -634,26 +721,28 @@ export class VeoCinemaView {
     ctx.fillText(isCuddle ? '💜' : 'VS', 0, 4);
     ctx.restore();
 
-    // 5. Top Matchup Title & Bottom Comic Impact Banner
+    // 5. Top Bespoke 6x6 Matchup Title + Counter Sub-Caption & Bottom Comic Impact Banner
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffe082';
-    ctx.font = 'bold 40px system-ui, sans-serif';
-    ctx.fillText(
-      `${atkChar.glyph} ${atkChar.name.toUpperCase()}  ⚡  ${defChar.glyph} ${defChar.name.toUpperCase()}`,
-      w / 2,
-      72,
-    );
+    ctx.font = 'bold 36px system-ui, sans-serif';
+    ctx.fillText(titleText, w / 2, 64);
+
+    if (counterDesc) {
+      ctx.fillStyle = '#80d8ff';
+      ctx.font = '600 22px system-ui, sans-serif';
+      ctx.fillText(`Contrattacco Atto 2: ${counterDesc}`, w / 2, 102);
+    }
 
     ctx.fillStyle = 'rgba(14, 18, 32, 0.88)';
     ctx.strokeStyle = '#ffd54f';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.roundRect(110, h - 112, w - 220, 82, 18);
+    ctx.roundRect(80, h - 112, w - 160, 82, 18);
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = '#ffeb3b';
-    ctx.font = 'bold 42px system-ui, sans-serif';
+    ctx.font = 'bold 36px system-ui, sans-serif';
     ctx.fillText(bannerText, w / 2, h - 58);
   }
 

@@ -6,11 +6,12 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v6';
+const CACHE_NAME = 'carchess3d-offline-v8';
 
 const PRECACHE_URLS = [
   './',
   './index.html',
+  './battles.html',
   './progress.html',
   './manifest.webmanifest',
   './vendor/chess.js',
@@ -22,6 +23,7 @@ const PRECACHE_URLS = [
   './src/core/EventBus.js',
   './src/core/GameLoop.js',
   './src/core/Registry.js',
+  './src/core/BattleMatrix36.js',
   './src/core/Rng.js',
   './src/ai/worker.js',
   './src/managers/GameFlowManager.js',
@@ -31,6 +33,7 @@ const PRECACHE_URLS = [
   './src/managers/DropManager.js',
   './src/managers/AIWorkerManager.js',
   './src/views/ZurichSwampView.js',
+  './src/views/SkeletonRigHelper.js',
   './src/views/PieceView.js',
   './src/views/BoardInteractionView.js',
   './src/views/VFXPoolView.js',
@@ -63,6 +66,12 @@ const PRECACHE_URLS = [
   './assets/models/knight-seby.glb',
   './assets/models/rook-pupurabbu.glb',
   './assets/models/pawn-puffin.glb',
+  './assets/audio/voices/voice-k.mp3',
+  './assets/audio/voices/voice-q.mp3',
+  './assets/audio/voices/voice-b.mp3',
+  './assets/audio/voices/voice-n.mp3',
+  './assets/audio/voices/voice-r.mp3',
+  './assets/audio/voices/voice-p.mp3',
   './docs/logo/logo.svg',
 ];
 

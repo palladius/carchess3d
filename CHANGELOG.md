@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.8] - 2026-10-11
+## [0.3.6] - 2026-10-11
 
 - 🐱🎭⛪ **Swamp Family Lineup Upgrade: Don Gatto Zorro-Vescovo (`Bishop`, `1.45m`) & Uomo Focaccina Ligure (`Pawn`, `0.95m`)**:
   - Generated and approved `assets/characters/bishop-swamp-gatto.jpg` (Variant 1, synced to `bishop-swamp-focaccina.jpg` for manifest compatibility): a swashbuckler ginger tabby cat wearing a black Zorro domino eye-mask, tall black-and-gold Papal Bishop Mitre with glowing ruby cross & sweeping yellow ostrich feather, black-and-gold embroidered Zorro cape with `"Z"` clasp, tall cuffed leather boots, golden swept-hilt rapier-crosier, and solemn Bishop blessing paw.
@@ -10,6 +10,70 @@
   - Implemented the bespoke 3D **Miracolo del Sangue di San Gennaro** (`san_gennaro_miracle` / `san_gennaro_blood_drops`) triggered when the Classic Bishop (**San Gennaro**) attacks: a golden Baroque reliquary ampoule (`sanGennaroAmpoule`) rises above the capture square, tilts side-to-side while its dark clotted blood core (`#3b0308`) liquefies and boils into glowing ruby-crimson (`#ff1744`) at `t >= 0.28`, and unleashes a 64-particle burst of crimson-ruby droplets and golden sparks with banner `"MIRACOLO DI SAN GENNARO! SANGUE SCIOLTO! 🩸✨"`.
 - 🧊🏛️ **TRELLIS.2 3D Reconstruction Pipeline for Classic Family (`tools/model-pipeline/classic/gen_trellis2_batch.py`)**:
   - Added automated `microsoft/TRELLIS.2` image-to-3D reconstruction + contract normalizer (`faction_primary` / `faction_trim` material slots, `min.y = 0.0`, exact target height) and reconstructed `assets/models/classic/king-classic-re.glb` (`99,267 tris`, `1.80m`).
+
+## [0.3.5] - 2026-10-11
+
+- 🐴🐧🗣️ **Living Idle Animations & Hover/Select Character Voices (`idle_animations_and_voices_20261011`)**:
+  - **Continuous Per-Character 3D Living Idle Motion (`src/views/PieceView.js`, `src/views/SkeletonRigHelper.js`)**:
+    - Every living piece on the 8×8 board now moves organically even when standing still: Knight Seby's warhorse steps/trots gently in place and swishes its tail (`tail` bone), Pawn Puffins sway fluidly in an S-curve and wag their tail feathers (`tail` bone), Bishop Ale's shoulder dragon beats its wings (`leftWing`/`rightWing`) and waves its wand, Rook Pupurabbu squishes and breathes, and King Riccardo & Queen Kate breathe with regal poise.
+    - Hovering or selecting a piece boosts its idle amplitude (`1.55×` on hover, `1.95×` on select) so characters visibly perk up under the cursor.
+  - **Hover Creature SFX & Authentic Spoken Character Voice Lines (`src/core/Registry.js`, `src/listeners/AudioListener.js`, `src/listeners/HudListener.js`, `src/views/BoardInteractionView.js`)**:
+    - Generated all 6 authentic character voice MP3s via `gemini-2.5-flash-preview-tts` ([`scripts/generate_voice_lines.py`](scripts/generate_voice_lines.py) → `assets/audio/voices/voice-{k,q,b,n,r,p}.mp3`):
+      - **Seby (`n`)**: *"Dimmi papino!"* + hover horse snort (`🐴 Snort! Prrr!`)
+      - **Ale (`b`)**: *"Agli ordini, Signore!"* + hover dragon whistle (`🐉 Fiuuu!`)
+      - **Kate (`q`)**: *"This is an interesting choice..."* (sarcastic British English `en-GB`) + hover crystal chime (`♕ Hmm...`)
+      - **Puffin (`p`)**: *"Piu piu! Eccomi, pronta guardia Puffin!"* + hover cute double chirp (`🐧 Piu-piu!`)
+      - **Riccardo (`k`)**: *"Avanti tutta! Re Carlesso al comando!"* + hover royal sceptre hum (`♔ Zzt-hum!`)
+      - **Pupurabbu (`r`)**: *"Boing boing! Super abbraccio Pupurabbu!"* + hover plushie boing (`🟣 Boing-pfiu!`)
+    - Added [`tests/voices_idle.test.mjs`](tests/voices_idle.test.mjs) and synced [`docs/spec/SPEC.md`](docs/spec/SPEC.md) and [`sw.js`](sw.js) (`v7`).
+- 🍌🎬 **All 36 Nano Banana 2.1 Battle Keyframes & 15 Veo 3.1 16:9 Videos (`scripts/generate_nb_veo_battle.py`, `assets/battles/prompts_36.json`)**:
+  - **Stage 1**: Generated all **36/36** 16:9 initial battle keyframes (`assets/battles/keyframes/<atk>_x_<def>.png`, `1376×768`) using **Photo 1 (Attacker Left)** + **Photo 2 (Defender Right)** + side-by-side layout guide (`assets/battles/refs/<id>_ref.png`) via Nano Banana 2.1 (`gemini-3.1-flash-image-preview`).
+  - **Stage 2**: Generated 15/36 full 8-second 16:9 Veo 3.1 (`veo-3.1-generate-preview`) battle videos with audio (`assets/battles/videos/<id>.{mp4,webm}`) including all 4 Easter Eggs (`n_x_r`, `r_x_n`, `k_x_q`, `q_x_k`), all 6 Bishop Ale battles (`b_x_*`), and all 6 Knight Seby battles (`n_x_*`).
+
+## [0.3.4] - 2026-10-10
+
+- 🔗🏷️ **Footer GitHub Links & Game Version Display (`src/listeners/HudListener.js`, `src/core/Registry.js`, `battles.html`, `showcase/index.html`, `tests/core.test.mjs`)**:
+  - Added dedicated `.hud-footer-meta` row inside the game HUD `<footer class="hud-bottombar">` (and matching footers in [`battles.html`](battles.html) and [`showcase/index.html`](showcase/index.html)):
+    - **`v0.3.4` Game Version Tag**: Displays current game version (`v${APP_VERSION}`), dynamically refreshed at runtime via `fetch('./VERSION')`.
+    - **🐙 GitHub Code**: Direct clickable link to the repository source code (`https://github.com/palladius/carchess3d`).
+    - **🐛 Open a Bug**: Direct clickable link to open a new GitHub Issue (`https://github.com/palladius/carchess3d/issues/new`).
+  - Added unit test in [`tests/core.test.mjs`](tests/core.test.mjs) verifying `APP_VERSION`, `GITHUB_REPO_URL`, and `GITHUB_NEW_ISSUE_URL` match `VERSION` and repo endpoints.
+
+## [0.3.3] - 2026-10-10
+
+- 🍌📺 **Wire Nano Banana 16:9 Keyframes & `1.65×` Veo Playback (`BattleMatrix36.js`, `VeoCinemaView.js`, `battles.html`)**:
+  - Added `keyframeUrl: assets/battles/keyframes/<id>.png` across all 36 entries in [`src/core/BattleMatrix36.js`](src/core/BattleMatrix36.js) and wired `poster="assets/battles/keyframes/<id>.png"` into the 6×6 video player in [`battles.html`](battles.html).
+  - Updated [`src/views/VeoCinemaView.js`](src/views/VeoCinemaView.js) to preload and render the Nano Banana 16:9 Initial Battle Keyframe as Tier-2 fallback on the 16:9 Magic Cinema Mirror while the video buffers, and set `videoEl.playbackRate = 1.65` so the full 6–8s Veo 3.1 battle movie plays within the 4.0s 3D Scazzottata cutscene.
+
+## [0.3.2] - 2026-10-10
+
+- 🍌🎬 **2-Stage Generative AI Battle Cinema Pipeline (`Nano Banana 2.1` Keyframe → `Veo 3.1` I2V Video) (`scripts/generate_nb_veo_battle.py`, `assets/battles/keyframes/{b_x_n,n_x_b}.png`, `assets/battles/videos/{b_x_n,n_x_b}.{mp4,webm}`)**:
+  - Added [`scripts/generate_nb_veo_battle.py`](scripts/generate_nb_veo_battle.py): composes the clean front portraits of Attacker (Left) + Defender (Right) + 16:9 side-by-side layout guide (`assets/battles/refs/<pair>_ref.png`) into a cohesive 16:9 Pixar-style starting frame via `gemini-nano-banana-2.1`, then animates that exact frame into a 16:9 `.mp4` + `.webm` battle movie via `veo-3.1-fast-generate-preview`.
+  - Generated full-fidelity 16:9 Nano Banana 2.1 keyframes and Veo 3.1 I2V movies for **`b_x_n` (Bishop Ale & Red Dragon vs Knight Seby)** and **`n_x_b` (Knight Seby & Hot-Wheels Loop-Track vs Bishop Ale)**.
+
+## [0.3.1] - 2026-10-10
+
+- 🐛🧹 **Merge `refactor_ui_cleanup_ux` — Idempotent UI Clicks, Async GLTF Load-Token Guard & Mirror-Safe Camera Flip (`PieceManager.js`, `WowModeView.js`, `ZurichSwampView.js`, `CombatAnimationManager.js`, `HudListener.js`, `main.js`, `tests/pieces.test.mjs`)**:
+  - **Idempotent `🐸 Palude` (`PieceManager.seedSwampParty` / `handlePieceCaptured`)**: Clicking `🐸 Palude` or opening `?demo=swamp` now calls `PieceManager.seedSwampParty()`, which is idempotent (`swampDemoPiece: true`) and never spawns duplicate dead pieces or deletes living pieces (`c1, g1, e2, b8, f8, h8`) from the 3D board. Covered by unit test in [`tests/pieces.test.mjs`](tests/pieces.test.mjs).
+  - **WOW Mode Async Load-Token Guard & Skeleton Preservation (`WowModeView.js`)**: Added `_heroLoadToken` so rapid clicks on WOW character/variant buttons never attach stale GLTF hero roots out of order, while preserving 3D skeleton rigs (`SkeletonRigHelper`) and prevented `WowModeView.onArenaClash` from mutating Mode 1 `pieceView.pieceBySquare`.
+  - **Duplicate Highlight Ring Cleanup (`ZurichSwampView.js`)**: Removed duplicate selection/check highlight rings from `ZurichSwampView` (now exclusively owned by `BoardInteractionView`).
+  - **Mirror-Safe Camera Flip (`HudListener.js`, `main.js`)**: Flipping the camera (`🔄 Flip`) now parks at `z = -8.2m` in front of the `z = -10.2m` 16:9 Magic Cinema Mirror instead of clipping behind it, and added `CombatAnimationManager.isBusy()` alias for backward compatibility.
+
+## [0.3.0] - 2026-10-10
+
+- 🐝🎬 **Adversarial Swarm Complete — All 36 (`6×6`) Bespoke 3D Brawls, 72 16:9 Videos (`36 .mp4` + `36 .webm`), Interactive 6×6 Matrix Explorer & Visible 3D Skeletons (GitHub Issues `#10`–`#16` ✅)**:
+  - **Issue `#11` (`@matrix36-choreo` & `@explorer6x6-ux`) — All 36 (`6 vs 6`) Animations & Videos + `battles.html` Explorer**:
+    - Added [`src/core/BattleMatrix36.js`](src/core/BattleMatrix36.js) defining all 36 (`6 × 6`) combinations with bespoke bilingual titles, comic banners, attacker 3D weapons, Act 2 defender counter-attack moves (`defenderCounter`), and finisher reactions, plus [`tests/matrix36.test.mjs`](tests/matrix36.test.mjs).
+    - Upgraded [`scripts/render_battle_videos.py`](scripts/render_battle_videos.py) and generated **all 36 `.mp4` and all 36 `.webm` 16:9 3-Act videos** (`assets/battles/videos/k_x_k.mp4` .. `p_x_p.mp4`, 72 video files total).
+    - Built the standalone **[`battles.html`](battles.html) 6×6 Battle Matrix Explorer** (`https://palladius.github.io/carchess3d/battles.html`) and the in-game **`🎬 Matrice 6×6 (36 Scontri)`** modal in [`src/listeners/HudListener.js`](src/listeners/HudListener.js) with 1-click **`🥊 Scazzottata 3D + Cinema`**, built-in 16:9 `<video>` preview player, and **`▶️ Maratona 36 Scontri`**.
+  - **Issue `#10` & `#15` (`@brawl3d-vfx`) — 3D Weapons, Defender Counter-Attacks, Floating 3D Comic Words & Shrek Swamp Splash**:
+    - Attached 3D weapons & props (`buildFighterWeaponProp`) to both fighters in [`src/views/VFXPoolView.js`](src/views/VFXPoolView.js) (Puffin's Halberd + 3D Silver Fish, Ale's Amethyst Staff + Dragon Fireball stream, Seby's Twin Orange Turbo Boosters + orbiting race car, Pupurabbu's Giant Purple Plushie Boxing Gloves + Belly Aura, Kate's Golden-Lilac Choco Wand + Magic Shield, Riccardo's Lightning Sceptre + Golden Plunger-Crown).
+    - Added active **Defender Counter-Attacks in Act 2** (`horse_rear_hoof_kick`, `dragon_flame_puff`, `halberd_fish_parry`, `plush_belly_bounce`, `lilac_choco_shield_spin`, `royal_sceptre_zap`), floating 3D comic impact words (`CHARGE!` → `CLANG! ⚔️` → `CONTRATTACCO! 💥` → `KAPOW! 🌪️` → `K.O.! 🐸💦`), hit-pulse camera shake, and a 3D emerald water-column splash (`swampKoSplash`) in Shrek's Swamp.
+    - Updated [`src/views/VeoCinemaView.js`](src/views/VeoCinemaView.js) to play all 36 `<atk>_x_<def>.mp4`/`.webm` videos and render pair-specific titles & Act 2 counter-attack badges.
+  - **Issue `#12` & `#14` (`@skeletons-locomotion`) — Visible 23-Joint 3D Articulated Skeletons & Footprints/Hoofprints**:
+    - Added [`src/views/SkeletonRigHelper.js`](src/views/SkeletonRigHelper.js) and integrated it into [`src/views/PieceView.js`](src/views/PieceView.js) and [`src/views/WowModeView.js`](src/views/WowModeView.js): 23 articulated 3D bone/joint pivots (including Knight Seby's 4-legged warhorse skeleton and Bishop Ale's dragon wing skeleton), glowing footprint/hoofprint trails along `2.0s–2.2s` moves, **`🦴 Scheletri 3D`** HUD toggle, and sculpted 3D notched lily-pad leaves + pink lotus flowers under every Shrek Swamp swimmer.
+  - **Issue `#13` & `#16` (`@explorer6x6-ux` & `@adversarial-critic`) — Mac Trackpad `_customWheelEvent` Fix, Legal Dots Hover Preview & Full Adversarial Audit**:
+    - Fixed Three.js `OrbitControls._customWheelEvent` stripping `deltaX` & `ctrlKey` in [`src/views/BoardInteractionView.js`](src/views/BoardInteractionView.js) (caught by `@adversarial-critic`), added 3D floating capture hover preview badges (`"⚔️ ♙ Puffin vs ♙ Puffin"`), and added [`scripts/adversarial_swarm_audit.py`](scripts/adversarial_swarm_audit.py) verifying all 7 GitHub Issues (`#10`–`#16`) end-to-end.
 
 ## [0.2.7] - 2026-10-10
 

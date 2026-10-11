@@ -5,6 +5,38 @@
 
 ---
 
+## 🐝🎬🦴 Round 6 (v0.3.0) — Adversarial Swarm Complete: Tutte le 36 (`6×6`) Scazzottate 3D & Video 16:9 + Esploratore `battles.html` + Scheletri 3D Articolati (Issues `#10`–`#16` ✅)
+
+### 6.1 Tutte le 36 (`6 vs 6`) Coreografie e 72 Video 16:9 (`.mp4` + `.webm`) + Matrice Interattiva `6×6` (`#11`)
+- **`src/core/BattleMatrix36.js`** + **72 file video (`36 .mp4` + `36 .webm`)** in `assets/battles/videos/`: ogni singola combinazione `Attaccante (6) × Difensore (6)` (`k_x_k` .. `p_x_p`) ha ora il proprio titolo bilingue, arma d'attacco, **contrattacco specifico del difensore nell'Atto 2**, banner fumetto e video 16:9 dedicato!
+- **Modale In-Game `🎬 Matrice 6×6 (36 Scontri)`** (`HudListener.js`) + **Pagina Standalone [`battles.html`](../battles.html)**: griglia `6×6` interattiva per riprodurre qualsiasi video 16:9 o lanciare con 1 click la Scazzottata 3D sulla scacchiera (inclusa la **Maratona 36 Scontri**)!
+
+![Round 6 In-Game 6x6 Matrix Modal](./visual-progress/round6_1_matrix_6x6_modal.png)
+
+![Round 6 Standalone battles.html 6x6 Explorer](./visual-progress/round6_7_battles_html_explorer.png)
+
+### 6.2 Scheletri 3D Articolati Visibili (`SkeletonRigHelper.js`) + Impronte Passi/Zoccoli (`#12`)
+- **23 Giunti Scheletrici 3D (`🦴 Scheletri 3D`)**: bacino, colonna, testa, gambe/ginocchia sx/dx, braccia/gomiti sx/dx, più lo **scheletro quadrupede del cavallo di Seby** (`frontLeftLeg`, `frontRightLeg`, `hindLeftLeg`, `hindRightLeg`, `horseHead`) e le **ali del draghetto di Ale** (`leftWing`, `rightWing`), accompagnati da impronte luminose dei passi (`c2 → c4` in `2.0s`) e ferri di cavallo (`g1 → f3` in `2.2s`)!
+
+![Round 6 3D Skeletons Walk and Gallop](./visual-progress/round6_2_skeletons_walk_gallop.png)
+
+### 6.3 Scazzottata 3D in 3 Atti con Armi 3D, Contrattacco del Difensore e Fumetti 3D (`#10`, `#15`, `#16`)
+- **Atto 1 (`CHARGE!`)**: Carica con armi 3D impugnate (Alabarda + Pesce 3D di Puffin, Scettro Ametista + Fiammata Drago di Ale, Doppio Turbo + Macchinina di Seby, Guantoni Puffosi di Pupurabbu, Bacchetta Ciocco-Lilla di Kate, Scettro Fulmine + Corona-Sturalavandini di Riccardo).
+- **Atto 2 (`CLANG! ⚔️` → `CONTRATTACCO! 💥` → `KAPOW! 🌪️`)**: Il difensore risponde con la sua contromossa 3D specifica prima del colpo finale!
+- **Atto 3 (`K.O.! 🐸💦`)**: Volo parabolico nella Palude di Shrek con spruzzo 3D di gocce smeraldo, ninfea 3D intagliata e fiore di loto rosa!
+
+![Round 6 Legal Dots and Capture Hover Preview](./visual-progress/round6_3_legal_dots_and_brawl.png)
+
+![Round 6 Brawl Act 1 Charge](./visual-progress/round6_4_brawl_act1_charge.png)
+
+![Round 6 Brawl Act 2 Counterattack](./visual-progress/round6_5_brawl_act2_counterattack.png)
+
+![Round 6 Brawl Act 3 Swamp K.O.](./visual-progress/round6_6_brawl_act3_swamp_ko.png)
+
+![Round 6 Shrek Swamp Lilypads and Lotus](./visual-progress/round6_8_swamp_party_lilypads.png)
+
+---
+
 ## 🥊🐎 Round 5 (v0.2.3) — Scazzottata 3D Reale (`Piece A` vs `Piece B`) + Camminata/Cavalcata Scheletrica 2.0s + Trackpad Mac 2-Dita + Bianchi vs Neri Frontali
 
 ### 5.1 Bianchi Fronteggiano i Neri (`yaw = π` vs `yaw = 0`)
