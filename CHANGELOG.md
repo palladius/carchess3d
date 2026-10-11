@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.21] - 2026-10-11
+
+- 🇬🇧🇮🇹👵 **English Default UI for Nonna Susan & One-Click `🇬🇧 EN` / `🇮🇹 IT` Flag Switcher (`HudListener.js`, `Registry.js`, `AIWorkerManager.js`, `BoardInteractionView.js`, `index.html`, `docs/spec/SPEC.md`)**:
+  - **English Default Language (`lang = 'en'`)**: Set the game's default UI language to English so Nonna Susan can immediately read every screen, modal, tooltip, and toast in English out of the box (also added `Nonna Susan 👵🇬🇧` to the player profile selector).
+  - **Dedicated `🇬🇧 EN` and `🇮🇹 IT` Flag Buttons**: Added side-by-side clickable British (`🇬🇧 EN`) and Italian (`🇮🇹 IT`) flag pills in three places:
+    1. Top-right of the **Startup Game Setup Modal** (`#hud-setup-flag-en`, `#hud-setup-flag-it`) so players can switch languages before starting a match.
+    2. Persistent **Bottom Action Dock** (`#hud-flag-en`, `#hud-flag-it`) with active gold border highlight.
+    3. **Top HUD Bar** (`#hud-top-flag-en`, `#hud-top-flag-it`).
+  - **Complete UI Localization**: Translated all previously Italian-only strings in `I18N.en` / `I18N.it` (Setup modal sides, factions, controls, hot-seat description, gallery/video/matrix/skeleton/swamp/trackpad buttons, WOW panel sliders, 6×6 Battle Matrix Explorer headers, FEN/PGN modal, AI hints, and capture preview hover toasts).
+  - **All Sounds & Voice Lines Preserved**: Character voices (`AudioListener.js`, `VOICE_LINES.audioUrl`, `VOICE_LINES.quote`) and sound effects remain 100% untouched.
+
 ## [0.3.20] - 2026-10-11
 
 - 🎥♟️✨ **Combat Camera ~5×5 Board Framing, 100% Visible 16:9 Veo Backdrop & Production Skeleton Removal (`VFXPoolView.js`, `VeoCinemaView.js`, `SkeletonRigHelper.js`, `PieceView.js`, `HudListener.js`, `justfile`)**:

@@ -91,7 +91,7 @@ test('glbGrounding: grounds TRELLIS [-0.5..+0.5] bbox cleanly to min.y === 0 and
   }
 });
 
-test('footer metadata: APP_VERSION matches VERSION file, and GitHub links point to correct repo endpoints', () => {
+test('footer metadata & i18n flags: APP_VERSION matches VERSION file, GitHub links work, and HudListener defaults to English with EN/IT flag switching', () => {
   const versionFile = readFileSync(new URL('../VERSION', import.meta.url), 'utf-8').trim();
   assert.equal(APP_VERSION, versionFile, 'APP_VERSION in Registry.js must match repo VERSION file');
   assert.equal(GITHUB_REPO_URL, 'https://github.com/palladius/carchess3d');
@@ -99,4 +99,14 @@ test('footer metadata: APP_VERSION matches VERSION file, and GitHub links point 
 
   const hud = new HudListener();
   assert.equal(hud.appVersion, `v${APP_VERSION}`);
+  assert.equal(hud.lang, 'en', 'Default language must be English for Nonna Susan');
+  assert.equal(hud.t('startMatchBtn'), '🔄 New Match (Reset Board) ✨');
+
+  hud.setLanguage('it');
+  assert.equal(hud.lang, 'it');
+  assert.equal(hud.t('startMatchBtn'), '🔄 Nuova Partita (Reset Pezzi) ✨');
+
+  hud.setLanguage('en');
+  assert.equal(hud.lang, 'en');
+  assert.equal(hud.t('startMatchBtn'), '🔄 New Match (Reset Board) ✨');
 });

@@ -40,6 +40,15 @@ const WEAPON_LABELS_IT = {
   p: '🐟 Alabarda Svizzera & Pesce',
 };
 
+const WEAPON_LABELS_EN = {
+  k: '⚡ Royal Sceptre & Golden Throne',
+  q: '🍫 Lilac Choco-Wave Wand',
+  b: '🐉 Shoulder Dragon & Amethyst Crystal',
+  n: '🏎️ Turbo Loop-Track & Steed',
+  r: '💜 Plushie Boxing Gloves & Belly Bounce',
+  p: '🐟 Swiss-Guard Halberd & Fish Slap',
+};
+
 const COUNTER_LABELS_IT = {
   k: '⚡ Lampo Reale di Scettro (ZAP!)',
   q: '🛡️ Scudo Ciocco-Vortice Lilla (SWIRL!)',
@@ -49,14 +58,30 @@ const COUNTER_LABELS_IT = {
   p: '⚔️ Parata d’Alabarda & Slap (PARATA!)',
 };
 
+const COUNTER_LABELS_EN = {
+  k: '⚡ Royal Sceptre Lightning (ZAP!)',
+  q: '🛡️ Lilac Choco-Vortex Shield (SWIRL!)',
+  b: '🔥 Defensive Dragon Fire Breath (FLAME!)',
+  n: '🐴 Rear-Up & Double Hoof Kick (REAR-UP!)',
+  r: '💜 Squishy Plush Belly Rebound (BOING!)',
+  p: '⚔️ Halberd Parry & Fish Slap (PARRY!)',
+};
+
 export class HudListener {
   /**
    * @param {object} [ctx]
    */
   constructor(ctx = null) {
     this.ctx = ctx;
+    let initialLang = ctx?.lang === 'it' ? 'it' : 'en';
+    if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
+      const urlLang = new URLSearchParams(window.location.search).get('lang');
+      if (urlLang === 'it' || urlLang === 'en') {
+        initialLang = urlLang;
+      }
+    }
     /** @type {'it'|'en'} */
-    this.lang = 'it';
+    this.lang = initialLang;
     this.activeProfile = 'ale';
     this.opponentMode = 'easy';
     this.whiteFamily = 'carlesso';
@@ -181,7 +206,22 @@ export class HudListener {
   }
 
   t(key) {
-    return I18N[this.lang]?.[key] || I18N.it[key] || key;
+    return I18N[this.lang]?.[key] || I18N.en[key] || I18N.it[key] || key;
+  }
+
+  /**
+   * Switches UI language between English ('en' 🇬🇧) and Italian ('it' 🇮🇹).
+   * Keeps all audio/voice files untouched per design.
+   * @param {'en'|'it'} lang
+   */
+  setLanguage(lang) {
+    const targetLang = lang === 'it' ? 'it' : 'en';
+    if (this.ctx?.bus) {
+      this.ctx.bus.emit({ type: 'LANGUAGE_CHANGED', lang: targetLang });
+      this.ctx.bus.flush?.();
+    } else {
+      this.onLanguageChanged({ lang: targetLang });
+    }
   }
 
   /**
@@ -195,38 +235,43 @@ export class HudListener {
     const baseEntry = BATTLE_MATRIX?.[atk]?.[def] || {};
     const richEntry = this.battleMatrix36?.[atk]?.[def] || {};
     const pairCode = `${atk.toUpperCase()}×${def.toUpperCase()}`;
+    const isIt = this.lang === 'it';
 
     let eggBadge = '';
     let eggClass = '';
     if ((atk === 'n' && def === 'r') || (atk === 'r' && def === 'n')) {
-      eggBadge = '💜 Abbraccio';
+      eggBadge = isIt ? '💜 Abbraccio' : '💜 Cuddle';
       eggClass = 'cuddle';
     } else if ((atk === 'k' && def === 'q') || (atk === 'q' && def === 'k')) {
-      eggBadge = "🚽 Trono d'Oro";
+      eggBadge = isIt ? "🚽 Trono d'Oro" : '🚽 Golden Throne';
       eggClass = 'throne';
     } else if ((atk === 'b' && def === 'n') || (atk === 'n' && def === 'b')) {
       eggBadge = '🐉 vs 🏎️';
       eggClass = 'rivals';
     } else if (atk === def) {
-      eggBadge = '🪞 Specchio';
+      eggBadge = isIt ? '🪞 Specchio' : '🪞 Mirror';
       eggClass = 'mirror';
     }
 
     const titleText =
       richEntry.title?.[this.lang] ||
+      richEntry.title?.en ||
       richEntry.title?.it ||
       `${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name}`;
     const bannerText =
       richEntry.banner?.[this.lang] ||
+      richEntry.banner?.en ||
       richEntry.banner?.it ||
       baseEntry.banner?.[this.lang] ||
+      baseEntry.banner?.en ||
       baseEntry.banner?.it ||
       `${atkChar.name.toUpperCase()} vs ${defChar.name.toUpperCase()}! ✨`;
+    const weaponMap = isIt ? WEAPON_LABELS_IT : WEAPON_LABELS_EN;
+    const counterMap = isIt ? COUNTER_LABELS_IT : COUNTER_LABELS_EN;
     const counterText =
       richEntry.defenderCounter?.[this.lang] ||
-      richEntry.defenderCounter?.it ||
-      COUNTER_LABELS_IT[def] ||
-      'Contrattacco Eroico!';
+      counterMap[def] ||
+      (isIt ? 'Contrattacco Eroico!' : 'Heroic Counterattack!');
 
     return {
       id: `${atk}_x_${def}`,
@@ -237,7 +282,7 @@ export class HudListener {
       defChar,
       titleText,
       bannerText,
-      weaponText: WEAPON_LABELS_IT[atk] || atkChar.signatureId,
+      weaponText: weaponMap[atk] || atkChar.signatureId,
       counterText,
       eggBadge,
       eggClass,
@@ -1132,36 +1177,39 @@ export class HudListener {
         <div class="hud-controls-row">
           <button id="hud-mode1-btn" class="hud-btn active">${this.t('mode1Btn')}</button>
           <button id="hud-mode2-btn" class="hud-btn">${this.t('mode2Btn')}</button>
-          <button id="hud-matrix-btn" class="hud-btn gold" title="Matrice 6×6 Combattimenti & Video">${this.t('matrixBtn')}</button>
+          <button id="hud-matrix-btn" class="hud-btn gold" title="6×6 Battle Matrix & Videos">${this.t('matrixBtn')}</button>
 
           <label style="font-size:11px;color:#b0bac9;margin-left:4px;" id="hud-who-label">${this.t('whoPlays')}</label>
-          <select id="hud-profile-select" class="hud-select" aria-label="Chi gioca">
+          <select id="hud-profile-select" class="hud-select" aria-label="Who plays">
             ${PROFILES.map((p) => `<option value="${p.id}">${p.name}</option>`).join('')}
           </select>
 
-          <select id="hud-opponent-select" class="hud-select" aria-label="Avversario">
+          <select id="hud-opponent-select" class="hud-select" aria-label="Opponent">
             <option value="hotseat">${this.t('hotseat')}</option>
             <option value="easy" selected>${this.t('cpuEasy')}</option>
             <option value="medium">${this.t('cpuMed')}</option>
             <option value="hard">${this.t('cpuHard')}</option>
           </select>
 
-          <select id="hud-white-select" class="hud-select" aria-label="Set Bianco" title="Famiglia Bianco (Sud)">
+          <select id="hud-white-select" class="hud-select" aria-label="White Set" title="White Family (South)">
             <option value="carlesso" selected>${this.t('setWhiteCarlesso')}</option>
             <option value="swamp">${this.t('setWhiteSwamp')}</option>
             <option value="classic">${this.t('setWhiteClassic')}</option>
           </select>
 
-          <select id="hud-rival-select" class="hud-select" aria-label="Set Nero" title="Famiglia Nero (Nord)">
+          <select id="hud-rival-select" class="hud-select" aria-label="Black Set" title="Black Family (North)">
             <option value="classic" selected>${this.t('setClassic')}</option>
             <option value="family">${this.t('setFamily')}</option>
             <option value="swamp">${this.t('setSwamp')}</option>
             <option value="stone">${this.t('setStone')}</option>
           </select>
 
-          <a href="showcase/" class="hud-btn" style="text-decoration:none;" title="Apri la Galleria 3D dei 18 Pezzi (Carlesso, Classici & Palude)">🎨 Galleria</a>
+          <a id="hud-top-gallery-link" href="showcase/" class="hud-btn" style="text-decoration:none;" title="Open 3D Gallery of all 18 Pieces">${this.t('galleryBtn')}</a>
 
-          <button id="hud-lang-btn" class="hud-btn" title="Italiano / English">🇮🇹 IT | 🇬🇧 EN</button>
+          <div id="hud-lang-btn" style="display:inline-flex;gap:4px;align-items:center;" role="group" aria-label="Language / Lingua">
+            <button type="button" id="hud-top-flag-en" class="hud-btn ${this.lang === 'en' ? 'active' : ''}" data-set-lang="en" title="English 🇬🇧">🇬🇧 EN</button>
+            <button type="button" id="hud-top-flag-it" class="hud-btn ${this.lang === 'it' ? 'active' : ''}" data-set-lang="it" title="Italiano 🇮🇹">🇮🇹 IT</button>
+          </div>
         </div>
       </header>
 
@@ -1185,12 +1233,12 @@ export class HudListener {
         </div>
 
         <button id="hud-wow-matrix36-btn" class="hud-btn gold-emerald" style="justify-content:center;padding:7px 10px;">
-          🎬 Matrice 6×6 (36 Scontri)
+          ${this.t('matrix36Btn')}
         </button>
 
         <!-- Sub-mode A: 360° Inspector Controls -->
         <div id="hud-wow-inspector-box" style="display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:12px;color:#ffe082;font-weight:700;">🦸 Scegli l’Eroe della Famiglia:</div>
+          <div id="hud-wow-choose-hero" style="font-size:12px;color:#ffe082;font-weight:700;">${this.t('wowChooseHero')}</div>
           <div class="hud-char-grid">
             ${Object.values(CHARACTER_REGISTRY)
               .map(
@@ -1201,29 +1249,29 @@ export class HudListener {
           </div>
 
           <div id="hud-ale-variant-row" style="display:flex;gap:5px;">
-            <button id="hud-ale-rigged-btn" class="hud-btn active" style="flex:1;justify-content:center;">🐉 Ale #2 (Drago Rigged)</button>
-            <button id="hud-ale-hat-btn" class="hud-btn" style="flex:1;justify-content:center;">🎩 Ale #1 (Cappello)</button>
+            <button id="hud-ale-rigged-btn" class="hud-btn active" style="flex:1;justify-content:center;">🐉 Ale #2 (Dragon Rigged)</button>
+            <button id="hud-ale-hat-btn" class="hud-btn" style="flex:1;justify-content:center;">🎩 Ale #1 (Hat)</button>
           </div>
 
           <div style="display:flex;gap:5px;">
-            <button id="hud-card-flip-btn" class="hud-btn" style="flex:1;justify-content:center;">🖼️ Carta 2D: Fronte/Retro</button>
-            <button id="hud-autorotate-btn" class="hud-btn active" style="flex:1;justify-content:center;">🔄 Auto-Gira</button>
+            <button id="hud-card-flip-btn" class="hud-btn" style="flex:1;justify-content:center;">${this.t('wowCardFlipBtn')}</button>
+            <button id="hud-autorotate-btn" class="hud-btn active" style="flex:1;justify-content:center;">${this.t('wowAutoRotateBtn')}</button>
           </div>
 
-          <div style="font-size:12px;color:#9be7c4;font-weight:700;">🎬 Animazioni 3D & Soffio Drago:</div>
+          <div id="hud-wow-anim-title" style="font-size:12px;color:#9be7c4;font-weight:700;">${this.t('wowAnimTitle')}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
-            <button class="hud-btn" data-wow-anim="Idle">✨ Idle (Ali)</button>
-            <button class="hud-btn gold" data-wow-anim="Click_Fire_Breath">🔥 Soffio di Fuoco!</button>
-            <button class="hud-btn" data-wow-anim="attack">⚔️ Attacco</button>
-            <button class="hud-btn" data-wow-anim="victory">🏆 Vittoria!</button>
+            <button class="hud-btn" data-wow-anim="Idle">✨ Idle (Wings)</button>
+            <button class="hud-btn gold" data-wow-anim="Click_Fire_Breath">🔥 Fire Breath!</button>
+            <button class="hud-btn" data-wow-anim="attack">⚔️ Attack</button>
+            <button class="hud-btn" data-wow-anim="victory">🏆 Victory!</button>
           </div>
         </div>
 
         <!-- Sub-mode B: 6x6 Battle Cinema Launcher -->
         <div id="hud-wow-arena-box" style="display:none;flex-direction:column;gap:8px;">
-          <div style="font-size:12px;color:#ffe082;font-weight:700;">⚔️ Sfida 6×6 & Specchio Cinema Veo:</div>
+          <div id="hud-wow-arena-title" style="font-size:12px;color:#ffe082;font-weight:700;">${this.t('wowArenaTitle')}</div>
           <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
-            <span>Attaccante (Bianco):</span>
+            <span id="hud-wow-atk-lbl">${this.t('wowAtkLabel')}</span>
             <select id="hud-wow-atk" class="hud-select">
               ${Object.values(CHARACTER_REGISTRY)
                 .map((c) => `<option value="${c.type}" ${c.type === 'b' ? 'selected' : ''}>${c.glyph} ${c.name}</option>`)
@@ -1231,7 +1279,7 @@ export class HudListener {
             </select>
           </label>
           <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
-            <span>Difensore (Nero):</span>
+            <span id="hud-wow-def-lbl">${this.t('wowDefLabel')}</span>
             <select id="hud-wow-def" class="hud-select">
               ${Object.values(CHARACTER_REGISTRY)
                 .map((c) => `<option value="${c.type}" ${c.type === 'n' ? 'selected' : ''}>${c.glyph} ${c.name}</option>`)
@@ -1240,17 +1288,17 @@ export class HudListener {
           </label>
           <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#ffe082;cursor:pointer;">
             <input id="hud-wow-crit" type="checkbox">
-            <span>🌟 Forza Colpo Critico Dorato (Golden Crit!)</span>
+            <span id="hud-wow-crit-lbl">${this.t('wowCritLabel')}</span>
           </label>
           <button id="hud-wow-clash-btn" class="hud-btn gold" style="justify-content:center;padding:10px;">
             ${this.t('triggerBattleBtn')}
           </button>
 
-          <div style="font-size:11.5px;color:#9be7c4;font-weight:700;margin-top:4px;">🎬 Test Rapidi Video 16:9 (Ale & Seby MP4):</div>
+          <div style="font-size:11.5px;color:#9be7c4;font-weight:700;margin-top:4px;">🎬 Quick 16:9 Video Tests (Ale & Seby MP4):</div>
           <div style="display:flex;flex-direction:column;gap:4px;">
-            <button class="hud-btn" data-quick-clash="b_n" style="justify-content:center;">🎬 1. Ale 🐉 vs Seby 🏎️ (Cristallo MP4)</button>
-            <button class="hud-btn" data-quick-clash="n_b" style="justify-content:center;">🎬 2. Seby 🏎️ vs Ale 🐉 (Pista Turbo MP4)</button>
-            <button class="hud-btn" data-quick-clash="n_r" style="justify-content:center;">🎬 3. Seby 🏎️ 💜 Pupurabbu (Abbraccio MP4)</button>
+            <button class="hud-btn" data-quick-clash="b_n" style="justify-content:center;">🎬 1. Ale 🐉 vs Seby 🏎️ (Crystal MP4)</button>
+            <button class="hud-btn" data-quick-clash="n_b" style="justify-content:center;">🎬 2. Seby 🏎️ vs Ale 🐉 (Turbo Track MP4)</button>
+            <button class="hud-btn" data-quick-clash="n_r" style="justify-content:center;">🎬 3. Seby 🏎️ 💜 Pupurabbu (Cuddle MP4)</button>
           </div>
         </div>
       </aside>
@@ -1268,7 +1316,11 @@ export class HudListener {
                 ${this.t('setupSub')}
               </span>
             </div>
-            <button id="hud-setup-close" class="hud-btn" title="Chiudi">✕</button>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button type="button" id="hud-setup-flag-en" class="hud-btn ${this.lang === 'en' ? 'active' : ''}" data-set-lang="en" title="English 🇬🇧">🇬🇧 EN</button>
+              <button type="button" id="hud-setup-flag-it" class="hud-btn ${this.lang === 'it' ? 'active' : ''}" data-set-lang="it" title="Italiano 🇮🇹">🇮🇹 IT</button>
+              <button id="hud-setup-close" class="hud-btn" title="Close / Chiudi">✕</button>
+            </div>
           </div>
 
           <div class="hud-setup-sides">
@@ -1276,28 +1328,28 @@ export class HudListener {
             <div class="hud-side-box white-side">
               <div class="hud-side-title">
                 <span>⚪</span>
-                <span>${this.t('whiteSide')}</span>
+                <span id="hud-setup-white-title">${this.t('whiteSide')}</span>
               </div>
 
               <label class="hud-setup-label">
-                <span>Fazione / Set:</span>
+                <span id="hud-setup-white-faction-lbl">${this.t('factionLabel')}</span>
                 <select id="hud-setup-white-set" class="hud-select" style="width:100%;">
-                  <option value="carlesso" selected>🏰 Famiglia Carlesso (Ale, Seby, Riccardo, Kate...)</option>
-                  <option value="swamp">🐸 Palude di Zurigo (Orco & Focaccina)</option>
-                  <option value="classic">♔ Scacchi Classici (San Gennaro & Matildea)</option>
+                  <option value="carlesso" selected>${this.t('setupWhiteCarlesso')}</option>
+                  <option value="swamp">${this.t('setupWhiteSwamp')}</option>
+                  <option value="classic">${this.t('setupWhiteClassic')}</option>
                 </select>
               </label>
 
               <div class="hud-setup-label">
-                <span>Controllo:</span>
+                <span id="hud-setup-white-ctrl-lbl">${this.t('controlLabel')}</span>
                 <div class="hud-setup-radio-group">
                   <label class="hud-setup-radio-label">
                     <input type="radio" name="white-player-type" value="human" checked>
-                    <span>👤 Umano</span>
+                    <span id="hud-setup-white-human-lbl">${this.t('playerHuman')}</span>
                   </label>
                   <label class="hud-setup-radio-label">
                     <input type="radio" name="white-player-type" value="ai">
-                    <span>🤖 Computer AI</span>
+                    <span id="hud-setup-white-ai-lbl">${this.t('playerAi')}</span>
                   </label>
                 </div>
               </div>
@@ -1310,7 +1362,7 @@ export class HudListener {
               </label>
 
               <label id="hud-setup-white-ai-wrap" class="hud-setup-label" style="display:none;">
-                <span>${this.t('difficultyLabel')}</span>
+                <span id="hud-setup-white-diff-lbl">${this.t('difficultyLabel')}</span>
                 <select id="hud-setup-white-diff" class="hud-select" style="width:100%;">
                   <option value="easy" selected>${this.t('cpuEasy')}</option>
                   <option value="medium">${this.t('cpuMed')}</option>
@@ -1323,35 +1375,35 @@ export class HudListener {
             <div class="hud-side-box black-side">
               <div class="hud-side-title">
                 <span>⚫</span>
-                <span>${this.t('blackSide')}</span>
+                <span id="hud-setup-black-title">${this.t('blackSide')}</span>
               </div>
 
               <label class="hud-setup-label">
-                <span>Fazione / Set:</span>
+                <span id="hud-setup-black-faction-lbl">${this.t('factionLabel')}</span>
                 <select id="hud-setup-black-set" class="hud-select" style="width:100%;">
-                  <option value="classic" selected>♔ Scacchi Classici (San Gennaro & Matildea)</option>
-                  <option value="swamp">🐸 Palude di Zurigo (Orco & Focaccina)</option>
-                  <option value="family">🏰 Famiglia Carlesso (Specchio)</option>
-                  <option value="stone">🗿 Pietra Magica (Wizard)</option>
+                  <option value="classic" selected>${this.t('setupBlackClassic')}</option>
+                  <option value="swamp">${this.t('setupBlackSwamp')}</option>
+                  <option value="family">${this.t('setupBlackFamily')}</option>
+                  <option value="stone">${this.t('setupBlackStone')}</option>
                 </select>
               </label>
 
               <div class="hud-setup-label">
-                <span>Controllo:</span>
+                <span id="hud-setup-black-ctrl-lbl">${this.t('controlLabel')}</span>
                 <div class="hud-setup-radio-group">
                   <label class="hud-setup-radio-label">
                     <input type="radio" name="black-player-type" value="ai" checked>
-                    <span>🤖 Computer AI</span>
+                    <span id="hud-setup-black-ai-lbl">${this.t('playerAi')}</span>
                   </label>
                   <label class="hud-setup-radio-label">
                     <input type="radio" name="black-player-type" value="human">
-                    <span>👤 Umano (Hotseat)</span>
+                    <span id="hud-setup-black-human-lbl">${this.t('playerHumanHotseat')}</span>
                   </label>
                 </div>
               </div>
 
               <label id="hud-setup-black-ai-wrap" class="hud-setup-label">
-                <span>${this.t('difficultyLabel')}</span>
+                <span id="hud-setup-black-diff-lbl">${this.t('difficultyLabel')}</span>
                 <select id="hud-setup-black-diff" class="hud-select" style="width:100%;">
                   <option value="easy" selected>${this.t('cpuEasy')}</option>
                   <option value="medium">${this.t('cpuMed')}</option>
@@ -1360,7 +1412,7 @@ export class HudListener {
               </label>
 
               <div id="hud-setup-black-human-wrap" class="hud-setup-label" style="display:none;color:#90caf9;font-size:11.5px;padding-top:4px;">
-                👥 Modalità 2 Giocatori Locale sullo stesso schermo.
+                ${this.t('hotseatDesc')}
               </div>
             </div>
           </div>
@@ -1371,10 +1423,10 @@ export class HudListener {
           </div>
 
           <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:center;margin-top:4px;">
-            <button id="hud-setup-apply-btn" class="hud-btn" style="padding:10px 18px;font-size:13px;" title="Modifica fazioni, giocatori e AI nella partita attuale senza resettare i pezzi sulla scacchiera">
+            <button id="hud-setup-apply-btn" class="hud-btn" style="padding:10px 18px;font-size:13px;" title="Update factions, players and AI in the current match without resetting board pieces">
               ${this.t('applyCurrentBtn')}
             </button>
-            <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 22px;font-size:14px;" title="Applica le scelte e inizia una nuova partita da zero (resetta tutti i 32 pezzi)">
+            <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 22px;font-size:14px;" title="Apply settings and start a brand new match (resets all 32 pieces)">
               ${this.t('startMatchBtn')}
             </button>
           </div>
@@ -1397,47 +1449,55 @@ export class HudListener {
               <div id="hud-luck-fill" class="hud-luck-fill"></div>
             </div>
           </div>
-          <div id="hud-stickers-row" class="hud-stickers-row" title="Sticker Collezionabili Sbloccati"></div>
+          <div id="hud-stickers-row" class="hud-stickers-row" title="Unlocked Collectible Stickers"></div>
           <div class="hud-footer-meta">
-            <span id="hud-version-tag" class="hud-version-pill" title="Versione di CarChess3D">${this.appVersion}</span>
+            <span id="hud-version-tag" class="hud-version-pill" title="CarChess3D Version">${this.appVersion}</span>
             <span class="hud-footer-sep">·</span>
-            <a href="${GITHUB_REPO_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link" title="Visualizza il codice sorgente su GitHub">
+            <a href="${GITHUB_REPO_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link" title="View source code on GitHub">
               <span>🐙</span> <span>GitHub Code</span>
             </a>
             <span class="hud-footer-sep">·</span>
-            <a href="${GITHUB_NEW_ISSUE_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link hud-bug-link" title="Segnala un bug o apri una nuova issue su GitHub">
+            <a href="${GITHUB_NEW_ISSUE_URL}" target="_blank" rel="noopener noreferrer" class="hud-footer-link hud-bug-link" title="Report a bug or open a new GitHub issue">
               <span>🐛</span> <span>Open a bug</span>
             </a>
           </div>
         </div>
 
         <div class="hud-actions-dock hud-glass hud-interactive">
+          <!-- Language Flag Switcher (🇬🇧 English default / 🇮🇹 Italian) -->
+          <div style="display:inline-flex;gap:4px;align-items:center;" role="group" aria-label="Language / Lingua">
+            <button type="button" id="hud-flag-en" class="hud-btn ${this.lang === 'en' ? 'active' : ''}" data-set-lang="en" title="Switch to English 🇬🇧">🇬🇧 EN</button>
+            <button type="button" id="hud-flag-it" class="hud-btn ${this.lang === 'it' ? 'active' : ''}" data-set-lang="it" title="Passa all’Italiano 🇮🇹">🇮🇹 IT</button>
+          </div>
+
+          <span style="width:1px;height:18px;background:rgba(255,213,79,0.3);margin:0 2px;"></span>
+
           <!-- Game Brand & Community Links -->
-          <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener" class="hud-footer-brand" title="CarChess3D su GitHub (Open Source)">
+          <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener" class="hud-footer-brand" title="CarChess3D on GitHub (Open Source)">
             <span style="font-size:15px;">🏰🚽</span>
             <span>CarChess3D</span>
             <span class="hud-footer-sub">Carlesso al Cesso</span>
           </a>
-          <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener" class="hud-btn" title="Codice sorgente GitHub">🐙 GitHub</a>
-          <a href="./showcase/" class="hud-btn" style="text-decoration:none;" title="Galleria 3D dei 18 Pezzi">🎨 Galleria</a>
-          <a href="./battles.html" class="hud-btn" style="text-decoration:none;" title="Galleria Video 16:9 dei 36 Scontri">🎬 36 Video</a>
+          <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener" class="hud-btn" title="GitHub Source Code">🐙 GitHub</a>
+          <a id="hud-dock-gallery" href="./showcase/" class="hud-btn" style="text-decoration:none;" title="3D Gallery of all 18 Pieces">${this.t('galleryBtn')}</a>
+          <a id="hud-dock-videos" href="./battles.html" class="hud-btn" style="text-decoration:none;" title="16:9 Video Gallery of all 36 Clashes">${this.t('videosBtn')}</a>
 
           <span style="width:1px;height:18px;background:rgba(255,213,79,0.3);margin:0 2px;"></span>
 
           <!-- Console & Setup Buttons -->
-          <button id="hud-console-btn" class="hud-btn" title="Apri/Chiudi la Console Quake (~ o \\)">~_ Console</button>
-          <button id="hud-setup-btn" class="hud-btn gold" title="Configura Fazioni e Giocatori">${this.t('setupBtn')}</button>
-          <button id="hud-matrix36-btn" class="hud-btn gold-emerald" title="Apri la Matrice Interattiva 6×6 con tutte le 36 Scazzottate 3D e i 36 Video 16:9!">🎬 Matrice 6×6</button>
+          <button id="hud-console-btn" class="hud-btn" title="Open/Close Quake Console (~ or \\)">~_ Console</button>
+          <button id="hud-setup-btn" class="hud-btn gold" title="Configure Factions & Players">${this.t('setupBtn')}</button>
+          <button id="hud-matrix36-btn" class="hud-btn gold-emerald" title="Open the Interactive 6×6 Matrix with all 36 3D Brawls and 36 16:9 Videos!">${this.t('matrixBtn')}</button>
 
           <!-- In-game Actions -->
           <button id="hud-hint-btn" class="hud-btn gold">${this.t('hintBtn')}</button>
-          <button id="hud-skeletons-btn" class="hud-btn" title="Mostra/Nascondi gli Scheletri Articolati 3D">🦴 Scheletri</button>
-          <button id="hud-swamp-btn" class="hud-btn" title="Fai sguazzare i pezzi catturati nella Palude di Shrek!">🐸 Palude</button>
+          <button id="hud-skeletons-btn" class="hud-btn" title="Show/Hide 3D Articulated Skeletons">${this.t('skeletonsBtn')}</button>
+          <button id="hud-swamp-btn" class="hud-btn" title="Splash captured pieces into the Enchanted Swamp!">${this.t('swampBtn')}</button>
           <button id="hud-flip-btn" class="hud-btn">${this.t('flipCamBtn')}</button>
           <button id="hud-top-btn" class="hud-btn">${this.t('topCamBtn')}</button>
           <button id="hud-zoom-in-btn" class="hud-btn" title="Zoom In (+)">🔍+</button>
           <button id="hud-zoom-out-btn" class="hud-btn" title="Zoom Out (-)">🔍−</button>
-          <button id="hud-trackpad-btn" class="hud-btn active" title="Mac Trackpad 2 dita: Ruota (Alto/Basso/Sx/Dx) + Pizzica o Cmd per Zoom">🖐️ 2-Dita: Ruota</button>
+          <button id="hud-trackpad-btn" class="hud-btn active" title="Mac Trackpad 2 fingers: Rotate + Pinch/Cmd to Zoom">${this.t('trackpadRotateBtn')}</button>
           <button id="hud-new-btn" class="hud-btn">${this.t('newGameBtn')}</button>
           <button id="hud-fen-btn" class="hud-btn">${this.t('fenBtn')}</button>
           <button id="hud-music-btn" class="hud-btn">${this.t('musicBtn')}</button>
@@ -1446,7 +1506,7 @@ export class HudListener {
           <span style="width:1px;height:18px;background:rgba(255,213,79,0.3);margin:0 2px;"></span>
 
           <!-- Topbar Toggle Button -->
-          <button id="hud-toggle-topbar-btn" class="hud-btn" title="Mostra o Nascondi la barra in alto">${this.t('toggleTopbarBtn')}</button>
+          <button id="hud-toggle-topbar-btn" class="hud-btn" title="Show or Hide Top Bar">${this.t('toggleTopbarBtn')}</button>
         </div>
       </footer>
 
@@ -1473,10 +1533,10 @@ export class HudListener {
       <!-- MODAL 2: CHECKMATE / DRAW CELEBRATION -->
       <div id="hud-gameover-modal" class="hud-modal-backdrop hud-interactive">
         <div class="hud-modal-card hud-glass">
-          <h2 id="hud-gameover-title" style="margin:0 0 8px;color:#ffe082;font-size:24px;">🏆 SCACCO MATTO!</h2>
+          <h2 id="hud-gameover-title" style="margin:0 0 8px;color:#ffe082;font-size:24px;">${this.t('checkmateTitle')}</h2>
           <p id="hud-gameover-sub" style="margin:0 0 16px;color:#d6e4f0;font-size:15px;"></p>
           <button id="hud-play-again-btn" class="hud-btn gold" style="font-size:15px;padding:10px 22px;">
-            ✨ Gioca Ancora! / Play Again!
+            ${this.t('playAgainBtn')}
           </button>
         </div>
       </div>
@@ -1485,7 +1545,7 @@ export class HudListener {
       <div id="hud-fen-modal" class="hud-modal-backdrop hud-interactive">
         <div class="hud-modal-card hud-glass" style="text-align:left;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <strong style="color:#ffe082;font-size:16px;">📋 FEN & PGN Scacchiera</strong>
+            <strong id="hud-fen-modal-title" style="color:#ffe082;font-size:16px;">${this.t('fenModalTitle')}</strong>
             <button id="hud-fen-close" class="hud-btn">✕</button>
           </div>
           <label style="font-size:12px;color:#9be7c4;display:block;margin-bottom:4px;">FEN:</label>
@@ -1493,8 +1553,8 @@ export class HudListener {
           <label style="font-size:12px;color:#9be7c4;display:block;margin-bottom:4px;">PGN:</label>
           <textarea id="hud-pgn-input" rows="4" style="width:100%;padding:7px;border-radius:8px;border:1px solid #445;background:#0e131d;color:#fff;margin-bottom:10px;"></textarea>
           <div style="display:flex;gap:8px;justify-content:flex-end;">
-            <button id="hud-fen-load-btn" class="hud-btn gold">📥 Carica FEN</button>
-            <button id="hud-pgn-load-btn" class="hud-btn">📥 Carica PGN</button>
+            <button id="hud-fen-load-btn" class="hud-btn gold">${this.t('loadFenBtn')}</button>
+            <button id="hud-pgn-load-btn" class="hud-btn">${this.t('loadPgnBtn')}</button>
           </div>
         </div>
       </div>
@@ -1504,13 +1564,13 @@ export class HudListener {
         <div class="hud-matrix36-card hud-glass">
           <div class="hud-matrix36-header">
             <div>
-              <strong style="color:#ffe082;font-size:16px;">🎬 Matrice Interattiva 6×6 — Tutte le 36 Scazzottate 3D & Video 16:9</strong>
-              <span style="display:block;font-size:11.5px;color:#9be7c4;">6 Attaccanti (Righe) × 6 Difensori (Colonne) · Clicca 🥊 per la Scazzottata 3D + Specchio o ▶️ per il Video 16:9!</span>
+              <strong id="hud-matrix36-title" style="color:#ffe082;font-size:16px;">${this.t('matrix36ModalTitle')}</strong>
+              <span id="hud-matrix36-sub" style="display:block;font-size:11.5px;color:#9be7c4;">${this.t('matrix36ModalSub')}</span>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
-              <button id="hud-matrix36-marathon-btn" class="hud-btn gold">▶️ Riproduci Tutti i 36 Scontri (Maratona 6×6)</button>
-              <a id="hud-matrix36-page-link" href="./battles.html" class="hud-btn" style="text-decoration:none;">🌐 Galleria 36 Video (battles.html)</a>
-              <button id="hud-matrix36-close" class="hud-btn">✕ Chiudi</button>
+              <button id="hud-matrix36-marathon-btn" class="hud-btn gold">${this.t('matrix36MarathonBtn')}</button>
+              <a id="hud-matrix36-page-link" href="./battles.html" class="hud-btn" style="text-decoration:none;">${this.t('matrix36GalleryLink')}</a>
+              <button id="hud-matrix36-close" class="hud-btn">${this.t('closeBtn')}</button>
             </div>
           </div>
 
@@ -1531,11 +1591,11 @@ export class HudListener {
                 ALE vs SEBY: CRISTALLO SUL CAVALLINO! 💎🐴
               </div>
               <div id="hud-matrix36-preview-details" style="font-size:11px;color:#d6e4f0;display:flex;flex-direction:column;gap:3px;">
-                <div>⚔️ <strong>Arma Attacco:</strong> <span id="hud-matrix36-preview-weapon">🐉 Draghetto & Cristallo Ametista</span></div>
-                <div>🛡️ <strong>Contrattacco Atto 2:</strong> <span id="hud-matrix36-preview-counter">🐴 Impennata e Doppio Calcio (IMPENNATA!)</span></div>
+                <div>⚔️ <strong>Attack Weapon:</strong> <span id="hud-matrix36-preview-weapon">🐉 Shoulder Dragon & Amethyst Crystal</span></div>
+                <div>🛡️ <strong>Act 2 Counter:</strong> <span id="hud-matrix36-preview-counter">🐴 Rear-Up & Double Hoof Kick (REAR-UP!)</span></div>
               </div>
               <button id="hud-matrix36-launch-selected" class="hud-btn gold" style="justify-content:center;padding:8px;">
-                🥊 Scazzottata 3D + Cinema sulla Scacchiera!
+                ${this.t('matrix36LaunchBtn')}
               </button>
             </div>
           </div>
@@ -1547,9 +1607,9 @@ export class HudListener {
         <div class="hud-matrix-card hud-glass">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
             <div>
-              <strong style="color:#ffe082;font-size:15px;">⚔️ Matrice 6×6 Combattimenti: Chi Mangia Chi (3D VFX & Film Veo 16:9)</strong>
+              <strong style="color:#ffe082;font-size:15px;">⚔️ 6×6 Battle Matrix: Who Eats Who (3D VFX & 16:9 Veo Cinema)</strong>
               <div style="font-size:11px;color:#b8f5d8;margin-top:2px;">
-                <span class="hud-badge-pill hud-badge-mp4">📹 MP4 Dedicato (4/36: b×n, n×b, n↔r)</span>
+                <span class="hud-badge-pill hud-badge-mp4">📹 Dedicated MP4 (4/36: b×n, n×b, n↔r)</span>
                 <span class="hud-badge-pill hud-badge-mix">🎞️ Video + Canvas (32/36)</span>
                 <span class="hud-badge-pill hud-badge-glb">🦴 GLB Rigged (Ale #2 FireBreath_Track)</span>
                 <span class="hud-badge-pill hud-badge-egg">🌟 Easter Egg (6/36)</span>
@@ -1560,11 +1620,11 @@ export class HudListener {
 
           <!-- Family Selector Tabs -->
           <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-            <span style="font-size:11px;color:#ffe082;font-weight:700;">Famiglia Attaccante (A):</span>
+            <span style="font-size:11px;color:#ffe082;font-weight:700;">Attacker Family (A):</span>
             ${Object.values(FAMILY_ROSTERS)
               .map(
                 (fam) =>
-                  `<button class="hud-btn ${fam.id === this.matrixFamily ? 'active' : ''}" data-matrix-family="${fam.id}">${fam.label.it}</button>`,
+                  `<button class="hud-btn ${fam.id === this.matrixFamily ? 'active' : ''}" data-matrix-family="${fam.id}">${fam.label[this.lang] || fam.label.en || fam.label.it}</button>`,
               )
               .join('')}
           </div>
@@ -1576,7 +1636,7 @@ export class HudListener {
           <div id="hud-matrix-detail-bar" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(10,14,24,0.88);border:1px solid rgba(255,213,79,0.4);">
             <div id="hud-matrix-detail-text" style="font-size:11.5px;line-height:1.35;color:#e6eef8;"></div>
             <button id="hud-matrix-play-btn" class="hud-btn gold" style="padding:6px 12px;font-size:12px;">
-              ▶ Guarda in 3D + Video
+              ▶ Watch in 3D + Video
             </button>
           </div>
         </div>
@@ -1650,11 +1710,20 @@ export class HudListener {
       this.ctx?.bus?.flush?.();
     });
 
-    // Language toggle (IT 🇮🇹 <-> EN 🇬🇧)
-    q('#hud-lang-btn')?.addEventListener('click', () => {
+    // Direct language flag buttons (🇬🇧 EN / 🇮🇹 IT) across Topbar, Setup Modal, and Bottom Dock
+    root.querySelectorAll('button[data-set-lang]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetLang = btn.dataset.setLang === 'it' ? 'it' : 'en';
+        this.setLanguage(targetLang);
+      });
+    });
+
+    // Backwards-compatible toggle on #hud-lang-btn if clicked outside a specific flag button
+    q('#hud-lang-btn')?.addEventListener('click', (e) => {
+      if (e.target?.closest?.('button[data-set-lang]')) return;
       const nextLang = this.lang === 'it' ? 'en' : 'it';
-      this.ctx?.bus?.emit({ type: 'LANGUAGE_CHANGED', lang: nextLang });
-      this.ctx?.bus?.flush?.();
+      this.setLanguage(nextLang);
     });
 
     // Action dock buttons
@@ -1695,12 +1764,16 @@ export class HudListener {
       const btn = q('#hud-trackpad-btn');
       if (btn) {
         btn.classList.toggle('active', next);
-        btn.textContent = next ? '🖐️ 2-Dita: Ruota' : '🔍 2-Dita: Zoom';
+        btn.textContent = next ? this.t('trackpadRotateBtn') : this.t('trackpadZoomBtn');
       }
       this.showToast(
-        next
-          ? '🖐️ Mac Trackpad: 2 dita ruotano alto/basso & sx/dx (Pizzica o Cmd+scroll per Zoom!)'
-          : '🔍 Mac Trackpad: 2 dita fanno Zoom (Trascina con 1 dito per ruotare!)',
+        this.lang === 'it'
+          ? next
+            ? '🖐️ Mac Trackpad: 2 dita ruotano alto/basso & sx/dx (Pizzica o Cmd+scroll per Zoom!)'
+            : '🔍 Mac Trackpad: 2 dita fanno Zoom (Trascina con 1 dito per ruotare!)'
+          : next
+            ? '🖐️ Mac Trackpad: 2 fingers rotate up/down & left/right (Pinch or Cmd+scroll to Zoom!)'
+            : '🔍 Mac Trackpad: 2 fingers Zoom (Drag with 1 finger to rotate!)',
       );
     });
 
@@ -1969,9 +2042,13 @@ export class HudListener {
         }
         this.ctx?.bus?.flush?.();
         this.showToast(
-          added > 0
-            ? '🐸 Splash! I 6 pezzi demo si tuffano nella Palude! 💦'
-            : '🐸 Palude già attiva (idempotente: i 6 nuotatori sono già sulle ninfee! 🪷)',
+          this.lang === 'it'
+            ? added > 0
+              ? '🐸 Splash! I 6 pezzi demo si tuffano nella Palude! 💦'
+              : '🐸 Palude già attiva (idempotente: i 6 nuotatori sono già sulle ninfee! 🪷)'
+            : added > 0
+              ? '🐸 Splash! All 6 demo pieces dive into the Swamp! 💦'
+              : '🐸 Swamp already active (all 6 swimmers are on the lily pads! 🪷)',
         );
       }
     });
@@ -2004,9 +2081,13 @@ export class HudListener {
       this.ctx?.bus?.emit({ type: 'TOGGLE_SKELETONS', visible: next });
       this.ctx?.bus?.flush?.();
       this.showToast(
-        next
-          ? '🦴 Scheletri 3D Attivi (Debug): Giunture e locomozione articolata visibili su tutti i 32 pezzi!'
-          : '🦴 Scheletri 3D Nascosti (100% invisibili in partita e combattimento)',
+        this.lang === 'it'
+          ? next
+            ? '🦴 Scheletri 3D Attivi (Debug): Giunture e locomozione articolata visibili su tutti i 32 pezzi!'
+            : '🦴 Scheletri 3D Nascosti (100% invisibili in partita e combattimento)'
+          : next
+            ? '🦴 3D Skeletons Active (Debug): Articulated joints visible on all 32 pieces!'
+            : '🦴 3D Skeletons Hidden (100% invisible during match and combat)',
       );
     });
 
@@ -2152,6 +2233,7 @@ export class HudListener {
 
     const fam = FAMILY_ROSTERS[this.matrixFamily] || FAMILY_ROSTERS.carlesso;
     const pieceKeys = ['k', 'q', 'b', 'n', 'r', 'p'];
+    const isIt = this.lang === 'it';
 
     const headerCells = pieceKeys
       .map((defKey) => {
@@ -2218,7 +2300,7 @@ export class HudListener {
       <table class="hud-matrix-table">
         <thead>
           <tr>
-            <th>Attaccante (A) \\ Difensore (B)</th>
+            <th>${isIt ? 'Attaccante (A) \\ Difensore (B)' : 'Attacker (A) \\ Defender (B)'}</th>
             ${headerCells}
           </tr>
         </thead>
@@ -2253,23 +2335,32 @@ export class HudListener {
     if (!this.rootEl) return;
     const detailEl = this.rootEl.querySelector('#hud-matrix-detail-text');
     if (!detailEl) return;
+    const isIt = this.lang === 'it';
     const m = resolveFamilyMatchup(
       this.matrixFamily,
       this.matrixSelectedAtk,
       this.matrixSelectedDef,
     );
-    const animDesc = m.anim3dDesc?.[this.lang] || m.anim3dDesc?.it || m.effect;
+    const animDesc = m.anim3dDesc?.[this.lang] || m.anim3dDesc?.en || m.anim3dDesc?.it || m.effect;
     const videoKind = m.hasDedicatedVideo
-      ? `📹 Film Veo/MP4 Dedicato (${m.videoUrl})`
-      : `🎞️ Film 3D MP4 (${m.videoUrl}) + Card 2D Canvas`;
+      ? isIt
+        ? `📹 Film Veo/MP4 Dedicato (${m.videoUrl})`
+        : `📹 Dedicated Veo/MP4 Film (${m.videoUrl})`
+      : isIt
+        ? `🎞️ Film 3D MP4 (${m.videoUrl}) + Card 2D Canvas`
+        : `🎞️ 3D MP4 Film (${m.videoUrl}) + 2D Canvas Card`;
     const glbKind = m.hasSkeletalGlbClip
-      ? '🦴 Clip GLB Scheletrica: FireBreath_Track'
-      : '✨ Animazione 3D Procedurale & Pool VFX';
+      ? isIt
+        ? '🦴 Clip GLB Scheletrica: FireBreath_Track'
+        : '🦴 Skeletal GLB Clip: FireBreath_Track'
+      : isIt
+        ? '✨ Animazione 3D Procedurale & Pool VFX'
+        : '✨ Procedural 3D Animation & VFX Pool';
 
     detailEl.innerHTML = `
-      <div><strong style="color:#ffe082;">${m.attackerDisplayName} mangia ${m.defenderDisplayName}</strong> — <em>${m.banner?.[this.lang] || m.banner?.it}</em></div>
-      <div><strong>3D Scacchiera:</strong> ${animDesc} · <strong>Reazione Vittima:</strong> <code>${m.victimReaction}</code> · ${glbKind}</div>
-      <div><strong>Sfondo 16:9:</strong> ${videoKind}</div>
+      <div><strong style="color:#ffe082;">${m.attackerDisplayName} ${isIt ? 'mangia' : 'captures'} ${m.defenderDisplayName}</strong> — <em>${m.banner?.[this.lang] || m.banner?.en || m.banner?.it}</em></div>
+      <div><strong>${isIt ? '3D Scacchiera' : '3D Board'}:</strong> ${animDesc} · <strong>${isIt ? 'Reazione Vittima' : 'Victim Reaction'}:</strong> <code>${m.victimReaction}</code> · ${glbKind}</div>
+      <div><strong>${isIt ? 'Sfondo 16:9' : '16:9 Backdrop'}:</strong> ${videoKind}</div>
     `;
   }
 
@@ -2308,12 +2399,13 @@ export class HudListener {
    * Builds the HTML for the 6 Attacker rows x 6 Defender columns (all 36 combinations).
    */
   _renderMatrix36GridHtml() {
+    const isIt = this.lang === 'it';
     const colHeaders = [
       `<div class="hud-matrix-colhdr" style="font-size:10px;color:#9be7c4;">⚔️ ATK \\ DEF 🛡️</div>`,
       ...PIECE_ORDER.map((def) => {
         const c = CHARACTER_REGISTRY[def];
         return `
-          <div class="hud-matrix-colhdr" title="Difensore: ${c.name}">
+          <div class="hud-matrix-colhdr" title="${isIt ? 'Difensore' : 'Defender'}: ${c.name}">
             <img src="${c.frontPortrait}" alt="${c.name}">
             <span>${c.glyph} ${c.name}</span>
           </div>
@@ -2324,7 +2416,7 @@ export class HudListener {
     const rowsHtml = PIECE_ORDER.map((atk) => {
       const atkChar = CHARACTER_REGISTRY[atk];
       const rowHdr = `
-        <div class="hud-matrix-rowhdr" title="Attaccante: ${atkChar.name}">
+        <div class="hud-matrix-rowhdr" title="${isIt ? 'Attaccante' : 'Attacker'}: ${atkChar.name}">
           <img src="${atkChar.frontPortrait}" alt="${atkChar.name}">
           <span>${atkChar.glyph} ${atkChar.name}</span>
         </div>
@@ -2351,8 +2443,8 @@ export class HudListener {
               ${meta.atkChar.glyph}${meta.atkChar.name} vs ${meta.defChar.glyph}${meta.defChar.name}
             </div>
             <div class="hud-matrix-cell-actions">
-              <button class="matrix-cell-btn clash" data-matrix-clash="${atk}_${def}" title="Scazzottata 3D + Cinema (${meta.pairCode})">🥊 Scazzottata 3D + Cinema</button>
-              <button class="matrix-cell-btn video" data-matrix-video="${atk}_${def}" title="Riproduci Video 16:9 (${meta.videoUrl})">▶️ Video 16:9</button>
+              <button class="matrix-cell-btn clash" data-matrix-clash="${atk}_${def}" title="3D Brawl + Cinema (${meta.pairCode})">🥊 ${isIt ? 'Scazzottata 3D + Cinema' : '3D Brawl + Cinema'}</button>
+              <button class="matrix-cell-btn video" data-matrix-video="${atk}_${def}" title="16:9 Video (${meta.videoUrl})">▶️ Video 16:9</button>
             </div>
           </div>
         `;
@@ -2474,7 +2566,10 @@ export class HudListener {
       const [atk, def] = pairs[this.matrixMarathonIndex];
       this.matrixMarathonIndex++;
       if (btn) {
-        btn.textContent = `⏹️ Ferma Maratona (${this.matrixMarathonIndex}/36 · ${atk.toUpperCase()}×${def.toUpperCase()})`;
+        btn.textContent =
+          this.lang === 'it'
+            ? `⏹️ Ferma Maratona (${this.matrixMarathonIndex}/36 · ${atk.toUpperCase()}×${def.toUpperCase()})`
+            : `⏹️ Stop Marathon (${this.matrixMarathonIndex}/36 · ${atk.toUpperCase()}×${def.toUpperCase()})`;
       }
       this._updateMatrixPreviewPane(atk, def, true);
     };
@@ -2489,7 +2584,7 @@ export class HudListener {
     }
     const btn = this.rootEl?.querySelector('#hud-matrix36-marathon-btn');
     if (btn) {
-      btn.textContent = '▶️ Riproduci Tutti i 36 Scontri (Maratona 6×6)';
+      btn.textContent = this.t('matrix36MarathonBtn');
     }
   }
 
@@ -2568,10 +2663,17 @@ export class HudListener {
     this.ctx?.bus?.flush?.();
     this.logToQuake(
       'RESET',
-      '🔄 Nuova partita iniziata! Tutti i 32 pezzi sono tornati al via.',
+      this.lang === 'it'
+        ? '🔄 Nuova partita iniziata! Tutti i 32 pezzi sono tornati al via.'
+        : '🔄 New match started! All 32 pieces reset to starting squares.',
       'green',
     );
-    this.showToast('🔄 Nuova Partita! Tutti i 32 pezzi sono tornati al via! ✨', 3200);
+    this.showToast(
+      this.lang === 'it'
+        ? '🔄 Nuova Partita! Tutti i 32 pezzi sono tornati al via! ✨'
+        : '🔄 New Match! All 32 pieces are back at the starting line! ✨',
+      3200,
+    );
   }
 
   applySetup(settings = {}) {
@@ -2674,18 +2776,39 @@ export class HudListener {
       this.ctx.bus.flush?.();
     }
 
-    const wDesc = whitePlayerType === 'ai' ? `AI (${whiteDiff})` : `Umano (${whiteProfile})`;
-    const bDesc = blackPlayerType === 'ai' ? `AI (${blackDiff})` : 'Umano (Hotseat)';
-    const actionLabel = resetBoard ? 'Nuova partita' : 'Partita aggiornata';
+    const isIt = this.lang === 'it';
+    const wDesc =
+      whitePlayerType === 'ai'
+        ? `AI (${whiteDiff})`
+        : isIt
+          ? `Umano (${whiteProfile})`
+          : `Human (${whiteProfile})`;
+    const bDesc =
+      blackPlayerType === 'ai'
+        ? `AI (${blackDiff})`
+        : isIt
+          ? 'Umano (Hotseat)'
+          : 'Human (Hotseat)';
+    const actionLabel = resetBoard
+      ? isIt
+        ? 'Nuova partita'
+        : 'New match'
+      : isIt
+        ? 'Partita aggiornata'
+        : 'Match updated';
     this.logToQuake(
       'SETUP',
-      `${actionLabel}: ⚪ Bianco: ${whiteFamily} [${wDesc}] vs ⚫ Nero: ${rivalSet} [${bDesc}]`,
+      `${actionLabel}: ⚪ ${whiteFamily} [${wDesc}] vs ⚫ ${rivalSet} [${bDesc}]`,
       'green',
     );
     this.showToast(
-      resetBoard
-        ? `🏰 Nuova partita! Bianco: ${whiteFamily} [${wDesc}] vs Nero: ${rivalSet} [${bDesc}] · Barra nascosta ('M' o '☰')`
-        : `⚙️ Partita aggiornata (senza reset)! Bianco: ${whiteFamily} [${wDesc}] vs Nero: ${rivalSet} [${bDesc}]`,
+      isIt
+        ? resetBoard
+          ? `🏰 Nuova partita! Bianco: ${whiteFamily} [${wDesc}] vs Nero: ${rivalSet} [${bDesc}] · Barra nascosta ('M' o '☰')`
+          : `⚙️ Partita aggiornata (senza reset)! Bianco: ${whiteFamily} [${wDesc}] vs Nero: ${rivalSet} [${bDesc}]`
+        : resetBoard
+          ? `🏰 New match! White: ${whiteFamily} [${wDesc}] vs Black: ${rivalSet} [${bDesc}] · Top bar hidden ('M' or '☰')`
+          : `⚙️ Match updated (no reset)! White: ${whiteFamily} [${wDesc}] vs Black: ${rivalSet} [${bDesc}]`,
       4000,
     );
   }
@@ -2699,14 +2822,26 @@ export class HudListener {
     }
     const btn = this.rootEl.querySelector('#hud-toggle-topbar-btn');
     if (btn) {
-      btn.textContent = this.topbarVisible ? this.t('toggleTopbarBtn') : '☰ Mostra Barra';
-      btn.title = this.topbarVisible ? 'Nascondi la barra in alto' : 'Mostra la barra in alto';
+      btn.textContent = this.topbarVisible ? this.t('toggleTopbarBtn') : this.t('showTopbarBtn');
+      btn.title =
+        this.lang === 'it'
+          ? this.topbarVisible
+            ? 'Nascondi la barra in alto'
+            : 'Mostra la barra in alto'
+          : this.topbarVisible
+            ? 'Hide top bar'
+            : 'Show top bar';
     }
   }
 
   toggleTopbar() {
     this.setTopbarVisible(!this.topbarVisible);
-    this.logToQuake('UI', `Barra superiore ${this.topbarVisible ? 'visibile' : 'nascosta'}.`);
+    this.logToQuake(
+      'UI',
+      this.lang === 'it'
+        ? `Barra superiore ${this.topbarVisible ? 'visibile' : 'nascosta'}.`
+        : `Top bar ${this.topbarVisible ? 'visible' : 'hidden'}.`,
+    );
   }
 
   openQuakeConsole() {
@@ -2774,23 +2909,23 @@ export class HudListener {
     if (!cmd) return;
     this.logToQuake('USER', `> ${cmd}`, 'cyan');
 
-    const [action, ...args] = cmd.toLowerCase().split(/\s+/);
+    const [action] = cmd.toLowerCase().split(/\s+/);
     switch (action) {
       case 'help':
       case '?':
-        this.logToQuake('INFO', 'Comandi disponibili:', 'gold');
-        this.logToQuake('INFO', '  help             - Mostra questo elenco');
-        this.logToQuake('INFO', '  setup            - Apri finestra configurazione giocatori/fazioni');
-        this.logToQuake('INFO', '  topbar           - Mostra/Nascondi la barra superiore');
-        this.logToQuake('INFO', '  fen              - Mostra e copia il FEN attuale');
-        this.logToQuake('INFO', '  pgn              - Mostra lo storico PGN attuale');
-        this.logToQuake('INFO', '  hint             - Chiedi un consiglio alla mossa');
-        this.logToQuake('INFO', '  reset / new      - Riavvia la scacchiera');
-        this.logToQuake('INFO', '  matrix           - Apri la matrice interattiva 6x6 dei 36 scontri');
-        this.logToQuake('INFO', '  swamp            - Fai sguazzare i pezzi nella palude di Shrek');
-        this.logToQuake('INFO', '  skeletons        - Alterna gli scheletri 3D');
-        this.logToQuake('INFO', '  clear            - Pulisci la console');
-        this.logToQuake('INFO', '  close / exit     - Chiudi la console Quake');
+        this.logToQuake('INFO', 'Available commands / Comandi disponibili:', 'gold');
+        this.logToQuake('INFO', '  help             - Show this list / Mostra questo elenco');
+        this.logToQuake('INFO', '  setup            - Open player & faction setup');
+        this.logToQuake('INFO', '  topbar           - Show/Hide top bar');
+        this.logToQuake('INFO', '  fen              - Show and copy current FEN');
+        this.logToQuake('INFO', '  pgn              - Show current PGN history');
+        this.logToQuake('INFO', '  hint             - Request move hint');
+        this.logToQuake('INFO', '  reset / new      - Reset chess board');
+        this.logToQuake('INFO', '  matrix           - Open interactive 6x6 battle matrix');
+        this.logToQuake('INFO', '  swamp            - Splash pieces in the swamp');
+        this.logToQuake('INFO', '  skeletons        - Toggle 3D skeletons');
+        this.logToQuake('INFO', '  clear            - Clear console');
+        this.logToQuake('INFO', '  close / exit     - Close Quake console');
         break;
 
       case 'setup':
@@ -2802,7 +2937,7 @@ export class HudListener {
         break;
 
       case 'fen': {
-        const fen = this.ctx?.board?.fen?.() || 'FEN non disponibile';
+        const fen = this.ctx?.board?.fen?.() || 'FEN unavailable';
         this.logToQuake('FEN', fen, 'gold');
         if (typeof navigator !== 'undefined' && navigator.clipboard) {
           navigator.clipboard.writeText(fen).catch(() => {});
@@ -2811,21 +2946,21 @@ export class HudListener {
       }
 
       case 'pgn': {
-        const pgn = this.ctx?.board?.pgn?.() || 'PGN non disponibile';
+        const pgn = this.ctx?.board?.pgn?.() || 'PGN unavailable';
         this.logToQuake('PGN', pgn, 'gold');
         break;
       }
 
       case 'hint':
         this.rootEl?.querySelector('#hud-hint-btn')?.click();
-        this.logToQuake('HINT', 'Richiesta di suggerimento inviata.');
+        this.logToQuake('HINT', 'Hint request sent.');
         break;
 
       case 'reset':
       case 'new':
         this.ctx?.board?.reset?.();
         this.ctx?.bus?.flush?.();
-        this.logToQuake('RESET', 'Scacchiera resettata alla posizione iniziale.', 'green');
+        this.logToQuake('RESET', 'Board reset to starting position.', 'green');
         break;
 
       case 'matrix':
@@ -2853,7 +2988,7 @@ export class HudListener {
       default:
         this.logToQuake(
           'ERR',
-          `Comando non riconosciuto: "${cmd}". Digita "help" per i comandi.`,
+          `Unknown command: "${cmd}". Type "help" for available commands.`,
           'red',
         );
         break;
@@ -2894,7 +3029,7 @@ export class HudListener {
     const char = CHARACTER_REGISTRY[type];
     const v = VOICE_LINES[type];
     if (!char || !v) return;
-    const hoverLabel = v.hoverSound?.label?.[this.lang] || v.hoverSound?.label?.it || '';
+    const hoverLabel = v.hoverSound?.label?.[this.lang] || v.hoverSound?.label?.en || v.hoverSound?.label?.it || '';
     this.lastHoverSound = hoverLabel;
     // Show subtle creature sound cue if not currently showing a battle or selection toast
     if (!this.activeBanner && hoverLabel) {
@@ -2924,7 +3059,9 @@ export class HudListener {
       const pairCode = `${char.type.toUpperCase()}×${defChar.type.toUpperCase()}`;
       const voicePart = quote ? ` 💬 "${quote}" · ` : ' ';
       this.showToast(
-        `${char.glyph} ${char.name}:${voicePart}⚔️ Cattura ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`,
+        this.lang === 'it'
+          ? `${char.glyph} ${char.name}:${voicePart}⚔️ Cattura ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`
+          : `${char.glyph} ${char.name}:${voicePart}⚔️ Capture ${defChar.glyph} ${defChar.name} (${pairCode}) — Click for 3D Brawl!`,
         3400,
       );
       return;
@@ -2944,8 +3081,11 @@ export class HudListener {
     const defChar = CHARACTER_REGISTRY[e.defender] || CHARACTER_REGISTRY.p;
     const pairCode = e.pairCode || `${atkChar.type.toUpperCase()}×${defChar.type.toUpperCase()}`;
     const msg =
-      e.toastText ||
-      `⚔️ Cattura possibile: ${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`;
+      this.lang === 'it'
+        ? e.toastTextIt ||
+          `⚔️ Cattura possibile: ${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name} (${pairCode}) — Clicca per la Scazzottata 3D!`
+        : e.toastTextEn ||
+          `⚔️ Possible capture: ${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name} (${pairCode}) — Click for 3D Brawl!`;
     this.showToast(msg, 3200);
   }
 
@@ -2966,8 +3106,8 @@ export class HudListener {
     this.turn = e.turn || 'w';
     this.inCheck = false;
     this.updateTurnAndCheckUi();
-    const side = e.color === 'w' ? '⚪ Bianco' : '⚫ Nero';
-    const moveStr = e.san || (e.from && e.to ? `${e.from} → ${e.to}` : 'mossa');
+    const side = e.color === 'w' ? '⚪ White' : '⚫ Black';
+    const moveStr = e.san || (e.from && e.to ? `${e.from} → ${e.to}` : 'move');
     this.logToQuake('MOVE', `${side}: ${moveStr}`);
   }
 
@@ -2975,8 +3115,8 @@ export class HudListener {
     this.inCheck = true;
     this.turn = e.color || this.turn;
     this.updateTurnAndCheckUi();
-    const side = e.color === 'w' ? '⚪ Re Bianco' : '⚫ Re Nero';
-    this.logToQuake('CHECK', `⚠️ ${side} è sotto scacco!`, 'gold');
+    const side = e.color === 'w' ? '⚪ White King' : '⚫ Black King';
+    this.logToQuake('CHECK', `⚠️ ${side} is in check!`, 'gold');
   }
 
   onCheckmate(e) {
@@ -3000,8 +3140,8 @@ export class HudListener {
           ? `Vittoria epica per: ${winnerName}!`
           : `Epic victory for: ${winnerName}!`;
     }
-    const winnerTag = e.winner === 'w' ? '⚪ Bianco' : '⚫ Nero';
-    this.logToQuake('MATE', `🏆 SCACCO MATTO! Vittoria per ${winnerTag}!`, 'green');
+    const winnerTag = e.winner === 'w' ? '⚪ White' : '⚫ Black';
+    this.logToQuake('MATE', `🏆 CHECKMATE! Victory for ${winnerTag}!`, 'green');
 
     const bannerText =
       this.lang === 'it'
@@ -3036,7 +3176,7 @@ export class HudListener {
           : `Match drawn (${e.reason || 'magical balance'}) 🤝`;
     }
     if (modal) modal.style.display = 'grid';
-    this.logToQuake('DRAW', `🤝 Partita patta: ${e.reason || 'parità'}`, 'cyan');
+    this.logToQuake('DRAW', `🤝 Match drawn: ${e.reason || 'draw'}`, 'cyan');
   }
 
   onPromotionPending(e) {
@@ -3054,7 +3194,7 @@ export class HudListener {
     if (this.luck[pid] >= (this.luck.max || 12)) {
       this.logToQuake(
         'LUCK',
-        `✨ FORTUNA AL MASSIMO per ${pid === 'w' ? '⚪ Bianco' : '⚫ Nero'}! Golden Crit garantito alla prossima cattura!`,
+        `✨ MAX LUCK for ${pid === 'w' ? '⚪ White' : '⚫ Black'}! Guaranteed Golden Crit on next capture!`,
         'gold',
       );
     }
@@ -3064,9 +3204,10 @@ export class HudListener {
     if (e.sticker?.id) {
       this.unlockedStickers.add(e.sticker.id);
       this.renderStickersUi();
-      const stickerLabel = e.sticker.name?.[this.lang] || e.sticker.name?.it || e.sticker.id;
-      this.showToast(`🌟 STICKER SBLOCCATO: ${stickerLabel}!`, 3600);
-      this.logToQuake('STICKER', `🌟 Sticker sbloccato: ${stickerLabel}!`, 'gold');
+      const stickerLabel = e.sticker.name?.[this.lang] || e.sticker.name?.en || e.sticker.name?.it || e.sticker.id;
+      const prefix = this.lang === 'it' ? '🌟 STICKER SBLOCCATO' : '🌟 STICKER UNLOCKED';
+      this.showToast(`${prefix}: ${stickerLabel}!`, 3600);
+      this.logToQuake('STICKER', `${prefix}: ${stickerLabel}!`, 'gold');
     }
   }
 
@@ -3079,7 +3220,7 @@ export class HudListener {
   onBattleStarted(e) {
     const richBanner = this.battleMatrix36?.[e.attacker]?.[e.defender]?.banner;
     const bannerObj = e.banner || richBanner || BATTLE_MATRIX[e.attacker]?.[e.defender]?.banner;
-    const text = bannerObj?.[this.lang] || bannerObj?.it || 'STECCHITO! ✨';
+    const text = bannerObj?.[this.lang] || bannerObj?.en || bannerObj?.it || 'KNOCKOUT! ✨';
     this.activeBanner = text;
 
     if (!this.rootEl) return;
@@ -3096,7 +3237,7 @@ export class HudListener {
 
     this.logToQuake(
       'BATTLE',
-      `🥊 Scazzottata 3D: ${e.attacker?.toUpperCase()} vs ${e.defender?.toUpperCase()} (${e.square || ''}) — "${text}"`,
+      `🥊 3D Brawl: ${e.attacker?.toUpperCase()} vs ${e.defender?.toUpperCase()} (${e.square || ''}) — "${text}"`,
       'gold',
     );
   }
@@ -3111,16 +3252,16 @@ export class HudListener {
     if (wowPanel) {
       wowPanel.style.display = this.flowState === 'Mode2_WowArena' ? 'flex' : 'none';
     }
-    this.logToQuake('BATTLE', '✨ Scontro concluso.');
+    this.logToQuake('BATTLE', '✨ Clash completed.');
   }
 
   onAiThinking(e) {
-    const side = e?.color === 'w' ? '⚪ Bianco' : '⚫ Nero';
+    const side = e?.color === 'w' ? '⚪ White' : '⚫ Black';
     const diff =
       e?.difficulty ||
       (e?.color === 'w' ? this.whiteDifficulty : this.blackDifficulty) ||
       'easy';
-    this.logToQuake('AI', `🤖 AI sta pensando (${side} - livello ${diff})...`, 'cyan');
+    this.logToQuake('AI', `🤖 AI thinking (${side} - ${diff})...`, 'cyan');
   }
 
   onAiMoveReady(e) {
@@ -3129,18 +3270,25 @@ export class HudListener {
       ? `${move.from} → ${move.to}${move.promotion ? '=' + move.promotion : ''}`
       : '?';
     const ms = typeof e?.timeMs === 'number' ? ` in ${e.timeMs}ms` : '';
-    this.logToQuake('AI', `🎯 AI mossa pronta: ${notation}${ms}`, 'green');
+    this.logToQuake('AI', `🎯 AI move ready: ${notation}${ms}`, 'green');
   }
 
   onHintSuggested(e) {
-    if (e.explanation) {
-      this.showToast(`💡 ${e.explanation}`, 3500);
-      this.logToQuake('HINT', `💡 Suggerimento: ${e.explanation}`, 'gold');
+    const expl =
+      this.lang === 'it'
+        ? e.explanationIt || e.explanation
+        : e.explanationEn || e.explanation;
+    if (expl) {
+      this.showToast(`💡 ${expl}`, 3500);
+      this.logToQuake('HINT', `💡 ${expl}`, 'gold');
     }
   }
 
   onLanguageChanged(e) {
-    this.lang = e.lang === 'en' ? 'en' : 'it';
+    this.lang = e.lang === 'it' ? 'it' : 'en';
+    if (typeof document !== 'undefined' && document.documentElement) {
+      document.documentElement.lang = this.lang;
+    }
     this.refreshTranslations();
   }
 
@@ -3293,7 +3441,7 @@ export class HudListener {
     const row = this.rootEl.querySelector('#hud-stickers-row');
     if (!row) return;
     const badges = FAMILY_STICKERS.filter((s) => this.unlockedStickers.has(s.id)).map((s) => {
-      const label = s.name[this.lang] || s.name.it;
+      const label = s.name[this.lang] || s.name.en || s.name.it;
       return `<span style="background:#263248;border:1px solid #ffd54f;border-radius:999px;padding:2px 7px;font-size:11px;color:#ffe082;">${label}</span>`;
     });
     row.innerHTML = badges.join('');
@@ -3318,24 +3466,24 @@ export class HudListener {
       const el = this.rootEl.querySelector(sel);
       if (el) el.textContent = this.t(key);
     };
+
+    // Highlight active language flag buttons (🇬🇧 EN / 🇮🇹 IT) across Topbar, Setup Modal, and Bottom Dock
+    this.rootEl.querySelectorAll('button[data-set-lang]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.setLang === this.lang);
+    });
+
+    // Topbar & Opponent/Set dropdowns
     setTxt('#hud-title', 'title');
     setTxt('#hud-subtitle', 'subtitle');
     setTxt('#hud-mode1-btn', 'mode1Btn');
     setTxt('#hud-mode2-btn', 'mode2Btn');
+    setTxt('#hud-matrix-btn', 'matrixBtn');
+    setTxt('#hud-top-gallery-link', 'galleryBtn');
     setTxt('#hud-who-label', 'whoPlays');
-    setTxt('#hud-luck-label', 'luckBar');
-    setTxt('#hud-hint-btn', 'hintBtn');
-    setTxt('#hud-flip-btn', 'flipCamBtn');
-    setTxt('#hud-top-btn', 'topCamBtn');
-    setTxt('#hud-new-btn', 'newGameBtn');
-    setTxt('#hud-fen-btn', 'fenBtn');
-    setTxt('#hud-music-btn', 'musicBtn');
-    setTxt('#hud-sfx-btn', 'sfxBtn');
-    setTxt('#hud-skip-btn', 'skipBtn');
-    setTxt('#hud-promo-title', 'promoTitle');
-    setTxt('#hud-wow-tab-inspector', 'wowInspectorTab');
-    setTxt('#hud-wow-tab-arena', 'wowArenaTab');
-    setTxt('#hud-wow-clash-btn', 'triggerBattleBtn');
+    setTxt('#hud-opponent-select option[value="hotseat"]', 'hotseat');
+    setTxt('#hud-opponent-select option[value="easy"]', 'cpuEasy');
+    setTxt('#hud-opponent-select option[value="medium"]', 'cpuMed');
+    setTxt('#hud-opponent-select option[value="hard"]', 'cpuHard');
     setTxt('#hud-white-select option[value="carlesso"]', 'setWhiteCarlesso');
     setTxt('#hud-white-select option[value="swamp"]', 'setWhiteSwamp');
     setTxt('#hud-white-select option[value="classic"]', 'setWhiteClassic');
@@ -3343,16 +3491,100 @@ export class HudListener {
     setTxt('#hud-rival-select option[value="swamp"]', 'setSwamp');
     setTxt('#hud-rival-select option[value="classic"]', 'setClassic');
     setTxt('#hud-rival-select option[value="stone"]', 'setStone');
+
+    // Bottom Status & Action Dock
+    setTxt('#hud-luck-label', 'luckBar');
+    setTxt('#hud-dock-gallery', 'galleryBtn');
+    setTxt('#hud-dock-videos', 'videosBtn');
+    setTxt('#hud-setup-btn', 'setupBtn');
+    setTxt('#hud-matrix36-btn', 'matrixBtn');
+    setTxt('#hud-hint-btn', 'hintBtn');
+    setTxt('#hud-skeletons-btn', 'skeletonsBtn');
+    setTxt('#hud-swamp-btn', 'swampBtn');
+    setTxt('#hud-flip-btn', 'flipCamBtn');
+    setTxt('#hud-top-btn', 'topCamBtn');
+    const trackpadBtn = this.rootEl.querySelector('#hud-trackpad-btn');
+    if (trackpadBtn) {
+      const isRot = trackpadBtn.classList.contains('active');
+      trackpadBtn.textContent = isRot ? this.t('trackpadRotateBtn') : this.t('trackpadZoomBtn');
+    }
+    setTxt('#hud-new-btn', 'newGameBtn');
+    setTxt('#hud-fen-btn', 'fenBtn');
+    setTxt('#hud-music-btn', 'musicBtn');
+    setTxt('#hud-sfx-btn', 'sfxBtn');
+    setTxt('#hud-skip-btn', 'skipBtn');
+    const toggleBtn = this.rootEl.querySelector('#hud-toggle-topbar-btn');
+    if (toggleBtn) {
+      toggleBtn.textContent = this.topbarVisible ? this.t('toggleTopbarBtn') : this.t('showTopbarBtn');
+    }
+
+    // Startup & Match Setup Modal
     setTxt('#hud-setup-title', 'setupTitle');
     setTxt('#hud-setup-sub', 'setupSub');
+    setTxt('#hud-setup-white-title', 'whiteSide');
+    setTxt('#hud-setup-black-title', 'blackSide');
+    setTxt('#hud-setup-white-faction-lbl', 'factionLabel');
+    setTxt('#hud-setup-black-faction-lbl', 'factionLabel');
+    setTxt('#hud-setup-white-ctrl-lbl', 'controlLabel');
+    setTxt('#hud-setup-black-ctrl-lbl', 'controlLabel');
+    setTxt('#hud-setup-white-human-lbl', 'playerHuman');
+    setTxt('#hud-setup-white-ai-lbl', 'playerAi');
+    setTxt('#hud-setup-black-ai-lbl', 'playerAi');
+    setTxt('#hud-setup-black-human-lbl', 'playerHumanHotseat');
+    setTxt('#hud-setup-profile-lbl', 'profileLabel');
+    setTxt('#hud-setup-white-diff-lbl', 'difficultyLabel');
+    setTxt('#hud-setup-black-diff-lbl', 'difficultyLabel');
+    setTxt('#hud-setup-white-set option[value="carlesso"]', 'setupWhiteCarlesso');
+    setTxt('#hud-setup-white-set option[value="swamp"]', 'setupWhiteSwamp');
+    setTxt('#hud-setup-white-set option[value="classic"]', 'setupWhiteClassic');
+    setTxt('#hud-setup-black-set option[value="classic"]', 'setupBlackClassic');
+    setTxt('#hud-setup-black-set option[value="swamp"]', 'setupBlackSwamp');
+    setTxt('#hud-setup-black-set option[value="family"]', 'setupBlackFamily');
+    setTxt('#hud-setup-black-set option[value="stone"]', 'setupBlackStone');
+    setTxt('#hud-setup-white-diff option[value="easy"]', 'cpuEasy');
+    setTxt('#hud-setup-white-diff option[value="medium"]', 'cpuMed');
+    setTxt('#hud-setup-white-diff option[value="hard"]', 'cpuHard');
+    setTxt('#hud-setup-black-diff option[value="easy"]', 'cpuEasy');
+    setTxt('#hud-setup-black-diff option[value="medium"]', 'cpuMed');
+    setTxt('#hud-setup-black-diff option[value="hard"]', 'cpuHard');
+    setTxt('#hud-setup-black-human-wrap', 'hotseatDesc');
     setTxt('#hud-setup-apply-btn', 'applyCurrentBtn');
     setTxt('#hud-setup-start-btn', 'startMatchBtn');
     setTxt('#hud-setup-badge-text', 'defaultSetupBadge');
-    setTxt('#hud-setup-btn', 'setupBtn');
-    setTxt('#hud-toggle-topbar-btn', 'toggleTopbarBtn');
+
+    // Mode 2 WOW Panel & Modals
+    setTxt('#hud-promo-title', 'promoTitle');
+    setTxt('#hud-play-again-btn', 'playAgainBtn');
+    setTxt('#hud-fen-modal-title', 'fenModalTitle');
+    setTxt('#hud-fen-load-btn', 'loadFenBtn');
+    setTxt('#hud-pgn-load-btn', 'loadPgnBtn');
+    setTxt('#hud-wow-tab-inspector', 'wowInspectorTab');
+    setTxt('#hud-wow-tab-arena', 'wowArenaTab');
+    setTxt('#hud-wow-matrix36-btn', 'matrix36Btn');
+    setTxt('#hud-wow-choose-hero', 'wowChooseHero');
+    setTxt('#hud-wow-anim-title', 'wowAnimTitle');
+    setTxt('#hud-card-flip-btn', 'wowCardFlipBtn');
+    setTxt('#hud-autorotate-btn', 'wowAutoRotateBtn');
+    setTxt('#hud-wow-arena-title', 'wowArenaTitle');
+    setTxt('#hud-wow-atk-lbl', 'wowAtkLabel');
+    setTxt('#hud-wow-def-lbl', 'wowDefLabel');
+    setTxt('#hud-wow-crit-lbl', 'wowCritLabel');
+    setTxt('#hud-wow-clash-btn', 'triggerBattleBtn');
+    setTxt('#hud-matrix36-title', 'matrix36ModalTitle');
+    setTxt('#hud-matrix36-sub', 'matrix36ModalSub');
+    if (!this.matrixMarathonTimer) {
+      setTxt('#hud-matrix36-marathon-btn', 'matrix36MarathonBtn');
+    }
+    setTxt('#hud-matrix36-page-link', 'matrix36GalleryLink');
+    setTxt('#hud-matrix36-close', 'closeBtn');
+    setTxt('#hud-matrix36-launch-selected', 'matrix36LaunchBtn');
+
     this.updateTurnAndCheckUi();
     this.renderStickersUi();
     this._renderMatrixExplorerGrid();
+    if (this.matrixSelectedPair) {
+      this._updateMatrixPreviewPane(this.matrixSelectedPair.atk, this.matrixSelectedPair.def, false);
+    }
   }
 
   dispose() {
