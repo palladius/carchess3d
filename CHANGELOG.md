@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.8] - 2026-10-11
+
+- 🐛🤖 **Fix CPU Opponent Disabled After Setup & Separate "Nuova Partita" (Reset) vs "Modifica Partita" (In-Place) (`src/listeners/HudListener.js`, `src/managers/AIWorkerManager.js`, `src/core/Registry.js`, `sw.js`, `tests/cpu-opponent.test.mjs`)**:
+  - **Bug #1 Fix — Default Human vs CPU AI Now Moves Properly**:
+    - Fixed `HudListener.applySetup()` emitting `OPPONENT_CHANGED` without `enabled`, which caused `AIWorkerManager`'s `OPPONENT_CHANGED` handler to set `this.enabled = Boolean(undefined) = false` and turn the match into Human vs Human.
+    - Hardened `AIWorkerManager` so `OPPONENT_CHANGED` derives `enabled` from `e.enabled` or `e.mode !== 'hotseat' && cpuColor !== 'none'`.
+  - **Bug #2 Fix & UX Split — Two Distinct Actions: "🔄 Nuova Partita" (Reset) vs "⚙️ Modifica Partita" (Senza Reset)**:
+    - Fixed `HudListener.applySetup()` emitting `PROFILE_CHANGED` without `restoreBoard: false` before `board.reset()`, which had caused `ProfileStorageListener` to reload the saved mid-game FEN from `localStorage` and overwrite the reset board.
+    - Wired `PieceManager.setWhiteFamily()` and `PieceManager.setRivalSetMode()` inside `applySetup()` so 3D factions update reliably both on new games and mid-game edits.
+    - Split the bottom dock and Setup Modal into two distinct actions:
+      1. **🔄 Nuova Partita (`#hud-new-btn` & `#hud-setup-start-btn`)**: Resets all 32 pieces to the initial board (`resetBoard: true`).
+      2. **⚙️ Modifica Partita / 💾 Modifica Partita in Corso (`#hud-setup-btn` & `#hud-setup-apply-btn`)**: Updates White/Black factions, Human/AI control, and AI difficulty in-place on the active board without resetting the pieces (`resetBoard: false`).
+  - **Service Worker Cache Bump (`sw.js`)**:
+    - Bumped `CACHE_NAME` to `carchess3d-offline-v9` and switched HTML/JS/`VERSION` requests to network-first with offline cache fallback so GitHub Pages deployments take effect immediately.
+
 ## [0.3.7] - 2026-10-11
 
 - 🏰🎮 **Startup Match Setup Modal, Auto-Hiding Top Bar, Footer Overlay & Quake-Style Console (`HudListener.js`, `AIWorkerManager.js`, `BoardInteractionView.js`, `main.js`, `Registry.js`, `tests/cpu-opponent.test.mjs`)**:

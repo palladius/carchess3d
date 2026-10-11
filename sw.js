@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v8';
+const CACHE_NAME = 'carchess3d-offline-v9';
 
 const PRECACHE_URLS = [
   './',
@@ -112,6 +112,13 @@ self.addEventListener('fetch', (event) => {
   const reqUrl = new URL(event.request.url);
   if (reqUrl.origin !== self.location.origin) return;
 
+  const isCodeOrDoc =
+    event.request.mode === 'navigate' ||
+    reqUrl.pathname.endsWith('/') ||
+    reqUrl.pathname.endsWith('.html') ||
+    reqUrl.pathname.endsWith('.js') ||
+    reqUrl.pathname.endsWith('VERSION');
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const networkFetch = fetch(event.request)
@@ -124,7 +131,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cachedResponse);
 
-      return cachedResponse || networkFetch;
+      return isCodeOrDoc ? networkFetch.then((res) => res || cachedResponse) : cachedResponse || networkFetch;
     }),
   );
 });

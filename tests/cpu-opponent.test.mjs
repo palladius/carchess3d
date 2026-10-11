@@ -3,8 +3,11 @@ import assert from 'node:assert/strict';
 import { GameEventBus } from '../src/core/EventBus.js';
 import { mulberry32 } from '../src/core/Rng.js';
 import { BoardMapManager } from '../src/managers/BoardMapManager.js';
+import { PieceManager } from '../src/managers/PieceManager.js';
 import { GameFlowManager, FLOW_STATES } from '../src/managers/GameFlowManager.js';
 import { AIWorkerManager } from '../src/managers/AIWorkerManager.js';
+import { HudListener } from '../src/listeners/HudListener.js';
+import { ProfileStorageListener } from '../src/listeners/ProfileStorageListener.js';
 
 /**
  * Headless harness mirroring main.js wiring: bus + board + flow + ai (+ a stub combat).
@@ -164,4 +167,83 @@ test('CPU opponent: Dual CPU (cpuColor="both") plays consecutive turns', async (
   assert.ok(readyMoves.length >= 2, 'Both White CPU and Black CPU must take turns in dual CPU mode');
   ai.dispose();
 });
+
+test('Regression Bug #1 & #2: HudListener.applySetup keeps CPU AI enabled and distinguishes Nuova Partita (resetBoard:true) vs Modifica Partita (resetBoard:false)', async () => {
+  const { bus, board, ai, ctx } = makeGame();
+  const pieces = new PieceManager();
+  ctx.pieces = pieces;
+  pieces.init(ctx);
+  const profiles = new ProfileStorageListener(ctx);
+  const hud = new HudListener(ctx);
+  ctx.profiles = profiles;
+  ctx.hud = hud;
+
+  const INITIAL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+  // 1. Apply default Setup (White: Carlesso Human vs Black: Classic AI Easy)
+  hud.applySetup({
+    whiteFamily: 'carlesso',
+    whitePlayerType: 'human',
+    whiteProfile: 'ale',
+    rivalSet: 'classic',
+    blackPlayerType: 'ai',
+    blackDiff: 'easy',
+    resetBoard: true,
+  });
+
+  assert.equal(ai.enabled, true, 'AI must remain enabled after applySetup (Bug #1 regression)');
+  assert.equal(ai.cpuColor, 'b', 'AI must play Black by default');
+
+  // Human plays e2 -> e4; Black CPU must automatically reply!
+  const cpuMoves = [];
+  bus.on('AI_MOVE_READY', (e) => cpuMoves.push(e));
+  board.requestMove('e2', 'e4');
+  await settle(bus);
+  assert.equal(cpuMoves.length, 1, 'Black CPU must reply after White human moves in default setup');
+  assert.equal(board.turn(), 'w');
+  const midGameFen = board.fen();
+  assert.notEqual(midGameFen, INITIAL_FEN, 'Board is now mid-game and saved in ProfileStorageListener');
+
+  // 2. "Modifica Partita in Corso" (resetBoard: false): changes sets/settings WITHOUT resetting pieces!
+  hud.applySetup({
+    whiteFamily: 'swamp',
+    whitePlayerType: 'human',
+    whiteProfile: 'ale',
+    rivalSet: 'family',
+    blackPlayerType: 'ai',
+    blackDiff: 'medium',
+    resetBoard: false,
+  });
+  assert.equal(board.fen(), midGameFen, 'Modifica Partita (resetBoard: false) must preserve current board pieces');
+  assert.equal(pieces.whiteFamily, 'swamp', 'PieceManager whiteFamily must update in-place');
+  assert.equal(pieces.rivalSetMode, 'family', 'PieceManager rivalSetMode must update in-place');
+  assert.equal(ai.enabled, true, 'AI must stay enabled after mid-game edit');
+  assert.equal(ai.blackDifficulty, 'medium', 'AI difficulty must update after mid-game edit');
+
+  // 3. "Nuova Partita (Reset Pezzi)" (resetBoard: true): resets board to 32 initial pieces even when ProfileStorage has midGameFen!
+  hud.applySetup({
+    whiteFamily: 'carlesso',
+    whitePlayerType: 'human',
+    whiteProfile: 'ale',
+    rivalSet: 'swamp',
+    blackPlayerType: 'ai',
+    blackDiff: 'easy',
+    resetBoard: true,
+  });
+  assert.equal(board.fen(), INITIAL_FEN, 'Nuova Partita (resetBoard: true) must reset board to initial 32 pieces (Bug #2 regression)');
+  assert.equal(pieces.getLivingPieces().length, 32, 'All 32 pieces must be back on their starting squares');
+  assert.equal(pieces.whiteFamily, 'carlesso');
+  assert.equal(pieces.rivalSetMode, 'swamp');
+
+  // 4. And direct startNewGame() (#hud-new-btn) also resets the board mid-game
+  board.requestMove('d2', 'd4');
+  await settle(bus);
+  assert.notEqual(board.fen(), INITIAL_FEN);
+  hud.startNewGame();
+  assert.equal(board.fen(), INITIAL_FEN, 'hud.startNewGame() must immediately reset the board');
+
+  hud.dispose();
+  ai.dispose();
+});
+
 
