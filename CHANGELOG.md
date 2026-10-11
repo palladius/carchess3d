@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.18] - 2026-10-11
+
+- 🐴🗿✨ **Destriero Classico (`knight-classic-cavallo.glb`) — High-Resolution Dual-Orthographic 3D Reconstruction & Seamless `1024×1024` UV Texture Atlas (`tools/model-pipeline/classic/reconstruct_knight_3d.py`)**:
+  - Built [`tools/model-pipeline/classic/reconstruct_knight_3d.py`](tools/model-pipeline/classic/reconstruct_knight_3d.py) to reconstruct `assets/models/classic/knight-classic-cavallo.glb` (`22,080` triangles, `2.8 MB`, `1.35m` height, `min.y == 0.0`) directly from the aligned orthographic Front (`0°`) and Side (`90°`) views in `assets/characters/knight-classic-cavallo.jpg` using `rembg` neural segmentation, 3D Signed Distance Field visual-hull + gold-bridle relief carving, Taubin surface smoothing, and a boundary-matched `1024×1024` UV `baseColorTexture` PNG atlas.
+  - Confirmed **Variante 1** (`assets/characters/knight-swamp-asinello.jpg`, rearing 40-tooth Eddie Murphy grin) as the official Swamp Knight (`Asinello Chiacchierone`) and removed the discarded second variant.
+
 ## [0.3.17] - 2026-10-11
 
 - 💋🥀🌕 **`k_x_q` Kiss of Death Refinement — Throne-Free Open Moonlit Chessboard (`assets/battles/keyframes/k_x_q.png`, `assets/battles/videos/k_x_q.mp4`, `VFXPoolView.js`, `scripts/generate_nb_veo_battle.py`)**:
