@@ -114,19 +114,19 @@ const RAW_PAIRS_36 = {
   },
   k_x_q: {
     title: {
-      it: 'Re Riccardo vs Regina Kate (D&D Pietrificazione & Trono d’Oro)',
-      en: 'King Riccardo vs Queen Kate (D&D Petrification & Golden Throne)',
+      it: 'Re Riccardo vs Regina Kate (D&D Kiss of Death & Avvizzimento Gotico)',
+      en: 'King Riccardo vs Queen Kate (D&D Kiss of Death & Gothic Wither)',
     },
     banner: {
-      it: "CARLESSO AL CESSO & D&D PIETRIFICAZIONE! STATUA SUL TRONO D'ORO! 🗿🚽👑",
-      en: 'CARLESSO AL CESSO & D&D PETRIFICATION! STATUE ON THE GOLDEN THRONE! 🗿🚽👑',
+      it: "CARLESSO AL CESSO & KISS OF DEATH! AVVIZZITA SUL TRONO D'ORO! 💋🥀💀",
+      en: 'CARLESSO AL CESSO & D&D KISS OF DEATH! WITHERED ON THE GOLDEN THRONE! 💋🥀💀',
     },
-    dndSpell: 'flesh_to_stone_petrification',
+    dndSpell: 'kiss_of_death_blight',
     attackerWeapon: 'toilet_throne',
     defenderCounter: {
       move: 'lilac_choco_shield',
-      it: 'Regina Kate alza uno scudo di cioccolato lilla prima della Pietrificazione!',
-      en: 'Queen Kate spins a glossy lilac chocolate shield against Petrification!',
+      it: 'Regina Kate riceve il Bacio Mortale Gotico di Riccardo e avvizzisce sul Trono d’Oro!',
+      en: 'Queen Kate receives Riccardo’s Gothic Kiss of Death and withers onto the Golden Throne!',
       sfxText: 'SCUDO!',
     },
     clashStyle: 'royal_throne',

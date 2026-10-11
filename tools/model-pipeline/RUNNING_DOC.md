@@ -455,3 +455,12 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 
 
 
+
+
+### 10.7 Destriero Classico Dual-Orthographic 3D Reconstruction (`tools/model-pipeline/classic/reconstruct_knight_3d.py`)
+- **Input**: `assets/characters/knight-classic-cavallo.jpg` (aligned orthographic Front `0°` left half + Side Profile `90°` right half).
+- **Pipeline**:
+  - `rembg` (`u2net`) neural foreground segmentation + 2px erosion & dark-halo rejection (`luma > 0.22`) + 36-iteration boundary color dilation.
+  - `200×150` 3D Signed Distance Field combining turned Staunton pedestal axial symmetry (`y <= 0.36m`) with elliptical visual-hull carving + gold-bridle & mane luminance relief embossing (`y > 0.33m`), resampled to `54×74×54` for Marching Cubes + 10-iteration Taubin surface fairing (`lamb=0.5, nu=-0.53`).
+  - Seamless `1024×1024` 2-panel UV `baseColorTexture` PNG atlas (with lateral edge color matching between Front facial bridge and Side cheek contour) embedded in glTF 2.0 binary `.glb` alongside `faction_primary` and `faction_trim` PBR materials.
+- **Output**: `assets/models/classic/knight-classic-cavallo.glb` (`22,080` triangles, `2,827 KB`, `1.35m` height, `min.y == 0.0`) and 4-angle per-pixel Gouraud + UV preview `tools/model-pipeline/classic/knight_classic_3d_preview.png`.

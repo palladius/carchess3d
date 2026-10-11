@@ -105,7 +105,7 @@ test('CombatAnimationManager: Easter Egg overrides (Seby <-> Pupurabbu cuddle & 
   // 5. King Riccardo ("Papino" k) casts a different D&D spell for each of his 6 targets!
   const expectedDndSpells = {
     k: 'disintegrate',
-    q: 'flesh_to_stone_petrification',
+    q: 'kiss_of_death_blight',
     b: 'meteor_swarm',
     n: 'chain_lightning',
     r: 'summon_comic_daemon',

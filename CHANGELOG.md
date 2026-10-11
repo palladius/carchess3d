@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.3.19] - 2026-10-11
+
+- 🔄🐴 **Showcase 3D GLB Cache-Busting (`showcase/index.html`, `sw.js`)**:
+  - Added `?v=0.3.19` cache-busting query strings to `knight-classic-cavallo.glb` and the Swamp Family `.glb` models in [`showcase/index.html`](showcase/index.html) and bumped `CACHE_NAME` to `carchess3d-offline-v11` in [`sw.js`](sw.js) so browsers immediately render the rotating `22,080`-triangle UV-textured Destriero Classico without stale cache hits.
+
+## [0.3.18] - 2026-10-11
+
+- 🐴🗿✨ **Destriero Classico (`knight-classic-cavallo.glb`) — High-Resolution Dual-Orthographic 3D Reconstruction & Seamless `1024×1024` UV Texture Atlas (`tools/model-pipeline/classic/reconstruct_knight_3d.py`)**:
+  - Built [`tools/model-pipeline/classic/reconstruct_knight_3d.py`](tools/model-pipeline/classic/reconstruct_knight_3d.py) to reconstruct `assets/models/classic/knight-classic-cavallo.glb` (`22,080` triangles, `2.8 MB`, `1.35m` height, `min.y == 0.0`) directly from the aligned orthographic Front (`0°`) and Side (`90°`) views in `assets/characters/knight-classic-cavallo.jpg` using `rembg` neural segmentation, 3D Signed Distance Field visual-hull + gold-bridle relief carving, Taubin surface smoothing, and a boundary-matched `1024×1024` UV `baseColorTexture` PNG atlas.
+  - Confirmed **Variante 1** (`assets/characters/knight-swamp-asinello.jpg`, rearing 40-tooth Eddie Murphy grin) as the official Swamp Knight (`Asinello Chiacchierone`) and removed the discarded second variant.
+
+## [0.3.17] - 2026-10-11
+
+- 💋🥀🌕 **`k_x_q` Kiss of Death Refinement — Throne-Free Open Moonlit Chessboard (`assets/battles/keyframes/k_x_q.png`, `assets/battles/videos/k_x_q.mp4`, `VFXPoolView.js`, `scripts/generate_nb_veo_battle.py`)**:
+  - Regenerated `assets/battles/keyframes/k_x_q.png` and `assets/battles/videos/k_x_q.{mp4,webm}` **without any throne**: both King Riccardo and Queen Kate stand directly on the moonlit chessboard under the full moon as Riccardo blows the Black Rose Kiss of Death and Queen Kate withers into an ashen-pale lifeless gothic figurine swooning backward onto the board as her wand drops from her hand.
+  - Hid `goldenThrone` and `dndPetrifyStatue` during `kiss_of_death_blight` in [`src/views/VFXPoolView.js`](src/views/VFXPoolView.js) so the 3D chessboard scene is also 100% throne-free.
+
+## [0.3.16] - 2026-10-11
+
+- 💋🥀💀 **`k_x_q` Re Riccardo vs Regina Kate — *"D&D Vampiric Kiss of Death & Avvizzimento Gotico"* (`Registry.js`, `BattleMatrix36.js`, `VFXPoolView.js`, `assets/battles/keyframes/k_x_q.png`, `assets/battles/videos/k_x_q.mp4`)**:
+  - Updated `k_x_q` to a macabre-romantic Tim Burton / Gomez & Morticia Addams-inspired **D&D *Vampiric Kiss of Death / Blight* (`kiss_of_death_blight`)**: King Riccardo leans in under a full moon holding a Black Rose and blowing a stream of crimson-purple gothic hearts and black rose petals onto Queen Kate, who withers and drains of color into an ashen-pale lifeless gothic Corpse-Bride figurine slumped onto the Golden Throne.
+  - Added 3D on-board Kiss of Death dip (`atkPitch = 0.36`, `defPitch = -0.68`) and progressive 3D withering/desaturation (`def.scale` shrinks thinner and mesh color drains to ashen-gray `0x6e6a7c`) in [`src/views/VFXPoolView.js`](src/views/VFXPoolView.js).
+  - Regenerated `assets/battles/keyframes/k_x_q.png` and `assets/battles/videos/{k_x_q,n_x_p}.{mp4,webm}` from the updated Nano Banana 2.1 16:9 keyframes.
+
 ## [0.3.15] - 2026-10-11
 
 - 🏺❄️🐧 **`n_x_p` Sacro Acquarius Refinement — Translucent Cyan-Blue Puffin Deep Behind the Ice Coffin (`VFXPoolView.js`, `assets/battles/keyframes/n_x_p.png`, `scripts/generate_nb_veo_battle.py`)**:

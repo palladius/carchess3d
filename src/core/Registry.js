@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.15';
+export const APP_VERSION = '0.3.19';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -542,10 +542,10 @@ function buildBattleMatrix() {
       },
     },
     q: {
-      dndSpell: 'flesh_to_stone_petrification',
+      dndSpell: 'kiss_of_death_blight',
       banner: {
-        it: 'CARLESSO AL CESSO & D&D PIETRIFICAZIONE! STATUA SUL TRONO D’ORO! 🗿🚽👑',
-        en: 'CARLESSO AL CESSO & D&D PETRIFICATION! STATUE ON THE GOLDEN THRONE! 🗿🚽👑',
+        it: "CARLESSO AL CESSO & KISS OF DEATH! AVVIZZITA SUL TRONO D'ORO! 💋🥀💀",
+        en: 'CARLESSO AL CESSO & D&D KISS OF DEATH! WITHERED ON THE GOLDEN THRONE! 💋🥀💀',
       },
     },
     b: {
