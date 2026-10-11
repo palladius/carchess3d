@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.18] - 2026-10-11
+
+- 🎬🕵️‍♂️🏆 **Full 36-Video Adversarial Critic Audit, Veo 3.1 `firstFrame` + `lastFrame` Regeneration & Historical Video Archive (`assets/battles/video_audit.yaml`, `assets/battles/archive/`, `assets/battles/videos/`, `assets/battles/keyframes/`, `docs/spec/SPEC.md`)**:
+  - **36/36 Temporal Contact-Sheet Audit by Adversarial Video Critic**: Extracted 4-frame (`0.5s, 2.8s, 5.2s, 7.4s`) temporal contact sheets across all 36 battle videos and scored every video against a `6.5 / 10` quality threshold.
+  - **Dedicated Archive Directory (`assets/battles/archive/videos/` & `assets/battles/archive/keyframes/`) + `assets/battles/video_audit.yaml`**:
+    - Preserved all **27 historical/rejected video takes** in [`assets/battles/archive/videos/`](assets/battles/archive/videos/) (separate from active [`assets/battles/videos/`](assets/battles/videos/)) and documented every active and archived take in [`assets/battles/video_audit.yaml`](assets/battles/video_audit.yaml) (`911` lines) with `nb_prompt`, `veo_prompt`, `critic_score`, `critic_verdict`, `critic_reason`, and `human_rescue_note`.
+  - **Regenerated 21 Battle Videos with Vertex AI Veo 3.1 `firstFrame` (`<id>.png`) + `lastFrame` (`<id>_end.png`) + Audio (`36/36 PASS`, avg score `8.8 / 10`)**:
+    - **`n_x_p` (*Sacro Acquarius*)** (`9.5/10`): Start frame (`n_x_p_start.png`) with Seby clasping both hands high above his head shouting *"Per il Sacro Acquarius!"* and healthy Puffin on right (no statue/ice yet) → Aquarius Maiden materializes behind Seby and shoots freezing water → End frame (`n_x_p_end.png`) with Puffin petrified cyan-blue deep behind the Ice Coffin.
+    - **`k_x_q` (*Kiss of Death*, Throne-Free)** (`9.4/10`): Start frame (`k_x_q_start.png`) with standing Riccardo holding a gothic Black Rose to his lips and vibrant alive Kate on right (zero throne) → blows necrotic purple-crimson kiss mist → End frame (`k_x_q_end.png`) with Kate withering into an ashen-pale lifeless gothic figurine.
+    - **Eliminated Duplicate Clones, Vanishing/Teleporting Rook Towers & Bizarre Morphs (`9.0–9.3/10`)**: Regenerated `k_x_p` (fixed duplicate Puffin clone during Fireball), `k_x_b` (fixed duplicate Ale clone during Meteor Swarm), `k_x_r` (fixed vanishing/reappearing rook tower & King jumping into swamp), `q_x_q` (fixed wrong Black-Queen winner), `q_x_b` (fixed duplicate dragon & Ale clones), `q_x_r` (fixed vanishing/reappearing rook tower), `b_x_k` (fixed King morphing into crowned green dragon), `b_x_n` (fixed horse morphing into giant dragon + `"1 G"` golden letters), `b_x_r` (fixed teleporting rook tower), `b_x_p` (fixed 2nd Puffin clone + balloon chest), `n_x_k` (fixed vanishing horse & Seby wearing King's cloak), `n_x_r` (fixed blurry duplicate Seby clone & missing tower), `r_x_k` (fixed duplicate mini-Pupurabbu clone & breakfast pancake morph), `r_x_q` (fixed Pupurabbu wearing Queen Kate's corset dress), `r_x_b`, `r_x_r`, `r_x_p`, `p_x_q` (fixed tall humanoid Puffin morph), `p_x_n`, `p_x_r`, and `p_x_p`.
+  - Updated [`docs/spec/SPEC.md`](docs/spec/SPEC.md) to document the `firstFrame` + `lastFrame` Veo 3.1 pipeline, `assets/battles/video_audit.yaml`, and `assets/battles/archive/`.
+
 ## [0.3.17] - 2026-10-11
 
 - 💋🥀🌕 **`k_x_q` Kiss of Death Refinement — Throne-Free Open Moonlit Chessboard (`assets/battles/keyframes/k_x_q.png`, `assets/battles/videos/k_x_q.mp4`, `VFXPoolView.js`, `scripts/generate_nb_veo_battle.py`)**:

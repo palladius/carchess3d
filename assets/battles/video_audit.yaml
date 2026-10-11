@@ -1,0 +1,911 @@
+# =============================================================================
+# CarChess3D — 36-Battle Veo 3.1 Video Adversarial Audit & Archive Catalog
+# =============================================================================
+# Maintained by: Adversarial Video Critic + Pipeline
+# Purpose:
+#   1. Scores and critiques all 36 active battle videos (`assets/battles/videos/<id>.mp4`)
+#      against the minimum quality threshold of 6.5 / 10.0.
+#   2. Preserves and documents all 27 historical/rejected video takes inside
+#      `assets/battles/archive/videos/` (and `assets/battles/archive/keyframes/`)
+#      with their generation prompts, critic scores (< 6.5), rejection reasons,
+#      and human rescue notes so Riccardo & family can always browse or restore them!
+
+schema_version: '1.0'
+audit_date: '2026-10-11'
+minimum_passing_score: 6.5
+directories:
+  active_videos: assets/battles/videos
+  active_keyframes: assets/battles/keyframes
+  archived_videos: assets/battles/archive/videos
+  archived_keyframes: assets/battles/archive/keyframes
+summary:
+  total_pairs: 36
+  active_passing_count: 36
+  archived_videos_count: 27
+
+battles:
+  k_x_k:
+    id: "k_x_k"
+    matchup: "King Riccardo vs King Riccardo"
+    attacker: "k"
+    defender: "k"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/k_x_k.mp4"
+      webm_path: "assets/battles/videos/k_x_k.webm"
+      first_frame: "assets/battles/keyframes/k_x_k.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 8.7
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Blinding emerald D&D Disintegrate beam strikes Dark King. F3–F4: Dark King dissolves cleanly into a glowing green arcane dust cone with his dark crown on top while White Riccardo grins."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (White Team King Riccardo in his golden crown, glasses, and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Rival Dark Obsidian Team King Riccardo). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') points his golden sceptre forward firing the iconic Dungeons & Dragons 6th-level 'Disintegrate' spell: a razor-sharp, blindingly bright emerald-green laser ray of arcane energy (with glowing green D&D dice sparks) striking the Rival Dark King on the RIGHT, whose dark obsidian armor is beginning to dissolve into sparkling green arcane dust! Keep both characters 100% faithful to the reference photos. Seamless 16:9 scene, no text."
+      veo_prompt: "Starting from this initial frame, King Riccardo on the left fires a continuous, dazzling emerald-green Dungeons & Dragons Disintegrate ray from his golden sceptre straight at the Rival Dark King on the right! The rival King comically dissolves from head to toe into a shimmering pile of glowing emerald-green arcane dust with only his crown clinking on top of the dust pile, while White King Riccardo grins!"
+    archived_versions: []
+  k_x_q:
+    id: "k_x_q"
+    matchup: "King Riccardo vs Queen Kate"
+    attacker: "k"
+    defender: "q"
+    active:
+      version: "v3"
+      video_path: "assets/battles/videos/k_x_q.mp4"
+      webm_path: "assets/battles/videos/k_x_q.webm"
+      first_frame: "assets/battles/keyframes/k_x_q_start.png"
+      last_frame: "assets/battles/keyframes/k_x_q_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.4
+      critic_verdict: "PASS"
+      critic_review: "Gold Standard (Throne-Free Kiss of Death). F1: Standing King Riccardo holds a gothic Black Rose to his lips while vibrant Queen Kate stands on the right. F2: Riccardo blows a dark-crimson and violet necrotic kiss cloud across the board. F3–F4: Warm color drains from Kate as she withers into a pale ashen lifeless gothic figurine."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, and blue ermine royal cloak). Image 2 is the RIGHT character (Queen Kate in her blonde wavy hair, dark-blue glasses, golden crown, and purple velvet gown). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 dark-romantic Tim Burton / Pixar-style 3D battle frame on an enchanted moonlit chessboard under a giant full moon: King Riccardo ('Papino') standing on the LEFT leans in closely toward Queen Kate standing on the RIGHT, holding a glowing gothic Black Rose and delivering a macabre-romantic Dungeons & Dragons 'Kiss of Death' ('Vampiric Touch / Blight')! Swirling crimson-violet gothic hearts, black rose petals, and dark-purple life-draining magic flow from Riccardo's kiss onto Queen Kate standing on the RIGHT, who is visibly withering and draining of color into an ashen-pale, shriveled gothic Corpse-Bride-style lifeless figurine (still wearing her dark-blue glasses and crown) swooning backward on the open chessboard as her wand slips from her hand! IMPORTANT: NO throne, NO chair, both characters are standing directly on the moonlit chessboard. Seamless 16:9 scene, no text."
+      veo_prompt: "Starting from this initial gothic-romantic frame, animate a macabre and funny Tim Burton-style 3D 'Kiss of Death' ('D&D Vampiric Touch / Blight'): on the left, King Riccardo leans in with a black rose and gives Queen Kate standing on the right a dramatic gothic Kiss of Death surrounded by swirling crimson-purple hearts and black rose petals! As the kiss lands, all warm color drains from Queen Kate as she comically withers and shrivels into an ashen-gray, lifeless gothic porcelain figurine (with her glasses and crown still on), collapsing backward onto the moonlit chessboard in a cloud of black rose petals!"
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/k_x_q_v1_disintegrate_throne.mp4"
+        archive_keyframe_path: "assets/battles/archive/keyframes/k_x_q_v1_throne.png"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 5.8
+        critic_verdict: "SUPERSEDED_BY_USER_DIRECTION"
+        critic_reason: "Original D&D green Disintegrate beam + Golden Toilet-Throne choreography before Riccardo requested changing k_x_q to a romantic-macabre Gothic 'Kiss of Death' WITHOUT any throne."
+        human_rescue_note: "Great classic D&D Disintegrate animation with the Golden Toilet-Throne if you ever want a non-romantic alternate take!"
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, and blue ermine royal cloak). Image 2 is the RIGHT character (Queen Kate in her blonde wavy hair, dark-blue glasses, golden crown, and purple velvet gown). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 dark-romantic Tim Burton / Pixar-style 3D battle frame on an enchanted moonlit chessboard under a giant full moon: King Riccardo ('Papino') standing on the LEFT leans in closely toward Queen Kate standing on the RIGHT, holding a glowing gothic Black Rose and delivering a macabre-romantic Dungeons & Dragons 'Kiss of Death' ('Vampiric Touch / Blight')! Swirling crimson-violet gothic hearts, black rose petals, and dark-purple life-draining magic flow from Riccardo's kiss onto Queen Kate standing on the RIGHT, who is visibly withering and draining of color into an ashen-pale, shriveled gothic Corpse-Bride-style lifeless figurine (still wearing her dark-blue glasses and crown) swooning backward on the open chessboard as her wand slips from her hand! IMPORTANT: NO throne, NO chair, both characters are standing directly on the moonlit chessboard. Seamless 16:9 scene, no text."
+        veo_prompt: "King Riccardo on his golden toilet-throne fires a green D&D Disintegrate ray at Queen Kate."
+      - version: "v2"
+        archive_video_path: "assets/battles/archive/videos/k_x_q_v2_kiss_static_pan.mp4"
+        archive_keyframe_path: "assets/battles/archive/keyframes/k_x_q_v2_kiss_with_throne.png"
+        generation_mode: "ffmpeg_ken_burns_fallback"
+        critic_score: 2.0
+        critic_verdict: "REJECTED"
+        critic_reason: "4.8s static camera zoom/pan fallback with zero character animation and still included the golden throne on the left."
+        human_rescue_note: "Static Ken-Burns pan over the throne version of Kiss of Death."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, and blue ermine royal cloak). Image 2 is the RIGHT character (Queen Kate in her blonde wavy hair, dark-blue glasses, golden crown, and purple velvet gown). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 dark-romantic Tim Burton / Pixar-style 3D battle frame on an enchanted moonlit chessboard under a giant full moon: King Riccardo ('Papino') standing on the LEFT leans in closely toward Queen Kate standing on the RIGHT, holding a glowing gothic Black Rose and delivering a macabre-romantic Dungeons & Dragons 'Kiss of Death' ('Vampiric Touch / Blight')! Swirling crimson-violet gothic hearts, black rose petals, and dark-purple life-draining magic flow from Riccardo's kiss onto Queen Kate standing on the RIGHT, who is visibly withering and draining of color into an ashen-pale, shriveled gothic Corpse-Bride-style lifeless figurine (still wearing her dark-blue glasses and crown) swooning backward on the open chessboard as her wand slips from her hand! IMPORTANT: NO throne, NO chair, both characters are standing directly on the moonlit chessboard. Seamless 16:9 scene, no text."
+        veo_prompt: "Static camera pan fallback when AI Studio daily quota hit 429."
+  k_x_b:
+    id: "k_x_b"
+    matchup: "King Riccardo vs Bishop Ale"
+    attacker: "k"
+    defender: "b"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/k_x_b.mp4"
+      webm_path: "assets/battles/videos/k_x_b.webm"
+      first_frame: "assets/battles/keyframes/k_x_b.png"
+      last_frame: "assets/battles/keyframes/k_x_b_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.9
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: King Riccardo commands his 9th-level D&D Meteor Swarm as four volcanic meteors impact the right side in fiery sparks. F3–F4: The single soot-smudged Bishop Ale and his dizzy red shoulder dragon are blasted airborne off the right edge with spinning cartoon stars (zero duplicate clones)."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Bishop Ale, a cute boy in blue-and-gold bishop mitre hat and robe with a red baby dragon on his shoulder). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') raises his sceptre to the sky casting the 9th-level Dungeons & Dragons spell 'Meteor Swarm': four giant blazing volcanic meteors with fiery golden-red tails plummet diagonally down from a glowing D&D arcane circle in the twilight sky toward the right side of the board! On the RIGHT, Bishop Ale and his red shoulder dragon look up at the incoming meteors. Keep both characters 100% faithful to the reference photos. Seamless 16:9, no text."
+      veo_prompt: "Starting from this initial frame, King Riccardo on the left commands a 9th-level Dungeons & Dragons Meteor Swarm with his golden sceptre! Four blazing volcanic meteors streak down from the sky with fiery trails and impact around Bishop Ale and his red baby dragon on the right in a spectacular shower of golden sparks and lava pebbles, launching Ale comically into the emerald swamp moat!"
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/k_x_b_v1_duplicate_ale_clone.mp4"
+        archive_keyframe_path: "assets/battles/archive/keyframes/k_x_b_v1_bobblehead.png"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 4.2
+        critic_verdict: "REJECTED"
+        critic_reason: "Duplicate Clone Hallucination: When the D&D Meteor Swarm explodes at t=2.8s, Bishop Ale splits into TWO duplicate Ales (one hatless clone on the left of the fireball, one with mitre hat & dragon on the right) and both jump into the swamp at t=5.2s!"
+        human_rescue_note: "Hilarious accidental 'Clone Spell' blooper where Meteor Swarm splits Ale into twins!"
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Bishop Ale, a cute boy in blue-and-gold bishop mitre hat and robe with a red baby dragon on his shoulder). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') raises his sceptre to the sky casting the 9th-level Dungeons & Dragons spell 'Meteor Swarm': four giant blazing volcanic meteors with fiery golden-red tails plummet diagonally down from a glowing D&D arcane circle in the twilight sky toward the right side of the board! On the RIGHT, Bishop Ale and his red shoulder dragon look up at the incoming meteors. Keep both characters 100% faithful to the reference photos. Seamless 16:9, no text."
+        veo_prompt: "Starting from this initial frame, King Riccardo on the left commands a 9th-level Dungeons & Dragons Meteor Swarm with his golden sceptre! Four blazing volcanic meteors streak down from the sky with fiery trails and impact around Bishop Ale and his red baby dragon on the right in a spectacular shower of golden sparks and lava pebbles, launching Ale comically into the emerald swamp moat!"
+  k_x_n:
+    id: "k_x_n"
+    matchup: "King Riccardo vs Knight Seby"
+    attacker: "k"
+    defender: "n"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/k_x_n.mp4"
+      webm_path: "assets/battles/videos/k_x_n.webm"
+      first_frame: "assets/battles/keyframes/k_x_n.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 8.2
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Blue-gold D&D Chain Lightning arcs through Seby's toy race cars and shocks Seby's horse. F3–F4: Seby is blasted off the board into a huge green swamp splash while Riccardo stands victorious."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Knight Seby, a cute blonde boy in golden knight armor riding a golden warhorse). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') casts the Dungeons & Dragons 'Chain Lightning' spell: multiple jagged, forking arcs of brilliant electric blue-and-gold Chain Lightning shoot from his raised golden sceptre, bouncing from one bolt to another across the board! On the RIGHT, Knight Seby on his rearing golden warhorse and his miniature race cars are surrounded by jumping electric arcs. Keep both characters 100% faithful to the reference photos. Seamless 16:9 scene, no text."
+      veo_prompt: "Starting from this initial frame, King Riccardo on the left casts Dungeons & Dragons Chain Lightning from his golden sceptre! Dazzling jagged bolts of blue-and-gold electricity arc and bounce in a chain from one of Seby's miniature toy race cars to another and then zap Knight Seby and his golden warhorse on the right with funny cartoon electric sparks, sending Seby spinning off the board into the emerald swamp!"
+    archived_versions: []
+  k_x_r:
+    id: "k_x_r"
+    matchup: "King Riccardo vs Rook Pupurabbu"
+    attacker: "k"
+    defender: "r"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/k_x_r.mp4"
+      webm_path: "assets/battles/videos/k_x_r.webm"
+      first_frame: "assets/battles/keyframes/k_x_r.png"
+      last_frame: "assets/battles/keyframes/k_x_r_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.8
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: King Riccardo's chubby red D&D baby demon hops right and belly-bumps Rook Pupurabbu. F3–F4: The purple stone rook tower stays stationary on the right square while Pupurabbu pops airborne out of the tower with dizzy stars and the red baby demon munches its slice of pizza."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Rook Pupurabbu, a cute fluffy purple plush monster mascot in a purple stone rook tower). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') casts a comedic Dungeons & Dragons 'Summon Greater Demon' spell: from a glowing golden-red arcane rune circle in the center of the board pops a hilarious, chubby Pixar-style red baby Balor demon with tiny bat wings, a toy plastic pitchfork, and a slice of Italian pizza, grinning mischievously at Rook Pupurabbu on the RIGHT! Keep King Riccardo and Pupurabbu 100% faithful to the reference photos. Seamless 16:9 scene, no text."
+      veo_prompt: "Starting from this initial frame, King Riccardo on the left points his sceptre as his summoned chubby, funny Pixar-style red D&D demon holding a toy pitchfork and a slice of pizza hops across the chessboard and does a hilarious bouncy belly-bump and tickle-wrestle with giant fluffy purple Rook Pupurabbu on the right, bouncing Pupurabbu off the chessboard into the emerald swamp while the little demon munches its pizza!"
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/k_x_r_v1_vanishing_tower_king_falls.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 4.0
+        critic_verdict: "REJECTED"
+        critic_reason: "Vanishing/Reappearing Tower & Confused Winner: At t=5.2s, Pupurabbu's purple rook tower vanishes and Pupurabbu hugs Riccardo and the red demon; then at t=7.4s the purple rook tower magically reappears on the right while King Riccardo jumps into the foreground swamp!"
+        human_rescue_note: "Very funny unexpected twist where Pupurabbu hugs the D&D demon and King Riccardo jumps into the swamp!"
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Rook Pupurabbu, a cute fluffy purple plush monster mascot in a purple stone rook tower). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') casts a comedic Dungeons & Dragons 'Summon Greater Demon' spell: from a glowing golden-red arcane rune circle in the center of the board pops a hilarious, chubby Pixar-style red baby Balor demon with tiny bat wings, a toy plastic pitchfork, and a slice of Italian pizza, grinning mischievously at Rook Pupurabbu on the RIGHT! Keep King Riccardo and Pupurabbu 100% faithful to the reference photos. Seamless 16:9 scene, no text."
+        veo_prompt: "Starting from this initial frame, King Riccardo on the left points his sceptre as his summoned chubby, funny Pixar-style red D&D demon holding a toy pitchfork and a slice of pizza hops across the chessboard and does a hilarious bouncy belly-bump and tickle-wrestle with giant fluffy purple Rook Pupurabbu on the right, bouncing Pupurabbu off the chessboard into the emerald swamp while the little demon munches its pizza!"
+  k_x_p:
+    id: "k_x_p"
+    matchup: "King Riccardo vs Pawn Puffin"
+    attacker: "k"
+    defender: "p"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/k_x_p.mp4"
+      webm_path: "assets/battles/videos/k_x_p.webm"
+      first_frame: "assets/battles/keyframes/k_x_p.png"
+      last_frame: "assets/battles/keyframes/k_x_p_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.1
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: King Riccardo beside the floating Natural-20 d20 die hurls a blazing D&D Fireball into the single Swiss-Guard Pawn Puffin. F3–F4: The Fireball leaves a scorched soot ring on the right square and blasts the single soot-smudged Puffin airborne over the swamp moat with dizzy stars (zero duplicate Puffin clones)."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Pawn Puffin in colorful Swiss Guard armor holding a halberd and silver fish). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') casts the classic Dungeons & Dragons 'Fireball' spell: a glowing golden 20-sided D&D die (d20 showing 20) floats beside his sceptre as he hurls a blazing swirling sphere of orange-gold D&D Fireball magic toward the right! On the RIGHT, Pawn Puffin holds up his halberd and silver fish in wide-eyed comic surprise. Keep both characters 100% faithful to the reference photos. Seamless 16:9 scene, no text."
+      veo_prompt: "Starting from this initial frame, King Riccardo on the left rolls a glowing golden D&D d20 die and hurls a massive blazing orange-red D&D Fireball spell from his golden sceptre across the chessboard! The Fireball erupts in a spectacular, funny Pixar-style mushroom cloud of golden fire and sparks around Pawn Puffin on the right, comically singing his feathers and sending him flying into the emerald swamp moat!"
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/k_x_p_v1_duplicate_puffin_clone.mp4"
+        archive_keyframe_path: "assets/battles/archive/keyframes/k_x_p_v1_bobblehead.png"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 3.5
+        critic_verdict: "REJECTED"
+        critic_reason: "User-Flagged Duplicate Puffin Clone: During the D&D Fireball explosion, a second duplicate Puffin spawns/runs across the board and dies while the original Puffin hops back onto the board at t=5.2s before vanishing at t=7.4s."
+        human_rescue_note: "The classic 'double Puffin' blooper spotted by Riccardo!"
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT character (King Riccardo in his golden crown, glasses, and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Pawn Puffin in colorful Swiss Guard armor holding a halberd and silver fish). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') casts the classic Dungeons & Dragons 'Fireball' spell: a glowing golden 20-sided D&D die (d20 showing 20) floats beside his sceptre as he hurls a blazing swirling sphere of orange-gold D&D Fireball magic toward the right! On the RIGHT, Pawn Puffin holds up his halberd and silver fish in wide-eyed comic surprise. Keep both characters 100% faithful to the reference photos. Seamless 16:9 scene, no text."
+        veo_prompt: "Starting from this initial frame, King Riccardo on the left rolls a glowing golden D&D d20 die and hurls a massive blazing orange-red D&D Fireball spell from his golden sceptre across the chessboard! The Fireball erupts in a spectacular, funny Pixar-style mushroom cloud of golden fire and sparks around Pawn Puffin on the right, comically singing his feathers and sending him flying into the emerald swamp moat!"
+  q_x_k:
+    id: "q_x_k"
+    matchup: "Queen Kate vs King Riccardo"
+    attacker: "q"
+    defender: "k"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/q_x_k.mp4"
+      webm_path: "assets/battles/videos/q_x_k.webm"
+      first_frame: "assets/battles/keyframes/q_x_k.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 8.5
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Queen Kate's glossy chocolate tidal wave & lilac confetti smash into Riccardo on his golden throne. F3–F4: Riccardo is swept off his throne into the green swamp moat while Kate stands hands-on-hips beside the empty golden throne."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (Queen Kate in her blonde wavy hair, dark-blue glasses, golden crown, and purple velvet gown holding a golden wand). Image 2 is the RIGHT character (King Riccardo in his golden crown and blue ermine royal cloak holding a golden sceptre). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, Queen Kate waves her golden wand conjuring a giant glossy wave of milk chocolate and lilac confetti to sweep away King Riccardo on the RIGHT, who tries to defend with his golden sceptre and a comical golden toilet-throne! Keep both characters 100% faithful to the reference photos. No text."
+      veo_prompt: "Starting from this initial frame, Queen Kate on the left waves her golden wand unleashing a giant swirling wave of glossy milk chocolate and sparkling lilac confetti across the chessboard! King Riccardo on the right tries to block with his golden sceptre, but the chocolate wave sweeps him and his comical golden throne spinning off the board into the emerald swamp moat while Queen Kate bows victoriously!"
+    archived_versions: []
+  q_x_q:
+    id: "q_x_q"
+    matchup: "Queen Kate vs Queen Kate"
+    attacker: "q"
+    defender: "q"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/q_x_q.mp4"
+      webm_path: "assets/battles/videos/q_x_q.webm"
+      first_frame: "assets/battles/keyframes/q_x_q.png"
+      last_frame: "assets/battles/keyframes/q_x_q_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.9
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: White-Team Queen Kate (purple-and-gold velvet gown, glasses) drives her glossy milk-chocolate tidal wave and lilac confetti into the Dark-Team Rival Queen (black-and-silver dress). F3–F4: The black-dressed Rival Queen splashes into the moat with dizzy stars while Purple-Gown Queen Kate celebrates on the left."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 2 is the RIGHT defender (a mirror rival Dark Obsidian-and-Silver team version of Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Queen Kate faces right and waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti, ready to defeat Queen Kate. On the RIGHT side of the frame, Queen Kate faces left toward Queen Kate, bracing as they conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Queen Kate waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti straight across the chessboard at Queen Kate on the right! In the middle of the clash, Queen Kate briefly tries to defend and conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons, but Queen Kate's signature attack overwhelms Queen Kate, who is swept off balance in a swirl of sparkles and splashes into the emerald swamp moat while Queen Kate celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/q_x_q_v1_wrong_winner_black_queen.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 3.5
+        critic_verdict: "REJECTED"
+        critic_reason: "Wrong Winner: At t=5.2s–7.4s, attacking White-Team Queen Kate (purple gown, glasses) disappears and the Rival Dark-Team Queen (black/silver dress, no glasses) stands in the center raising her wand in victory!"
+        human_rescue_note: "Dark Queen mirror-universe victory animation."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 2 is the RIGHT defender (a mirror rival Dark Obsidian-and-Silver team version of Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Queen Kate faces right and waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti, ready to defeat Queen Kate. On the RIGHT side of the frame, Queen Kate faces left toward Queen Kate, bracing as they conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Queen Kate waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti straight across the chessboard at Queen Kate on the right! In the middle of the clash, Queen Kate briefly tries to defend and conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons, but Queen Kate's signature attack overwhelms Queen Kate, who is swept off balance in a swirl of sparkles and splashes into the emerald swamp moat while Queen Kate celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  q_x_b:
+    id: "q_x_b"
+    matchup: "Queen Kate vs Bishop Ale"
+    attacker: "q"
+    defender: "b"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/q_x_b.mp4"
+      webm_path: "assets/battles/videos/q_x_b.webm"
+      first_frame: "assets/battles/keyframes/q_x_b.png"
+      last_frame: "assets/battles/keyframes/q_x_b_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.8
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Queen Kate's glossy milk-chocolate tidal wave and lilac confetti crash into Bishop Ale on the right. F3–F4: The single chocolate-dripping Bishop Ale and his single red shoulder dragon tumble airborne off the right edge with dizzy stars while Kate smiles victoriously."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 2 is the RIGHT defender (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Queen Kate faces right and waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti, ready to defeat Bishop Ale. On the RIGHT side of the frame, Bishop Ale faces left toward Queen Kate, bracing as they points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Queen Kate waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti straight across the chessboard at Bishop Ale on the right! In the middle of the clash, Bishop Ale briefly tries to defend and points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks, but Queen Kate's signature attack overwhelms Bishop Ale, who is knocked spinning off his pedestal in a shower of purple sparks into the emerald swamp moat while Queen Kate celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/q_x_b_v1_duplicate_dragon_and_ale.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 3.8
+        critic_verdict: "REJECTED"
+        critic_reason: "Double Clone Spawning: At t=2.8s a 2nd red baby dragon spawns on top of the chocolate wave, and at t=5.2s Bishop Ale splits into TWO duplicate Ales (one flying in mid-air on the left, one coated in chocolate on the right)."
+        human_rescue_note: "Wild chaotic chocolate wave with double dragons and double Ales."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 2 is the RIGHT defender (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Queen Kate faces right and waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti, ready to defeat Bishop Ale. On the RIGHT side of the frame, Bishop Ale faces left toward Queen Kate, bracing as they points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Queen Kate waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti straight across the chessboard at Bishop Ale on the right! In the middle of the clash, Bishop Ale briefly tries to defend and points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks, but Queen Kate's signature attack overwhelms Bishop Ale, who is knocked spinning off his pedestal in a shower of purple sparks into the emerald swamp moat while Queen Kate celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  q_x_n:
+    id: "q_x_n"
+    matchup: "Queen Kate vs Knight Seby"
+    attacker: "q"
+    defender: "n"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/q_x_n.mp4"
+      webm_path: "assets/battles/videos/q_x_n.webm"
+      first_frame: "assets/battles/keyframes/q_x_n.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 8.4
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Chocolate wave & lilac confetti crash into Seby and his rearing warhorse. F3–F4: Seby and his horse tumble with cartoon stars into the emerald swamp moat while Kate cheers."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 2 is the RIGHT defender (Knight Seby, a cute smiling blonde boy chess figurine with blue eyes, wearing gleaming golden plate knight armor and a flowing blue cape, riding a golden-armored warhorse). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Queen Kate faces right and waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti, ready to defeat Knight Seby. On the RIGHT side of the frame, Knight Seby faces left toward Queen Kate, bracing as they pops a dramatic wheelie on his golden warhorse and kicks up turbo race car sparks. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Queen Kate waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti straight across the chessboard at Knight Seby on the right! In the middle of the clash, Knight Seby briefly tries to defend and pops a dramatic wheelie on his golden warhorse and kicks up turbo race car sparks, but Queen Kate's signature attack overwhelms Knight Seby, who is bowled spinning off the chessboard with cartoon stars into the emerald swamp moat while Queen Kate celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions: []
+  q_x_r:
+    id: "q_x_r"
+    matchup: "Queen Kate vs Rook Pupurabbu"
+    attacker: "q"
+    defender: "r"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/q_x_r.mp4"
+      webm_path: "assets/battles/videos/q_x_r.webm"
+      first_frame: "assets/battles/keyframes/q_x_r.png"
+      last_frame: "assets/battles/keyframes/q_x_r_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.9
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Queen Kate's glossy milk-chocolate wave hits Rook Pupurabbu on the right. F3–F4: The chocolate-splattered purple stone rook tower remains continuously in place on the right square while Pupurabbu pops airborne out of the tower with dizzy stars."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 2 is the RIGHT defender (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Queen Kate faces right and waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti, ready to defeat Rook Pupurabbu. On the RIGHT side of the frame, Rook Pupurabbu faces left toward Queen Kate, bracing as they puffs up his giant squishy purple plush belly to bounce the attack with a big BOING. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Queen Kate waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti straight across the chessboard at Rook Pupurabbu on the right! In the middle of the clash, Rook Pupurabbu briefly tries to defend and puffs up his giant squishy purple plush belly to bounce the attack with a big BOING, but Queen Kate's signature attack overwhelms Rook Pupurabbu, who bounces like a giant purple rubber ball right off the board into the emerald swamp moat while Queen Kate celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/q_x_r_v1_vanishing_reappearing_tower.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 4.8
+        critic_verdict: "REJECTED"
+        critic_reason: "Disappearing & Reappearing Rook Tower: At t=2.8s–5.2s the purple rook tower completely vanishes under Pupurabbu, then at t=7.4s the empty purple tower magically pops back into existence on the right square."
+        human_rescue_note: "Cute animation of Pupurabbu bouncing, only rejected because the purple tower vanishes and reappears."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 2 is the RIGHT defender (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Queen Kate faces right and waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti, ready to defeat Rook Pupurabbu. On the RIGHT side of the frame, Rook Pupurabbu faces left toward Queen Kate, bracing as they puffs up his giant squishy purple plush belly to bounce the attack with a big BOING. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Queen Kate waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti straight across the chessboard at Rook Pupurabbu on the right! In the middle of the clash, Rook Pupurabbu briefly tries to defend and puffs up his giant squishy purple plush belly to bounce the attack with a big BOING, but Queen Kate's signature attack overwhelms Rook Pupurabbu, who bounces like a giant purple rubber ball right off the board into the emerald swamp moat while Queen Kate celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  q_x_p:
+    id: "q_x_p"
+    matchup: "Queen Kate vs Pawn Puffin"
+    attacker: "q"
+    defender: "p"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/q_x_p.mp4"
+      webm_path: "assets/battles/videos/q_x_p.webm"
+      first_frame: "assets/battles/keyframes/q_x_p.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 8.3
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Chocolate tidal wave engulfs Swiss-Guard Puffin. F3–F4: Chocolate-covered Puffin flaps in comic panic and melts/splashes away into a chocolate puddle while Kate cheers."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 2 is the RIGHT defender (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Queen Kate faces right and waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti, ready to defeat Pawn Puffin. On the RIGHT side of the frame, Pawn Puffin faces left toward Queen Kate, bracing as they crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Queen Kate waves her golden royal wand unleashing a giant glossy swirling tidal wave of milk chocolate and sparkling lilac-and-gold confetti straight across the chessboard at Pawn Puffin on the right! In the middle of the clash, Pawn Puffin briefly tries to defend and crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield, but Queen Kate's signature attack overwhelms Pawn Puffin, who flaps his tiny wings in a puff of feathers and splashes into the emerald swamp moat while Queen Kate celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions: []
+  b_x_k:
+    id: "b_x_k"
+    matchup: "Bishop Ale vs King Riccardo"
+    attacker: "b"
+    defender: "k"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/b_x_k.mp4"
+      webm_path: "assets/battles/videos/b_x_k.webm"
+      first_frame: "assets/battles/keyframes/b_x_k.png"
+      last_frame: "assets/battles/keyframes/b_x_k_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.8
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Bishop Ale and his small red shoulder dragon unleash orange dragon fire and purple amethyst crystals into King Riccardo. F3–F4: Purple amethyst crystals scatter across the right tiles as human King Riccardo is knocked airborne with dizzy stars while Ale cheers on the left."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 2 is the RIGHT defender (King Riccardo, a smiling Italian dad king chess figurine wearing an arched golden imperial crown, blue velvet royal cloak with white ermine trim, holding a golden lightning sceptre in his right hand and a golden royal orb in his left hand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Bishop Ale faces right and waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals, ready to defeat King Riccardo. On the RIGHT side of the frame, King Riccardo faces left toward Bishop Ale, bracing as they parries with a flash of golden royal lightning from his sceptre. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Bishop Ale waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals straight across the chessboard at King Riccardo on the right! In the middle of the clash, King Riccardo briefly tries to defend and parries with a flash of golden royal lightning from his sceptre, but Bishop Ale's signature attack overwhelms King Riccardo, who gets comical royal crown wobble and is launched spinning into the glowing green swamp moat while Bishop Ale celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/b_x_k_v1_king_morphs_green_dragon.mp4"
+        archive_keyframe_path: "assets/battles/archive/keyframes/b_x_k_v1_bobblehead.png"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 4.0
+        critic_verdict: "REJECTED"
+        critic_reason: "Crowned Green Dragon Hallucination: After King Riccardo is blasted off the right edge at t=5.2s, at t=7.4s a bizarre green cartoon dragon wearing King Riccardo's golden crown spawns on the right side of the board cheering next to Ale!"
+        human_rescue_note: "Must-watch comedy blooper: King Riccardo polymorphs into a crowned green dragon at the end!"
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 2 is the RIGHT defender (King Riccardo, a smiling Italian dad king chess figurine wearing an arched golden imperial crown, blue velvet royal cloak with white ermine trim, holding a golden lightning sceptre in his right hand and a golden royal orb in his left hand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Bishop Ale faces right and waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals, ready to defeat King Riccardo. On the RIGHT side of the frame, King Riccardo faces left toward Bishop Ale, bracing as they parries with a flash of golden royal lightning from his sceptre. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Bishop Ale waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals straight across the chessboard at King Riccardo on the right! In the middle of the clash, King Riccardo briefly tries to defend and parries with a flash of golden royal lightning from his sceptre, but Bishop Ale's signature attack overwhelms King Riccardo, who gets comical royal crown wobble and is launched spinning into the glowing green swamp moat while Bishop Ale celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  b_x_q:
+    id: "b_x_q"
+    matchup: "Bishop Ale vs Queen Kate"
+    attacker: "b"
+    defender: "q"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/b_x_q.mp4"
+      webm_path: "assets/battles/videos/b_x_q.webm"
+      first_frame: "assets/battles/keyframes/b_x_q.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 8.6
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Ale's wand and shoulder dragon blast fire and purple amethyst crystals into Kate's shield. F3–F4: Shield shatters, Kate falls backward into the green swamp moat, and Ale + red dragon cheer."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 2 is the RIGHT defender (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Bishop Ale faces right and waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals, ready to defeat Queen Kate. On the RIGHT side of the frame, Queen Kate faces left toward Bishop Ale, bracing as they conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Bishop Ale waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals straight across the chessboard at Queen Kate on the right! In the middle of the clash, Queen Kate briefly tries to defend and conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons, but Bishop Ale's signature attack overwhelms Queen Kate, who is swept off balance in a swirl of sparkles and splashes into the emerald swamp moat while Bishop Ale celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions: []
+  b_x_b:
+    id: "b_x_b"
+    matchup: "Bishop Ale vs Bishop Ale"
+    attacker: "b"
+    defender: "b"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/b_x_b.mp4"
+      webm_path: "assets/battles/videos/b_x_b.webm"
+      first_frame: "assets/battles/keyframes/b_x_b.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 7.4
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Dragon fire & amethyst crystal duel between White-team Ale (blue/gold) and Dark-team Ale (obsidian/silver). F3–F4: Rival Ale is blasted backward and splashes into the green swamp moat while White-team Ale cheers."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 2 is the RIGHT defender (a mirror rival Dark Obsidian-and-Silver team version of Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Bishop Ale faces right and waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals, ready to defeat Bishop Ale. On the RIGHT side of the frame, Bishop Ale faces left toward Bishop Ale, bracing as they points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Bishop Ale waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals straight across the chessboard at Bishop Ale on the right! In the middle of the clash, Bishop Ale briefly tries to defend and points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks, but Bishop Ale's signature attack overwhelms Bishop Ale, who is knocked spinning off his pedestal in a shower of purple sparks into the emerald swamp moat while Bishop Ale celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions: []
+  b_x_n:
+    id: "b_x_n"
+    matchup: "Bishop Ale vs Knight Seby"
+    attacker: "b"
+    defender: "n"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/b_x_n.mp4"
+      webm_path: "assets/battles/videos/b_x_n.webm"
+      first_frame: "assets/battles/keyframes/b_x_n.png"
+      last_frame: "assets/battles/keyframes/b_x_n_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.9
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Bishop Ale and his small red shoulder dragon blast dragon fire and purple amethyst crystals into Knight Seby. F3–F4: Seby on his rearing golden warhorse is knocked backward with dizzy yellow stars spinning above his head while Ale cheers (zero giant dragon morph, zero 3D letters)."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (Bishop Ale, a cute Pixar-style boy chess piece with brown hair and green eyes wearing a blue-and-gold bishop mitre hat and robe, holding a magic wand, with a cute red baby dragon perched on his shoulder). Image 2 is the RIGHT character (Knight Seby, a cute Pixar-style blonde boy chess piece in golden knight armor and blue cape riding a golden-armored warhorse). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical battle on an enchanted stone chessboard surrounded by flaming torches and emerald swamp mist at twilight. On the LEFT side of the chessboard, Bishop Ale points his glowing magic wand toward Seby while the red baby dragon on Ale's shoulder opens its jaws with glowing fire embers, ready to unleash an epic attack that will defeat Seby. On the RIGHT side of the chessboard, Knight Seby on his golden warhorse faces left toward Ale, bracing for the spell. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 scene, no split-screen line, no text."
+      veo_prompt: "Starting from this initial battle frame, animate an epic and funny Pixar-style 3D chess battle: Bishop Ale on the left waves his glowing magic wand casting sparkling blue-and-purple magic while the cute red baby dragon on his shoulder breathes a powerful stream of bright orange-gold dragon fire and purple amethyst crystals across the chessboard straight at Knight Seby on the right! Seby's golden warhorse rears up trying to counter with a toy race car, but the dragon's fire and crystals engulf Seby and knock him spinning comically off the chessboard into the glowing green swamp moat while Ale and his red dragon celebrate victoriously!"
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/b_x_n_v1_giant_dragon_1G_letters.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 3.8
+        critic_verdict: "REJECTED"
+        critic_reason: "Giant Dragon Morph + Text Hallucination: At t=2.8s Seby's horse morphs into a giant adult red dragon, and at t=5.2s–7.4s giant golden 3D letters '1' and 'G' ('1 G') spawn on the chessboard next to Ale and the giant dragon!"
+        human_rescue_note: "Hilarious AI fever dream where Seby's horse turns into a giant dragon and drops golden '1G' letters on the board."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT character (Bishop Ale, a cute Pixar-style boy chess piece with brown hair and green eyes wearing a blue-and-gold bishop mitre hat and robe, holding a magic wand, with a cute red baby dragon perched on his shoulder). Image 2 is the RIGHT character (Knight Seby, a cute Pixar-style blonde boy chess piece in golden knight armor and blue cape riding a golden-armored warhorse). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical battle on an enchanted stone chessboard surrounded by flaming torches and emerald swamp mist at twilight. On the LEFT side of the chessboard, Bishop Ale points his glowing magic wand toward Seby while the red baby dragon on Ale's shoulder opens its jaws with glowing fire embers, ready to unleash an epic attack that will defeat Seby. On the RIGHT side of the chessboard, Knight Seby on his golden warhorse faces left toward Ale, bracing for the spell. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 scene, no split-screen line, no text."
+        veo_prompt: "Starting from this initial battle frame, animate an epic and funny Pixar-style 3D chess battle: Bishop Ale on the left waves his glowing magic wand casting sparkling blue-and-purple magic while the cute red baby dragon on his shoulder breathes a powerful stream of bright orange-gold dragon fire and purple amethyst crystals across the chessboard straight at Knight Seby on the right! Seby's golden warhorse rears up trying to counter with a toy race car, but the dragon's fire and crystals engulf Seby and knock him spinning comically off the chessboard into the glowing green swamp moat while Ale and his red dragon celebrate victoriously!"
+  b_x_r:
+    id: "b_x_r"
+    matchup: "Bishop Ale vs Rook Pupurabbu"
+    attacker: "b"
+    defender: "r"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/b_x_r.mp4"
+      webm_path: "assets/battles/videos/b_x_r.webm"
+      first_frame: "assets/battles/keyframes/b_x_r.png"
+      last_frame: "assets/battles/keyframes/b_x_r_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.8
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Bishop Ale and his small red shoulder dragon blast fire and amethyst crystals into Rook Pupurabbu. F3–F4: The purple stone rook tower stays stationary on the right square surrounded by amethyst crystals while Pupurabbu pops airborne out of the tower with dizzy stars."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 2 is the RIGHT defender (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Bishop Ale faces right and waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals, ready to defeat Rook Pupurabbu. On the RIGHT side of the frame, Rook Pupurabbu faces left toward Bishop Ale, bracing as they puffs up his giant squishy purple plush belly to bounce the attack with a big BOING. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Bishop Ale waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals straight across the chessboard at Rook Pupurabbu on the right! In the middle of the clash, Rook Pupurabbu briefly tries to defend and puffs up his giant squishy purple plush belly to bounce the attack with a big BOING, but Bishop Ale's signature attack overwhelms Rook Pupurabbu, who bounces like a giant purple rubber ball right off the board into the emerald swamp moat while Bishop Ale celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/b_x_r_v1_teleporting_rook_tower.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 5.2
+        critic_verdict: "REJECTED"
+        critic_reason: "Teleporting Rook Tower: At t=5.2s, while Pupurabbu bounces off the right side into the swamp as a purple sphere, his purple stone rook tower teleports across the board to the left side right in front of Ale, then vanishes at t=7.4s!"
+        human_rescue_note: "Good crystal beam impact, rejected due to the teleporting rook tower."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 2 is the RIGHT defender (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Bishop Ale faces right and waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals, ready to defeat Rook Pupurabbu. On the RIGHT side of the frame, Rook Pupurabbu faces left toward Bishop Ale, bracing as they puffs up his giant squishy purple plush belly to bounce the attack with a big BOING. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Bishop Ale waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals straight across the chessboard at Rook Pupurabbu on the right! In the middle of the clash, Rook Pupurabbu briefly tries to defend and puffs up his giant squishy purple plush belly to bounce the attack with a big BOING, but Bishop Ale's signature attack overwhelms Rook Pupurabbu, who bounces like a giant purple rubber ball right off the board into the emerald swamp moat while Bishop Ale celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  b_x_p:
+    id: "b_x_p"
+    matchup: "Bishop Ale vs Pawn Puffin"
+    attacker: "b"
+    defender: "p"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/b_x_p.mp4"
+      webm_path: "assets/battles/videos/b_x_p.webm"
+      first_frame: "assets/battles/keyframes/b_x_p.png"
+      last_frame: "assets/battles/keyframes/b_x_p_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.0
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Human boy Bishop Ale and his small red shoulder dragon blast fire and purple amethyst crystals into Swiss-Guard Pawn Puffin. F3–F4: Purple crystals and feathers scatter as the single Puffin splashes into the emerald swamp moat with dizzy stars while human boy Ale cheers on the left."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 2 is the RIGHT defender (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Bishop Ale faces right and waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals, ready to defeat Pawn Puffin. On the RIGHT side of the frame, Pawn Puffin faces left toward Bishop Ale, bracing as they crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Bishop Ale waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals straight across the chessboard at Pawn Puffin on the right! In the middle of the clash, Pawn Puffin briefly tries to defend and crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield, but Bishop Ale's signature attack overwhelms Pawn Puffin, who flaps his tiny wings in a puff of feathers and splashes into the emerald swamp moat while Bishop Ale celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/b_x_p_v1_second_puffin_balloon_chest.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 4.0
+        critic_verdict: "REJECTED"
+        critic_reason: "Attacker Morphs into 2nd Puffin + Balloon Chest: At t=5.2s a 2nd Puffin spawns on the left edge, and at t=7.4s the Puffin in the swamp grows giant inflated white pectoral muscles/balloon chest instead of being defeated!"
+        human_rescue_note: "Extremely funny blooper where the Puffin puffs up with giant white bodybuilder pecs in the swamp!"
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 2 is the RIGHT defender (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Bishop Ale faces right and waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals, ready to defeat Pawn Puffin. On the RIGHT side of the frame, Pawn Puffin faces left toward Bishop Ale, bracing as they crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Bishop Ale waves his glowing magic wand while the cute red baby dragon on his shoulder breathes a spectacular stream of bright orange-gold dragon fire and shimmering purple amethyst crystals straight across the chessboard at Pawn Puffin on the right! In the middle of the clash, Pawn Puffin briefly tries to defend and crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield, but Bishop Ale's signature attack overwhelms Pawn Puffin, who flaps his tiny wings in a puff of feathers and splashes into the emerald swamp moat while Bishop Ale celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  n_x_k:
+    id: "n_x_k"
+    matchup: "Knight Seby vs King Riccardo"
+    attacker: "n"
+    defender: "k"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/n_x_k.mp4"
+      webm_path: "assets/battles/videos/n_x_k.webm"
+      first_frame: "assets/battles/keyframes/n_x_k.png"
+      last_frame: "assets/battles/keyframes/n_x_k_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.9
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Knight Seby on his golden warhorse launches turbo toy race cars down his glowing orange loop-track straight into King Riccardo. F3–F4: Toy race cars bowl King Riccardo airborne off his feet with dizzy stars while Seby cheers atop his rearing golden warhorse on the left."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Knight Seby, a cute smiling blonde boy chess figurine with blue eyes, wearing gleaming golden plate knight armor and a flowing blue cape, riding a golden-armored warhorse). Image 2 is the RIGHT defender (King Riccardo, a smiling Italian dad king chess figurine wearing an arched golden imperial crown, blue velvet royal cloak with white ermine trim, holding a golden lightning sceptre in his right hand and a golden royal orb in his left hand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Knight Seby faces right and rears up on his golden warhorse and charges forward while launching a glowing orange Hot-Wheels loop-the-loop race track and fast miniature turbo toy race cars, ready to defeat King Riccardo. On the RIGHT side of the frame, King Riccardo faces left toward Knight Seby, bracing as they parries with a flash of golden royal lightning from his sceptre. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Knight Seby rears up on his golden warhorse and charges forward while launching a glowing orange Hot-Wheels loop-the-loop race track and fast miniature turbo toy race cars straight across the chessboard at King Riccardo on the right! In the middle of the clash, King Riccardo briefly tries to defend and parries with a flash of golden royal lightning from his sceptre, but Knight Seby's signature attack overwhelms King Riccardo, who gets comical royal crown wobble and is launched spinning into the glowing green swamp moat while Knight Seby celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/n_x_k_v1_horse_vanishes_seby_king_cloak.mp4"
+        archive_keyframe_path: "assets/battles/archive/keyframes/n_x_k_v1_bobblehead.png"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 4.2
+        critic_verdict: "REJECTED"
+        critic_reason: "Disappearing Horse & Costume Swap: After King Riccardo splashes into the green swamp at t=5.2s, at t=7.4s Seby's golden warhorse completely vanishes and Seby morphs into wearing King Riccardo's blue ermine royal cloak!"
+        human_rescue_note: "Funny 'Usurper Seby' ending where Seby steals Dad's royal ermine cloak after knocking him into the swamp!"
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Knight Seby, a cute smiling blonde boy chess figurine with blue eyes, wearing gleaming golden plate knight armor and a flowing blue cape, riding a golden-armored warhorse). Image 2 is the RIGHT defender (King Riccardo, a smiling Italian dad king chess figurine wearing an arched golden imperial crown, blue velvet royal cloak with white ermine trim, holding a golden lightning sceptre in his right hand and a golden royal orb in his left hand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Knight Seby faces right and rears up on his golden warhorse and charges forward while launching a glowing orange Hot-Wheels loop-the-loop race track and fast miniature turbo toy race cars, ready to defeat King Riccardo. On the RIGHT side of the frame, King Riccardo faces left toward Knight Seby, bracing as they parries with a flash of golden royal lightning from his sceptre. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Knight Seby rears up on his golden warhorse and charges forward while launching a glowing orange Hot-Wheels loop-the-loop race track and fast miniature turbo toy race cars straight across the chessboard at King Riccardo on the right! In the middle of the clash, King Riccardo briefly tries to defend and parries with a flash of golden royal lightning from his sceptre, but Knight Seby's signature attack overwhelms King Riccardo, who gets comical royal crown wobble and is launched spinning into the glowing green swamp moat while Knight Seby celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  n_x_q:
+    id: "n_x_q"
+    matchup: "Knight Seby vs Queen Kate"
+    attacker: "n"
+    defender: "q"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/n_x_q.mp4"
+      webm_path: "assets/battles/videos/n_x_q.webm"
+      first_frame: "assets/battles/keyframes/n_x_q.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 8.6
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Seby on his golden horse launches the orange loop-track and race cars, shattering Kate's shield. F3–F4: Kate splashes into the green swamp moat while Seby cheers on his rearing golden horse."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Knight Seby, a cute smiling blonde boy chess figurine with blue eyes, wearing gleaming golden plate knight armor and a flowing blue cape, riding a golden-armored warhorse). Image 2 is the RIGHT defender (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Knight Seby faces right and rears up on his golden warhorse and charges forward while launching a glowing orange Hot-Wheels loop-the-loop race track and fast miniature turbo toy race cars, ready to defeat Queen Kate. On the RIGHT side of the frame, Queen Kate faces left toward Knight Seby, bracing as they conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Knight Seby rears up on his golden warhorse and charges forward while launching a glowing orange Hot-Wheels loop-the-loop race track and fast miniature turbo toy race cars straight across the chessboard at Queen Kate on the right! In the middle of the clash, Queen Kate briefly tries to defend and conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons, but Knight Seby's signature attack overwhelms Queen Kate, who is swept off balance in a swirl of sparkles and splashes into the emerald swamp moat while Knight Seby celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions: []
+  n_x_b:
+    id: "n_x_b"
+    matchup: "Knight Seby vs Bishop Ale"
+    attacker: "n"
+    defender: "b"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/n_x_b.mp4"
+      webm_path: "assets/battles/videos/n_x_b.webm"
+      first_frame: "assets/battles/keyframes/n_x_b.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 8.5
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Seby charges with his orange loop-track and turbo race cars into Ale. F3–F4: Ale flips head-over-heels off the right edge into the swamp while Seby cheers on his rearing horse."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (Knight Seby, a cute Pixar-style blonde boy chess piece in golden knight armor and blue cape riding a golden-armored warhorse). Image 2 is the RIGHT character (Bishop Ale, a cute Pixar-style boy chess piece with brown hair and green eyes wearing a blue-and-gold bishop mitre hat and robe, holding a magic wand, with a cute red baby dragon on his shoulder). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic battle on an enchanted stone chessboard surrounded by flaming torches at twilight. On the LEFT side, Knight Seby rears up on his golden warhorse facing right, summoning a glowing orange Hot-Wheels loop-track and miniature turbo toy race cars ready to charge and bowl over Ale. On the RIGHT side, Bishop Ale faces left with his magic wand and red shoulder dragon bracing for Seby's turbo charge. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 scene, no text."
+      veo_prompt: "Starting from this initial battle frame, animate an epic and funny Pixar-style 3D chess battle: Knight Seby on the left charges forward on his golden warhorse while launching a glowing orange loop-the-loop race track and fast miniature turbo toy race cars across the chessboard toward Bishop Ale on the right! Ale's red shoulder dragon puffs a burst of sparks to defend, but Seby's zooming toy race cars and charging warhorse bowl Bishop Ale flat and send him spinning off the chessboard into the emerald swamp while Seby cheers victoriously on his rearing horse!"
+    archived_versions: []
+  n_x_n:
+    id: "n_x_n"
+    matchup: "Knight Seby vs Knight Seby"
+    attacker: "n"
+    defender: "n"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/n_x_n.mp4"
+      webm_path: "assets/battles/videos/n_x_n.webm"
+      first_frame: "assets/battles/keyframes/n_x_n.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 8.8
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: White-team Seby (golden horse + loop track) clashes with Dark-team Seby (black horse). F3–F4: Dark-team Seby splashes into the green swamp moat while White-team Seby raises his fist in victory."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Knight Seby, a cute smiling blonde boy chess figurine with blue eyes, wearing gleaming golden plate knight armor and a flowing blue cape, riding a golden-armored warhorse). Image 2 is the RIGHT defender (a mirror rival Dark Obsidian-and-Silver team version of Knight Seby, a cute smiling blonde boy chess figurine with blue eyes, wearing gleaming golden plate knight armor and a flowing blue cape, riding a golden-armored warhorse). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Knight Seby faces right and rears up on his golden warhorse and charges forward while launching a glowing orange Hot-Wheels loop-the-loop race track and fast miniature turbo toy race cars, ready to defeat Knight Seby. On the RIGHT side of the frame, Knight Seby faces left toward Knight Seby, bracing as they pops a dramatic wheelie on his golden warhorse and kicks up turbo race car sparks. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Knight Seby rears up on his golden warhorse and charges forward while launching a glowing orange Hot-Wheels loop-the-loop race track and fast miniature turbo toy race cars straight across the chessboard at Knight Seby on the right! In the middle of the clash, Knight Seby briefly tries to defend and pops a dramatic wheelie on his golden warhorse and kicks up turbo race car sparks, but Knight Seby's signature attack overwhelms Knight Seby, who is bowled spinning off the chessboard with cartoon stars into the emerald swamp moat while Knight Seby celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions: []
+  n_x_r:
+    id: "n_x_r"
+    matchup: "Knight Seby vs Rook Pupurabbu"
+    attacker: "n"
+    defender: "r"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/n_x_r.mp4"
+      webm_path: "assets/battles/videos/n_x_r.webm"
+      first_frame: "assets/battles/keyframes/n_x_r.png"
+      last_frame: "assets/battles/keyframes/n_x_r_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.0
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Knight Seby riding his golden warhorse trots to the center as fluffy purple Pupurabbu hops out of his purple stone rook tower on the right. F3–F4: Seby on his horse and Pupurabbu embrace in a warm best-friends cuddle hug surrounded by floating pink and purple 3D hearts while the empty purple tower remains on the right."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (Knight Seby, a cute blonde boy in golden knight armor riding a golden warhorse). Image 2 is the RIGHT character (Rook Pupurabbu, a cute fluffy purple monster mascot in a purple stone rook tower). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D frame on an enchanted stone chessboard surrounded by warm lanterns and floating glowing purple hearts. On the LEFT, Knight Seby smiles joyfully reaching out from his golden horse toward his best friend Pupurabbu on the RIGHT, who opens his big fluffy purple arms wide for a giant happy cuddle hug! Keep both characters 100% faithful to the reference photos. No text."
+      veo_prompt: "Starting from this initial frame, Knight Seby on the left and giant fluffy purple Rook Pupurabbu on the right hop joyfully toward the center of the chessboard and give each other a giant, bouncy, non-lethal mega cuddle hug surrounded by a storm of floating glowing purple and pink 3D hearts! Both best friends bounce happily together laughing in Pixar 3D animation style."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/n_x_r_v1_blurry_duplicate_seby_clone.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 4.5
+        critic_verdict: "REJECTED"
+        critic_reason: "Duplicate Blurry Seby Clone & Vanishing Horse/Tower: At t=2.8s, while Seby is still standing on the left, a 2nd blurry golden clone of Seby runs across the center toward Pupurabbu and both the golden horse and purple rook tower vanish."
+        human_rescue_note: "Sweet cuddle ending at t=5.2s–7.4s, rejected because of the t=2.8s ghost clone transition and vanishing horse."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT character (Knight Seby, a cute blonde boy in golden knight armor riding a golden warhorse). Image 2 is the RIGHT character (Rook Pupurabbu, a cute fluffy purple monster mascot in a purple stone rook tower). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D frame on an enchanted stone chessboard surrounded by warm lanterns and floating glowing purple hearts. On the LEFT, Knight Seby smiles joyfully reaching out from his golden horse toward his best friend Pupurabbu on the RIGHT, who opens his big fluffy purple arms wide for a giant happy cuddle hug! Keep both characters 100% faithful to the reference photos. No text."
+        veo_prompt: "Starting from this initial frame, Knight Seby on the left and giant fluffy purple Rook Pupurabbu on the right hop joyfully toward the center of the chessboard and give each other a giant, bouncy, non-lethal mega cuddle hug surrounded by a storm of floating glowing purple and pink 3D hearts! Both best friends bounce happily together laughing in Pixar 3D animation style."
+  n_x_p:
+    id: "n_x_p"
+    matchup: "Knight Seby vs Pawn Puffin"
+    attacker: "n"
+    defender: "p"
+    active:
+      version: "v3"
+      video_path: "assets/battles/videos/n_x_p.mp4"
+      webm_path: "assets/battles/videos/n_x_p.webm"
+      first_frame: "assets/battles/keyframes/n_x_p_start.png"
+      last_frame: "assets/battles/keyframes/n_x_p_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.5
+      critic_verdict: "PASS"
+      critic_review: "Gold Standard (Saint Seiya Sacro Acquarius). F1: Seby clasps both hands HIGH above his head shouting 'Per il Sacro Acquarius!' while healthy Pawn Puffin stands on the right (no statue or ice yet). F2–F3: Translucent Aquarius Maiden with golden amphora materializes behind Seby and shoots a freezing stream of water. F4: Puffin gradually petrifies into a pale cyan-blue translucent figure sealed behind the front wall of a diamond-blue Ice Coffin."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (Knight Seby, a cute Pixar-style blonde boy in gleaming golden plate armor and blue cape). Image 2 is the RIGHT character (Pawn Puffin, a cute puffin bird in Swiss Guard armor holding a halberd). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D battle frame on an enchanted chessboard at twilight, inspired by Saint Seiya Aquarius Camus ('Sacro Acquarius'). On the LEFT side, Knight Seby stands heroically raising and clasping both hands united high above his head! Directly behind and above Seby hovers a luminous celestial Water-Bearer Woman (the Maiden of Aquarius) tilting an enormous ornate Golden Amphora, from which pours a dazzling stream of glowing cyan-blue absolute-zero ice energy and snowflakes! On the RIGHT side, Pawn Puffin is trapped DEEP INSIDE and BEHIND the thick front wall of a massive, towering hexagonal Ice Coffin ('Teca di Ghiaccio'): the entire Puffin is transformed into a translucent icy cyan-blue ('azzurro traslucido') frozen figure viewed THROUGH the thick, glossy, refractive front slab of ice (IMPORTANT: the translucent cyan-blue Puffin is BEHIND the front ice wall, deeply embedded inside the ice block, NEVER standing in front of the ice!). Seamless 16:9 scene, no text."
+      veo_prompt: "Starting from this initial battle frame, animate an epic Saint Seiya 'Sacro Acquarius' (Aurora Execution) 3D battle: on the left, Knight Seby holds his hands united high above his head while the celestial Water-Bearer Woman behind him tilts her enormous Golden Amphora, pouring a blinding torrent of luminous cyan-blue ice energy across the chessboard! On the right, the translucent icy cyan-blue Pawn Puffin is seen deep behind the thick refractive front wall of the towering diamond-blue Ice Coffin ('Teca di Ghiaccio'), and after a dramatic crystalline shimmer, the entire Ice Coffin and the frozen cyan Puffin inside it crumble and shatter into thousands of sparkling diamond-ice crystals!"
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/n_x_p_v1_single_keyframe.mp4"
+        archive_keyframe_path: "assets/battles/archive/keyframes/n_x_p_v1_puffin_in_front_of_ice.png"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 4.5
+        critic_verdict: "REJECTED"
+        critic_reason: "Started directly from the final frozen frame (Aquarius woman and ice already present at t=0.0s, and Puffin was in front of the ice instead of petrified inside it)."
+        human_rescue_note: "First take of Sacro Acquarius before adding the proper start->end Saint Seiya progression."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT character (Knight Seby, a cute Pixar-style blonde boy in gleaming golden plate armor and blue cape). Image 2 is the RIGHT character (Pawn Puffin, a cute puffin bird in Swiss Guard armor holding a halberd). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D battle frame on an enchanted chessboard at twilight, inspired by Saint Seiya Aquarius Camus ('Sacro Acquarius'). On the LEFT side, Knight Seby stands heroically raising and clasping both hands united high above his head! Directly behind and above Seby hovers a luminous celestial Water-Bearer Woman (the Maiden of Aquarius) tilting an enormous ornate Golden Amphora, from which pours a dazzling stream of glowing cyan-blue absolute-zero ice energy and snowflakes! On the RIGHT side, Pawn Puffin is trapped DEEP INSIDE and BEHIND the thick front wall of a massive, towering hexagonal Ice Coffin ('Teca di Ghiaccio'): the entire Puffin is transformed into a translucent icy cyan-blue ('azzurro traslucido') frozen figure viewed THROUGH the thick, glossy, refractive front slab of ice (IMPORTANT: the translucent cyan-blue Puffin is BEHIND the front ice wall, deeply embedded inside the ice block, NEVER standing in front of the ice!). Seamless 16:9 scene, no text."
+        veo_prompt: "Starting from this initial battle frame, animate an epic Saint Seiya 'Sacro Acquarius' (Aurora Execution) 3D battle: on the left, Knight Seby holds his hands united high above his head while the celestial Water-Bearer Woman behind him tilts her enormous Golden Amphora, pouring a blinding torrent of luminous cyan-blue ice energy across the chessboard! On the right, the translucent icy cyan-blue Pawn Puffin is seen deep behind the thick refractive front wall of the towering diamond-blue Ice Coffin ('Teca di Ghiaccio'), and after a dramatic crystalline shimmer, the entire Ice Coffin and the frozen cyan Puffin inside it crumble and shatter into thousands of sparkling diamond-ice crystals!"
+      - version: "v2"
+        archive_video_path: "assets/battles/archive/videos/n_x_p_v2_static_pan.mp4"
+        generation_mode: "ffmpeg_ken_burns_fallback"
+        critic_score: 2.0
+        critic_verdict: "REJECTED"
+        critic_reason: "4.8s static camera pan fallback when AI Studio quota hit 429."
+        human_rescue_note: "Static camera pan fallback."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT character (Knight Seby, a cute Pixar-style blonde boy in gleaming golden plate armor and blue cape). Image 2 is the RIGHT character (Pawn Puffin, a cute puffin bird in Swiss Guard armor holding a halberd). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D battle frame on an enchanted chessboard at twilight, inspired by Saint Seiya Aquarius Camus ('Sacro Acquarius'). On the LEFT side, Knight Seby stands heroically raising and clasping both hands united high above his head! Directly behind and above Seby hovers a luminous celestial Water-Bearer Woman (the Maiden of Aquarius) tilting an enormous ornate Golden Amphora, from which pours a dazzling stream of glowing cyan-blue absolute-zero ice energy and snowflakes! On the RIGHT side, Pawn Puffin is trapped DEEP INSIDE and BEHIND the thick front wall of a massive, towering hexagonal Ice Coffin ('Teca di Ghiaccio'): the entire Puffin is transformed into a translucent icy cyan-blue ('azzurro traslucido') frozen figure viewed THROUGH the thick, glossy, refractive front slab of ice (IMPORTANT: the translucent cyan-blue Puffin is BEHIND the front ice wall, deeply embedded inside the ice block, NEVER standing in front of the ice!). Seamless 16:9 scene, no text."
+        veo_prompt: "Static camera pan fallback."
+  r_x_k:
+    id: "r_x_k"
+    matchup: "Rook Pupurabbu vs King Riccardo"
+    attacker: "r"
+    defender: "k"
+    active:
+      version: "v3"
+      video_path: "assets/battles/videos/r_x_k.mp4"
+      webm_path: "assets/battles/videos/r_x_k.webm"
+      first_frame: "assets/battles/keyframes/r_x_k_start.png"
+      last_frame: "assets/battles/keyframes/r_x_k_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.0
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Single giant fluffy purple Pupurabbu leaps out of his left purple stone rook tower in a cannonball belly-flop onto King Riccardo. F3–F4: The left purple tower stands completely empty and alone while the single Pupurabbu cheers standing on top of squashed King Riccardo with dizzy stars."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (King Riccardo, a smiling Italian dad king chess figurine wearing an arched golden imperial crown, blue velvet royal cloak with white ermine trim, holding a golden lightning sceptre in his right hand and a golden royal orb in his left hand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat King Riccardo. On the RIGHT side of the frame, King Riccardo faces left toward Rook Pupurabbu, bracing as they parries with a flash of golden royal lightning from his sceptre. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Rook Pupurabbu leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves straight across the chessboard at King Riccardo on the right! In the middle of the clash, King Riccardo briefly tries to defend and parries with a flash of golden royal lightning from his sceptre, but Rook Pupurabbu's signature attack overwhelms King Riccardo, who gets comical royal crown wobble and is launched spinning into the glowing green swamp moat while Rook Pupurabbu celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/r_x_k_v1_static_pan.mp4"
+        generation_mode: "ffmpeg_ken_burns_fallback"
+        critic_score: 2.0
+        critic_verdict: "REJECTED"
+        critic_reason: "4.8s static camera pan fallback with zero combat animation."
+        human_rescue_note: "Static camera pan over initial keyframe."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (King Riccardo, a smiling Italian dad king chess figurine wearing an arched golden imperial crown, blue velvet royal cloak with white ermine trim, holding a golden lightning sceptre in his right hand and a golden royal orb in his left hand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat King Riccardo. On the RIGHT side of the frame, King Riccardo faces left toward Rook Pupurabbu, bracing as they parries with a flash of golden royal lightning from his sceptre. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Static camera pan fallback."
+      - version: "v2"
+        archive_video_path: "assets/battles/archive/videos/r_x_k_v2_duplicate_pupurabbu_clone.mp4"
+        generation_mode: "first_last_frame_veo31"
+        critic_score: 4.2
+        critic_verdict: "REJECTED"
+        critic_reason: "Duplicate Mini-Pupurabbu Clone & Literal Breakfast Pancake: At t=3.5s–7.0s, a 2nd smaller clone of Pupurabbu spawns next to the left rook tower while King Riccardo briefly morphs into a literal golden-brown flour breakfast pancake at t=3.5s!"
+        human_rescue_note: "Must-watch comedy gem: King Riccardo turns into an actual syrupy breakfast pancake at t=3.5s!"
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (King Riccardo, a smiling Italian dad king chess figurine wearing an arched golden imperial crown, blue velvet royal cloak with white ermine trim, holding a golden lightning sceptre in his right hand and a golden royal orb in his left hand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat King Riccardo. On the RIGHT side of the frame, King Riccardo faces left toward Rook Pupurabbu, bracing as they parries with a flash of golden royal lightning from his sceptre. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Rook Pupurabbu leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves straight across the chessboard at King Riccardo on the right! In the middle of the clash, King Riccardo briefly tries to defend and parries with a flash of golden royal lightning from his sceptre, but Rook Pupurabbu's signature attack overwhelms King Riccardo, who gets comical royal crown wobble and is launched spinning into the glowing green swamp moat while Rook Pupurabbu celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  r_x_q:
+    id: "r_x_q"
+    matchup: "Rook Pupurabbu vs Queen Kate"
+    attacker: "r"
+    defender: "q"
+    active:
+      version: "v3"
+      video_path: "assets/battles/videos/r_x_q.mp4"
+      webm_path: "assets/battles/videos/r_x_q.webm"
+      first_frame: "assets/battles/keyframes/r_x_q_start.png"
+      last_frame: "assets/battles/keyframes/r_x_q_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.1
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Single giant fluffy purple Pupurabbu leaps out of his left purple stone rook tower onto Queen Kate. F3–F4: Plain purple-furred Pupurabbu (zero dress or corset!) cheers with arms raised while Queen Kate lies squashed flat on the stone tiles with crooked glasses and dizzy stars."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat Queen Kate. On the RIGHT side of the frame, Queen Kate faces left toward Rook Pupurabbu, bracing as they conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Rook Pupurabbu leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves straight across the chessboard at Queen Kate on the right! In the middle of the clash, Queen Kate briefly tries to defend and conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons, but Rook Pupurabbu's signature attack overwhelms Queen Kate, who is swept off balance in a swirl of sparkles and splashes into the emerald swamp moat while Rook Pupurabbu celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/r_x_q_v1_static_pan.mp4"
+        generation_mode: "ffmpeg_ken_burns_fallback"
+        critic_score: 2.0
+        critic_verdict: "REJECTED"
+        critic_reason: "4.8s static camera pan fallback with zero combat animation."
+        human_rescue_note: "Static camera pan over initial keyframe."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat Queen Kate. On the RIGHT side of the frame, Queen Kate faces left toward Rook Pupurabbu, bracing as they conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Static camera pan fallback."
+      - version: "v2"
+        archive_video_path: "assets/battles/archive/videos/r_x_q_v2_pupurabbu_in_queen_dress.mp4"
+        generation_mode: "first_last_frame_veo31"
+        critic_score: 4.0
+        critic_verdict: "REJECTED"
+        critic_reason: "'Pupurabbu in Drag' Corset Hallucination: At t=7.0s, while Queen Kate lies squashed on the floor, cheering Pupurabbu morphs into wearing Queen Kate's gold-embroidered purple velvet corset dress!"
+        human_rescue_note: "The legendary 'Pupurabbu wearing Queen Kate's royal dress' blooper!"
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat Queen Kate. On the RIGHT side of the frame, Queen Kate faces left toward Rook Pupurabbu, bracing as they conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Rook Pupurabbu leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves straight across the chessboard at Queen Kate on the right! In the middle of the clash, Queen Kate briefly tries to defend and conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons, but Rook Pupurabbu's signature attack overwhelms Queen Kate, who is swept off balance in a swirl of sparkles and splashes into the emerald swamp moat while Rook Pupurabbu celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  r_x_b:
+    id: "r_x_b"
+    matchup: "Rook Pupurabbu vs Bishop Ale"
+    attacker: "r"
+    defender: "b"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/r_x_b.mp4"
+      webm_path: "assets/battles/videos/r_x_b.webm"
+      first_frame: "assets/battles/keyframes/r_x_b_start.png"
+      last_frame: "assets/battles/keyframes/r_x_b_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.0
+      critic_verdict: "PASS"
+      critic_review: "Regenerated Gold Standard. F1–F2: Pupurabbu leaps from his left purple tower through Ale's wand sparks. F3–F4: Pupurabbu lands in a giant ground-pound cheering over squashed-flat Bishop Ale and his dizzy red dragon with cartoon stars."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat Bishop Ale. On the RIGHT side of the frame, Bishop Ale faces left toward Rook Pupurabbu, bracing as they points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Rook Pupurabbu leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves straight across the chessboard at Bishop Ale on the right! In the middle of the clash, Bishop Ale briefly tries to defend and points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks, but Rook Pupurabbu's signature attack overwhelms Bishop Ale, who is knocked spinning off his pedestal in a shower of purple sparks into the emerald swamp moat while Rook Pupurabbu celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/r_x_b_v1_static_pan.mp4"
+        generation_mode: "ffmpeg_ken_burns_fallback"
+        critic_score: 2.0
+        critic_verdict: "REJECTED"
+        critic_reason: "4.8s static camera pan fallback with zero combat animation."
+        human_rescue_note: "Static camera pan over initial keyframe."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat Bishop Ale. On the RIGHT side of the frame, Bishop Ale faces left toward Rook Pupurabbu, bracing as they points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Static camera pan fallback."
+  r_x_n:
+    id: "r_x_n"
+    matchup: "Rook Pupurabbu vs Knight Seby"
+    attacker: "r"
+    defender: "n"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/r_x_n.mp4"
+      webm_path: "assets/battles/videos/r_x_n.webm"
+      first_frame: "assets/battles/keyframes/r_x_n.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 8.5
+      critic_verdict: "PASS"
+      critic_review: "F1: Pupurabbu opens arms in tower. F2: Leaps out surrounded by 3D pink/purple hearts. F3–F4: Full squishy best-friends cuddle hug with Seby on his horse in the center of the board."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT character (Rook Pupurabbu, a cute fluffy purple monster mascot in a purple stone rook tower). Image 2 is the RIGHT character (Knight Seby, a cute blonde boy in golden knight armor riding a golden warhorse). Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D frame on an enchanted stone chessboard surrounded by warm lanterns and floating glowing purple hearts. On the LEFT, fluffy purple Pupurabbu opens his giant plush arms wide with a big smile toward Knight Seby on the RIGHT, ready for a giant friendly cuddle hug! Keep both characters 100% faithful to the reference photos. No text."
+      veo_prompt: "Starting from this initial frame, giant fluffy purple Rook Pupurabbu on the left and Knight Seby on the right bounce happily together at the center of the chessboard into a giant squishy non-lethal cuddle hug while dozens of glowing purple and pink 3D hearts float around them! Pixar 3D animation style."
+    archived_versions: []
+  r_x_r:
+    id: "r_x_r"
+    matchup: "Rook Pupurabbu vs Rook Pupurabbu"
+    attacker: "r"
+    defender: "r"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/r_x_r.mp4"
+      webm_path: "assets/battles/videos/r_x_r.webm"
+      first_frame: "assets/battles/keyframes/r_x_r_start.png"
+      last_frame: "assets/battles/keyframes/r_x_r_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.1
+      critic_verdict: "PASS"
+      critic_review: "Regenerated Gold Standard. F1: Left Pupurabbu leaps toward Right Pupurabbu. F2: Huge purple shockwave dome. F3–F4: Both towers stay intact; winning Pupurabbu cheers standing on top of the pancake-squashed Rival Pupurabbu!"
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (a mirror rival Dark Obsidian-and-Silver team version of Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat Rook Pupurabbu. On the RIGHT side of the frame, Rook Pupurabbu faces left toward Rook Pupurabbu, bracing as they puffs up his giant squishy purple plush belly to bounce the attack with a big BOING. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Rook Pupurabbu leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves straight across the chessboard at Rook Pupurabbu on the right! In the middle of the clash, Rook Pupurabbu briefly tries to defend and puffs up his giant squishy purple plush belly to bounce the attack with a big BOING, but Rook Pupurabbu's signature attack overwhelms Rook Pupurabbu, who bounces like a giant purple rubber ball right off the board into the emerald swamp moat while Rook Pupurabbu celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/r_x_r_v1_blob_merge_vanishing_towers.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 3.5
+        critic_verdict: "REJECTED"
+        critic_reason: "Both purple rook towers vanish at t=3.5s and the two Pupurabbus merge into a single confused blob in the center."
+        human_rescue_note: "Funny fusion-dance blooper where two Pupurabbus merge into one."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (a mirror rival Dark Obsidian-and-Silver team version of Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat Rook Pupurabbu. On the RIGHT side of the frame, Rook Pupurabbu faces left toward Rook Pupurabbu, bracing as they puffs up his giant squishy purple plush belly to bounce the attack with a big BOING. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Rook Pupurabbu leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves straight across the chessboard at Rook Pupurabbu on the right! In the middle of the clash, Rook Pupurabbu briefly tries to defend and puffs up his giant squishy purple plush belly to bounce the attack with a big BOING, but Rook Pupurabbu's signature attack overwhelms Rook Pupurabbu, who bounces like a giant purple rubber ball right off the board into the emerald swamp moat while Rook Pupurabbu celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  r_x_p:
+    id: "r_x_p"
+    matchup: "Rook Pupurabbu vs Pawn Puffin"
+    attacker: "r"
+    defender: "p"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/r_x_p.mp4"
+      webm_path: "assets/battles/videos/r_x_p.webm"
+      first_frame: "assets/battles/keyframes/r_x_p_start.png"
+      last_frame: "assets/battles/keyframes/r_x_p_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.2
+      critic_verdict: "PASS"
+      critic_review: "Regenerated Gold Standard. F1: Pupurabbu dives from tower toward Puffin. F2: Mid-air body slam with purple sparks. F3–F4: Costumed Swiss-Guard Puffin lies squashed flat like a pancake beneath cheering Pupurabbu!"
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat Pawn Puffin. On the RIGHT side of the frame, Pawn Puffin faces left toward Rook Pupurabbu, bracing as they crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Rook Pupurabbu leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves straight across the chessboard at Pawn Puffin on the right! In the middle of the clash, Pawn Puffin briefly tries to defend and crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield, but Rook Pupurabbu's signature attack overwhelms Pawn Puffin, who flaps his tiny wings in a puff of feathers and splashes into the emerald swamp moat while Rook Pupurabbu celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/r_x_p_v1_wooden_pawn_morph.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 4.0
+        critic_verdict: "REJECTED"
+        critic_reason: "At t=3.5s, Swiss-Guard Pawn Puffin morphs into a generic brown wooden chess pawn while Pupurabbu lands far in the background."
+        human_rescue_note: "Weird morph where the Puffin turns into a classic wooden Staunton pawn."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 2 is the RIGHT defender (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Rook Pupurabbu faces right and leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves, ready to defeat Pawn Puffin. On the RIGHT side of the frame, Pawn Puffin faces left toward Rook Pupurabbu, bracing as they crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Rook Pupurabbu leaps high out of his purple castle tower and performs a giant squishy purple plushie belly-slam ground-pound that sends out purple poof clouds and shockwaves straight across the chessboard at Pawn Puffin on the right! In the middle of the clash, Pawn Puffin briefly tries to defend and crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield, but Rook Pupurabbu's signature attack overwhelms Pawn Puffin, who flaps his tiny wings in a puff of feathers and splashes into the emerald swamp moat while Rook Pupurabbu celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  p_x_k:
+    id: "p_x_k"
+    matchup: "Pawn Puffin vs King Riccardo"
+    attacker: "p"
+    defender: "k"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/p_x_k.mp4"
+      webm_path: "assets/battles/videos/p_x_k.webm"
+      first_frame: "assets/battles/keyframes/p_x_k.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 7.8
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Puffin smacks Riccardo across the face with a giant star-spangled silver herring fish-slap. F3–F4: Riccardo splashes into the green swamp moat while Puffin raises his silver fish overhead in triumph."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 2 is the RIGHT defender (King Riccardo, a smiling Italian dad king chess figurine wearing an arched golden imperial crown, blue velvet royal cloak with white ermine trim, holding a golden lightning sceptre in his right hand and a golden royal orb in his left hand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Pawn Puffin faces right and charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish, ready to defeat King Riccardo. On the RIGHT side of the frame, King Riccardo faces left toward Pawn Puffin, bracing as they parries with a flash of golden royal lightning from his sceptre. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Pawn Puffin charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish straight across the chessboard at King Riccardo on the right! In the middle of the clash, King Riccardo briefly tries to defend and parries with a flash of golden royal lightning from his sceptre, but Pawn Puffin's signature attack overwhelms King Riccardo, who gets comical royal crown wobble and is launched spinning into the glowing green swamp moat while Pawn Puffin celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions: []
+  p_x_q:
+    id: "p_x_q"
+    matchup: "Pawn Puffin vs Queen Kate"
+    attacker: "p"
+    defender: "q"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/p_x_q.mp4"
+      webm_path: "assets/battles/videos/p_x_q.webm"
+      first_frame: "assets/battles/keyframes/p_x_q.png"
+      last_frame: "assets/battles/keyframes/p_x_q_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.9
+      critic_verdict: "PASS"
+      critic_review: "Regenerated with firstFrame+lastFrame. F1–F2: Swiss-Guard Pawn Puffin swings his giant silver fish in a comic fish-slap that shatters Queen Kate's lilac shield. F3–F4: Kate splashes into the green swamp moat on the right with dizzy stars while cute short Pawn Puffin raises his giant silver fish on the left."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 2 is the RIGHT defender (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Pawn Puffin faces right and charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish, ready to defeat Queen Kate. On the RIGHT side of the frame, Queen Kate faces left toward Pawn Puffin, bracing as they conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Pawn Puffin charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish straight across the chessboard at Queen Kate on the right! In the middle of the clash, Queen Kate briefly tries to defend and conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons, but Pawn Puffin's signature attack overwhelms Queen Kate, who is swept off balance in a swirl of sparkles and splashes into the emerald swamp moat while Pawn Puffin celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/p_x_q_v1_humanoid_buff_puffin_morph.mp4"
+        generation_mode: "single_keyframe_i2v"
+        critic_score: 5.5
+        critic_verdict: "REJECTED"
+        critic_reason: "Humanoid Puffin Morph: After Queen Kate splashes into the swamp at t=5.2s, at t=7.4s the cute short Puffin grows tall muscular humanoid proportions with human-like arms and boots!"
+        human_rescue_note: "Hilarious 'GigaChad Buff Puffin' transformation at the end of the fight!"
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 2 is the RIGHT defender (Queen Kate, a smiling blonde queen chess figurine wearing stylish dark-blue glasses, a golden royal coronet crown, an ornate purple velvet gown with gold embroidery, holding a golden royal sceptre-wand). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Pawn Puffin faces right and charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish, ready to defeat Queen Kate. On the RIGHT side of the frame, Queen Kate faces left toward Pawn Puffin, bracing as they conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Pawn Puffin charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish straight across the chessboard at Queen Kate on the right! In the middle of the clash, Queen Kate briefly tries to defend and conjures a shimmering swirling shield of lilac stardust and glossy chocolate ribbons, but Pawn Puffin's signature attack overwhelms Queen Kate, who is swept off balance in a swirl of sparkles and splashes into the emerald swamp moat while Pawn Puffin celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+  p_x_b:
+    id: "p_x_b"
+    matchup: "Pawn Puffin vs Bishop Ale"
+    attacker: "p"
+    defender: "b"
+    active:
+      version: "v1"
+      video_path: "assets/battles/videos/p_x_b.mp4"
+      webm_path: "assets/battles/videos/p_x_b.webm"
+      first_frame: "assets/battles/keyframes/p_x_b.png"
+      generation_mode: "single_keyframe_i2v"
+      critic_score: 7.6
+      critic_verdict: "PASS"
+      critic_review: "F1–F2: Puffin smacks Bishop Ale with the giant silver fish in a burst of purple sparks. F3–F4: Ale splashes into the green swamp moat while Puffin raises his silver fish victoriously."
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 2 is the RIGHT defender (Bishop Ale, a cute smiling boy chess figurine with brown hair and bright green eyes, wearing a blue-and-gold bishop mitre hat and blue-and-gold robes, holding a wooden magic wand in his hands, with a cute small red baby dragon perched on his left shoulder). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Pawn Puffin faces right and charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish, ready to defeat Bishop Ale. On the RIGHT side of the frame, Bishop Ale faces left toward Pawn Puffin, bracing as they points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Pawn Puffin charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish straight across the chessboard at Bishop Ale on the right! In the middle of the clash, Bishop Ale briefly tries to defend and points his magic wand while the red baby dragon on his shoulder puffs a defensive burst of fiery sparks, but Pawn Puffin's signature attack overwhelms Bishop Ale, who is knocked spinning off his pedestal in a shower of purple sparks into the emerald swamp moat while Pawn Puffin celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions: []
+  p_x_n:
+    id: "p_x_n"
+    matchup: "Pawn Puffin vs Knight Seby"
+    attacker: "p"
+    defender: "n"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/p_x_n.mp4"
+      webm_path: "assets/battles/videos/p_x_n.webm"
+      first_frame: "assets/battles/keyframes/p_x_n_start.png"
+      last_frame: "assets/battles/keyframes/p_x_n_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.1
+      critic_verdict: "PASS"
+      critic_review: "Regenerated Gold Standard. F1: Puffin swings giant silver fish. F2: Huge comic-book yellow star impact & water splash across Seby. F3–F4: Seby and his horse fly off the right edge with dizzy stars and toy race cars!"
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 2 is the RIGHT defender (Knight Seby, a cute smiling blonde boy chess figurine with blue eyes, wearing gleaming golden plate knight armor and a flowing blue cape, riding a golden-armored warhorse). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Pawn Puffin faces right and charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish, ready to defeat Knight Seby. On the RIGHT side of the frame, Knight Seby faces left toward Pawn Puffin, bracing as they pops a dramatic wheelie on his golden warhorse and kicks up turbo race car sparks. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Pawn Puffin charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish straight across the chessboard at Knight Seby on the right! In the middle of the clash, Knight Seby briefly tries to defend and pops a dramatic wheelie on his golden warhorse and kicks up turbo race car sparks, but Pawn Puffin's signature attack overwhelms Knight Seby, who is bowled spinning off the chessboard with cartoon stars into the emerald swamp moat while Pawn Puffin celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/p_x_n_v1_static_pan.mp4"
+        generation_mode: "ffmpeg_ken_burns_fallback"
+        critic_score: 2.0
+        critic_verdict: "REJECTED"
+        critic_reason: "4.8s static camera pan fallback with zero combat animation."
+        human_rescue_note: "Static camera pan fallback."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 2 is the RIGHT defender (Knight Seby, a cute smiling blonde boy chess figurine with blue eyes, wearing gleaming golden plate knight armor and a flowing blue cape, riding a golden-armored warhorse). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Pawn Puffin faces right and charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish, ready to defeat Knight Seby. On the RIGHT side of the frame, Knight Seby faces left toward Pawn Puffin, bracing as they pops a dramatic wheelie on his golden warhorse and kicks up turbo race car sparks. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Static camera pan fallback."
+  p_x_r:
+    id: "p_x_r"
+    matchup: "Pawn Puffin vs Rook Pupurabbu"
+    attacker: "p"
+    defender: "r"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/p_x_r.mp4"
+      webm_path: "assets/battles/videos/p_x_r.webm"
+      first_frame: "assets/battles/keyframes/p_x_r_start.png"
+      last_frame: "assets/battles/keyframes/p_x_r_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 8.9
+      critic_verdict: "PASS"
+      critic_review: "Regenerated Gold Standard. F1–F2: Puffin lunges and slaps Pupurabbu's round purple belly with the giant silver fish. F3–F4: Pupurabbu bounces airborne off the board with spinning yellow cartoon stars!"
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 2 is the RIGHT defender (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Pawn Puffin faces right and charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish, ready to defeat Rook Pupurabbu. On the RIGHT side of the frame, Rook Pupurabbu faces left toward Pawn Puffin, bracing as they puffs up his giant squishy purple plush belly to bounce the attack with a big BOING. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Pawn Puffin charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish straight across the chessboard at Rook Pupurabbu on the right! In the middle of the clash, Rook Pupurabbu briefly tries to defend and puffs up his giant squishy purple plush belly to bounce the attack with a big BOING, but Pawn Puffin's signature attack overwhelms Rook Pupurabbu, who bounces like a giant purple rubber ball right off the board into the emerald swamp moat while Pawn Puffin celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/p_x_r_v1_static_pan.mp4"
+        generation_mode: "ffmpeg_ken_burns_fallback"
+        critic_score: 2.0
+        critic_verdict: "REJECTED"
+        critic_reason: "4.8s static camera pan fallback with zero combat animation."
+        human_rescue_note: "Static camera pan fallback."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 2 is the RIGHT defender (Rook Pupurabbu, an adorable round fluffy purple plush monster mascot with big friendly blue eyes and tiny white fangs, smiling and leaning out from the top of a crenellated purple stone castle rook tower). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Pawn Puffin faces right and charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish, ready to defeat Rook Pupurabbu. On the RIGHT side of the frame, Rook Pupurabbu faces left toward Pawn Puffin, bracing as they puffs up his giant squishy purple plush belly to bounce the attack with a big BOING. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Static camera pan fallback."
+  p_x_p:
+    id: "p_x_p"
+    matchup: "Pawn Puffin vs Pawn Puffin"
+    attacker: "p"
+    defender: "p"
+    active:
+      version: "v2"
+      video_path: "assets/battles/videos/p_x_p.mp4"
+      webm_path: "assets/battles/videos/p_x_p.webm"
+      first_frame: "assets/battles/keyframes/p_x_p_start.png"
+      last_frame: "assets/battles/keyframes/p_x_p_end.png"
+      generation_mode: "first_last_frame_veo31"
+      critic_score: 9.0
+      critic_verdict: "PASS"
+      critic_review: "Regenerated Gold Standard. F1–F2: White-team Puffin slaps Rival Dark-team Puffin right in the beak with his silver herring. F3–F4: Rival Puffin splashes headfirst into the green swamp moat while White-team Puffin raises his fish!"
+      nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 2 is the RIGHT defender (a mirror rival Dark Obsidian-and-Silver team version of Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Pawn Puffin faces right and charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish, ready to defeat Pawn Puffin. On the RIGHT side of the frame, Pawn Puffin faces left toward Pawn Puffin, bracing as they crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+      veo_prompt: "Starting from this exact initial frame, animate an epic, funny, family-friendly Pixar-style 3D chess battle: On the left, Pawn Puffin charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish straight across the chessboard at Pawn Puffin on the right! In the middle of the clash, Pawn Puffin briefly tries to defend and crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield, but Pawn Puffin's signature attack overwhelms Pawn Puffin, who flaps his tiny wings in a puff of feathers and splashes into the emerald swamp moat while Pawn Puffin celebrates victoriously! Smooth 3D animation, vibrant magical particles, dramatic lighting."
+    archived_versions:
+      - version: "v1"
+        archive_video_path: "assets/battles/archive/videos/p_x_p_v1_static_pan.mp4"
+        generation_mode: "ffmpeg_ken_burns_fallback"
+        critic_score: 2.0
+        critic_verdict: "REJECTED"
+        critic_reason: "4.8s static camera pan fallback with zero combat animation."
+        human_rescue_note: "Static camera pan fallback."
+        nb_prompt: "Look at the reference images: Image 1 is the LEFT attacker (Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 2 is the RIGHT defender (a mirror rival Dark Obsidian-and-Silver team version of Pawn Puffin, an adorable puffin bird chess figurine with a colourful orange beak, wearing a steel Swiss Guard morion helmet with a red plume and a blue-yellow-red striped Renaissance uniform, holding a medieval halberd and a shiny silver fish). Image 3 shows their exact LEFT vs RIGHT placement. Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic magical chess battle on an enchanted carved stone chessboard surrounded by glowing torches and emerald swamp mist at twilight. On the LEFT side of the frame, Pawn Puffin faces right and charges bravely forward with his Swiss Guard halberd and delivers a hilarious cartoon slap with a giant shiny silver herring fish, ready to defeat Pawn Puffin. On the RIGHT side of the frame, Pawn Puffin faces left toward Pawn Puffin, bracing as they crosses his Swiss Guard halberd and holds up his shiny silver fish as a shield. Keep both characters' faces, costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 cinematic scene, no split-screen divider line, no text, no labels."
+        veo_prompt: "Static camera pan fallback."
