@@ -175,5 +175,17 @@ test('Mobile Simplified UX: detects Pixel 10 & phones while leaving iPad/Desktop
   bus.emit({ type: 'BATTLE_COMPLETED' });
   bus.flush();
   assert.ok(mobileHud.lastToast.includes('3D'), 'Shows 3D unlocked toast when first battle finishes');
+
+  // 4. Zero-Split-Brain Version Check: remote VERSION never overwrites running code's appVersion
+  const hud = new HudListener({ isMobilePhone: false });
+  const runningVersion = hud.appVersion;
+  assert.equal(hud.handleRemoteVersionCheck(runningVersion), false, 'Same version returns false (no drift)');
+  assert.equal(hud.appVersion, runningVersion);
+  assert.equal(hud.remoteAvailableVersion, null);
+
+  assert.equal(hud.handleRemoteVersionCheck('9.9.99'), true, 'Different remote version triggers drift detection');
+  assert.equal(hud.appVersion, runningVersion, 'Never fakes appVersion with remote VERSION (prevents split-brain badge)');
+  assert.equal(hud.remoteAvailableVersion, 'v9.9.99', 'Tracks newer available remote version separately');
 });
+
 

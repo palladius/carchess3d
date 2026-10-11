@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v21';
+const CACHE_NAME = 'carchess3d-offline-v22';
 
 const PRECACHE_URLS = [
   './',
@@ -87,11 +87,17 @@ self.addEventListener('install', (event) => {
       .open(CACHE_NAME)
       .then((cache) =>
         Promise.allSettled(
-          PRECACHE_URLS.map((url) =>
-            cache.add(url).catch(() => {
+          PRECACHE_URLS.map((url) => {
+            const isCode =
+              url === './' ||
+              url.endsWith('.html') ||
+              url.endsWith('.js') ||
+              url.endsWith('.webmanifest');
+            const req = new Request(url, { cache: isCode ? 'no-cache' : 'default' });
+            return cache.add(req).catch(() => {
               // Ignore optional assets during precache
-            }),
-          ),
+            });
+          }),
         ),
       )
       .then(() => self.skipWaiting()),
@@ -118,16 +124,29 @@ self.addEventListener('fetch', (event) => {
   const reqUrl = new URL(event.request.url);
   if (reqUrl.origin !== self.location.origin) return;
 
+  // Never cache VERSION in Service Worker: it is our live truth probe to detect version drift!
+  if (reqUrl.pathname.endsWith('/VERSION') || reqUrl.pathname === 'VERSION') {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' }).catch(
+        () => new Response('', { status: 404, statusText: 'Offline' }),
+      ),
+    );
+    return;
+  }
+
   const isCodeOrDoc =
     event.request.mode === 'navigate' ||
     reqUrl.pathname.endsWith('/') ||
     reqUrl.pathname.endsWith('.html') ||
     reqUrl.pathname.endsWith('.js') ||
-    reqUrl.pathname.endsWith('VERSION');
+    reqUrl.pathname.endsWith('.webmanifest');
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      const networkFetch = fetch(event.request)
+      // For HTML/JS, bypass browser HTTP disk cache (max-age=600 on GitHub Pages) via 'no-cache'
+      // so online loads always validate ETag and fetch fresh code immediately after a push!
+      const fetchOpts = isCodeOrDoc ? { cache: 'no-cache' } : {};
+      const networkFetch = fetch(event.request, fetchOpts)
         .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const copy = networkResponse.clone();

@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.34] - 2026-10-11
+
+- 🔄🛡️🌐 **Zero-Split-Brain PWA Cache & Version Drift Detector (`sw.js`, `index.html`, `src/listeners/HudListener.js`, `tests/core.test.mjs`)**:
+  - **No Split-Brain / No "Lying Version Badge" (`HudListener.js`)**: `this.appVersion` strictly reflects `APP_VERSION` from `Registry.js` (the version of the JavaScript code actually running in memory). `fetch('./VERSION', { cache: 'no-store' })` now acts as a **Version Drift Detector** (`handleRemoteVersionCheck(remoteRaw)`): if the remote `VERSION` on GitHub Pages differs from the running `APP_VERSION`, it never overwrites `this.appVersion`; instead it purges stale Service Worker caches, triggers a one-time auto-reload (`sessionStorage` guard per version), and displays `${this.appVersion} ➔ 🔄 ${remoteTag}` on `#hud-version-tag`.
+  - **Bypass GitHub Pages 10-Minute HTTP Disk Cache for Code (`sw.js`, `index.html`)**:
+    - Never caches `/VERSION` (`fetch(event.request, { cache: 'no-store' })`).
+    - Uses `{ cache: 'no-cache' }` for `.html`, `.js`, and `.webmanifest` both during Service Worker `install` precaching and online `fetch` requests so the browser always validates `ETag` / `If-None-Match` against GitHub Pages while preserving offline fallback for 3D `.glb` / `.mp4` / `.mp3` assets (`carchess3d-offline-v22`).
+    - Registers `./sw.js` with `{ updateViaCache: 'none' }` and triggers `reg.update()` on load.
+
 ## [0.3.33] - 2026-10-11
 
 - 🧪🖼️🔧 **Fix White 3D GLB Boxes on Ale 1 & Re Riccardo in `showcase/index.html` + TDD WebGL Context Budget Guard (`showcase/index.html`, `tests/showcase-webgl.test.mjs`)**:
