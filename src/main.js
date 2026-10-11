@@ -309,18 +309,31 @@ function bootstrapCarChess3D() {
   // Re-apply URL camera preset & family selectors after initial board sync
   const urlParams = new URLSearchParams(window.location.search);
   const familyParam = urlParams.get('family');
-  const whiteParam = urlParams.get('white') || familyParam;
-  const blackParam = urlParams.get('black') || urlParams.get('rival') || familyParam;
+  const whiteParam = urlParams.get('white') || familyParam || 'carlesso';
+  const blackParam =
+    urlParams.get('black') ||
+    urlParams.get('rival') ||
+    (familyParam && familyParam !== 'carlesso' ? familyParam : 'classic');
   if (whiteParam) {
     pieces.setWhiteFamily(whiteParam);
   }
   if (blackParam) {
     pieces.setRivalSetMode(blackParam);
   }
-  if (whiteParam || blackParam) {
-    bus.flush();
-    bus.flush();
-  }
+
+  // Default setup: Famiglia Carlesso (White, Human) vs Scacchi Classici (Black, AI Easy)
+  const cpuParam = urlParams.get('ai') || urlParams.get('cpu') || 'easy';
+  const cpuColorParam = urlParams.get('cpucolor') || 'b';
+  ai.configure({
+    enabled: cpuParam !== '0' && cpuParam !== 'none' && cpuParam !== 'false',
+    cpuColor: cpuColorParam,
+    difficulty: cpuParam,
+    whiteDifficulty: 'easy',
+    blackDifficulty: cpuParam,
+  });
+
+  bus.flush();
+  bus.flush();
   if (urlParams.get('mode') === 'wow') {
     flow.startWowMode({
       submode: urlParams.get('submode') || 'turntable',

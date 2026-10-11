@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.6';
+export const APP_VERSION = '0.3.7';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -616,6 +616,19 @@ export const I18N = Object.freeze({
     wowInspectorTab: '🔍 Ispettore 3D 360°',
     wowArenaTab: '🎬 Arena Battaglie & Cinema Veo',
     triggerBattleBtn: '⚔️ Lancia Sfida 3D + Cinema!',
+    setupBtn: '⚙️ Nuova Partita',
+    setupTitle: '🏰🚽 Nuova Partita · Setup Fazioni',
+    setupSub: 'Scegli chi gioca al Bianco, chi al Nero, se Giocatore Umano o Computer AI!',
+    startMatchBtn: '🚀 Inizia Partita!',
+    whiteSide: '⚪ Squadra Bianca (Avorio & Oro / Sud)',
+    blackSide: '⚫ Squadra Nera (Ossidiana & Argento / Nord)',
+    playerHuman: '👤 Giocatore Umano',
+    playerAi: '🤖 Computer AI',
+    difficultyLabel: 'Livello AI:',
+    profileLabel: 'Profilo Giocatore:',
+    toggleTopbarBtn: '☰ Menu / Barra',
+    quakeConsoleBtn: '~_ Console',
+    defaultSetupBadge: '✨ Default: Famiglia Carlesso (Bianco / Umano) vs Scacchi Classici (Nero / AI Facile)',
   },
   en: {
     title: 'CarChess3D · Family Wizard Chess',
@@ -655,5 +668,18 @@ export const I18N = Object.freeze({
     wowInspectorTab: '🔍 360° 3D Character Inspector',
     wowArenaTab: '🎬 Battle Cinema Stage',
     triggerBattleBtn: '⚔️ Launch 3D Clash + Veo Cinema!',
+    setupBtn: '⚙️ New Match',
+    setupTitle: '🏰🚽 New Match · Faction Setup',
+    setupSub: 'Choose who plays White, who plays Black, Human Player or AI Opponent!',
+    startMatchBtn: '🚀 Start Match!',
+    whiteSide: '⚪ White Team (Ivory & Gold / South)',
+    blackSide: '⚫ Black Team (Obsidian & Silver / North)',
+    playerHuman: '👤 Human Player',
+    playerAi: '🤖 Computer AI',
+    difficultyLabel: 'AI Level:',
+    profileLabel: 'Player Profile:',
+    toggleTopbarBtn: '☰ Menu / Bar',
+    quakeConsoleBtn: '~_ Console',
+    defaultSetupBadge: '✨ Default: Carlesso Family (White / Human) vs Classic Chess (Black / AI Easy)',
   },
 });

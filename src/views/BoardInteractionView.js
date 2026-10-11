@@ -391,7 +391,7 @@ export class BoardInteractionView {
     if (board.isGameOver?.()) return;
 
     // If CPU controls the active turn, block human move execution
-    if (ai?.enabled && board.turn() === ai.cpuColor) {
+    if (ai?.isCpuTurn?.()) {
       return;
     }
 
