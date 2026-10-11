@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.36] - 2026-10-11
+
+- 🧹⚡📱 **Zero-Cache Mobile Permalink (`nocache.html` & `?nocache=1`) + Mobile HUD Flexbox Fix (`nocache.html`, `index.html`, `sw.js`, `HudListener.js`, `Registry.js`)**:
+  - **Standalone `nocache.html` Permalink (`https://palladius.github.io/carchess3d/nocache.html`)**: Added a brand-new entry-point HTML page that is never in any legacy Service Worker precache list; on load it unregisters all Service Workers (`navigator.serviceWorker.getRegistrations()`), deletes all `CacheStorage` caches (`caches.keys()`), forces Chrome's HTTP disk cache (`max-age=600`) to re-fetch all `src/**/*.js` ES modules (`fetch(u, { cache: 'reload' })`), displays a green confirmation pill (`⚡ NO-CACHE LIVE v0.3.36`), and boots `./src/main.js?nocache=1&t=<timestamp>` directly without redirecting back to a cached `index.html`.
+  - **`?nocache=1` / `?fresh=1` Query Support (`index.html`, `sw.js`)**: Passing `?nocache=1` or `?fresh=1` to `index.html` unregisters Service Workers and purges caches instead of registering `sw.js`, while `sw.js` (`v24`) bypasses cache lookup (`fetch(req, { cache: 'no-store' })`) for `nocache.html` and `?nocache=1`.
+  - **Visible Mobile Version Badge, 1-Tap `🧹 No-Cache` Button & Bottom Bar Flexbox Fix (`HudListener.js`)**: Added `⚡ v0.3.36` and a 1-tap `🧹 No-Cache` link right inside `#hud-rotate-overlay` and `#hud-mobile-quick-setup`, and fixed `#carchess-hud-root.mobile-simplified .hud-status-card` (`flex-shrink: 0`) so the bottom dock buttons never squish the turn status card.
+
 ## [0.3.35] - 2026-10-11
 
 - 🎙️🇬🇧🇮🇹 **Gemini 3.8 TTS Multi-Clip Character Voice Pool + Smart Anti-Repetition & Anti-Spam Engine (`scripts/generate_voice_lines.py`, `assets/audio/voices/voice-*.mp3`, `src/core/Registry.js`, `src/listeners/AudioListener.js`, `src/views/BoardInteractionView.js`, `src/listeners/HudListener.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
