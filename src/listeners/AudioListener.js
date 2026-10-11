@@ -38,8 +38,13 @@ const THEME_LYRICS = Object.freeze({
   ],
 });
 
-// Baroque String Octet Overture in E Dorian / E Minor (C#4 -> C4 -> B3 chromatic descent + soaring violin motif)
+// Baroque & Chamber String Octet Loops in E Dorian / E Minor (100% acoustic strings, zero 80s chiptune)
+export const CHESS_STRINGS_BG_URL = 'assets/audio/chess-strings-bg.mp3';
 export const CHESS_STRINGS_THEME_URL = 'assets/audio/chess-strings-theme.mp3';
+export const CHESS_STRINGS_TRACKS = Object.freeze([
+  CHESS_STRINGS_BG_URL,
+  CHESS_STRINGS_THEME_URL,
+]);
 const BAROQUE_VIOLIN_MELODY_HZ = Object.freeze([
   659.25, 739.99, 783.99, 739.99, 659.25, 587.33, 554.37, 523.25,
   493.88, 554.37, 523.25, 493.88, 392.00, 440.00, 493.88, 659.25,
@@ -74,7 +79,10 @@ export class AudioListener {
     this.musicPlaying = false;
     this.audioCtx = null;
     this.audioEl = null;
+    this.themeTrackIndex = 0;
+    this.themeAudioFailed = false;
     this.combatAudioEl = null;
+    this.combatAudioFailed = false;
     this.combatMusicActive = false;
     this.combatFadingOut = false;
     this.combatEnvelope = 0.0;
@@ -675,40 +683,48 @@ export class AudioListener {
     this.musicPlaying = true;
     this.melodyStep = 0;
     this.lyricStep = 0;
+    this.themeAudioFailed = false;
 
-    // Play the Lyria 3 Instrumental Baroque-Symphonic String Overture (`assets/audio/chess-strings-theme.mp3`),
-    // with automatic fallback to procedural E-Dorian Baroque String Octet staccato synthesis
+    // Play the warm, non-fatiguing 30s Lyria 3 Chamber Strings Background Loop (`assets/audio/chess-strings-bg.mp3`)
+    // cycling cleanly with the Baroque String Overture (`assets/audio/chess-strings-theme.mp3`).
+    // Never plays 80s arcade chiptune oscillator loops in the browser unless the MP3 files fail to load.
     if (typeof Audio !== 'undefined') {
       try {
-        const audio = new Audio(CHESS_STRINGS_THEME_URL);
+        const trackUrl =
+          CHESS_STRINGS_TRACKS[this.themeTrackIndex % CHESS_STRINGS_TRACKS.length] ||
+          CHESS_STRINGS_BG_URL;
+        const audio = new Audio(trackUrl);
         audio.preload = 'auto';
         audio.loop = true;
-        audio.volume = this.combatMusicActive ? 0.06 : 0.56;
+        audio.volume = this.combatMusicActive ? 0.06 : 0.42;
+        audio.onerror = () => {
+          this.themeAudioFailed = true;
+        };
         this.audioEl = audio;
         const p = audio.play();
         if (p && typeof p.catch === 'function') {
           p.catch(() => {
-            this.audioEl = null;
+            // Autoplay blocked until next gesture; keep audioEl ready without falling back to 8-bit bleeps
           });
         }
       } catch {
         this.audioEl = null;
+        this.themeAudioFailed = true;
       }
+    } else {
+      this.themeAudioFailed = true;
     }
 
     this._emitNextLyricCaption();
     this.loopTimer = setInterval(() => {
       if (!this.musicPlaying || this.combatMusicActive) return;
-      if (!this.audioEl || this.audioEl.paused || this.audioEl.error) {
+      // Only run the procedural fallback in headless Node tests or if the MP3 file genuinely errored
+      if (this.themeAudioFailed) {
         const idx = this.melodyStep % BAROQUE_VIOLIN_MELODY_HZ.length;
         const vFreq = BAROQUE_VIOLIN_MELODY_HZ[idx];
         const cFreq = BAROQUE_CELLO_STACCATO_HZ[idx];
-        // Crisp marcato staccato cello + viola eighth-note pulse
-        this.synthTone(cFreq, cFreq * 0.998, 0.13, 'sawtooth', 0.075, 0);
-        this.synthTone(cFreq * 1.5, cFreq * 1.5, 0.11, 'triangle', 0.055, 0);
-        // Soaring baroque violin voice + harmonic octave
-        this.synthTone(vFreq, vFreq * 1.002, 0.21, 'sawtooth', 0.065, 0.015);
-        this.synthTone(vFreq * 0.5, vFreq * 0.5, 0.19, 'triangle', 0.06, 0.015);
+        this.synthTone(cFreq, cFreq * 0.998, 0.13, 'triangle', 0.055, 0);
+        this.synthTone(vFreq, vFreq * 1.002, 0.21, 'sine', 0.05, 0.015);
       }
       this.melodyStep++;
       if (this.melodyStep % 8 === 0) {
@@ -752,16 +768,14 @@ export class AudioListener {
   }
 
   // ===========================================================================
-  // 3. FIERY, FAST-PACED, SUSPENSEFUL COMBAT SOUNDTRACK (LYRIA 3 + WEBAUDIO)
+  // 3. FIERY, FAST-PACED, SUSPENSEFUL COMBAT SOUNDTRACK (LYRIA 3 MP3)
   // ===========================================================================
 
   /**
    * Starts the fiery, fast-paced, suspenseful combat soundtrack on `BATTLE_STARTED`:
-   * 1. Plays the Lyria 3 orchestral-rock D-Minor Phrygian battle track (`assets/audio/combat-suspense.mp3`)
-   *    cycling across 4 dramatic cue points (`0.0s, 7.6s, 15.2s, 22.0s`).
-   * 2. Launches a synchronized 152 BPM (`98ms` 16th-note) WebAudio D-Minor Phrygian suspense sequencer
-   *    (Netflix "TUDUM" + Brass Braaam entry, driving staccato ostinato, Taiko war drums, and rising
-   *    minor-second suspense stabs that escalate into the Act 3 K.O. climax).
+   * Plays the Lyria 3 orchestral battle track (`assets/audio/combat-suspense.mp3`)
+   * cycling across 4 dramatic cue points (`0.0s, 7.6s, 15.2s, 22.0s`), with zero 80s
+   * arcade oscillator bleeps overlaid when the MP3 is available.
    * @param {object} [battleEvent]
    */
   startCombatMusic(battleEvent = null) {
@@ -770,13 +784,14 @@ export class AudioListener {
     this.combatFadingOut = false;
     this.combatEnvelope = 1.0;
     this.combatStep = 0;
+    this.combatAudioFailed = false;
 
     this.playedSfx.push('combat_music_started');
     if (this.playedSfx.length > 100) this.playedSfx.shift();
 
     if (!this.sfxEnabled && !this.musicPlaying) return;
 
-    // Duck peaceful adventure theme if playing
+    // Duck background strings loop if playing
     if (this.audioEl) {
       try {
         this.audioEl.volume = 0.06;
@@ -790,24 +805,31 @@ export class AudioListener {
           this.combatAudioEl = new Audio(COMBAT_AUDIO_URL);
           this.combatAudioEl.preload = 'auto';
           this.combatAudioEl.loop = true;
+          this.combatAudioEl.onerror = () => {
+            this.combatAudioFailed = true;
+          };
         }
         const cueS = COMBAT_CUE_POINTS_S[this.combatCueIndex % COMBAT_CUE_POINTS_S.length];
         this.combatCueIndex++;
         try {
           this.combatAudioEl.currentTime = cueS;
         } catch {}
-        this.combatAudioEl.volume = 0.78;
+        this.combatAudioEl.volume = 0.72;
         const p = this.combatAudioEl.play();
         if (p && typeof p.catch === 'function') {
           p.catch(() => {});
         }
-      } catch {}
+      } catch {
+        this.combatAudioFailed = true;
+      }
+    } else {
+      this.combatAudioFailed = true;
     }
 
-    // 2. Immediate Netflix "TUDUM" + Suspenseful Brass Braaam on combat entry (`t = 0.0s`)
+    // 2. Soft low-end cinema sub-bass thud on combat entry (`t = 0.0s`, no harsh sawtooth buzzers)
     this.synthCombatEntryBraaam();
 
-    // 3. 152 BPM (98ms 16th-note) Fiery & Suspenseful D-Minor Phrygian Sequencer
+    // 3. Fallback sequencer (only runs in headless tests or if combat-suspense.mp3 fails to load)
     this.combatTimer = setInterval(() => {
       if (!this.combatMusicActive) return;
       this._stepCombatSequencer(battleEvent);
@@ -816,42 +838,29 @@ export class AudioListener {
   }
 
   /**
-   * Cinema-style "TUDUM" double sub-bass punch + rising Phrygian minor-second brass swell.
+   * Warm cinema sub-bass "TU-DUM" pulse (pure sine/triangle, zero harsh sawtooth oscillators).
    */
   synthCombatEntryBraaam() {
     const ac = this.ensureAudioContext();
     if (!ac) return;
-    // Double "TU-DUM" sub-bass impact (D2 -> D3)
-    this.synthTone(73.42, 48.0, 0.16, 'triangle', 0.24, 0.0);
-    this.synthTone(146.83, 55.0, 0.28, 'sine', 0.26, 0.13);
-    // Fiery Phrygian brass tension chord (D3 + A3 + Bb3 + C#4 + D4)
-    [146.83, 220.0, 233.08, 277.18, 293.66].forEach((f, idx) => {
-      this.synthTone(f * 0.99, f, 0.42, 'sawtooth', 0.065, 0.14 + idx * 0.025);
-    });
+    this.synthTone(73.42, 48.0, 0.16, 'triangle', 0.18, 0.0);
+    this.synthTone(146.83, 55.0, 0.24, 'sine', 0.2, 0.13);
   }
 
   /**
-   * Advances 1 step (`98ms` = 16th note at 152 BPM) of the fiery, suspenseful combat score.
-   * Escalates across:
-   * - Act 1 (`step = 0..14`): Tense creeping Phrygian ostinato + heartbeat Taiko pulse
-   * - Act 2 (`step = 15..45`): Full-throttle double-time Scazzottata drums + rising minor-2nd brass suspense
-   * - Act 3 (`step = 46..60`): Dramatic K.O. climax fanfare & swamp splash crescendo
-   * - Exit Sliding Window (`combatFadingOut = true`): Smoothly attenuates with `this.combatEnvelope` (`1.0 -> 0.0`)
+   * Fallback combat sequencer — completely bypassed in browser when `combat-suspense.mp3` is loaded
+   * so no 1980s pixel arcade oscillator bleeps ever play over the orchestral soundtrack.
    */
   _stepCombatSequencer() {
     if (!this.sfxEnabled && !this.musicPlaying) return;
+    if (typeof Audio !== 'undefined' && !this.combatAudioFailed) return;
     const ac = this.ensureAudioContext();
     if (!ac) return;
 
     const env = Math.max(0, Math.min(1, this.combatEnvelope));
     if (env <= 0.01) return;
 
-    // When the real Lyria 3 MP3 (`combat-suspense.mp3`) is actively playing, mix the WebAudio
-    // synth at 0.42x as a tight rhythmic/sub-bass enhancer; otherwise play at 1.0x full power!
-    const mp3Playing = Boolean(
-      this.combatAudioEl && !this.combatAudioEl.paused && !this.combatAudioEl.error,
-    );
-    const mix = (mp3Playing ? 0.42 : 1.0) * env;
+    const mix = env;
 
     const s = this.combatStep++;
     const step16 = s % 16;

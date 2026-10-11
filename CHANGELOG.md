@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.44] - 2026-10-11
+
+- 🎻🔇🕹️ **Non-Fatiguing 30s Chamber Strings Background Loop (`chess-strings-bg.mp3`) + Complete Removal of 1980s Arcade Oscillator Sequencers (`assets/audio/chess-strings-bg.mp3`, `src/listeners/AudioListener.js`, `sw.js`, `tests/voices_idle.test.mjs`)**:
+  - **Warm, Non-Fatiguing 30s Chamber Strings Background Loop (`assets/audio/chess-strings-bg.mp3`, `106 BPM` E Dorian)**: Generated a pure acoustic chamber string octet loop (`4 violins, 2 violas, 2 cellos`, zero synths/drums) with balanced dynamics designed for continuous background looping while thinking at the chessboard (`volume = 0.42`), paired with the `128 BPM` Baroque String Overture (`assets/audio/chess-strings-theme.mp3`).
+  - **Eliminated 1980s Pixel-Arcade Oscillator Loops (`AudioListener.js`)**:
+    - Disabled the procedural `synthTone` melody loop in `startThemeSong()` whenever `typeof Audio !== 'undefined'` unless the `.mp3` genuinely errors (`this.themeAudioFailed`), preventing any 8-bit bleeps while buffering or playing.
+    - Disabled the `98ms` 16th-note `sawtooth`/`square` wave `_stepCombatSequencer()` overlay and removed the harsh `sawtooth` chord from `synthCombatEntryBraaam()` when `combat-suspense.mp3` is available in the browser.
+
 ## [0.3.43] - 2026-10-11
 
 - 🎻🎼🏰 **Lyria 3 Baroque-Symphonic String Chess Overture (`assets/audio/chess-strings-theme.mp3`, `src/listeners/AudioListener.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:

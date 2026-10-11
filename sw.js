@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v31';
+const CACHE_NAME = 'carchess3d-offline-v32';
 
 const PRECACHE_URLS = [
   './',
@@ -72,6 +72,7 @@ const PRECACHE_URLS = [
   './assets/models/rook-pupurabbu.glb',
   './assets/models/pawn-puffin.glb',
   './assets/audio/combat-suspense.mp3',
+  './assets/audio/chess-strings-bg.mp3',
   './assets/audio/chess-strings-theme.mp3',
   './assets/audio/voices/voice-k.mp3',
   './assets/audio/voices/voice-k-hmm.mp3',

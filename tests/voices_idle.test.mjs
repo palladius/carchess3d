@@ -7,6 +7,7 @@ import { GameEventBus } from '../src/core/EventBus.js';
 import { CHARACTER_REGISTRY, VOICE_LINES } from '../src/core/Registry.js';
 import {
   AudioListener,
+  CHESS_STRINGS_BG_URL,
   CHESS_STRINGS_THEME_URL,
   COMBAT_AUDIO_URL,
 } from '../src/listeners/AudioListener.js';
@@ -137,6 +138,13 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
     const combatMp3Path = path.resolve(process.cwd(), COMBAT_AUDIO_URL);
     assert.ok(fs.existsSync(combatMp3Path), `Expected ${COMBAT_AUDIO_URL} to exist on disk`);
     assert.ok(fs.statSync(combatMp3Path).size > 100_000, 'Expected non-empty Lyria 3 combat MP3');
+
+    const stringsBgPath = path.resolve(process.cwd(), CHESS_STRINGS_BG_URL);
+    assert.ok(fs.existsSync(stringsBgPath), `Expected ${CHESS_STRINGS_BG_URL} to exist on disk`);
+    assert.ok(
+      fs.statSync(stringsBgPath).size > 100_000,
+      'Expected non-empty Lyria 3 Warm Chamber Strings Background Loop MP3',
+    );
 
     const stringsMp3Path = path.resolve(process.cwd(), CHESS_STRINGS_THEME_URL);
     assert.ok(fs.existsSync(stringsMp3Path), `Expected ${CHESS_STRINGS_THEME_URL} to exist on disk`);
