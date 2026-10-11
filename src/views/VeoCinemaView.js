@@ -95,11 +95,11 @@ export class VeoCinemaView {
   }
 
   // ===========================================================================
-  // 2. 16:9 SCREEN MESH (8.0m x 4.5m) & ORNATE 3D GOLDEN FRAME (8.6m x 5.1m)
+  // 2. 16:9 SCREEN MESH (8.0m x 4.5m) & SLEEK 1.5% NETFLIX RED CINEMA BEZEL
   // ===========================================================================
 
   buildMirrorMeshAndOrnateFrame() {
-    // 1. 16:9 Magic Mirror Screen (8.0m x 4.5m)
+    // 1. True 16:9 Cinema Screen (8.0m x 4.5m = 1.777:1)
     const screenGeo = new THREE.PlaneGeometry(8.0, 4.5);
     this.screenMaterial = new THREE.MeshBasicMaterial({
       map: this.canvasTexture || null,
@@ -110,103 +110,57 @@ export class VeoCinemaView {
     this.screenMesh.position.z = 0.04;
     this.root.add(this.screenMesh);
 
-    // 2. Subtle Backlight Halo Plane (9.4m x 5.9m) behind the frame
-    const haloGeo = new THREE.PlaneGeometry(9.4, 5.9);
+    // 2. Subtle Netflix Crimson Backlight Ambient Halo (8.10m x 4.60m) right behind the 1.2% bezel
+    const haloGeo = new THREE.PlaneGeometry(8.10, 4.60);
     this.haloMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffca28,
+      color: 0xe50914,
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.14,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
     this.haloMesh = new THREE.Mesh(haloGeo, this.haloMaterial);
-    this.haloMesh.position.z = -0.18;
+    this.haloMesh.position.z = -0.06;
     this.root.add(this.haloMesh);
 
-    // 3. Ornate Sculpted 3D Golden Frame (8.6m x 5.1m)
+    // 3. Minimal 1.2% Netflix Cinema Bezel (8.10m x 4.60m — zero bulky frame or top hook!)
     this.frameGroup = new THREE.Group();
     this.frameGroup.name = 'OrnateGoldenMirrorFrame';
     this.root.add(this.frameGroup);
 
-    this.goldMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffd54f,
-      roughness: 0.26,
-      metalness: 0.40,
-      emissive: new THREE.Color(0x6e4b08),
-      emissiveIntensity: 0.48,
+    // Matte obsidian-black theatre casing (8.12m x 4.62m)
+    this.cinemaCasingMaterial = new THREE.MeshStandardMaterial({
+      color: 0x0a0a0f,
+      roughness: 0.45,
+      metalness: 0.35,
     });
-
-    this.runeBezelMaterial = new THREE.MeshStandardMaterial({
-      color: 0x261d3a,
-      roughness: 0.35,
-      metalness: 0.45,
-      emissive: new THREE.Color(0x9575cd),
-      emissiveIntensity: 0.55,
-    });
-
-    // Dark backing plate (8.5m x 5.0m)
     const backPlate = new THREE.Mesh(
-      new THREE.BoxGeometry(8.5, 5.0, 0.14),
-      new THREE.MeshStandardMaterial({ color: 0x161324, roughness: 0.7 }),
+      new THREE.BoxGeometry(8.12, 4.62, 0.06),
+      this.cinemaCasingMaterial,
     );
-    backPlate.position.z = -0.05;
+    backPlate.position.z = -0.02;
     this.frameGroup.add(backPlate);
 
-    // Top & Bottom sculpted golden bars (width 8.6m, height 0.32m, depth 0.28m)
-    const horizBarGeo = new THREE.BoxGeometry(8.6, 0.32, 0.28);
-    for (const yPos of [2.39, -2.39]) {
+    // Signature Netflix Red (#E50914) 1.1% Razor Bezel Trim (0.05m width around the 8.0m x 4.5m screen)
+    this.goldMaterial = new THREE.MeshBasicMaterial({
+      color: 0xe50914,
+    });
+    this.runeBezelMaterial = this.cinemaCasingMaterial;
+
+    const borderThickness = 0.05; // ~1.1% of screen height (4.5m)
+    const horizBarGeo = new THREE.BoxGeometry(8.0 + borderThickness * 2, borderThickness, 0.05);
+    for (const yPos of [2.25 + borderThickness * 0.5, -(2.25 + borderThickness * 0.5)]) {
       const bar = new THREE.Mesh(horizBarGeo, this.goldMaterial);
-      bar.position.set(0, yPos, 0.04);
+      bar.position.set(0, yPos, 0.045);
       this.frameGroup.add(bar);
     }
 
-    // Left & Right sculpted golden bars (width 0.32m, height 5.1m, depth 0.28m)
-    const vertBarGeo = new THREE.BoxGeometry(0.32, 5.1, 0.28);
-    for (const xPos of [-4.14, 4.14]) {
+    const vertBarGeo = new THREE.BoxGeometry(borderThickness, 4.5 + borderThickness * 2, 0.05);
+    for (const xPos of [-(4.0 + borderThickness * 0.5), 4.0 + borderThickness * 0.5]) {
       const bar = new THREE.Mesh(vertBarGeo, this.goldMaterial);
-      bar.position.set(xPos, 0, 0.04);
+      bar.position.set(xPos, 0, 0.045);
       this.frameGroup.add(bar);
     }
-
-    // Inner glowing rune bezel strips framing the 8.0m x 4.5m canvas
-    const innerHorizGeo = new THREE.BoxGeometry(8.08, 0.08, 0.18);
-    for (const yPos of [2.25, -2.25]) {
-      const strip = new THREE.Mesh(innerHorizGeo, this.runeBezelMaterial);
-      strip.position.set(0, yPos, 0.07);
-      this.frameGroup.add(strip);
-    }
-    const innerVertGeo = new THREE.BoxGeometry(0.08, 4.58, 0.18);
-    for (const xPos of [-4.0, 4.0]) {
-      const strip = new THREE.Mesh(innerVertGeo, this.runeBezelMaterial);
-      strip.position.set(xPos, 0, 0.07);
-      this.frameGroup.add(strip);
-    }
-
-    // 4 Corner Royal Rosette Crests (±4.18m, ±2.42m)
-    const cornerRosetteGeo = new THREE.CylinderGeometry(0.34, 0.38, 0.34, 8);
-    cornerRosetteGeo.rotateX(Math.PI / 2);
-    for (const [cx, cy] of [
-      [-4.18, 2.42],
-      [4.18, 2.42],
-      [-4.18, -2.42],
-      [4.18, -2.42],
-    ]) {
-      const rosette = new THREE.Mesh(cornerRosetteGeo, this.goldMaterial);
-      rosette.position.set(cx, cy, 0.08);
-      this.frameGroup.add(rosette);
-    }
-
-    // Top Center Royal Crown Crest Finial
-    const crestArch = new THREE.Mesh(
-      new THREE.TorusGeometry(0.62, 0.10, 8, 20, Math.PI),
-      this.goldMaterial,
-    );
-    crestArch.position.set(0, 2.48, 0.08);
-    this.frameGroup.add(crestArch);
-
-    const crownOrb = new THREE.Mesh(new THREE.SphereGeometry(0.20, 12, 12), this.goldMaterial);
-    crownOrb.position.set(0, 3.12, 0.08);
-    this.frameGroup.add(crownOrb);
   }
 
   // ===========================================================================
@@ -530,24 +484,13 @@ export class VeoCinemaView {
 
     const counterSfx = choreo.defenderCounter?.sfxText || '';
 
-    // TIER 1: If a Veo / 3D .mp4 or .webm video is loaded and playing, draw the clean live video frame
-    // with only a compact top-border pill (ZERO bottom text banner so the 3D fighters are never occluded!)
+    // TIER 1: If a Veo / 3D .mp4 or .webm video is loaded and playing, draw the clean live 16:9 video frame
+    // with a sleek Netflix Cinema overlay (red N badge, episode header, and bottom red timeline scrubber!)
     if (this.usingVideoTexture && this.videoEl && this.videoEl.readyState >= 2) {
       ctx.drawImage(this.videoEl, 0, 0, w, h);
-
-      ctx.save();
-      ctx.fillStyle = 'rgba(14, 18, 32, 0.72)';
-      ctx.strokeStyle = 'rgba(255, 213, 79, 0.75)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.roundRect(24, 14, 560, 38, 18);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = '#ffe082';
-      ctx.font = 'bold 19px system-ui, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText(`⚔️ ${titleText}`.slice(0, 46), 42, 39);
-      ctx.restore();
+      const vidDur = this.videoEl.duration > 0 ? this.videoEl.duration : 8.0;
+      const progress = Math.min(1, Math.max(0.05, (this.videoEl.currentTime || this.battleElapsed) / vidDur));
+      this.drawNetflixCinemaOverlay(ctx, w, h, titleText, progress);
       return;
     }
 
@@ -555,19 +498,8 @@ export class VeoCinemaView {
     const nbKeyframe = this.getOrLoadImage(choreo.keyframeUrl);
     if (nbKeyframe) {
       ctx.drawImage(nbKeyframe, 0, 0, w, h);
-      ctx.save();
-      ctx.fillStyle = 'rgba(14, 18, 32, 0.72)';
-      ctx.strokeStyle = 'rgba(255, 213, 79, 0.75)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.roundRect(24, 14, 560, 38, 18);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = '#ffe082';
-      ctx.font = 'bold 19px system-ui, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText(`🍌 ${titleText}`.slice(0, 46), 42, 39);
-      ctx.restore();
+      const progress = Math.min(1, Math.max(0.08, (this.battleElapsed || 0.8) / 4.2));
+      this.drawNetflixCinemaOverlay(ctx, w, h, titleText, progress);
       return;
     }
 
@@ -638,6 +570,60 @@ export class VeoCinemaView {
     ctx.fillStyle = '#ffe082';
     ctx.font = 'bold 34px system-ui, sans-serif';
     ctx.fillText(titleText, w / 2, 64);
+  }
+
+  /**
+   * Draws a minimal, high-contrast Netflix Cinema player overlay on the 1280x720 (16:9) screen:
+   * - Top subtle vignette gradient
+   * - Iconic `#E50914` Netflix-red "N" ribbon + `CARCHESS CINEMA` series header + episode title
+   * - Minimal 4px `#E50914` playback scrubber bar at the bottom edge with a glowing red playhead dot
+   */
+  drawNetflixCinemaOverlay(ctx, w, h, titleText, progress = 0.35) {
+    ctx.save();
+
+    // Subtle top cinema gradient vignette for crisp typography
+    const topGrad = ctx.createLinearGradient(0, 0, 0, 92);
+    topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.78)');
+    topGrad.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
+    ctx.fillStyle = topGrad;
+    ctx.fillRect(0, 0, w, 92);
+
+    // Iconic Netflix Red "N" Badge (28x38 at x=24, y=16)
+    ctx.fillStyle = '#E50914';
+    ctx.beginPath();
+    ctx.roundRect(24, 16, 28, 36, 4);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 24px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('N', 38, 43);
+
+    // "CARCHESS CINEMA" series tracking label + episode title
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#E50914';
+    ctx.font = '800 12px system-ui, -apple-system, sans-serif';
+    ctx.fillText('C A R C H E S S   C I N E M A   ·   1 6 : 9   U H D', 62, 28);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 20px system-ui, -apple-system, sans-serif';
+    ctx.fillText(String(titleText).slice(0, 54), 62, 50);
+
+    // Bottom minimal 5px Netflix Red playback scrubber bar
+    const barY = h - 8;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.24)';
+    ctx.fillRect(20, barY, w - 40, 4);
+
+    const progW = Math.max(24, Math.min(w - 40, (w - 40) * progress));
+    ctx.fillStyle = '#E50914';
+    ctx.fillRect(20, barY, progW, 4);
+
+    // Glowing red scrubber playhead dot
+    ctx.beginPath();
+    ctx.arc(20 + progW, barY + 2, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#E50914';
+    ctx.fill();
+
+    ctx.restore();
   }
 
   drawCharacterCard(ctx, x, y, cw, ch, charMeta, roleLabel, borderColor, phase) {

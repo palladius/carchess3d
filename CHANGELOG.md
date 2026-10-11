@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.23] - 2026-10-11
+
+- 🍿🔴🎬 **Netflix Cinema 16:9 Look & Feel — Minimal `1.1%` `#E50914` Red Bezel, `"N"` Badge, Scrubber Bar & Zero-Distortion `16:9` Camera Alignment (`VeoCinemaView.js`, `VFXPoolView.js`)**:
+  - **Minimal `1.1%` Netflix Red (`#E50914`) Cinema Bezel**: Replaced the thick `0.32m` yellow frame, corner cylinders, and top crown hook (`6.12m` tall, which compressed the outer silhouette toward `4:3`) with a razor-thin `0.05m` (`~1.1%`) `#E50914` Netflix-red neon bezel on a matte obsidian-black theatre casing (`8.12m × 4.62m`).
+  - **Netflix Cinema HUD Overlay (`drawNetflixCinemaOverlay`)**: Added the iconic red **`N`** ribbon badge, `CARCHESS CINEMA · 16:9 UHD` series header, episode title, and a `4px` `#E50914` bottom timeline scrubber bar with glowing playhead dot.
+  - **True `16:9` Rectangular Projection (`camera.quaternion`)**: Aligned `VeoMagicCinemaMirror` strictly parallel to the actual camera image plane (`mirrorRoot.quaternion.copy(this.camera.quaternion)`) along `camFwd`/`camUp`, eliminating horizontal yaw foreshortening and vertical pitch trapezoid distortion so the `1280×720` (`16:9`) Veo videos always render as a true `16:9` rectangle from any camera angle.
+
 ## [0.3.22] - 2026-10-11
 
 - 🎬♟️✨ **Cinema XXL (`+75%`, `1.75x`) Veo Combat Video & 90% Transparent Chessboard (`opacity = 0.10`) (`ZurichSwampView.js`, `VFXPoolView.js`, `tests/combat.test.mjs`)**:
