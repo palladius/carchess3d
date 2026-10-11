@@ -119,7 +119,7 @@ test('CombatAnimationManager: Easter Egg overrides (Seby <-> Pupurabbu cuddle & 
   }
 });
 
-test('CombatAnimationManager: update(dt) completes cutscene after 6000ms (+50% slower) and skip() aborts immediately', () => {
+test('CombatAnimationManager: update(dt) completes cutscene after 10000ms (1s pre + 8s video + 1s post) and skip() aborts immediately', () => {
   const bus = new GameEventBus();
   const flow = new GameFlowManager();
   const combat = new CombatAnimationManager();
@@ -133,7 +133,7 @@ test('CombatAnimationManager: update(dt) completes cutscene after 6000ms (+50% s
   bus.on('BATTLE_COMPLETED', (e) => { completed = e; });
   bus.on('BATTLE_SKIPPED', (e) => { skipped = e; });
 
-  assert.equal(DEFAULT_BATTLE_DURATION_MS, 6000);
+  assert.equal(DEFAULT_BATTLE_DURATION_MS, 10000);
 
   // Trigger a clash via WOW_ARENA_CLASH
   bus.emit({
@@ -149,15 +149,15 @@ test('CombatAnimationManager: update(dt) completes cutscene after 6000ms (+50% s
   assert.equal(combat.isActive(), true);
   assert.equal(flow.state(), FLOW_STATES.CAPTURE_CUTSCENE);
 
-  // Advance 3.0 seconds (halfway)
-  combat.update(3.0);
+  // Advance 5.0 seconds (halfway of 10.0s)
+  combat.update(5.0);
   bus.flush();
   assert.equal(combat.isActive(), true);
   assert.equal(completed, null);
   assert.ok(Math.abs(combat.getProgress() - 0.5) < 0.01);
 
-  // Advance another 3.1 seconds (total 6.1s >= 6.0s)
-  combat.update(3.1);
+  // Advance another 5.1 seconds (total 10.1s >= 10.0s)
+  combat.update(5.1);
   bus.flush(); // delivers BATTLE_COMPLETED
   bus.flush(); // delivers FLOW_STATE_CHANGED
 
@@ -288,6 +288,9 @@ test('VFXPoolView: auto-zooms camera tightly onto the 2 fighting pieces, hides o
   assert.ok(neighborPiece?.visible, 'Neighbor piece c4 is visible before clash');
   assert.ok(clashFromPiece?.visible, 'd4 piece is visible before clash');
   assert.ok(clashToPiece?.visible, 'e5 piece is visible before clash');
+  const neighborInitialX = neighborPiece.position.x;
+  const neighborInitialZ = neighborPiece.position.z;
+  const neighborInitialScale = neighborPiece.scale.x;
 
   // Trigger "Lancia Sfida Ale vs Seby" (WOW_ARENA_CLASH on d4 -> e5)
   bus.emit({
@@ -307,21 +310,33 @@ test('VFXPoolView: auto-zooms camera tightly onto the 2 fighting pieces, hides o
     vfxView.update(1 / 30);
   }
 
-  // 1. 3D floating comic text billboard must be hidden so it never occludes the fighters!
+  // 1. 3D floating comic text billboard and chaotic brawlCloud must be hidden so they never occlude the fighters!
   assert.equal(vfxView.props.comicWordSprite.visible, false, '3D comicWordSprite must stay hidden');
+  assert.equal(vfxView.props.brawlCloud.visible, false, 'brawlCloud dust blob must stay hidden for clean fighter silhouettes');
 
   // 2. Camera must zoom onto the 2 fighters while framing ~5x5 board squares (FOV ~45 deg, distance ~4.5m..5.2m)
   assert.ok(camera.fov <= 46 && camera.fov >= 42, `Expected half-board FOV ~45, got ${camera.fov}`);
   const camDist = camera.position.distanceTo(controls.target);
   assert.ok(camDist > 4.0 && camDist < 5.5, `Expected ~5x5 half-board camera distance 4.0m..5.5m, got ${camDist.toFixed(2)}m`);
 
-  // 3. Static board pieces on d4 & e5 are temporarily hidden (replaced by 1.22x brawl fighters),
-  //    while neighboring piece c4 remains visible!
+  // 3. Static board pieces on d4 & e5 are temporarily hidden (replaced by 1.52x hero fighters),
+  //    while neighboring piece c4 remains visible, dilated outward, and scaled down non-linearly!
   assert.equal(clashFromPiece.visible, false, 'Static piece on d4 hidden during clash');
   assert.equal(clashToPiece.visible, false, 'Static piece on e5 hidden during clash');
   assert.equal(neighborPiece.visible, true, 'Neighboring piece on c4 remains visible around the clash');
   assert.ok(vfxView.attackerFighter?.visible, 'Animated 3D attacker fighter is visible');
   assert.ok(vfxView.defenderFighter?.visible, 'Animated 3D defender fighter is visible');
+  assert.ok(vfxView.attackerFighter.scale.x > 1.45, `Expected 1.52x hero scale on attacker, got ${vfxView.attackerFighter.scale.x.toFixed(2)}`);
+
+  const neighborMovedDist = Math.hypot(
+    neighborPiece.position.x - neighborInitialX,
+    neighborPiece.position.z - neighborInitialZ,
+  );
+  assert.ok(neighborMovedDist > 0.6, `Expected neighbor piece c4 to be dilated outward >0.6m, got ${neighborMovedDist.toFixed(2)}m`);
+  assert.ok(
+    neighborPiece.scale.x < neighborInitialScale * 0.72,
+    `Expected neighbor piece c4 to be scaled down <72% of initial scale, got ${(neighborPiece.scale.x / neighborInitialScale).toFixed(2)}`,
+  );
 });
 
 test('ZurichSwampView: switches 64 chessboard tiles to 50% translucency during combat and restores 100% opacity after', async () => {

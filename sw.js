@@ -6,7 +6,7 @@
  * 100% offline on a plane or train after first load.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v24';
+const CACHE_NAME = 'carchess3d-offline-v28';
 
 const PRECACHE_URLS = [
   './',
@@ -145,8 +145,14 @@ self.addEventListener('fetch', (event) => {
   const reqUrl = new URL(event.request.url);
   if (reqUrl.origin !== self.location.origin) return;
 
-  // Never cache VERSION in Service Worker: it is our live truth probe to detect version drift!
-  if (reqUrl.pathname.endsWith('/VERSION') || reqUrl.pathname === 'VERSION') {
+  // Never cache VERSION or nocache.html / ?nocache=1 in Service Worker
+  if (
+    reqUrl.pathname.endsWith('/VERSION') ||
+    reqUrl.pathname === 'VERSION' ||
+    reqUrl.pathname.endsWith('nocache.html') ||
+    reqUrl.searchParams.get('nocache') === '1' ||
+    reqUrl.searchParams.get('fresh') === '1'
+  ) {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' }).catch(
         () => new Response('', { status: 404, statusText: 'Offline' }),

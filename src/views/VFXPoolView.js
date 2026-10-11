@@ -717,7 +717,6 @@ export class VFXPoolView {
   }
 
   /**
-<<<<<<< HEAD
    * Pre-allocates the 3D D&D Spell Stage Props for King Riccardo ("Papino" `k`):
    * - `dndFireball`: Blazing 8d6 Fireball sphere + floating golden d20 icosahedron (`k_x_p`)
    * - `dndMeteorSwarm`: 4 blazing volcanic meteors raining from a sky spell ring (`k_x_b`)
@@ -1626,9 +1625,12 @@ export class VFXPoolView {
       this.attackerFighter.position.set(fromPos.x, 0, fromPos.z);
       this.defenderFighter.position.set(toPos.x, 0, toPos.z);
 
-      // Attach bespoke 3D weapon props directly to each fighter root so GLB async loading never clears them
+      // Attach compact 3D weapon props (0.54x scale) directly to each fighter root so the
+      // main 3D .glb character silhouettes (Knight horse, Bishop mitre, Rook plush, King crown) stay 100% readable!
       this.attackerWeaponProp = this.buildFighterWeaponProp(atkType);
       this.defenderWeaponProp = this.buildFighterWeaponProp(defType);
+      this.attackerWeaponProp.scale.setScalar(0.54);
+      this.defenderWeaponProp.scale.setScalar(0.54);
       this.attackerFighter.add(this.attackerWeaponProp);
       this.defenderFighter.add(this.defenderWeaponProp);
       this.attackerFighter.userData.weaponProp = this.attackerWeaponProp;
@@ -1657,17 +1659,17 @@ export class VFXPoolView {
       this.props.skyBeam.visible = true;
     }
 
-    // Spawn initial clash sparks when the first blow of the 3D Scazzottata lands (delayS: 0.95s)
+    // Spawn initial clash sparks when the first blow of Act 1 lands (after 1.0s pre-padding: delayS = 2.15s)
     this.spawnFromPool('golden_sparks', toPos, Math.round(18 * countMult), {
       speedMin: 1.4,
       speedMax: 3.6,
       upMin: 2.2,
       upMax: 4.5,
       restitution: 0.65,
-      delayS: 0.95,
+      delayS: 2.15,
     });
 
-    // Spawn signature particle bursts from pre-allocated pools timed with Act 2 Brawl
+    // Spawn signature particle bursts from pre-allocated pools timed with Act 3 Finisher (~6.2s)
     const effect = e.effect;
     if (effect === 'sceptre_lightning' || effect === 'golden_toilet_throne') {
       this.props.runeCircle.position.set(toPos.x, 0.03, toPos.z);
@@ -1684,7 +1686,7 @@ export class VFXPoolView {
         upMin: 2.8,
         upMax: 5.6,
         restitution: 0.65,
-        delayS: 1.6,
+        delayS: 6.1,
       });
     } else if (effect === 'chocolate_wave') {
       this.props.chocoWave.position.set(toPos.x, 0.14, toPos.z);
@@ -1696,7 +1698,7 @@ export class VFXPoolView {
         upMin: 3.0,
         upMax: 5.5,
         restitution: 0.45,
-        delayS: 1.5,
+        delayS: 6.0,
       });
     } else if (effect === 'crystal_shatter') {
       const isTanzaniteMom = e.easterEgg === 'ale_tanzanite_coffin_for_mom' || (e.attacker === 'b' && e.defender === 'q');
@@ -1714,7 +1716,7 @@ export class VFXPoolView {
         upMin: 2.5,
         upMax: 5.8,
         restitution: 0.72,
-        delayS: 1.8,
+        delayS: 6.4,
       });
     } else if (effect === 'loop_track_cars') {
       this.props.loopTrack.position.set(toPos.x, 0.68, toPos.z);
@@ -1732,18 +1734,20 @@ export class VFXPoolView {
         upMin: 1.8,
         upMax: 4.2,
         restitution: 0.55,
-        delayS: 1.5,
+        delayS: 6.1,
       });
     } else if (effect === 'halberd_fish_slap') {
+      // Keep the giant standalone fish hidden (or compact) so it never covers the 2 fighters' faces!
       this.props.puffinFish.position.set(fromPos.x, 0.75, fromPos.z);
-      this.props.puffinFish.visible = true;
+      this.props.puffinFish.scale.setScalar(0.45);
+      this.props.puffinFish.visible = false;
       this.spawnFromPool('fish_and_feathers', toPos, Math.round(26 * countMult), {
         speedMin: 1.6,
         speedMax: 4.0,
         upMin: 2.4,
         upMax: 5.0,
         restitution: 0.5,
-        delayS: 1.4,
+        delayS: 6.0,
       });
     } else if (effect === 'mega_cuddle_bounce') {
       this.spawnFromPool('floating_purple_hearts', toPos, Math.round(36 * countMult), {
@@ -1773,7 +1777,7 @@ export class VFXPoolView {
         upMin: 2.0,
         upMax: 4.4,
         restitution: 0.65,
-        delayS: 1.25,
+        delayS: 5.5,
       });
       this.spawnFromPool('diamond_ice_crystals', toPos, Math.round(40 * countMult), {
         speedMin: 2.0,
@@ -1781,7 +1785,7 @@ export class VFXPoolView {
         upMin: 2.8,
         upMax: 6.0,
         restitution: 0.72,
-        delayS: 2.85,
+        delayS: 7.4,
       });
     } else if (effect === 'san_gennaro_miracle' || effect === 'crosier_blessing_beam') {
       if (this.props.sanGennaroAmpoule) {
@@ -1799,7 +1803,7 @@ export class VFXPoolView {
         upMin: 2.8,
         upMax: 5.8,
         restitution: 0.68,
-        delayS: 1.15,
+        delayS: 5.8,
       });
     }
 
@@ -2000,7 +2004,7 @@ export class VFXPoolView {
         return Math.max(0.2, Math.min(4.0, Number(q)));
       }
     }
-    return 1.10;
+    return 1.00;
   }
 
   getExitWindowS() {
@@ -2013,29 +2017,32 @@ export class VFXPoolView {
     return Number.isFinite(this.combatTransitionSeconds) ? this.combatTransitionSeconds : 3.50;
   }
 
+  getHeroScaleMult() {
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const q = new URLSearchParams(window.location.search).get('heroScale');
+      if (q !== null && Number.isFinite(Number(q))) {
+        return Math.max(1.0, Math.min(2.4, Number(q)));
+      }
+    }
+    return Number.isFinite(this.combatHeroScale) ? this.combatHeroScale : 1.52;
+  }
+
   /**
    * Triggered on `BATTLE_COMPLETED` or `BATTLE_SKIPPED`: clears stage fighters/props and
-   * continues the smooth 3.5s sliding-window zoom-out & alpha cross-fade back to the saved camera view!
+   * starts the smooth 3.5s sliding-window zoom-out & alpha cross-fade back to the saved camera view!
    */
   onBattleEnded(e) {
     if (this.activeClash?.type === 'CHECKMATE_CAPITULATION') return;
     const isSkip = e?.type === 'BATTLE_SKIPPED';
     const exitTotalS = isSkip ? 1.35 : this.getExitWindowS();
-    const durationS = (this.activeClash?.durationMs || 6000) / 1000;
-    const preExitS = isSkip ? 0 : Math.min(durationS * 0.20, exitTotalS * 0.34);
-    const exitStartS = Math.max(1.5, durationS - preExitS);
-    const alreadyRan =
-      !isSkip && this.clashElapsed > exitStartS
-        ? Math.min(preExitS, this.clashElapsed - exitStartS)
-        : 0;
 
     this.activeClash = null;
     this.hideStageProps();
 
     if (this.camSaved) {
       this.exitWindowTotalS = exitTotalS;
-      this.exitPreWindowS = alreadyRan;
-      this.camRestoreDuration = Math.max(0.5, exitTotalS - alreadyRan);
+      this.exitPreWindowS = 0;
+      this.camRestoreDuration = Math.max(0.5, exitTotalS);
       this.camRestoreTimer = this.camRestoreDuration;
     } else {
       this._applyCombatBlendState(0.0);
@@ -2073,13 +2080,13 @@ export class VFXPoolView {
     if (!(dt > 0)) return;
     const step = Math.min(dt, 0.1);
 
-    // 1. Update active 3-Act 3D Scazzottata & stage props
+    // 1. Update active 10.0s (`1s pre-padding + 8s Veo video + 1s post-padding`) 3D duel & stage props
     if (this.activeClash) {
       this.clashElapsed += step;
-      const durationS = (this.activeClash.durationMs || 6000) / 1000;
+      const durationS = (this.activeClash.durationMs || 10000) / 1000;
       const t = Math.min(1, this.clashElapsed / durationS);
-      this.updateActiveChoreography(this.activeClash, t, this.clashElapsed);
       this.updateCameraOrbit(t, step);
+      this.updateActiveChoreography(this.activeClash, t, this.clashElapsed);
       if (this.activeClash.type === 'CHECKMATE_CAPITULATION' && t >= 1) {
         this.activeClash = null;
         this.hideStageProps();
@@ -2104,7 +2111,7 @@ export class VFXPoolView {
       }
     }
 
-    // 2. Update pooled debris particles (gravity + board/swamp bounce + 3.0s fade-out)
+    // 2. Update pooled debris particles (gravity + board/swamp bounce + fade-out)
     for (let i = this.activeParticles.length - 1; i >= 0; i--) {
       const p = this.activeParticles[i];
       if (p.delayS > 0) {
@@ -2114,7 +2121,7 @@ export class VFXPoolView {
           if (this.props.crystalCase && this.activeClash?.effect === 'crystal_shatter') {
             this.props.crystalCase.visible = false;
           }
-          if (this.props.iceCoffin && this.activeClash?.effect === 'sacro_acquarius_ice_coffin' && this.clashElapsed >= 2.6) {
+          if (this.props.iceCoffin && this.activeClash?.effect === 'sacro_acquarius_ice_coffin' && this.clashElapsed >= 6.8) {
             this.props.iceCoffin.visible = false;
           }
         }
@@ -2166,127 +2173,125 @@ export class VFXPoolView {
   }
 
   /**
-   * Animates the 3-Act 3D Scazzottata between the two real `.glb` fighters (`attackerFighter` & `defenderFighter`)
-   * plus their 3D weapons, Defender Counter-Attack, Comic Impact Words, and Shrek Swamp K.O. Water Splash over `4.0s`:
-   * - Act 1 (`t = 0.00 .. 0.25`): Walk/Gallop Charge & Combat Guard Stance (`"CHARGE!"`)
-   * - Act 2 (`t = 0.25 .. 0.74`): La Scazzottata 3D!
-   *   - Exchange 1 (`brawlU = 0.00..0.20`): Attacker Lunge & Weapon Slash (`"CLANG! ⚔️"`)
-   *   - Exchange 2 (`brawlU = 0.20..0.44`): Defender Character-Specific 3D Counter-Attack #1 (`"CONTRATTACCO! 💥"`)
-   *   - Exchange 3 (`brawlU = 0.44..0.68`): Defender Counter-Attack #2 + Mid-Air Whirlwind Clash (`"KAPOW! 🌪️"`)
-   *   - Exchange 4 & 5 (`brawlU = 0.68..1.00`): Attacker Uppercut & Signature Finishing Slam (`"KAPOW! 🌪️"`)
-   * - Act 3 (`t = 0.74 .. 1.00`): High Parabolic Knockout Launch into Shrek's Swamp (`x = ±6.4m, y = -0.28m`)
-   *   + Emerald Water Splash Ring & Droplet Burst (`t = 0.88..1.00`, `"K.O.! 🐸💦"`).
+   * Animates the 5-Phase `10.0s` (`1.0s Pre-Padding + 8.0s Full Veo Video + 1.0s Post-Padding`)
+   * Spaced 3/4 Profile Duel between the two `.glb` protagonists (`attackerFighter` on Left vs `defenderFighter` on Right):
+   * - Phase 0 (`t = 0.00 .. 0.10`, `0.0s .. 1.0s`): 1s Pre-Padding Face-Off (`1.52m` apart in 3/4 profile, Frame 0 held)
+   * - Phase 1 (`t = 0.10 .. 0.35`, `1.0s .. 3.5s`, Video `0.0s..2.5s`): Attacker's Deliberate Wind-Up, Lunge & Weapon Slash
+   * - Phase 2 (`t = 0.35 .. 0.60`, `3.5s .. 6.0s`, Video `2.5s..5.0s`): Defender's Character-Specific Counter-Attack
+   * - Phase 3 (`t = 0.60 .. 0.90`, `6.0s .. 9.0s`, Video `5.0s..8.0s`): Attacker's Signature Finisher & Swamp K.O. Arc
+   * - Phase 4 (`t = 0.90 .. 1.00`, `9.0s .. 10.0s`): 1s Post-Padding Victory Hold on the Conquered Square!
    */
   updateActiveChoreography(clash, t, elapsedS) {
     const toPos = this.activeToPos || squareToWorld(clash.square || clash.to || 'd5');
     const fromPos = this.activeFromPos || squareToWorld(clash.from || 'e4');
-    const dx = toPos.x - fromPos.x;
-    const dz = toPos.z - fromPos.z;
-    const dist = Math.hypot(dx, dz) || 1.0;
-    const dirX = dx / dist;
-    const dirZ = dz / dist;
-    const atkYaw = Math.atan2(dirX, dirZ);
-    const defYaw = Math.atan2(-dirX, -dirZ);
+
+    // Align the 3D Duel Stage Axis perpendicular to the camera ray so Attacker is ALWAYS clearly on the Left
+    // and Defender is ALWAYS clearly on the Right in heroic 3/4 front-profile (zero depth self-occlusion!)
+    let stageDirX = 1.0;
+    let stageDirZ = 0.0;
+    if (this.lastCombatDesiredPos) {
+      const camDx = this.lastCombatDesiredPos.x - toPos.x;
+      const camDz = this.lastCombatDesiredPos.z - toPos.z;
+      const hLen = Math.hypot(camDx, camDz);
+      if (hLen > 0.05) {
+        stageDirX = camDz / hLen;
+        stageDirZ = -camDx / hLen;
+      }
+    }
+    const dirX = stageDirX;
+    const dirZ = stageDirZ;
+    // Slight 3/4 turn toward the camera (`±0.26 rad`) so both characters' faces, crowns, horses & weapons shine!
+    const atkYaw = Math.atan2(dirX, dirZ) - 0.26;
+    const defYaw = Math.atan2(-dirX, -dirZ) + 0.26;
     const defType = String(clash.defender || 'p').toLowerCase();
     const defSpec = FIGHTER_COMBAT_SPECS[defType] || FIGHTER_COMBAT_SPECS.p;
 
     // 1. Animate Signature Stage Props
     if (this.props.runeCircle?.visible) {
-      this.props.runeCircle.rotation.y = elapsedS * 4.2;
-      this.props.runeCircle.scale.setScalar(1 + Math.sin(elapsedS * 10) * 0.15);
+      this.props.runeCircle.rotation.y = elapsedS * 3.2;
+      this.props.runeCircle.scale.setScalar(1.25 + Math.sin(elapsedS * 6) * 0.12);
     }
     if (this.props.lightningBolts?.visible) {
-      this.props.lightningBolts.rotation.y = elapsedS * 8.0;
-      this.props.lightningBolts.visible = t > 0.25 && t < 0.85;
+      this.props.lightningBolts.rotation.y = elapsedS * 6.0;
+      this.props.lightningBolts.visible = t > 0.58 && t < 0.88;
     }
     if (this.props.goldenThrone?.visible) {
       if (clash.dndSpell === 'kiss_of_death_blight') {
         this.props.goldenThrone.visible = false;
       } else {
-        const dropT = Math.min(1, Math.max(0, (t - 0.35) * 2.5));
+        const dropT = Math.min(1, Math.max(0, (t - 0.58) * 3.0));
         this.props.goldenThrone.position.y = (1 - dropT) * 2.6 + 0.05;
-        this.props.goldenThrone.rotation.y = elapsedS * 3.2;
+        this.props.goldenThrone.rotation.y = elapsedS * 2.6;
+        this.props.goldenThrone.visible = t >= 0.56;
       }
     }
     if (this.props.chocoWave?.visible) {
-      const waveT = Math.max(0, (t - 0.25) / 0.75);
+      const waveT = Math.max(0, (t - 0.56) / 0.36);
       this.props.chocoWave.scale.setScalar(0.4 + waveT * 2.5);
-      this.props.chocoWave.rotation.z = elapsedS * 2.5;
+      this.props.chocoWave.rotation.z = elapsedS * 2.2;
     }
     if (this.props.crystalCase?.visible) {
-      this.props.crystalCase.rotation.y = elapsedS * 2.2;
+      this.props.crystalCase.rotation.y = elapsedS * 2.0;
       const isTanzaniteMom =
         clash.easterEgg === 'ale_tanzanite_coffin_for_mom' || (clash.attacker === 'b' && clash.defender === 'q');
-      if (isTanzaniteMom && this.defenderFighter) {
+      if (this.defenderFighter) {
         this.props.crystalCase.position.set(
           this.defenderFighter.position.x,
-          this.defenderFighter.position.y + 0.68,
+          this.defenderFighter.position.y + 0.72,
           this.defenderFighter.position.z,
         );
-        if (this.props.crystalCase.material) {
-          const pulse = 0.5 + 0.5 * Math.sin(elapsedS * 6.0);
-          this.props.crystalCase.material.color.setHex(pulse > 0.5 ? 0x5e35b1 : 0x3949ab);
-          this.props.crystalCase.material.emissive.setHex(pulse > 0.5 ? 0x00b0ff : 0x7c4dff);
-        }
+      }
+      if (isTanzaniteMom && this.props.crystalCase.material) {
+        const pulse = 0.5 + 0.5 * Math.sin(elapsedS * 6.0);
+        this.props.crystalCase.material.color.setHex(pulse > 0.5 ? 0x5e35b1 : 0x3949ab);
+        this.props.crystalCase.material.emissive.setHex(pulse > 0.5 ? 0x00b0ff : 0x7c4dff);
       }
     }
     if (this.props.dizzyStars?.visible) {
-      this.props.dizzyStars.rotation.y = elapsedS * 6.5;
+      this.props.dizzyStars.rotation.y = elapsedS * 5.5;
     }
     if (this.props.shockwaveRing?.visible) {
-      const ringT = Math.max(0, (t - 0.32) / 0.68);
+      const ringT = Math.max(0, (t - 0.56) / 0.38);
       this.props.shockwaveRing.scale.setScalar(0.35 + ringT * 3.4);
     }
-    if (this.props.puffinFish?.visible) {
-      const slapT = Math.min(1, Math.max(0, (t - 0.22) * 2.2));
-      this.props.puffinFish.position.set(
-        fromPos.x + (toPos.x - fromPos.x) * slapT,
-        0.65 + Math.sin(slapT * Math.PI) * 0.48,
-        fromPos.z + (toPos.z - fromPos.z) * slapT,
-      );
-      this.props.puffinFish.rotation.y = elapsedS * 9.5;
-    }
     if (clash.effect === 'sacro_acquarius_ice_coffin') {
-      // Animate Celestial Aquarius Water-Bearer Woman & Golden Amphora pouring ice energy!
       if (this.props.aquariusMaiden) {
-        const showMaiden = t >= 0.28 && t < 0.78;
+        const showMaiden = t >= 0.52 && t < 0.84;
         this.props.aquariusMaiden.visible = showMaiden;
         if (showMaiden) {
-          const atkX = this.attackerFighter ? this.attackerFighter.position.x : toPos.x - dirX * 0.36;
-          const atkZ = this.attackerFighter ? this.attackerFighter.position.z : toPos.z - dirZ * 0.36;
+          const atkX = this.attackerFighter ? this.attackerFighter.position.x : toPos.x - dirX * 0.74;
+          const atkZ = this.attackerFighter ? this.attackerFighter.position.z : toPos.z - dirZ * 0.74;
           this.props.aquariusMaiden.position.set(
-            atkX - dirX * 0.24,
-            0.55 + Math.sin(elapsedS * 6.0) * 0.08,
-            atkZ - dirZ * 0.24,
+            atkX - dirX * 0.28,
+            0.55 + Math.sin(elapsedS * 5.0) * 0.08,
+            atkZ - dirZ * 0.28,
           );
           this.props.aquariusMaiden.rotation.set(0, atkYaw, 0);
           const { amphoraGroup, streamBeam, halo } = this.props.aquariusMaiden.userData;
           if (amphoraGroup) {
-            const pourProgress = Math.min(1, (t - 0.28) / 0.22);
+            const pourProgress = Math.min(1, (t - 0.52) / 0.18);
             amphoraGroup.rotation.x = Math.PI * (0.18 + pourProgress * 0.32);
           }
           if (streamBeam) {
-            const beamPulse = 0.85 + Math.sin(elapsedS * 24.0) * 0.25;
-            streamBeam.scale.set(beamPulse, 1.0 + Math.sin(elapsedS * 18.0) * 0.15, beamPulse);
+            const beamPulse = 0.85 + Math.sin(elapsedS * 18.0) * 0.22;
+            streamBeam.scale.set(beamPulse, 1.0 + Math.sin(elapsedS * 14.0) * 0.12, beamPulse);
           }
           if (halo) {
-            halo.rotation.z = elapsedS * 3.5;
+            halo.rotation.z = elapsedS * 3.0;
           }
         }
       }
-      // Animate Teca di Ghiaccio Eterno rising around the Puffin (Puffin is translucent cyan-blue BEHIND the front ice wall!)
       if (this.props.iceCoffin) {
-        if (t < 0.36) {
+        if (t < 0.56) {
           this.props.iceCoffin.visible = false;
-        } else if (t < 0.74) {
+        } else if (t < 0.78) {
           this.props.iceCoffin.visible = true;
-          const riseU = Math.min(1, (t - 0.36) / 0.28);
-          const defX = this.defenderFighter ? this.defenderFighter.position.x : toPos.x;
-          const defZ = this.defenderFighter ? this.defenderFighter.position.z : toPos.z;
+          const riseU = Math.min(1, (t - 0.56) / 0.18);
+          const defX = this.defenderFighter ? this.defenderFighter.position.x : toPos.x + dirX * 0.74;
+          const defZ = this.defenderFighter ? this.defenderFighter.position.z : toPos.z + dirZ * 0.74;
           this.props.iceCoffin.position.set(defX, 0, defZ);
           this.props.iceCoffin.scale.set(0.92 + riseU * 0.22, Math.max(0.1, riseU), 0.92 + riseU * 0.22);
           this.props.iceCoffin.rotation.y = defYaw + Math.sin(elapsedS * 2.0) * 0.12;
-          // Tint the Puffin translucent icy cyan-blue ("azzurro traslucido") inside/behind the ice block!
           if (this.defenderFighter && !this.defenderFighter.userData.frozenCyanTinted) {
             this.defenderFighter.userData.frozenCyanTinted = true;
             this.defenderFighter.traverse((child) => {
@@ -2304,7 +2309,6 @@ export class VFXPoolView {
             });
           }
         } else {
-          // Crumbles into 60 diamond-ice crystals at the start of Act 3!
           this.props.iceCoffin.visible = false;
         }
       }
@@ -2313,51 +2317,51 @@ export class VFXPoolView {
     // Animate King Riccardo ("Papino" `k`) 6 D&D Spells in 3D!
     const dndSpell = clash.dndSpell;
     if (dndSpell) {
-      const showDnd = t >= 0.30 && t < 0.86;
+      const showDnd = t >= 0.56 && t < 0.88;
       if (dndSpell === 'fireball' && this.props.dndFireball) {
         this.props.dndFireball.visible = showDnd;
         if (showDnd) {
-          const fbU = Math.min(1, (t - 0.30) / 0.35);
+          const fbU = Math.min(1, (t - 0.56) / 0.24);
+          const startX = toPos.x - dirX * 0.65;
+          const startZ = toPos.z - dirZ * 0.65;
+          const endX = toPos.x + dirX * 0.65;
+          const endZ = toPos.z + dirZ * 0.65;
           this.props.dndFireball.position.set(
-            fromPos.x + (toPos.x - fromPos.x) * fbU,
-            0.55 + Math.sin(fbU * Math.PI) * 0.65,
-            fromPos.z + (toPos.z - fromPos.z) * fbU,
+            startX + (endX - startX) * fbU,
+            0.65 + Math.sin(fbU * Math.PI) * 0.65,
+            startZ + (endZ - startZ) * fbU,
           );
           const { fbCore, d20Mesh } = this.props.dndFireball.userData;
-          if (fbCore) fbCore.scale.setScalar(0.5 + fbU * 1.45 + Math.sin(elapsedS * 20) * 0.15);
-          if (d20Mesh) d20Mesh.rotation.set(elapsedS * 8, elapsedS * 11, elapsedS * 6);
+          if (fbCore) fbCore.scale.setScalar(0.5 + fbU * 1.35 + Math.sin(elapsedS * 16) * 0.12);
+          if (d20Mesh) d20Mesh.rotation.set(elapsedS * 6, elapsedS * 9, elapsedS * 5);
         }
       } else if (dndSpell === 'meteor_swarm' && this.props.dndMeteorSwarm) {
         this.props.dndMeteorSwarm.visible = showDnd;
         if (showDnd) {
-          const fallU = ((t - 0.30) / 0.56) % 1;
-          this.props.dndMeteorSwarm.position.set(toPos.x, (1 - fallU) * 1.6, toPos.z);
-          this.props.dndMeteorSwarm.rotation.y = elapsedS * 4.5;
+          const fallU = ((t - 0.56) / 0.32) % 1;
+          this.props.dndMeteorSwarm.position.set(toPos.x + dirX * 0.65, (1 - fallU) * 1.6, toPos.z + dirZ * 0.65);
+          this.props.dndMeteorSwarm.rotation.y = elapsedS * 4.0;
         }
       } else if (dndSpell === 'summon_comic_daemon' && this.props.dndComicDaemon) {
         this.props.dndComicDaemon.visible = showDnd;
         if (showDnd) {
-          const hop = Math.abs(Math.sin(elapsedS * 14.0)) * 0.35;
-          this.props.dndComicDaemon.position.set(
-            toPos.x - dirX * 0.12,
-            hop,
-            toPos.z - dirZ * 0.12,
-          );
-          this.props.dndComicDaemon.rotation.set(0, atkYaw + Math.sin(elapsedS * 10) * 0.4, 0);
+          const hop = Math.abs(Math.sin(elapsedS * 10.0)) * 0.32;
+          this.props.dndComicDaemon.position.set(toPos.x, hop, toPos.z);
+          this.props.dndComicDaemon.rotation.set(0, atkYaw + Math.sin(elapsedS * 6) * 0.3, 0);
         }
       } else if (dndSpell === 'disintegrate' && this.props.dndDisintegrateRay) {
         this.props.dndDisintegrateRay.visible = showDnd;
         if (showDnd) {
-          this.props.dndDisintegrateRay.position.set(toPos.x, 0, toPos.z);
+          this.props.dndDisintegrateRay.position.set(toPos.x + dirX * 0.65, 0, toPos.z + dirZ * 0.65);
           this.props.dndDisintegrateRay.rotation.set(0, atkYaw, 0);
           const { beam, dustPile } = this.props.dndDisintegrateRay.userData;
-          if (beam) beam.scale.set(1 + Math.sin(elapsedS * 30) * 0.3, 1, 1 + Math.sin(elapsedS * 30) * 0.3);
-          if (dustPile) dustPile.scale.setScalar(Math.min(1.4, Math.max(0.2, (t - 0.30) * 2.5)));
+          if (beam) beam.scale.set(1 + Math.sin(elapsedS * 20) * 0.25, 1, 1 + Math.sin(elapsedS * 20) * 0.25);
+          if (dustPile) dustPile.scale.setScalar(Math.min(1.4, Math.max(0.2, (t - 0.56) * 3.0)));
         }
       } else if (dndSpell === 'flesh_to_stone_petrification' && this.props.dndPetrifyStatue) {
         this.props.dndPetrifyStatue.visible = showDnd;
         if (showDnd) {
-          this.props.dndPetrifyStatue.position.set(toPos.x, 0.66, toPos.z);
+          this.props.dndPetrifyStatue.position.set(toPos.x + dirX * 0.65, 0.66, toPos.z + dirZ * 0.65);
           this.props.dndPetrifyStatue.rotation.y = elapsedS * 2.0;
         }
       }
@@ -2366,141 +2370,123 @@ export class VFXPoolView {
     if (this.props.sanGennaroAmpoule?.visible) {
       const amp = this.props.sanGennaroAmpoule;
       const { bloodCore, bloodCoreMat } = amp.userData || {};
-      // Tilts side-to-side like the Cardinal showing the Ampoule to Naples, then spins radiantly!
-      amp.position.y = 1.68 + Math.sin(elapsedS * 5.0) * 0.14;
-      amp.rotation.y = elapsedS * 2.8;
-      amp.rotation.z = t < 0.28 ? Math.sin(elapsedS * 14.0) * 0.42 : Math.sin(elapsedS * 6.0) * 0.16;
+      amp.position.y = 1.68 + Math.sin(elapsedS * 4.5) * 0.12;
+      amp.rotation.y = elapsedS * 2.4;
+      amp.rotation.z = t < 0.35 ? Math.sin(elapsedS * 10.0) * 0.35 : Math.sin(elapsedS * 5.0) * 0.14;
       if (bloodCore && bloodCoreMat) {
-        if (t < 0.28) {
-          // Clotted dark solid garnet before the miracle
+        if (t < 0.35) {
           bloodCoreMat.color.setHex(0x4a000b);
           bloodCoreMat.emissive.setHex(0x2b0005);
           bloodCoreMat.emissiveIntensity = 0.35;
           bloodCore.scale.set(0.88, 0.50, 0.48);
           bloodCore.position.y = -0.06;
         } else {
-          // IL MIRACOLO! The blood liquefies, swells, and boils with radiant ruby-gold glow!
-          const liqT = Math.min(1, (t - 0.28) / 0.25);
+          const liqT = Math.min(1, (t - 0.35) / 0.25);
           bloodCoreMat.color.setHex(0xff1744);
           bloodCoreMat.emissive.setHex(0xd50000);
-          bloodCoreMat.emissiveIntensity = 1.4 + Math.sin(elapsedS * 22.0) * 0.6;
-          const slosh = Math.sin(elapsedS * 18.0) * 0.12;
-          bloodCore.scale.set(
-            0.94 + slosh * 0.5,
-            0.52 + liqT * 0.54 - slosh * 0.4,
-            0.54,
-          );
-          bloodCore.position.y = -0.05 + liqT * 0.05 + Math.cos(elapsedS * 15.0) * 0.03;
+          bloodCoreMat.emissiveIntensity = 1.4 + Math.sin(elapsedS * 18.0) * 0.5;
+          const slosh = Math.sin(elapsedS * 14.0) * 0.10;
+          bloodCore.scale.set(0.94 + slosh * 0.5, 0.52 + liqT * 0.54 - slosh * 0.4, 0.54);
+          bloodCore.position.y = -0.05 + liqT * 0.05 + Math.cos(elapsedS * 12.0) * 0.03;
         }
       }
     }
 
-    // Animate 3D Comic Impact Word Sprite bobbing & pulsing above the brawl (`y = 2.08m`)
-    if (this.props.comicWordSprite) {
-      const wordPulse = 1.0 + Math.abs(Math.sin(elapsedS * 14.0)) * 0.12;
-      this.props.comicWordSprite.position.set(
-        toPos.x,
-        2.08 + Math.sin(elapsedS * 10.0) * 0.05,
-        toPos.z,
-      );
-      this.props.comicWordSprite.scale.set(1.38 * wordPulse, 0.43 * wordPulse, 1);
+    // Never show the beige brawlCloud dust blob so the 2 protagonists stay 100% crisp and readable!
+    if (this.props.brawlCloud) {
+      this.props.brawlCloud.visible = false;
     }
 
-    // 2. Animate Real 3D GLB Combatants (Attacker A vs Defender B)!
+    // 2. Animate Real 3D GLB Combatants (Attacker A on Left vs Defender B on Right in 3/4 profile)!
     const atk = this.attackerFighter;
     const def = this.defenderFighter;
     const reaction = clash.victimReaction;
 
     if (atk && def) {
-      const scale = (this.pieceView?.globalPieceScale || 1.0) * 1.22;
+      const heroMult = this.getHeroScaleMult();
+      const scale = (this.pieceView?.globalPieceScale || 1.0) * heroMult;
+      const baseSep = 0.78; // 1.56m wide stage separation between Left Attacker & Right Defender!
 
       if (reaction === 'happy_cuddle_hop' || clash.effect === 'mega_cuddle_bounce') {
-        // Seby <-> Pupurabbu Easter Egg: Synchronized Mega Cuddle Bounce!
-        if (this.props.brawlCloud) this.props.brawlCloud.visible = false;
         this.setComicWordText('SUPER ABBRACCIO! 💜🤗', '#8e24aa', '#ff80ab');
-        const hop = Math.abs(Math.sin(elapsedS * 8.5)) * 0.65;
-        atk.position.set(toPos.x - dirX * 0.24, hop, toPos.z - dirZ * 0.24);
-        def.position.set(toPos.x + dirX * 0.24, hop, toPos.z + dirZ * 0.24);
-        atk.rotation.set(0, atkYaw + Math.sin(elapsedS * 6) * 0.35, 0);
-        def.rotation.set(0, defYaw - Math.sin(elapsedS * 6) * 0.35, 0);
+        const hop = Math.abs(Math.sin(elapsedS * 6.5)) * 0.52;
+        atk.position.set(toPos.x - dirX * 0.52, hop, toPos.z - dirZ * 0.52);
+        def.position.set(toPos.x + dirX * 0.52, hop, toPos.z + dirZ * 0.52);
+        atk.rotation.set(0, atkYaw + Math.sin(elapsedS * 4.5) * 0.24, 0);
+        def.rotation.set(0, defYaw - Math.sin(elapsedS * 4.5) * 0.24, 0);
+        atk.scale.setScalar(scale);
+        def.scale.setScalar(scale);
         this.pieceView?.applyPoseToPiece(atk, {
-          walkPhase: elapsedS * 18,
-          walkAmp: 1.2,
-          bodyY: 0.1,
-          rollZ: Math.sin(elapsedS * 9) * 0.16,
+          walkPhase: elapsedS * 10,
+          walkAmp: 0.9,
+          bodyY: 0.08,
+          rollZ: Math.sin(elapsedS * 6) * 0.12,
         });
         this.pieceView?.applyPoseToPiece(def, {
-          walkPhase: elapsedS * 18,
-          walkAmp: 1.2,
-          bodyY: 0.1,
-          rollZ: -Math.sin(elapsedS * 9) * 0.16,
+          walkPhase: elapsedS * 10,
+          walkAmp: 0.9,
+          bodyY: 0.08,
+          rollZ: -Math.sin(elapsedS * 6) * 0.12,
         });
-        this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 0.8, false);
-        this.animateFighterWeaponProp(def, this.defenderWeaponProp, elapsedS, 0.8, false);
+        this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 0.5, false);
+        this.animateFighterWeaponProp(def, this.defenderWeaponProp, elapsedS, 0.5, false);
         return;
       }
 
-      if (t < 0.25) {
-        // ACT 1 (0..25%): Walk/Gallop Charge toward Defender B!
-        if (this.props.brawlCloud) this.props.brawlCloud.visible = false;
-        this.setComicWordText('CHARGE!', '#1565c0', '#ffea00');
+      if (t < 0.10) {
+        // PHASE 0 (0.0s .. 1.0s Pre-Padding): Calm, Heroic Face-Off Stance while Camera Zooms In!
+        this.setComicWordText('FACE-OFF! ⚔️', '#1565c0', '#ffea00');
         def.userData.isCounterAttacking = false;
 
-        const u = t / 0.25;
-        const stopX = toPos.x - dirX * 0.42;
-        const stopZ = toPos.z - dirZ * 0.42;
-        const stepHop = Math.abs(Math.sin(u * Math.PI * 4));
+        const u = this.smoothstep(t / 0.10);
+        const atkTargetX = toPos.x - dirX * baseSep;
+        const atkTargetZ = toPos.z - dirZ * baseSep;
+        const defTargetX = toPos.x + dirX * baseSep;
+        const defTargetZ = toPos.z + dirZ * baseSep;
+        const stepHop = Math.sin(u * Math.PI) * 0.10;
 
         atk.position.set(
-          fromPos.x + (stopX - fromPos.x) * u,
-          stepHop * 0.10,
-          fromPos.z + (stopZ - fromPos.z) * u,
+          fromPos.x + (atkTargetX - fromPos.x) * u,
+          stepHop,
+          fromPos.z + (atkTargetZ - fromPos.z) * u,
         );
         atk.rotation.set(0, atkYaw, 0);
         atk.scale.setScalar(scale);
         this.pieceView?.applyPoseToPiece(atk, {
-          walkPhase: elapsedS * 20,
-          walkAmp: 1.45,
-          combatPhase: elapsedS * 10,
-          combatAmp: 0.55,
-          bodyY: stepHop * 0.18,
-          pitchX: 0.22,
-          rollZ: Math.sin(u * Math.PI * 4) * 0.18,
+          walkPhase: elapsedS * 8.0,
+          walkAmp: 0.65,
+          combatPhase: elapsedS * 5.0,
+          combatAmp: 0.35,
+          bodyY: stepHop * 0.6,
+          pitchX: 0.08,
+          rollZ: 0,
         });
 
-        // Defender B braces in an aggressive guard stance with weapon raised!
-        def.position.set(toPos.x + dirX * 0.16, 0, toPos.z + dirZ * 0.16);
+        def.position.set(
+          toPos.x + (defTargetX - toPos.x) * u,
+          0,
+          toPos.z + (defTargetZ - toPos.z) * u,
+        );
         def.rotation.set(0, defYaw, 0);
         def.scale.setScalar(scale);
         this.pieceView?.applyPoseToPiece(def, {
-          walkPhase: elapsedS * 14,
-          walkAmp: 0.85,
-          combatPhase: elapsedS * 12,
-          combatAmp: 0.65,
-          bodyY: Math.abs(Math.sin(elapsedS * 10)) * 0.09,
-          pitchX: 0.14,
-          rollZ: Math.sin(elapsedS * 10) * 0.12,
+          walkPhase: elapsedS * 6.5,
+          walkAmp: 0.45,
+          combatPhase: elapsedS * 5.0,
+          combatAmp: 0.35,
+          bodyY: Math.abs(Math.sin(elapsedS * 5.0)) * 0.05,
+          pitchX: 0.06,
+          rollZ: 0,
         });
 
-        this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 1.0, false);
-        this.animateFighterWeaponProp(def, this.defenderWeaponProp, elapsedS, 0.85, false);
-      } else if (t < 0.74) {
-        // ACT 2 (25..74%): LA SCAZZOTTATA 3D! (5-Hit Back-and-Forth 3D Character Brawl + Defender Counter-Attacks!)
-        const brawlU = (t - 0.25) / 0.49;
+        this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 0.45, false);
+        this.animateFighterWeaponProp(def, this.defenderWeaponProp, elapsedS, 0.45, false);
+      } else if (t < 0.62) {
+        // PHASE 1 & 2 (1.0s .. 6.2s, Video 0.0s .. 5.2s): Deliberate, Spaced-Out Duel Exchanges!
+        const duelU = (t - 0.10) / 0.52;
 
-        // Swirl the low-profile 3D Cartoon Brawl Dust at the fighters' feet (`y = 0.16m`) so bodies stay 100% clear!
-        const strike = Math.abs(Math.sin(brawlU * Math.PI * 5.0));
-        if (this.props.brawlCloud) {
-          this.props.brawlCloud.visible = true;
-          this.props.brawlCloud.position.set(toPos.x, 0.16 + strike * 0.06, toPos.z);
-          this.props.brawlCloud.rotation.y = elapsedS * 11.0;
-          this.props.brawlCloud.rotation.z = elapsedS * 7.5;
-          const cScale = 0.42 + strike * 0.20;
-          this.props.brawlCloud.scale.setScalar(cScale);
-        }
-
-        let atkOffset = -0.34;
-        let defOffset = 0.20;
+        let atkOffset = -baseSep;
+        let defOffset = baseSep;
         let atkY = 0;
         let defY = 0;
         let atkPitch = 0;
@@ -2511,26 +2497,39 @@ export class VFXPoolView {
         let defYawOff = 0;
         let isDefenderCounter = false;
 
-        if (brawlU < 0.20) {
-          // Exchange 1 (brawlU = 0.00..0.20): Attacker A lunges & slashes with weapon into Defender B!
-          const exFrac = brawlU / 0.20;
-          const s = Math.sin(exFrac * Math.PI);
+        if (duelU < 0.48) {
+          // ACT 1 (1.0s .. 3.5s): Attacker (Left) Winds Up, Lunges Right to Strike Defender, and Returns to Left Guard!
+          const actU = duelU / 0.48;
           this.setComicWordText('CLANG! ⚔️', '#ff6d00', '#ffea00');
-          atkOffset = -0.36 + s * 0.36;
-          defOffset = 0.18 + s * 0.26;
-          atkY = s * 0.20;
-          atkPitch = 0.40 * s;
-          defPitch = -0.38 * s;
-          defRoll = 0.25 * s;
-        } else if (brawlU < 0.44) {
-          // Exchange 2 (brawlU = 0.20..0.44): DEFENDER COUNTER-ATTACK #1!
-          // Defender actively fights back with their bespoke character counter-move & weapon prop!
-          const exFrac = (brawlU - 0.20) / 0.24;
-          const s = Math.sin(exFrac * Math.PI);
+          if (actU < 0.28) {
+            // Wind-up on the Left (-0.78m -> -0.92m)
+            const wU = this.smoothstep(actU / 0.28);
+            atkOffset = -baseSep - wU * 0.14;
+            atkPitch = -0.18 * wU;
+          } else if (actU < 0.68) {
+            // Lunge across the arena (-0.92m -> +0.22m) and strike Defender (+0.78m -> +0.98m recoil)
+            const sU = (actU - 0.28) / 0.40;
+            const s = Math.sin(sU * Math.PI);
+            atkOffset = -0.92 + s * 1.14;
+            defOffset = baseSep + Math.max(0, Math.sin(Math.max(0, sU - 0.25) * Math.PI)) * 0.24;
+            atkY = s * 0.24;
+            atkPitch = 0.34 * s;
+            defPitch = -0.32 * s;
+            defRoll = 0.16 * s;
+          } else {
+            // Smoothly hold wide guard stance (`1.56m` apart) so the player clearly sees both characters!
+            const rU = this.smoothstep((actU - 0.68) / 0.32);
+            atkOffset = -baseSep;
+            defOffset = baseSep + (1 - rU) * 0.08;
+          }
+        } else {
+          // ACT 2 (3.5s .. 6.2s): DEFENDER COUNTER-ATTACK!
+          // Defender (Right) charges up, lunges Left to counter-strike Attacker, and returns to Right Guard!
+          const actU = (duelU - 0.48) / 0.52;
           isDefenderCounter = true;
           this.setComicWordText('CONTRATTACCO! 💥', '#d50000', '#ffea00');
 
-          if (!this.defenderCounterBurstFired) {
+          if (!this.defenderCounterBurstFired && actU >= 0.22) {
             this.defenderCounterBurstFired = true;
             this.spawnFromPool(defSpec.counterPool, toPos, 18, {
               speedMin: 1.5,
@@ -2541,68 +2540,74 @@ export class VFXPoolView {
             });
           }
 
-          // Defender lunges forward into Attacker and knocks Attacker backward!
-          defOffset = 0.20 - s * 0.38;
-          atkOffset = -0.32 - s * defSpec.pushBackDist;
-          defY = s * defSpec.counterJumpY;
-          defPitch = defSpec.counterPitch * s;
-          defRoll = Math.sin(exFrac * Math.PI * 4) * defSpec.counterRollAmp;
-          defYawOff = exFrac * defSpec.counterSpinYaw;
-          atkPitch = -0.42 * s;
-          atkRoll = -0.28 * s;
-          atkY = s * 0.14;
-        } else if (brawlU < 0.68) {
-          // Exchange 3 (brawlU = 0.44..0.68): DEFENDER COUNTER-ATTACK #2 + Mid-Air Whirlwind Clash!
-          const exFrac = (brawlU - 0.44) / 0.24;
-          const s = Math.sin(exFrac * Math.PI);
-          isDefenderCounter = true;
-          this.setComicWordText(
-            clash.effect === 'sacro_acquarius_ice_coffin' ? 'SACRO ACQUARIUS! ♒❄️' : 'KAPOW! 🌪️',
-            clash.effect === 'sacro_acquarius_ice_coffin' ? '#00ACC1' : '#aa00ff',
-            '#ffea00',
-          );
+          if (actU < 0.24) {
+            // Defender winds up on Right (+0.78m -> +0.92m)
+            const wU = this.smoothstep(actU / 0.24);
+            defOffset = baseSep + wU * 0.14;
+            defPitch = -0.16 * wU;
+          } else if (actU < 0.68) {
+            // Defender lunges Left (+0.92m -> -0.20m) and pushes Attacker back (-0.78m -> -1.04m)
+            const sU = (actU - 0.24) / 0.44;
+            const s = Math.sin(sU * Math.PI);
+            defOffset = 0.92 - s * 1.12;
+            atkOffset = -baseSep - s * defSpec.pushBackDist;
+            defY = s * defSpec.counterJumpY;
+            defPitch = defSpec.counterPitch * s * 0.85;
+            defRoll = Math.sin(sU * Math.PI * 2) * defSpec.counterRollAmp * 0.7;
+            defYawOff = defSpec.counterSpinYaw ? sU * Math.PI * 2 : 0;
+            atkPitch = -0.34 * s;
+            atkRoll = -0.18 * s;
+            atkY = s * 0.12;
+          } else {
+            // Both reset cleanly to wide guard (`-0.78m` vs `+0.78m`) before the Act 3 Finisher!
+            const rU = this.smoothstep((actU - 0.68) / 0.32);
+            atkOffset = -baseSep - (1 - rU) * 0.08;
+            defOffset = baseSep;
+          }
+        }
 
-          atkOffset = -0.18 + Math.cos(exFrac * Math.PI * 2) * 0.16;
-          defOffset = 0.14 - Math.cos(exFrac * Math.PI * 2) * 0.22;
-          atkY = s * 0.42;
-          defY = s * (defSpec.counterJumpY + 0.16);
-          defPitch = defSpec.counterPitch * 0.85 * s;
-          atkYawOff = clash.effect === 'sacro_acquarius_ice_coffin' ? 0 : exFrac * Math.PI * 2;
-          defYawOff = defSpec.counterSpinYaw ? exFrac * defSpec.counterSpinYaw : -exFrac * Math.PI * 2;
-          atkRoll = Math.sin(exFrac * Math.PI * 4) * 0.25;
-          defRoll = -Math.sin(exFrac * Math.PI * 4) * defSpec.counterRollAmp;
-        } else if (brawlU < 0.84) {
-          // Exchange 4 (brawlU = 0.68..0.84): Attacker A breaks through with a heavy uppercut / Aurora stream!
-          const exFrac = (brawlU - 0.68) / 0.16;
-          const s = Math.sin(exFrac * Math.PI);
-          const dndWords = {
-            fireball: 'D&D FIREBALL 8d6! 🔥',
-            chain_lightning: 'CHAIN LIGHTNING! ⚡',
-            meteor_swarm: 'METEOR SWARM! ☄️',
-            summon_comic_daemon: 'SUMMON DAEMON! 😈',
-            disintegrate: 'DISINTEGRATE! 🟢',
-            flesh_to_stone_petrification: 'PIETRIFICAZIONE! 🗿',
-            kiss_of_death_blight: 'KISS OF DEATH! 💋🥀',
-          };
-          this.setComicWordText(
-            clash.effect === 'sacro_acquarius_ice_coffin'
-              ? 'SACRO ACQUARIUS! ♒❄️'
-              : dndWords[clash.dndSpell] || 'KAPOW! 🌪️',
-            clash.effect === 'sacro_acquarius_ice_coffin' ? '#0097a7' : '#ff3d00',
-            '#80deea',
-          );
-          atkOffset = clash.dndSpell === 'kiss_of_death_blight' ? -0.08 : -0.28 + s * 0.30;
-          defOffset = clash.dndSpell === 'kiss_of_death_blight' ? 0.10 : 0.20 + s * 0.26;
-          atkY = clash.dndSpell === 'kiss_of_death_blight' ? 0.04 : s * 0.34;
-          defY = clash.effect === 'sacro_acquarius_ice_coffin' || clash.dndSpell === 'kiss_of_death_blight' ? 0.05 : s * 0.40;
-          atkPitch = clash.dndSpell === 'kiss_of_death_blight' ? 0.36 : -0.28 * s;
-          defPitch = clash.dndSpell === 'kiss_of_death_blight' ? -0.48 : 0;
-          defYawOff = clash.effect === 'sacro_acquarius_ice_coffin' || clash.dndSpell === 'kiss_of_death_blight' ? 0 : exFrac * Math.PI * 4;
-          defRoll = 0.32 * s;
-        } else {
-          // Exchange 5 (brawlU = 0.84..1.00): Attacker A Signature Finishing Slam / Teca di Ghiaccio!
-          const exFrac = (brawlU - 0.84) / 0.16;
-          const s = Math.sin(exFrac * Math.PI);
+        def.userData.isCounterAttacking = isDefenderCounter;
+        const defScaleMult = isDefenderCounter ? Math.min(1.18, defSpec.bellyInflate) : 1.0;
+        atk.scale.setScalar(scale);
+        def.scale.setScalar(scale * defScaleMult);
+
+        atk.position.set(toPos.x + dirX * atkOffset, atkY, toPos.z + dirZ * atkOffset);
+        def.position.set(toPos.x + dirX * defOffset, defY, toPos.z + dirZ * defOffset);
+        atk.rotation.set(0, atkYaw, 0);
+        def.rotation.set(0, defYaw, 0);
+
+        this.pieceView?.applyPoseToPiece(atk, {
+          walkPhase: elapsedS * 9.5,
+          walkAmp: 0.85,
+          combatPhase: elapsedS * 10.0,
+          combatAmp: isDefenderCounter ? 0.75 : 1.15,
+          bodyY: Math.abs(Math.sin(elapsedS * 7.5)) * 0.08,
+          pitchX: atkPitch,
+          rollZ: atkRoll,
+          yawOffset: atkYawOff,
+        });
+        this.pieceView?.applyPoseToPiece(def, {
+          walkPhase: elapsedS * 9.5,
+          walkAmp: 0.85,
+          combatPhase: elapsedS * 10.0 + Math.PI,
+          combatAmp: isDefenderCounter ? 1.25 : 0.85,
+          bodyY: Math.abs(Math.cos(elapsedS * 7.5)) * 0.08,
+          pitchX: defPitch,
+          rollZ: defRoll,
+          yawOffset: defYawOff,
+        });
+
+        this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 0.75, false);
+        this.animateFighterWeaponProp(def, this.defenderWeaponProp, elapsedS, 0.85, isDefenderCounter);
+      } else if (t < 0.90) {
+        // PHASE 3 (6.2s .. 9.0s, Video 5.2s .. 8.0s): Signature Ultimate Finisher & High Parabolic Swamp K.O.!
+        const finU = (t - 0.62) / 0.28;
+        def.userData.isCounterAttacking = false;
+
+        if (finU < 0.42) {
+          // Sub-phase 3A (6.2s .. 7.38s): Attacker unleashes Signature Ultimate Finisher / D&D Spell!
+          const subU = finU / 0.42;
+          const s = Math.sin(subU * Math.PI);
           const dndFinishWords = {
             fireball: 'NAT 20 FIREBALL! 🔥🎲',
             chain_lightning: 'CHAIN LIGHTNING! ⚡⛓️',
@@ -2615,198 +2620,146 @@ export class VFXPoolView {
           this.setComicWordText(
             clash.effect === 'sacro_acquarius_ice_coffin'
               ? 'TECA DI GHIACCIO! 🧊'
-              : dndFinishWords[clash.dndSpell] || 'KAPOW! 🌪️',
+              : dndFinishWords[clash.dndSpell] || 'COLPO FINALE! ⚡',
             clash.effect === 'sacro_acquarius_ice_coffin' ? '#00838f' : '#ff6d00',
             '#e0f7fa',
           );
-          const jumpH = clash.effect === 'plush_ground_pound' ? 1.85 : 0.78;
-          atkOffset = clash.dndSpell === 'kiss_of_death_blight' ? -0.10 : -0.30 * (1 - exFrac);
-          defOffset = 0.18;
-          atkY = clash.effect === 'sacro_acquarius_ice_coffin' ? 0.18 : Math.sin(exFrac * Math.PI) * jumpH;
-          atkPitch = clash.effect === 'sacro_acquarius_ice_coffin' ? -0.18 : Math.cos(exFrac * Math.PI) * 0.38;
-          defPitch = clash.dndSpell === 'kiss_of_death_blight' ? -0.68 : clash.effect === 'sacro_acquarius_ice_coffin' ? 0 : -0.36 * s;
-        }
 
-        def.userData.isCounterAttacking = isDefenderCounter;
-        const defScaleMult = isDefenderCounter ? defSpec.bellyInflate : 1.0;
-        atk.scale.setScalar(scale);
-        if (clash.dndSpell === 'kiss_of_death_blight' && brawlU >= 0.68) {
-          // Gothic Wither ("avvizzisce in un corpo senza vita"): shrinks thinner and drains color to ashen-gray!
-          const witherU = Math.min(1, (brawlU - 0.68) / 0.32);
-          def.scale.set(
-            scale * (1 - witherU * 0.32),
-            scale * (1 - witherU * 0.18),
-            scale * (1 - witherU * 0.32),
-          );
-          if (!def.userData.kissWitherTinted) {
-            def.userData.kissWitherTinted = true;
-            def.traverse((child) => {
-              if (child.isMesh && child.material) {
-                const m = child.material.clone();
-                if (m.color) m.color.setHex(0x6e6a7c);
-                if (m.emissive) {
-                  m.emissive.setHex(0x2a1836);
-                  m.emissiveIntensity = 0.35;
-                }
-                m.transparent = true;
-                m.opacity = 0.80;
-                child.material = m;
-              }
-            });
+          const jumpH = clash.effect === 'plush_ground_pound' ? 1.35 : 0.55;
+          const atkOff = -baseSep * (1 - subU * 0.85);
+          const defOff = baseSep;
+          atk.position.set(toPos.x + dirX * atkOff, s * jumpH, toPos.z + dirZ * atkOff);
+          def.position.set(toPos.x + dirX * defOff, 0, toPos.z + dirZ * defOff);
+          atk.rotation.set(0, atkYaw, 0);
+          def.rotation.set(0, defYaw, 0);
+          atk.scale.setScalar(scale);
+
+          if (clash.dndSpell === 'kiss_of_death_blight') {
+            def.scale.set(scale * (1 - subU * 0.30), scale * (1 - subU * 0.16), scale * (1 - subU * 0.30));
+          } else {
+            def.scale.setScalar(scale);
           }
+
+          if (clash.effect === 'sacro_acquarius_ice_coffin') {
+            const skel = atk.userData?.proceduralSkeleton;
+            if (skel?.leftArm && skel?.rightArm) {
+              skel.leftArm.rotation.set(-2.85, 0, -0.32);
+              skel.rightArm.rotation.set(-2.85, 0, 0.32);
+            }
+          }
+
+          this.pieceView?.applyPoseToPiece(atk, {
+            walkPhase: elapsedS * 10,
+            walkAmp: 0.9,
+            combatPhase: subU * Math.PI,
+            combatAmp: 1.2,
+            bodyY: s * 0.16,
+            pitchX: 0.24 * s,
+          });
+          this.pieceView?.applyPoseToPiece(def, {
+            walkPhase: elapsedS * 8,
+            walkAmp: 0.5,
+            pitchX: -0.35 * s,
+          });
+          this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 0.9, false);
+          this.animateFighterWeaponProp(def, this.defenderWeaponProp, elapsedS, 0.5, false);
         } else {
-          def.scale.setScalar(scale * defScaleMult);
-        }
-
-        atk.position.set(toPos.x + dirX * atkOffset, atkY, toPos.z + dirZ * atkOffset);
-        def.position.set(toPos.x + dirX * defOffset, defY, toPos.z + dirZ * defOffset);
-        atk.rotation.set(0, atkYaw, 0);
-        def.rotation.set(0, defYaw, 0);
-
-        this.pieceView?.applyPoseToPiece(atk, {
-          walkPhase: elapsedS * 26,
-          walkAmp: 1.5,
-          combatPhase: elapsedS * 28,
-          combatAmp: isDefenderCounter ? 1.25 : 1.85,
-          bodyY: Math.abs(Math.sin(elapsedS * 18)) * 0.14,
-          pitchX: atkPitch,
-          rollZ: atkRoll,
-          yawOffset: atkYawOff,
-        });
-        // Seby's Sacro Acquarius Pose: Unites both hands high overhead while the Golden Amphora pours ice!
-        if (clash.effect === 'sacro_acquarius_ice_coffin' && brawlU >= 0.44) {
-          const skel = atk.userData?.proceduralSkeleton;
-          if (skel?.leftArm && skel?.rightArm) {
-            skel.leftArm.rotation.set(-2.85, 0, -0.32);
-            skel.rightArm.rotation.set(-2.85, 0, 0.32);
-          }
-          if (this.attackerWeaponProp?.userData) {
-            const { leftHandPivot, rightHandPivot } = this.attackerWeaponProp.userData;
-            if (leftHandPivot) leftHandPivot.position.set(-0.08, 0.96, 0.08);
-            if (rightHandPivot) rightHandPivot.position.set(0.08, 0.96, 0.08);
-          }
-        }
-        this.pieceView?.applyPoseToPiece(def, {
-          walkPhase: elapsedS * 26,
-          walkAmp: clash.effect === 'sacro_acquarius_ice_coffin' && brawlU >= 0.55 ? 0.1 : 1.55,
-          combatPhase: elapsedS * 28 + Math.PI,
-          combatAmp: isDefenderCounter ? 2.15 : 1.65,
-          bodyY: Math.abs(Math.cos(elapsedS * 18)) * 0.14,
-          pitchX: defPitch,
-          rollZ: defRoll,
-          yawOffset: defYawOff,
-        });
-
-        this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 1.35, false);
-        this.animateFighterWeaponProp(def, this.defenderWeaponProp, elapsedS, 1.45, isDefenderCounter);
-      } else {
-        // ACT 3 (74..100%): Knockout Launch toward Shrek's Swamp (`x = ±6.4m, y = -0.28m`) + Water Splash!
-        if (this.props.brawlCloud) this.props.brawlCloud.visible = false;
-        this.setComicWordText(
-          clash.effect === 'sacro_acquarius_ice_coffin' ? 'CRUMBLE! ❄️💎' : 'K.O.! 🐸💦',
-          clash.effect === 'sacro_acquarius_ice_coffin' ? '#00bcd4' : '#00c853',
-          '#ffea00',
-        );
-        def.userData.isCounterAttacking = false;
-
-        const koU = (t - 0.74) / 0.26;
-        const vicBounce = Math.abs(Math.sin(koU * Math.PI * 2));
-
-        // Attacker A claims the square and celebrates with weapon raised!
-        atk.position.set(toPos.x, vicBounce * 0.18, toPos.z);
-        atk.rotation.set(0, atkYaw + Math.sin(koU * Math.PI) * 0.35, 0);
-        atk.scale.setScalar(scale);
-        this.pieceView?.applyPoseToPiece(atk, {
-          walkPhase: elapsedS * 16,
-          walkAmp: 0.95,
-          combatPhase: koU * Math.PI * 2,
-          combatAmp: 1.15,
-          bodyY: vicBounce * 0.18,
-          pitchX: -0.15 * vicBounce,
-          rollZ: Math.sin(koU * Math.PI * 2) * 0.14,
-        });
-        this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 1.1, false);
-
-        // Defender B reacts to signature finisher and arcs into Shrek's Swamp (`x = ±6.4m, y = -0.28m`)!
-        const swampX = this.swampLandingPos.x;
-        const swampY = this.swampLandingPos.y;
-        const swampZ = this.swampLandingPos.z;
-
-        if (reaction === 'frozen_coffin_crumble' && koU < 0.36) {
-          // Frozen Puffin inside the Teca di Ghiaccio crumbles/shatters into diamond-ice crystals on the square!
-          const subU = koU / 0.36;
-          const crumbleScale = Math.max(0.12, 1 - subU * 0.85);
-          def.scale.set(scale * (1 + subU * 0.35), scale * crumbleScale, scale * (1 + subU * 0.35));
-          def.position.set(toPos.x + dirX * 0.16, 0, toPos.z + dirZ * 0.16);
-        } else if ((reaction === 'sweet_melt' || reaction === 'bowled_flat_stars' || reaction === 'pancake_squash') && koU < 0.28) {
-          // Brief squash/melt on the square before being catapulted into Shrek's Swamp!
-          const subU = koU / 0.28;
-          def.scale.set(
-            scale * (1 + subU * 0.55),
-            scale * Math.max(0.18, 1 - subU * 0.72),
-            scale * (1 + subU * 0.55),
+          // Sub-phase 3B (7.38s .. 9.0s): Defender arcs into Shrek's Swamp while Attacker claims `toPos`!
+          const koU = (finU - 0.42) / 0.58;
+          this.setComicWordText(
+            clash.effect === 'sacro_acquarius_ice_coffin' ? 'CRUMBLE! ❄️💎' : 'K.O.! 🐸💦',
+            clash.effect === 'sacro_acquarius_ice_coffin' ? '#00bcd4' : '#00c853',
+            '#ffea00',
           );
-          def.position.set(toPos.x + dirX * 0.20, 0, toPos.z + dirZ * 0.20);
-        } else {
-          const arcU =
-            reaction === 'frozen_coffin_crumble'
-              ? (koU - 0.36) / 0.64
-              : reaction === 'sweet_melt' || reaction === 'bowled_flat_stars' || reaction === 'pancake_squash'
-                ? (koU - 0.28) / 0.72
-                : koU;
-          const clampedU = Math.min(1, Math.max(0, arcU));
-          const curX = toPos.x + (swampX - toPos.x) * clampedU;
-          const curZ = toPos.z + (swampZ - toPos.z) * clampedU;
+
+          const vicBounce = Math.abs(Math.sin(koU * Math.PI));
+          atk.position.set(toPos.x, vicBounce * 0.16, toPos.z);
+          atk.rotation.set(0, atkYaw + Math.sin(koU * Math.PI) * 0.22, 0);
+          atk.scale.setScalar(scale);
+          this.pieceView?.applyPoseToPiece(atk, {
+            walkPhase: elapsedS * 8,
+            walkAmp: 0.65,
+            combatPhase: koU * Math.PI,
+            combatAmp: 0.85,
+            bodyY: vicBounce * 0.14,
+            pitchX: -0.10 * vicBounce,
+          });
+          this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 0.65, false);
+
+          const swampX = this.swampLandingPos.x;
+          const swampY = this.swampLandingPos.y;
+          const swampZ = this.swampLandingPos.z;
+          const startDefX = toPos.x + dirX * baseSep;
+          const startDefZ = toPos.z + dirZ * baseSep;
+          const clampedU = Math.min(1, Math.max(0, koU));
+          const curX = startDefX + (swampX - startDefX) * clampedU;
+          const curZ = startDefZ + (swampZ - startDefZ) * clampedU;
           const linY = clampedU * swampY;
-          const curY = linY + Math.sin(clampedU * Math.PI) * 2.45;
+          const curY = linY + Math.sin(clampedU * Math.PI) * 2.35;
           def.position.set(curX, curY, curZ);
-          def.rotation.set(clampedU * 12, defYaw + clampedU * 10, clampedU * 11);
-          const shrink = Math.max(0.55, 1 - clampedU * 0.22);
+          def.rotation.set(clampedU * 6, defYaw + clampedU * 5, clampedU * 6);
+          const shrink = Math.max(0.55, 1 - clampedU * 0.25);
           def.scale.setScalar(scale * shrink);
-        }
-        this.animateFighterWeaponProp(def, this.defenderWeaponProp, elapsedS, 0.7, false);
 
-        // Trigger 3D Shrek Swamp Emerald Water Splash Ring + Droplet Burst at `t = 0.88..1.00`!
-        if (t >= 0.86) {
-          if (!this.swampSplashTriggered) {
-            this.swampSplashTriggered = true;
-            if (this.props.swampKoSplash) {
-              this.props.swampKoSplash.position.set(swampX, swampY + 0.04, swampZ);
-              this.props.swampKoSplash.visible = true;
+          if (t >= 0.84) {
+            if (!this.swampSplashTriggered) {
+              this.swampSplashTriggered = true;
+              if (this.props.swampKoSplash) {
+                this.props.swampKoSplash.position.set(swampX, swampY + 0.04, swampZ);
+                this.props.swampKoSplash.visible = true;
+              }
+              this.spawnFromPool(
+                'swamp_water_droplets',
+                { x: swampX, z: swampZ },
+                30,
+                {
+                  originY: swampY + 0.12,
+                  floorY: swampY,
+                  speedMin: 1.4,
+                  speedMax: 3.8,
+                  upMin: 2.6,
+                  upMax: 5.4,
+                  restitution: 0.45,
+                },
+              );
             }
-            this.spawnFromPool(
-              'swamp_water_droplets',
-              { x: swampX, z: swampZ },
-              30,
-              {
-                originY: swampY + 0.12,
-                floorY: swampY,
-                speedMin: 1.4,
-                speedMax: 3.8,
-                upMin: 2.6,
-                upMax: 5.4,
-                restitution: 0.45,
-              },
-            );
-          }
-          if (this.props.swampKoSplash?.visible) {
-            const splashU = Math.min(1, (t - 0.86) / 0.14);
-            const { outerRing, innerRing, crownMesh } = this.props.swampKoSplash.userData;
-            if (outerRing) {
-              outerRing.scale.setScalar(0.6 + splashU * 3.2);
-              outerRing.material.opacity = Math.max(0.1, (1 - splashU) * 0.95);
-            }
-            if (innerRing) {
-              innerRing.scale.setScalar(0.5 + splashU * 2.1);
-              innerRing.material.opacity = Math.max(0.15, (1 - splashU * 0.85) * 0.95);
-            }
-            if (crownMesh) {
-              const crownArc = Math.sin(splashU * Math.PI);
-              crownMesh.scale.set(0.8 + splashU * 1.4, Math.max(0.1, crownArc * 1.6), 0.8 + splashU * 1.4);
-              crownMesh.material.opacity = Math.max(0.1, crownArc * 0.85);
+            if (this.props.swampKoSplash?.visible) {
+              const splashU = Math.min(1, (t - 0.84) / 0.14);
+              const { outerRing, innerRing, crownMesh } = this.props.swampKoSplash.userData;
+              if (outerRing) {
+                outerRing.scale.setScalar(0.6 + splashU * 3.2);
+                outerRing.material.opacity = Math.max(0.1, (1 - splashU) * 0.95);
+              }
+              if (innerRing) {
+                innerRing.scale.setScalar(0.5 + splashU * 2.1);
+                innerRing.material.opacity = Math.max(0.15, (1 - splashU * 0.85) * 0.95);
+              }
+              if (crownMesh) {
+                const crownArc = Math.sin(splashU * Math.PI);
+                crownMesh.scale.set(0.8 + splashU * 1.4, Math.max(0.1, crownArc * 1.6), 0.8 + splashU * 1.4);
+                crownMesh.material.opacity = Math.max(0.1, crownArc * 0.85);
+              }
             }
           }
         }
+      } else {
+        // PHASE 4 (9.0s .. 10.0s, 1.0s Post-Padding): Calm, Triumphant Victory Pose on `toPos`!
+        const postU = (t - 0.90) / 0.10;
+        const gentleBreath = Math.sin(postU * Math.PI) * 0.08;
+        atk.position.set(toPos.x, gentleBreath, toPos.z);
+        // Turn slightly toward the camera in proud victory!
+        atk.rotation.set(0, atkYaw + 0.35 * this.smoothstep(postU), 0);
+        atk.scale.setScalar(scale);
+        this.pieceView?.applyPoseToPiece(atk, {
+          walkPhase: elapsedS * 5.0,
+          walkAmp: 0.35,
+          combatPhase: postU * Math.PI,
+          combatAmp: 0.45,
+          bodyY: gentleBreath,
+          pitchX: -0.06,
+        });
+        this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 0.4, false);
+        def.position.set(this.swampLandingPos.x, this.swampLandingPos.y - 0.3, this.swampLandingPos.z);
       }
       return;
     }
@@ -2834,46 +2787,34 @@ export class VFXPoolView {
   }
 
   /**
-   * Half-Board (~5x5 Squares) Combat Camera (`dist = 4.55m..4.90m, y = 2.42m..2.58m, fov = 45°`),
-   * framing the 2 fighting pieces, ~5x5 squares of neighboring pieces around them,
-   * and 100% of the 16:9 Veo video backdrop right behind the board from any camera angle,
-   * with a smooth entry window (`0 -> 1.1s`) and a continuous `3.5s` exit sliding window!
+   * Half-Board (~5x5 Squares) Combat Camera (`dist = 4.35m..4.68m, y = 2.32m..2.48m, fov = 45°`),
+   * framing the 2 large (`1.52x`) fighting protagonists in 3/4 profile, the non-linearly dilated
+   * neighboring pieces around them, and the full-viewport 16:9 Veo video backdrop right behind the board!
    */
   updateCameraOrbit(t, step) {
     if (!this.camera || !this.camOrbitCenter) return;
     const c = this.camOrbitCenter;
-    let focusX = c.x;
-    let focusZ = c.z;
-    if (this.attackerFighter && this.defenderFighter && t < 0.74) {
-      focusX = (this.attackerFighter.position.x + this.defenderFighter.position.x) * 0.5;
-      focusZ = (this.attackerFighter.position.z + this.defenderFighter.position.z) * 0.5;
-    }
+    const focusX = c.x;
+    const focusZ = c.z;
 
     const angleOffset = Number.isFinite(this.combatAngleOffset) ? this.combatAngleOffset : 0;
-    const orbitAngle = (t - 0.5) * 0.48 + angleOffset; // Smooth sweep around the 2 fighters + optional angle offset
-    const dist = 4.90 - Math.sin(t * Math.PI) * 0.35; // Frames ~5x5 chessboard squares (~half board)
-    const camY = 2.42 + Math.sin(t * Math.PI) * 0.16; // Elevated angle showing 5x5 board + full 16:9 backdrop
+    const orbitAngle = (t - 0.5) * 0.32 + angleOffset; // Gentle, steady cinema sweep so fighters stay rock-solid
+    const dist = 4.68 - Math.sin(t * Math.PI) * 0.28; // Frames the 2 protagonists in foreground (`4.40m..4.68m`)
+    const camY = 2.34 + Math.sin(t * Math.PI) * 0.12;
 
-    // Impact camera shake on heavy hits in Act 2 (`t = 0.25..0.74`) and swamp splash (`t = 0.88..0.98`)
+    // Subtle impact camera shake only on heavy hits (`t = 0.20..0.28`, `0.46..0.54`, `0.68..0.76`)
     let shakeX = 0;
     let shakeY = 0;
-    if (t >= 0.25 && t < 0.74) {
-      const brawlU = (t - 0.25) / 0.49;
-      const exFrac = (brawlU * 5.0) % 1;
-      const hitPulse = Math.pow(Math.sin(exFrac * Math.PI), 4);
-      const amp = 0.065 * hitPulse;
-      shakeX = Math.sin(this.clashElapsed * 65.0) * amp;
-      shakeY = Math.cos(this.clashElapsed * 53.0) * amp * 0.85;
-    } else if (t >= 0.88 && t < 0.98) {
-      const splashPulse = Math.sin(((t - 0.88) / 0.10) * Math.PI);
-      shakeX = Math.sin(this.clashElapsed * 48.0) * 0.035 * splashPulse;
-      shakeY = Math.cos(this.clashElapsed * 42.0) * 0.045 * splashPulse;
+    if ((t >= 0.20 && t < 0.28) || (t >= 0.46 && t < 0.54) || (t >= 0.68 && t < 0.76)) {
+      const amp = 0.032;
+      shakeX = Math.sin(this.clashElapsed * 48.0) * amp;
+      shakeY = Math.cos(this.clashElapsed * 42.0) * amp * 0.8;
     }
     this.lastCameraShake = Math.hypot(shakeX, shakeY);
 
     const dirX = Math.sin(orbitAngle);
     const dirZ = Math.cos(orbitAngle);
-    const targetY = 1.62;
+    const targetY = 1.48;
 
     const desiredPos = new THREE.Vector3(
       focusX + dirX * dist + shakeX,
@@ -2881,8 +2822,8 @@ export class VFXPoolView {
       focusZ + dirZ * dist,
     );
     const desiredTarget = new THREE.Vector3(
-      focusX + shakeX * 0.4,
-      targetY + shakeY * 0.4,
+      focusX + shakeX * 0.3,
+      targetY + shakeY * 0.3,
       focusZ,
     );
 
@@ -2896,37 +2837,26 @@ export class VFXPoolView {
       this.lastCombatDesiredTarget.lerp(desiredTarget, orbitAlpha);
     }
 
-    // Compute the exact 16:9 Netflix Cinema XXL pose corresponding to the combat camera
+    // Compute the exact full-viewport 16:9 Netflix Cinema pose corresponding to the combat camera
     const targetFov = 45;
     this._computeNetflixMirrorPose(this.lastCombatDesiredPos, this.lastCombatDesiredTarget, targetFov, dist);
 
-    // Compute unified `combatBlend` (`0.0 .. 1.0`) across Entry (`0..1.1s`), Peak (`1.1s..4.8s`),
-    // and Phase 1 of the 3.5s Exit Sliding Window (`4.8s..6.0s`)
-    const durationS = (this.activeClash?.durationMs || 6000) / 1000;
+    // Keep `combatBlend = 1.0` for the entire 8s Veo video + 1s post-padding (`1.0s .. 10.0s`)
+    // so the Netflix screen NEVER shrinks early while the video is still playing!
     const entryS = this.getEntryDurationS();
-    const exitTotalS = this.getExitWindowS();
-    const preExitS = Math.min(durationS * 0.20, exitTotalS * 0.34);
-    const exitStartS = Math.max(entryS + 0.5, durationS - preExitS);
-
     let blend = 1.0;
     if (this.clashElapsed < entryS) {
       blend = Math.max(0.02, this.smoothstep(this.clashElapsed / entryS));
-    } else if (
-      this.clashElapsed > exitStartS &&
-      this.activeClash?.type !== 'CHECKMATE_CAPITULATION'
-    ) {
-      const exitElapsed = this.clashElapsed - exitStartS;
-      blend = Math.max(0, 1.0 - this.smoothstep(exitElapsed / Math.max(0.1, exitTotalS)));
     }
 
     this._applyCombatBlendState(blend);
   }
 
   /**
-   * Computes the camera-aligned 16:9 Netflix Cinema XXL position, scale, and quaternion
-   * for a given combat camera pose `(camPos, camTgt, fov)`.
+   * Computes the camera-aligned 16:9 Netflix Cinema IMAX/XXL position, scale, and quaternion
+   * so the 16:9 screen fills ~93% of the entire viewport (`videoBoost = 2.38`) with almost zero black bars!
    */
-  _computeNetflixMirrorPose(camPos, camTgt, fov = 45, fallbackDist = 4.8) {
+  _computeNetflixMirrorPose(camPos, camTgt, fov = 45, fallbackDist = 4.65) {
     const upVec = new THREE.Vector3(0, 1, 0);
     const lookMat = new THREE.Matrix4().lookAt(camPos, camTgt, upVec);
     this.lastNetflixMirrorQuat.setFromRotationMatrix(lookMat);
@@ -2944,11 +2874,11 @@ export class VFXPoolView {
       camTgt.z * actualDirZ;
     const backdropDist = Math.max(5.8, maxAltarCornerDist + 0.85);
 
-    let defaultBoost = 1.75; // Cinema XXL (+75%, covers the entire 90%-transparent chessboard underneath!)
+    let defaultBoost = 2.38; // Full-Viewport Immersive Netflix IMAX (~93% of viewport width & height!)
     if (typeof window !== 'undefined' && window.location?.search) {
       const qb = new URLSearchParams(window.location.search).get('videoBoost');
       if (qb !== null && Number.isFinite(Number(qb))) {
-        defaultBoost = Math.max(0.8, Math.min(2.5, Number(qb)));
+        defaultBoost = Math.max(0.8, Math.min(3.5, Number(qb)));
       }
     }
     const videoBoost = Number.isFinite(this.combatVideoBoost)
@@ -2962,10 +2892,10 @@ export class VFXPoolView {
     const camFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(this.lastNetflixMirrorQuat).normalize();
     const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(this.lastNetflixMirrorQuat).normalize();
 
-    const topOffset = 0.72 * hHalf;
     const frameSpanH = 0.78 * hHalf * videoBoost;
-    const mirrorScale = Math.max(0.52, Math.min(2.20, frameSpanH / 4.60));
-    const centerOffset = topOffset - 2.30 * mirrorScale;
+    const mirrorScale = Math.max(0.52, Math.min(3.60, frameSpanH / 4.60));
+    // Center the immersive 16:9 screen vertically in the camera frustum so top/bottom/sides are balanced
+    const centerOffset = 0.015 * hHalf;
 
     this.lastNetflixMirrorPos
       .copy(camPos)
@@ -2975,11 +2905,57 @@ export class VFXPoolView {
   }
 
   /**
+   * Non-Linear Spatial Board & Neighbor Piece Transformation (`_applyArenaNonLinearWarp`):
+   * - Smoothly dilates all non-fighting neighboring pieces radially outward from the duel center
+   *   (`+1.45m` clearing) and scales them down (`56% .. 70%`) while the two protagonists are at `152%` scale,
+   *   so the duel has a wide, completely unobstructed center stage while neighboring pieces remain visible
+   *   around the perimeter!
+   * - As `blend` returns `1.0 -> 0.0` during the `3.5s` exit sliding window, every piece smoothly glides
+   *   back to its exact canonical 8x8 square and `1.0x` scale!
+   */
+  _applyArenaNonLinearWarp(blend) {
+    const b = Math.max(0, Math.min(1, Number.isFinite(blend) ? blend : 0));
+    const boardMap = this.pieceView?.pieceBySquare || this.pieceView?.pieceNodes;
+    if (!boardMap) return;
+
+    const center = this.camOrbitCenter || this.activeToPos || { x: 0, z: 0 };
+    const baseScale = this.pieceView?.globalPieceScale || 1.0;
+
+    for (const [sqKey, node] of boardMap.entries()) {
+      if (!node || !node.visible) continue;
+      const sq = String(node.userData?.square || sqKey || '').toLowerCase();
+      if (!sq) continue;
+      const basePos = squareToWorld(sq);
+
+      if (b <= 0.001) {
+        node.position.x = basePos.x;
+        node.position.z = basePos.z;
+        node.scale.setScalar(baseScale);
+      } else {
+        const dx = basePos.x - center.x;
+        const dz = basePos.z - center.z;
+        const r = Math.hypot(dx, dz);
+        if (r > 0.05) {
+          // Non-linear fisheye radial push: opens a wide ~2.2m radius clearing around the 2 protagonists
+          const radialPush = b * (1.42 * Math.exp(-r / 2.5) + 0.35);
+          node.position.x = basePos.x + (dx / r) * radialPush;
+          node.position.z = basePos.z + (dz / r) * radialPush;
+          // Non-linear scale falloff: neighboring pieces shrink to 56%..70% while protagonists are 152%
+          const targetScaleRatio = 0.56 + 0.04 * Math.min(3.5, r);
+          const s = baseScale * (1.0 - b * (1.0 - targetScaleRatio));
+          node.scale.setScalar(s);
+        }
+      }
+    }
+  }
+
+  /**
    * Applies the unified `combatBlend` (`0.0 .. 1.0`) across:
    * 1. `ZurichSwampView` (Swamp, Zurich Skyline, Alps, and 64 Chessboard tiles alpha cross-fade)
    * 2. `VeoCinemaView` (Netflix film alpha `100% <-> 0%` + "Cinema Vecchio" convergence)
-   * 3. `this.camera` & `this.controls.target` (smooth pull-back to `this.camSaved`)
-   * 4. `VeoMagicCinemaMirror` 3D position, scale, and quaternion convergence to `(0, 3.65, -10.8)`
+   * 3. `_applyArenaNonLinearWarp` (Non-linear radial dilation & scale falloff of neighboring board pieces)
+   * 4. `this.camera` & `this.controls.target` (smooth pull-back to `this.camSaved`)
+   * 5. `VeoMagicCinemaMirror` 3D position, scale, and quaternion convergence to `(0, 3.65, -10.8)`
    * @param {number} blend
    */
   _applyCombatBlendState(blend) {
@@ -2991,6 +2967,8 @@ export class VFXPoolView {
       this.scene.userData.applySwampCombatBlend?.(b);
       this.scene.userData.applyCinemaCombatBlend?.(b);
     }
+
+    this._applyArenaNonLinearWarp(b);
 
     if (this.camera && this.camSaved) {
       const savedPos = this.camSaved.pos;

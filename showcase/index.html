@@ -93,24 +93,23 @@
     <p>Esplora le 3 famiglie di scacchi: 2D Nano Banana 2.1 + 3D GLB in autorotazione (trascina per ruotare, <b>click sul 3D o ⛶ = schermo intero</b>, Esc per uscire).</p>
     <div class="toolbar">
       <div class="btn-group" id="family-tabs" role="tablist" aria-label="Famiglia di Scacchi">
-        <button type="button" data-family="all" aria-pressed="true">✨ Tutte le Famiglie (18)</button>
-        <button type="button" data-family="carlesso" aria-pressed="false">👨‍👩‍👦‍👦 Famiglia Carlesso (6)</button>
+        <button type="button" data-family="carlesso" aria-pressed="true">👨‍👩‍👦‍👦 Famiglia Carlesso (6)</button>
         <button type="button" data-family="classic" aria-pressed="false">♔🏛️ Scacchi Classici Vanilla (6)</button>
-        <button type="button" data-family="swamp" aria-pressed="false">🐸🧅 Famiglia della Palude (6)</button>
+        <button type="button" data-family="swamp" aria-pressed="false">🐸🧅 Famiglia Shrek / Palude (6)</button>
       </div>
       <div class="btn-group" id="faction-tabs" role="group" aria-label="Colore Squadra 3D">
         <button type="button" data-faction="original" aria-pressed="true">🎨 Materiali Originali</button>
         <button type="button" data-faction="white" aria-pressed="false">⚪ Squadra Bianca (Avorio & Oro)</button>
         <button type="button" data-faction="black" aria-pressed="false">⚫ Squadra Nera (Ossidiana & Argento)</button>
       </div>
-      <span class="warn">🧪 Showcase 3D · Valutato da Adversarial Art Critic (<code>fable-5.1-high</code>)</span>
+      <span class="warn">🧪 Showcase 3D · 6 Pezzi per Famiglia · Valutato da Adversarial Art Critic</span>
     </div>
   </header>
 
   <section class="family-banner" id="family-banner">
     <div>
-      <h2 id="banner-title">✨ Tutte le 3 Famiglie — 18 Pezzi (Carlesso · Classici Vanilla · Palude)</h2>
-      <p id="banner-desc">Confronta i concept 2D Nano Banana 2.1 e i modelli 3D .glb verificati da <code>fable-5.1-high</code> (0 💩 rimasti!).</p>
+      <h2 id="banner-title">👨‍👩‍👦‍👦 Famiglia Carlesso — Cast Principale (6 Pezzi)</h2>
+      <p id="banner-desc">Riccardo, Kate, Ale (con drago rosso riggato a 26 ossa), Seby, Pupurabbu e la Guardia Svizzera Puffin.</p>
     </div>
     <div class="family-links">
       <a href="../tools/model-pipeline/classic/classic_contact_sheet.png" target="_blank">📸 Contact Sheet Classici Vanilla (6×4)</a>
@@ -127,21 +126,17 @@
     import { GLTFLoader } from '../vendor/three/addons/loaders/GLTFLoader.js';
 
     const FAMILY_META = {
-      all: {
-        title: '✨ Tutte le 3 Famiglie — 18 Pezzi (Carlesso · Classici Vanilla · Palude)',
-        desc: 'Tutte le 18 carte personaggio: 2D Nano Banana 2.1 + modelli 3D .glb con controllo colore squadra Bianco/Nero.',
-      },
       carlesso: {
-        title: '👨‍👩‍👦‍👦 Famiglia Carlesso — Cast Principale',
+        title: '👨‍👩‍👦‍👦 Famiglia Carlesso — Cast Principale (6 Pezzi)',
         desc: 'Riccardo, Kate, Ale (con drago rosso riggato a 26 ossa), Seby, Pupurabbu e la Guardia Svizzera Puffin.',
       },
       classic: {
-        title: '♔🏛️ Scacchi Classici (San Gennaro & Torre Matildea) — Set Staunton & Tradizione Italiana',
+        title: '♔🏛️ Scacchi Classici (San Gennaro & Torre Matildea) — Set Staunton & Tradizione Italiana (6 Pezzi)',
         desc: '100% Scacchi Classici senza riferimenti Carlessiani: Re con Croce Reale, Regina coronata di perle, Alfiere Busto di San Gennaro con Ampolla del Sangue e mitria gemmata, Destriero Staunton, Torre Matildea / Rocca Estense dei Lidi Ferraresi e Pedone tornito.',
       },
       swamp: {
-        title: '🐸🧅 Famiglia della Palude — Parodia Fiabesca 100% IP-Safe',
-        desc: 'Orco Brontolo, Principessa Orchessa, Mago Focaccina Ligure, Asinello Chiacchierone, Draghessa della Palude e Guardia Re Tappo (2D media 8.7/10 🟢 · 3D media 7.45/10 🟡).',
+        title: '🐸🧅 Famiglia Shrek / Palude — Parodia Fiabesca 100% IP-Safe (6 Pezzi)',
+        desc: 'Orco Brontolo, Principessa Orchessa, Don Gatto con gli Stivali Zorro-Vescovo, Asinello Chiacchierone (40 denti!), Draghessa della Palude e Zenzy Pan di Zenzero & Focaccina.',
       },
     };
 
@@ -601,11 +596,7 @@ if (uDragonCoilMode > 0.5) {
       v.camera.updateProjectionMatrix();
     }
 
-    CHARACTERS.forEach((c, i) => {
-      const models = modelsOf(c);
-      if (models.length) views[i] = makeView(root.querySelector(`[data-3d="${i}"]`), models);
-    });
-    const viewList = Object.values(views);
+    const viewList = [];
 
     const io = new IntersectionObserver((entries) => entries.forEach((en) => {
       const v = viewList.find((x) => x.pane === en.target);
@@ -615,20 +606,33 @@ if (uDragonCoilMode > 0.5) {
       const v = viewList.find((x) => x.pane === en.target);
       if (v) resize(v);
     }));
-    viewList.forEach((v) => { io.observe(v.pane); ro.observe(v.pane); });
 
-    // Family Tab Filtering
+    function ensureFamilyViews(fam) {
+      CHARACTERS.forEach((c, i) => {
+        if (c.family !== fam || views[i]) return;
+        const models = modelsOf(c);
+        if (!models.length) return;
+        const v = makeView(root.querySelector(`[data-3d="${i}"]`), models);
+        views[i] = v;
+        viewList.push(v);
+        io.observe(v.pane);
+        ro.observe(v.pane);
+      });
+    }
+
+    // Family Tab Filtering (strictly 1 family = 6 pieces visible at a time)
     function selectFamily(fam) {
-      const validFam = FAMILY_META[fam] ? fam : 'all';
+      const normalized = fam === 'shrek' ? 'swamp' : fam;
+      const validFam = FAMILY_META[normalized] ? normalized : 'carlesso';
       document.querySelectorAll('#family-tabs button').forEach((b) => {
         b.setAttribute('aria-pressed', b.dataset.family === validFam);
       });
       document.getElementById('banner-title').textContent = FAMILY_META[validFam].title;
       document.getElementById('banner-desc').textContent = FAMILY_META[validFam].desc;
       root.querySelectorAll('.card').forEach((card) => {
-        const show = validFam === 'all' || card.dataset.familyCard === validFam;
-        card.hidden = !show;
+        card.hidden = card.dataset.familyCard !== validFam;
       });
+      ensureFamilyViews(validFam);
       requestAnimationFrame(() => viewList.forEach((v) => resize(v)));
     }
 
@@ -650,7 +654,7 @@ if (uDragonCoilMode > 0.5) {
     });
 
     const initialHash = location.hash.replace('#', '');
-    if (initialHash && FAMILY_META[initialHash]) selectFamily(initialHash);
+    selectFamily(initialHash || 'carlesso');
 
     const clock = new THREE.Clock();
     function tick() {
@@ -676,7 +680,7 @@ if (uDragonCoilMode > 0.5) {
   </script>
 
   <footer style="text-align:center;padding:24px 16px 40px;color:#90a4ae;font-size:12px;border-top:1px solid rgba(255,213,79,0.2);margin-top:40px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
-    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.31</span>
+    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.34</span>
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener noreferrer" style="color:#9be7c4;text-decoration:none;font-weight:600;">🐙 GitHub Code</a>
     <span>·</span>

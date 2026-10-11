@@ -1,11 +1,45 @@
 # Changelog
 
-## [0.3.36] - 2026-10-11
+## [0.3.40] - 2026-10-11
 
 - 🎙️🇬🇧🇮🇹 **New Iconic Family Voice Lines (`"Don't be FACETIOUS!"`, `"Mummy, can you clean my bottooooom?"`, `"Papino, ti manco tantissimo!"`, `"Sei proprio un cafoNAZZO!"`) (`scripts/generate_voice_lines.py`, `assets/audio/voices/`, `src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
   - **Queen Kate (`q`)**: Added *"Don't be FACETIOUS!"* (`voice-q-facetious.mp3`) spoken by the 40yo Winchester UK voice (`en-gb-csagent-4`) with crisp dry-witted British emphasis on `FACETIOUS!`.
   - **Knight Seby (`n`)**: Added *"Mummy, can you clean my bottooooom?"* (`voice-n-bottom.mp3`) with the long dragged-out final syllable (`bottooooooom?`), and updated `voice-n-timanco.mp3` to *"Papino, ti manco tantissimo!"* (capturing the adorable 3rd-language inversion of *"I miss you"*).
   - **Bishop Ale (`b`)**: Updated `voice-b-cafonazzo.mp3` to *"Sei proprio un cafoNAZZO!"* with the funny rising comic accent on `-NÀZZO!` at the end, and `voice-b-timanco.mp3` to *"Papino, ti manco tantissimo!"*.
+
+## [0.3.39] - 2026-10-11
+
+- 🎛️✨📱 **Clean Angular/Material SVG Icon Footer Toolbar (`src/listeners/HudListener.js`, `sw.js`)**:
+  - **Replaced Gaudy Emoji/Text Footer Buttons with Crisp Material Design Vector SVG Icon Buttons (`.hud-icon-btn`)**:
+    - Removed noisy emojis, long multi-word button labels, and bright yellow/green gradient buttons from `.hud-actions-dock` in favor of uniform `34×34px` matte-slate Material SVG icon buttons (`#hud-new-btn` `restart_alt`, `#hud-setup-btn` `tune`, `#hud-refresh-btn` `sync`, `#hud-top-btn` `view_in_ar` + `2D`/`3D` badge, `#hud-flip-btn` `swap_vert`, `#hud-hint-btn` `lightbulb`, `#hud-matrix36-btn` `grid_view`, `#hud-sfx-btn` `volume_up`, `#hud-music-btn` `music_note`, `#hud-dock-gallery` `museum`, `#hud-fen-btn` `code`, `#hud-console-btn` `terminal`, `#hud-toggle-topbar-btn` `menu`, plus a compact `EN | IT` segmented pill).
+    - Added a dedicated **Update / Refresh App** icon button (`#hud-refresh-btn`, Material `sync` icon) in the footer toolbar that checks `./VERSION` (`cache: 'no-store'`), purges Service Worker caches, and reloads on click (`checkAndRefreshVersion()`).
+    - Removed duplicate brand/GitHub links and hidden secondary/debug buttons from the bottom bar so both Desktop and Mobile (`#carchess-hud-root.mobile-simplified`) remain clean, readable, and single-row without overflowing.
+    - Updated `refreshTranslations()`, `setTopbarVisible()`, and `applyMobileCameraMode()` to update `title` and `aria-label` tooltips without overwriting `<svg>` icons.
+
+## [0.3.38] - 2026-10-11
+
+- 🧹⚡📱 **Zero-Cache Mobile Permalink (`nocache.html` & `?nocache=1`) + Mobile HUD Flexbox Fix (`nocache.html`, `index.html`, `sw.js`, `HudListener.js`, `Registry.js`)**:
+  - **Standalone `nocache.html` Permalink (`https://palladius.github.io/carchess3d/nocache.html`)**: Added a brand-new entry-point HTML page that is never in any legacy Service Worker precache list; on load it unregisters all Service Workers (`navigator.serviceWorker.getRegistrations()`), deletes all `CacheStorage` caches (`caches.keys()`), forces Chrome's HTTP disk cache (`max-age=600`) to re-fetch all `src/**/*.js` ES modules (`fetch(u, { cache: 'reload' })`), displays a green confirmation pill (`⚡ NO-CACHE LIVE v0.3.38`), and boots `./src/main.js?nocache=1&t=<timestamp>` directly without redirecting back to a cached `index.html`.
+  - **`?nocache=1` / `?fresh=1` Query Support (`index.html`, `sw.js`)**: Passing `?nocache=1` or `?fresh=1` to `index.html` unregisters Service Workers and purges caches instead of registering `sw.js`, while `sw.js` (`v26`) bypasses cache lookup (`fetch(req, { cache: 'no-store' })`) for `nocache.html` and `?nocache=1`.
+  - **Visible Mobile Version Badge, 1-Tap `🧹 No-Cache` Button & Bottom Bar Flexbox Fix (`HudListener.js`)**: Added `⚡ v0.3.38` and a 1-tap `🧹 No-Cache` link right inside `#hud-rotate-overlay` and `#hud-mobile-quick-setup`, and fixed `#carchess-hud-root.mobile-simplified .hud-status-card` (`flex-shrink: 0`) so the bottom dock buttons never squish the turn status card.
+
+## [0.3.37] - 2026-10-11
+
+- 👨‍👩‍👦‍👦🏛️🐸 **Showcase Divided Into 3 Families (`Carlesso`, `Classic`, `Shrek / Palude` = Strictly 6 Pieces at a Time) + Lazy Per-Family Loading & TDD Guard (`showcase/index.html`, `tests/showcase-webgl.test.mjs`)**:
+  - **Strictly 3 Family Tabs (`6` Pieces Visible at a Time)**: Removed the `"Tutte le Famiglie (18)"` (`data-family="all"`) tab so `showcase/index.html` presents the **3 dedicated family tabs** — `👨‍👩‍👦‍👦 Famiglia Carlesso (6)` (default), `♔🏛️ Scacchi Classici Vanilla (6)`, and `🐸🧅 Famiglia Shrek / Palude (6)` (supporting `#carlesso`, `#classic`, `#swamp`, and `#shrek` URL hashes) — showing and lazily loading **only 6 pieces at a time** (`ensureFamilyViews(validFam)`).
+  - **Double Protection Against Chrome's 16-WebGL-Context Limit (`kMaxActiveWebGLContexts = 16`)**: Combining **6 visible pieces per family tab** (`6 << 16`) with a **single shared `THREE.WebGLRenderer`** (`sharedRenderer` blitting via `ctx.drawImage` into lightweight 2D canvases) guarantees **Ale 1** and **Re Riccardo** never suffer WebGL context eviction (`webglcontextlost` white box) on any desktop or mobile browser.
+  - **TDD Regression Suite (`tests/showcase-webgl.test.mjs`)**: Verifies that (1) no `data-family="all"` tab exists, (2) `#family-tabs` contains strictly `['carlesso', 'classic', 'swamp']` with `6` pieces each, (3) `makeView()` never instantiates per-card `THREE.WebGLRenderer` instances, and (4) all 2D/3D `.glb` assets exist and have valid `glTF` v2 headers.
+
+## [0.3.36] - 2026-10-11
+
+- 🎬⏱️⚔️ **10-Second Battle Cutscene (`1s Pre-Padding + 8s Veo Video + 1s Post-Padding`), `1.52x` Hero Combatant Scale & Radial Neighbor Dilation (`CombatAnimationManager.js`, `VeoCinemaView.js`, `VFXPoolView.js`, `tests/combat.test.mjs`)**:
+  - **`10.0s` Total Duel Timeline (`DEFAULT_BATTLE_DURATION_MS = 10000`)**:
+    - **`1.0s` Pre-Padding (`0.0s .. 1.0s`)**: `VeoCinemaView` cues Frame 0 of the 16:9 Veo battle video and holds it while the camera glides into position so the player never misses the first second of the film.
+    - **`8.0s` Full Veo Video Playback (`1.0s .. 9.0s`, `loop = false`)**: Plays the entire 8-second Veo 3.1 clip from start to finish with configurable translucency (`combatVideoAlpha = 0.78`, `?videoAlpha=0.78`).
+    - **`1.0s` Post-Padding (`9.0s .. 10.0s`)**: Holds the final K.O. frame before completing the duel.
+  - **`1.52x` Heroic Combatant Scale & Radial Neighbor Dilation (`VFXPoolView.js`)**:
+    - Enlarged the 2 active 3D fighters to `1.52x` hero scale and hid the `brawlCloud` dust blob for crisp silhouettes.
+    - Smoothly dilates neighboring board pieces radially outward (`> 0.6m`) and scales them down (`< 72%`) during combat so they frame the arena without crowding the two heroes, restoring their exact board positions and scale afterward.
 
 ## [0.3.35] - 2026-10-11
 
