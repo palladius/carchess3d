@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.25] - 2026-10-11
+
+- 👑🔄 **Re Riccardo 3D Side-Profile Preview (`tools/model-pipeline/king/graft_papino_face_3d.py`, `out/papino_face_graft_preview.png`)**:
+  - Updated Panel 4 of `papino_face_graft_preview.png` to display the `+75°` 3D side profile of `assets/models/king-riccardo.glb`, confirming clean-shaven, no-glasses 3D consistency alongside the Mode B `2048×1024` Face-Grafted front view.
+
 ## [0.3.24] - 2026-10-11
 
 - 👑🫏📚 **2D→3D Pipeline (Mode A & Mode B) Applied to Re Riccardo (`king-riccardo.glb`) & Ciuchino (`knight-swamp-asinello.glb`) + `niccolo-game-design` Skill `v0.2.0`**:

@@ -469,10 +469,10 @@ def render_before_after_and_gif(data: dict, out_png: Path, out_gif: Path) -> Non
             ),
         ),
         (
-            "DOPO 3D Completo - 3/4 (+28°)",
+            "DOPO 3D - Profilo Laterale (+75° Senza Occhiali!)",
             rasterize_view_barycentric(
                 data["pos_new"], data["norm_new"], data["uv_new"], data["indices_new"], data["dual_atlas"],
-                yaw_deg=28.0, zoom_head=False,
+                yaw_deg=75.0, zoom_head=False,
             ),
         ),
     ]
