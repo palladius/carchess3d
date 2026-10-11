@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.38';
+export const APP_VERSION = '0.3.39';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -1389,12 +1389,11 @@ export function isMobileOrTabletDevice(env = {}) {
 /**
  * Determines whether `PieceView` should use lightweight 3D sculptures (3D Faction Pedestals +
  * 3D Columns + Double-Sided 2D Cutie Portrait Medallions + 3D Role Crowns / Stone Warriors)
- * instead of downloading & cloning 30+ MB / 850k vertices of `.glb` meshes on compact phones.
+ * instead of full 3D `.glb` character meshes.
  *
- * - Default `true` on smartphones (`isMobilePhoneViewport`, e.g. Pixel 10) for instant,
- *   zero-OOM 60fps 3D rendering.
- * - Default `false` on tablets (`shortSide >= 600px`, e.g. Samsung Galaxy Tab S10) & desktops.
- * - Overrideable via `?lite=1` / `?lite3d=1` (force Lite 3D) or `?glb=1` / `?hd=1` / `?lite=0` (force Full GLB).
+ * - Default `false` everywhere (Full 3D `.glb` models enabled by default on Pixel 10, tablets, and desktop
+ *   now that `HalfFloatType` Bloom FBOs are bypassed on mobile GPUs!).
+ * - Opt-in via `?lite=1` / `?lite3d=1` for ultra-low-memory devices.
  *
  * @param {{ width?: number, height?: number, search?: string }} [env]
  * @returns {boolean}
@@ -1423,6 +1422,7 @@ export function shouldUseMobileLite3D(env = {}) {
     }
   }
 
-  return isMobilePhoneViewport(env);
+  return false;
 }
+
 

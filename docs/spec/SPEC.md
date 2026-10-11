@@ -309,6 +309,9 @@ is the "victim" and is removed at the end.
 - **Mobile Lite 3D Piece Mode (`PieceView.js`, `Registry.shouldUseMobileLite3D`)**:
   - On smartphones (`isMobilePhone`), `PieceView` defaults to **Mobile Lite 3D Mode** (`mobileLite3D = true`, overrideable with `?glb=1` for full `.glb` models or `?lite3d=1` on any device): renders the sculpted 3D Faction Pedestals, 3D Columns, Double-Sided 2D Cutie Portrait Medallions, and 3D Role Crowns (plus 3D Stone Warriors for Classic/Stone sets) in `< 15 ms` without downloading or cloning `30 MB` / `850,000` vertices of `.glb` meshes.
   - Custom `onBeforeCompile` vertex shaders (`injectLocomotionShader`) are skipped on mobile/tablet GPUs unless `?shaders=1`, and `syncPiecesFromManager()` deduplicates identical board/faction signatures so startup only builds the 32 pieces once.
+- **Action Item — Mobile `LOD1` `.glb` Downsampling (`10×–20×` Polygon & Texture Reduction)**:
+  - **Problem**: Desktop `.glb` characters (`assets/models/*.glb`) weigh `2–5 MB` each with `50k–97k` triangles and `2048×1024` / `2048×2048` uncompressed RGBA textures (`~850,000` triangles and `~180 MB` VRAM across all 32 pieces on the board), whereas on a `6.3"` smartphone screen each chess piece occupies only `~60×90` physical pixels (causing `15–20` sub-pixel triangles per screen pixel).
+  - **Planned Solution (`assets/models/mobile/*.glb`)**: Generate a dedicated mobile `LOD1` asset set downsampled by **`10×–20×`** in triangle count (`~3,000–5,000` tris for heroes, `~1,500` tris for pawns via Quadric Error Metric decimation) and **`4×–16×`** in texture area (`512×512` WebP/JPEG baked atlas, `~150–300 KB` per `.glb`), and have `PieceView` load `assets/models/mobile/<piece>.glb` automatically on `isMobilePhone` so smartphones render the full 3D sculpted characters at `60 fps` with `< 5 MB` total download and `< 15 MB` VRAM.
 
 ## Open Questions
 

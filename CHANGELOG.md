@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.39] - 2026-10-11
+
+- 🗿📱✨ **Full 3D `.glb` Models Enabled by Default on Pixel 10 & Mobile Phones (`src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`)**:
+  - Verified on real Google Pixel 10 hardware that with `HalfFloatType` `UnrealBloomPass` and hidden transmission FBOs bypassed, all 32 full 3D `.glb` character meshes render smoothly on mobile GPUs.
+  - Updated `shouldUseMobileLite3D()` to default to `false` (Full 3D `.glb` mode on all devices without needing `?glb=1`), while keeping lightweight 3D portrait medallions available via `?lite=1` or `?lite3d=1`.
+
 ## [0.3.38] - 2026-10-11
 
 - 🧹⚡📱 **Zero-Cache Mobile Permalink (`nocache.html` & `?nocache=1`) + Mobile HUD Flexbox Fix (`nocache.html`, `index.html`, `sw.js`, `HudListener.js`, `Registry.js`)**:
