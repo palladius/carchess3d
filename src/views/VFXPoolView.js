@@ -2272,7 +2272,7 @@ export class VFXPoolView {
           if (beam) beam.scale.set(1 + Math.sin(elapsedS * 30) * 0.3, 1, 1 + Math.sin(elapsedS * 30) * 0.3);
           if (dustPile) dustPile.scale.setScalar(Math.min(1.4, Math.max(0.2, (t - 0.30) * 2.5)));
         }
-      } else if (dndSpell === 'flesh_to_stone_petrification' && this.props.dndPetrifyStatue) {
+      } else if ((dndSpell === 'flesh_to_stone_petrification' || dndSpell === 'kiss_of_death_blight') && this.props.dndPetrifyStatue) {
         this.props.dndPetrifyStatue.visible = showDnd;
         if (showDnd) {
           this.props.dndPetrifyStatue.position.set(toPos.x, 0.66, toPos.z);
@@ -2500,6 +2500,7 @@ export class VFXPoolView {
             summon_comic_daemon: 'SUMMON DAEMON! 😈',
             disintegrate: 'DISINTEGRATE! 🟢',
             flesh_to_stone_petrification: 'PIETRIFICAZIONE! 🗿',
+            kiss_of_death_blight: 'KISS OF DEATH! 💋🥀',
           };
           this.setComicWordText(
             clash.effect === 'sacro_acquarius_ice_coffin'
@@ -2508,12 +2509,13 @@ export class VFXPoolView {
             clash.effect === 'sacro_acquarius_ice_coffin' ? '#0097a7' : '#ff3d00',
             '#80deea',
           );
-          atkOffset = -0.28 + s * 0.30;
-          defOffset = 0.20 + s * 0.26;
-          atkY = s * 0.34;
-          defY = clash.effect === 'sacro_acquarius_ice_coffin' ? 0.05 : s * 0.40;
-          atkPitch = -0.28 * s;
-          defYawOff = clash.effect === 'sacro_acquarius_ice_coffin' ? 0 : exFrac * Math.PI * 4;
+          atkOffset = clash.dndSpell === 'kiss_of_death_blight' ? -0.08 : -0.28 + s * 0.30;
+          defOffset = clash.dndSpell === 'kiss_of_death_blight' ? 0.10 : 0.20 + s * 0.26;
+          atkY = clash.dndSpell === 'kiss_of_death_blight' ? 0.04 : s * 0.34;
+          defY = clash.effect === 'sacro_acquarius_ice_coffin' || clash.dndSpell === 'kiss_of_death_blight' ? 0.05 : s * 0.40;
+          atkPitch = clash.dndSpell === 'kiss_of_death_blight' ? 0.36 : -0.28 * s;
+          defPitch = clash.dndSpell === 'kiss_of_death_blight' ? -0.48 : 0;
+          defYawOff = clash.effect === 'sacro_acquarius_ice_coffin' || clash.dndSpell === 'kiss_of_death_blight' ? 0 : exFrac * Math.PI * 4;
           defRoll = 0.32 * s;
         } else {
           // Exchange 5 (brawlU = 0.84..1.00): Attacker A Signature Finishing Slam / Teca di Ghiaccio!
@@ -2526,6 +2528,7 @@ export class VFXPoolView {
             summon_comic_daemon: 'DEMONE PIZZA! 😈🍕',
             disintegrate: '10d6+40 DUST! 🟢✨',
             flesh_to_stone_petrification: 'STATUA D’ORO! 🗿👑',
+            kiss_of_death_blight: 'AVVIZZITA! 🥀💀',
           };
           this.setComicWordText(
             clash.effect === 'sacro_acquarius_ice_coffin'
@@ -2535,17 +2538,43 @@ export class VFXPoolView {
             '#e0f7fa',
           );
           const jumpH = clash.effect === 'plush_ground_pound' ? 1.85 : 0.78;
-          atkOffset = -0.30 * (1 - exFrac);
+          atkOffset = clash.dndSpell === 'kiss_of_death_blight' ? -0.10 : -0.30 * (1 - exFrac);
           defOffset = 0.18;
           atkY = clash.effect === 'sacro_acquarius_ice_coffin' ? 0.18 : Math.sin(exFrac * Math.PI) * jumpH;
           atkPitch = clash.effect === 'sacro_acquarius_ice_coffin' ? -0.18 : Math.cos(exFrac * Math.PI) * 0.38;
-          defPitch = clash.effect === 'sacro_acquarius_ice_coffin' ? 0 : -0.36 * s;
+          defPitch = clash.dndSpell === 'kiss_of_death_blight' ? -0.68 : clash.effect === 'sacro_acquarius_ice_coffin' ? 0 : -0.36 * s;
         }
 
         def.userData.isCounterAttacking = isDefenderCounter;
         const defScaleMult = isDefenderCounter ? defSpec.bellyInflate : 1.0;
         atk.scale.setScalar(scale);
-        def.scale.setScalar(scale * defScaleMult);
+        if (clash.dndSpell === 'kiss_of_death_blight' && brawlU >= 0.68) {
+          // Gothic Wither ("avvizzisce in un corpo senza vita"): shrinks thinner and drains color to ashen-gray!
+          const witherU = Math.min(1, (brawlU - 0.68) / 0.32);
+          def.scale.set(
+            scale * (1 - witherU * 0.32),
+            scale * (1 - witherU * 0.18),
+            scale * (1 - witherU * 0.32),
+          );
+          if (!def.userData.kissWitherTinted) {
+            def.userData.kissWitherTinted = true;
+            def.traverse((child) => {
+              if (child.isMesh && child.material) {
+                const m = child.material.clone();
+                if (m.color) m.color.setHex(0x6e6a7c);
+                if (m.emissive) {
+                  m.emissive.setHex(0x2a1836);
+                  m.emissiveIntensity = 0.35;
+                }
+                m.transparent = true;
+                m.opacity = 0.80;
+                child.material = m;
+              }
+            });
+          }
+        } else {
+          def.scale.setScalar(scale * defScaleMult);
+        }
 
         atk.position.set(toPos.x + dirX * atkOffset, atkY, toPos.z + dirZ * atkOffset);
         def.position.set(toPos.x + dirX * defOffset, defY, toPos.z + dirZ * defOffset);

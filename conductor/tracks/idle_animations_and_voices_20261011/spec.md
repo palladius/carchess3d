@@ -75,7 +75,7 @@ Even when no move or capture is currently executing on the chessboard, the 32 pi
     - `k_x_b`: Meteor Swarm (`meteor_swarm`) ☄️🌋
     - `k_x_r`: Summon Greater Comic Daemon (`summon_comic_daemon`) 😈🍕
     - `k_x_k`: Disintegrate (`disintegrate`) 🟢✨
-    - `k_x_q`: Flesh to Stone / Petrification + Golden Throne (`flesh_to_stone_petrification`) 🗿🚽👑
+    - `k_x_q`: Vampiric Kiss of Death / Blight & Gothic Wither on the Golden Throne (`kiss_of_death_blight`) 💋🥀💀👑
 
 ---
 

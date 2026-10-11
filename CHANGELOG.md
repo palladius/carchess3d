@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.16] - 2026-10-11
+
+- 💋🥀💀 **`k_x_q` Re Riccardo vs Regina Kate — *"D&D Vampiric Kiss of Death & Avvizzimento Gotico"* (`Registry.js`, `BattleMatrix36.js`, `VFXPoolView.js`, `assets/battles/keyframes/k_x_q.png`, `assets/battles/videos/k_x_q.mp4`)**:
+  - Updated `k_x_q` to a macabre-romantic Tim Burton / Gomez & Morticia Addams-inspired **D&D *Vampiric Kiss of Death / Blight* (`kiss_of_death_blight`)**: King Riccardo leans in under a full moon holding a Black Rose and blowing a stream of crimson-purple gothic hearts and black rose petals onto Queen Kate, who withers and drains of color into an ashen-pale lifeless gothic Corpse-Bride figurine slumped onto the Golden Throne.
+  - Added 3D on-board Kiss of Death dip (`atkPitch = 0.36`, `defPitch = -0.68`) and progressive 3D withering/desaturation (`def.scale` shrinks thinner and mesh color drains to ashen-gray `0x6e6a7c`) in [`src/views/VFXPoolView.js`](src/views/VFXPoolView.js).
+  - Regenerated `assets/battles/keyframes/k_x_q.png` and `assets/battles/videos/{k_x_q,n_x_p}.{mp4,webm}` from the updated Nano Banana 2.1 16:9 keyframes.
+
 ## [0.3.15] - 2026-10-11
 
 - 🏺❄️🐧 **`n_x_p` Sacro Acquarius Refinement — Translucent Cyan-Blue Puffin Deep Behind the Ice Coffin (`VFXPoolView.js`, `assets/battles/keyframes/n_x_p.png`, `scripts/generate_nb_veo_battle.py`)**:
