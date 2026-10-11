@@ -21,27 +21,32 @@ import { VOICE_LINES } from '../core/Registry.js';
 
 const THEME_LYRICS = Object.freeze({
   it: [
-    '🐉 Ale col draghetto rosso vola in diagonale!',
-    '🏎️ Seby sulla pista turbo salta a L spaziale!',
-    '🐟 I Puffin Guardia Svizzera difendono il castello!',
-    '💜 Pupurabbu super morbido fa un balzo colossale!',
-    '🍫 Regina Kate lancia l’onda ciocco-lilla!',
-    '🚽👑 Re Riccardo sul Trono d’Oro: Scacco Matto, brilla!',
+    '🎻 Ouverture Barocca degli Scacchi — Ottetto d’archi in Mi Dorico!',
+    '🐉 Ale col draghetto rosso vola in diagonale tra i violini!',
+    '🏎️ Seby sulla pista turbo salta a L al ritmo dei violoncelli!',
+    '🐟 I Puffin Guardia Svizzera marciano a tempo di staccato!',
+    '💜 Pupurabbu super morbido danza con gli archi reali!',
+    '🍫♕ Kate & 👑 Riccardo: Finale Sinfonico sulla Scacchiera!',
   ],
   en: [
-    '🐉 Bishop Ale and his fiery dragon glide across the board!',
-    '🏎️ Knight Seby revs his orange loop-track turbo roar!',
-    '🐟 Swiss-Guard Puffin Pawns stand ready with a fish-slap pling!',
-    '💜 Fluffy Rook Pupurabbu gives a giant cuddle spring!',
-    '🍫 Queen Kate swirls her magical lilac chocolate wave!',
-    '🚽👑 King Riccardo on the Golden Throne — Checkmate to the brave!',
+    '🎻 Baroque String Octet Overture — Staccato Strings in E Dorian!',
+    '🐉 Bishop Ale and his red dragon soar across the violins!',
+    '🏎️ Knight Seby leaps in L-shapes to the driving cello pulse!',
+    '🐟 Swiss-Guard Puffin Pawns march in crisp staccato rhythm!',
+    '💜 Fluffy Rook Pupurabbu bounces to the chamber strings!',
+    '🍫♕ Queen Kate & 👑 King Riccardo — Grand Symphonic Checkmate!',
   ],
 });
 
-// Melodic adventure motif in C major / A minor (frequencies in Hz)
-const ADVENTURE_MELODY_HZ = Object.freeze([
-  523.25, 659.25, 783.99, 1046.5, 880.0, 783.99, 659.25, 587.33,
-  659.25, 783.99, 880.0, 987.77, 1046.5, 783.99, 659.25, 523.25,
+// Baroque String Octet Overture in E Dorian / E Minor (C#4 -> C4 -> B3 chromatic descent + soaring violin motif)
+export const CHESS_STRINGS_THEME_URL = 'assets/audio/chess-strings-theme.mp3';
+const BAROQUE_VIOLIN_MELODY_HZ = Object.freeze([
+  659.25, 739.99, 783.99, 739.99, 659.25, 587.33, 554.37, 523.25,
+  493.88, 554.37, 523.25, 493.88, 392.00, 440.00, 493.88, 659.25,
+]);
+const BAROQUE_CELLO_STACCATO_HZ = Object.freeze([
+  164.81, 246.94, 164.81, 277.18, 164.81, 261.63, 164.81, 246.94,
+  130.81, 196.00, 246.94, 196.00, 146.83, 220.00, 164.81, 246.94,
 ]);
 
 // Fiery 152 BPM D-Minor Phrygian Dominant 16th-note ostinato for combat suspense (D3, F3, G3, G#3, A3, Bb3, C#4, D4)
@@ -670,16 +675,21 @@ export class AudioListener {
     this.melodyStep = 0;
     this.lyricStep = 0;
 
-    // Attempt to play `assets/audio/theme-${lang}.mp3` if present, otherwise procedural loop
+    // Play the Lyria 3 Instrumental Baroque-Symphonic String Overture (`assets/audio/chess-strings-theme.mp3`),
+    // with automatic fallback to procedural E-Dorian Baroque String Octet staccato synthesis
     if (typeof Audio !== 'undefined') {
       try {
-        const audio = new Audio(`assets/audio/theme-${this.lang}.mp3`);
+        const audio = new Audio(CHESS_STRINGS_THEME_URL);
+        audio.preload = 'auto';
         audio.loop = true;
-        audio.volume = this.combatMusicActive ? 0.06 : 0.45;
+        audio.volume = this.combatMusicActive ? 0.06 : 0.56;
         this.audioEl = audio;
-        audio.play().catch(() => {
-          this.audioEl = null;
-        });
+        const p = audio.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {
+            this.audioEl = null;
+          });
+        }
       } catch {
         this.audioEl = null;
       }
@@ -689,17 +699,21 @@ export class AudioListener {
     this.loopTimer = setInterval(() => {
       if (!this.musicPlaying || this.combatMusicActive) return;
       if (!this.audioEl || this.audioEl.paused || this.audioEl.error) {
-        const freq = ADVENTURE_MELODY_HZ[this.melodyStep % ADVENTURE_MELODY_HZ.length];
-        this.synthTone(freq, freq, 0.24, 'triangle', 0.09, 0);
-        if (this.melodyStep % 2 === 0) {
-          this.synthTone(freq * 0.5, freq * 0.5, 0.28, 'sine', 0.07, 0);
-        }
+        const idx = this.melodyStep % BAROQUE_VIOLIN_MELODY_HZ.length;
+        const vFreq = BAROQUE_VIOLIN_MELODY_HZ[idx];
+        const cFreq = BAROQUE_CELLO_STACCATO_HZ[idx];
+        // Crisp marcato staccato cello + viola eighth-note pulse
+        this.synthTone(cFreq, cFreq * 0.998, 0.13, 'sawtooth', 0.075, 0);
+        this.synthTone(cFreq * 1.5, cFreq * 1.5, 0.11, 'triangle', 0.055, 0);
+        // Soaring baroque violin voice + harmonic octave
+        this.synthTone(vFreq, vFreq * 1.002, 0.21, 'sawtooth', 0.065, 0.015);
+        this.synthTone(vFreq * 0.5, vFreq * 0.5, 0.19, 'triangle', 0.06, 0.015);
       }
       this.melodyStep++;
-      if (this.melodyStep % 6 === 0) {
+      if (this.melodyStep % 8 === 0) {
         this._emitNextLyricCaption();
       }
-    }, 320);
+    }, 234);
     this.loopTimer.unref?.();
   }
 

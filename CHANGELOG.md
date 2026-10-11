@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.42] - 2026-10-11
+
+- 🎻🎼🏰 **Lyria 3 Baroque-Symphonic String Chess Overture (`assets/audio/chess-strings-theme.mp3`, `src/listeners/AudioListener.js`, `sw.js`, `docs/spec/SPEC.md`, `tests/voices_idle.test.mjs`)**:
+  - Generated a 100% instrumental 30-second **Baroque String Octet & Symphonic Chess Overture** (`assets/audio/chess-strings-theme.mp3`) via `lyria-3-clip-preview` in E Dorian minor (`128 BPM`), featuring a crisp double string quartet (`4 violins, 2 violas, 2 cellos`) playing urgent rhythmic staccato chords, descending chromatic violin melodies (`C# → C → B`), deep cello counter-melodies, and theatrical West End symphonic grandeur.
+  - Wired `CHESS_STRINGS_THEME_URL` (`assets/audio/chess-strings-theme.mp3`) as the primary musical soundtrack in `AudioListener.startThemeSong()`, upgraded the procedural WebAudio fallback to a multi-voice E-Dorian Baroque String Octet (`BAROQUE_VIOLIN_MELODY_HZ` + `BAROQUE_CELLO_STACCATO_HZ`), and added `chess-strings-theme.mp3` to `sw.js` (`v30`) offline precache and `tests/voices_idle.test.mjs`.
+
 ## [0.3.41] - 2026-10-11
 
 - 🗿📱✨ **Full 3D `.glb` Models Enabled by Default on Pixel 10 & Mobile Phones (`src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`)**:

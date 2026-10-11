@@ -268,6 +268,9 @@ is the "victim" and is removed at the end.
     1. **First-Touch Signature Guarantee**: The very first selection of a character in a session always plays a full `signature` sentence so the player hears their iconic personality immediately.
     2. **Higher-Probability Non-Verbal Reactions (`55%–65%` for heroes, `78%` for Puffin pawns) + Cooldown**: Subsequent selections within cooldown (`3.8 s` for heroes, `6.5 s` for pawns) or weighted random rolls favor short `mumble` clips (`hmm-hmm` / `sbuffo`) so selecting pieces back-to-back feels natural and never Fatigues the ear.
     3. **Shuffled Signature Deck + Ring-Buffer History (`recentVariantIdsByType`)**: Signature lines are dealt from a Fisher-Yates shuffled deck without replacement (guaranteeing every quote is heard before any quote can repeat) and filtered against the last `N` played variant IDs so **no clip ever plays twice in a row**. Emits `VOICE_LINE_SPOKEN` so the HUD toast displays the exact randomized quote spoken.
+- **Lyria 3 Baroque-Symphonic String Chess Overture & Combat Soundtrack (`AudioListener.js`)**:
+  - **Baroque String Octet & Symphonic Chess Overture (`assets/audio/chess-strings-theme.mp3`)**: 100% instrumental 30-second loop in E Dorian minor (`128 BPM`) generated via `lyria-3-clip-preview`, featuring a driving double string quartet (`4 violins, 2 violas, 2 cellos`) with crisp staccato/marcato eighth-note ostinatos, descending Dorian violin lines (`C# -> C -> B`), resonant cello counter-melodies, and theatrical symphonic grandeur, paired with a multi-voice E-Dorian String Octet WebAudio synthesizer fallback (`BAROQUE_VIOLIN_MELODY_HZ` + `BAROQUE_CELLO_STACCATO_HZ`).
+  - **Fiery Combat Suspense Loop (`assets/audio/combat-suspense.mp3`)**: Automatically plays during `BATTLE_STARTED` and stops cleanly on `BATTLE_COMPLETED` / `BATTLE_SKIPPED`.
 
 ## 2-Stage 36-Combination Battle Cinema Pipeline & IMAX World Transformation (`Nano Banana 2.1 → Veo 3.1`)
 
