@@ -1036,10 +1036,29 @@ export class PieceView {
                 if (isWireframe) {
                   mat.wireframe = true;
                 }
+                const isDraghessaPiece =
+                  desc.id === 'rook_swamp_draghessa' ||
+                  String(desc.glbUrl || '').includes('rook-swamp-draghessa');
+                let dragonCoilMode = 0.0;
+                if (isDraghessaPiece) {
+                  const dragonMatNames = new Set([
+                    'dragon_ruby',
+                    'dragon_emerald',
+                    'amber_gem',
+                    'eye_dark',
+                    'onion_gold',
+                  ]);
+                  if (dragonMatNames.has(mat.name)) {
+                    dragonCoilMode = 1.0; // Dedicated Dragon sub-mesh: 100% helical coiling around the stationary tower!
+                  } else if (mat.map) {
+                    dragonCoilMode = 2.0; // UV-mapped TRELLIS.2 single-mesh: outer radial dragon coils around inner stone tower!
+                  }
+                }
                 this.injectLocomotionShader(
                   mat,
                   desc.type,
                   pieceGroup.userData.locomotionUniforms,
+                  dragonCoilMode,
                 );
                 mat.needsUpdate = true;
               }
@@ -1092,11 +1111,13 @@ export class PieceView {
   /**
    * Injects a real-time procedural skeletal limb & horse-gallop vertex shader into `.glb` materials
    * so every character's legs, feet, horse hooves, arms, and weapons visibly walk, gallop, and brawl!
+   * For `rook-swamp-draghessa`, `dragonCoilMode > 0` drives a perpetual, slow, inexorable 3D helical
+   * coiling of the Dragon around the stationary stone watchtower.
    */
-  injectLocomotionShader(mat, pieceType, uniforms) {
+  injectLocomotionShader(mat, pieceType, uniforms, dragonCoilMode = 0.0) {
     if (!mat || !uniforms) return;
     mat.customProgramCacheKey = () =>
-      `carchess_loco_v3_${pieceType}_${mat.wireframe ? 'w' : 's'}_${mat.map ? 't' : 'u'}`;
+      `carchess_loco_v4_${pieceType}_dc${dragonCoilMode}_${mat.wireframe ? 'w' : 's'}_${mat.map ? 't' : 'u'}`;
     mat.onBeforeCompile = (shader) => {
       shader.uniforms.uWalkPhase = uniforms.uWalkPhase;
       shader.uniforms.uWalkAmp = uniforms.uWalkAmp;
@@ -1106,6 +1127,7 @@ export class PieceView {
       shader.uniforms.uIdlePhase = uniforms.uIdlePhase;
       shader.uniforms.uIdleAmp = uniforms.uIdleAmp;
       shader.uniforms.uPieceKind = uniforms.uPieceKind;
+      shader.uniforms.uDragonCoilMode = { value: dragonCoilMode };
 
       shader.vertexShader =
         `
@@ -1117,13 +1139,49 @@ uniform float uGaitMode;
 uniform float uIdlePhase;
 uniform float uIdleAmp;
 uniform float uPieceKind;
+uniform float uDragonCoilMode;
 ` +
-        shader.vertexShader.replace(
-          '#include <begin_vertex>',
-          `#include <begin_vertex>
+        shader.vertexShader
+          .replace(
+            '#include <beginnormal_vertex>',
+            `#include <beginnormal_vertex>
+if (uDragonCoilMode > 0.5) {
+  float normYN = clamp(position.y + 0.5, 0.0, 1.0);
+  float dMaskN = (uDragonCoilMode < 1.5)
+    ? 1.0
+    : (smoothstep(0.11, 0.175, length(position.xz)) * smoothstep(0.16, 0.25, normYN) * smoothstep(0.95, 0.82, normYN));
+  float coilThetaN = (uIdlePhase * 0.68 + sin(uIdlePhase * 1.15 - normYN * 5.2) * 0.34) * dMaskN;
+  float cN = cos(coilThetaN);
+  float sN = sin(coilThetaN);
+  objectNormal = vec3(
+    objectNormal.x * cN - objectNormal.z * sN,
+    objectNormal.y,
+    objectNormal.x * sN + objectNormal.z * cN
+  );
+}
+`,
+          )
+          .replace(
+            '#include <begin_vertex>',
+            `#include <begin_vertex>
 float normY = clamp(position.y + 0.5, 0.0, 1.0);
 float side = clamp(position.x * 6.5, -1.0, 1.0);
-if (uIdleAmp > 0.001 && uWalkAmp < 0.05 && uCombatAmp < 0.05) {
+if (uDragonCoilMode > 0.5) {
+  // Perpetual, slow, inexorable, scary 3D Dragon Coiling & Slithering around the stationary Watchtower!
+  float dMask = (uDragonCoilMode < 1.5)
+    ? 1.0
+    : (smoothstep(0.11, 0.175, length(position.xz)) * smoothstep(0.16, 0.25, normY) * smoothstep(0.95, 0.82, normY));
+  float coilTheta = (uIdlePhase * 0.68 + sin(uIdlePhase * 1.15 - normY * 5.2) * 0.34) * dMask;
+  float constrictR = 1.0 + sin(uIdlePhase * 1.85 - normY * 4.2) * 0.065 * dMask;
+  float slitherY = sin(uIdlePhase * 1.45 - normY * 6.0) * 0.045 * dMask;
+  float cT = cos(coilTheta);
+  float sT = sin(coilTheta);
+  float rx = (transformed.x * cT - transformed.z * sT) * constrictR;
+  float rz = (transformed.x * sT + transformed.z * cT) * constrictR;
+  transformed.x = rx;
+  transformed.z = rz;
+  transformed.y += slitherY;
+} else if (uIdleAmp > 0.001 && uWalkAmp < 0.05 && uCombatAmp < 0.05) {
   if (abs(uPieceKind - 1.0) < 0.25) {
     // Knight Seby ('n'): Horse steps/trots in place, nods head & swishes tail!
     float legMask = smoothstep(0.45, 0.03, normY);
@@ -1195,7 +1253,7 @@ if (uCombatAmp > 0.001) {
   transformed.y += abs(slash) * uCombatAmp * 0.09 * upperMask;
 }
 `,
-        );
+          );
     };
   }
 

@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.9';
+export const APP_VERSION = '0.3.10';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -414,10 +414,10 @@ export const FAMILY_ROSTERS = Object.freeze({
     pieces: {
       k: { name: 'Orco Brontolo', glyph: '♔', badge: '🐸', attackLabel: 'Rutto Cipolla di Palude 🐸🧅' },
       q: { name: 'Principessa Orchessa', glyph: '♕', badge: '🥋', attackLabel: 'Calcio Kung-Fu Slow-Mo 👑🥋' },
-      b: { name: 'Mago Focaccina', glyph: '♗', badge: '🥖', attackLabel: 'Colpo Focaccina Ligure 🫒🥖' },
-      n: { name: 'Asinello', glyph: '♘', badge: '🫏', attackLabel: 'Calcio Doppio d’Asinello 🫏✨' },
+      b: { name: 'Don Gatto Zorro-Vescovo', glyph: '♗', badge: '🐱', attackLabel: 'Stoccata Zorro-Vescovo 🐱⚔️' },
+      n: { name: 'Asinello 40 Denti', glyph: '♘', badge: '🫏', attackLabel: 'Calcio Doppio d’Asinello 🫏✨' },
       r: { name: 'Draghessa', glyph: '♖', badge: '🐉', attackLabel: 'Fumo Cuore di Draghessa 🐉🏰' },
-      p: { name: 'Guardia Re Tappo', glyph: '♙', badge: '🧅', attackLabel: 'Pergamena Re Tappo Flatten 🛡️🧅' },
+      p: { name: 'Zenzy Pan di Zenzero', glyph: '♙', badge: '🍪', attackLabel: 'Alabarda Pan di Zenzero & Focaccina 🍪⚔️' },
     },
   },
 });
@@ -603,11 +603,11 @@ export const SWAMP_REGISTRY = Object.freeze({
   },
   n: {
     ...CHARACTER_REGISTRY.n,
-    name: 'Asinello',
-    title: { it: 'Asinello Chiacchierone 🫏✨', en: 'Chatterbox Donkey 🫏✨' },
+    name: 'Asinello 40 Denti',
+    title: { it: 'Asinello Chiacchierone (Sorrisone a 40 Denti!) 🫏😁✨', en: 'Chatterbox Burro (40-Tooth Grin!) 🫏😁✨' },
     frontPortrait: 'assets/characters/knight-swamp-asinello.jpg',
-    altPortrait: 'assets/characters/knight-swamp-asinello.jpg',
-    backPortrait: 'assets/characters/knight-swamp-asinello.jpg',
+    altPortrait: 'assets/characters/knight-swamp-asinello-2.jpg',
+    backPortrait: 'assets/characters/knight-swamp-asinello-2.jpg',
     glbUrl: 'assets/models/swamp/knight-swamp-asinello.glb',
     optionalGlbCandidates: ['assets/models/swamp/knight-swamp-asinello.glb'],
     accentColor: 0x8d6e63,
@@ -615,7 +615,7 @@ export const SWAMP_REGISTRY = Object.freeze({
   r: {
     ...CHARACTER_REGISTRY.r,
     name: 'Draghessa',
-    title: { it: 'Torre Draghessa della Palude 🐉🏰', en: 'Swamp Dragoness Rook 🐉🏰' },
+    title: { it: 'Torre Draghessa della Palude (Spire Inesorabili!) 🐉🏰', en: 'Swamp Dragoness Rook (Inexorable Coils!) 🐉🏰' },
     frontPortrait: 'assets/characters/rook-swamp-draghessa.jpg',
     altPortrait: 'assets/characters/rook-swamp-draghessa.jpg',
     backPortrait: 'assets/characters/rook-swamp-draghessa.jpg',
@@ -625,10 +625,10 @@ export const SWAMP_REGISTRY = Object.freeze({
   },
   p: {
     ...CHARACTER_REGISTRY.p,
-    name: 'Uomo Focaccina',
-    title: { it: 'Pedone Uomo Focaccina Ligure 🫒🥖', en: 'Ligurian Focaccina Warrior Pawn 🫒🥖' },
-    frontPortrait: 'assets/characters/pawn-swamp-focaccina.jpg',
-    altPortrait: 'assets/characters/pawn-swamp-zenzy.jpg',
+    name: 'Zenzy Pan di Zenzero',
+    title: { it: 'Pedone Zenzy Pan di Zenzero & Focaccina 🍪🫒⚔️', en: 'Zenzy Italian Gingerbread & Focaccina Guard 🍪🫒⚔️' },
+    frontPortrait: 'assets/characters/pawn-swamp-zenzy.jpg',
+    altPortrait: 'assets/characters/pawn-swamp-focaccina.jpg',
     backPortrait: 'assets/characters/pawn-swamp-porcellini.jpg',
     glbUrl: 'assets/models/swamp/pawn-swamp-tappo.glb',
     optionalGlbCandidates: ['assets/models/swamp/pawn-swamp-tappo.glb'],

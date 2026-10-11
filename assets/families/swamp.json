@@ -76,8 +76,8 @@
     "knight": {
       "slug": "knight-swamp-asinello",
       "name": {
-        "it": "Asinello Chiacchierone",
-        "en": "Asinello Chiacchierone (Pack-Burro Knight)"
+        "it": "Asinello Chiacchierone (40 Denti)",
+        "en": "Asinello Chiacchierone (40-Tooth Grin Knight)"
       },
       "model": "assets/models/swamp/knight-swamp-asinello.glb",
       "portrait": "assets/characters/knight-swamp-asinello.jpg",
@@ -88,8 +88,8 @@
     "rook": {
       "slug": "rook-swamp-draghessa",
       "name": {
-        "it": "Draghessa della Palude",
-        "en": "Draghessa della Palude (Watchtower Dragon)"
+        "it": "Draghessa della Palude (Spire Inesorabili)",
+        "en": "Draghessa della Palude (Coiling Watchtower Dragon)"
       },
       "model": "assets/models/swamp/rook-swamp-draghessa.glb",
       "portrait": "assets/characters/rook-swamp-draghessa.jpg",
@@ -100,8 +100,8 @@
     "pawn": {
       "slug": "pawn-swamp-tappo",
       "name": {
-        "it": "Uomo Focaccina Ligure",
-        "en": "Uomo Focaccina Ligure (Focaccia Warrior Pawn)"
+        "it": "Zenzy Pan di Zenzero & Focaccina",
+        "en": "Zenzy Italian Gingerbread & Focaccia Guard"
       },
       "model": "assets/models/swamp/pawn-swamp-tappo.glb",
       "portrait": "assets/characters/pawn-swamp-tappo.jpg",
