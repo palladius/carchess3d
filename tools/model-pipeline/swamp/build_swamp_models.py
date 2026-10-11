@@ -752,17 +752,22 @@ def sculpt_knight_asinello() -> list[tuple[str, trimesh.Trimesh]]:
     parts.append(("oak_wood", ellipsoid(0.088, 0.098, 0.028, center=(0.138, 0.60, 0.145), rot_xyz=(0, 32, 0))))
     parts.append(("faction_trim", ellipsoid(0.048, 0.058, 0.030, center=(0.145, 0.60, 0.152), rot_xyz=(0, 32, 0))))
 
-    # Classic Arched Chess Knight Neck + Chestnut Head + Cream Muzzle with Smug Closed Smirk
+    # Classic Arched Chess Knight Neck + Chestnut Head + Wide Cream Muzzle with 40-TOOTH GRIN!
     parts.append(("chestnut_brown", capsule_limb((0.0, 0.62, 0.11), (0.0, 0.88, 0.14), 0.108, 0.095)))
-    parts.append(("chestnut_brown", ellipsoid(0.118, 0.118, 0.138, center=(0.0, 0.93, 0.16), subdivisions=3)))
-    parts.append(("burro_muzzle", ellipsoid(0.095, 0.078, 0.108, center=(0.0, 0.88, 0.275), subdivisions=2)))
-    # Closed smug smirk line (no toothy grin)
-    smirk_pts = [(-0.048, 0.865, 0.365), (0.0, 0.860, 0.375), (0.052, 0.882, 0.360)]
-    parts.append(("dark_leather", curved_tube(smirk_pts, [0.010, 0.012, 0.010], sections=12)))
+    parts.append(("chestnut_brown", ellipsoid(0.122, 0.118, 0.138, center=(0.0, 0.94, 0.16), subdivisions=3)))
+    parts.append(("burro_muzzle", ellipsoid(0.118, 0.088, 0.118, center=(0.0, 0.875, 0.275), subdivisions=3)))
+    # Giant Ear-to-Ear Open Comedy Grin + Sparkling White 40-Tooth Row!
+    parts.append(("crimson_velvet", ellipsoid(0.095, 0.046, 0.068, center=(0.0, 0.865, 0.335), subdivisions=2)))
+    upper_teeth_pts = [(-0.082, 0.882, 0.345), (-0.042, 0.878, 0.378), (0.0, 0.876, 0.388), (0.042, 0.878, 0.378), (0.082, 0.882, 0.345)]
+    lower_teeth_pts = [(-0.076, 0.848, 0.340), (-0.038, 0.842, 0.372), (0.0, 0.840, 0.382), (0.038, 0.842, 0.372), (0.076, 0.848, 0.340)]
+    parts.append(("eye_white", curved_tube(upper_teeth_pts, [0.016, 0.020, 0.021, 0.020, 0.016], sections=16)))
+    parts.append(("eye_white", curved_tube(lower_teeth_pts, [0.015, 0.019, 0.020, 0.019, 0.015], sections=16)))
 
     for sx in (-1.0, 1.0):
-        parts.append(("eye_white", ellipsoid(0.028, 0.030, 0.024, center=(sx * 0.068, 0.96, 0.245))))
-        parts.append(("eye_dark", ellipsoid(0.016, 0.018, 0.016, center=(sx * 0.068, 0.96, 0.262))))
+        parts.append(("eye_white", ellipsoid(0.030, 0.032, 0.024, center=(sx * 0.068, 0.965, 0.245))))
+        parts.append(("eye_dark", ellipsoid(0.016, 0.018, 0.016, center=(sx * 0.068, 0.965, 0.262))))
+        # Cheeky raised comedy eyebrows
+        parts.append(("charcoal_mane", ellipsoid(0.036, 0.014, 0.018, center=(sx * 0.068, 1.008 + (0.012 if sx > 0 else 0.0), 0.242), rot_xyz=(0, 0, sx * 16))))
     for my, mz in ((0.70, 0.03), (0.78, 0.04), (0.86, 0.05), (0.95, 0.07), (1.02, 0.12)):
         parts.append(("charcoal_mane", ellipsoid(0.034, 0.052, 0.048, center=(0.0, my, mz), rot_xyz=(-25, 0, 0))))
 
@@ -871,11 +876,11 @@ def sculpt_rook_draghessa() -> list[tuple[str, trimesh.Trimesh]]:
     parts.append(("dragon_ruby", curved_tube(spine_pts, spine_r, sections=18)))
     parts.append(("dragon_emerald", curved_tube(belly_pts, belly_r, sections=16)))
 
-    # Golden dorsal spines seated along the dragon's spine
+    # Golden dorsal spines seated along the dragon's spine (onion_gold so they coil with the dragon!)
     for k in range(3, num_coil - 2, 3):
         px, py, pz = spine_pts[k]
         rr = spine_r[k]
-        parts.append(("faction_trim", ellipsoid(0.024, 0.036, 0.024, center=(px * 1.05, py + rr * 0.85, pz * 1.05))))
+        parts.append(("onion_gold", ellipsoid(0.024, 0.036, 0.024, center=(px * 1.05, py + rr * 0.85, pz * 1.05))))
 
     # Large Expressive Dragon Head (>= 0.22m long) with 2 Eyes + 2 Sweeping Golden Horns
     hx, hy, hz = (-0.17, 0.90, 0.18)
@@ -886,11 +891,11 @@ def sculpt_rook_draghessa() -> list[tuple[str, trimesh.Trimesh]]:
     for ex_off, ez_off in ((-0.055, 0.085), (0.085, 0.065)):
         parts.append(("amber_gem", ellipsoid(0.032, 0.034, 0.028, center=(hx + ex_off, hy + 0.025, hz + ez_off))))
         parts.append(("eye_dark", ellipsoid(0.018, 0.022, 0.018, center=(hx + ex_off * 1.05, hy + 0.025, hz + ez_off + 0.018))))
-    # 2 Sweeping Golden Horns
+    # 2 Sweeping Golden Horns (onion_gold so they coil with the dragon!)
     for hs in (-1.0, 1.0):
         parts.append(
             (
-                "faction_trim",
+                "onion_gold",
                 capsule_limb(
                     (hx + hs * 0.05, hy + 0.065, hz - 0.02),
                     (hx + hs * 0.09 - 0.06, hy + 0.165, hz - 0.10),
@@ -950,90 +955,71 @@ def sculpt_rook_draghessa() -> list[tuple[str, trimesh.Trimesh]]:
 
 
 def sculpt_pawn_tappo() -> list[tuple[str, trimesh.Trimesh]]:
-    """Pawn: Uomo Focaccina Ligure (0.95m) - Golden-baked Ligurian focaccia bread guard with
-    3 black Taggiasca olive buttons, green rosemary needles, split-peak focaccia cap with coarse
-    sea-salt crystals, plump cylindrical bread arms, and twisted sesame grissino breadstick staff.
+    """Pawn: Zenzy Pan di Zenzero & Focaccina all'Italiana (0.95m) - Spiced Italian gingerbread
+    cookie & golden focaccia warrior with white royal icing squiggles, glossy purple gumdrop
+    buttons, golden focaccia morion helmet with rosemary plume & Taggiasca olive crest, and a
+    red-and-white candy-cane striped grissino halberd!
     """
     parts = build_swamp_pedestal()
     body_parts: list[tuple[str, trimesh.Trimesh]] = []
 
+    # Gingerbread cookie legs + white royal icing cuffs
     for sx in (-1.0, 1.0):
-        body_parts.append(("focaccia_crust", capsule_limb((sx * 0.095, 0.215, 0.0), (sx * 0.095, 0.36, 0.0), 0.068, 0.072)))
+        body_parts.append(("focaccia_crust", capsule_limb((sx * 0.095, 0.215, 0.0), (sx * 0.095, 0.42, 0.0), 0.072, 0.076)))
+        body_parts.append(("eye_white", torus_ring(0.074, 0.016, center=(sx * 0.095, 0.30, 0.0))))
 
-    # Plump round focaccia bread torso (full depth in Z so side profile is round & chubby)
-    torso = ellipsoid(0.238, 0.252, 0.208, center=(0.0, 0.56, 0.0), subdivisions=3)
-    body_parts.append(("focaccia_crust", torso))
-    body_parts.append(("focaccia_crumb", ellipsoid(0.208, 0.212, 0.182, center=(0.0, 0.56, 0.038), subdivisions=2)))
+    # Spiced gingerbread torso + 2 large glossy purple gumdrop buttons
+    body_parts.append(("focaccia_crust", superellipsoid(0.225, 0.245, 0.145, center=(0.0, 0.60, 0.0), power=0.55, subdivisions=3)))
+    for by in (0.66, 0.52):
+        body_parts.append(("royal_plum", ellipsoid(0.048, 0.048, 0.036, center=(0.0, by, 0.145), subdivisions=2)))
+    # White royal icing waist belt
+    belt_pts = [(-0.18, 0.43, 0.11), (-0.09, 0.45, 0.142), (0.0, 0.42, 0.148), (0.09, 0.45, 0.142), (0.18, 0.43, 0.11)]
+    body_parts.append(("eye_white", curved_tube(belt_pts, [0.015, 0.018, 0.018, 0.018, 0.015], sections=14)))
 
-    for by, bz in ((0.65, 0.208), (0.55, 0.218), (0.45, 0.205)):
-        body_parts.append(("olive_black", ellipsoid(0.034, 0.044, 0.028, center=(0.0, by, bz), rot_xyz=(0, 0, 12))))
+    # Gingerbread cookie arms + white royal icing wrist squiggles
+    body_parts.append(("focaccia_crust", capsule_limb((0.20, 0.68, 0.01), (0.29, 0.56, 0.11), 0.068, 0.062)))
+    body_parts.append(("eye_white", torus_ring(0.064, 0.015, center=(0.26, 0.60, 0.08), tilt_deg=(35, 0, -35))))
+    body_parts.append(("focaccia_crust", capsule_limb((-0.20, 0.68, 0.01), (-0.28, 0.52, 0.09), 0.068, 0.062)))
+    body_parts.append(("eye_white", torus_ring(0.064, 0.015, center=(-0.25, 0.58, 0.06), tilt_deg=(35, 0, 35))))
 
-    rosemary_sprigs = [
-        ((-0.08, 0.63, 0.198), (-0.14, 0.67, 0.185)),
-        ((0.08, 0.59, 0.202), (0.14, 0.63, 0.190)),
-        ((-0.07, 0.49, 0.198), (-0.13, 0.52, 0.185)),
-        ((0.07, 0.48, 0.198), (0.13, 0.45, 0.185)),
-    ]
-    for p0, p1 in rosemary_sprigs:
-        body_parts.append(("rosemary_green", capsule_limb(p0, p1, 0.013, 0.006)))
-
-    # Thick cylindrical bread arms extending forward in Z
-    body_parts.append(("focaccia_crust", capsule_limb((0.20, 0.66, 0.01), (0.29, 0.55, 0.11), 0.066, 0.058)))
-    body_parts.append(("focaccia_crumb", ellipsoid(0.058, 0.056, 0.062, center=(0.29, 0.53, 0.12))))
-    body_parts.append(("focaccia_crust", capsule_limb((-0.20, 0.66, 0.01), (-0.28, 0.49, 0.09), 0.066, 0.058)))
-    body_parts.append(("focaccia_crumb", ellipsoid(0.058, 0.056, 0.062, center=(-0.28, 0.47, 0.10))))
-
-    body_parts.append(("focaccia_crumb", ellipsoid(0.205, 0.165, 0.185, center=(0.0, 0.87, 0.01), subdivisions=3)))
-    body_parts.append(("focaccia_crust", ellipsoid(0.034, 0.028, 0.034, center=(0.0, 0.87, 0.192))))
-    smile_pts = [(-0.055, 0.835, 0.182), (-0.025, 0.818, 0.192), (0.025, 0.818, 0.192), (0.055, 0.835, 0.182)]
-    body_parts.append(("linen_cream", curved_tube(smile_pts, [0.013, 0.015, 0.015, 0.013], sections=14)))
+    # Round Gingerbread Cookie Head + Fierce White Royal Icing Eyebrows & Smile + Glossy Eyes
+    body_parts.append(("focaccia_crust", ellipsoid(0.215, 0.195, 0.165, center=(0.0, 0.94, 0.01), subdivisions=3)))
+    smile_pts = [(-0.075, 0.895, 0.158), (-0.035, 0.872, 0.172), (0.035, 0.872, 0.172), (0.075, 0.895, 0.158)]
+    body_parts.append(("eye_white", curved_tube(smile_pts, [0.016, 0.020, 0.020, 0.016], sections=14)))
     for sx in (-1.0, 1.0):
-        body_parts.append(("olive_black", ellipsoid(0.025, 0.027, 0.022, center=(sx * 0.062, 0.895, 0.182))))
-        body_parts.append(("linen_cream", ellipsoid(0.038, 0.014, 0.018, center=(sx * 0.062, 0.938, 0.175), rot_xyz=(0, 0, -sx * 10))))
+        body_parts.append(("eye_white", ellipsoid(0.036, 0.038, 0.024, center=(sx * 0.072, 0.955, 0.158))))
+        body_parts.append(("olive_black", ellipsoid(0.022, 0.024, 0.020, center=(sx * 0.072, 0.955, 0.172))))
+        # Fierce determined icing eyebrows
+        body_parts.append(("eye_white", ellipsoid(0.048, 0.018, 0.022, center=(sx * 0.068, 1.015, 0.155), rot_xyz=(0, 0, -sx * 18))))
 
-    body_parts.append(("faction_trim", torus_ring(0.185, 0.018, center=(0.0, 0.99, 0.01))))
-    for sx in (-1.0, 1.0):
-        lobe_pts = [
-            (sx * 0.065, 0.99, 0.01),
-            (sx * 0.095, 1.14, 0.01),
-            (sx * 0.082, 1.30, 0.01),
-            (sx * 0.038, 1.44, 0.01),
-        ]
-        body_parts.append(("focaccia_crust", curved_tube(lobe_pts, [0.125, 0.135, 0.095, 0.018], sections=20)))
+    # Golden Baked Focaccia Crust Swiss-Guard Morion Helmet + Taggiasca Olive + Rosemary Plume
+    body_parts.append(("focaccia_crumb", torus_ring(0.215, 0.032, center=(0.0, 1.07, 0.01), tilt_deg=(-8, 0, 0))))
+    body_parts.append(("focaccia_crust", ellipsoid(0.198, 0.155, 0.185, center=(0.0, 1.16, 0.01), subdivisions=3)))
+    # Morion comb + glossy black Taggiasca olive crest in front
+    body_parts.append(("focaccia_crumb", ellipsoid(0.042, 0.105, 0.175, center=(0.0, 1.27, 0.01))))
+    body_parts.append(("olive_black", ellipsoid(0.038, 0.052, 0.036, center=(0.0, 1.15, 0.195))))
+    # Green Rosemary Sprig Plume at the top of the helmet (reaching 1.45m before Pawn scaling)
+    for dx, dy, dz in ((-0.04, 0.16, -0.02), (0.0, 0.19, 0.0), (0.04, 0.15, 0.02), (-0.02, 0.14, 0.04)):
+        body_parts.append(("rosemary_green", capsule_limb((0.0, 1.26, 0.01), (dx * 1.8, 1.26 + dy, 0.01 + dz), 0.020, 0.008)))
 
-    for leaf_dx, leaf_dy in ((-0.03, 0.14), (0.01, 0.16), (0.04, 0.12)):
-        body_parts.append(
-            (
-                "rosemary_green",
-                capsule_limb((-0.08, 1.05, 0.135), (-0.08 + leaf_dx, 1.05 + leaf_dy, 0.145), 0.014, 0.006),
-            )
-        )
-    for sc in ((0.08, 1.22, 0.11), (-0.09, 1.25, 0.10), (0.06, 1.31, 0.09), (-0.06, 1.16, 0.12)):
-        body_parts.append(("eye_white", ellipsoid(0.016, 0.016, 0.016, center=sc)))
+    # Candy-Cane Red-and-White Striped Halberd with Golden Grissino Breadstick Blade
+    body_parts.append(("eye_white", capsule_limb((0.285, 0.22, 0.11), (0.285, 1.38, 0.11), 0.030, 0.028)))
+    stripe_pts = []
+    stripe_r = []
+    for k in range(28):
+        t = k / 27.0
+        yk = 0.24 + t * 1.10
+        ang = t * 7.0 * math.pi
+        stripe_pts.append((0.285 + 0.026 * math.cos(ang), yk, 0.11 + 0.026 * math.sin(ang)))
+        stripe_r.append(0.014)
+    body_parts.append(("dragon_ruby", curved_tube(stripe_pts, stripe_r, sections=12)))
+    # Halberd crescent axe-blade + rosemary tip
+    body_parts.append(("focaccia_crumb", superellipsoid(0.095, 0.115, 0.024, center=(0.215, 1.24, 0.11), power=0.45)))
+    body_parts.append(("rosemary_green", capsule_limb((0.285, 1.35, 0.11), (0.285, 1.45, 0.11), 0.022, 0.007)))
 
-    # Twisted Golden Sesame Grissino Breadstick Staff
-    staff_pts = []
-    staff_r = []
-    for k in range(18):
-        t = k / 17.0
-        yk = 0.22 + t * (1.12 - 0.22)
-        twist_x = 0.295 + 0.015 * math.sin(t * 6.0 * math.pi)
-        twist_z = 0.11 + 0.015 * math.cos(t * 6.0 * math.pi)
-        staff_pts.append((twist_x, yk, twist_z))
-        staff_r.append(0.038)
-    for k in range(1, 16):
-        ang = -0.25 + (k / 15.0) * (1.80 * math.pi)
-        rad = 0.118 * (1.0 - 0.50 * (k / 15.0))
-        cx = 0.195 + rad * math.cos(ang)
-        cy = 1.23 + rad * math.sin(ang)
-        cz = 0.11
-        staff_pts.append((cx, cy, cz))
-        staff_r.append(0.038 * (1.0 - 0.30 * (k / 15.0)))
-    body_parts.append(("focaccia_crumb", curved_tube(staff_pts, staff_r, sections=16)))
-
-    # Scale Focaccina character proportionally from 1.45m down to 0.95m Pawn scale on the 0.215m pedestal
+    # Scale Zenzy character proportionally from 1.45m down to 0.95m Pawn scale on the 0.215m pedestal
     scale_y = (0.95 - 0.215) / (1.45 - 0.215)
-    scale_xz = 0.72
+    scale_xz = 0.74
     for mat_name, m in body_parts:
         m.vertices[:, 0] *= scale_xz
         m.vertices[:, 2] *= scale_xz

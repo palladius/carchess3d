@@ -262,10 +262,14 @@ function bootstrapCarChess3D() {
     ctx,
   });
 
-  // Hide Mode 1 3D pieces when Mode 2 WOW Turntable Inspector is active
+  // Hide Mode 1 3D pieces when Mode 2 WOW Turntable Inspector is active,
+  // but show them during CaptureCutscene or Arena submode so neighboring pieces frame the combat!
   bus.on('FLOW_STATE_CHANGED', (e) => {
-    if (e.to === FLOW_STATES.MODE2_WOW_ARENA) {
-      pieceView.rootGroup.visible = false;
+    if (e.to === FLOW_STATES.CAPTURE_CUTSCENE) {
+      pieceView.rootGroup.visible = true;
+      boardInteraction.rootGroup.visible = false;
+    } else if (e.to === FLOW_STATES.MODE2_WOW_ARENA) {
+      pieceView.rootGroup.visible = wowView.subMode === 'arena';
       boardInteraction.rootGroup.visible = false;
     } else if (e.to === FLOW_STATES.MODE1_CHESS) {
       pieceView.rootGroup.visible = true;
@@ -423,6 +427,12 @@ function bootstrapCarChess3D() {
   window.__CARCHESS__ = {
     bus,
     ctx,
+    flow,
+    board,
+    pieces,
+    drops,
+    combat,
+    ai,
     scene,
     camera,
     renderer,

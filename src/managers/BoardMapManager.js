@@ -231,6 +231,8 @@ export class BoardMapManager {
         type: 'CHECKMATE',
         winner: lastMove.color,
         loser: nextColor,
+        loserKingSquare: this.findKingSquare(nextColor),
+        winnerKingSquare: this.findKingSquare(lastMove.color),
         fen: this.fen(),
         pgn: this.pgn(),
       });
