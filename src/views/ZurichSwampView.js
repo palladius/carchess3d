@@ -181,6 +181,7 @@ export class ZurichSwampView {
     const islandMesh = new THREE.Mesh(islandGeo, islandMat);
     islandMesh.receiveShadow = true;
     altarGroup.add(islandMesh);
+    this.islandMesh = islandMesh;
 
     // Carved dark stone altar border (9.6m x 9.6m, depth y = -0.65m .. 0.0m)
     const foundationGeo = new THREE.BoxGeometry(9.6, 0.58, 9.6);
@@ -200,6 +201,7 @@ export class ZurichSwampView {
     foundationMesh.receiveShadow = true;
     foundationMesh.castShadow = true;
     altarGroup.add(foundationMesh);
+    this.foundationMesh = foundationMesh;
 
     // 4 Carved Rune Border Rim Beams (0.8m wide around the 8.0m x 8.0m board, top at y = 0.0m)
     const topRuneTexH = this.createBorderTopTexture('horizontal');
@@ -224,6 +226,10 @@ export class ZurichSwampView {
       emissiveIntensity: 0.65,
     });
     this.runeMaterials.push(borderMatH, borderMatV);
+    this.borderMatH = borderMatH;
+    this.borderMatV = borderMatV;
+
+    this.altarBorderMeshes = [];
 
     // North & South rims (9.6m x 0.08m x 0.8m, centered at z = ±4.4m, top at y = 0.0m)
     const nsGeo = new THREE.BoxGeometry(9.6, 0.08, 0.8);
@@ -233,6 +239,7 @@ export class ZurichSwampView {
       rim.position.set(0, 0, zPos);
       rim.receiveShadow = true;
       altarGroup.add(rim);
+      this.altarBorderMeshes.push(rim);
     }
 
     // West & East rims (0.8m x 0.08m x 8.0m, centered at x = ±4.4m, top at y = 0.0m)
@@ -243,6 +250,7 @@ export class ZurichSwampView {
       rim.position.set(xPos, 0, 0);
       rim.receiveShadow = true;
       altarGroup.add(rim);
+      this.altarBorderMeshes.push(rim);
     }
 
     // Outer Golden Bevel Molding framing the 8.0m x 8.0m board & 9.6m x 9.6m altar
@@ -261,6 +269,7 @@ export class ZurichSwampView {
       roughness: 0.82,
       metalness: 0.08,
     });
+    this.mossStoneMat = mossStoneMat;
     const cornerOffsets = [
       [-4.65, -4.65],
       [4.65, -4.65],
@@ -275,12 +284,14 @@ export class ZurichSwampView {
       cornerStone.receiveShadow = true;
       cornerStone.castShadow = true;
       altarGroup.add(cornerStone);
+      this.altarBorderMeshes.push(cornerStone);
 
       // Golden corner cap medallion at y = 0.015m
       const capGeo = new THREE.CylinderGeometry(0.22, 0.26, 0.03, 8);
       const cap = new THREE.Mesh(capGeo, goldTrimMat);
       cap.position.set(cx, 0.015, cz);
       altarGroup.add(cap);
+      this.altarBorderMeshes.push(cap);
     }
 
     // Marble textures for light & dark squares
@@ -1033,8 +1044,10 @@ export class ZurichSwampView {
 
   /**
    * During combat (`BATTLE_STARTED`), hides the surrounding 3D world clutter (skyline, Alps,
-   * swamp moat, fireflies, corner braziers, sky dome) so ONLY the 8x8 Chessboard (`CarvedStoneAltar`),
-   * the 3D chess pieces, and the giant fullscreen-filling 16:9 Veo Cinema Screen remain visible!
+   * swamp moat, fireflies, corner braziers, sky dome) and switches the 8x8 Chessboard (`CarvedStoneAltar`)
+   * to 50% translucency (`alpha = 0.50`) while hiding the solid stone foundation beneath it,
+   * so the enlarged 16:9 Veo Cinema Video shines through the translucent board while 3D characters
+   * remain 100% opaque on top!
    * @param {boolean} active
    */
   setCombatCinemaMode(active) {
@@ -1052,6 +1065,62 @@ export class ZurichSwampView {
       } else {
         child.visible = !active;
       }
+    }
+
+    // Hide solid under-board foundation, island, and outer chunky stone border rims during combat
+    // so only the 64 black & white chessboard squares float at 50% translucency over the Veo video!
+    if (this.islandMesh) this.islandMesh.visible = !active;
+    if (this.foundationMesh) this.foundationMesh.visible = !active;
+    if (this.altarBorderMeshes) {
+      for (const m of this.altarBorderMeshes) {
+        m.visible = !active;
+      }
+    }
+
+    let defaultAlpha = 0.10; // 90% transparent ("che si veda appena")
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const q = new URLSearchParams(window.location.search).get('boardAlpha');
+      if (q !== null && Number.isFinite(Number(q))) {
+        defaultAlpha = Math.max(0.02, Math.min(1.0, Number(q)));
+      }
+    }
+    const alpha = active
+      ? Number.isFinite(this.combatBoardAlpha)
+        ? this.combatBoardAlpha
+        : defaultAlpha
+      : 1.0;
+    this._applyAltarTranslucency(active && alpha < 0.999, alpha);
+  }
+
+  /**
+   * Dynamically updates the chessboard alpha channel during combat (e.g., `0.10` for 90% transparency).
+   * @param {number} alpha
+   */
+  setCombatBoardAlpha(alpha = 0.10) {
+    this.combatBoardAlpha = Math.max(0.02, Math.min(1.0, Number(alpha) || 0.10));
+    if (this.inCombatCinemaMode) {
+      this._applyAltarTranslucency(this.combatBoardAlpha < 0.999, this.combatBoardAlpha);
+    }
+  }
+
+  _applyAltarTranslucency(translucent, opacity) {
+    for (const sqMesh of this.squareMeshes) {
+      sqMesh.scale.y = translucent ? 0.02 : 1.0;
+      const mat = sqMesh.material;
+      if (!mat) continue;
+      const isLight = Boolean(sqMesh.userData?.isLight);
+      mat.transparent = translucent;
+      mat.opacity = opacity;
+      mat.roughness = translucent ? 0.85 : isLight ? 0.28 : 0.22;
+      mat.depthWrite = !translucent;
+      mat.needsUpdate = true;
+    }
+    for (const mat of [this.goldTrimMat, this.borderMatH, this.borderMatV, this.mossStoneMat]) {
+      if (!mat) continue;
+      mat.transparent = translucent;
+      mat.opacity = translucent ? Math.min(1.0, opacity * 1.6) : 1.0;
+      mat.depthWrite = !translucent;
+      mat.needsUpdate = true;
     }
   }
 

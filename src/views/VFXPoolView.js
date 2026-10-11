@@ -2827,28 +2827,37 @@ export class VFXPoolView {
       this.camera.lookAt(desiredTarget);
     }
 
-    // Align the 16:9 Veo Cinema Mirror behind the altar along the camera sightline so 100% of the video
-    // is visible in the upper half of the frame from ANY camera direction without cutting into the board!
+    // Align the 16:9 Veo Cinema Mirror behind the entire 9.6m x 9.6m altar along the camera sightline.
+    // Because the chessboard is 50% translucent during combat, the enlarged video (+22% by default,
+    // configurable via `this.combatVideoBoost` or `?videoBoost=1.22`) extends down behind the board
+    // and shines through the translucent black & white tiles while 3D pieces stay 100% opaque!
     const mirrorRoot = this.scene?.getObjectByName?.('VeoMagicCinemaMirror');
     if (mirrorRoot) {
-      let backdropDist = 4.8;
-      while (
-        backdropDist < 9.5 &&
-        Math.abs(focusX - dirX * backdropDist) < 5.15 &&
-        Math.abs(focusZ - dirZ * backdropDist) < 5.15
-      ) {
-        backdropDist += 0.25;
+      const maxAltarCornerDist =
+        Math.abs(4.8 * dirX) + Math.abs(4.8 * dirZ) + focusX * dirX + focusZ * dirZ;
+      const backdropDist = Math.max(5.6, maxAltarCornerDist + 0.65);
+
+      let defaultBoost = 1.75; // Cinema XXL (+75%, covers the entire 90%-transparent chessboard underneath!)
+      if (typeof window !== 'undefined' && window.location?.search) {
+        const qb = new URLSearchParams(window.location.search).get('videoBoost');
+        if (qb !== null && Number.isFinite(Number(qb))) {
+          defaultBoost = Math.max(0.8, Math.min(2.5, Number(qb)));
+        }
       }
+      const videoBoost = Number.isFinite(this.combatVideoBoost)
+        ? this.combatVideoBoost
+        : defaultBoost;
+
       const mirrorX = focusX - dirX * backdropDist;
       const mirrorZ = focusZ - dirZ * backdropDist;
       const dMirror = dist + backdropDist;
       const halfTan = Math.tan((targetFov * 0.5 * Math.PI) / 180);
       const hHalf = dMirror * halfTan;
       const rayCenterY = camY + ((targetY - camY) / dist) * dMirror;
-      const yBottom = Math.max(0.18, rayCenterY - 0.14 * hHalf);
-      const yTopFrame = rayCenterY + 0.64 * hHalf;
-      const mirrorScale = Math.max(0.52, Math.min(1.05, (yTopFrame - yBottom) / 5.1));
-      const mirrorY = yBottom + 2.55 * mirrorScale;
+      const yTopFrame = rayCenterY + 0.66 * hHalf;
+      const frameSpanH = 0.78 * hHalf * videoBoost;
+      const mirrorScale = Math.max(0.52, Math.min(2.20, frameSpanH / 5.1));
+      const mirrorY = yTopFrame - 2.55 * mirrorScale;
 
       mirrorRoot.position.set(mirrorX, mirrorY, mirrorZ);
       mirrorRoot.scale.setScalar(mirrorScale);
