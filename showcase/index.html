@@ -303,32 +303,33 @@
         details: 'Mix comico tra il Gatto con gli Stivali, Zorro e un Vescovo solenne: mascherina da bandito sugli occhioni verdi, mitra papale nera e oro con croce rubino e piuma di struzzo gialla, mantello nero con medaglione Z, stivaloni e spada-pastorale.',
       },
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.0 · 🟡 3D 7.4',
-        glyph: '♘', piece: 'Knight (1.35m)', name: 'Asinello Chiacchierone (knight-swamp-asinello)', winner: true, defaultConfirmed: true,
-        tagline: 'Destriero asinello baio maculato con ghigno furbo, sella da torneo e scudo-cipolla',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.5 · 🟡 3D 7.4',
+        glyph: '♘', piece: 'Knight (1.35m)', name: 'Asinello Chiacchierone — Sorrisone a 40 Denti! (knight-swamp-asinello)', winner: true, defaultConfirmed: true,
+        tagline: 'Asinello comico stile Eddie Murphy con SORRISONE ASSURDO A 40 DENTI che ti conquista, sopracciglio alzato e gualdrappa da torneo',
         front: '../assets/characters/knight-swamp-asinello.jpg',
+        back: '../assets/characters/knight-swamp-asinello-2.jpg',
         model: '../assets/models/swamp/knight-swamp-asinello.glb',
         modelNote: '16,120 tris · watertight · min.y = 0.0 · 1.35m · attacco: asinello_back_kick',
-        details: 'Simpatico asinello castano maculato con orecchie dritte, sella in quercia e oro, gualdrappa cremisi, pennacchio e brocchiero-cipolla.',
+        details: 'Asinello parlante carismatico con un sorrisone smagliante a 40 denti bianchi non negoziabile, orecchie lunghe dritte e gualdrappa medievale.',
       },
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 8.8 · 🟡 3D 7.6',
-        glyph: '♖', piece: 'Rook (1.30m)', name: 'Draghessa della Palude (rook-swamp-draghessa)', defaultConfirmed: true,
-        tagline: 'Torre muschiosa a 6 merli abbracciata dalla draghessa rubino/smeraldo con coda a cuore',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.2 · 🟢 3D Animato',
+        glyph: '♖', piece: 'Rook (1.30m)', name: 'Draghessa della Palude — Spire Inesorabili (rook-swamp-draghessa)', winner: true, defaultConfirmed: true,
+        tagline: 'Torre muschiosa a 6 merli con la Draghessa rubino/smeraldo in PERENNE MOVIMENTO LENTO E INESORABILE attorno alla torre!',
         front: '../assets/characters/rook-swamp-draghessa.jpg',
         model: '../assets/models/swamp/rook-swamp-draghessa.glb',
-        modelNote: '20,824 tris · watertight · min.y = 0.0 · 1.30m · attacco: dragon_heart_smoke',
-        details: 'Torre di guardia in pietra muschiosa avvolta da una draghessa rubino con pancia smeraldo, corna dorate, ali spiegate e punta della coda a cuore.',
+        modelNote: '20,824 tris · Spire 3D animate in movimento perpetuo · min.y = 0.0 · 1.30m · attacco: dragon_heart_smoke',
+        details: 'Torre di guardia in pietra muschiosa avvolta da una draghessa rubino che striscia e si attorciglia lentamente ma inesorabilmente attorno alla torre.',
       },
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.2 · 🟢 3D 8.5',
-        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Uomo Focaccina Ligure (pawn-swamp-focaccina)', winner: true, defaultConfirmed: true,
-        tagline: 'Pedone di focaccia ligure dorata con olive taggiasche, aghi di rosmarino e bastone di grissino al sesamo (alt: I 3 Porcellini & Zenzy)',
-        front: '../assets/characters/pawn-swamp-focaccina.jpg',
-        back: '../assets/characters/pawn-swamp-porcellini.jpg',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.5 · 🟢 3D 8.6',
+        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Zenzy Pan di Zenzero & Focaccina all’Italiana (pawn-swamp-zenzy)', winner: true, defaultConfirmed: true,
+        tagline: 'Pedone omino di pan di zenzero e focaccina con elmo morione al rosmarino, bottoni gommosi viola e alabarda bastoncino di zucchero/grissino!',
+        front: '../assets/characters/pawn-swamp-zenzy.jpg',
+        back: '../assets/characters/pawn-swamp-focaccina.jpg',
         model: '../assets/models/swamp/pawn-swamp-tappo.glb',
-        modelNote: 'TRELLIS.2 / 3D mesh · min.y = 0.0 · 0.95m · attacco: decree_scroll_flatten',
-        details: 'Promosso a Pedone per acclamazione! Focaccina ligure appena sfornata con 3 bottoni di oliva nera taggiasca, rosmarino e bastone grissino (con varianti alternative I 3 Porcellini e Zenzy).',
+        modelNote: 'min.y = 0.0 · 0.95m · attacco: decree_scroll_flatten',
+        details: 'Scelto da Riccardo (Variante C): Zenzy Pan di Zenzero & Focaccina all’Italiana con glassa reale bianca, bottoni gommosi viola, elmo di crosta dorata con piuma di rosmarino e oliva taggiasca, e alabarda candy-cane!',
       },
     ];
 
@@ -443,10 +444,16 @@
       const view = {
         pane, renderer, scene, camera, slots, n: models.length, radii: [], maxR: MAX_RADIUS, angle: 0,
         visible: false, dragging: false, lastX: 0, downX: 0, idleAt: 0, factionMaterials: [],
+        uDragonTime: { value: 0 }, hasDragonCoil: false,
       };
+
+      const DRAGON_COIL_MATS = new Set([
+        'dragon_ruby', 'dragon_emerald', 'amber_gem', 'eye_dark', 'onion_gold',
+      ]);
 
       models.forEach((m, k) => loader.load(m.url, (gltf) => {
         const obj = gltf.scene;
+        const isDraghessaUrl = String(m.url || '').includes('rook-swamp-draghessa');
         obj.traverse((node) => {
           if (node.isMesh && node.material) {
             const mats = Array.isArray(node.material) ? node.material : [node.material];
@@ -466,6 +473,57 @@
                   slot: 'fallback',
                   origColor: mat.color.clone(),
                 });
+              }
+              if (isDraghessaUrl && (DRAGON_COIL_MATS.has(mat.name) || mat.map)) {
+                const coilMode = DRAGON_COIL_MATS.has(mat.name) ? 1.0 : 2.0;
+                view.hasDragonCoil = true;
+                mat.customProgramCacheKey = () => `showcase_draghessa_coil_${coilMode}`;
+                mat.onBeforeCompile = (shader) => {
+                  shader.uniforms.uDragonTime = view.uDragonTime;
+                  shader.uniforms.uDragonCoilMode = { value: coilMode };
+                  shader.vertexShader =
+                    `uniform float uDragonTime;\nuniform float uDragonCoilMode;\n` +
+                    shader.vertexShader
+                      .replace(
+                        '#include <beginnormal_vertex>',
+                        `#include <beginnormal_vertex>
+if (uDragonCoilMode > 0.5) {
+  float normYN = clamp(position.y / 1.30, 0.0, 1.0);
+  float dMaskN = (uDragonCoilMode < 1.5)
+    ? 1.0
+    : (smoothstep(0.11, 0.175, length(position.xz)) * smoothstep(0.16, 0.25, normYN) * smoothstep(0.95, 0.82, normYN));
+  float coilThetaN = (uDragonTime * 0.68 + sin(uDragonTime * 1.15 - normYN * 5.2) * 0.34) * dMaskN;
+  float cN = cos(coilThetaN);
+  float sN = sin(coilThetaN);
+  objectNormal = vec3(
+    objectNormal.x * cN - objectNormal.z * sN,
+    objectNormal.y,
+    objectNormal.x * sN + objectNormal.z * cN
+  );
+}`,
+                      )
+                      .replace(
+                        '#include <begin_vertex>',
+                        `#include <begin_vertex>
+if (uDragonCoilMode > 0.5) {
+  float normY = clamp(position.y / 1.30, 0.0, 1.0);
+  float dMask = (uDragonCoilMode < 1.5)
+    ? 1.0
+    : (smoothstep(0.11, 0.175, length(position.xz)) * smoothstep(0.16, 0.25, normY) * smoothstep(0.95, 0.82, normY));
+  float coilTheta = (uDragonTime * 0.68 + sin(uDragonTime * 1.15 - normY * 5.2) * 0.34) * dMask;
+  float constrictR = 1.0 + sin(uDragonTime * 1.85 - normY * 4.2) * 0.065 * dMask;
+  float slitherY = sin(uDragonTime * 1.45 - normY * 6.0) * 0.045 * dMask;
+  float cT = cos(coilTheta);
+  float sT = sin(coilTheta);
+  float rx = (transformed.x * cT - transformed.z * sT) * constrictR;
+  float rz = (transformed.x * sT + transformed.z * cT) * constrictR;
+  transformed.x = rx;
+  transformed.z = rz;
+  transformed.y += slitherY;
+}`,
+                      );
+                };
+                mat.needsUpdate = true;
               }
             });
           }
@@ -585,9 +643,11 @@
     function tick() {
       const dt = clock.getDelta();
       const now = performance.now();
+      const elapsedSec = now * 0.001;
       for (const v of viewList) {
         if (!v.visible && document.fullscreenElement !== v.pane) continue;
-        if (!v.dragging && now - v.idleAt > 1500) v.angle += dt * 0.6;
+        if (v.hasDragonCoil) v.uDragonTime.value = elapsedSec;
+        if (!v.dragging && now - v.idleAt > 1500) v.angle += dt * (v.hasDragonCoil ? 0.22 : 0.6);
         v.slots.forEach((g) => { g.rotation.y = v.angle; });
         v.renderer.render(v.scene, v.camera);
       }
@@ -597,7 +657,7 @@
   </script>
 
   <footer style="text-align:center;padding:24px 16px 40px;color:#90a4ae;font-size:12px;border-top:1px solid rgba(255,213,79,0.2);margin-top:40px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
-    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.4</span>
+    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.7</span>
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener noreferrer" style="color:#9be7c4;text-decoration:none;font-weight:600;">🐙 GitHub Code</a>
     <span>·</span>

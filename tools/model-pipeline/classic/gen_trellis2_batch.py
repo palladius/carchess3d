@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["gradio_client>=1.3.0", "pygltflib>=1.16.0", "numpy>=1.24.0", "pillow>=10.0.0"]
+# ///
 """Batch Image-to-3D GLB generator using microsoft/TRELLIS.2 for Classic & Swamp families.
 
 Features:
@@ -47,7 +51,7 @@ SWAMP_PIECES = [
     ("bishop", "bishop-swamp-focaccina", 1.45, "assets/characters/bishop-swamp-gatto.jpg", "assets/models/swamp/bishop-swamp-focaccina.glb"),
     ("knight", "knight-swamp-asinello", 1.35, "assets/characters/knight-swamp-asinello.jpg", "assets/models/swamp/knight-swamp-asinello.glb"),
     ("rook", "rook-swamp-draghessa", 1.30, "assets/characters/rook-swamp-draghessa.jpg", "assets/models/swamp/rook-swamp-draghessa.glb"),
-    ("pawn", "pawn-swamp-tappo", 0.95, "assets/characters/pawn-swamp-focaccina.jpg", "assets/models/swamp/pawn-swamp-tappo.glb"),
+    ("pawn", "pawn-swamp-tappo", 0.95, "assets/characters/pawn-swamp-zenzy.jpg", "assets/models/swamp/pawn-swamp-tappo.glb"),
 ]
 
 

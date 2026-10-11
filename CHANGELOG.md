@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.7] - 2026-10-11
+
+- 😁🦷🐴 **Asinello Chiacchierone (`Knight`, `1.35m`) — Sorrisone Assurdo a 40 Denti (`tools/model-pipeline/swamp/gen_asinello_40teeth.py`, `assets/characters/knight-swamp-asinello.jpg`, `assets/characters/knight-swamp-asinello-2.jpg`)**:
+  - Regenerated the Swamp Knight in two expressive comedy variants featuring a non-negotiable, ear-to-ear **40-tooth sparkling white grin**, raised cheeky eyebrow, crimson-and-gold tournament collar, and golden onion shoulder medallion, and updated the watertight 3D `.glb` mesh (`assets/models/swamp/knight-swamp-asinello.glb`, `18,288 tris`, `1.35m`).
+- 🍪🌿🫒 **Zenzy Pan di Zenzero & Focaccina all'Italiana Promoted to Official Swamp Pawn (`Pawn`, `0.95m`)**:
+  - Promoted Variant C (`assets/characters/pawn-swamp-zenzy.jpg` → `assets/characters/pawn-swamp-tappo.jpg`) to the primary Swamp Pawn across `SWAMP_REGISTRY`, `assets/families/swamp.json`, `showcase/index.html`, and `tools/model-pipeline/classic/gen_trellis2_batch.py`, and sculpted its 3D `.glb` (`assets/models/swamp/pawn-swamp-tappo.glb`, `17,068 tris`, `0.95m`) with white royal icing cuffs, purple gumdrop buttons, rosemary-focaccia morion helmet with Taggiasca olive crest, and candy-cane striped grissino halberd.
+- 🐉🏰 **Perpetual 3D Helical Dragon Coiling on `Draghessa della Palude` (`src/views/PieceView.js`, `showcase/index.html`, `tools/model-pipeline/swamp/build_swamp_models.py`)**:
+  - Upgraded `injectLocomotionShader` in `src/views/PieceView.js` and `makeView` in `showcase/index.html` (`uDragonCoilMode`) so the ruby-and-emerald Dragon on `rook-swamp-draghessa.glb` perpetually slithers, rotates, and constricts in a slow, inexorable 3D helical motion around the stationary mossy stone watchtower!
+- 🧊🖥️ **GitHub Issue #20 for `pupurabbux` Home GPU TRELLIS.2 Batch Reconstruction (`tools/model-pipeline/classic/gen_trellis2_batch.py`)**:
+  - Added PEP 723 inline `uv` script dependencies to `tools/model-pipeline/classic/gen_trellis2_batch.py` and filed [GHI #20](https://github.com/palladius/carchess3d/issues/20) so `pupurabbux` can reconstruct all 11 remaining high-res UV-textured Classic & Swamp `.glb` models in one command (`uv run tools/model-pipeline/classic/gen_trellis2_batch.py --family all`).
+
 ## [0.3.6] - 2026-10-11
 
 - 🐱🎭⛪ **Swamp Family Lineup Upgrade: Don Gatto Zorro-Vescovo (`Bishop`, `1.45m`) & Uomo Focaccina Ligure (`Pawn`, `0.95m`)**:
