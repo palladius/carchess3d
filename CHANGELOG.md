@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.19] - 2026-10-11
+
+- 🔄🐴 **Showcase 3D GLB Cache-Busting (`showcase/index.html`, `sw.js`)**:
+  - Added `?v=0.3.19` cache-busting query strings to `knight-classic-cavallo.glb` and the Swamp Family `.glb` models in [`showcase/index.html`](showcase/index.html) and bumped `CACHE_NAME` to `carchess3d-offline-v11` in [`sw.js`](sw.js) so browsers immediately render the rotating `22,080`-triangle UV-textured Destriero Classico without stale cache hits.
+
 ## [0.3.18] - 2026-10-11
 
 - 🐴🗿✨ **Destriero Classico (`knight-classic-cavallo.glb`) — High-Resolution Dual-Orthographic 3D Reconstruction & Seamless `1024×1024` UV Texture Atlas (`tools/model-pipeline/classic/reconstruct_knight_3d.py`)**:
