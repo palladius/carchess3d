@@ -410,6 +410,12 @@ function bootstrapCarChess3D() {
   window.__CARCHESS__ = {
     bus,
     ctx,
+    flow,
+    board,
+    pieces,
+    drops,
+    combat,
+    ai,
     scene,
     camera,
     renderer,
