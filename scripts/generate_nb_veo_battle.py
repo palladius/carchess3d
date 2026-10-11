@@ -404,6 +404,33 @@ CUSTOM_PAIR_PROMPTS = {
             "golden throne spinning off the board into the emerald swamp moat while Queen Kate bows victoriously!"
         ),
     },
+    "b_x_q": {
+        "nb_prompt": (
+            "Look at the reference images: Image 1 is the LEFT character (Bishop Ale, a cheerful boy in blue-and-gold "
+            "bishop robes and mitre hat with a cute small red dragon on his shoulder). Image 2 is the RIGHT character "
+            "(his mom Queen Kate, with blonde wavy hair, dark-blue glasses, golden crown, and purple velvet gown). "
+            "Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D battle frame "
+            "on an enchanted chessboard at twilight inspired by Saint Seiya ('Cavalieri dello Zodiaco' Amethyst/Tanzanite "
+            "Coffin). On the LEFT, Bishop Ale raises his glowing crystal wand as his small red shoulder dragon spreads "
+            "its wings, projecting a dazzling beam of pleochroic TANZANITE crystal magic — a rich blend of royal "
+            "blue-violet and luminous azure-blue reflections! On the RIGHT, Queen Kate is safely petrified and "
+            "suspended DEEP INSIDE and BEHIND the thick translucent blue-violet and azure-blue front crystal wall of "
+            "an intact, towering hexagonal Tanzanite Crystal Case ('Teca di Tanzanite') as the crystal case slides "
+            "gently toward the emerald swamp moat. Seamless 16:9 scene, no text."
+        ),
+        "veo_prompt": (
+            "3D Pixar Saint Seiya-style magical chess scene with sound effects: (0s-2.5s) On the left of the chessboard, "
+            "Bishop Ale raises his glowing wand and shouts 'Per la Sacra Teca di Tanzanite!' as a dazzling beam of "
+            "pleochroic blue-violet and electric azure-blue Tanzanite crystal light swirls around his mom Queen Kate "
+            "standing freely on the right. (2.5s-5.5s) A towering, translucent hexagonal Saint Seiya-style Tanzanite "
+            "Crystal Case ('Teca di Tanzanite') glowing with both deep purple-violet and vivid azure-blue reflections "
+            "crystallizes around Queen Kate, who remains safely petrified and clearly visible deep inside behind the "
+            "refractive blue-violet crystal facets for two seconds. (5.5s-8.0s) Because Ale loves his mom and would "
+            "never hurt her, he does not shatter the crystal; instead, he gently nudges the intact glowing blue-violet "
+            "and azure Tanzanite crystal case (with Queen Kate still safely inside it!) off the right edge of the "
+            "board so the intact Tanzanite Teca splashes and floats in the emerald swamp moat while Ale waves warmly!"
+        ),
+    },
 }
 
 

@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.26';
+export const APP_VERSION = '0.3.27';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -529,6 +529,16 @@ function buildBattleMatrix() {
     banner: {
       it: 'SACRO ACQUARIUS! SEBY CONGELA PUFFIN NELLA TECA DI GHIACCIO! ♒❄️💎',
       en: 'SACRED AQUARIUS! SEBY FREEZES PUFFIN IN THE ICE COFFIN! ♒❄️💎',
+    },
+  };
+
+  // Easter Egg #4b: Ale (b) -> Mom Queen Kate (q): "Teca Sacra di Tanzanite Blu-Viola" 💎💙💜
+  matrix.b.q = {
+    ...matrix.b.q,
+    easterEgg: 'ale_tanzanite_coffin_for_mom',
+    banner: {
+      it: 'TECA DI TANZANITE BLU-VIOLA! MAMMA KATE BLOCCATA NEL CRISTALLO! 💎💙💜',
+      en: 'BLUE-VIOLET TANZANITE CASE! MOM KATE SAFELY LOCKED IN CRYSTAL! 💎💙💜',
     },
   };
 

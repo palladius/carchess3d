@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.27] - 2026-10-11
+
+- 💎💙💜🐉 **`b_x_q` Alfiere Ale vs Regina Kate — *"Teca Sacra di Tanzanite Blu-Viola"* alla Cavalieri dello Zodiaco (`assets/battles/videos/b_x_q.mp4`, `assets/battles/keyframes/b_x_q_{start,end}.png`, `BattleMatrix36.js`, `Registry.js`, `VFXPoolView.js`, `video_audit.yaml`, `docs/spec/SPEC.md`)**:
+  - **Saint Seiya Tanzanite Crystal Case (`firstFrame` + `lastFrame` Veo 3.1)**:
+    - **`b_x_q_start.png` (`t = 0.0s`)**: Bishop Ale raises his glowing crystal wand with his red shoulder dragon, projecting a swirling ribbon of pleochroic **blue-violet and electric azure-blue Tanzanite** light around Queen Kate standing freely on the right.
+    - **`b_x_q_end.png` & `b_x_q.mp4` (`t = 2.5s..8.0s`)**: A towering translucent hexagonal **Tanzanite Crystal Case (`Teca di Tanzanite`)** glowing with both deep purple-violet and vivid azure-blue reflections crystallizes around Mamma Kate, holding her safely petrified inside for two seconds before Ale gently slides the intact Tanzanite Teca into the emerald swamp moat while waving affectionately (because Ale would never hurt his mom!).
+  - **Archived `b_x_q_v1` in [`assets/battles/archive/videos/b_x_q_v1_shield_shatter_no_tanzanite_coffin.mp4`](assets/battles/archive/videos/b_x_q_v1_shield_shatter_no_tanzanite_coffin.mp4)** and documented both versions in [`assets/battles/video_audit.yaml`](assets/battles/video_audit.yaml).
+  - **3D In-Game Choreography (`VFXPoolView.js`, `Registry.js`, `BattleMatrix36.js`)**: Added `ale_tanzanite_coffin_for_mom` Easter Egg so the 3D `crystalCase` shimmers between royal blue-violet (`0x5e35b1`) and electric azure-blue (`0x00b0ff`) and carries Queen Kate intact into the swamp.
+
 ## [0.3.26] - 2026-10-11
 
 - 🎬🕵️‍♂️🏆 **Full 36-Video Adversarial Critic Audit, Veo 3.1 `firstFrame` + `lastFrame` Regeneration & Historical Video Archive (`assets/battles/video_audit.yaml`, `assets/battles/archive/`, `assets/battles/videos/`, `assets/battles/keyframes/`, `docs/spec/SPEC.md`)**:
