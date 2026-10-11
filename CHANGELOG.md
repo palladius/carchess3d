@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.27] - 2026-10-11
+## [0.3.28] - 2026-10-11
 
 - 💎💙💜🐉 **`b_x_q` Alfiere Ale vs Regina Kate — *"Teca Sacra di Tanzanite Blu-Viola"* alla Cavalieri dello Zodiaco (`assets/battles/videos/b_x_q.mp4`, `assets/battles/keyframes/b_x_q_{start,end}.png`, `BattleMatrix36.js`, `Registry.js`, `VFXPoolView.js`, `video_audit.yaml`, `docs/spec/SPEC.md`)**:
   - **Saint Seiya Tanzanite Crystal Case (`firstFrame` + `lastFrame` Veo 3.1)**:
@@ -8,6 +8,17 @@
     - **`b_x_q_end.png` & `b_x_q.mp4` (`t = 2.5s..8.0s`)**: A towering translucent hexagonal **Tanzanite Crystal Case (`Teca di Tanzanite`)** glowing with both deep purple-violet and vivid azure-blue reflections crystallizes around Mamma Kate, holding her safely petrified inside for two seconds before Ale gently slides the intact Tanzanite Teca into the emerald swamp moat while waving affectionately (because Ale would never hurt his mom!).
   - **Archived `b_x_q_v1` in [`assets/battles/archive/videos/b_x_q_v1_shield_shatter_no_tanzanite_coffin.mp4`](assets/battles/archive/videos/b_x_q_v1_shield_shatter_no_tanzanite_coffin.mp4)** and documented both versions in [`assets/battles/video_audit.yaml`](assets/battles/video_audit.yaml).
   - **3D In-Game Choreography (`VFXPoolView.js`, `Registry.js`, `BattleMatrix36.js`)**: Added `ale_tanzanite_coffin_for_mom` Easter Egg so the 3D `crystalCase` shimmers between royal blue-violet (`0x5e35b1`) and electric azure-blue (`0x00b0ff`) and carries Queen Kate intact into the swamp.
+
+## [0.3.27] - 2026-10-11
+
+- 📱✨♟️ **Mobile Simplified UX ("Easy Adopter" Mode for Pixel 10 & Smartphones — Desktop & iPad 100% Untouched) (`HudListener.js`, `Registry.js`, `BoardInteractionView.js`, `VFXPoolView.js`, `main.js`, `index.html`, `manifest.webmanifest`, `docs/spec/SPEC.md`)**:
+  - **Mobile Phone Detection (`isMobilePhoneViewport`)**: Activates exclusively on smartphone viewports (`shortSide < 600 && longSide <= 1024`, or `?mobile=1`, disabled with `?desktop=1`/`?mobile=0`), keeping Desktop and iPad/Tablet (`768×1024+`) 100% identical to before.
+  - **Fixed Mobile Touch & Scroll Blockers (`index.html`, `BoardInteractionView.js`)**:
+    - Moved `touch-action: none` from `html, body` to `canvas#game-canvas` and added `touch-action: pan-y` on modal cards so mobile Chrome/Safari never freezes touch scrolling inside modals.
+    - Increased touch-tap tolerance from `8px` to `18px` (`event.pointerType === 'touch' ? 18 : 8`) and added a multi-touch pinch guard (`activePointers`) so thumb taps on high-DPI phones (e.g., Pixel 10) select and move squares reliably on the first tap.
+  - **Portrait ➔ Landscape Friendly Prompt (`#hud-rotate-overlay`)**: When held vertically (`isPortraitOrientation`), displays a friendly `"Rotate your phone to Landscape 🔄📱"` card for 16:9 battle movies and full-width board framing, with a `"📱 Play in vertical anyway →"` escape button if rotation lock is active, and auto-dismisses when rotated to landscape.
+  - **1-Tap Quick Start Setup (`#hud-mobile-quick-setup`)**: Replaces the 8-input desktop setup form on phones with an instant 1-screen card (**`🧑 Guest (Papino's Team)` vs `🤖 Computer (Classic Rivals)`**, 3 quick pills `🤖 Easy` / `🧠 Medium` / `👥 2P`, giant **`▶️ PLAY NOW! ✨`** button, and optional `"⚙️ Advanced options"` toggle).
+  - **Progressive Camera Flow (`Alto-Basso` ➔ `3D` on First Attack)**: Mobile matches start in **Easy Top-Down (`Alto-Basso`)** view (`topDownCamera = true`) for effortless opening moves, and **automatically unlock and transition to full 3D panoramic mode** (`topDownCamera = false` via `CAMERA_VIEW_REQUESTED` in `VFXPoolView`) upon the first capture (`BATTLE_STARTED` ➔ `BATTLE_COMPLETED`), with a persistent 1-tap `📐 View: Top` ⇄ `🎬 View: 3D` button in the sleek 1-line mobile dock.
 
 ## [0.3.26] - 2026-10-11
 

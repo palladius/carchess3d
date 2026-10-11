@@ -5,7 +5,13 @@ import { GameEventBus } from '../src/core/EventBus.js';
 import { mulberry32 } from '../src/core/Rng.js';
 import { GameLoop } from '../src/core/GameLoop.js';
 import { computeGroundingTransform, CANONICAL_PIECE_HEIGHTS } from '../src/utils/glbGrounding.js';
-import { APP_VERSION, GITHUB_REPO_URL, GITHUB_NEW_ISSUE_URL } from '../src/core/Registry.js';
+import {
+  APP_VERSION,
+  GITHUB_REPO_URL,
+  GITHUB_NEW_ISSUE_URL,
+  isMobilePhoneViewport,
+  isPortraitOrientation,
+} from '../src/core/Registry.js';
 import { HudListener } from '../src/listeners/HudListener.js';
 
 test('GameEventBus: emit() queues events and flush() delivers once per tick in FIFO order', () => {
@@ -110,3 +116,64 @@ test('footer metadata & i18n flags: APP_VERSION matches VERSION file, GitHub lin
   assert.equal(hud.lang, 'en');
   assert.equal(hud.t('startMatchBtn'), '🔄 New Match (Reset Board) ✨');
 });
+
+test('Mobile Simplified UX: detects Pixel 10 & phones while leaving iPad/Desktop untouched, starts in Alto-Basso (Top-Down) with Guest vs CPU, and unlocks 3D on first capture', () => {
+  // 1. Viewport detection: Pixel 10 portrait (412x915) & landscape (915x412) -> true
+  assert.equal(isMobilePhoneViewport({ width: 412, height: 915 }), true, 'Pixel 10 portrait is mobile phone');
+  assert.equal(isMobilePhoneViewport({ width: 915, height: 412 }), true, 'Pixel 10 landscape is mobile phone');
+  assert.equal(isPortraitOrientation({ width: 412, height: 915 }), true, '412x915 is portrait');
+  assert.equal(isPortraitOrientation({ width: 915, height: 412 }), false, '915x412 is landscape');
+
+  // iPad (768x1024) and Desktop (1440x900) must NOT trigger mobile phone mode
+  assert.equal(isMobilePhoneViewport({ width: 768, height: 1024 }), false, 'iPad portrait must keep full desktop UX');
+  assert.equal(isMobilePhoneViewport({ width: 1024, height: 768 }), false, 'iPad landscape must keep full desktop UX');
+  assert.equal(isMobilePhoneViewport({ width: 1440, height: 900 }), false, 'Desktop must keep full desktop UX');
+
+  // Query string overrides (?mobile=1 / ?desktop=1)
+  assert.equal(isMobilePhoneViewport({ width: 1440, height: 900, search: '?mobile=1' }), true);
+  assert.equal(isMobilePhoneViewport({ width: 412, height: 915, search: '?desktop=1' }), false);
+
+  // 2. Desktop HudListener remains 100% unchanged
+  const desktopHud = new HudListener({ isMobilePhone: false });
+  assert.equal(desktopHud.isMobilePhone, false);
+  assert.equal(desktopHud.activeProfile, 'ale');
+  assert.equal(desktopHud.topDownCamera, false);
+  assert.equal(desktopHud.topbarVisible, true);
+
+  // 3. Mobile HudListener: starts with Guest ('ospite'), Top-Down ('Alto-Basso'), and unlocks 3D on first capture
+  const bus = new GameEventBus();
+  const cameraEvents = [];
+  bus.on('CAMERA_VIEW_REQUESTED', (e) => cameraEvents.push(e));
+
+  const mobileHud = new HudListener({ bus, isMobilePhone: true, lang: 'it' });
+  assert.equal(mobileHud.isMobilePhone, true);
+  assert.equal(mobileHud.activeProfile, 'ospite', 'Mobile defaults to Guest profile');
+  assert.equal(mobileHud.topDownCamera, true, 'Mobile starts in easy Top-Down (Alto-Basso) view');
+  assert.equal(mobileHud.mobileAwaitingFirstAttack3D, true);
+  assert.equal(mobileHud.topbarVisible, false);
+
+  // 1-tap Quick Play configures Guest (Carlesso) vs CPU (Classic)
+  mobileHud.startMobileQuickMatch();
+  assert.equal(mobileHud.whiteFamily, 'carlesso');
+  assert.equal(mobileHud.rivalSet, 'classic');
+  assert.equal(mobileHud.activeProfile, 'ospite');
+  assert.equal(mobileHud.blackPlayerType, 'ai');
+  assert.equal(mobileHud.topDownCamera, true);
+
+  // First capture triggers BATTLE_STARTED -> automatically unlocks 3D camera pose!
+  bus.emit({ type: 'BATTLE_STARTED', attacker: 'b', defender: 'n', square: 'e5' });
+  bus.flush();
+  bus.flush();
+
+  assert.equal(mobileHud.topDownCamera, false, 'First attack transitions mobile camera from Alto-Basso to 3D');
+  assert.equal(mobileHud.mobileAwaitingFirstAttack3D, false);
+  assert.ok(
+    cameraEvents.some((e) => e.view === 'default' && e.pos?.y === 7.2 && e.pos?.z === 9.8),
+    'Emits CAMERA_VIEW_REQUESTED with 3D pose during first battle so VFXPoolView restores to 3D',
+  );
+
+  bus.emit({ type: 'BATTLE_COMPLETED' });
+  bus.flush();
+  assert.ok(mobileHud.lastToast.includes('3D'), 'Shows 3D unlocked toast when first battle finishes');
+});
+

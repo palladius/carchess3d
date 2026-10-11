@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.27';
+export const APP_VERSION = '0.3.28';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -888,6 +888,25 @@ export const I18N = Object.freeze({
     toggleTopbarBtn: '☰ Menu / Barra',
     quakeConsoleBtn: '~_ Console',
     defaultSetupBadge: '✨ Default: Famiglia Carlesso (Bianco / Umano) vs Scacchi Classici (Nero / AI Facile)',
+    mobileQuickTitle: '🏰🚽 CarChess3D · Partita Rapida',
+    mobileQuickSub: '1-Tap Easy Start · Parti dall’Alto (facile!) e al 1° attacco si accende il Cinema 3D!',
+    mobileQuickYou: '🧑 Guest (Tu)',
+    mobileQuickPapinoTeam: '👨‍👩‍👦‍👦 Squadra di Papino (Carlesso)',
+    mobileQuickCpu: '🤖 Computer',
+    mobileQuickCpuTeam: '🏛️ Squadra del Computer (Classici)',
+    mobileDiffEasy: '🤖 Facile',
+    mobileDiffMed: '🧠 Medio',
+    mobileDiff2P: '👥 2 Giocatori',
+    mobilePlayNowBtn: '▶️ GIOCA SUBITO! ✨',
+    mobileAdvOptionsBtn: '⚙️ Opzioni avanzate (Fazioni & Profili)',
+    mobileHideAdvBtn: '▲ Chiudi opzioni avanzate',
+    rotateTitle: 'Ehi! Ruotalo in orizzontale 🔄📱',
+    rotateSub: 'I film 16:9 e la Scacchiera 3D della Famiglia Carlesso si vedono alla grande in orizzontale (come al cinema! 🍿🎬)',
+    rotateDismissBtn: '📱 Gioca comunque in verticale →',
+    mobileCamTopBtn: '📐 Vista: Alto',
+    mobileCam3dBtn: '🎬 Vista: 3D',
+    mobile3dUnlockedToast: '🎬 1° Attacco! Modalità 3D Attivata! (Tocca 📐 Alto / 🎬 3D per cambiare vista)',
+    mobileStartToast: '📐 Vista Alto-Basso attiva! Fai la prima mossa: al 1° attacco entri nel 3D! ✨',
   },
   en: {
     title: 'CarChess3D · Family Wizard Chess',
@@ -980,5 +999,81 @@ export const I18N = Object.freeze({
     toggleTopbarBtn: '☰ Menu / Bar',
     quakeConsoleBtn: '~_ Console',
     defaultSetupBadge: '✨ Default: Carlesso Family (White / Human) vs Classic Chess (Black / AI Easy)',
+    mobileQuickTitle: '🏰🚽 CarChess3D · Quick Match',
+    mobileQuickSub: '1-Tap Easy Start · Start Top-Down (easy moves!) & unlock 3D Cinema on 1st attack!',
+    mobileQuickYou: '🧑 Guest (You)',
+    mobileQuickPapinoTeam: '👨‍👩‍👦‍👦 Papino’s Team (Carlesso Family)',
+    mobileQuickCpu: '🤖 Computer',
+    mobileQuickCpuTeam: '🏛️ Computer’s Team (Classic)',
+    mobileDiffEasy: '🤖 Easy',
+    mobileDiffMed: '🧠 Medium',
+    mobileDiff2P: '👥 2 Players',
+    mobilePlayNowBtn: '▶️ PLAY NOW! ✨',
+    mobileAdvOptionsBtn: '⚙️ Advanced options (Factions & Profiles)',
+    mobileHideAdvBtn: '▲ Hide advanced options',
+    rotateTitle: 'Hey! Rotate your phone to Landscape 🔄📱',
+    rotateSub: 'Our 16:9 Battle Movies and 3D Family Chessboard look best in horizontal mode (just like the movies! 🍿🎬)',
+    rotateDismissBtn: '📱 Play in vertical anyway →',
+    mobileCamTopBtn: '📐 View: Top',
+    mobileCam3dBtn: '🎬 View: 3D',
+    mobile3dUnlockedToast: '🎬 1st Attack! 3D Mode Unlocked! (Tap 📐 Top / 🎬 3D anytime to switch)',
+    mobileStartToast: '📐 Easy Top-Down View active! Make a move: 1st attack unlocks 3D Mode! ✨',
   },
 });
+
+/**
+ * Detects whether the current viewport is a compact smartphone (e.g., Pixel 10, iPhone)
+ * while strictly leaving iPads/Tablets (`shortSide >= 600px`) and Desktops untouched.
+ * Supports `?mobile=1` (force mobile mode) and `?mobile=0` / `?desktop=1` (force desktop mode).
+ *
+ * @param {{ width?: number, height?: number, search?: string }} [env]
+ * @returns {boolean}
+ */
+export function isMobilePhoneViewport(env = {}) {
+  const win = typeof window !== 'undefined' ? window : null;
+  const search =
+    env.search !== undefined
+      ? String(env.search || '')
+      : win?.location?.search
+        ? String(win.location.search)
+        : '';
+
+  if (search && typeof URLSearchParams !== 'undefined') {
+    const params = new URLSearchParams(search);
+    const mobileParam = (params.get('mobile') || '').toLowerCase();
+    const desktopParam = (params.get('desktop') || '').toLowerCase();
+    if (mobileParam === '1' || mobileParam === 'true') return true;
+    if (
+      mobileParam === '0' ||
+      mobileParam === 'false' ||
+      desktopParam === '1' ||
+      desktopParam === 'true'
+    ) {
+      return false;
+    }
+  }
+
+  const width = Number(env.width ?? win?.innerWidth ?? 0);
+  const height = Number(env.height ?? win?.innerHeight ?? 0);
+  if (!(width > 0 && height > 0)) return false;
+
+  const shortSide = Math.min(width, height);
+  const longSide = Math.max(width, height);
+  // Smartphones have shortSide < 600px (e.g. Pixel 10 is 412x915, iPhone Pro Max is 440x956).
+  // iPads start at 768x1024 (shortSide = 768 >= 600) and Desktops are >= 1024x768.
+  return shortSide < 600 && longSide <= 1024;
+}
+
+/**
+ * Returns true when the viewport is currently in Portrait (`height > width`).
+ * @param {{ width?: number, height?: number }} [env]
+ * @returns {boolean}
+ */
+export function isPortraitOrientation(env = {}) {
+  const win = typeof window !== 'undefined' ? window : null;
+  const width = Number(env.width ?? win?.innerWidth ?? 0);
+  const height = Number(env.height ?? win?.innerHeight ?? 0);
+  if (!(width > 0 && height > 0)) return false;
+  return height > width;
+}
+

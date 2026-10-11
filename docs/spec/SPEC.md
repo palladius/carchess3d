@@ -281,6 +281,15 @@ is the "victim" and is removed at the end.
     - Inspired by Saint Seiya's Amethyst Coffin and using Queen Kate's favourite gemstone (**Tanzanite** — pleochroic blue-violet with electric azure-blue reflections): Ale (`b`) casts a swirling blue-violet and azure Tanzanite beam (`b_x_q_start.png`) that crystallizes a towering translucent hexagonal Tanzanite Crystal Case (`Teca di Tanzanite`) around Mamma Kate (`q`), holding her safely petrified inside for two seconds before gently sliding the intact Tanzanite Teca into the emerald swamp moat (`b_x_q_end.png`, `ale_tanzanite_coffin_for_mom`) without ever shattering his mom.
   - **Knight Seby ↔ Rook Pupurabbu (`n_x_r`, `r_x_n`) — Best-Friends Cuddle (`mega_cuddle_bounce`)**: Non-lethal joyful cuddle storm with 3D purple hearts.
 
+## Mobile Simplified UX ("Easy Adopter" Mode — v0.3.22)
+
+- **Strictly Scoped to Mobile Phones (`isMobilePhoneViewport`)**: Activated only when `Math.min(width, height) < 600 && Math.max(width, height) <= 1024` (or via `?mobile=1`, disabled via `?desktop=1`/`?mobile=0`). iPads (`768×1024`) and Desktop viewports remain **100% untouched**.
+- **Portrait ➔ Landscape Friendly Prompt (`#hud-rotate-overlay`)**: When a phone is held in Portrait (`height > width`), a friendly overlay invites the player to rotate the phone to Landscape so 16:9 battle movies and the 3D board fill the screen horizontally, with a 1-tap escape button (`📱 Play in vertical anyway →` / `📱 Gioca comunque in verticale →`) in case OS rotation lock is active.
+- **1-Tap Quick Start Card (`#hud-mobile-quick-setup`)**: Replaces the 8-input desktop setup form on phones with a 1-screen Quick Start card: **Guest (`ospite`, Papino's Carlesso Team) vs Computer (`classic` Rivals)**, 3 mode pills (`🤖 Easy`, `🧠 Medium`, `👥 2P`), and a giant **`▶️ PLAY NOW! ✨` / `▶️ GIOCA SUBITO! ✨`** button (with an optional `"⚙️ Advanced options"` toggle).
+- **Progressive Camera Onboarding (`Alto-Basso` ➔ `3D` on First Attack)**:
+  - On mobile phones, the match starts in **Easy Top-Down (`Alto-Basso`)** camera mode (`topDownCamera = true`) so all 64 squares are large and effortless to tap for opening moves.
+  - Upon the **very first capture (`BATTLE_STARTED` ➔ `BATTLE_COMPLETED`)**, the game plays the 3D brawl + 16:9 Veo cinema and **automatically unlocks and stays in full 3D panoramic mode** (`topDownCamera = false`), with a persistent 1-tap toggle (`📐 View: Top` ⇄ `🎬 View: 3D`) in the compact mobile dock.
+
 ## Open Questions
 
 - ~~Implementation repo~~ → **[palladius/carchess3d](https://github.com/palladius/carchess3d)** (public), deployed live on GitHub Pages at **https://palladius.github.io/carchess3d/**.
