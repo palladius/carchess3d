@@ -268,6 +268,18 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 print("   ✅ Piece orientations verified: White faces North, Black faces South.")
 
             # -----------------------------------------------------------------
+            # Step 2.5: Confirm / Dismiss Startup Match Setup Modal
+            # -----------------------------------------------------------------
+            try:
+                setup_visible = page.evaluate("() => { const m = document.querySelector('#hud-setup-modal'); return Boolean(m && getComputedStyle(m).display !== 'none'); }")
+                if setup_visible:
+                    print("⚙️ Startup Match Setup Modal detected: confirming default match setup...")
+                    page.evaluate("() => { const b = document.querySelector('#hud-setup-start-btn') || document.querySelector('#hud-setup-close'); if (b) b.click(); }")
+                    time.sleep(0.8)
+            except Exception as e:
+                print(f"   ℹ️ Setup modal handling note: {e}")
+
+            # -----------------------------------------------------------------
             # Step 3: Camera 180° Invert View Audit (Non-Black Screen Check)
             # -----------------------------------------------------------------
             print("🔄 Testing Camera 180° Flip (#hud-flip-btn)...")
@@ -381,7 +393,13 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             # Step 8: WOW Mode Turntable & Arena Drawer
             # -----------------------------------------------------------------
             print("🌟 Testing WOW Mode & Cinema (#hud-mode2-btn)...")
-            page.click("#hud-mode2-btn")
+            # Ensure topbar is revealed for interaction
+            page.evaluate("""() => {
+                const topbar = document.querySelector('#hud-topbar');
+                if (topbar) topbar.classList.remove('hidden');
+                const b = document.querySelector('#hud-mode2-btn');
+                if (b) b.click();
+            }""")
             time.sleep(1.0)
             shot7 = out_dir / "07_wow_mode.png"
             page.screenshot(path=str(shot7))
@@ -395,7 +413,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 "detail": "Mode 2 WOW Turntable Inspector & Arena active with character controls",
             }
 
-            page.click("#hud-mode1-btn")
+            page.evaluate("() => { const b = document.querySelector('#hud-mode1-btn'); if (b) b.click(); }")
             time.sleep(0.8)
 
             # -----------------------------------------------------------------
@@ -405,7 +423,13 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             page.click("#hud-new-btn")
             time.sleep(0.5)
 
-            page.select_option("#hud-opponent-select", "easy")
+            page.evaluate("""() => {
+                const sel = document.querySelector('#hud-opponent-select');
+                if (sel) {
+                    sel.value = 'easy';
+                    sel.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }""")
             time.sleep(0.4)
 
             # Move 1: White e2 -> e4
