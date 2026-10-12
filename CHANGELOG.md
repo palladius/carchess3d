@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.49] - 2026-10-12
+
+- 📝 README refresh: status was frozen at v0.3.0. It now shows v0.3.48 features, a 3-family × 6-piece model table (reconstructed vs procedural) and the real repo layout. "Palude di Shrek" → "Palude Incantata" in the README (spec *IP Safety*).
+
 ## [0.3.48] - 2026-10-12
 
 - 🎲🔴🎲🔵👑 **6+6 Risiko Shelves (Attacco Dadi Rossi & Difesa Dadi Blu), Medaglione Target Scacchistico 48px Sovraimpresso sul Film e Rotator 3D Snello (`showcase/index.html`, `src/core/CharacterPovData.js`, `VERSION`, `src/core/Registry.js`, `tests/character-pov.test.mjs`, `tests/test_character_pov.py`)**:

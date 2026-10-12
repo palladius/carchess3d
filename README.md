@@ -5,7 +5,7 @@
 > - 🎬 **Matrice Interattiva 6×6 (Tutti i 36 Scontri & Video 16:9)**: [https://palladius.github.io/carchess3d/battles.html](https://palladius.github.io/carchess3d/battles.html)
 > - 🌟 **WOW Mode & Arena 6×6**: [https://palladius.github.io/carchess3d/?mode=wow](https://palladius.github.io/carchess3d/?mode=wow)
 > - 🥊 **Demo Scazzottata 3D + Video 16:9 (Ale vs Seby)**: [https://palladius.github.io/carchess3d/?clash=b_n](https://palladius.github.io/carchess3d/?clash=b_n)
-> - 🐸 **Demo Palude di Shrek (Pezzi Catturati)**: [https://palladius.github.io/carchess3d/?swamp_party=1](https://palladius.github.io/carchess3d/?swamp_party=1)
+> - 🐸 **Demo Palude Incantata (Pezzi Catturati)**: [https://palladius.github.io/carchess3d/?swamp_party=1](https://palladius.github.io/carchess3d/?swamp_party=1)
 > - 🏛️ **Showcase 3 Famiglie (18 Pezzi 3D `.glb`)**: [https://palladius.github.io/carchess3d/showcase/](https://palladius.github.io/carchess3d/showcase/)
 > - 📸 **Visual Progress & Critic Gallery**: [https://palladius.github.io/carchess3d/progress.html](https://palladius.github.io/carchess3d/progress.html)
 > - ✍️ **Articolo ("Come ho generato CarChess3D in 2 giorni")**: [`docs/ARTICLE.md`](docs/ARTICLE.md)
@@ -29,16 +29,33 @@ on localhost, in the browser and on Android, even in airplane mode. ✈️
 
 ## 🚦 Status
 
-`v0.3.0`. Complete 3D Chess + All 36 (`6×6`) Bespoke 3D Brawls & 16:9 Videos (`battles.html` + in-game `🎬 Matrice 6×6`) + Visible 3D Articulated Skeletons + Shrek Swamp Party + 18 3D `.glb` models across 3 families (`carlesso`, `classic`, `swamp`).
+`v0.3.48` (2026-10-12). **The game is playable**: complete chess rules
+(chess.js), hot-seat or vs CPU (Easy/Medium/Hard in a Web Worker), FEN/PGN,
+local profiles with autosave, offline PWA, live on GitHub Pages.
 
-| Piece | Character | 2D art | 3D model (`assets/models/`) |
+- **3 families × 6 pieces = 18 3D characters**: Carlesso, Classic and the
+  Swamp family. Each family can play White or Black, with an ivory/gold vs
+  obsidian/silver overlay.
+- **36 (6×6) Carlesso battles**: an in-place 3D brawl plus an 8 s 16:9 Veo
+  video for every attacker × defender pair
+  ([`battles.html`](https://palladius.github.io/carchess3d/battles.html)).
+- **Character showcase** ([`showcase/`](https://palladius.github.io/carchess3d/showcase/)):
+  3D turntable, voice lines (Gemini TTS), attack/defence films.
+- Visible articulated skeletons, the swamp moat for captured pieces, WOW mode,
+  string-quartet soundtrack (Lyria 3), Mac trackpad gestures, Mobile Lite 3D.
+- Daily headless UAT playtest (`scripts/daily_uat_playtest.py`, issue #18).
+
+| Piece | Carlesso | Classic | Swamp |
 |---|---|---|---|
-| ♔ King | Riccardo | ✅ `king-riccardo-{1,2}` | 🟢 [`king-riccardo.glb`](assets/models/king-riccardo.glb) |
-| ♕ Queen | Kate | ✅ `queen-kate-{1..5}` | 🟢 [`queen-kate.glb`](assets/models/queen-kate.glb) + [`queen-kate-wedding2016.glb`](assets/models/queen-kate-wedding2016.glb) |
-| ♗ Bishop | Ale (+ dragon) | ✅ `bishop-ale-{1,2}` | 🟢 [`bishop-ale-rigged.glb`](assets/models/bishop-ale-rigged.glb) + [`bishop-ale-1.glb`](assets/models/bishop-ale-1.glb) |
-| ♘ Knight | Seby | ✅ `knight-seby-{1..5}` | 🟢 [`knight-seby.glb`](assets/models/knight-seby.glb) |
-| ♖ Rook | Pupurabbu | ✅ `rook-pupurabbu` | 🟢 [`rook-pupurabbu.glb`](assets/models/rook-pupurabbu.glb) |
-| ♙ Pawn | Puffin guard | ✅ `pawn-puffin` | 🟢 [`pawn-puffin.glb`](assets/models/pawn-puffin.glb) |
+| ♔ King | 🟢 Riccardo | 🟢 TRELLIS.2 | 🟡 procedural |
+| ♕ Queen | 🟢 Kate (+ wedding/young variants) | 🟡 procedural | 🟡 procedural |
+| ♗ Bishop | 🟢 Ale (rigged, with dragon) | 🟡 procedural | 🟡 procedural |
+| ♘ Knight | 🟢 Seby | 🟢 | 🟢 |
+| ♖ Rook | 🟢 Pupurabbu | 🟡 procedural | 🟡 procedural |
+| ♙ Pawn | 🟢 Puffin | 🟡 procedural | 🟡 procedural |
+
+🟢 = image→3D reconstruction · 🟡 = procedural fallback, waiting for the GPU
+(issue #20). Provenance: [`docs/models-provenance.yaml`](docs/models-provenance.yaml).
 
 ## 🚀 Quickstart
 
@@ -51,11 +68,17 @@ just serve    # static server on http://localhost:8000
 ## 🗂️ Layout
 
 ```
+index.html, sw.js    game entry point + offline service worker (PWA)
+src/                 core/ (EventBus, GameLoop, Registry), managers/, views/, listeners/, ai/worker.js
+battles.html         6×6 battle matrix · showcase/ character POV page · progress.html visual log
 assets/characters/   2D "cutie / Nano Banana" art, <piece>-<character>[-N].jpg
-assets/models/       canonical GLB pieces used by the game
-docs/logo/           logo (C, the badge) + the two alternatives, and the prompt
+assets/models/       GLB pieces: Carlesso at the root, classic/ and swamp/ subfolders
+assets/battles/      36 keyframes + Veo videos + prompts + video audit
+assets/audio/        Lyria soundtrack + Gemini TTS voice lines
+vendor/              Three.js + chess.js (vendored, offline)
 tools/model-pipeline image→3D experiments: scripts next to their inputs/outputs
-scripts/check.py     stdlib-only sanity checks run by `just test`
+docs/spec/SPEC.md    the spec (source of truth) · docs/logo/ logos + prompt
+tests/, scripts/     Node + Python test suites, UAT playtest, generators (`just test`)
 ```
 
 ## 🎨 Logos
