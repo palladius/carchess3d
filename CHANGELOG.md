@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.50] - 2026-10-12
+
+- 📐 Spec *IP Safety*: new **Be Googley** rule. The app (code, UI, data, generation prompts) must never name protected brands, franchises or characters; docs may cite them; enforced by a denylist in `just test` (coming in #24).
+
 ## [0.3.49] - 2026-10-12
 
 - 📝 README refresh: status was frozen at v0.3.0. It now shows v0.3.48 features, a 3-family × 6-piece model table (reconstructed vs procedural) and the real repo layout. "Palude di Shrek" → "Palude Incantata" in the README (spec *IP Safety*).

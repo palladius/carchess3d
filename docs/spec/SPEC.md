@@ -189,6 +189,7 @@ is the "victim" and is removed at the end.
 ### IP Safety
 
 - No trademarked names, logos, wordmarks, or recognisable character designs.
+- **Be Googley**: the app (code, UI, data, generation prompts) must never name protected brands, franchises or characters (e.g. Shrek, Netflix, Saint Seiya, D&D, Pixar); describe them generically. Docs may cite them; `just test` enforces a denylist (`etc/ip-denylist.txt`).
 - "Chocolate" = generic glossy brown + lilac; "toy cars" = generic die-cast
   shapes in random colours; Swamp Family = original designs and names.
 - All vendored libraries must be permissively licensed (MIT/BSD/Apache),
