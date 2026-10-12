@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.45] - 2026-10-12
+
+- 🎲🔄 **Bumped and Synchronized `niccolo-game-design` Skill to v0.2.1 (`.agents/skills/niccolo-game-design/`, `SKILL.md`, `CHANGELOG.md`)**:
+  - Bumped skill metadata version to `v0.2.1` in both `SKILL.md` and skill `CHANGELOG.md` reflecting the Mode B adversarial face-grafting additions.
+  - Synchronized upstream to `gemini-cli-palladius-public-goodies` (and `skillume`), aligning MD5 content hash (`#e2c08`) across local, public, and skillume registries.
+
 ## [0.3.44] - 2026-10-11
 
 - 🎻🔇🕹️ **Non-Fatiguing 30s Chamber Strings Background Loop (`chess-strings-bg.mp3`) + Complete Removal of 1980s Arcade Oscillator Sequencers (`assets/audio/chess-strings-bg.mp3`, `src/listeners/AudioListener.js`, `sw.js`, `tests/voices_idle.test.mjs`)**:
