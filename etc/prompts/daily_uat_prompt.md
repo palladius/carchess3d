@@ -57,7 +57,7 @@ This script automatically:
    - Clicks `#hud-top-btn` (Vista dall'alto): verifies top-down tactical framing is non-black.
 4. **Adversarial UI Clicking**:
    - Toggles `#hud-skeletons-btn` (3D Articulated Skeletons).
-   - Toggles `#hud-swamp-btn` (Shrek Swamp Moat party).
+   - Toggles `#hud-swamp-btn` (Ogre Swamp Moat party).
    - Opens and closes `#hud-matrix36-btn` (6×6 Battle Matrix modal with 36 video pairings).
    - Inspects `#hud-mode2-btn` (WOW Turntable & Arena) and returns to `#hud-mode1-btn`.
 5. **Simulates a Human vs CPU Easy Match**:

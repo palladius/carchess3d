@@ -3863,7 +3863,7 @@ export class HudListener {
 
     if (!this.rootEl) return;
     // Hide the left WOW drawer, center toast, karaoke caption, and comic banner during combat
-    // so the Netflix Maxischermo + 3D fight is 100% pure and free of any header/footer clutter!
+    // so the Maxischermo + 3D fight is 100% pure and free of any header/footer clutter!
     const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
     if (wowPanel) wowPanel.style.display = 'none';
     const toastEl = this.rootEl.querySelector('#hud-toast');
@@ -3910,7 +3910,7 @@ export class HudListener {
 
   /**
    * Smoothly hides all HUD chrome (header `#hud-topbar`, footer `.hud-bottombar`, status card, banners)
-   * as `blend` goes `0.0 -> 1.0` during Netflix Maxischermo combat, and smoothly restores them
+   * as `blend` goes `0.0 -> 1.0` during Maxischermo combat, and smoothly restores them
    * as `blend` glides `1.0 -> 0.0` during the sliding-window exit!
    * @param {number} blend
    */

@@ -36,11 +36,11 @@ export class VeoCinemaView {
     this.activeBattle = null;
     this.outroBattle = null;
     this.battleElapsed = 0;
-    this.netflixBlend = 0.0;
+    this.cinemaBlend = 0.0;
     this.usingVideoTexture = false;
     this.activeVideoUrl = null;
     this._idleGoldColor = new THREE.Color(0xe6b84a);
-    this._netflixRedColor = new THREE.Color(0xe50914);
+    this._cinemaRedColor = new THREE.Color(0xe50914);
 
     /** @type {Map<string, HTMLImageElement>} */
     this.imageCache = new Map();
@@ -63,7 +63,7 @@ export class VeoCinemaView {
     this.scene.add(this.root);
     if (this.scene) {
       this.scene.userData = this.scene.userData || {};
-      this.scene.userData.applyCinemaCombatBlend = (b) => this.setNetflixBlend(b);
+      this.scene.userData.applyCinemaCombatBlend = (b) => this.setCinemaBlend(b);
     }
 
     this.initCanvasAndVideo();
@@ -105,7 +105,7 @@ export class VeoCinemaView {
   }
 
   // ===========================================================================
-  // 2. 16:9 SCREEN MESH (8.0m x 4.5m) & SLEEK 1.5% NETFLIX RED CINEMA BEZEL
+  // 2. 16:9 SCREEN MESH (8.0m x 4.5m) & SLEEK 1.5% CINEMA RED BEZEL
   // ===========================================================================
 
   buildMirrorMeshAndOrnateFrame() {
@@ -120,7 +120,7 @@ export class VeoCinemaView {
     this.screenMesh.position.z = 0.04;
     this.root.add(this.screenMesh);
 
-    // 2. Subtle Netflix Crimson Backlight Ambient Halo (8.10m x 4.60m) right behind the 1.2% bezel
+    // 2. Subtle Cinema Crimson Backlight Ambient Halo (8.10m x 4.60m) right behind the 1.2% bezel
     const haloGeo = new THREE.PlaneGeometry(8.10, 4.60);
     this.haloMaterial = new THREE.MeshBasicMaterial({
       color: 0xe50914,
@@ -133,7 +133,7 @@ export class VeoCinemaView {
     this.haloMesh.position.z = -0.06;
     this.root.add(this.haloMesh);
 
-    // 3. Minimal 1.2% Netflix Cinema Bezel (8.10m x 4.60m — zero bulky frame or top hook!)
+    // 3. Minimal 1.2% Maxi Cinema Bezel (8.10m x 4.60m — zero bulky frame or top hook!)
     this.frameGroup = new THREE.Group();
     this.frameGroup.name = 'OrnateGoldenMirrorFrame';
     this.root.add(this.frameGroup);
@@ -151,7 +151,7 @@ export class VeoCinemaView {
     backPlate.position.z = -0.02;
     this.frameGroup.add(backPlate);
 
-    // Signature Netflix Red (#E50914) 1.1% Razor Bezel Trim (0.05m width around the 8.0m x 4.5m screen)
+    // Signature Cinema Red (#D32F2F) 1.1% Razor Bezel Trim (0.05m width around the 8.0m x 4.5m screen)
     this.goldMaterial = new THREE.MeshBasicMaterial({
       color: 0xe50914,
     });
@@ -275,7 +275,7 @@ export class VeoCinemaView {
     if (!this.scene?.userData?.vfxControlsCombatBlend && this.root && this.battlePos) {
       this.root.position.copy(this.battlePos);
       this.root.scale.setScalar(this.battleScale || 0.75);
-      this.setNetflixBlend(1.0);
+      this.setCinemaBlend(1.0);
     }
 
     // Preload portraits, Nano Banana 16:9 initial battle keyframe, & optional SVG composite
@@ -404,26 +404,26 @@ export class VeoCinemaView {
   }
 
   /**
-   * Smoothly updates the Netflix Cinema <-> Classic Idle Mirror blend (`0.0 .. 1.0`):
-   * - `1.0` = 100% Netflix Cinema XXL (live Veo film + `#E50914` bezel + `N` badge + scrubber)
+   * Smoothly updates the Maxi Cinema <-> Classic Idle Mirror blend (`0.0 .. 1.0`):
+   * - `1.0` = 100% Maxi Cinema XXL (live Veo film + `#D32F2F` bezel + `N` badge + scrubber)
    * - `0.0` = 100% "Cinema Vecchio" idle mirror docked between the Grossmünster Twin Towers
    * - `0.0 < b < 1.0` = Sliding-window zoom-out & alpha cross-fade (`100% -> 0%` film alpha!)
    * @param {number} b
    */
-  setNetflixBlend(b) {
+  setCinemaBlend(b) {
     const clamped = Math.max(0, Math.min(1, Number.isFinite(b) ? b : 0));
-    this.netflixBlend = clamped;
+    this.cinemaBlend = clamped;
     if (this.root) {
-      this.root.userData.netflixBlend = clamped;
+      this.root.userData.cinemaBlend = clamped;
     }
 
-    // Morph bezel trim color between Classic Zurich Gold (#e6b84a) and Netflix Red (#E50914)
-    if (this.goldMaterial?.color && this._idleGoldColor && this._netflixRedColor) {
-      this.goldMaterial.color.lerpColors(this._idleGoldColor, this._netflixRedColor, clamped);
+    // Morph bezel trim color between Classic Zurich Gold (#e6b84a) and Cinema Red (#D32F2F)
+    if (this.goldMaterial?.color && this._idleGoldColor && this._cinemaRedColor) {
+      this.goldMaterial.color.lerpColors(this._idleGoldColor, this._cinemaRedColor, clamped);
     }
 
     // Modulate 3D screen & casing opacity during the sliding-window transition so the zooming-out
-    // Netflix film becomes translucent (`alpha: 100% -> ~18%`) as Zurich & the Swamp rematerialize,
+    // Cinema film becomes translucent (`alpha: 100% -> ~18%`) as Zurich & the Swamp rematerialize,
     // before settling cleanly at 100% as the discreet "Cinema Vecchio" between the Grossmünster towers!
     const inTransition = clamped > 0.005 && clamped < 0.995;
     const meshAlpha = inTransition
@@ -464,7 +464,7 @@ export class VeoCinemaView {
     if (immediate || !this.scene?.userData?.vfxControlsCombatBlend) {
       this.stopVideoPlayback();
       this.outroBattle = null;
-      this.setNetflixBlend(0.0);
+      this.setCinemaBlend(0.0);
       if (this.root && this.idlePos) {
         this.root.position.copy(this.idlePos);
         this.root.rotation.set(0, 0, 0);
@@ -495,7 +495,7 @@ export class VeoCinemaView {
     const battleData = this.activeBattle || this.outroBattle;
     const blend = this.mode === 'battle' && !this.scene?.userData?.vfxControlsCombatBlend
       ? 1.0
-      : this.netflixBlend;
+      : this.cinemaBlend;
 
     if (this.mode === 'checkmate') {
       this.drawCheckmateFrame(ctx, w, h);
@@ -503,7 +503,7 @@ export class VeoCinemaView {
       this.drawBattleFrame(ctx, w, h, battleData);
     } else if (blend > 0.002 && battleData) {
       // Smooth sliding-window cross-fade: "Il Cinema Vecchio" materializes underneath (`0 -> 100%`)
-      // while the Netflix Cinema film fades its alpha channel from `100%` down to `0%` (invisible)!
+      // while the Maxi Cinema film fades its alpha channel from `100%` down to `0%` (invisible)!
       this.drawIdleCrestFrame(ctx, w, h);
       ctx.save();
       ctx.globalAlpha = blend;
@@ -649,7 +649,7 @@ export class VeoCinemaView {
             ? vidDur
             : this.videoEl.currentTime || videoElapsed;
       const progress = Math.min(1, Math.max(0.02, activeVidTime / vidDur));
-      this.drawNetflixCinemaOverlay(ctx, w, h, titleText, progress, phaseTag);
+      this.drawCinemaCinemaOverlay(ctx, w, h, titleText, progress, phaseTag);
       return;
     }
 
@@ -658,7 +658,7 @@ export class VeoCinemaView {
     if (nbKeyframe) {
       this._drawMediaWithArenaContrast(ctx, w, h, nbKeyframe);
       const progress = Math.min(1, Math.max(0.02, videoElapsed / vidDur));
-      this.drawNetflixCinemaOverlay(ctx, w, h, titleText, progress, phaseTag);
+      this.drawCinemaCinemaOverlay(ctx, w, h, titleText, progress, phaseTag);
       return;
     }
 
@@ -756,19 +756,19 @@ export class VeoCinemaView {
   }
 
   /**
-   * Draws a completely text-free Netflix Maxischermo frame on the 1280x720 (16:9) screen:
-   * Zero header text or titles covering the movie — only a discreet 3px `#E50914` progress hairline at the bottom edge.
+   * Draws a completely text-free Maxischermo frame on the 1280x720 (16:9) screen:
+   * Zero header text or titles covering the movie — only a discreet 3px `#D32F2F` progress hairline at the bottom edge.
    */
-  drawNetflixCinemaOverlay(ctx, w, h, _titleText, progress = 0.35, _phaseTag = '') {
+  drawCinemaCinemaOverlay(ctx, w, h, _titleText, progress = 0.35, _phaseTag = '') {
     ctx.save();
 
-    // Discreet 3px Netflix Red playback scrubber hairline along the bottom edge
+    // Discreet 3px Cinema Red playback scrubber hairline along the bottom edge
     const barY = h - 5;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
     ctx.fillRect(16, barY, w - 32, 3);
 
     const progW = Math.max(12, Math.min(w - 32, (w - 32) * progress));
-    ctx.fillStyle = '#E50914';
+    ctx.fillStyle = '#D32F2F';
     ctx.fillRect(16, barY, progW, 3);
 
     ctx.restore();
@@ -910,8 +910,8 @@ export class VeoCinemaView {
       this.root.scale.setScalar(nextScale);
     }
 
-    // Pulse backlight halo in proportion to netflixBlend
-    const b = this.netflixBlend;
+    // Pulse backlight halo in proportion to cinemaBlend
+    const b = this.cinemaBlend;
     if (this.haloMaterial) {
       const idleHalo = 0.14 + Math.sin(this.time * 2.2) * 0.04;
       const battleHalo = 0.36 + Math.sin(this.time * 8.0) * 0.12;

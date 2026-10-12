@@ -193,7 +193,7 @@
       font-weight: 800;
     }
 
-    /* Dual Stage Grid (3D + Soundboard on Left | Netflix Theater on Right) */
+    /* Dual Stage Grid (3D + Soundboard on Left | Cinema Theater on Right) */
     .pov-stage-grid {
       display: grid;
       grid-template-columns: 280px minmax(0, 1fr);
@@ -516,12 +516,12 @@
       white-space: nowrap;
     }
 
-    /* ── RIGHT PANEL: Netflix Video Theater & Shelf ── */
+    /* ── RIGHT PANEL: Cinema Video Theater & Shelf ── */
     .pov-right-panel {
       display: flex;
       flex-direction: column;
     }
-    .netflix-battles-theater.compact-theater {
+    .cinema-battles-theater.compact-theater {
       background: var(--card);
       border: 1.5px solid var(--line);
       border-radius: 14px;
@@ -531,7 +531,7 @@
       flex-direction: column;
       gap: 8px;
     }
-    .netflix-theater-header.compact-header {
+    .cinema-theater-header.compact-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -618,7 +618,7 @@
       border-color: rgba(255, 213, 79, 0.5);
       background: #2b220d;
     }
-    .netflix-screen-wrap.compact-screen {
+    .cinema-screen-wrap.compact-screen {
       width: 100%;
       aspect-ratio: 16 / 9;
       background: #000;
@@ -629,10 +629,10 @@
       position: relative;
       transition: aspect-ratio 0.25s ease;
     }
-    .netflix-screen-wrap.compact-screen.ratio-4-3 {
+    .cinema-screen-wrap.compact-screen.ratio-4-3 {
       aspect-ratio: 4 / 3;
     }
-    .netflix-screen-wrap.compact-screen video {
+    .cinema-screen-wrap.compact-screen video {
       width: 100%;
       height: 100%;
       display: block;
@@ -642,11 +642,11 @@
       opacity: 1;
       transform: scale(1);
     }
-    .netflix-screen-wrap.compact-screen video.fade-out {
+    .cinema-screen-wrap.compact-screen video.fade-out {
       opacity: 0;
       transform: scale(0.97);
     }
-    .netflix-aspect-btn {
+    .cinema-aspect-btn {
       position: absolute;
       top: 8px;
       right: 10px;
@@ -665,20 +665,20 @@
       align-items: center;
       gap: 4px;
     }
-    .netflix-aspect-btn:hover {
+    .cinema-aspect-btn:hover {
       background: rgba(255, 213, 79, 0.22);
       color: #fff;
       border-color: var(--gold-bright);
       transform: scale(1.04);
     }
-    .netflix-screen-meta-row {
+    .cinema-screen-meta-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 8px;
       padding: 0 2px;
     }
-    .netflix-acts-compact {
+    .cinema-acts-compact {
       display: flex;
       gap: 8px;
       font-size: 0.76rem;
@@ -707,7 +707,7 @@
     }
 
     /* Target Chess Piece Badge on Main Video Screen */
-    .netflix-screen-target-badge {
+    .cinema-screen-target-badge {
       position: absolute;
       top: 8px;
       left: 10px;
@@ -724,11 +724,11 @@
       pointer-events: none;
       transition: all 0.2s ease;
     }
-    .netflix-screen-target-badge.badge-attack {
+    .cinema-screen-target-badge.badge-attack {
       border-color: #ff3d00;
       box-shadow: 0 0 12px rgba(255, 61, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.6);
     }
-    .netflix-screen-target-badge.badge-defense {
+    .cinema-screen-target-badge.badge-defense {
       border-color: #2979ff;
       box-shadow: 0 0 12px rgba(41, 121, 255, 0.55), 0 4px 14px rgba(0, 0, 0, 0.6);
     }
@@ -1151,7 +1151,7 @@
     <!-- 6 Hero Selector Chip Bar -->
     <nav class="hero-selector" id="hero-selector" aria-label="Selettore Eroi Famiglia Carlesso"></nav>
 
-    <!-- Side-by-Side Dual Stage (Left: 3D Turntable & Soundboard | Right: Netflix Video Theater & Shelf) -->
+    <!-- Side-by-Side Dual Stage (Left: 3D Turntable & Soundboard | Right: Cinema Video Theater & Shelf) -->
     <div class="pov-stage-grid">
 
       <!-- LEFT PANEL: 3D Turntable & Soundboard -->
@@ -1205,66 +1205,66 @@
 
       </div>
 
-      <!-- RIGHT PANEL: Netflix Video Cinema & Episodes Shelf -->
+      <!-- RIGHT PANEL: Cinema Video Cinema & Episodes Shelf -->
       <div class="pov-right-panel">
-        <section class="netflix-battles-theater compact-theater" id="netflix-theater">
+        <section class="cinema-battles-theater compact-theater" id="cinema-theater">
 
           <!-- Theater Header with Fighter Medallions -->
-          <div class="netflix-theater-header compact-header">
+          <div class="cinema-theater-header compact-header">
             <div class="theater-titles">
               <div class="theater-matchup-row compact-matchup">
                 <div class="theater-fighter">
-                  <img id="netflix-atk-icon" src="../assets/icons/chess/white/knight.svg" class="chess-medallion-icon-sm" alt="Attaccante">
-                  <span id="netflix-atk-name" class="fighter-name">Seby</span>
+                  <img id="cinema-atk-icon" src="../assets/icons/chess/white/knight.svg" class="chess-medallion-icon-sm" alt="Attaccante">
+                  <span id="cinema-atk-name" class="fighter-name">Seby</span>
                 </div>
                 <span class="theater-vs-sm">VS</span>
                 <div class="theater-fighter">
-                  <img id="netflix-def-icon" src="../assets/icons/chess/black/rook.svg" class="chess-medallion-icon-sm" alt="Difensore">
-                  <span id="netflix-def-name" class="fighter-name">Pupurabbu</span>
+                  <img id="cinema-def-icon" src="../assets/icons/chess/black/rook.svg" class="chess-medallion-icon-sm" alt="Difensore">
+                  <span id="cinema-def-name" class="fighter-name">Pupurabbu</span>
                 </div>
-                <span id="netflix-episode-badge" class="badge-gold-mini">EPISODIO 1 DI 6 · ATTACCO</span>
-                <span id="netflix-easter-badge" class="badge-purple-mini" style="display:none;">🪞 Specchio</span>
+                <span id="cinema-episode-badge" class="badge-gold-mini">EPISODIO 1 DI 6 · ATTACCO</span>
+                <span id="cinema-easter-badge" class="badge-purple-mini" style="display:none;">🪞 Specchio</span>
               </div>
-              <h3 id="netflix-screen-title" class="theater-title-sm">Cavaliere Seby vs Torre Pupurabbu</h3>
+              <h3 id="cinema-screen-title" class="theater-title-sm">Cavaliere Seby vs Torre Pupurabbu</h3>
             </div>
 
             <div class="theater-nav-controls">
-              <button id="netflix-prev-btn" class="nav-btn-icon" title="Episodio precedente">⏮️</button>
-              <button id="netflix-next-btn" class="nav-btn-icon gold" title="Prossimo episodio">⏭️</button>
+              <button id="cinema-prev-btn" class="nav-btn-icon" title="Episodio precedente">⏮️</button>
+              <button id="cinema-next-btn" class="nav-btn-icon gold" title="Prossimo episodio">⏭️</button>
             </div>
           </div>
 
           <!-- Central Video Screen with Aspect Ratio Toggle & Target Screen Badge -->
-          <div class="netflix-screen-wrap compact-screen" id="netflix-screen-wrap">
-            <video id="netflix-video" controls playsinline preload="auto">
-              <source id="netflix-video-mp4" src="" type="video/mp4">
-              <source id="netflix-video-webm" src="" type="video/webm">
+          <div class="cinema-screen-wrap compact-screen" id="cinema-screen-wrap">
+            <video id="cinema-video" controls playsinline preload="auto">
+              <source id="cinema-video-mp4" src="" type="video/mp4">
+              <source id="cinema-video-webm" src="" type="video/webm">
             </video>
             <!-- TARGET CHESS PIECE SCREEN BADGE (Visible during video playback) -->
-            <div id="netflix-screen-target-badge" class="netflix-screen-target-badge badge-attack">
-              <img id="netflix-screen-target-icon" src="../assets/icons/chess/black/queen.svg" class="screen-target-icon" alt="Target Piece">
+            <div id="cinema-screen-target-badge" class="cinema-screen-target-badge badge-attack">
+              <img id="cinema-screen-target-icon" src="../assets/icons/chess/black/queen.svg" class="screen-target-icon" alt="Target Piece">
               <div class="screen-target-meta">
-                <span id="netflix-screen-target-mode" class="screen-target-mode text-red">🎲🔴 ATTACCO</span>
-                <strong id="netflix-screen-target-title" class="screen-target-title">vs ♛ REGINA (Kate)</strong>
+                <span id="cinema-screen-target-mode" class="screen-target-mode text-red">🎲🔴 ATTACCO</span>
+                <strong id="cinema-screen-target-title" class="screen-target-title">vs ♛ REGINA (Kate)</strong>
               </div>
             </div>
-            <button type="button" id="netflix-aspect-toggle" class="netflix-aspect-btn" title="Alterna formato video tra 16:9 Cinema e 4:3 Classico">
-              <span id="netflix-screen-watermark">16:9 CINEMA</span> 📐
+            <button type="button" id="cinema-aspect-toggle" class="cinema-aspect-btn" title="Alterna formato video tra 16:9 Cinema e 4:3 Classico">
+              <span id="cinema-screen-watermark">16:9 CINEMA</span> 📐
             </button>
           </div>
 
           <!-- Screen Actions & Details -->
-          <div class="netflix-screen-meta-row">
-            <div class="netflix-acts-compact">
-              <span class="act-line">⚔️ <strong id="netflix-act1-text">Pista Loop Turbo</strong></span>
+          <div class="cinema-screen-meta-row">
+            <div class="cinema-acts-compact">
+              <span class="act-line">⚔️ <strong id="cinema-act1-text">Pista Loop Turbo</strong></span>
               <span>·</span>
-              <span class="act-line">🛡️ <strong id="netflix-act2-text">Rimbalzo</strong></span>
+              <span class="act-line">🛡️ <strong id="cinema-act2-text">Rimbalzo</strong></span>
             </div>
-            <a id="netflix-clash-3d-btn" href="../index.html?clash=n_r" class="btn-clash-3d-compact">🥊 Scontro 3D</a>
+            <a id="cinema-clash-3d-btn" href="../index.html?clash=n_r" class="btn-clash-3d-compact">🥊 Scontro 3D</a>
           </div>
 
           <!-- Hidden elements preserved for safety -->
-          <div id="netflix-screen-banner" style="display:none;"></div>
+          <div id="cinema-screen-banner" style="display:none;"></div>
           <div id="pov-bio-desc" style="display:none;"></div>
           <div id="pov-bio-fullname" style="display:none;"></div>
           <div id="pov-badge-hero" style="display:none;"></div>
@@ -1351,8 +1351,8 @@
         desc: '100% Scacchi Classici senza riferimenti Carlessiani: Re con Croce Reale, Regina coronata di perle, Alfiere Busto di San Gennaro con Ampolla del Sangue e mitria gemmata, Destriero Staunton, Torre Matildea / Rocca Estense dei Lidi Ferraresi e Pedone tornito.',
       },
       swamp: {
-        title: '🐸🧅 Famiglia Shrek / Palude — Parodia Fiabesca 100% IP-Safe (6 Pezzi)',
-        desc: 'Orco Brontolo, Principessa Orchessa, Don Gatto con gli Stivali Zorro-Vescovo, Asinello Chiacchierone (40 denti!), Draghessa della Palude e Zenzy Pan di Zenzero & Focaccina.',
+        title: '🐸🧅 Famiglia Ogre / Palude — Parodia Fiabesca 100% IP-Safe (6 Pezzi)',
+        desc: 'Orco Brontolo, Principessa Orchessa, Don Gatto Spadaccino-Vescovo, Asinello Chiacchierone (40 denti!), Draghessa della Palude e Zenzy Pan di Zenzero & Focaccina.',
       },
     };
 
@@ -1506,12 +1506,12 @@
       },
       {
         family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.4 · 🟢 3D 8.8',
-        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Don Gatto con gli Stivali — Zorro-Vescovo (bishop-swamp-gatto)', winner: true, defaultConfirmed: true,
-        tagline: 'Il Gatto con gli Stivali in versione Zorro-Vescovo: mascherina nera, mitra vescovile nera/oro con piuma gialla, mantello ricamato e stocco d’oro',
+        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Don Gatto Spadaccino — Vescovo Mascherato (bishop-swamp-gatto)', winner: true, defaultConfirmed: true,
+        tagline: 'Un gatto spadaccino mascherato in versione Vescovo: mascherina nera, mitra vescovile nera/oro con piuma gialla, mantello ricamato e stocco d’oro',
         front: '../assets/characters/bishop-swamp-gatto.jpg',
         model: '../assets/models/swamp/bishop-swamp-focaccina.glb?v=0.3.20',
         modelNote: 'TRELLIS.2 / 3D mesh · min.y = 0.0 · 1.45m · attacco: focaccina_crumb_bonk',
-        details: 'Mix comico tra il Gatto con gli Stivali, Zorro e un Vescovo solenne: mascherina da bandito sugli occhioni verdi, mitra papale nera e oro con croce rubino e piuma di struzzo gialla, mantello nero con medaglione Z, stivaloni e spada-pastorale.',
+        details: 'Mix comico tra un gatto moschettiere, uno spadaccino mascherato e un Vescovo solenne: mascherina da bandito sugli occhioni verdi, mitra papale nera e oro con croce rubino e piuma di struzzo gialla, mantello nero con medaglione Z, stivaloni e spada-pastorale.',
       },
       {
         family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.5 · 🟢 3D 9.4',
@@ -1838,7 +1838,7 @@ if (uDragonCoilMode > 0.5) {
 
     // Family Tab Filtering (strictly 1 family = 6 pieces visible at a time)
     function selectFamily(fam) {
-      const normalized = fam === 'shrek' ? 'swamp' : fam;
+      const normalized = fam === 'ogre' ? 'swamp' : fam;
       const validFam = FAMILY_META[normalized] ? normalized : 'carlesso';
       document.querySelectorAll('#family-tabs button').forEach((b) => {
         b.setAttribute('aria-pressed', b.dataset.family === validFam);
@@ -1954,8 +1954,8 @@ if (uDragonCoilMode > 0.5) {
       // Update Soundboard
       renderSoundboard(hero);
 
-      // Update Combat Videos in Netflix Theater with autostart
-      renderNetflixTheater(hero, 'attack', autoPlay);
+      // Update Combat Videos in Cinema Theater with autostart
+      renderCinemaTheater(hero, 'attack', autoPlay);
     }
 
     document.getElementById('pov-variants-pills')?.addEventListener('click', (e) => {
@@ -2108,47 +2108,47 @@ if (uDragonCoilMode > 0.5) {
       window.speechSynthesis.speak(utt);
     }
 
-    // 5. Netflix Battles Theater & 6+6 Risiko Shelves (Issue #22)
+    // 5. Cinema Battles Theater & 6+6 Risiko Shelves (Issue #22)
     let currentActiveMode = 'attack'; // 'attack' | 'defense'
     let currentActiveIndex = 0;
     let currentAttacksList = [];
     let currentDefensesList = [];
 
-    const netflixVideo = document.getElementById('netflix-video');
-    const netflixEpisodeBadge = document.getElementById('netflix-episode-badge');
-    const netflixEasterBadge = document.getElementById('netflix-easter-badge');
-    const netflixAtkIcon = document.getElementById('netflix-atk-icon');
-    const netflixAtkName = document.getElementById('netflix-atk-name');
-    const netflixDefIcon = document.getElementById('netflix-def-icon');
-    const netflixDefName = document.getElementById('netflix-def-name');
-    const netflixScreenTitle = document.getElementById('netflix-screen-title');
-    const netflixScreenBanner = document.getElementById('netflix-screen-banner');
-    const netflixAct1Text = document.getElementById('netflix-act1-text');
-    const netflixAct2Text = document.getElementById('netflix-act2-text');
-    const netflixClash3dBtn = document.getElementById('netflix-clash-3d-btn');
+    const cinemaVideo = document.getElementById('cinema-video');
+    const cinemaEpisodeBadge = document.getElementById('cinema-episode-badge');
+    const cinemaEasterBadge = document.getElementById('cinema-easter-badge');
+    const cinemaAtkIcon = document.getElementById('cinema-atk-icon');
+    const cinemaAtkName = document.getElementById('cinema-atk-name');
+    const cinemaDefIcon = document.getElementById('cinema-def-icon');
+    const cinemaDefName = document.getElementById('cinema-def-name');
+    const cinemaScreenTitle = document.getElementById('cinema-screen-title');
+    const cinemaScreenBanner = document.getElementById('cinema-screen-banner');
+    const cinemaAct1Text = document.getElementById('cinema-act1-text');
+    const cinemaAct2Text = document.getElementById('cinema-act2-text');
+    const cinemaClash3dBtn = document.getElementById('cinema-clash-3d-btn');
     const episodesCarouselEl = document.getElementById('episodes-shelf-carousel');
     const attacksCardsGridEl = document.getElementById('attacks-cards-grid');
     const defensesCardsGridEl = document.getElementById('defenses-cards-grid');
-    const netflixPrevBtn = document.getElementById('netflix-prev-btn');
-    const netflixNextBtn = document.getElementById('netflix-next-btn');
-    const netflixScreenWrap = document.getElementById('netflix-screen-wrap');
-    const netflixAspectBtn = document.getElementById('netflix-aspect-toggle');
-    const netflixTargetBadge = document.getElementById('netflix-screen-target-badge');
-    const netflixTargetIcon = document.getElementById('netflix-screen-target-icon');
-    const netflixTargetMode = document.getElementById('netflix-screen-target-mode');
-    const netflixTargetTitle = document.getElementById('netflix-screen-target-title');
+    const cinemaPrevBtn = document.getElementById('cinema-prev-btn');
+    const cinemaNextBtn = document.getElementById('cinema-next-btn');
+    const cinemaScreenWrap = document.getElementById('cinema-screen-wrap');
+    const cinemaAspectBtn = document.getElementById('cinema-aspect-toggle');
+    const cinemaTargetBadge = document.getElementById('cinema-screen-target-badge');
+    const cinemaTargetIcon = document.getElementById('cinema-screen-target-icon');
+    const cinemaTargetMode = document.getElementById('cinema-screen-target-mode');
+    const cinemaTargetTitle = document.getElementById('cinema-screen-target-title');
     let is4by3 = false;
 
-    netflixAspectBtn?.addEventListener('click', () => {
+    cinemaAspectBtn?.addEventListener('click', () => {
       is4by3 = !is4by3;
-      if (netflixScreenWrap) {
-        netflixScreenWrap.classList.toggle('ratio-4-3', is4by3);
+      if (cinemaScreenWrap) {
+        cinemaScreenWrap.classList.toggle('ratio-4-3', is4by3);
       }
-      const label = document.getElementById('netflix-screen-watermark');
+      const label = document.getElementById('cinema-screen-watermark');
       if (label) {
         label.textContent = is4by3 ? '4:3 CLASSIC' : '16:9 CINEMA';
       }
-      netflixAspectBtn.title = is4by3 ? 'Formato 4:3 Classico (clicca per 16:9 Cinema)' : 'Formato 16:9 Cinema (clicca per 4:3 Classico)';
+      cinemaAspectBtn.title = is4by3 ? 'Formato 4:3 Classico (clicca per 16:9 Cinema)' : 'Formato 16:9 Cinema (clicca per 4:3 Classico)';
     });
 
     function createEpisodeCardHTML(b, idx, isAttack, isActive) {
@@ -2187,7 +2187,7 @@ if (uDragonCoilMode > 0.5) {
       `;
     }
 
-    function renderNetflixTheater(hero, mode = 'attack', autoPlay = true) {
+    function renderCinemaTheater(hero, mode = 'attack', autoPlay = true) {
       currentAttacksList = getHeroAttacks(hero.key, '../');
       currentDefensesList = getHeroDefenses(hero.key, '../');
       currentActiveMode = (mode === 'defenses' || mode === 'defense') ? 'defense' : 'attack';
@@ -2225,59 +2225,59 @@ if (uDragonCoilMode > 0.5) {
         const defHero = HERO_PROFILES[b.defenderKey] || {};
         const isAttack = mode === 'attack';
 
-        if (netflixEpisodeBadge) {
+        if (cinemaEpisodeBadge) {
           const viewLabel = isAttack ? 'ATTACCO (Dadi Rossi)' : 'DIFESA (Dadi Blu)';
-          netflixEpisodeBadge.textContent = `EPISODIO ${currentActiveIndex + 1} DI 6 · ${viewLabel}`;
+          cinemaEpisodeBadge.textContent = `EPISODIO ${currentActiveIndex + 1} DI 6 · ${viewLabel}`;
         }
-        if (netflixEasterBadge) {
+        if (cinemaEasterBadge) {
           if (b.isMirror) {
-            netflixEasterBadge.style.display = 'inline-flex';
-            netflixEasterBadge.textContent = '🪞 Scontro Specchio';
+            cinemaEasterBadge.style.display = 'inline-flex';
+            cinemaEasterBadge.textContent = '🪞 Scontro Specchio';
           } else if (b.easterEgg) {
-            netflixEasterBadge.style.display = 'inline-flex';
-            netflixEasterBadge.textContent = b.easterEgg;
+            cinemaEasterBadge.style.display = 'inline-flex';
+            cinemaEasterBadge.textContent = b.easterEgg;
           } else {
-            netflixEasterBadge.style.display = 'none';
+            cinemaEasterBadge.style.display = 'none';
           }
         }
 
-        if (netflixAtkIcon) netflixAtkIcon.src = b.attackerMedallion;
-        if (netflixAtkName) netflixAtkName.textContent = atkHero.heroName || b.attackerKey;
-        if (netflixDefIcon) netflixDefIcon.src = b.defenderMedallion;
-        if (netflixDefName) netflixDefName.textContent = defHero.heroName || b.defenderKey;
-        if (netflixScreenTitle) netflixScreenTitle.textContent = b.title;
-        if (netflixScreenBanner) netflixScreenBanner.textContent = b.banner;
-        if (netflixAct1Text) netflixAct1Text.textContent = b.weapon;
-        if (netflixAct2Text) netflixAct2Text.textContent = `${b.counter} (${b.counterSfx})`;
-        if (netflixClash3dBtn) {
-          netflixClash3dBtn.href = `../index.html?clash=${b.pairId}`;
-          netflixClash3dBtn.textContent = `🥊 Gioca questo Scontro in 3D nella Scacchiera (${b.pairId.toUpperCase()})`;
+        if (cinemaAtkIcon) cinemaAtkIcon.src = b.attackerMedallion;
+        if (cinemaAtkName) cinemaAtkName.textContent = atkHero.heroName || b.attackerKey;
+        if (cinemaDefIcon) cinemaDefIcon.src = b.defenderMedallion;
+        if (cinemaDefName) cinemaDefName.textContent = defHero.heroName || b.defenderKey;
+        if (cinemaScreenTitle) cinemaScreenTitle.textContent = b.title;
+        if (cinemaScreenBanner) cinemaScreenBanner.textContent = b.banner;
+        if (cinemaAct1Text) cinemaAct1Text.textContent = b.weapon;
+        if (cinemaAct2Text) cinemaAct2Text.textContent = `${b.counter} (${b.counterSfx})`;
+        if (cinemaClash3dBtn) {
+          cinemaClash3dBtn.href = `../index.html?clash=${b.pairId}`;
+          cinemaClash3dBtn.textContent = `🥊 Gioca questo Scontro in 3D nella Scacchiera (${b.pairId.toUpperCase()})`;
         }
 
         // Update Target Screen Badge floating directly on the main cinema screen
-        if (netflixTargetBadge && netflixTargetIcon && netflixTargetMode && netflixTargetTitle) {
-          netflixTargetBadge.className = `netflix-screen-target-badge ${isAttack ? 'badge-attack' : 'badge-defense'}`;
-          netflixTargetIcon.src = b.targetMedallion;
-          netflixTargetMode.className = `screen-target-mode ${isAttack ? 'text-red' : 'text-blue'}`;
-          netflixTargetMode.textContent = isAttack ? '🎲🔴 ATTACCO' : '🎲🔵 DIFESA';
-          netflixTargetTitle.textContent = `${isAttack ? 'vs' : 'da'} ${b.targetPieceGlyph} ${b.targetPieceName} (${b.targetHero?.heroName || b.targetKey})`;
+        if (cinemaTargetBadge && cinemaTargetIcon && cinemaTargetMode && cinemaTargetTitle) {
+          cinemaTargetBadge.className = `cinema-screen-target-badge ${isAttack ? 'badge-attack' : 'badge-defense'}`;
+          cinemaTargetIcon.src = b.targetMedallion;
+          cinemaTargetMode.className = `screen-target-mode ${isAttack ? 'text-red' : 'text-blue'}`;
+          cinemaTargetMode.textContent = isAttack ? '🎲🔴 ATTACCO' : '🎲🔵 DIFESA';
+          cinemaTargetTitle.textContent = `${isAttack ? 'vs' : 'da'} ${b.targetPieceGlyph} ${b.targetPieceName} (${b.targetHero?.heroName || b.targetKey})`;
         }
 
-        if (netflixVideo) {
-          netflixVideo.poster = b.poster;
-          netflixVideo.src = b.videoMp4;
-          netflixVideo.load();
+        if (cinemaVideo) {
+          cinemaVideo.poster = b.poster;
+          cinemaVideo.src = b.videoMp4;
+          cinemaVideo.load();
           if (autoPlay) {
-            const playPromise = netflixVideo.play();
+            const playPromise = cinemaVideo.play();
             if (playPromise !== undefined) {
               playPromise.catch(() => {
-                netflixVideo.muted = true;
-                netflixVideo.play().catch(() => {});
+                cinemaVideo.muted = true;
+                cinemaVideo.play().catch(() => {});
               });
             }
           }
           requestAnimationFrame(() => {
-            netflixVideo.classList.remove('fade-out');
+            cinemaVideo.classList.remove('fade-out');
           });
         }
 
@@ -2305,8 +2305,8 @@ if (uDragonCoilMode > 0.5) {
         });
       };
 
-      if (withTransition && netflixVideo) {
-        netflixVideo.classList.add('fade-out');
+      if (withTransition && cinemaVideo) {
+        cinemaVideo.classList.add('fade-out');
         setTimeout(executeLoad, 280);
       } else {
         executeLoad();
@@ -2343,15 +2343,15 @@ if (uDragonCoilMode > 0.5) {
     });
 
     // Prev / Next Buttons with smooth fade transition
-    netflixPrevBtn?.addEventListener('click', () => {
+    cinemaPrevBtn?.addEventListener('click', () => {
       loadBattleToScreen(currentActiveMode, currentActiveIndex - 1, true, true);
     });
-    netflixNextBtn?.addEventListener('click', () => {
+    cinemaNextBtn?.addEventListener('click', () => {
       loadBattleToScreen(currentActiveMode, currentActiveIndex + 1, true, true);
     });
 
     // Auto-advance episode with smooth fade transition when video finishes
-    netflixVideo?.addEventListener('ended', () => {
+    cinemaVideo?.addEventListener('ended', () => {
       loadBattleToScreen(currentActiveMode, currentActiveIndex + 1, true, true);
     });
 
@@ -2438,7 +2438,7 @@ if (uDragonCoilMode > 0.5) {
   </script>
 
   <footer style="text-align:center;padding:24px 16px 40px;color:#90a4ae;font-size:12px;border-top:1px solid rgba(255,213,79,0.2);margin-top:40px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
-    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.50</span>
+    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.51</span>
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener noreferrer" style="color:#9be7c4;text-decoration:none;font-weight:600;">🐙 GitHub Code</a>
     <span>·</span>

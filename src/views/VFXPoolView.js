@@ -9,7 +9,7 @@
  *   1. King Riccardo (`sceptre_lightning` & `golden_toilet_throne` — "Carlesso al Cesso" 🚽👑)
  *   2. Queen Kate (`chocolate_wave` — glossy milk-chocolate crest + lilac/gold confetti 🍫💜)
  *   3. Bishop Ale (`crystal_shatter` — translucent amethyst/ruby crystal case + 60 bouncing gem shards 💎🐉)
- *   4. Knight Seby (`loop_track_cars` — bright orange hot-wheels loop + 8 zooming toy cars + stars 🏎️✨)
+ *   4. Knight Seby (`loop_track_cars` — bright orange toy-car loop + 8 zooming toy cars + stars 🏎️✨)
  *   5. Rook Pupurabbu (`plush_ground_pound` — 2.6m high jump + indigo shockwave + 36 fluffy poof clouds 💥💜)
  *   6. Pawn Puffin (`halberd_fish_slap` — sculpted 3D silver-blue fish slap + spinning arc off-board 🐟⚔️)
  *   7. Easter Egg (`mega_cuddle_bounce` — Seby <-> Pupurabbu non-lethal cuddle hop + 40 3D hearts 💜🤗)
@@ -17,7 +17,7 @@
  * - Stages the 3-Act `4.0s` 3D Scazzottata between the two `.glb` characters (`this.attackerFighter` &
  *   `this.defenderFighter`) with attached 3D character weapons (`buildFighterWeaponProp(pieceType)`),
  *   character-specific Defender Counter-Attacks in Act 2, 3D Floating Comic Impact Words
- *   (`this.props.comicWordSprite` at `y = 1.95m`), impact camera shake, and a 3D Shrek Swamp
+ *   (`this.props.comicWordSprite` at `y = 1.95m`), impact camera shake, and a 3D Ogre Swamp
  *   Water Splash ring + droplet burst (`x = ±6.4m, y = -0.28m`) at the end of Act 3!
  */
 
@@ -153,9 +153,9 @@ export class VFXPoolView {
     this.combatBlend = 0.0;
     this.lastCombatDesiredPos = new THREE.Vector3(0, 2.5, 4.8);
     this.lastCombatDesiredTarget = new THREE.Vector3(0, 1.62, 0);
-    this.lastNetflixMirrorPos = new THREE.Vector3(0, 0.78, -6.0);
-    this.lastNetflixMirrorScale = 1.53;
-    this.lastNetflixMirrorQuat = new THREE.Quaternion();
+    this.lastCinemaMirrorPos = new THREE.Vector3(0, 0.78, -6.0);
+    this.lastCinemaMirrorScale = 1.53;
+    this.lastCinemaMirrorQuat = new THREE.Quaternion();
     this._idleMirrorQuat = new THREE.Quaternion(0, 0, 0, 1);
     this.hiddenBoardNodes = [];
     this.offs = [];
@@ -369,7 +369,7 @@ export class VFXPoolView {
       return new THREE.Mesh(stoneGeo, mat);
     });
 
-    // 9. Shrek Swamp Emerald Water Splash Droplets (`swamp_water_droplets`) — 42 droplets
+    // 9. Ogre Swamp Emerald Water Splash Droplets (`swamp_water_droplets`) — 42 droplets
     const dropletGeo = new THREE.SphereGeometry(0.068, 8, 8);
     const swampColors = [0x00e676, 0x69f0ae, 0x1de9b6, 0x76ff03, 0x4dd0e1];
     this.createPool('swamp_water_droplets', 42, (i) => {
@@ -386,7 +386,7 @@ export class VFXPoolView {
       return new THREE.Mesh(dropletGeo, mat);
     });
 
-    // 10. Sacro Acquarius Diamond-Ice Shards (`diamond_ice_crystals` — Seby vs Puffin) — 64 crystals
+    // 10. Sigillo dell’Acquario Diamond-Ice Shards (`diamond_ice_crystals` — Seby vs Puffin) — 64 crystals
     const iceShardGeo = new THREE.OctahedronGeometry(0.095, 0);
     const iceColors = [0x80deea, 0xe0f7fa, 0x00e5ff, 0x4dd0e1, 0xffffff];
     this.createPool('diamond_ice_crystals', 64, (i) => {
@@ -698,16 +698,16 @@ export class VFXPoolView {
     this.props.comicWordSprite = this.createComicWordSpriteProp();
     this.rootGroup.add(this.props.comicWordSprite);
 
-    // 10. Pre-allocated 3D Shrek Swamp K.O. Water Splash Ring (`x = ±6.4m, y = -0.28m`)
+    // 10. Pre-allocated 3D Ogre Swamp K.O. Water Splash Ring (`x = ±6.4m, y = -0.28m`)
     this.props.swampKoSplash = this.createSwampKoSplashProp();
     this.rootGroup.add(this.props.swampKoSplash);
 
-    // 11. Sacro Acquarius Celestial Water-Bearer Maiden + Giant Golden Amphora + IceCoffin (`n_x_p`)
+    // 11. Sigillo dell’Acquario Celestial Water-Bearer Maiden + Giant Golden Amphora + IceCoffin (`n_x_p`)
     this.props.aquariusMaiden = this.createAquariusMaidenAmphoraProp();
     this.props.iceCoffin = this.createIceCoffinProp();
     this.rootGroup.add(this.props.aquariusMaiden, this.props.iceCoffin);
 
-    // 12. King Riccardo ("Papino" `k`) 6 D&D Spells 3D Stage Props
+    // 12. King Riccardo ("Papino" `k`) 6 Fantasy Spells 3D Stage Props
     this.createPapinoDndProps();
 
     // 13. Fallback Stage Figurines (used only in headless unit tests where PieceView is not mounted)
@@ -717,7 +717,7 @@ export class VFXPoolView {
   }
 
   /**
-   * Pre-allocates the 3D D&D Spell Stage Props for King Riccardo ("Papino" `k`):
+   * Pre-allocates the 3D Spell Stage Props for King Riccardo ("Papino" `k`):
    * - `dndFireball`: Blazing 8d6 Fireball sphere + floating golden d20 icosahedron (`k_x_p`)
    * - `dndMeteorSwarm`: 4 blazing volcanic meteors raining from a sky spell ring (`k_x_b`)
    * - `dndComicDaemon`: Chubby red comic baby Balor demon with horns, bat wings, pitchfork & pizza slice (`k_x_r`)
@@ -725,7 +725,7 @@ export class VFXPoolView {
    * - `dndPetrifyStatue`: Gray-gold marble petrification shell around the target (`k_x_q`)
    */
   createPapinoDndProps() {
-    // 1. D&D Fireball (`k_x_p`) + Golden d20
+    // 1. Fireball (`k_x_p`) + Golden d20
     const fbGroup = new THREE.Group();
     fbGroup.name = 'DndFireballProp';
     const fbCore = new THREE.Mesh(
@@ -749,7 +749,7 @@ export class VFXPoolView {
     this.props.dndFireball = fbGroup;
     this.rootGroup.add(fbGroup);
 
-    // 2. D&D Meteor Swarm (`k_x_b`) — 4 volcanic meteors with flame tails
+    // 2. Meteor Swarm (`k_x_b`) — 4 volcanic meteors with flame tails
     const meteorGroup = new THREE.Group();
     meteorGroup.name = 'DndMeteorSwarmProp';
     const rockMat = new THREE.MeshStandardMaterial({
@@ -773,7 +773,7 @@ export class VFXPoolView {
     this.props.dndMeteorSwarm = meteorGroup;
     this.rootGroup.add(meteorGroup);
 
-    // 3. D&D Summon Greater Comic Daemon (`k_x_r`) — Chubby Red Baby Balor with Horns, Bat Wings & Pizza
+    // 3. Summon Greater Comic Daemon (`k_x_r`) — Chubby Red Baby Balor with Horns, Bat Wings & Pizza
     const daemonGroup = new THREE.Group();
     daemonGroup.name = 'DndComicDaemonProp';
     const redMat = new THREE.MeshStandardMaterial({
@@ -805,7 +805,7 @@ export class VFXPoolView {
     this.props.dndComicDaemon = daemonGroup;
     this.rootGroup.add(daemonGroup);
 
-    // 4. D&D Disintegrate Emerald Laser Ray (`k_x_k`)
+    // 4. Disintegrate Emerald Laser Ray (`k_x_k`)
     const disGroup = new THREE.Group();
     disGroup.name = 'DndDisintegrateRayProp';
     const beam = new THREE.Mesh(
@@ -830,7 +830,7 @@ export class VFXPoolView {
     this.props.dndDisintegrateRay = disGroup;
     this.rootGroup.add(disGroup);
 
-    // 5. D&D Flesh to Stone / Petrification Statue Shell (`k_x_q`)
+    // 5. Flesh to Stone / Petrification Statue Shell (`k_x_q`)
     const petrifyMesh = new THREE.Mesh(
       new THREE.CylinderGeometry(0.38, 0.44, 1.32, 8),
       new THREE.MeshStandardMaterial({
@@ -1085,7 +1085,7 @@ export class VFXPoolView {
 
   /**
    * Builds the pre-allocated 3D emerald water splash ring + crown column triggered
-   * when the defeated piece splashes into Shrek's Swamp (`x = ±6.4m, y = -0.28m`) in Act 3.
+   * when the defeated piece splashes into the Ogre's Swamp (`x = ±6.4m, y = -0.28m`) in Act 3.
    */
   createSwampKoSplashProp() {
     const group = new THREE.Group();
@@ -1759,8 +1759,8 @@ export class VFXPoolView {
         restitution: 0.6,
         floatUp: true,
       });
-    } else if (effect === 'sacro_acquarius_ice_coffin') {
-      // Knight Seby vs Pawn Puffin (`n_x_p`): Sacro Acquarius & Teca di Ghiaccio Eterno!
+    } else if (effect === 'sigillo_acquario_ice_coffin') {
+      // Knight Seby vs Pawn Puffin (`n_x_p`): Sigillo dell’Acquario & Teca di Ghiaccio Eterno!
       if (this.props.aquariusMaiden) {
         this.props.aquariusMaiden.position.set(fromPos.x, 0.55, fromPos.z);
         this.props.aquariusMaiden.scale.setScalar(1);
@@ -2143,7 +2143,7 @@ export class VFXPoolView {
           if (this.props.crystalCase && this.activeClash?.effect === 'crystal_shatter') {
             this.props.crystalCase.visible = false;
           }
-          if (this.props.iceCoffin && this.activeClash?.effect === 'sacro_acquarius_ice_coffin' && this.clashElapsed >= 6.8) {
+          if (this.props.iceCoffin && this.activeClash?.effect === 'sigillo_acquario_ice_coffin' && this.clashElapsed >= 6.8) {
             this.props.iceCoffin.visible = false;
           }
         }
@@ -2276,7 +2276,7 @@ export class VFXPoolView {
       const ringT = Math.max(0, (t - 0.56) / 0.38);
       this.props.shockwaveRing.scale.setScalar(0.35 + ringT * 3.4);
     }
-    if (clash.effect === 'sacro_acquarius_ice_coffin') {
+    if (clash.effect === 'sigillo_acquario_ice_coffin') {
       if (this.props.aquariusMaiden) {
         const showMaiden = t >= 0.52 && t < 0.84;
         this.props.aquariusMaiden.visible = showMaiden;
@@ -2336,7 +2336,7 @@ export class VFXPoolView {
       }
     }
 
-    // Animate King Riccardo ("Papino" `k`) 6 D&D Spells in 3D!
+    // Animate King Riccardo ("Papino" `k`) 6 Fantasy Spells in 3D!
     const dndSpell = clash.dndSpell;
     if (dndSpell) {
       const showDnd = t >= 0.56 && t < 0.88;
@@ -2627,7 +2627,7 @@ export class VFXPoolView {
         def.userData.isCounterAttacking = false;
 
         if (finU < 0.42) {
-          // Sub-phase 3A (6.2s .. 7.38s): Attacker unleashes Signature Ultimate Finisher / D&D Spell!
+          // Sub-phase 3A (6.2s .. 7.38s): Attacker unleashes Signature Ultimate Finisher / Spell!
           const subU = finU / 0.42;
           const s = Math.sin(subU * Math.PI);
           const dndFinishWords = {
@@ -2640,10 +2640,10 @@ export class VFXPoolView {
             kiss_of_death_blight: 'AVVIZZITA! 🥀💀',
           };
           this.setComicWordText(
-            clash.effect === 'sacro_acquarius_ice_coffin'
+            clash.effect === 'sigillo_acquario_ice_coffin'
               ? 'TECA DI GHIACCIO! 🧊'
               : dndFinishWords[clash.dndSpell] || 'COLPO FINALE! ⚡',
-            clash.effect === 'sacro_acquarius_ice_coffin' ? '#00838f' : '#ff6d00',
+            clash.effect === 'sigillo_acquario_ice_coffin' ? '#00838f' : '#ff6d00',
             '#e0f7fa',
           );
 
@@ -2662,7 +2662,7 @@ export class VFXPoolView {
             def.scale.setScalar(scale);
           }
 
-          if (clash.effect === 'sacro_acquarius_ice_coffin') {
+          if (clash.effect === 'sigillo_acquario_ice_coffin') {
             const skel = atk.userData?.proceduralSkeleton;
             if (skel?.leftArm && skel?.rightArm) {
               skel.leftArm.rotation.set(-2.85, 0, -0.32);
@@ -2686,11 +2686,11 @@ export class VFXPoolView {
           this.animateFighterWeaponProp(atk, this.attackerWeaponProp, elapsedS, 0.9, false);
           this.animateFighterWeaponProp(def, this.defenderWeaponProp, elapsedS, 0.5, false);
         } else {
-          // Sub-phase 3B (7.38s .. 9.0s): Defender arcs into Shrek's Swamp while Attacker claims `toPos`!
+          // Sub-phase 3B (7.38s .. 9.0s): Defender arcs into the Ogre's Swamp while Attacker claims `toPos`!
           const koU = (finU - 0.42) / 0.58;
           this.setComicWordText(
-            clash.effect === 'sacro_acquarius_ice_coffin' ? 'CRUMBLE! ❄️💎' : 'K.O.! 🐸💦',
-            clash.effect === 'sacro_acquarius_ice_coffin' ? '#00bcd4' : '#00c853',
+            clash.effect === 'sigillo_acquario_ice_coffin' ? 'CRUMBLE! ❄️💎' : 'K.O.! 🐸💦',
+            clash.effect === 'sigillo_acquario_ice_coffin' ? '#00bcd4' : '#00c853',
             '#ffea00',
           );
 
@@ -2859,12 +2859,12 @@ export class VFXPoolView {
       this.lastCombatDesiredTarget.lerp(desiredTarget, orbitAlpha);
     }
 
-    // Compute the exact full-viewport 16:9 Netflix Cinema pose corresponding to the combat camera
+    // Compute the exact full-viewport 16:9 Maxi Cinema pose corresponding to the combat camera
     const targetFov = 45;
-    this._computeNetflixMirrorPose(this.lastCombatDesiredPos, this.lastCombatDesiredTarget, targetFov, dist);
+    this._computeCinemaMirrorPose(this.lastCombatDesiredPos, this.lastCombatDesiredTarget, targetFov, dist);
 
     // Keep `combatBlend = 1.0` for the entire 8s Veo video + 1s post-padding (`1.0s .. 10.0s`)
-    // so the Netflix screen NEVER shrinks early while the video is still playing!
+    // so the Cinema screen NEVER shrinks early while the video is still playing!
     const entryS = this.getEntryDurationS();
     let blend = 1.0;
     if (this.clashElapsed < entryS) {
@@ -2875,13 +2875,13 @@ export class VFXPoolView {
   }
 
   /**
-   * Computes the camera-aligned 16:9 Netflix Cinema IMAX/XXL position, scale, and quaternion
+   * Computes the camera-aligned 16:9 Maxi Cinema IMAX/XXL position, scale, and quaternion
    * so the 16:9 screen fills ~93% of the entire viewport (`videoBoost = 2.38`) with almost zero black bars!
    */
-  _computeNetflixMirrorPose(camPos, camTgt, fov = 45, fallbackDist = 4.65) {
+  _computeCinemaMirrorPose(camPos, camTgt, fov = 45, fallbackDist = 4.65) {
     const upVec = new THREE.Vector3(0, 1, 0);
     const lookMat = new THREE.Matrix4().lookAt(camPos, camTgt, upVec);
-    this.lastNetflixMirrorQuat.setFromRotationMatrix(lookMat);
+    this.lastCinemaMirrorQuat.setFromRotationMatrix(lookMat);
 
     const camDx = camPos.x - camTgt.x;
     const camDz = camPos.z - camTgt.z;
@@ -2896,7 +2896,7 @@ export class VFXPoolView {
       camTgt.z * actualDirZ;
     const backdropDist = Math.max(5.8, maxAltarCornerDist + 0.85);
 
-    let defaultBoost = 2.38; // Full-Viewport Immersive Netflix IMAX (~93% of viewport width & height!)
+    let defaultBoost = 2.38; // Full-Viewport Immersive Cinema IMAX (~93% of viewport width & height!)
     if (typeof window !== 'undefined' && window.location?.search) {
       const qb = new URLSearchParams(window.location.search).get('videoBoost');
       if (qb !== null && Number.isFinite(Number(qb))) {
@@ -2911,19 +2911,19 @@ export class VFXPoolView {
     const halfTan = Math.tan((fov * 0.5 * Math.PI) / 180);
     const hHalf = dMirror * halfTan;
 
-    const camFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(this.lastNetflixMirrorQuat).normalize();
-    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(this.lastNetflixMirrorQuat).normalize();
+    const camFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(this.lastCinemaMirrorQuat).normalize();
+    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(this.lastCinemaMirrorQuat).normalize();
 
     const frameSpanH = 0.78 * hHalf * videoBoost;
     const mirrorScale = Math.max(0.52, Math.min(3.60, frameSpanH / 4.60));
     // Center the immersive 16:9 screen vertically in the camera frustum so top/bottom/sides are balanced
     const centerOffset = 0.015 * hHalf;
 
-    this.lastNetflixMirrorPos
+    this.lastCinemaMirrorPos
       .copy(camPos)
       .addScaledVector(camFwd, dMirror)
       .addScaledVector(camUp, centerOffset);
-    this.lastNetflixMirrorScale = mirrorScale;
+    this.lastCinemaMirrorScale = mirrorScale;
   }
 
   /**
@@ -2986,7 +2986,7 @@ export class VFXPoolView {
   /**
    * Applies the unified `combatBlend` (`0.0 .. 1.0`) across:
    * 1. `ZurichSwampView` (Swamp, Zurich Skyline, Alps, and 64 Chessboard tiles alpha cross-fade)
-   * 2. `VeoCinemaView` (Netflix film alpha `100% <-> 0%` + "Cinema Vecchio" convergence)
+   * 2. `VeoCinemaView` (Cinema film alpha `100% <-> 0%` + "Cinema Vecchio" convergence)
    * 3. `HudListener` (Top Header, Bottom Footer, Banners, and Toasts smoothly hide during combat!)
    * 4. `_applyArenaNonLinearWarp` (Non-linear radial dilation & scale falloff of neighboring board pieces)
    * 5. `this.camera` & `this.controls.target` (smooth pull-back to `this.camSaved`)
@@ -3033,8 +3033,8 @@ export class VFXPoolView {
 
       if (b >= 0.999 && this.camera) {
         this.camera.updateMatrixWorld?.();
-        mirrorRoot.position.copy(this.lastNetflixMirrorPos);
-        mirrorRoot.scale.setScalar(this.lastNetflixMirrorScale);
+        mirrorRoot.position.copy(this.lastCinemaMirrorPos);
+        mirrorRoot.scale.setScalar(this.lastCinemaMirrorScale);
         mirrorRoot.quaternion.copy(this.camera.quaternion);
         mirrorRoot.userData.vfxControlled = true;
       } else if (b <= 0.001) {
@@ -3043,11 +3043,11 @@ export class VFXPoolView {
         mirrorRoot.rotation.set(0, 0, 0);
         mirrorRoot.userData.vfxControlled = false;
       } else {
-        mirrorRoot.position.lerpVectors(idlePos, this.lastNetflixMirrorPos, b);
-        mirrorRoot.scale.setScalar(idleScale + (this.lastNetflixMirrorScale - idleScale) * b);
+        mirrorRoot.position.lerpVectors(idlePos, this.lastCinemaMirrorPos, b);
+        mirrorRoot.scale.setScalar(idleScale + (this.lastCinemaMirrorScale - idleScale) * b);
         mirrorRoot.quaternion.slerpQuaternions(
           this._idleMirrorQuat,
-          this.lastNetflixMirrorQuat,
+          this.lastCinemaMirrorQuat,
           b,
         );
         mirrorRoot.userData.vfxControlled = true;

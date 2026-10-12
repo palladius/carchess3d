@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.50';
+export const APP_VERSION = '0.3.51';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -700,7 +700,7 @@ export const FAMILY_ROSTERS = Object.freeze({
     pieces: {
       k: { name: 'Orco Brontolo', glyph: '♔', badge: '🐸', attackLabel: 'Rutto Cipolla di Palude 🐸🧅' },
       q: { name: 'Principessa Orchessa', glyph: '♕', badge: '🥋', attackLabel: 'Calcio Kung-Fu Slow-Mo 👑🥋' },
-      b: { name: 'Don Gatto Zorro-Vescovo', glyph: '♗', badge: '🐱', attackLabel: 'Stoccata Zorro-Vescovo 🐱⚔️' },
+      b: { name: 'Don Gatto Spadaccino-Vescovo', glyph: '♗', badge: '🐱', attackLabel: 'Stoccata Spadaccino-Vescovo 🐱⚔️' },
       n: { name: 'Asinello 40 Denti', glyph: '♘', badge: '🫏', attackLabel: 'Calcio Doppio d’Asinello 🫏✨' },
       r: { name: 'Draghessa', glyph: '♖', badge: '🐉', attackLabel: 'Fumo Cuore di Draghessa 🐉🏰' },
       p: { name: 'Zenzy Pan di Zenzero', glyph: '♙', badge: '🍪', attackLabel: 'Alabarda Pan di Zenzero & Focaccina 🍪⚔️' },
@@ -805,15 +805,15 @@ function buildBattleMatrix() {
     },
   };
 
-  // Easter Egg #4: Seby (n) -> Pawn Puffin (p): "Sacro Acquarius & Teca di Ghiaccio Eterno" ♒❄️💎
+  // Easter Egg #4: Seby (n) -> Pawn Puffin (p): "Sigillo dell’Acquario & Teca di Ghiaccio Eterno" ♒❄️💎
   matrix.n.p = {
     ...matrix.n.p,
-    effect: 'sacro_acquarius_ice_coffin',
+    effect: 'sigillo_acquario_ice_coffin',
     debrisType: 'diamond_ice_crystals',
     victimReaction: 'frozen_coffin_crumble',
-    easterEgg: 'seby_sacro_acquarius',
+    easterEgg: 'seby_sigillo_acquario',
     banner: {
-      it: 'SACRO ACQUARIUS! SEBY CONGELA PUFFIN NELLA TECA DI GHIACCIO! ♒❄️💎',
+      it: 'SIGILLO DELL’ACQUARIO! SEBY CONGELA PUFFIN NELLA TECA DI GHIACCIO! ♒❄️💎',
       en: 'SACRED AQUARIUS! SEBY FREEZES PUFFIN IN THE ICE COFFIN! ♒❄️💎',
     },
   };
@@ -828,48 +828,48 @@ function buildBattleMatrix() {
     },
   };
 
-  // Easter Egg #5: King Riccardo ("Papino" `k`) casts a DIFFERENT D&D Spell for each of his 6 targets! 🎲🧙‍♂️
+  // Easter Egg #5: King Riccardo ("Papino" `k`) casts a DIFFERENT Spell for each of his 6 targets! 🎲🧙‍♂️
   const PAPINO_DND_SPELLS = {
     k: {
       dndSpell: 'disintegrate',
       banner: {
-        it: 'D&D DISINTEGRATE (10d6+40)! RAGGIO VERDE POLVERIZZA IL RE RIVALE! 🟢✨🎲',
-        en: 'D&D DISINTEGRATE (10d6+40)! EMERALD RAY VAPORIZES THE RIVAL KING! 🟢✨🎲',
+        it: 'DISINTEGRATE (10d6+40)! RAGGIO VERDE POLVERIZZA IL RE RIVALE! 🟢✨🎲',
+        en: 'DISINTEGRATE (10d6+40)! EMERALD RAY VAPORIZES THE RIVAL KING! 🟢✨🎲',
       },
     },
     q: {
       dndSpell: 'kiss_of_death_blight',
       banner: {
         it: "CARLESSO AL CESSO & KISS OF DEATH! AVVIZZITA SUL TRONO D'ORO! 💋🥀💀",
-        en: 'CARLESSO AL CESSO & D&D KISS OF DEATH! WITHERED ON THE GOLDEN THRONE! 💋🥀💀',
+        en: 'CARLESSO AL CESSO & KISS OF DEATH! WITHERED ON THE GOLDEN THRONE! 💋🥀💀',
       },
     },
     b: {
       dndSpell: 'meteor_swarm',
       banner: {
-        it: 'D&D METEOR SWARM (9° LIV)! PIOGGIA DI METEORE SU ALE & DRAGO! ☄️🌋🎲',
-        en: 'D&D METEOR SWARM (LVL 9)! BLAZING METEORS RAIN ON ALE & DRAGON! ☄️🌋🎲',
+        it: 'METEOR SWARM (9° LIV)! PIOGGIA DI METEORE SU ALE & DRAGO! ☄️🌋🎲',
+        en: 'METEOR SWARM (LVL 9)! BLAZING METEORS RAIN ON ALE & DRAGON! ☄️🌋🎲',
       },
     },
     n: {
       dndSpell: 'chain_lightning',
       banner: {
-        it: 'D&D CHAIN LIGHTNING! CATENA DI FULMINI REALE SU SEBY TURBO! ⚡⛓️🎲',
-        en: 'D&D CHAIN LIGHTNING! ARCING ROYAL BOLTS STRIKE TURBO SEBY! ⚡⛓️🎲',
+        it: 'CHAIN LIGHTNING! CATENA DI FULMINI REALE SU SEBY TURBO! ⚡⛓️🎲',
+        en: 'CHAIN LIGHTNING! ARCING ROYAL BOLTS STRIKE TURBO SEBY! ⚡⛓️🎲',
       },
     },
     r: {
       dndSpell: 'summon_comic_daemon',
       banner: {
-        it: 'D&D SUMMON DAEMON! DEMONE BUFFO CON PIZZA CONTRO PUPURABBU! 😈🍕🎲',
-        en: 'D&D SUMMON COMIC DAEMON! CHUBBY PIZZA DEMON VS PUPURABBU! 😈🍕🎲',
+        it: 'SUMMON DAEMON! DEMONE BUFFO CON PIZZA CONTRO PUPURABBU! 😈🍕🎲',
+        en: 'SUMMON COMIC DAEMON! CHUBBY PIZZA DEMON VS PUPURABBU! 😈🍕🎲',
       },
     },
     p: {
       dndSpell: 'fireball',
       banner: {
-        it: 'D&D FIREBALL (8d6)! PAPINO LANCIA PALLA DI FUOCO SUL PUFFIN! 🔥🎲',
-        en: 'D&D FIREBALL (8d6)! PAPINO HURLS A BLAZING FIREBALL AT PUFFIN! 🔥🎲',
+        it: 'FIREBALL (8d6)! PAPINO LANCIA PALLA DI FUOCO SUL PUFFIN! 🔥🎲',
+        en: 'FIREBALL (8d6)! PAPINO HURLS A BLAZING FIREBALL AT PUFFIN! 🔥🎲',
       },
     },
   };
@@ -955,8 +955,8 @@ export const SWAMP_REGISTRY = Object.freeze({
   },
   b: {
     ...CHARACTER_REGISTRY.b,
-    name: 'Gatto Zorro-Vescovo',
-    title: { it: 'Don Gatto con gli Stivali (Zorro-Vescovo) 🐱⚔️♗', en: 'Don Puss in Boots (Zorro-Bishop) 🐱⚔️♗' },
+    name: 'Gatto Spadaccino-Vescovo',
+    title: { it: 'Don gatto spadaccino (Spadaccino-Vescovo) 🐱⚔️♗', en: 'Don Swordcat (Masked Swordsman Bishop) 🐱⚔️♗' },
     frontPortrait: 'assets/characters/bishop-swamp-gatto.jpg',
     altPortrait: 'assets/characters/bishop-swamp-gatto.jpg',
     backPortrait: 'assets/characters/bishop-swamp-gatto.jpg',

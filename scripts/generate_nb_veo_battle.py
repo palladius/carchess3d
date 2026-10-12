@@ -114,7 +114,7 @@ CHARACTER_SPECS = {
             "knight armor and a flowing blue cape, riding a golden-armored warhorse"
         ),
         "attack_desc": (
-            "rears up on his golden warhorse and charges forward while launching a glowing orange Hot-Wheels "
+            "rears up on his golden warhorse and charges forward while launching a glowing orange toy-car "
             "loop-the-loop race track and fast miniature turbo toy race cars"
         ),
         "counter_desc": "pops a dramatic wheelie on his golden warhorse and kicks up turbo race car sparks",
@@ -193,7 +193,7 @@ CUSTOM_PAIR_PROMPTS = {
             "shoulder). Image 3 shows their exact LEFT vs RIGHT placement. "
             "Create a single cohesive 16:9 cinematic Pixar-style 3D starting frame of an epic battle on an enchanted "
             "stone chessboard surrounded by flaming torches at twilight. On the LEFT side, Knight Seby rears up on "
-            "his golden warhorse facing right, summoning a glowing orange Hot-Wheels loop-track and miniature turbo "
+            "his golden warhorse facing right, summoning a glowing orange toy-car loop-track and miniature turbo "
             "toy race cars ready to charge and bowl over Ale. On the RIGHT side, Bishop Ale faces left with his "
             "magic wand and red shoulder dragon bracing for Seby's turbo charge. Keep both characters' faces, "
             "costumes, and proportions 100% faithful to the reference photos. Seamless wide 16:9 scene, no text."
@@ -246,7 +246,7 @@ CUSTOM_PAIR_PROMPTS = {
             "in gleaming golden plate armor and blue cape). Image 2 is the RIGHT character (Pawn Puffin, a cute puffin "
             "bird in Swiss Guard armor holding a halberd). Image 3 shows their exact LEFT vs RIGHT placement. "
             "Create a single cohesive 16:9 cinematic Pixar-style 3D battle frame on an enchanted chessboard at "
-            "twilight, inspired by Saint Seiya Aquarius Camus ('Sacro Acquarius'). "
+            "twilight, inspired by a golden zodiac knight of Aquarius ('Sigillo dell’Acquario'). "
             "On the LEFT side, Knight Seby stands heroically raising and clasping both hands united high above his "
             "head! Directly behind and above Seby hovers a luminous celestial Water-Bearer Woman (the Maiden of "
             "Aquarius) tilting an enormous ornate Golden Amphora, from which pours a dazzling stream of glowing "
@@ -258,7 +258,7 @@ CUSTOM_PAIR_PROMPTS = {
             "inside the ice block, NEVER standing in front of the ice!). Seamless 16:9 scene, no text."
         ),
         "veo_prompt": (
-            "Starting from this initial battle frame, animate an epic Saint Seiya 'Sacro Acquarius' (Aurora Execution) "
+            "Starting from this initial battle frame, animate an epic 'Sigillo dell’Acquario' (Aurora Freeze) "
             "3D battle: on the left, Knight Seby holds his hands united high above his head while the celestial "
             "Water-Bearer Woman behind him tilts her enormous Golden Amphora, pouring a blinding torrent of luminous "
             "cyan-blue ice energy across the chessboard! On the right, the translucent icy cyan-blue Pawn Puffin is "
@@ -273,15 +273,15 @@ CUSTOM_PAIR_PROMPTS = {
             "and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Pawn Puffin in "
             "colorful Swiss Guard armor holding a halberd and silver fish). Image 3 shows their LEFT vs RIGHT "
             "placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard "
-            "at twilight. On the LEFT, King Riccardo ('Papino') casts the classic Dungeons & Dragons 'Fireball' spell: "
-            "a glowing golden 20-sided D&D die (d20 showing 20) floats beside his sceptre as he hurls a blazing "
-            "swirling sphere of orange-gold D&D Fireball magic toward the right! On the RIGHT, Pawn Puffin holds up "
+            "at twilight. On the LEFT, King Riccardo ('Papino') casts the classic fantasy 'Fireball' spell: "
+            "a glowing golden 20-sided die (d20 showing 20) floats beside his sceptre as he hurls a blazing "
+            "swirling sphere of orange-gold Fireball magic toward the right! On the RIGHT, Pawn Puffin holds up "
             "his halberd and silver fish in wide-eyed comic surprise. Keep both characters 100% faithful to the "
             "reference photos. Seamless 16:9 scene, no text."
         ),
         "veo_prompt": (
-            "Starting from this initial frame, King Riccardo on the left rolls a glowing golden D&D d20 die and hurls "
-            "a massive blazing orange-red D&D Fireball spell from his golden sceptre across the chessboard! The "
+            "Starting from this initial frame, King Riccardo on the left rolls a glowing golden d20 die and hurls "
+            "a massive blazing orange-red Fireball spell from his golden sceptre across the chessboard! The "
             "Fireball erupts in a spectacular, funny Pixar-style mushroom cloud of golden fire and sparks around Pawn "
             "Puffin on the right, comically singing his feathers and sending him flying into the emerald swamp moat!"
         ),
@@ -292,14 +292,14 @@ CUSTOM_PAIR_PROMPTS = {
             "and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Knight Seby, a "
             "cute blonde boy in golden knight armor riding a golden warhorse). Image 3 shows their LEFT vs RIGHT "
             "placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard "
-            "at twilight. On the LEFT, King Riccardo ('Papino') casts the Dungeons & Dragons 'Chain Lightning' spell: "
+            "at twilight. On the LEFT, King Riccardo ('Papino') casts the fantasy 'Chain Lightning' spell: "
             "multiple jagged, forking arcs of brilliant electric blue-and-gold Chain Lightning shoot from his raised "
             "golden sceptre, bouncing from one bolt to another across the board! On the RIGHT, Knight Seby on his "
             "rearing golden warhorse and his miniature race cars are surrounded by jumping electric arcs. Keep both "
             "characters 100% faithful to the reference photos. Seamless 16:9 scene, no text."
         ),
         "veo_prompt": (
-            "Starting from this initial frame, King Riccardo on the left casts Dungeons & Dragons Chain Lightning from "
+            "Starting from this initial frame, King Riccardo on the left casts fantasy Chain Lightning from "
             "his golden sceptre! Dazzling jagged bolts of blue-and-gold electricity arc and bounce in a chain from one "
             "of Seby's miniature toy race cars to another and then zap Knight Seby and his golden warhorse on the "
             "right with funny cartoon electric sparks, sending Seby spinning off the board into the emerald swamp!"
@@ -312,13 +312,13 @@ CUSTOM_PAIR_PROMPTS = {
             "boy in blue-and-gold bishop mitre hat and robe with a red baby dragon on his shoulder). Image 3 shows "
             "their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an "
             "enchanted chessboard at twilight. On the LEFT, King Riccardo ('Papino') raises his sceptre to the sky "
-            "casting the 9th-level Dungeons & Dragons spell 'Meteor Swarm': four giant blazing volcanic meteors with "
-            "fiery golden-red tails plummet diagonally down from a glowing D&D arcane circle in the twilight sky "
+            "casting the 9th-level fantasy spell 'Meteor Swarm': four giant blazing volcanic meteors with "
+            "fiery golden-red tails plummet diagonally down from a glowing arcane circle in the twilight sky "
             "toward the right side of the board! On the RIGHT, Bishop Ale and his red shoulder dragon look up at the "
             "incoming meteors. Keep both characters 100% faithful to the reference photos. Seamless 16:9, no text."
         ),
         "veo_prompt": (
-            "Starting from this initial frame, King Riccardo on the left commands a 9th-level Dungeons & Dragons "
+            "Starting from this initial frame, King Riccardo on the left commands a 9th-level fantasy "
             "Meteor Swarm with his golden sceptre! Four blazing volcanic meteors streak down from the sky with fiery "
             "trails and impact around Bishop Ale and his red baby dragon on the right in a spectacular shower of "
             "golden sparks and lava pebbles, launching Ale comically into the emerald swamp moat!"
@@ -330,7 +330,7 @@ CUSTOM_PAIR_PROMPTS = {
             "and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character (Rook Pupurabbu, a "
             "cute fluffy purple plush monster mascot in a purple stone rook tower). Image 3 shows their LEFT vs RIGHT "
             "placement. Create a single cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard "
-            "at twilight. On the LEFT, King Riccardo ('Papino') casts a comedic Dungeons & Dragons 'Summon Greater "
+            "at twilight. On the LEFT, King Riccardo ('Papino') casts a comedic fantasy 'Summon Greater "
             "Demon' spell: from a glowing golden-red arcane rune circle in the center of the board pops a hilarious, "
             "chubby Pixar-style red baby Balor demon with tiny bat wings, a toy plastic pitchfork, and a slice of "
             "Italian pizza, grinning mischievously at Rook Pupurabbu on the RIGHT! Keep King Riccardo and Pupurabbu "
@@ -338,7 +338,7 @@ CUSTOM_PAIR_PROMPTS = {
         ),
         "veo_prompt": (
             "Starting from this initial frame, King Riccardo on the left points his sceptre as his summoned chubby, "
-            "funny Pixar-style red D&D demon holding a toy pitchfork and a slice of pizza hops across the chessboard "
+            "funny Pixar-style red demon holding a toy pitchfork and a slice of pizza hops across the chessboard "
             "and does a hilarious bouncy belly-bump and tickle-wrestle with giant fluffy purple Rook Pupurabbu on the "
             "right, bouncing Pupurabbu off the chessboard into the emerald swamp while the little demon munches its pizza!"
         ),
@@ -349,15 +349,15 @@ CUSTOM_PAIR_PROMPTS = {
             "crown, glasses, and blue ermine royal cloak holding a golden sceptre). Image 2 is the RIGHT character "
             "(Rival Dark Obsidian Team King Riccardo). Image 3 shows their LEFT vs RIGHT placement. Create a single "
             "cohesive 16:9 Pixar-style 3D starting battle frame on an enchanted chessboard at twilight. On the LEFT, "
-            "King Riccardo ('Papino') points his golden sceptre forward firing the iconic Dungeons & Dragons 6th-level "
+            "King Riccardo ('Papino') points his golden sceptre forward firing the iconic fantasy 6th-level "
             "'Disintegrate' spell: a razor-sharp, blindingly bright emerald-green laser ray of arcane energy (with "
-            "glowing green D&D dice sparks) striking the Rival Dark King on the RIGHT, whose dark obsidian armor is "
+            "glowing green dice sparks) striking the Rival Dark King on the RIGHT, whose dark obsidian armor is "
             "beginning to dissolve into sparkling green arcane dust! Keep both characters 100% faithful to the "
             "reference photos. Seamless 16:9 scene, no text."
         ),
         "veo_prompt": (
             "Starting from this initial frame, King Riccardo on the left fires a continuous, dazzling emerald-green "
-            "Dungeons & Dragons Disintegrate ray from his golden sceptre straight at the Rival Dark King on the right! "
+            "fantasy RPG Disintegrate ray from his golden sceptre straight at the Rival Dark King on the right! "
             "The rival King comically dissolves from head to toe into a shimmering pile of glowing emerald-green "
             "arcane dust with only his crown clinking on top of the dust pile, while White King Riccardo grins!"
         ),
@@ -370,7 +370,7 @@ CUSTOM_PAIR_PROMPTS = {
             "Create a single cohesive 16:9 dark-romantic Tim Burton / Pixar-style 3D battle frame on an enchanted "
             "moonlit chessboard under a giant full moon: King Riccardo ('Papino') standing on the LEFT leans in closely "
             "toward Queen Kate standing on the RIGHT, holding a glowing gothic Black Rose and delivering a "
-            "macabre-romantic Dungeons & Dragons 'Kiss of Death' ('Vampiric Touch / Blight')! Swirling crimson-violet "
+            "macabre-romantic fantasy 'Kiss of Death' ('Vampiric Touch / Blight')! Swirling crimson-violet "
             "gothic hearts, black rose petals, and dark-purple life-draining magic flow from Riccardo's kiss onto "
             "Queen Kate standing on the RIGHT, who is visibly withering and draining of color into an ashen-pale, "
             "shriveled gothic Corpse-Bride-style lifeless figurine (still wearing her dark-blue glasses and crown) "
@@ -379,7 +379,7 @@ CUSTOM_PAIR_PROMPTS = {
         ),
         "veo_prompt": (
             "Starting from this initial gothic-romantic frame, animate a macabre and funny Tim Burton-style 3D 'Kiss of "
-            "Death' ('D&D Vampiric Touch / Blight'): on the left, King Riccardo leans in with a black rose and gives "
+            "Death' ('Vampiric Touch / Blight'): on the left, King Riccardo leans in with a black rose and gives "
             "Queen Kate standing on the right a dramatic gothic Kiss of Death surrounded by swirling crimson-purple "
             "hearts and black rose petals! As the kiss lands, all warm color drains from Queen Kate as she comically "
             "withers and shrivels into an ashen-gray, lifeless gothic porcelain figurine (with her glasses and crown "
@@ -410,7 +410,7 @@ CUSTOM_PAIR_PROMPTS = {
             "bishop robes and mitre hat with a cute small red dragon on his shoulder). Image 2 is the RIGHT character "
             "(his mom Queen Kate, with blonde wavy hair, dark-blue glasses, golden crown, and purple velvet gown). "
             "Image 3 shows their LEFT vs RIGHT placement. Create a single cohesive 16:9 Pixar-style 3D battle frame "
-            "on an enchanted chessboard at twilight inspired by Saint Seiya ('Cavalieri dello Zodiaco' Amethyst/Tanzanite "
+            "on an enchanted chessboard at twilight inspired by golden zodiac knights ('Cavalieri d’Oro Stellari' Amethyst/Tanzanite "
             "Coffin). On the LEFT, Bishop Ale raises his glowing crystal wand as his small red shoulder dragon spreads "
             "its wings, projecting a dazzling beam of pleochroic TANZANITE crystal magic — a rich blend of royal "
             "blue-violet and luminous azure-blue reflections! On the RIGHT, Queen Kate is safely petrified and "
@@ -419,10 +419,10 @@ CUSTOM_PAIR_PROMPTS = {
             "gently toward the emerald swamp moat. Seamless 16:9 scene, no text."
         ),
         "veo_prompt": (
-            "3D Pixar Saint Seiya-style magical chess scene with sound effects: (0s-2.5s) On the left of the chessboard, "
+            "3D Pixar-style golden-zodiac-knight magical chess scene with sound effects: (0s-2.5s) On the left of the chessboard, "
             "Bishop Ale raises his glowing wand and shouts 'Per la Sacra Teca di Tanzanite!' as a dazzling beam of "
             "pleochroic blue-violet and electric azure-blue Tanzanite crystal light swirls around his mom Queen Kate "
-            "standing freely on the right. (2.5s-5.5s) A towering, translucent hexagonal Saint Seiya-style Tanzanite "
+            "standing freely on the right. (2.5s-5.5s) A towering, translucent hexagonal golden-zodiac-knight-style Tanzanite "
             "Crystal Case ('Teca di Tanzanite') glowing with both deep purple-violet and vivid azure-blue reflections "
             "crystallizes around Queen Kate, who remains safely petrified and clearly visible deep inside behind the "
             "refractive blue-violet crystal facets for two seconds. (5.5s-8.0s) Because Ale loves his mom and would "

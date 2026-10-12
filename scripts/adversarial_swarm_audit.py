@@ -15,7 +15,7 @@ Ruthlessly audits all 7 GitHub Issues (#10 through #16) in headless Chromium wit
                2.0s-2.2s articulated locomotion (`c2 -> c4` and `g1 -> f3`)
   - Issue #13: Mac Trackpad 2-Finger Rotate (`wheel` deltaX/deltaY) & Pinch Zoom (`ctrlKey`)
   - Issue #14: White Facing Black (`rotation.y ≈ Math.PI` for 16 White, `≈ 0` for 16 Black)
-  - Issue #15: Shrek Swamp Party (`?swamp_party=1` lily pads, ripples & bobbing in West/East moats)
+  - Issue #15: Ogre Swamp Party (`?swamp_party=1` lily pads, ripples & bobbing in West/East moats)
   - Issue #16: Colored Legal Move Dots + Red Capture Target Rings + Capture Preview Toast
 """
 
@@ -701,7 +701,7 @@ def run_audit() -> dict[str, Any]:
             )
         if not issue10_act3["swampSplashVisible"]:
             defects10.append(
-                "3D Shrek Swamp water splash ring (`swampKoSplash` / `swampSplashRing`) not triggered in Act 3 (@brawl3d-vfx)"
+                "3D Ogre Swamp water splash ring (`swampKoSplash` / `swampSplashRing`) not triggered in Act 3 (@brawl3d-vfx)"
             )
 
         results["issues"]["issue_10_3d_scazzottata"] = {
@@ -761,7 +761,7 @@ def run_audit() -> dict[str, Any]:
         results["screenshots"].append(str(shot_11_modal.relative_to(ROOT)))
 
         # =====================================================================
-        # AUDIT B: Issue #15 (`?swamp_party=1`) — Shrek Swamp Party & Lily Pads
+        # AUDIT B: Issue #15 (`?swamp_party=1`) — Ogre Swamp Party & Lily Pads
         # =====================================================================
         issue15 = page.evaluate(
             """() => {
@@ -846,7 +846,7 @@ def run_audit() -> dict[str, Any]:
             defects15.append(
                 f"Expected 3D lily pads under all 6 swamp swimmers, got withLilyPad={issue15['withLilyPad']}"
             )
-        results["issues"]["issue_15_shrek_swamp_party"] = {
+        results["issues"]["issue_15_ogre_swamp_party"] = {
             "passed": len(defects15) == 0,
             "details": issue15,
             "defects": defects15,

@@ -104,7 +104,7 @@ test('CharacterPovData: 6+6 Risiko shelves and target piece badges are in showca
   assert.ok(html.includes('id="defenses-cards-grid"'), 'Missing #defenses-cards-grid');
 
   // Verify main screen target badge
-  assert.ok(html.includes('id="netflix-screen-target-badge"'), 'Missing #netflix-screen-target-badge');
+  assert.ok(html.includes('id="cinema-screen-target-badge"'), 'Missing #cinema-screen-target-badge');
 
   // Verify film target overlay CSS class
   assert.ok(html.includes('film-target-overlay'), 'Missing .film-target-overlay');

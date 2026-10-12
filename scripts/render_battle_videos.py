@@ -9,7 +9,7 @@ Each 2.6s clip (960x540 @ 20fps = 52 frames) renders:
 - Unique pair title & comic battle cry banner matching `src/core/BattleMatrix36.js`
 - Act 1 (t = 0.00..0.32): Attacker Lunge & Weapon Charge
 - Act 2 (t = 0.32..0.64): Defender Counter-Attack Clash + Comic Burst (`ZAP!`, `FIAMMA!`, `IMPENNATA!`, `BOING!`, `SCUDO!`, `PARATA!`)
-- Act 3 (t = 0.64..1.00): Signature Finisher + Shrek Swamp K.O. Splash (or `n<->r` Mega Cuddle Hearts!)
+- Act 3 (t = 0.64..1.00): Signature Finisher + Ogre Swamp K.O. Splash (or `n<->r` Mega Cuddle Hearts!)
 
 Run via:
   UV_INDEX_URL=https://pypi.org/simple uv run --with pillow python3 scripts/render_battle_videos.py
@@ -83,7 +83,7 @@ BATTLES_36 = {
     ("n", "k"): ("CAVALIERE SEBY vs RE RICCARDO", "SUPER LOOP ARANCIONE ATTORNO AL TRONO DI PAPA!", "turbo"),
     ("n", "q"): ("CAVALIERE SEBY vs REGINA KATE", "MACCHININE TURBO IN DERAPATA SULLA REGINA!", "turbo"),
     ("n", "b"): ("CAVALIERE SEBY vs ALFIERE ALE", "SEBY vs ALE: STECCHITO! MACCHININE CONTRO DRAGO!", "turbo"),
-    ("n", "n"): ("CAVALIERE SEBY vs CAVALIERE SEBY", "DOPPIA PISTA HOT-WHEELS! DUE CAVALLI IN IMPENNATA!", "turbo"),
+    ("n", "n"): ("CAVALIERE SEBY vs CAVALIERE SEBY", "DOPPIA PISTA TURBO! DUE CAVALLI IN IMPENNATA!", "turbo"),
     ("n", "r"): ("CAVALIERE SEBY <3 PUPURABBU", "SEBY & PUPURABBU: SUPER ABBRACCIO PUFFOSO!", "cuddle"),
     ("n", "p"): ("CAVALIERE SEBY vs PEDONE PUFFIN", "BEEP BEEP PUFFIN! PASSA IL CAVALLO TURBO DI SEBY!", "turbo"),
     # Row 5: Rook Pupurabbu (r)
@@ -164,7 +164,7 @@ def draw_swamp_cinema_backdrop(t: float, theme: str) -> Image.Image:
         b = max(0, min(255, int(top_c[2] * (1 - u) + bot_c[2] * u - pulse)))
         draw.rectangle((0, y, W, y + 6), fill=(r, g, b, 255))
 
-    # Shrek Enchanted Swamp glowing water strips on left & right moats
+    # Ogre Enchanted Swamp glowing water strips on left & right moats
     horizon_y = 365
     draw.rectangle((0, horizon_y, W, H), fill=(16, 48, 34, 255))
     # Chessboard perspective center altar
@@ -245,7 +245,7 @@ def draw_weapon_and_choreo(
                 col = (255, 235, 59, 230) if i % 3 == 0 else (255, 87, 34, 225)
                 odraw.ellipse((sx - r, sy - r, sx + r, sy + r), fill=col)
         elif theme == "turbo":
-            # Orange Hot-Wheels track arc + toy race car
+            # Orange toy-car track arc + toy race car
             odraw.arc((ax_front - 20, ay_mid - 70, bx + 60, ay_mid + 70), 190, 350, fill=(255, 109, 0, 250), width=12)
             odraw.rounded_rectangle((bx - 24, by - 12, bx + 24, by + 12), radius=6, fill=(255, 23, 68, 255), outline=(255, 255, 255, 255), width=2)
         elif theme in ("plush", "cuddle"):
@@ -361,7 +361,7 @@ def draw_weapon_and_choreo(
                     col = (224, 64, 251, 235) if s % 2 == 0 else (255, 64, 129, 235)
                     odraw.polygon(poly, fill=col, outline=(255, 255, 255, 240))
             elif theme == "turbo":
-                # Orange Hot-Wheels Loop-Track ring + 6 zooming race cars
+                # Orange toy-car Loop-Track ring + 6 zooming race cars
                 rx, ry = 210, 118
                 odraw.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), outline=(255, 109, 0, 245), width=16)
                 for c_idx in range(6):
@@ -379,7 +379,7 @@ def draw_weapon_and_choreo(
                 odraw.ellipse((tx_c - 65, ty_c - 28, tx_c + 65, ty_c + 28), fill=(129, 212, 250, 245), outline=(255, 255, 255, 255), width=3)
                 odraw.polygon([(tx_c - 65, ty_c), (tx_c - 105, ty_c - 32), (tx_c - 105, ty_c + 32)], fill=(79, 195, 247, 245))
 
-            # Shrek Swamp Emerald Splash on right moat as Defender gets knocked into the swamp!
+            # Ogre Swamp Emerald Splash on right moat as Defender gets knocked into the swamp!
             if p3 > 0.35:
                 sp = (p3 - 0.35) / 0.65
                 sx_base, sy_base = W - 115, H - 95
@@ -439,7 +439,7 @@ def render_single_pair(task):
                     dx = int(W - 78 - def_card.width - counter_lunge)
                     dy = int(102 - abs(math.sin(ang * 3)) * 18)
                 else:
-                    # Act 3: Attacker Finisher -> Defender knocked toward Shrek's Swamp!
+                    # Act 3: Attacker Finisher -> Defender knocked toward the Ogre's Swamp!
                     p3 = (t - 0.64) / 0.36
                     ax = int(125 + math.sin(p3 * math.pi) * 65)
                     ay = int(102)

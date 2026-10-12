@@ -76,7 +76,7 @@ export class PieceView {
     this.activeTweens = [];
     /** @type {Array<object>} Alias for active move animations */
     this.activeMoves = this.activeTweens;
-    /** @type {Array<THREE.Group>} Captured pieces swimming in Shrek's Swamp */
+    /** @type {Array<THREE.Group>} Captured pieces swimming in the Ogre's Swamp */
     this.capturedSwimmers = this.trayGroup.children;
 
     this.gltfLoader = new GLTFLoader();
@@ -371,7 +371,7 @@ export class PieceView {
 
   /**
    * Renders captured ("dead") pieces splashing happily inside the Enchanted Swamp Moat
-   * ("Palude di Shrek", r = 6.2m..8.2m, half-submerged at y = -0.28m with 3D lily-pad leaves,
+   * ("Palude dell’Orco", r = 6.2m..8.2m, half-submerged at y = -0.28m with 3D lily-pad leaves,
    * blooming lotus flowers, emerald ripple rings & bubbles!).
    */
   renderCapturedTrays(trays = { w: [], b: [] }) {
@@ -415,7 +415,7 @@ export class PieceView {
     // Water surface sits around y = -0.44m in world space; since group is at y = -0.28m, local y = -0.14m
     splashGroup.position.y = -0.14;
 
-    // 1. Sculpted 3D Notched Lily-Pad Leaf ("Ninfea della Palude di Shrek") under each swimming piece!
+    // 1. Sculpted 3D Notched Lily-Pad Leaf ("Ninfea della Palude dell’Orco") under each swimming piece!
     const lilyPad = new THREE.Group();
     lilyPad.name = 'SwampLilyPad';
     const padLeafMesh = new THREE.Mesh(
@@ -1583,7 +1583,7 @@ if (uCombatAmp > 0.001) {
 
   /**
    * Completes the capture handoff when `BATTLE_COMPLETED` or `BATTLE_SKIPPED` fires:
-   * reveals the victorious attacker on `toPos` and launches the defeated piece into Shrek's Swamp!
+   * reveals the victorious attacker on `toPos` and launches the defeated piece into the Ogre's Swamp!
    */
   completePendingCaptureHandoff() {
     if (!this.pendingCaptureHandoff) return;
@@ -2047,7 +2047,7 @@ if (uCombatAmp > 0.001) {
       }
     }
 
-    // 3. Animate captured ("dead") pieces splashing happily on 3D lily-pads in Shrek's Swamp!
+    // 3. Animate captured ("dead") pieces splashing happily on 3D lily-pads in the Ogre's Swamp!
     if (this.trayGroup.children.length > 0) {
       for (let i = 0; i < this.trayGroup.children.length; i++) {
         const swimmer = this.trayGroup.children[i];

@@ -1,0 +1,41 @@
+# IP denylist for the carchess3d APP (spec: IP Safety → "Be Googley", issue #24).
+# Checked by `just test` (scripts/check.py) in app scope; docs/, CHANGELOG*, conductor/,
+# tools/, .agents/ may cite anything.
+# Format: term [| glob, glob]   (globs = paths where the term IS allowed)
+# Case-insensitive; spaces also match "_" and "-". Describe things generically instead.
+
+# Franchises & characters
+shrek
+fiona
+farquaad
+ciuchino
+puss in boots
+gatto con gli stivali
+zorro
+saint seiya
+seiya
+cavalieri dello zodiaco
+sacro acquarius
+aurora execution
+gingy
+pokemon
+pikachu
+disney
+marvel
+star wars
+harry potter
+super mario
+
+# Brands
+netflix
+dungeons
+d&d
+d&amp;d
+milka
+hot wheels
+lego
+nintendo
+
+# Style reference kept on purpose in generation prompts only (Riccardo: image quality).
+# Never in UI text.
+pixar | scripts/*, assets/battles/prompts_36.json, assets/battles/manifest.yaml, etc/prompts/*

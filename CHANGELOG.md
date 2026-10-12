@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.51] - 2026-10-12
+
+- 🚫 **IP safety / Be Googley (#24)**: no more third-party brand or franchise names in the app (381 replacements across 22 files: UI, code, identifiers, data, prompts, tests).
+  - Palude di Shrek → **Palude dell’Orco**; Don Gatto con gli Stivali / Zorro-Vescovo → **Don Gatto Spadaccino-Vescovo**; Netflix Maxischermo → **Maxischermo / Maxi Cinema** (ids `netflix-*` → `cinema-*`, red `#E50914` → `#D32F2F`); D&D spells → generic **fantasy spells**; Saint Seiya / Sacro Acquarius → **Sigillo dell’Acquario** (`sigillo_acquario_*`); Hot-Wheels → **turbo toy-car**.
+  - "Pixar-style" kept on purpose in generation prompts only (image quality).
+  - New `etc/ip-denylist.txt` + check in `scripts/check.py`: `just test` fails on any hit in the app scope (docs/CHANGELOG/conductor/tools exempt).
+  - `AGENTS.md` (= `GEMINI.md`): explicit IP-safety rule; spec *Be Googley* line updated with the Pixar exception.
+  - `assets/battles/video_audit.yaml` → `docs/battles/video_audit.yaml` (historical prompt log, kept verbatim).
+
 ## [0.3.50] - 2026-10-12
 
 - 📐 Spec *IP Safety*: new **Be Googley** rule. The app (code, UI, data, generation prompts) must never name protected brands, franchises or characters; docs may cite them; enforced by a denylist in `just test` (coming in #24).

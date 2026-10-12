@@ -15,6 +15,13 @@ This is the **implementation** repo for the Carlesso family 3D chess.
 - After every change: `just test`, bump `VERSION`, add a `CHANGELOG.md` entry.
 - **Public repo**: no secrets (pass `HF_TOKEN` / `GEMINI_API_KEY` via env only),
   no internal paths or links. Never touch `.env` or `.riccardo/`.
+- 🚫 **Be Googley, IP safety**: never name protected brands, franchises or characters
+  (Shrek, Netflix, Saint Seiya, D&D, Zorro, Hot Wheels…) in the **app**: code,
+  identifiers, UI text, data, generation prompts. Use generic descriptions ("orco",
+  "asinello", "Maxischermo", "fantasy spell"). Only `docs/` and `CHANGELOG` may cite
+  them. Exception: "Pixar-style" is allowed in generation prompts only (image quality),
+  never in UI. `just test` fails on `etc/ip-denylist.txt` hits; extend that list,
+  don't bypass it.
 - Git: only move forward (no `reset --hard`, no `clean`, no force push).
 - 3D pipeline work goes in `tools/model-pipeline/` and is logged in its
   `RUNNING_DOC.md` (prompts, API/MCP calls, parameters, results).

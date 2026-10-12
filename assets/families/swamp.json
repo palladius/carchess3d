@@ -64,8 +64,8 @@
     "bishop": {
       "slug": "bishop-swamp-focaccina",
       "name": {
-        "it": "Don Gatto Zorro-Vescovo",
-        "en": "Don Puss in Boots (Zorro-Bishop)"
+        "it": "Don Gatto Spadaccino-Vescovo",
+        "en": "Don Swordcat (Masked Swordsman Bishop)"
       },
       "model": "assets/models/swamp/bishop-swamp-focaccina.glb",
       "portrait": "assets/characters/bishop-swamp-focaccina.jpg",

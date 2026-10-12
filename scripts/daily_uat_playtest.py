@@ -4,7 +4,7 @@
 Simulates a human agent vs CPU Easy:
 1. Boot & Piece Orientations check (White faces North, Black faces South).
 2. Adversarial UI clicking (180° camera flip, top-down view, 3D skeletons,
-   Shrek swamp party, 6x6 battle matrix modal, WOW mode turntable).
+   Ogre swamp party, 6x6 battle matrix modal, WOW mode turntable).
 3. Non-black visual screen audit via luminance/stddev analysis on every angle.
 4. Human vs CPU Easy match play (3-4 turns, locomotion & tactical indicators,
    capture cutscene & skip button, CPU latency measurement).
@@ -351,9 +351,9 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             time.sleep(0.3)
 
             # -----------------------------------------------------------------
-            # Step 6: Shrek Swamp Party Moat
+            # Step 6: Ogre Swamp Party Moat
             # -----------------------------------------------------------------
-            print("🐸 Testing Shrek Swamp Party (#hud-swamp-btn)...")
+            print("🐸 Testing Ogre Swamp Party (#hud-swamp-btn)...")
             page.click("#hud-swamp-btn")
             time.sleep(0.8)
             shot5 = out_dir / "05_swamp_party.png"
@@ -364,7 +364,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             report["checks"]["swamp_party"] = {
                 "passed": swamp_count > 0,
                 "swimmers": swamp_count,
-                "detail": f"{swamp_count} pieces swimming in Shrek's enchanted lily-pad moat",
+                "detail": f"{swamp_count} pieces swimming in the Ogre's enchanted lily-pad moat",
             }
 
             # -----------------------------------------------------------------

@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import pathlib
+import fnmatch
 import re
 import shutil
 import struct
@@ -185,9 +186,43 @@ for p in committable_files():
     if SECRET_RE.search(p.read_bytes()):
         failures.append(f"possible secret / internal path in {p.relative_to(ROOT)}")
 
+# --- IP safety ("Be Googley", spec IP Safety, issue #24) -------------------
+# etc/ip-denylist.txt: one term per line, optional "| glob, glob" = paths where it IS allowed.
+# Spaces in a term also match "_" and "-" (so "sacro acquarius" catches sacro_acquarius).
+IP_EXEMPT = ("docs/", "CHANGELOG", "conductor/", ".agents/", "tools/", "ABORTED", "AGENTS.md", "GEMINI.md",
+             "etc/ip-denylist.txt", "scripts/check.py")
+ip_rules = []
+denylist = ROOT / "etc/ip-denylist.txt"
+if denylist.exists():
+    for line in denylist.read_text(encoding="utf-8").splitlines():
+        line = line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        term, _, allow = line.partition("|")
+        words = [re.escape(w) for w in term.strip().split()]
+        rx = re.compile(r"\b" + r"[\s_-]?".join(words) + r"\b", re.IGNORECASE)
+        globs = [g.strip() for g in allow.split(",") if g.strip()]
+        ip_rules.append((term.strip(), rx, globs))
+ip_hits = 0
+for p in committable_files():
+    rel = p.relative_to(ROOT).as_posix()
+    if not p.is_file() or p.suffix not in TEXT_EXT or rel.startswith(IP_EXEMPT):
+        continue
+    text = p.read_text(encoding="utf-8", errors="ignore")
+    for term, rx, globs in ip_rules:
+        if any(fnmatch.fnmatch(rel, g) for g in globs):
+            continue
+        for m in rx.finditer(text):
+            ip_hits += 1
+            if ip_hits <= 30:
+                line_no = text.count("\n", 0, m.start()) + 1
+                failures.append(f"IP denylist '{term}' in {rel}:{line_no} → use a generic description (spec: Be Googley)")
+if ip_hits > 30:
+    failures.append(f"... and {ip_hits - 30} more IP denylist hits")
+
 print(
     f"🧪 {len(glbs)} GLB, {len(chars)} character images, {prov_count} provenance models, "
-    f"floorplan.svg, manifest.yaml, {len(test_files)} Node test suites checked"
+    f"floorplan.svg, manifest.yaml, {len(test_files)} Node test suites, {len(ip_rules)} IP denylist terms checked"
 )
 if failures:
     print("❌ " + "\n❌ ".join(failures))

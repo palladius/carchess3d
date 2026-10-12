@@ -55,7 +55,7 @@ test('Showcase TDD: all 2D & 3D asset URLs in showcase/index.html exist and are 
   }
 });
 
-test('Showcase TDD: splits showcase into 3 families (carlesso, classic, swamp/shrek) showing strictly 6 pieces at a time', () => {
+test('Showcase TDD: splits showcase into 3 families (carlesso, classic, swamp/ogre) showing strictly 6 pieces at a time', () => {
   const html = fs.readFileSync(SHOWCASE_HTML_PATH, 'utf8');
 
   // 1. Verify there is NO `data-family="all"` tab that forces all 18 cards onto the screen at once

@@ -1133,9 +1133,9 @@ export class ZurichSwampView {
   /**
    * Smoothly interpolates the entire Zurich & Swamp Diorama + 8x8 Chessboard between:
    * - `blend = 0.0`: 100% normal mode (Swamp, Zurich, Alps, Foundation, and 64 Chessboard tiles at 100% opacity)
-   * - `blend = 1.0`: 100% Netflix Combat XXL mode (Surrounding world hidden, 64 Chessboard tiles at 10% opacity / 90% transparent)
+   * - `blend = 1.0`: 100% Cinema Combat XXL mode (Surrounding world hidden, 64 Chessboard tiles at 10% opacity / 90% transparent)
    * - `0.0 < blend < 1.0`: Sliding-window optical cross-fade where the Swamp, Zurich Skyline, and Chessboard
-   *   smoothly rematerialize (`worldAlpha = 1.0 - blend`) as the Netflix Cinema screen zooms out!
+   *   smoothly rematerialize (`worldAlpha = 1.0 - blend`) as the Maxi Cinema screen zooms out!
    * @param {number} blend
    */
   setCombatBlend(blend) {
@@ -1187,7 +1187,7 @@ export class ZurichSwampView {
   }
 
   /**
-   * During combat (`BATTLE_STARTED`), transitions into Netflix Combat Cinema mode (`inCombatCinemaMode = true`),
+   * During combat (`BATTLE_STARTED`), transitions into Cinema Combat mode (`inCombatCinemaMode = true`),
    * and on `BATTLE_COMPLETED` transitions back (`inCombatCinemaMode = false`).
    * @param {boolean} active
    */
