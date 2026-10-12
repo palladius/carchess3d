@@ -196,7 +196,7 @@
     /* Dual Stage Grid (3D + Soundboard on Left | Netflix Theater on Right) */
     .pov-stage-grid {
       display: grid;
-      grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.35fr);
+      grid-template-columns: 280px minmax(0, 1fr);
       gap: 12px;
       align-items: start;
     }
@@ -206,11 +206,18 @@
       }
     }
 
-    /* ── LEFT PANEL: 3D Turntable & Soundboard ── */
+    /* ── LEFT PANEL: 3D Turntable & Soundboard (Ultra-Compact) ── */
     .pov-left-panel {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+      width: 280px;
+      flex-shrink: 0;
+    }
+    @media (max-width: 960px) {
+      .pov-left-panel {
+        width: 100%;
+      }
     }
 
     /* 3D Turntable Box */
@@ -298,7 +305,7 @@
     }
     .pov-3d-pane {
       position: relative;
-      height: 250px;
+      height: 160px;
       background: #090d15;
       overflow: hidden;
       cursor: grab;
@@ -455,17 +462,17 @@
     }
     .soundboard-grid.compact-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 6px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px;
     }
     .sound-btn {
       background: #161e2c;
       border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 6px 8px;
+      border-radius: 7px;
+      padding: 4px 6px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 1px;
       cursor: pointer;
       color: var(--text);
       text-align: left;
@@ -489,20 +496,20 @@
       gap: 4px;
     }
     .sound-btn-label {
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       font-weight: 800;
       color: #fff;
     }
     .sound-btn-badge {
-      font-size: 0.62rem;
+      font-size: 0.58rem;
       font-weight: 800;
-      padding: 1px 4px;
-      border-radius: 4px;
+      padding: 1px 3px;
+      border-radius: 3px;
       background: rgba(255, 213, 79, 0.15);
       color: var(--gold-bright);
     }
     .sound-btn-quote {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--muted);
       overflow: hidden;
       text-overflow: ellipsis;
@@ -699,95 +706,189 @@
       box-shadow: 0 4px 12px rgba(255, 213, 79, 0.5);
     }
 
-    /* Shelf Carousel */
-    .netflix-shelf-box.compact-shelf {
-      margin-top: 4px;
+    /* Target Chess Piece Badge on Main Video Screen */
+    .netflix-screen-target-badge {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      background: rgba(8, 12, 20, 0.88);
+      backdrop-filter: blur(6px);
+      padding: 4px 10px 4px 6px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+    .netflix-screen-target-badge.badge-attack {
+      border-color: #ff3d00;
+      box-shadow: 0 0 12px rgba(255, 61, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.6);
+    }
+    .netflix-screen-target-badge.badge-defense {
+      border-color: #2979ff;
+      box-shadow: 0 0 12px rgba(41, 121, 255, 0.55), 0 4px 14px rgba(0, 0, 0, 0.6);
+    }
+    .screen-target-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+    .screen-target-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .screen-target-mode {
+      font: 900 9px/1 system-ui, sans-serif;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .screen-target-mode.text-red {
+      color: #ff5252;
+    }
+    .screen-target-mode.text-blue {
+      color: #448aff;
+    }
+    .screen-target-title {
+      font: 800 12px/1.1 system-ui, sans-serif;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    /* ── RISIKO SHELVES: ATTACCO (ROSSO 🎲🔴) & DIFESA (BLU 🎲🔵) ── */
+    .risiko-shelves-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+      border-top: 1px solid var(--line);
+      padding-top: 8px;
+    }
+    .risiko-shelf {
+      background: #0f1522;
+      border-radius: 10px;
+      padding: 8px 10px;
+      border: 1.5px solid var(--line);
       display: flex;
       flex-direction: column;
       gap: 6px;
-      border-top: 1px solid var(--line);
-      padding-top: 6px;
     }
-    .netflix-shelf-header.compact-shelf-header {
+    .risiko-shelf.attack-shelf {
+      border-color: rgba(229, 57, 53, 0.5);
+      background: linear-gradient(180deg, rgba(229, 57, 53, 0.1) 0%, #0d121c 100%);
+    }
+    .risiko-shelf.defense-shelf {
+      border-color: rgba(30, 136, 229, 0.5);
+      background: linear-gradient(180deg, rgba(30, 136, 229, 0.1) 0%, #0d121c 100%);
+    }
+    .risiko-shelf-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .risiko-shelf-title-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+    }
+    .risiko-dice-icon {
+      font-size: 1rem;
+    }
+    .risiko-shelf-title {
+      font-weight: 900;
+      letter-spacing: 0.3px;
+    }
+    .attack-shelf .risiko-shelf-title {
+      color: #ff5252;
+    }
+    .defense-shelf .risiko-shelf-title {
+      color: #42a5f5;
+    }
+    .risiko-shelf-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .risiko-shelf-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .risiko-shelf-badge.badge-red {
+      background: rgba(229, 57, 53, 0.2);
+      color: #ffcdd2;
+      border: 1px solid rgba(229, 57, 53, 0.4);
+    }
+    .risiko-shelf-badge.badge-blue {
+      background: rgba(30, 136, 229, 0.2);
+      color: #bbdefb;
+      border: 1px solid rgba(30, 136, 229, 0.4);
+    }
+
+    /* 6-Column Card Grid (Side-by-Side: 6 sopra e 6 sotto!) */
+    .risiko-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: 6px;
     }
-    .shelf-label {
-      font-size: 0.8rem;
-      color: #fff;
+    @media (max-width: 1100px) {
+      .risiko-cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
-    .battle-tab-buttons.compact-tabs {
-      display: inline-flex;
-      gap: 4px;
-      background: #090d15;
-      padding: 2px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
+    @media (max-width: 600px) {
+      .risiko-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
-    .battle-tab-buttons.compact-tabs button {
-      font: 700 11px/1 system-ui, sans-serif;
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid transparent;
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.12s ease;
-    }
-    .battle-tab-buttons.compact-tabs button:hover {
-      color: #fff;
-      background: #182233;
-    }
-    .battle-tab-buttons.compact-tabs button.active {
-      background: linear-gradient(135deg, #ffe082 0%, #d49b27 100%);
-      color: #1a1100;
-      font-weight: 900;
-    }
-    .episodes-shelf-carousel.compact-carousel {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding: 2px 2px 6px;
-      -webkit-overflow-scrolling: touch;
-    }
-    .episodes-shelf-carousel.compact-carousel::-webkit-scrollbar {
-      height: 5px;
-    }
-    .episodes-shelf-carousel.compact-carousel::-webkit-scrollbar-track {
-      background: #090d15;
-      border-radius: 3px;
-    }
-    .episodes-shelf-carousel.compact-carousel::-webkit-scrollbar-thumb {
-      background: #253147;
-      border-radius: 3px;
-    }
+
+    /* Episode Card */
     .episode-card {
-      flex: 0 0 160px;
-      scroll-snap-align: start;
       background: #141a27;
       border: 1.5px solid var(--line);
-      border-radius: 9px;
+      border-radius: 8px;
       overflow: hidden;
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      padding: 5px;
+      gap: 3px;
+      padding: 4px;
       transition: all 0.14s ease;
       user-select: none;
+      position: relative;
     }
     .episode-card:hover {
       transform: translateY(-2px);
-      border-color: var(--gold);
     }
-    .episode-card.active {
-      border-color: var(--gold-bright);
-      background: #1c2436;
-      box-shadow: 0 0 0 1px var(--gold-bright), 0 4px 14px rgba(255, 213, 79, 0.3);
+    .episode-card.card-attack:hover {
+      border-color: #ff5252;
+      box-shadow: 0 4px 12px rgba(229, 57, 53, 0.35);
     }
+    .episode-card.card-defense:hover {
+      border-color: #42a5f5;
+      box-shadow: 0 4px 12px rgba(30, 136, 229, 0.35);
+    }
+    .episode-card.active.card-attack {
+      border-color: #ff1744;
+      background: #201316;
+      box-shadow: 0 0 0 1.5px #ff1744, 0 4px 14px rgba(255, 23, 68, 0.5);
+    }
+    .episode-card.active.card-defense {
+      border-color: #2979ff;
+      background: #0f1c2d;
+      box-shadow: 0 0 0 1.5px #2979ff, 0 4px 14px rgba(41, 121, 255, 0.5);
+    }
+
     .episode-thumb-wrap {
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -802,16 +903,77 @@
       object-fit: cover;
       display: block;
     }
+
+    /* 🌟 PROMINENT TARGET PIECE OVERLAY SUL FILM (50% dell'altezza del film = 48px) */
+    .film-target-overlay {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .target-medallion-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(11, 15, 23, 0.92);
+      backdrop-filter: blur(3px);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+    }
+    .target-red .target-medallion-circle {
+      border: 2.5px solid #ff3d00;
+      box-shadow: 0 0 10px rgba(255, 61, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 0.7);
+    }
+    .target-blue .target-medallion-circle {
+      border: 2.5px solid #2979ff;
+      box-shadow: 0 0 10px rgba(41, 121, 255, 0.8), 0 2px 6px rgba(0, 0, 0, 0.7);
+    }
+    .episode-card:hover .target-medallion-circle {
+      transform: scale(1.08);
+    }
+    .target-medallion-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: block;
+    }
+    .target-piece-pill {
+      font: 900 10px/1 system-ui, sans-serif;
+      padding: 2px 5px;
+      border-radius: 4px;
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    }
+    .target-red .target-piece-pill {
+      background: #2b0808;
+      color: #ffcdd2;
+      border: 1px solid #ff5252;
+    }
+    .target-blue .target-piece-pill {
+      background: #081a33;
+      color: #bbdefb;
+      border: 1px solid #448aff;
+    }
+
     .episode-duration-pill {
       position: absolute;
       bottom: 3px;
-      right: 3px;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 1px 5px;
+      left: 3px;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1px 4px;
       border-radius: 3px;
-      font-size: 0.62rem;
+      font-size: 0.58rem;
       font-weight: 800;
       color: #fff;
+      z-index: 3;
     }
     .episode-playing-pill {
       position: absolute;
@@ -819,35 +981,44 @@
       left: 3px;
       background: var(--emerald);
       color: #061c10;
-      font-size: 0.6rem;
+      font-size: 0.58rem;
       font-weight: 900;
-      padding: 1px 5px;
+      padding: 1px 4px;
       border-radius: 3px;
+      z-index: 5;
+      box-shadow: 0 0 6px rgba(0, 230, 118, 0.5);
     }
+
     .episode-info {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 1px;
+      padding: 2px 1px;
     }
-    .episode-matchup-line {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.74rem;
+    .episode-target-heading {
+      font-size: 0.76rem;
       font-weight: 800;
-      color: #fff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .episode-medallion-mini {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      flex-shrink: 0;
+    .episode-target-heading.text-red {
+      color: #ff8a80;
     }
-    .episode-clash-name {
+    .episode-target-heading.text-blue {
+      color: #82b1ff;
+    }
+    .episode-target-heading strong {
+      font-weight: 900;
+      color: #fff;
+    }
+    .episode-target-heading small {
+      color: var(--muted);
+      font-weight: 600;
       font-size: 0.68rem;
+    }
+    .episode-subaction {
+      font-size: 0.64rem;
       color: var(--muted);
       white-space: nowrap;
       overflow: hidden;
@@ -1063,12 +1234,20 @@
             </div>
           </div>
 
-          <!-- Central Video Screen with Aspect Ratio Toggle -->
+          <!-- Central Video Screen with Aspect Ratio Toggle & Target Screen Badge -->
           <div class="netflix-screen-wrap compact-screen" id="netflix-screen-wrap">
             <video id="netflix-video" controls playsinline preload="auto">
               <source id="netflix-video-mp4" src="" type="video/mp4">
               <source id="netflix-video-webm" src="" type="video/webm">
             </video>
+            <!-- TARGET CHESS PIECE SCREEN BADGE (Visible during video playback) -->
+            <div id="netflix-screen-target-badge" class="netflix-screen-target-badge badge-attack">
+              <img id="netflix-screen-target-icon" src="../assets/icons/chess/black/queen.svg" class="screen-target-icon" alt="Target Piece">
+              <div class="screen-target-meta">
+                <span id="netflix-screen-target-mode" class="screen-target-mode text-red">🎲🔴 ATTACCO</span>
+                <strong id="netflix-screen-target-title" class="screen-target-title">vs ♛ REGINA (Kate)</strong>
+              </div>
+            </div>
             <button type="button" id="netflix-aspect-toggle" class="netflix-aspect-btn" title="Alterna formato video tra 16:9 Cinema e 4:3 Classico">
               <span id="netflix-screen-watermark">16:9 CINEMA</span> 📐
             </button>
@@ -1090,17 +1269,35 @@
           <div id="pov-bio-fullname" style="display:none;"></div>
           <div id="pov-badge-hero" style="display:none;"></div>
 
-          <!-- Episodes Shelf Carousel -->
-          <div class="netflix-shelf-box compact-shelf">
-            <div class="netflix-shelf-header compact-shelf-header">
-              <span class="shelf-label">🎞️ <strong>Playlist Episodi</strong></span>
-              <div class="battle-tab-buttons compact-tabs" id="battle-tab-buttons">
-                <button type="button" data-battle-view="attacks" class="active">⚔️ Vittorie (6)</button>
-                <button type="button" data-battle-view="defenses">🛡️ Difese (6)</button>
+          <!-- RISIKO DUAL SHELVES: 6 EPISODI ATTACCO (SOPRA) & 6 EPISODI DIFESA (SOTTO) -->
+          <div class="risiko-shelves-wrap" id="episodes-shelf-carousel">
+
+            <!-- 🎲🔴 ATTACCO (6 SOPRA - ROSSO RISIKO) -->
+            <div class="risiko-shelf attack-shelf">
+              <div class="risiko-shelf-header attack-header">
+                <div class="risiko-shelf-title-group">
+                  <span class="risiko-dice-icon dice-red">🎲🔴</span>
+                  <strong class="risiko-shelf-title">ATTACCO (Dadi Rossi Risiko) · Le 6 Vittorie di <span id="risiko-hero-name-atk">Seby</span></strong>
+                  <span class="risiko-shelf-hint">Clicca il pezzo target che vuoi mangiare</span>
+                </div>
+                <span class="risiko-shelf-badge badge-red">6 Scontri in Uscita</span>
               </div>
+              <div class="risiko-cards-grid attack-grid" id="attacks-cards-grid"></div>
             </div>
 
-            <div class="episodes-shelf-carousel compact-carousel" id="episodes-shelf-carousel"></div>
+            <!-- 🎲🔵 DIFESA (6 SOTTO - DADO BLU RISIKO) -->
+            <div class="risiko-shelf defense-shelf">
+              <div class="risiko-shelf-header defense-header">
+                <div class="risiko-shelf-title-group">
+                  <span class="risiko-dice-icon dice-blue">🎲🔵</span>
+                  <strong class="risiko-shelf-title">DIFESA (Dadi Blu Risiko) · I 6 Contrattacchi di <span id="risiko-hero-name-def">Seby</span></strong>
+                  <span class="risiko-shelf-hint">Clicca il pezzo da cui vuoi difenderti</span>
+                </div>
+                <span class="risiko-shelf-badge badge-blue">6 Scontri in Entrata</span>
+              </div>
+              <div class="risiko-cards-grid defense-grid" id="defenses-cards-grid"></div>
+            </div>
+
           </div>
 
         </section>
@@ -1758,7 +1955,7 @@ if (uDragonCoilMode > 0.5) {
       renderSoundboard(hero);
 
       // Update Combat Videos in Netflix Theater with autostart
-      renderNetflixTheater(hero, currentBattleView, autoPlay);
+      renderNetflixTheater(hero, 'attack', autoPlay);
     }
 
     document.getElementById('pov-variants-pills')?.addEventListener('click', (e) => {
@@ -1911,9 +2108,11 @@ if (uDragonCoilMode > 0.5) {
       window.speechSynthesis.speak(utt);
     }
 
-    // 5. Netflix Battles Theater (Issue #22)
-    let currentEpisodeIndex = 0;
-    let currentBattlesList = [];
+    // 5. Netflix Battles Theater & 6+6 Risiko Shelves (Issue #22)
+    let currentActiveMode = 'attack'; // 'attack' | 'defense'
+    let currentActiveIndex = 0;
+    let currentAttacksList = [];
+    let currentDefensesList = [];
 
     const netflixVideo = document.getElementById('netflix-video');
     const netflixEpisodeBadge = document.getElementById('netflix-episode-badge');
@@ -1928,10 +2127,16 @@ if (uDragonCoilMode > 0.5) {
     const netflixAct2Text = document.getElementById('netflix-act2-text');
     const netflixClash3dBtn = document.getElementById('netflix-clash-3d-btn');
     const episodesCarouselEl = document.getElementById('episodes-shelf-carousel');
+    const attacksCardsGridEl = document.getElementById('attacks-cards-grid');
+    const defensesCardsGridEl = document.getElementById('defenses-cards-grid');
     const netflixPrevBtn = document.getElementById('netflix-prev-btn');
     const netflixNextBtn = document.getElementById('netflix-next-btn');
     const netflixScreenWrap = document.getElementById('netflix-screen-wrap');
     const netflixAspectBtn = document.getElementById('netflix-aspect-toggle');
+    const netflixTargetBadge = document.getElementById('netflix-screen-target-badge');
+    const netflixTargetIcon = document.getElementById('netflix-screen-target-icon');
+    const netflixTargetMode = document.getElementById('netflix-screen-target-mode');
+    const netflixTargetTitle = document.getElementById('netflix-screen-target-title');
     let is4by3 = false;
 
     netflixAspectBtn?.addEventListener('click', () => {
@@ -1946,51 +2151,83 @@ if (uDragonCoilMode > 0.5) {
       netflixAspectBtn.title = is4by3 ? 'Formato 4:3 Classico (clicca per 16:9 Cinema)' : 'Formato 16:9 Cinema (clicca per 4:3 Classico)';
     });
 
-    function renderNetflixTheater(hero, mode = 'attacks', autoPlay = true) {
-      currentBattlesList = mode === 'attacks' ? getHeroAttacks(hero.key, '../') : getHeroDefenses(hero.key, '../');
-      currentEpisodeIndex = 0;
-
-      if (episodesCarouselEl) {
-        episodesCarouselEl.innerHTML = currentBattlesList.map((b, idx) => {
-          const atkHero = HERO_PROFILES[b.attackerKey] || {};
-          const defHero = HERO_PROFILES[b.defenderKey] || {};
-          return `
-            <div class="episode-card ${idx === 0 ? 'active' : ''}" data-episode-idx="${idx}" tabindex="0" role="button" aria-label="Episodio ${idx + 1}: ${b.title}">
-              <div class="episode-thumb-wrap">
-                <img src="${b.poster}" alt="${b.title}" loading="lazy">
-                <span class="episode-duration-pill">${b.isMirror ? '🪞 Specchio' : b.type === 'attack' ? '⚔️ Vittoria' : '🛡️ Difesa'}</span>
-                ${idx === 0 ? '<span class="episode-playing-pill">IN ONDA</span>' : ''}
+    function createEpisodeCardHTML(b, idx, isAttack, isActive) {
+      const modeKey = isAttack ? 'attack' : 'defense';
+      const targetName = b.targetPieceName || 'PEZZO';
+      const targetGlyph = b.targetPieceGlyph || '♟';
+      const heroName = b.targetHero?.heroName || b.targetKey;
+      return `
+        <div class="episode-card ${isAttack ? 'card-attack' : 'card-defense'} ${isActive ? 'active' : ''}"
+             data-battle-mode="${modeKey}"
+             data-battle-idx="${idx}"
+             tabindex="0"
+             role="button"
+             aria-label="${isAttack ? 'Attacco contro' : 'Difesa da'} ${targetName} (${heroName})">
+          <div class="episode-thumb-wrap">
+            <img src="${b.poster}" alt="${b.title}" loading="lazy">
+            <div class="film-target-overlay ${isAttack ? 'target-red' : 'target-blue'}">
+              <div class="target-medallion-circle" title="Pezzo Target: ${targetName}">
+                <img src="${b.targetMedallion}" class="target-medallion-icon" alt="${targetName}">
               </div>
-              <div class="episode-info">
-                <div class="episode-matchup-line">
-                  <img src="${b.attackerMedallion}" class="episode-medallion-mini" alt="${atkHero.heroName || b.attackerKey}">
-                  <span>${atkHero.heroName || b.attackerKey}</span>
-                  <span style="color:var(--gold-bright);font-size:0.75rem;">vs</span>
-                  <img src="${b.defenderMedallion}" class="episode-medallion-mini" alt="${defHero.heroName || b.defenderKey}">
-                  <span>${defHero.heroName || b.defenderKey}</span>
-                </div>
-                <div class="episode-clash-name">${b.title}</div>
-              </div>
+              <span class="target-piece-pill">${isAttack ? '' : '🛡️ '}${targetGlyph} ${targetName}</span>
             </div>
-          `;
-        }).join('');
-      }
-
-      loadEpisodeToScreen(0, autoPlay, false);
+            <span class="episode-duration-pill">${b.isMirror ? '🪞 Specchio' : isAttack ? '⚔️ Vittoria' : '🛡️ Difesa'}</span>
+            ${isActive ? '<span class="episode-playing-pill">IN ONDA</span>' : ''}
+          </div>
+          <div class="episode-info">
+            <div class="episode-target-heading ${isAttack ? 'text-red' : 'text-blue'}">
+              ${isAttack ? '⚔️ vs' : '🛡️ da'} <strong>${targetName}</strong>
+              <small>(${heroName})</small>
+            </div>
+            <div class="episode-subaction" title="${isAttack ? b.weapon : b.counter}">
+              ${isAttack ? b.weapon : b.counter}
+            </div>
+          </div>
+        </div>
+      `;
     }
 
-    function loadEpisodeToScreen(index, autoPlay = true, withTransition = false) {
-      if (!currentBattlesList || !currentBattlesList.length) return;
+    function renderNetflixTheater(hero, mode = 'attack', autoPlay = true) {
+      currentAttacksList = getHeroAttacks(hero.key, '../');
+      currentDefensesList = getHeroDefenses(hero.key, '../');
+      currentActiveMode = (mode === 'defenses' || mode === 'defense') ? 'defense' : 'attack';
+      currentActiveIndex = 0;
+
+      const atkHeroLabel = document.getElementById('risiko-hero-name-atk');
+      const defHeroLabel = document.getElementById('risiko-hero-name-def');
+      if (atkHeroLabel) atkHeroLabel.textContent = hero.heroName;
+      if (defHeroLabel) defHeroLabel.textContent = hero.heroName;
+
+      if (attacksCardsGridEl) {
+        attacksCardsGridEl.innerHTML = currentAttacksList.map((b, idx) =>
+          createEpisodeCardHTML(b, idx, true, currentActiveMode === 'attack' && idx === 0)
+        ).join('');
+      }
+
+      if (defensesCardsGridEl) {
+        defensesCardsGridEl.innerHTML = currentDefensesList.map((b, idx) =>
+          createEpisodeCardHTML(b, idx, false, currentActiveMode === 'defense' && idx === 0)
+        ).join('');
+      }
+
+      loadBattleToScreen(currentActiveMode, 0, autoPlay, false);
+    }
+
+    function loadBattleToScreen(mode, index, autoPlay = true, withTransition = false) {
+      const list = mode === 'attack' ? currentAttacksList : currentDefensesList;
+      if (!list || !list.length) return;
 
       const executeLoad = () => {
-        currentEpisodeIndex = (index + currentBattlesList.length) % currentBattlesList.length;
-        const b = currentBattlesList[currentEpisodeIndex];
+        currentActiveMode = mode;
+        currentActiveIndex = (index + list.length) % list.length;
+        const b = list[currentActiveIndex];
         const atkHero = HERO_PROFILES[b.attackerKey] || {};
         const defHero = HERO_PROFILES[b.defenderKey] || {};
+        const isAttack = mode === 'attack';
 
         if (netflixEpisodeBadge) {
-          const viewLabel = currentBattleView === 'attacks' ? 'ATTACCO' : 'DIFESA';
-          netflixEpisodeBadge.textContent = `EPISODIO ${currentEpisodeIndex + 1} DI ${currentBattlesList.length} · ${viewLabel}`;
+          const viewLabel = isAttack ? 'ATTACCO (Dadi Rossi)' : 'DIFESA (Dadi Blu)';
+          netflixEpisodeBadge.textContent = `EPISODIO ${currentActiveIndex + 1} DI 6 · ${viewLabel}`;
         }
         if (netflixEasterBadge) {
           if (b.isMirror) {
@@ -2017,6 +2254,15 @@ if (uDragonCoilMode > 0.5) {
           netflixClash3dBtn.textContent = `🥊 Gioca questo Scontro in 3D nella Scacchiera (${b.pairId.toUpperCase()})`;
         }
 
+        // Update Target Screen Badge floating directly on the main cinema screen
+        if (netflixTargetBadge && netflixTargetIcon && netflixTargetMode && netflixTargetTitle) {
+          netflixTargetBadge.className = `netflix-screen-target-badge ${isAttack ? 'badge-attack' : 'badge-defense'}`;
+          netflixTargetIcon.src = b.targetMedallion;
+          netflixTargetMode.className = `screen-target-mode ${isAttack ? 'text-red' : 'text-blue'}`;
+          netflixTargetMode.textContent = isAttack ? '🎲🔴 ATTACCO' : '🎲🔵 DIFESA';
+          netflixTargetTitle.textContent = `${isAttack ? 'vs' : 'da'} ${b.targetPieceGlyph} ${b.targetPieceName} (${b.targetHero?.heroName || b.targetKey})`;
+        }
+
         if (netflixVideo) {
           netflixVideo.poster = b.poster;
           netflixVideo.src = b.videoMp4;
@@ -2035,29 +2281,28 @@ if (uDragonCoilMode > 0.5) {
           });
         }
 
-        // Update active state in carousel cards
-        if (episodesCarouselEl) {
-          const cards = episodesCarouselEl.querySelectorAll('.episode-card');
-          cards.forEach((card, idx) => {
-            const isActive = idx === currentEpisodeIndex;
-            card.classList.toggle('active', isActive);
-            card.setAttribute('aria-selected', isActive);
+        // Update active state across all 12 cards in both grids
+        document.querySelectorAll('.episode-card').forEach((card) => {
+          const cardMode = card.dataset.battleMode;
+          const cardIdx = parseInt(card.dataset.battleIdx, 10);
+          const isThisActive = (cardMode === currentActiveMode && cardIdx === currentActiveIndex);
+          card.classList.toggle('active', isThisActive);
+          card.setAttribute('aria-selected', isThisActive);
 
-            const existingPill = card.querySelector('.episode-playing-pill');
-            if (isActive && !existingPill) {
-              const pill = document.createElement('span');
-              pill.className = 'episode-playing-pill';
-              pill.textContent = 'IN ONDA';
-              card.querySelector('.episode-thumb-wrap')?.appendChild(pill);
-            } else if (!isActive && existingPill) {
-              existingPill.remove();
-            }
+          const existingPill = card.querySelector('.episode-playing-pill');
+          if (isThisActive && !existingPill) {
+            const pill = document.createElement('span');
+            pill.className = 'episode-playing-pill';
+            pill.textContent = 'IN ONDA';
+            card.querySelector('.episode-thumb-wrap')?.appendChild(pill);
+          } else if (!isThisActive && existingPill) {
+            existingPill.remove();
+          }
 
-            if (isActive) {
-              card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
-          });
-        }
+          if (isThisActive) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        });
       };
 
       if (withTransition && netflixVideo) {
@@ -2068,13 +2313,19 @@ if (uDragonCoilMode > 0.5) {
       }
     }
 
-    // Carousel click handler with smooth fade transition
+    // Backward compatibility helper
+    function loadEpisodeToScreen(index, autoPlay = true, withTransition = false) {
+      loadBattleToScreen(currentActiveMode, index, autoPlay, withTransition);
+    }
+
+    // Card click handler for both Attack and Defense shelves
     episodesCarouselEl?.addEventListener('click', (e) => {
       const card = e.target.closest('.episode-card');
       if (!card) return;
-      const idx = parseInt(card.dataset.episodeIdx, 10);
-      if (!isNaN(idx)) {
-        loadEpisodeToScreen(idx, true, true);
+      const mode = card.dataset.battleMode;
+      const idx = parseInt(card.dataset.battleIdx, 10);
+      if (mode && !isNaN(idx)) {
+        loadBattleToScreen(mode, idx, true, true);
       }
     });
 
@@ -2084,34 +2335,24 @@ if (uDragonCoilMode > 0.5) {
         const card = e.target.closest('.episode-card');
         if (card) {
           e.preventDefault();
-          const idx = parseInt(card.dataset.episodeIdx, 10);
-          if (!isNaN(idx)) loadEpisodeToScreen(idx, true, true);
+          const mode = card.dataset.battleMode;
+          const idx = parseInt(card.dataset.battleIdx, 10);
+          if (mode && !isNaN(idx)) loadBattleToScreen(mode, idx, true, true);
         }
       }
     });
 
     // Prev / Next Buttons with smooth fade transition
     netflixPrevBtn?.addEventListener('click', () => {
-      loadEpisodeToScreen(currentEpisodeIndex - 1, true, true);
+      loadBattleToScreen(currentActiveMode, currentActiveIndex - 1, true, true);
     });
     netflixNextBtn?.addEventListener('click', () => {
-      loadEpisodeToScreen(currentEpisodeIndex + 1, true, true);
+      loadBattleToScreen(currentActiveMode, currentActiveIndex + 1, true, true);
     });
 
     // Auto-advance episode with smooth fade transition when video finishes
     netflixVideo?.addEventListener('ended', () => {
-      loadEpisodeToScreen(currentEpisodeIndex + 1, true, true);
-    });
-
-    // Attack vs Defense tab switch
-    document.getElementById('battle-tab-buttons')?.addEventListener('click', (e) => {
-      const btn = e.target.closest('button[data-battle-view]');
-      if (!btn) return;
-      currentBattleView = btn.dataset.battleView;
-      document.querySelectorAll('#battle-tab-buttons button').forEach((b) => {
-        b.classList.toggle('active', b === btn);
-      });
-      renderNetflixTheater(HERO_PROFILES[currentHeroKey], currentBattleView);
+      loadBattleToScreen(currentActiveMode, currentActiveIndex + 1, true, true);
     });
 
     // ── MAIN VIEW MODE SWITCH (POV vs MULTI-FAMILY) ──
@@ -2197,7 +2438,7 @@ if (uDragonCoilMode > 0.5) {
   </script>
 
   <footer style="text-align:center;padding:24px 16px 40px;color:#90a4ae;font-size:12px;border-top:1px solid rgba(255,213,79,0.2);margin-top:40px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
-    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.47</span>
+    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.48</span>
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener noreferrer" style="color:#9be7c4;text-decoration:none;font-weight:600;">🐙 GitHub Code</a>
     <span>·</span>

@@ -41,6 +41,9 @@ class TestCharacterPovShowcase(unittest.TestCase):
         self.assertIn('id="soundboard-grid"', html)
         self.assertIn('id="netflix-video"', html)
         self.assertIn('id="episodes-shelf-carousel"', html)
+        self.assertIn('id="attacks-cards-grid"', html)
+        self.assertIn('id="defenses-cards-grid"', html)
+        self.assertIn('id="netflix-screen-target-badge"', html)
         self.assertIn('data-mode="pov"', html)
         self.assertIn('data-mode="families"', html)
 

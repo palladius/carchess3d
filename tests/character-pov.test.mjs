@@ -86,6 +86,27 @@ test('CharacterPovData: POV battles mapping gives 6 attacks + 6 defenses = 11 un
       assert.ok(fs.existsSync(videoPath), `Missing battle video: ${battle.videoMp4}`);
       const posterPath = path.resolve(process.cwd(), battle.poster);
       assert.ok(fs.existsSync(posterPath), `Missing battle poster: ${battle.poster}`);
+      assert.ok(battle.targetPieceName, `Missing targetPieceName in ${battle.pairId}`);
+      assert.ok(battle.targetPieceGlyph, `Missing targetPieceGlyph in ${battle.pairId}`);
+      assert.ok(battle.targetMedallion, `Missing targetMedallion in ${battle.pairId}`);
+      const medallionPath = path.resolve(process.cwd(), battle.targetMedallion);
+      assert.ok(fs.existsSync(medallionPath), `Target medallion file missing: ${battle.targetMedallion}`);
     }
   }
+});
+
+test('CharacterPovData: 6+6 Risiko shelves and target piece badges are in showcase/index.html', () => {
+  const showcasePath = path.resolve(process.cwd(), 'showcase/index.html');
+  const html = fs.readFileSync(showcasePath, 'utf8');
+
+  // Verify both Attack (Red Risiko) and Defense (Blue Risiko) grids exist simultaneously
+  assert.ok(html.includes('id="attacks-cards-grid"'), 'Missing #attacks-cards-grid');
+  assert.ok(html.includes('id="defenses-cards-grid"'), 'Missing #defenses-cards-grid');
+
+  // Verify main screen target badge
+  assert.ok(html.includes('id="netflix-screen-target-badge"'), 'Missing #netflix-screen-target-badge');
+
+  // Verify film target overlay CSS class
+  assert.ok(html.includes('film-target-overlay'), 'Missing .film-target-overlay');
+  assert.ok(html.includes('target-medallion-circle'), 'Missing .target-medallion-circle');
 });

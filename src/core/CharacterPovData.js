@@ -194,6 +194,15 @@ export const HERO_PROFILES = Object.freeze({
   },
 });
 
+export const CHESS_PIECE_LABELS = Object.freeze({
+  k: { name: 'RE', glyph: '♚', role: 'Re', label: 'Re' },
+  q: { name: 'REGINA', glyph: '♛', role: 'Regina', label: 'Regina' },
+  b: { name: 'ALFIERE', glyph: '♝', role: 'Alfiere', label: 'Alfiere' },
+  n: { name: 'CAVALLO', glyph: '♞', role: 'Cavallo', label: 'Cavallo' },
+  r: { name: 'TORRE', glyph: '♜', role: 'Torre', label: 'Torre' },
+  p: { name: 'PEDONE', glyph: '♟', role: 'Pedone', label: 'Pedone' },
+});
+
 /**
  * Builds the 6 Offensive Battle items for heroKey (when hero attacks and captures defender).
  * @param {string} heroKey
@@ -206,10 +215,15 @@ export function getHeroAttacks(heroKey, prefix = '') {
     const entry = BATTLE_MATRIX_36[heroKey]?.[defKey] || {};
     const defHero = HERO_PROFILES[defKey];
     const isMirror = heroKey === defKey;
+    const targetLabel = CHESS_PIECE_LABELS[defKey] || { name: defKey.toUpperCase(), glyph: '♟', role: 'Pezzo' };
     return {
       pairId,
       attackerKey: heroKey,
       defenderKey: defKey,
+      targetKey: defKey,
+      targetPieceName: targetLabel.name,
+      targetPieceGlyph: targetLabel.glyph,
+      targetPieceRole: targetLabel.role,
       isMirror,
       type: 'attack',
       title: entry.title?.it || `${HERO_PROFILES[heroKey]?.fullName} vs ${defHero?.fullName}`,
@@ -222,6 +236,7 @@ export function getHeroAttacks(heroKey, prefix = '') {
       poster: `${prefix}assets/battles/keyframes/${pairId}.png`,
       attackerMedallion: getPieceMedallion(heroKey, 'white', prefix),
       defenderMedallion: getPieceMedallion(defKey, 'black', prefix),
+      targetMedallion: getPieceMedallion(defKey, 'black', prefix),
       targetHero: defHero,
     };
   });
@@ -239,10 +254,15 @@ export function getHeroDefenses(heroKey, prefix = '') {
     const entry = BATTLE_MATRIX_36[atkKey]?.[heroKey] || {};
     const atkHero = HERO_PROFILES[atkKey];
     const isMirror = atkKey === heroKey;
+    const targetLabel = CHESS_PIECE_LABELS[atkKey] || { name: atkKey.toUpperCase(), glyph: '♟', role: 'Pezzo' };
     return {
       pairId,
       attackerKey: atkKey,
       defenderKey: heroKey,
+      targetKey: atkKey,
+      targetPieceName: targetLabel.name,
+      targetPieceGlyph: targetLabel.glyph,
+      targetPieceRole: targetLabel.role,
       isMirror,
       type: 'defense',
       title: entry.title?.it || `${atkHero?.fullName} vs ${HERO_PROFILES[heroKey]?.fullName}`,
@@ -255,6 +275,7 @@ export function getHeroDefenses(heroKey, prefix = '') {
       poster: `${prefix}assets/battles/keyframes/${pairId}.png`,
       attackerMedallion: getPieceMedallion(atkKey, 'white', prefix),
       defenderMedallion: getPieceMedallion(heroKey, 'black', prefix),
+      targetMedallion: getPieceMedallion(atkKey, 'white', prefix),
       targetHero: atkHero,
     };
   });

@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.3.48] - 2026-10-12
+
+- 🎲🔴🎲🔵👑 **6+6 Risiko Shelves (Attacco Dadi Rossi & Difesa Dadi Blu), Medaglione Target Scacchistico 48px Sovraimpresso sul Film e Rotator 3D Snello (`showcase/index.html`, `src/core/CharacterPovData.js`, `VERSION`, `src/core/Registry.js`, `tests/character-pov.test.mjs`, `tests/test_character_pov.py`)**:
+  - **Doppia Riga Scontri Risiko (6 Sopra e 6 Sotto Visibili Contemporaneamente)**:
+    - Risolto il limite del carousel a 5 card e l'occultamento delle difese dietro un tab secondario: eliminate le tab e introdotte **DUE RIGHE COMPLETE E SIMULTANEE**:
+      - **Riga Superiore (🎲🔴 ATTACCO - Dadi Rossi Risiko)**: le 6 vittorie dell'eroe selezionato contro tutti i 6 pezzi avversari, con bordo e badge rosso fuoco (`#ff1744` / `#e53935`).
+      - **Riga Inferiore (🎲🔵 DIFESA - Dadi Blu Risiko)**: i 6 contrattacchi quando l'eroe viene mangiato/attaccato, con bordo e badge blu cobalto (`#2979ff` / `#1e88e5`).
+    - Layout a griglia 6 colonne: tutte e 12 le card sono visibili immediatamente sul monitor senza scrolling orizzontale o tagli.
+  - **Pezzo Target Scacchistico GIGANTE Sovraimpresso SUL FILM (48px = 50% dell'Altezza del Video)**:
+    - Sull'anteprima di ogni film/video, il pezzo target (non ovvio) è reso **immediatamente riconoscibile per i bambini e giocatori**:
+      - Medaglione circolare Staunton ad alta risoluzione da **48px** (esattamente il 50% dell'altezza del thumbnail di 96px).
+      - Cerchio a contrasto elevato con bordo luminescente color Risiko (rosso per attacco, blu per difesa) e pillola dedicata con glyph e nome in maiuscolo: `♛ REGINA`, `♝ ALFIERE`, `♜ TORRE`, `♚ RE`, `♟ PEDONE`, `♞ CAVALLO`.
+      - Chiunque voglia sapere *"come mi comporto contro la Regina?"* vede l'icona gigante della Regina sul film e ci clicca direttamente, senza dover indovinare chi sia Kate!
+      - Testo sotto la card focalizzato sul bersaglio: `⚔️ vs REGINA (Kate)` o `🛡️ da REGINA (Kate)`.
+  - **Badge Target Fluttuante sul Maxischermo Video**:
+    - Nell'angolo superiore sinistro del player principale (`#netflix-screen-wrap`), appare un badge dinamico in vetro scuro con l'icona circolare da 32px del pezzo target e la didascalia `🎲🔴 ATTACCO vs ♛ REGINA (Kate)` o `🎲🔵 DIFESA da ♛ REGINA (Kate)`.
+  - **Rotator GLB 3D a Sinistra Ottimizzato e Rimpicciolito**:
+    - Ridotta la larghezza della colonna sinistra da ~43% a una colonna fissa snella da 280px (`height: 160px` per il viewer Three.js, risparmiando il 36% di altezza verticale), regalando oltre l'80% della larghezza desktop al cinema e alle due righe da 6 film.
+    - Soundboard a 2 colonne ultra-compatta posizionata sotto il 3D.
+  - **AI Pairing & Implementation**:
+    - Sviluppato e rifinito in pair programming con **`gemini38flash-high`** (AntiGravity harness) per la logica architetturale, asset SVG, test suite ed esperienza utente cinema a 6+6 corsie.
+  - **Suite di Test Aggiornata**:
+    - Aggiunte verifiche in Node (`character-pov.test.mjs`) e Python (`test_character_pov.py`) su `attacks-cards-grid`, `defenses-cards-grid`, `netflix-screen-target-badge`, `film-target-overlay` e coerenza metadati target.
+
 ## [0.3.47] - 2026-10-12
 
 - 🎬▶️📐 **Full Frame Uncropped Video Playback (`object-fit: contain`), 16:9 Cinema / 4:3 Classic Ratio Toggle, Autostart & Smooth Cross-Fade Transitions (`showcase/index.html`, `VERSION`, `src/core/Registry.js`)**:
