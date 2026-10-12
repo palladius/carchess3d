@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.3.45] - 2026-10-12
+
+- 🎭🐴🧙‍♂️ **Vetrina per Personaggio (Showcase POV) con Turntable 3D, Soundboard Vocale e Video Attacco/Difesa (Issue #22) (`showcase/index.html`, `src/core/CharacterPovData.js`, `battles.html`, `tests/character-pov.test.mjs`, `tests/test_character_pov.py`)**:
+  - **Cruscotto POV a 2 Colonne per i 6 Eroi Carlesso (`showcase/index.html`)**:
+    - **Selettore Eroi Touch/Kid-Friendly**: 6 pulsanti orizzontali ad alto contrasto con avatar frontale, glyph e ruolo per Cavaliere Seby (`n`), Alfiere Ale (`b`), Re Riccardo (`k`), Regina Kate (`q`), Torre Pupurabbu (`r`) e Guardia Svizzera Puffin (`p`).
+    - **Colonna 3D Turntable Interattivo**: Three.js auto-rotante su singolo renderer condiviso (conforme alle quote Chromium `kMaxActiveWebGLContexts = 16`), drag-to-rotate fluido, pulsante Schermo Intero `⛶`, selettore tinte di fazione (Originale, Bianco, Nero) e pillole varianti modello (es. Ale con drago riggato a 26 ossa e Regina Kate nozze 2016).
+    - **Colonna Soundboard Vocale & Catchphrases**: Pulsanti audio dedicati per tutti i file `assets/audio/voices/voice-*.mp3` con etichetta, badge e trascrizione della battuta, animazione live d'onda sonora durante la riproduzione, e SpeechSynthesis fallback per le nuove catchphrase richieste:
+      - **Regina Kate (`q`)**: *"I'll bear that in mind"* (accento British).
+      - **Torre Pupurabbu (`r`)**: *"Catchphrase!"* (citazione di Blue Shirt Guy / Free Guy 👕).
+  - **Cinema Netflix-Style Theater per gli Scontri (Issue #22)**:
+    - **Maxischermo Centrale 16:9 4K**: Singolo player cinema centrale (`#netflix-video`) pronto all'avvio, con filigrana cinema, banner scontro stilizzato, riassunto Atto 1 (Arma) / Atto 2 (Contrattacco) e pulsante diretto `🥊 Gioca questo Scontro in 3D nella Scacchiera`.
+    - **Carousel Orizzontale a Scorrimento ("Playlist Episodi")**: Shelf in perfetto stile Netflix con card snelle (`[icona] Seby vs [icona] Pupurabbu`), thumbnail video, badge durata/vittoria/difesa, e pillola `IN ONDA` per l'episodio attualmente selezionato con scorrimento fluido (`scrollIntoView`).
+    - **Navigazione & Auto-play**: Tasti `⏮️ Precedente` e `⏭️ Successivo`, navigazione da tastiera e passaggio automatico al termine del video (`ended` event) all'episodio successivo.
+    - **12 Medaglioni Circolari Classici Staunton (`assets/icons/chess/{white,black}/*.svg`)**: Icone vettoriali ad alta definizione per Re, Regina, Alfiere, Cavallo, Torre e Pedone (in versione Bianco avorio / oro e Nero ossidiana / antracite), disegnate con cerchi bordati a gradiente e ombre soffuse per rendere nitide sia come miniature (20px) nelle card, sia in grande sul maxischermo.
+  - **Navigazione & Integrazione Olistica**:
+    - Selettore modalità in primo piano: `🎭 Per Personaggio (Showcase POV)` e `🏛️ Confronto Famiglie (18 Pezzi Multi-Family)`.
+    - Deep-linking URL via query param: `?hero=seby`, `?hero=ale`, `?hero=k`, `?hero=q`, `?hero=r`, `?hero=p`, `?view=pov` e `?view=families`.
+    - Aggiunto tasto di collegamento rapido `🎭 Vetrina Personaggi (POV)` nell'header di `battles.html`.
+  - **Suite di Test**: Aggiunti `tests/character-pov.test.mjs` (Node) e `tests/test_character_pov.py` (Python stdlib) verificando la completezza di tutti i 6 profili, medaglioni scacchistici, file audio MP3, video e conformità DOM.
+- 🎲🔄 **Bumped and Synchronized `niccolo-game-design` Skill to v0.2.1 (`.agents/skills/niccolo-game-design/`, `SKILL.md`, `CHANGELOG.md`, `DEPENDENCIES.md`)**:
+  - Bumped skill metadata version to `v0.2.1` in both `SKILL.md` and skill `CHANGELOG.md` reflecting the Mode B adversarial face-grafting additions.
+  - Added `DEPENDENCIES.md` establishing downstream sync contract with `gemini-cli-palladius-public-goodies` and `skillume`.
+  - Synchronized upstream to `gemini-cli-palladius-public-goodies`, aligning MD5 content hash (`#e2c08`) across local, public, and skillume registries.
+
 ## [0.3.44] - 2026-10-11
 
 - 🎻🔇🕹️ **Non-Fatiguing 30s Chamber Strings Background Loop (`chess-strings-bg.mp3`) + Complete Removal of 1980s Arcade Oscillator Sequencers (`assets/audio/chess-strings-bg.mp3`, `src/listeners/AudioListener.js`, `sw.js`, `tests/voices_idle.test.mjs`)**:

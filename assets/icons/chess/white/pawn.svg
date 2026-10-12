@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    
+          <radialGradient id="marble_bg" cx="40%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="65%" stop-color="#f8f4ec"/>
+            <stop offset="100%" stop-color="#e3d8c4"/>
+          </radialGradient>
+          <linearGradient id="rim_gold" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffe082"/>
+            <stop offset="50%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#996515"/>
+          </linearGradient>
+        
+    <filter id="medallion_depth" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <style>
+    
+          .medallion-rim { fill: url(#rim_gold); filter: drop-shadow(0 2px 5px rgba(0,0,0,0.45)); }
+          .medallion-inner { fill: url(#marble_bg); }
+          .piece-body { fill: #fcf9f2; stroke: #8a6a24; stroke-width: 1.4; filter: drop-shadow(0 1.5px 2px rgba(138,106,36,0.35)); }
+          .piece-accent { fill: #e6b84a; stroke: #7c5812; stroke-width: 1.2; }
+          .piece-base { fill: #d4af37; stroke: #664606; stroke-width: 1.4; }
+          .piece-slit { stroke: #8a6a24; }
+        
+  </style>
+  <g filter="url(#medallion_depth)">
+    <!-- Outer Rim -->
+    <circle cx="50" cy="50" r="48" class="medallion-rim" />
+    <!-- Beveled Edge -->
+    <circle cx="50" cy="50" r="44" fill="none" stroke="#ffd54f" stroke-width="0.8" opacity="0.6" />
+    <!-- Inner Marble Field -->
+    <circle cx="50" cy="50" r="43" class="medallion-inner" />
+  </g>
+  <!-- Classical Piece Motif -->
+  <g>
+    
+      <!-- Pawn Spherical Polished Head -->
+      <circle cx="50" cy="32" r="10" class="piece-body" />
+      <!-- Pawn Double Ring Neck Collar -->
+      <path d="M 41 45 H 59 V 49 H 41 Z" class="piece-accent" />
+      <path d="M 43 49 H 57 V 52 H 43 Z" class="piece-accent" />
+      <!-- Pawn Concave Body Stem -->
+      <path d="M 44 52 C 44 58, 40 65, 36 71 H 64 C 60 65, 56 58, 56 52 Z" class="piece-body" />
+      <!-- Pawn Stepped Plinth Base -->
+      <path d="M 32 71 H 68 V 75 H 32 Z" class="piece-accent" />
+      <path d="M 27 75 H 73 V 80 H 27 Z" class="piece-base" />
+    
+  </g>
+</svg>

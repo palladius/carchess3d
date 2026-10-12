@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    
+          <radialGradient id="obsidian_bg" cx="40%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#343844"/>
+            <stop offset="65%" stop-color="#181b22"/>
+            <stop offset="100%" stop-color="#0b0d12"/>
+          </radialGradient>
+          <linearGradient id="rim_silver" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="50%" stop-color="#b0bcc9"/>
+            <stop offset="100%" stop-color="#566270"/>
+          </linearGradient>
+        
+    <filter id="medallion_depth" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <style>
+    
+          .medallion-rim { fill: url(#rim_silver); filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6)); }
+          .medallion-inner { fill: url(#obsidian_bg); }
+          .piece-body { fill: #1d212b; stroke: #99a8b8; stroke-width: 1.4; filter: drop-shadow(0 1.5px 2px rgba(0,0,0,0.8)); }
+          .piece-accent { fill: #7f91a6; stroke: #ced7e0; stroke-width: 1.2; }
+          .piece-base { fill: #505c6c; stroke: #dce4ec; stroke-width: 1.4; }
+          .piece-slit { stroke: #dce4ec; }
+        
+  </style>
+  <g filter="url(#medallion_depth)">
+    <!-- Outer Rim -->
+    <circle cx="50" cy="50" r="48" class="medallion-rim" />
+    <!-- Beveled Edge -->
+    <circle cx="50" cy="50" r="44" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.6" />
+    <!-- Inner Marble Field -->
+    <circle cx="50" cy="50" r="43" class="medallion-inner" />
+  </g>
+  <!-- Classical Piece Motif -->
+  <g>
+    
+      <!-- Knight Horse Head & Flowing Mane -->
+      <path d="M 35 75 C 33 64, 35 52, 31 46 C 29 43, 31 38, 35 36 C 40 33, 44 34, 46 31 C 48 29, 48 25, 52 24 C 54 24, 55 26, 55 28 C 58 26, 63 26, 66 29 C 70 33, 68 40, 68 45 C 71 47, 72 52, 71 58 C 70 65, 68 70, 67 75 Z" class="piece-body" />
+      <!-- Muzzle / Nostril / Jaw Line -->
+      <path d="M 31 46 C 36 48, 41 47, 43 51 C 45 55, 42 59, 38 59" class="piece-accent" fill="none" stroke-width="2.5" />
+      <!-- Ear & Eye -->
+      <path d="M 46 31 L 49 24 L 52 28 Z" class="piece-accent" />
+      <circle cx="58" cy="35" r="2.2" class="piece-accent" />
+      <!-- Knight Base -->
+      <path d="M 26 75 H 74 V 81 H 26 Z" class="piece-base" />
+    
+  </g>
+</svg>
