@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.3.47] - 2026-10-12
+
+- 🎬▶️📐 **Full Frame Uncropped Video Playback (`object-fit: contain`), 16:9 Cinema / 4:3 Classic Ratio Toggle, Autostart & Smooth Cross-Fade Transitions (`showcase/index.html`, `VERSION`, `src/core/Registry.js`)**:
+  - **Full Frame Uncropped (`object-fit: contain`) & Ratio Toggle (`showcase/index.html`)**:
+    - Risolto il ritaglio del video causato da `object-fit: cover` e `max-height: 280px` che comprimevano il video in formato 2.28:1 tagliando la testa dei personaggi e la base del tabellone.
+    - Video ora visualizzato con `object-fit: contain` e sfondo nero cinematografico: 100% dell'inquadratura naturale è visibile senza tagli.
+    - Aggiunto pulsante toggle rapido `📐 16:9 CINEMA` / `📐 4:3 CLASSIC` nell'angolo superiore del maxischermo per alternare al volo tra aspect ratio 16:9 e 4:3 con transizione fluida.
+  - **Autostart Immediato dei Video**:
+    - Il video parte automaticamente appena viene selezionato un eroe, una variante o un episodio dalla playlist, senza costringere l'utente a cliccare play manualmente (con fallback soft a muted autoplay in caso di policy browser restrittive senza gesture utente iniziale).
+  - **Transizione Fluida Cross-Fade tra gli Episodi**:
+    - Quando un video finisce (`video.onended`) o si naviga tramite `⏮️ Precedente` / `⏭️ Successivo` / card del carousel: il video esegue un morbido fade-out (300ms con leggera scala), carica il nuovo episodio e sfuma in fade-in con riproduzione immediata, mentre la card corrispondente nel carousel scorre automaticamente in vista con la pillola `IN ONDA`.
+
+## [0.3.46] - 2026-10-12
+
+- 📐✨🍿 **Ultra-Compact & Functional Showcase Layout: Slim Navbar, Single-Row Hero Chips & Side-by-Side Dual Stage ("Zero Scroll" Above the Fold) (`showcase/index.html`, `VERSION`, `src/core/Registry.js`)**:
+  - **Navbar Slim a Riga Singola (Altezza ~44px, Risparmiati ~180px)**:
+    - Eliminati tutti i banner verticali ingombranti, sottotitoli ridondanti e margini gonfi.
+    - Barra superiore compatta e moderna: logo `🏰 CarChess3D`, pillole modalità compatte (`🎭 Eroi POV` / `🏛️ 18 Pezzi`), tinte fazione iconiche (`🎨 Orig`, `⚪ Bianco`, `⚫ Nero`), e collegamenti rapidi (`🎬 Scontri 6×6`, `♟️ Gioca`).
+  - **Selettore Eroi a Chip Orizzontali (Riga Singola, Altezza ~38px, Risparmiati ~120px)**:
+    - Sostituite le schede giganti a 2 righe con 6 chip ovali compatti: avatar rotondo da 26px, glyph e nome (`🐴 Seby`, `🐉 Ale`, `👑 Riccardo`, `👸 Kate`, `🏰 Pupurabbu`, `🐧 Puffin`).
+    - Niente wrapping: layout fluido orizzontale con bordo dorato luminoso sull'eroe attivo.
+  - **Dual Stage Affiancato (3D + Soundboard a Sinistra | Maxischermo Netflix a Destra)**:
+    - Risolto il problema del dover scrollare giù un'intera pagina per vedere foto e video: ora **il modello 3D interattivo E il video Netflix sono visibili contemporaneamente sulla prima schermata**!
+    - **Pannello Sinistro**: Turntable Three.js compatto (canvas da 250px) con pillole varianti (es. Ale riggato) e tasto `⛶`, pillole statistiche arma/difesa, box soundboard con avatar, catchphrase in corsivo e chip audio compatti a risposta immediata.
+    - **Pannello Destro**: Netflix Theater centrale con medaglioni classici Staunton dei combattenti, maxischermo video 16:9 pronto all'avvio, pulsante rapido `🥊 Scontro 3D`, e carousel playlist episodi snello (card da 160px con scroll fluido).
+    - L'intera interfaccia si adatta entro ~550px verticali, visibile senza scrollare su qualsiasi laptop/desktop.
+
 ## [0.3.45] - 2026-10-12
 
 - 🎭🐴🧙‍♂️ **Vetrina per Personaggio (Showcase POV) con Turntable 3D, Soundboard Vocale e Video Attacco/Difesa (Issue #22) (`showcase/index.html`, `src/core/CharacterPovData.js`, `battles.html`, `tests/character-pov.test.mjs`, `tests/test_character_pov.py`)**:
