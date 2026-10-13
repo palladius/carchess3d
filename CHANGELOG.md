@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.53] - 2026-10-13
+
+- 🔄🎥 **'Reset View' Camera Button & Hotkey `R` (Issue #29)**:
+  - **HUD Action Button**: Added `#hud-reset-cam-btn` to the HUD bottom dock with intuitive target/recenter icon and bilingual tooltips (`🎥 Ripristina Telecamera (R)` / `🎥 Reset Camera View (R)`).
+  - **Keyboard Shortcut**: Pressing `r` or `R` during gameplay instantly animates/restores the camera position back to the default canonical 3D framing and centers controls target.
+  - **Bilingual Toast Notification**: Brief feedback toast confirming camera reset in Italian and English.
+  - **Unit Test Coverage**: Added Node.js test suite verification in `tests/core.test.mjs`.
+  - **Merge fixes (main agent)**: branch renumbered 0.3.49 → 0.3.53 (main had moved to 0.3.52); the `R` hotkey now ignores Ctrl/Cmd/Alt so **Ctrl+R / Cmd+R still reloads the page**; on mobile phones Reset View delegates to `applyMobileCameraMode('3d')` so it keeps the v0.3.52 portrait framing.
+
 ## [0.3.52] - 2026-10-13
 
 - 📱🔄🧹 **Pixel 10 & Mobile Self-Healing Cache Recovery, Service Worker De-Poisoning, Restored Mobile Top-Bar Toggle (`☰` + `🔄 Reload` + Pull-to-Refresh) & Portrait Board Framing (`index.html`, `nocache.html`, `sw.js`, `src/listeners/HudListener.js`, `src/core/Registry.js`, `docs/spec/SPEC.md`, `VERSION`)**:
