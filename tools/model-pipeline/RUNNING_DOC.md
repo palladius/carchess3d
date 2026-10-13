@@ -405,13 +405,35 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
 - **Bishop Ale Decision**: Ale v1 with mitre hat (`assets/models/bishop-ale-1.glb`, MD5 `6b423e6daf1ed71f001c8912cc9035f7`) confirmed as the canonical piece; modular rigged version available in `bishop-ale-rigged.glb`.
 - **Registry Update**: `docs/models-provenance.yaml` updated with 10 total models and 27 source views, validated by `just test` and `scripts/test_provenance.py`.
 
-## 27. 2026-10-10 — Parallel Side Tracks: `classic` & `swamp` Families (Nano Banana 2.1 + Adversarial `fable-5.1-high` Art Critic)
+## 27. 2026-10-10 — Option C Modular Deep Dive (Bishop Ale #2 & Queen Kate Remaster)
+
+- **Option C Mandate**: Executed Option C deep-dive remaster on Bishop Ale #2 (`tools/model-pipeline/ale2/`) and Queen Kate Nozze 2016 (`assets/models/queen-kate-wedding2016.glb`) to address fused props, non-watertight geometry, and harsh surface noise.
+- **Queen Kate Nozze 2016 Remaster**:
+  - Script created: `tools/model-pipeline/kate/clean_queen_kate.py`.
+  - Chignon neck contour undercut defined at $Z \in [0.18, 0.24], Y > 0.04$ with neck crease inset by $-0.024$m.
+  - Scepter/hands forward offset by $-0.016$m in $Y$, creating clear depth separation from velvet gown.
+  - Selective surface smoothing applied via vertex group `Smooth_Gown_Skin` ($w=0$ on lathe pedestal and scepter rod to maintain sharp mechanical edges; $w=1$ on fabric and skin).
+  - Grounding translation applied so minimum $Z$ is exactly 0.0.
+  - Exported to canonical `assets/models/queen-kate-wedding2016-remastered.glb` (97.2k faces, 3.8 MB).
+  - VLM QA Critic audited against `tools/model-pipeline/kate/front.png`: Likeness $6.5/10$, Back $6.7/10$, Overall $6.3/10$, **passed: true (ACCEPTABLE 🟡)**.
+- **Bishop Ale #2 Modular Remaster**:
+  - Script created: `tools/model-pipeline/ale2/assemble_modular_ale2.py`.
+  - Body mesh clean-up: deleted floating orphan face at base ($Z < -0.485$), retracted staff protrusion into sleeve cuff, and retracted full-height dragon/smoke/wing lump across $Z \in [-0.12, 0.45]$. Standalone clean body exported to `tools/model-pipeline/ale2/out/ale_body_clean.glb`.
+  - Clean prop generated: `tools/model-pipeline/ale2/out/astrolabe_clean.glb`, featuring an authentic 8-spoked celestial navigation wheel astrolabe with raised central hub, sapphire core jewel, 8 radial spokes at 45°, top suspension loop, and full-length cylindrical staff shaft running straight through the left palm to rest securely on the wooden plinth base.
+  - Dragon companion clean-up: updated `tools/model-pipeline/dragon/texture_dragon.py` to assign concept-accurate ruby-red scales, pale lime-green underbelly/wing lining, dark burgundy horn tips, and emerald eyes (`dragon_clean.glb`). Mounted on right shoulder pad at $X = -0.20$ with clear negative space separation.
+  - Exported integrated model: `assets/models/bishop-ale-2-remastered.glb` (44.9k faces, 5.4 MB, zero stray islands, grounded at $Z=0$).
+- **Critic & Renderer Upgrades**:
+  - Enhanced `tools/model-pipeline/critic/render_contact_sheet.py` with camera-tracking rotating key/fill lights and studio ambient fill, eliminating dark angle dropoff.
+  - Added automatic detection of empty `VERTEX_COLOR` layer names for glTF imports in Cycles (`layer_name = 'Col'`).
+  - Audited both models and recorded in `docs/qa-scores.yaml`.
+
+## 28. 2026-10-10 — Parallel Side Tracks: `classic` & `swamp` Families (Nano Banana 2.1 + Adversarial `fable-5.1-high` Art Critic)
 
 - Executed in parallel via isolated per-track lab notebooks:
   - **🗿🚽 Carlessian Classic Family (`classic_default_pieces_20261010`)**: see [`tools/model-pipeline/classic/RUNNING_DOC.md`](classic/RUNNING_DOC.md) and `docs/qa-scores.classic.yaml` (2D NB 2.1 avg **8.6/10 🟢**, 3D avg **7.67/10 🟡**, 0 `💩`).
   - **🐸🧅 Swamp Parody Family (`swamp_family_pieces_20261010`)**: see [`tools/model-pipeline/swamp/RUNNING_DOC.md`](swamp/RUNNING_DOC.md) and `docs/qa-scores.swamp.yaml` (2D NB 2.1 avg **8.7/10 🟢**, 3D avg **7.45/10 🟡**, 0 `💩`).
 
-## 28. 2026-10-11 — Swamp Bishop & Pawn Upgrade (Don Gatto Zorro-Vescovo + Uomo Focaccina) & Classic TRELLIS.2
+## 29. 2026-10-11 — Swamp Bishop & Pawn Upgrade (Don Gatto Zorro-Vescovo + Uomo Focaccina) & Classic TRELLIS.2
 
 - **2D Nano Banana 2.1 (`gemini-nano-banana-2.1`)**:
   - `assets/characters/bishop-swamp-gatto.jpg` (Variant 1 approved by Riccardo; Variant 2 deleted): Ginger tabby cat with black Zorro domino mask, tall black-and-gold Papal Bishop Mitre with ruby cross & yellow ostrich plume, black-and-gold Zorro cape with `"Z"` clasp, leather boots, golden rapier, and blessing paw.

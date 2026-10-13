@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.54] - 2026-10-13
+
+- ♗✨ **Bishop Ale #2 Modular Remaster (`bishop-ale-2-remastered.glb`)**:
+  - Executed Option C modular clean-up on Bishop Ale #2, eliminating fused props / "two half dragons" artifacts by completely retracting the dragon and smoke lump into the mantle drape and retracting staff protrusion into the sleeve cuff.
+  - Modeled an authentic 8-spoked celestial navigation wheel astrolabe with raised central hub and full-length grounded brass crosier staff (`tools/model-pipeline/ale2/out/astrolabe_clean.glb`).
+  - Re-textured modular baby dragon with concept-accurate ruby-red scales, lime-green underbelly/wing lining, and emerald eyes (`tools/model-pipeline/dragon/out/dragon_clean.glb`), perching cleanly on the shoulder pad with clear negative space separation.
+  - Automated headless assembly in `assemble_modular_ale2.py` (44.9k faces, zero stray islands, grounded at Z=0).
+- 👑💇 **Queen Kate Nozze 2016 Geometry & Hair Clean-up (`queen-kate-wedding2016-remastered.glb`)**:
+  - Created `tools/model-pipeline/kate/clean_queen_kate.py` to undercut the chignon bun from the collar creating a crisp neck crease.
+  - Pulled scepter/hands forward by 1.6 cm to eliminate dress coplanarity, applied selective Surface Smooth preserving lathe pedestal edges, and grounded to Z=0. Passed VLM QA audit at 6.3 ACCEPTABLE tier (`passed: true`).
+- 🌐 **Web Showcase Complete Character Suite (`showcase/index.html`)**:
+  - Updated showcase with explicit v1..v4 model selectors for both Bishop Ale and Queen Kate, allowing side-by-side inspection of all original monolithic and remastered modular iterations.
+- 📸💡 **Critic & Renderer Studio Lighting Upgrade**: upgraded `tools/model-pipeline/critic/render_contact_sheet.py` with camera-tracking rotating key/fill studio suns and neutral ambient backdrop, permanently solving dark angle dropoffs. Added automatic detection and assignment of empty `VERTEX_COLOR` layers for glTF imports in Cycles.
+- 📋 **QA Scoreboard & Running Doc**: updated `docs/qa-scores.yaml` and documented Section 27 in `tools/model-pipeline/RUNNING_DOC.md`.
+
 ## [0.3.53] - 2026-10-13
 
 - 🔄🎥 **'Reset View' Camera Button & Hotkey `R` (Issue #29)**:

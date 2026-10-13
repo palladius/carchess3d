@@ -30,15 +30,26 @@ tmp_dir.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(glb_path))
 
+mesh_objs = [o for o in bpy.data.objects if o.type == 'MESH']
+
+# Fix vertex color node layer name so Cycles renders vertex colors properly
+for mat in bpy.data.materials:
+    if mat.use_nodes:
+        for n in mat.node_tree.nodes:
+            if n.type == 'VERTEX_COLOR' and not n.layer_name:
+                for obj in mesh_objs:
+                    if mat.name in [m.name for m in obj.data.materials if m]:
+                        if obj.data.color_attributes:
+                            n.layer_name = obj.data.color_attributes[0].name
+
 scene = bpy.context.scene
 scene.render.engine = 'CYCLES'
 scene.cycles.device = 'CPU'
-scene.cycles.samples = 16
+scene.cycles.samples = 48
 scene.cycles.use_denoising = False
 scene.render.resolution_x = res
 scene.render.resolution_y = res
 
-mesh_objs = [o for o in bpy.data.objects if o.type == 'MESH']
 coords = []
 for obj in mesh_objs:
     mat = obj.matrix_world
@@ -52,49 +63,40 @@ center = (min_b + max_b) / 2.0
 dims = max_b - min_b
 max_dim = max(dims)
 
-# Target empty at center
 target = bpy.data.objects.new("Target", None)
 bpy.context.collection.objects.link(target)
 target.location = center
 
-# Camera setup with Track To constraint
+dist = max_dim * 2.35
 cam_data = bpy.data.cameras.new("CriticCam")
 cam_obj = bpy.data.objects.new("CriticCam", cam_data)
 bpy.context.collection.objects.link(cam_obj)
 scene.camera = cam_obj
 cam_data.type = 'PERSP'
-cam_data.lens = 55.0
+cam_data.lens = 50.0
 
 tt = cam_obj.constraints.new(type='TRACK_TO')
 tt.target = target
 tt.track_axis = 'TRACK_NEGATIVE_Z'
 tt.up_axis = 'UP_Y'
 
-# Bright, balanced studio lighting
 world = bpy.data.worlds.new("World")
 scene.world = world
 world.use_nodes = True
 bg_node = world.node_tree.nodes.get("Background")
 if bg_node:
-    bg_node.inputs[0].default_value = (0.75, 0.75, 0.75, 1.0)  # clean bright studio
-    bg_node.inputs[1].default_value = 1.2
+    bg_node.inputs[0].default_value = (0.85, 0.85, 0.85, 1.0)
+    bg_node.inputs[1].default_value = 1.3
 
-# Key Sun
 key_sun = bpy.data.lights.new("KeySun", type='SUN')
 key_sun.energy = 5.0
 key_obj = bpy.data.objects.new("KeySun", key_sun)
 bpy.context.collection.objects.link(key_obj)
-key_obj.rotation_euler = (math.radians(45), math.radians(25), math.radians(30))
 
-# Fill Sun (from opposite side to eliminate harsh shadows on back/side)
 fill_sun = bpy.data.lights.new("FillSun", type='SUN')
-fill_sun.energy = 3.5
+fill_sun.energy = 3.8
 fill_obj = bpy.data.objects.new("FillSun", fill_sun)
 bpy.context.collection.objects.link(fill_obj)
-fill_obj.rotation_euler = (math.radians(-35), math.radians(-30), math.radians(150))
-
-# Orbit distance
-dist = max_dim * 2.3
 
 angles = [
     ("front", 0),
@@ -108,8 +110,11 @@ for name, deg in angles:
     rad = math.radians(deg)
     cx = center[0] + dist * math.sin(rad)
     cy = center[1] - dist * math.cos(rad)
-    cz = center[2] + max_dim * 0.18
+    cz = center[2] + max_dim * 0.08
     cam_obj.location = (cx, cy, cz)
+    
+    key_obj.rotation_euler = (math.radians(45), math.radians(20), math.radians(deg + 35))
+    fill_obj.rotation_euler = (math.radians(40), math.radians(-20), math.radians(deg - 35))
     
     bpy.context.view_layer.update()
     
