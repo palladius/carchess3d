@@ -54,6 +54,23 @@ models:
         size_bytes: 322341
         md5: "d37e425abd7a98d07c87f39b582a5e72"
 
+  - id: "bishop-ale-2-remastered"
+    name: "Bishop Ale #2 (Remaster Modulare - Ruota Celeste & Draghetto)"
+    piece: "bishop"
+    character: "Alessandro"
+    status: "REMASTERED"
+    target_path: "assets/models/bishop-ale-2-remastered.glb"
+    size_bytes: 5342008
+    md5: "1f0bf80cc0f848c7870690d8cfc2a1ee"
+    pipeline:
+      tool: "Blender Modular Assembly & Geometry Cleanup"
+      script: "tools/model-pipeline/ale2/assemble_modular_ale2.py"
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/bishop-ale-2.jpg"
+        size_bytes: 322341
+        md5: "d37e425abd7a98d07c87f39b582a5e72"
+
   - id: "bishop-ale-rigged"
     name: "Bishop Ale Rigged (with Animated Baby Dragon)"
     piece: "bishop"
@@ -120,8 +137,8 @@ models:
         md5: "2c20d6cc74fb9829efd8b69471b68434"
       - role: "turnaround_side_noglasses"
         path: "tools/model-pipeline/king/side.png"
-        size_bytes: 979294
-        md5: "66b8605efc889e81323b5a762a07f7dc"
+        size_bytes: 1214708
+        md5: "5fdc25180a1bbb3968c080d8719227d3"
       - role: "turnaround_back"
         path: "tools/model-pipeline/king/back.png"
         size_bytes: 955543
@@ -173,6 +190,31 @@ models:
       resolution: 1024
       decimation_target: 100000
       texture_size: 1024
+    concept_sources:
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/kate/front.png"
+        size_bytes: 1236748
+        md5: "b01bab585fedce109ae3558ffb019aa5"
+      - role: "turnaround_threequarter"
+        path: "tools/model-pipeline/kate/threequarter.png"
+        size_bytes: 1280863
+        md5: "5bf7e360a893cdc04a942447b0cd3a4a"
+      - role: "turnaround_back"
+        path: "tools/model-pipeline/kate/back.png"
+        size_bytes: 1265720
+        md5: "8ec1d143a5e8756d7dc036dd7de6a395"
+
+  - id: "queen-kate-wedding2016-remastered"
+    name: "Queen Kate (Wedding 2016 Style / Remaster Modulare)"
+    piece: "queen"
+    character: "Kate"
+    status: "REMASTERED"
+    target_path: "assets/models/queen-kate-wedding2016-remastered.glb"
+    size_bytes: 3909340
+    md5: "8e5dbea27c2205dff68f4d9014f052cb"
+    pipeline:
+      tool: "Blender Geometry Cleanup & Smoothing"
+      script: "tools/model-pipeline/kate/clean_queen_kate.py"
     concept_sources:
       - role: "turnaround_front"
         path: "tools/model-pipeline/kate/front.png"

@@ -17,6 +17,7 @@ export PIP_CACHE_DIR="$LOCAL3D_ROOT/pip-cache"
 export TMPDIR="$LOCAL3D_ROOT/tmp"
 export TORCH_HOME="$LOCAL3D_ROOT/hf-cache/torch"
 export U2NET_HOME="$LOCAL3D_ROOT/hf-cache/u2net"   # rembg weights
+export HY3DGEN_MODELS="$LOCAL3D_ROOT/hf-cache/hy3dgen"
 export PIP_INDEX_URL="${PIP_INDEX_URL:-https://pypi.org/simple}"
 
 VENV="$LOCAL3D_ROOT/venv-hunyuan"

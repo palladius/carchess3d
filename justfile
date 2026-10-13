@@ -33,7 +33,7 @@ local3d-setup:
 
 # image -> untextured GLB with Hunyuan3D-2 on the local GPU. e.g. just local3d-shape tools/model-pipeline/ale/front.png ale1_hy2 --octree 512
 local3d-shape image label *args:
-    HF_HOME={{local3d_root}}/hf-cache TMPDIR={{local3d_root}}/tmp U2NET_HOME={{local3d_root}}/hf-cache/u2net LOCAL3D_ROOT={{local3d_root}} \
+    HF_HOME={{local3d_root}}/hf-cache TMPDIR={{local3d_root}}/tmp U2NET_HOME={{local3d_root}}/hf-cache/u2net HY3DGEN_MODELS={{local3d_root}}/hf-cache/hy3dgen LOCAL3D_ROOT={{local3d_root}} \
       {{local3d_root}}/venv-hunyuan/bin/python tools/model-pipeline/local/hunyuan_shape.py {{image}} {{label}} {{args}}
 
 # show where the spec lives (it is in-repo now: no external respec dependency)

@@ -1,0 +1,38 @@
+{
+  "iteration": 2,
+  "seed": 1337,
+  "decimation_target": 150000,
+  "texture_size": 2048,
+  "model": "candidate_2_seed1337.glb",
+  "concept": "kate_turnaround_sheet.png",
+  "generation_time_s": 0.0,
+  "geometry": {
+    "faces": 97215,
+    "vertices": 73909,
+    "is_watertight": false,
+    "tallest_axis": "Y",
+    "height": 1.002,
+    "min_ground_coord": 0.0,
+    "is_grounded_near_zero": true,
+    "stray_island_count": 58
+  },
+  "vlm": {
+    "face_likeness_score": 6.8,
+    "face_critique": "Good caricature capture of facial proportions, glasses, and expression, though fine skin details are slightly softened.",
+    "secondary_fidelity_score": 6.3,
+    "secondary_critique": "The scepter and tiara maintain shape and separation, but base plaque lettering is degraded and blurry.",
+    "back_view_score": 6.7,
+    "back_critique": "Hair braid volume and rear dress folds are solid and follow the concept without major hallucination.",
+    "structural_flaws": [
+      "Unreadable fused text on base plaque",
+      "Slight geometric softening on scepter finial"
+    ],
+    "aesthetic_flaws": [
+      "Lower resolution on gold dress embroidery",
+      "Texture blurring across delicate jewelry elements"
+    ],
+    "passed": true
+  },
+  "overall_score": 6.6,
+  "tier": "ACCEPTABLE \ud83d\udfe1"
+}
