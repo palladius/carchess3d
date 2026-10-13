@@ -313,16 +313,34 @@ export class HudListener {
 
   _purgeCachesAndReload(targetTag = '') {
     const reloadNow = () => {
-      if (typeof window !== 'undefined' && window.location?.reload) {
-        window.location.reload();
+      if (typeof window !== 'undefined' && window.location) {
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('nocache', '1');
+          url.searchParams.set('t', String(Date.now()));
+          window.location.replace(url.toString());
+          return;
+        } catch {
+          // Fallback to reload()
+        }
+        if (window.location.reload) {
+          window.location.reload();
+        }
       }
     };
     const tasks = [];
-    if (typeof navigator !== 'undefined' && navigator.serviceWorker?.getRegistration) {
+    if (typeof navigator !== 'undefined' && navigator.serviceWorker?.getRegistrations) {
+      tasks.push(
+        navigator.serviceWorker
+          .getRegistrations()
+          .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+          .catch(() => {}),
+      );
+    } else if (typeof navigator !== 'undefined' && navigator.serviceWorker?.getRegistration) {
       tasks.push(
         navigator.serviceWorker
           .getRegistration()
-          .then((reg) => reg?.update?.())
+          .then((reg) => reg?.unregister?.() || reg?.update?.())
           .catch(() => {}),
       );
     }
@@ -332,6 +350,12 @@ export class HudListener {
           .keys()
           .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
           .catch(() => {}),
+      );
+    }
+    if (typeof fetch === 'function') {
+      const bustUrls = ['./', './index.html', './src/main.js', './src/core/Registry.js', './src/listeners/HudListener.js'];
+      tasks.push(
+        Promise.allSettled(bustUrls.map((u) => fetch(u, { cache: 'reload' }))).catch(() => {}),
       );
     }
     if (tasks.length > 0) {
@@ -1422,7 +1446,15 @@ export class HudListener {
         border-radius: 12px;
       }
       #carchess-hud-root.mobile-simplified #hud-topbar {
-        display: none !important;
+        left: 6px;
+        right: 6px;
+        top: 4px;
+        padding: 5px 8px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      #carchess-hud-root.mobile-simplified #hud-topbar .hud-brand-sub {
+        display: none;
       }
       #carchess-hud-root.mobile-simplified .hud-bottombar {
         bottom: 4px;
@@ -1480,7 +1512,6 @@ export class HudListener {
       #carchess-hud-root.mobile-simplified #hud-zoom-out-btn,
       #carchess-hud-root.mobile-simplified #hud-trackpad-btn,
       #carchess-hud-root.mobile-simplified #hud-fen-btn,
-      #carchess-hud-root.mobile-simplified #hud-toggle-topbar-btn,
       #carchess-hud-root.mobile-simplified .hud-dock-sep {
         display: none !important;
       }
@@ -1499,13 +1530,13 @@ export class HudListener {
         display: flex;
       }
       #carchess-hud-root.mobile-simplified .hud-desktop-setup-only {
-        display: none;
+        display: none !important;
       }
       #carchess-hud-root.mobile-simplified.mobile-advanced-open .hud-desktop-setup-only {
-        display: flex;
+        display: flex !important;
       }
       #carchess-hud-root.mobile-simplified.mobile-advanced-open .hud-setup-sides.hud-desktop-setup-only {
-        display: grid;
+        display: grid !important;
       }
     `;
     document.head.appendChild(style);
@@ -1554,7 +1585,7 @@ export class HudListener {
       </aside>
 
       <!-- TOP BAR (Togglable for max screen space) -->
-      <header id="hud-topbar" class="hud-topbar hud-glass hud-interactive">
+      <header id="hud-topbar" class="hud-topbar hud-glass hud-interactive ${!this.topbarVisible ? 'hidden' : ''}">
         <div class="hud-brand">
           <span style="font-size:24px;">🏰🚽</span>
           <div>
@@ -1564,6 +1595,7 @@ export class HudListener {
         </div>
 
         <div class="hud-controls-row">
+          <button type="button" id="hud-top-reload-btn" class="hud-btn gold" title="Force Reload & Clear Cache (${this.appVersion})">🔄 Reload</button>
           <button id="hud-mode1-btn" class="hud-btn active">${this.t('mode1Btn')}</button>
           <button id="hud-mode2-btn" class="hud-btn">${this.t('mode2Btn')}</button>
           <button id="hud-matrix-btn" class="hud-btn gold" title="6×6 Battle Matrix & Videos">${this.t('matrixBtn')}</button>
@@ -2282,6 +2314,12 @@ export class HudListener {
     });
 
     q('#hud-refresh-btn')?.addEventListener('click', () => {
+      this.checkAndRefreshVersion();
+    });
+    q('#hud-top-reload-btn')?.addEventListener('click', () => {
+      this.checkAndRefreshVersion();
+    });
+    q('#hud-version-tag')?.addEventListener('click', () => {
       this.checkAndRefreshVersion();
     });
 
@@ -3120,20 +3158,36 @@ export class HudListener {
       const shouldShow = Boolean(this.isMobilePhone && isPortrait && !this.portraitDismissed);
       rotateOverlay.style.display = shouldShow ? 'grid' : 'none';
     }
+    if (this.isMobilePhone && this.flowState === 'Mode1_Chess') {
+      this.applyMobileCameraMode(this.topDownCamera ? 'top' : '3d', { silent: true });
+    }
   }
 
   /**
    * Sets camera between 'top' (Easy Alto-Basso 2D-like overhead view) and '3d' (panoramic 3D view)
    * on mobile phones, updating `#hud-top-btn` label and notifying `VFXPoolView`.
+   * Automatically scales distance in Portrait orientation so all 8 columns (A..H) fit on narrow screens!
    * @param {'top'|'3d'} mode
    * @param {{ silent?: boolean }} [opts]
    */
   applyMobileCameraMode(mode = 'top', opts = {}) {
     const isTop = mode === 'top';
     this.topDownCamera = isTop;
+    const isPortraitDom =
+      typeof window !== 'undefined' &&
+      window.innerWidth > 0 &&
+      window.innerHeight > window.innerWidth;
+    const portraitScale = isPortraitDom
+      ? Math.min(1.85, Math.max(1.0, (window.innerHeight / Math.max(1, window.innerWidth)) * 0.78))
+      : 1.0;
+
     const pos = isTop
-      ? { x: 0, y: 12.8, z: this.cameraFlipped ? -0.01 : 0.01 }
-      : { x: 0, y: this.cameraFlipped ? 7.0 : 7.2, z: this.cameraFlipped ? -8.2 : 9.8 };
+      ? { x: 0, y: Number((12.8 * portraitScale).toFixed(2)), z: this.cameraFlipped ? -0.01 : 0.01 }
+      : {
+          x: 0,
+          y: Number(((this.cameraFlipped ? 7.0 : 7.2) * portraitScale).toFixed(2)),
+          z: Number(((this.cameraFlipped ? -8.2 : 9.8) * portraitScale).toFixed(2)),
+        };
     const target = { x: 0, y: 0.3, z: 0 };
 
     if (this.ctx?.camera?.position?.set) {

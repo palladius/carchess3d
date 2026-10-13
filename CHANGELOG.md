@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.52] - 2026-10-13
+
+- 📱🔄🧹 **Pixel 10 & Mobile Self-Healing Cache Recovery, Service Worker De-Poisoning, Restored Mobile Top-Bar Toggle (`☰` + `🔄 Reload` + Pull-to-Refresh) & Portrait Board Framing (`index.html`, `nocache.html`, `sw.js`, `src/listeners/HudListener.js`, `src/core/Registry.js`, `docs/spec/SPEC.md`, `VERSION`)**:
+  - **Root-Cause Fix for "Stuck `/carchess3d/` After Clearing Cache & Visiting `nocache.html`" (`nocache.html`, `index.html`, `sw.js`)**:
+    - Fixed the Service Worker re-poisoning race in `nocache.html`: previously, when `nocache.html` ran while an older Service Worker was still the active `navigator.serviceWorker.controller`, calling `LIVE_MODULES.map(u => fetch(u, { cache: 'reload' }))` passed straight through the active Service Worker's `fetch` handler, which re-wrote the stale responses back into `CacheStorage` right after `caches.delete()`! `nocache.html` now detects an active `navigator.serviceWorker.controller`, unregisters all Service Workers, deletes all caches, and reloads once (`sessionStorage` guard) to detach the controller *before* warming the HTTP cache with `{ cache: 'reload' }`.
+    - Added `'./'` (the root `/carchess3d/` URL), `'./sw.js'`, `'./manifest.webmanifest'`, `'./vendor/chess.js'`, `'./vendor/three/three.module.js'`, and `'./src/core/CharacterPovData.js'` to `LIVE_MODULES` so the root URL is refreshed alongside `./index.html`.
+    - Fixed `index.html` script execution order: replaced the static `<script type="module" src="./src/main.js"></script>` (which previously executed *before* the `?nocache=1` script) with an async bootstrapper that first checks `?nocache=1` or a version change against `./VERSION` (`localStorage.getItem('carchess3d_boot_ver')`), purges stale Service Workers + `CacheStorage` + HTTP module cache when needed, and only then dynamically imports `./src/main.js`.
+    - Upgraded `sw.js` (`carchess3d-offline-v33`) to use Network-First with `{ cache: 'reload' }` for all HTML/JS/manifest requests, skip `Range` requests and `.mp4`/`.webm` video streams, and lazy-cache `.glb`/`.mp3` assets on demand instead of triggering a 35 MB install-time precache storm.
+  - **Restored Mobile Top Bar Toggle (`☰`), 1-Tap Hard Reload (`🔄 Reload`) & Native Pull-to-Refresh (`src/listeners/HudListener.js`, `index.html`)**:
+    - Removed `overscroll-behavior: none` from `html, body` in `index.html` so Android Chrome's native vertical pull-to-refresh gesture works when the browser URL bar is hidden.
+    - Unhid `#hud-toggle-topbar-btn` (`☰`) and `#hud-topbar` on mobile (`#carchess-hud-root.mobile-simplified`) so smartphone users can expand/collapse the top bar at any time, and added a 1-tap `🔄 Reload` (`#hud-top-reload-btn`) button inside `#hud-topbar` (in addition to `🔄` in the bottom dock and setup modal).
+  - **Mobile Setup Modal & Portrait Camera Framing Fixes (`src/listeners/HudListener.js`, `src/core/Registry.js`)**:
+    - Enforced `.hud-desktop-setup-only { display: none !important; }` on mobile so inline `style="display:flex"` on the desktop action buttons row no longer leaks a duplicate button row below the mobile Quick Start card.
+    - Removed the duplicate `🏰🚽` icon prefix in `mobileQuickTitle`.
+    - Scaled mobile camera distance in Portrait (`window.innerHeight > window.innerWidth`) by `portraitScale` (`y = 20.67` in top-down portrait, `z = 16.5` in 3D portrait) so all 8 columns (`A`–`H`) fit inside narrow vertical phone screens without clipping columns `A, B, G, H`.
+
 ## [0.3.51] - 2026-10-12
 
 - 🚫 **IP safety / Be Googley (#24)**: no more third-party brand or franchise names in the app (381 replacements across 22 files: UI, code, identifiers, data, prompts, tests).

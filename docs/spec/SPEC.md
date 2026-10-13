@@ -307,9 +307,14 @@ is the "victim" and is removed at the end.
 - **Strictly Scoped to Mobile Phones (`isMobilePhoneViewport`)**: Activated only when `Math.min(width, height) < 600 && Math.max(width, height) <= 1024` (or via `?mobile=1`, disabled via `?desktop=1`/`?mobile=0`). iPads (`768×1024`) and Desktop viewports remain **100% untouched**.
 - **Portrait ➔ Landscape Friendly Prompt (`#hud-rotate-overlay`)**: When a phone is held in Portrait (`height > width`), a friendly overlay invites the player to rotate the phone to Landscape so 16:9 battle movies and the 3D board fill the screen horizontally, with a 1-tap escape button (`📱 Play in vertical anyway →` / `📱 Gioca comunque in verticale →`) in case OS rotation lock is active.
 - **1-Tap Quick Start Card (`#hud-mobile-quick-setup`)**: Replaces the 8-input desktop setup form on phones with a 1-screen Quick Start card: **Guest (`ospite`, Papino's Carlesso Team) vs Computer (`classic` Rivals)**, 3 mode pills (`🤖 Easy`, `🧠 Medium`, `👥 2P`), and a giant **`▶️ PLAY NOW! ✨` / `▶️ GIOCA SUBITO! ✨`** button (with an optional `"⚙️ Advanced options"` toggle).
-- **Progressive Camera Onboarding (`Alto-Basso` ➔ `3D` on First Attack)**:
+- **Progressive Camera Onboarding (`Alto-Basso` ➔ `3D` on First Attack) & Portrait Aspect Framing**:
   - On mobile phones, the match starts in **Easy Top-Down (`Alto-Basso`)** camera mode (`topDownCamera = true`) so all 64 squares are large and effortless to tap for opening moves.
+  - In Portrait orientation (`height > width`), camera distance scales by `portraitScale = clamp((height / width) * 0.72, 1.0, 1.55)` (`y = 20.67` in top-down portrait, `z = 16.5` in 3D portrait) so all 8 columns (`A`–`H`) fit inside narrow vertical smartphone screens without horizontal clipping.
   - Upon the **very first capture (`BATTLE_STARTED` ➔ `BATTLE_COMPLETED`)**, the game plays the 3D brawl + 16:9 Veo cinema and **automatically unlocks and stays in full 3D panoramic mode** (`topDownCamera = false`), with a persistent 1-tap toggle (`📐 View: Top` ⇄ `🎬 View: 3D`) in the compact mobile dock.
+- **Mobile Top-Bar Toggle, 1-Tap Hard Reload & Self-Healing Cache Recovery (`v0.3.52`)**:
+  - Mobile phones retain the top-right `☰` toggle button (`#hud-toggle-topbar-btn`) to expand/collapse `#hud-topbar` on demand, plus a dedicated `🔄 Reload` (`#hud-top-reload-btn`) button and native Android Chrome pull-to-refresh (no `overscroll-behavior: none` on `html, body`).
+  - `index.html` runs an async pre-boot check before importing `./src/main.js`: when `?nocache=1` is present or when `./VERSION` differs from `localStorage.getItem('carchess3d_boot_ver')`, it automatically unregisters stale Service Workers, purges `CacheStorage`, and refreshes all live ES modules with `{ cache: 'reload' }`.
+  - `nocache.html` detaches any active `navigator.serviceWorker.controller` before running `{ cache: 'reload' }` warm-fetches (preventing an active Service Worker from re-populating the cache it just deleted) and refreshes both `./` and `./index.html`.
 
 ## Mobile & Tablet WebGL 3D Rendering Pipeline (`v0.3.31` — Pixel 10 & Galaxy Tab S10 Ultra)
 

@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.51';
+export const APP_VERSION = '0.3.52';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -1174,7 +1174,7 @@ export const I18N = Object.freeze({
     toggleTopbarBtn: '☰ Menu / Barra',
     quakeConsoleBtn: '~_ Console',
     defaultSetupBadge: '✨ Default: Famiglia Carlesso (Bianco / Umano) vs Scacchi Classici (Nero / AI Facile)',
-    mobileQuickTitle: '🏰🚽 CarChess3D · Partita Rapida',
+    mobileQuickTitle: 'CarChess3D · Partita Rapida',
     mobileQuickSub: '1-Tap Easy Start · Parti dall’Alto (facile!) e al 1° attacco si accende il Cinema 3D!',
     mobileQuickYou: '🧑 Guest (Tu)',
     mobileQuickPapinoTeam: '👨‍👩‍👦‍👦 Squadra di Papino (Carlesso)',
@@ -1285,7 +1285,7 @@ export const I18N = Object.freeze({
     toggleTopbarBtn: '☰ Menu / Bar',
     quakeConsoleBtn: '~_ Console',
     defaultSetupBadge: '✨ Default: Carlesso Family (White / Human) vs Classic Chess (Black / AI Easy)',
-    mobileQuickTitle: '🏰🚽 CarChess3D · Quick Match',
+    mobileQuickTitle: 'CarChess3D · Quick Match',
     mobileQuickSub: '1-Tap Easy Start · Start Top-Down (easy moves!) & unlock 3D Cinema on 1st attack!',
     mobileQuickYou: '🧑 Guest (You)',
     mobileQuickPapinoTeam: '👨‍👩‍👦‍👦 Papino’s Team (Carlesso Family)',

@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <meta name="theme-color" content="#0d1118">
   <meta name="description" content="CarChess3D No-Cache Direct Permalink (Bypasses & Purges PWA Service Worker and HTTP Disk Cache).">
-  <title>CarChess3D · ⚡ No-Cache Live Mode (v0.3.36) 🏰🚽</title>
+  <title>CarChess3D · ⚡ No-Cache Live Mode (v0.3.52) 🏰🚽</title>
   <link rel="icon" href="./docs/logo/logo.svg" type="image/svg+xml">
   <script type="importmap">
     {
@@ -36,6 +36,7 @@
       inset: 0;
       width: 100vw;
       height: 100vh;
+      height: 100dvh;
     }
     canvas#game-canvas {
       display: block;
@@ -51,16 +52,32 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 99999;
-      background: rgba(16, 185, 129, 0.95);
+      background: rgba(16, 185, 129, 0.96);
       color: #04130d;
       font-weight: 800;
       font-size: 12px;
       padding: 5px 12px;
       border-radius: 999px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.45);
-      pointer-events: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       transition: opacity 0.6s ease;
       white-space: nowrap;
+      max-width: 96vw;
+      overflow-x: auto;
+    }
+    #nocache-banner a,
+    #nocache-banner button {
+      background: #04130d;
+      color: #ffe082;
+      border: 1px solid #ffe082;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
     }
     .sr-only {
       position: absolute;
@@ -77,22 +94,37 @@
 </head>
 <body>
   <h1 class="sr-only">CarChess3D — No-Cache Live Permalink</h1>
-  <div id="nocache-banner">🧹 Purging PWA Service Worker &amp; HTTP Disk Cache…</div>
+  <div id="nocache-banner">
+    <span id="nocache-status">🧹 Purging PWA Service Worker &amp; HTTP Disk Cache…</span>
+    <a href="./?nocache=1" title="Open main URL with fresh cache">🏰 /carchess3d/</a>
+    <button type="button" id="nocache-dismiss" title="Hide banner">✕</button>
+  </div>
   <main id="app-viewport" aria-label="Scacchiera 3D nella Palude Incantata di Zurigo">
     <canvas id="game-canvas"></canvas>
   </main>
 
   <script type="module">
     const banner = document.getElementById('nocache-banner');
+    const statusEl = document.getElementById('nocache-status');
+    document.getElementById('nocache-dismiss')?.addEventListener('click', () => {
+      if (banner) banner.style.display = 'none';
+    });
+
     const LIVE_MODULES = [
+      './',
       './VERSION',
       './index.html',
+      './sw.js',
+      './manifest.webmanifest',
+      './vendor/chess.js',
+      './vendor/three/three.module.js',
       './src/main.js',
       './src/utils/glbGrounding.js',
       './src/core/EventBus.js',
       './src/core/GameLoop.js',
       './src/core/Registry.js',
       './src/core/BattleMatrix36.js',
+      './src/core/CharacterPovData.js',
       './src/core/Rng.js',
       './src/ai/worker.js',
       './src/managers/GameFlowManager.js',
@@ -117,6 +149,7 @@
     try {
       let swCount = 0;
       let cacheCount = 0;
+      const hadController = Boolean(navigator.serviceWorker?.controller);
       if ('serviceWorker' in navigator) {
         const regs = await navigator.serviceWorker.getRegistrations();
         swCount = regs.length;
@@ -127,16 +160,29 @@
         cacheCount = keys.length;
         await Promise.all(keys.map((k) => caches.delete(k)));
       }
-      // Force Chrome's HTTP disk cache (GitHub Pages max-age=600) to reload every JS module fresh from network
+      // If an old Service Worker was still controlling this page when it opened, reload once
+      // so the Service Worker controller is completely detached BEFORE refreshing HTTP disk cache!
+      if (hadController && sessionStorage.getItem('carchess_nocache_detached') !== '1') {
+        sessionStorage.setItem('carchess_nocache_detached', '1');
+        location.reload();
+      } else {
+        sessionStorage.removeItem('carchess_nocache_detached');
+      }
+
+      // Force Chrome's HTTP disk cache (GitHub Pages max-age=600) to reload './', './index.html' and every JS module fresh from network
       await Promise.allSettled(
         LIVE_MODULES.map((u) => fetch(u, { cache: 'reload' })),
       );
+      if ('caches' in window) {
+        const leftoverKeys = await caches.keys();
+        await Promise.all(leftoverKeys.map((k) => caches.delete(k)));
+      }
       const { APP_VERSION } = await import(`./src/core/Registry.js?t=${Date.now()}`);
-      if (banner) {
-        banner.textContent = `⚡ NO-CACHE LIVE v${APP_VERSION} · Purged ${swCount} SW + ${cacheCount} Caches`;
-        setTimeout(() => {
-          banner.style.opacity = '0';
-        }, 5000);
+      try {
+        localStorage.setItem('carchess3d_boot_ver', APP_VERSION);
+      } catch {}
+      if (statusEl) {
+        statusEl.textContent = `⚡ NO-CACHE LIVE v${APP_VERSION} · Purged ${swCount} SW + ${cacheCount} Caches`;
       }
     } catch (err) {
       console.warn('[CarChess3D nocache] Cache purge warning:', err);
