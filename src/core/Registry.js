@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.48';
+export const APP_VERSION = '0.3.49';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -1118,6 +1118,7 @@ export const I18N = Object.freeze({
     hintBtn: '💡 Suggerimento',
     flipCamBtn: '🔄 Gira Scacchiera',
     topCamBtn: '📐 Vista dall’Alto',
+    resetCamBtn: '🎥 Ripristina Telecamera (R)',
     newGameBtn: '🔄 Nuova Partita',
     fenBtn: '📋 FEN / PGN',
     musicBtn: '🎵 Inno Ale & Seby',
@@ -1229,6 +1230,7 @@ export const I18N = Object.freeze({
     hintBtn: '💡 Magic Hint',
     flipCamBtn: '🔄 Flip Board',
     topCamBtn: '📐 Top-Down View',
+    resetCamBtn: '🎥 Reset Camera View (R)',
     newGameBtn: '🔄 New Match',
     fenBtn: '📋 FEN / PGN',
     musicBtn: '🎵 Ale & Seby Anthem',

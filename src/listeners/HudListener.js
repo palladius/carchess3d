@@ -1907,6 +1907,9 @@ export class HudListener {
           <button type="button" id="hud-flip-btn" class="hud-btn hud-icon-btn" title="${this.t('flipCamBtn')}" aria-label="${this.t('flipCamBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3 5 6.99h3V14h2V6.99h3L9 3z"/></svg>
           </button>
+          <button type="button" id="hud-reset-cam-btn" class="hud-btn hud-icon-btn" title="${this.t('resetCamBtn')}" aria-label="${this.t('resetCamBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+          </button>
           <button type="button" id="hud-hint-btn" class="hud-btn hud-icon-btn" title="${this.t('hintBtn')}" aria-label="${this.t('hintBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>
           </button>
@@ -2237,6 +2240,10 @@ export class HudListener {
       }
       this.ctx?.bus?.emit({ type: 'CAMERA_VIEW_REQUESTED', view: 'flip' });
       this.ctx?.bus?.flush?.();
+    });
+
+    q('#hud-reset-cam-btn')?.addEventListener('click', () => {
+      this.resetCameraView();
     });
 
     q('#hud-top-btn')?.addEventListener('click', () => {
@@ -3163,6 +3170,50 @@ export class HudListener {
       });
       this.ctx.bus.flush?.();
     }
+  }
+
+  /**
+   * Resets the player camera and orbit controls back to default canonical framing.
+   * Shortcut: Hotkey 'r' / 'R' or HUD reset button (#hud-reset-cam-btn).
+   */
+  resetCameraView() {
+    this.topDownCamera = false;
+    const pos = this.cameraFlipped
+      ? { x: 0, y: 7.0, z: -8.2 }
+      : { x: 0, y: 5.85, z: 12.6 };
+    const target = this.cameraFlipped
+      ? { x: 0, y: 0.3, z: 0 }
+      : { x: 0, y: 2.15, z: -2.2 };
+
+    if (this.ctx?.camera?.position?.set) {
+      this.ctx.camera.position.set(pos.x, pos.y, pos.z);
+      this.ctx.controls?.target?.set?.(target.x, target.y, target.z);
+      this.ctx.controls?.update?.();
+    }
+
+    if (this.rootEl) {
+      const topBtn = this.rootEl.querySelector('#hud-top-btn');
+      const topBadge = this.rootEl.querySelector('#hud-top-badge');
+      if (topBadge) topBadge.textContent = '3D';
+      if (topBtn) topBtn.classList.add('active');
+    }
+
+    if (this.ctx?.bus) {
+      this.ctx.bus.emit({
+        type: 'CAMERA_VIEW_REQUESTED',
+        view: 'reset',
+        pos,
+        target,
+      });
+      this.ctx.bus.flush?.();
+    }
+
+    this.showToast(
+      this.lang === 'it'
+        ? '🎥 Visuale ripristinata alla posizione iniziale (Scorciatoia: R)'
+        : '🎥 Camera view reset to default (Shortcut: R)',
+      2200,
+    );
   }
 
   /**
@@ -4113,6 +4164,13 @@ export class HudListener {
       return;
     }
 
+    // Hotkey 'r' / 'R' to reset camera view when not typing in an input
+    if (!isTextInput && (e.key === 'r' || e.key === 'R')) {
+      e.preventDefault();
+      this.resetCameraView();
+      return;
+    }
+
     if ((e.code === 'Space' || e.code === 'Enter') && !isTextInput) {
       if (this.isCombatCutsceneActive()) {
         e.preventDefault();
@@ -4244,6 +4302,7 @@ export class HudListener {
     setTip('#hud-skeletons-btn', 'skeletonsBtn');
     setTip('#hud-swamp-btn', 'swampBtn');
     setTip('#hud-flip-btn', 'flipCamBtn');
+    setTip('#hud-reset-cam-btn', 'resetCamBtn');
     setTip('#hud-top-btn', this.isMobilePhone ? (this.topDownCamera ? 'mobileCamTopBtn' : 'mobileCam3dBtn') : 'topCamBtn');
     const topBadge = this.rootEl.querySelector('#hud-top-badge');
     if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';

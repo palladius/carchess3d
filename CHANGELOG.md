@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.49] - 2026-10-13
+
+- 🔄🎥 **'Reset View' Camera Button & Hotkey `R` (Issue #29)**:
+  - **HUD Action Button**: Added `#hud-reset-cam-btn` to the HUD bottom dock with intuitive target/recenter icon and bilingual tooltips (`🎥 Ripristina Telecamera (R)` / `🎥 Reset Camera View (R)`).
+  - **Keyboard Shortcut**: Pressing `r` or `R` during gameplay instantly animates/restores the camera position back to the default canonical 3D framing and centers controls target.
+  - **Bilingual Toast Notification**: Brief feedback toast confirming camera reset in Italian and English.
+  - **Unit Test Coverage**: Added Node.js test suite verification in `tests/core.test.mjs`.
+
 ## [0.3.48] - 2026-10-12
 
 - 🎲🔴🎲🔵👑 **6+6 Risiko Shelves (Attacco Dadi Rossi & Difesa Dadi Blu), Medaglione Target Scacchistico 48px Sovraimpresso sul Film e Rotator 3D Snello (`showcase/index.html`, `src/core/CharacterPovData.js`, `VERSION`, `src/core/Registry.js`, `tests/character-pov.test.mjs`, `tests/test_character_pov.py`)**:
