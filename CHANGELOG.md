@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.57] - 2026-10-14
+
+- 🧊🏰 **Reconstruct High-Res UV-Textured 3D GLB Models for Classic & Swamp Families (Issue #20)**:
+  - **Classic Family 3D Meshes (`assets/models/classic/`)**: Reconstructed high-res UV-textured 3D models complying with `assets/families/_contract.json`. King (1.80m, 99.2k tris), Queen (1.65m, 99.5k tris), and Bishop (1.45m, 97.1k tris) generated via `microsoft/TRELLIS.2`. Knight (1.35m, 22.1k tris), Rook (1.30m, 20.2k tris), and Pawn (0.95m, 13.3k tris) sculpted via Mode A 2D-to-3D SDF visual hull and 1024x1024 diffuse UV baking.
+  - **Swamp Family 3D Meshes (`assets/models/swamp/`)**: Reconstructed high-res UV-textured 3D models complying with `assets/families/_contract.json`. King (1.80m, 21.6k tris), Queen (1.65m, 15.8k tris), Bishop (1.45m, 12.4k tris), Knight (1.35m, 16.5k tris with 40-tooth smile relief), Rook (1.30m, 16.7k tris), and Pawn (0.95m, 9.9k tris) sculpted via Mode A 2D-to-3D SDF visual hull and 1024x1024 diffuse UV baking.
+  - **Model Provenance Registry (`docs/models-provenance.yaml`)**: Added all 12 newly reconstructed models with exact MD5 checksums, target paths, sizes, and pipeline details. `scripts/check.py` validates all 22 tracked models.
+  - **Contract & Budget Alignment**: Grounding at `min.y == 0.0m`, canonical piece heights, clamped footprint spans (`0.70m <= span <= 0.86m`), named material slots `faction_primary` (diffuse 1024x1024 UV map) and `faction_trim`, aligned triangle budgets (`assets/families/classic.json`).
+  - **Tooling (`tools/model-pipeline/`)**: Added zero-GPU local Mode A batch sculpting pipeline (`reconstruct_mode_a_batch.py`) utilizing `rembg` foreground segmentation, visual hull density carving, Taubin fairing, and UV texture baking.
+
 ## [0.3.56] - 2026-10-13
 
 - 🚀🎮 **Local GPU 3D Shape Pipeline Verified on RTX 5080 (Blackwell sm_120) with TurboSebux (Issue #5)**:

@@ -523,3 +523,21 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 - **Resumption / Persistence**:
   - Status/mount check recipe: `just turbosebux` (or `bash tools/model-pipeline/local/ensure_turbosebux.sh`).
   - Generate 3D shape recipe: `just local3d-shape <image> <label> [*args]`.
+
+### 10.12 Classic & Swamp High-Res UV-Textured Model Reconstructions (Issue #20)
+- **Classic Family Reconstructions**:
+  - `king-classic-re.glb` (1.80m, 99.2k tris, 4.0MB): `microsoft/TRELLIS.2`
+  - `queen-classic-regina.glb` (1.65m, 99.5k tris, 3.5MB): `microsoft/TRELLIS.2`
+  - `bishop-classic-vescovo.glb` (1.45m, 97.1k tris, 4.4MB): `microsoft/TRELLIS.2`
+  - `knight-classic-cavallo.glb` (1.35m, 22.1k tris, 2.8MB): Mode A Dual-Orthographic SDF (`reconstruct_knight_3d.py`)
+  - `rook-classic-torre.glb` (1.30m, 20.2k tris, 2.7MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `pawn-classic-pedone.glb` (0.95m, 13.3k tris, 1.8MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+- **Swamp Family Reconstructions**:
+  - `king-swamp-orco.glb` (1.80m, 21.6k tris, 3.0MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `queen-swamp-orchessa.glb` (1.65m, 15.8k tris, 2.2MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `bishop-swamp-focaccina.glb` (1.45m, 12.4k tris, 1.8MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `knight-swamp-asinello.glb` (1.35m, 16.5k tris, 2.2MB): Mode A 2D-to-3D SDF + 40-Tooth Relief (`reconstruct_asinello_3d.py`)
+  - `rook-swamp-draghessa.glb` (1.30m, 16.7k tris, 2.4MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `pawn-swamp-tappo.glb` (0.95m, 9.9k tris, 1.6MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+- All 12 models strictly comply with `assets/families/_contract.json` (min.y == 0.0m, canonical heights, footprint in [0.70m, 0.86m], named materials `faction_primary` + `faction_trim`). Provenance checksums added to `docs/models-provenance.yaml` (22 total models verified by `just test`).
+
