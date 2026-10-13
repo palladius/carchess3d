@@ -32,8 +32,8 @@ fi
 
 REPO="$LOCAL3D_ROOT/repos/Hunyuan3D-2"
 [ -d "$REPO/.git" ] || git clone --depth 1 https://github.com/Tencent/Hunyuan3D-2 "$REPO"
-# Shape-gen deps only (the texture stage needs compiled CUDA extensions: phase 2)
-"$PY" -m pip install -q diffusers transformers accelerate einops omegaconf trimesh pymeshlab \
+# Shape-gen deps only (pinned to avoid transformers 5.x Dinov2 key mismatch)
+"$PY" -m pip install -q "diffusers==0.31.0" "transformers==4.48.3" accelerate einops omegaconf trimesh pymeshlab \
   opencv-python-headless rembg onnxruntime pygltflib tqdm huggingface_hub safetensors
 "$PY" -m pip install -q -e "$REPO" --no-deps
 

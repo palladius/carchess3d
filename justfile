@@ -27,6 +27,10 @@ showcase port="8000":
 # local image->3D root (ext4 loop image on the external SSD in Riccardo's setup); override with LOCAL3D_ROOT
 local3d_root := env_var_or_default("LOCAL3D_ROOT", "/media/riccardo/TurboSebux/carchess3d")
 
+# check or mount TurboSebux (600 GB ext4 volume on Samsung T7)
+turbosebux:
+    bash tools/model-pipeline/local/ensure_turbosebux.sh
+
 # set up the local GPU environment (phase 1: Hunyuan3D-2 shape). Everything under local3d_root
 local3d-setup:
     LOCAL3D_ROOT={{local3d_root}} bash tools/model-pipeline/local/setup_local.sh

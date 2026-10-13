@@ -511,4 +511,15 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
   2. **Piecewise-Linear 3D Facial Landmark Calibration (`graft_papino_face_3d.py`)**: Calibrated `row_2d(y)` around `y_eye_3d = +0.1928m <-> row = 320.0` with `scale_y_upper = 1240.0 px/m` (so crown rim `y = +0.2750m` maps to `row = 218`) and `scale_y_lower = 892.0 px/m` (so nose tip `y = +0.1350m <-> row = 371.6`, mouth `y = +0.0750m <-> row = 425`, and chin tip `y = +0.0050m <-> row = 487.5`).
   3. **3D Vertex Sculpting + Zero-Bleed Silver Hair (`recolor_strict_hair_texels_zero_bleed`) + Mirrored Temple Skin (`prepare_clean_front_face`)**: Sculpted jaw/chin/forehead/nose (`jaw_slim=0.045, chin_taper=0.025, nose_shorten=0.14, nose_widen=0.12`), mirrored clean warm cheek skin beyond `col >= 593` to prevent right-eye corner smudging, and recolored non-shell hair texels inside exact barycentric triangles (`lum < 0.50, r - b < 0.105`) with zero UV island bleed.
   4. **Multimodal Adversarial Critic (`gemini-3.1-pro-preview` + `riccardo-likeness-critic`)**: Evaluated 6-panel biometric sheets across iterations (`adversarial_iter_1.png`, `adversarial_iter_2.png`, `adversarial_iter_3.png`) and logged full structured JSON critiques to `tools/model-pipeline/king/out/adversarial_likeness/adversarial_history.json`.
-
+### 10.11 Local 3D Shape Pipeline on Pupurabbux GPU (RTX 5080 + TurboSebux, Hunyuan3D-2)
+- **Host**: pupurabbux (NVIDIA GeForce RTX 5080, 16 GB VRAM, Blackwell `sm_120`, Ubuntu Linux).
+- **Storage**: `/media/riccardo/TurboSebux` (600 GB ext4 loop image at `/media/riccardo/TurboSeby/tmp/data/TurboSebux.ext4` on Samsung T7, mounted with `loop,noatime,nofail` in `/etc/fstab` and symlinked at `~/TurboSebux`). Zero storage footprint on system root `/`.
+- **Environment**: `/media/riccardo/TurboSebux/carchess3d/venv-hunyuan` with PyTorch 2.11.0+cu128 (native `sm_120`), `transformers==4.48.3` and `diffusers==0.31.0` (pinned to match Hunyuan3D-2 DiT checkpoint weights schema), `hy3dgen` editable install.
+- **First Benchmark Run**:
+  - Command: `just local3d-shape tools/model-pipeline/ale/front.png ale1_hy2_shape --octree 384 --steps 30`
+  - Output: `/media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_shape.glb` (12.5 MB, 697,264 faces).
+  - Generation time: **32 seconds** (total 74s including initial model load).
+  - Peak VRAM: **5.6 GB** (well within the 16 GB VRAM limit, drawing 311W at 99% GPU compute).
+- **Resumption / Persistence**:
+  - Status/mount check recipe: `just turbosebux` (or `bash tools/model-pipeline/local/ensure_turbosebux.sh`).
+  - Generate 3D shape recipe: `just local3d-shape <image> <label> [*args]`.

@@ -23,7 +23,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PIECES = {"king", "queen", "bishop", "knight", "rook", "pawn"}
 SECRET_RE = re.compile(
-    rb"hf_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[op]_[A-Za-z0-9]{20,}|/usr/local/" + rb"google"
+    rb"hf_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[op]_[A-Za-z0-9]{20,}|/usr/local/" + rb"google|/home/[a-z_][a-z0-9_-]*/"
 )
 TEXT_EXT = {".md", ".py", ".log", ".json", ".txt", ".toml", ".yaml", ".yml", ".js", ".mjs", ".html", ""}
 failures = []

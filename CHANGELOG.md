@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.56] - 2026-10-13
+
+- 🚀🎮 **Local GPU 3D Shape Pipeline Verified on RTX 5080 (Blackwell sm_120) with TurboSebux (Issue #5)**:
+  - Validated zero-footprint local inference environment on host `pupurabbux` using the 600 GB ext4 loop volume `TurboSebux` (`/media/riccardo/TurboSebux`).
+  - Added `just turbosebux` recipe and `tools/model-pipeline/local/ensure_turbosebux.sh` to safely verify or mount TurboSebux across reboots.
+  - Pinned `diffusers==0.31.0` and `transformers==4.48.3` in `setup_local.sh` and `venv-hunyuan` to ensure compatibility with `Hunyuan3D-2` shape checkpoints.
+  - Successfully executed first local shape generation on RTX 5080: `tools/model-pipeline/ale/front.png` produced `ale1_hy2_shape.glb` (697,264 faces, 12.5 MB) in 32s with 5.6 GB peak VRAM.
+  - Added documentation to `tools/model-pipeline/RUNNING_DOC.md` §10.11 and host log in Obsidian.
+
+## [0.3.55] - 2026-10-13
+
+- 🔐 **No local paths in the public repo**: `critic/refine_loop.py` dropped a hard-coded `/home/<user>/…/.env` candidate and now writes **repo-relative** `glb_path` / `sheet_path` / `report_path` in its reports; the committed `queen-kate-wedding2016_refine_summary.json` (v0.3.54) was scrubbed of 12 absolute agent-worktree paths. `scripts/check.py` secret scan now also fails on `/home/<user>/` paths.
+
 ## [0.3.54] - 2026-10-13
 
 - ♗✨ **Bishop Ale #2 Modular Remaster (`bishop-ale-2-remastered.glb`)**:

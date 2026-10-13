@@ -36,6 +36,14 @@ from gradio_client import Client, handle_file
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent.parent
 
+
+def _rel(p) -> str:
+    """Repo-relative path for reports (never publish absolute local paths)."""
+    try:
+        return str(Path(p).resolve().relative_to(ROOT.resolve()))
+    except ValueError:
+        return Path(p).name
+
 # Import critic functions from critic_vlm.py
 sys.path.insert(0, str(HERE))
 from critic_vlm import (  # noqa: E402
@@ -83,7 +91,6 @@ def get_hf_token() -> Optional[str]:
 
     candidates = [
         ROOT / ".env",
-        Path("/home/riccardo/git/carchess3d/.env"),
         Path.home() / ".env",
     ]
     for env_path in candidates:
@@ -365,9 +372,9 @@ def run_refinement_loop(
             seed=seed,
             decimation_target=decimation,
             texture_size=tex_size,
-            glb_path=str(cand_glb),
-            sheet_path=str(cand_sheet),
-            report_path=str(cand_report_path),
+            glb_path=_rel(cand_glb),
+            sheet_path=_rel(cand_sheet),
+            report_path=_rel(cand_report_path),
             face_score=vlm.face_likeness_score,
             companion_score=vlm.secondary_fidelity_score,
             back_score=vlm.back_view_score,
