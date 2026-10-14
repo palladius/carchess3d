@@ -10,6 +10,9 @@ import {
   CHESS_STRINGS_BG_URL,
   CHESS_STRINGS_THEME_URL,
   COMBAT_AUDIO_URL,
+  COMBAT_CUE_POINTS_S,
+  COMBAT_MUSIC_PEAK_VOLUME,
+  NORMAL_MUSIC_VOLUME,
 } from '../src/listeners/AudioListener.js';
 import { HudListener } from '../src/listeners/HudListener.js';
 import {
@@ -162,6 +165,17 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
     bus.flush();
     assert.equal(audio.combatMusicActive, true);
     assert.ok(audio.playedSfx.includes('combat_music_started'));
+
+    // Verify combat music volume is strictly +15% above normal music (never 100%+)
+    assert.equal(COMBAT_MUSIC_PEAK_VOLUME, Number((NORMAL_MUSIC_VOLUME * 1.15).toFixed(3)));
+    assert.ok(COMBAT_MUSIC_PEAK_VOLUME <= 0.30, 'Combat music peak volume must stay gentle (<= 0.30)');
+    // Verify every cue point leaves >= 13.5s before 29.5s so a 10s battle (+3.5s outro) never loops
+    for (const cueS of COMBAT_CUE_POINTS_S) {
+      assert.ok(
+        cueS + 13.5 <= 29.5,
+        `Cue point ${cueS}s must leave >= 13.5s before end of 30s track so it never loops during a 10s battle`,
+      );
+    }
 
     bus.emit({ type: 'BATTLE_COMPLETED', attacker: 'p', defender: 'p' });
     bus.flush();

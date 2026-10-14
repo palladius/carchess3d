@@ -98,7 +98,7 @@ export class VeoCinemaView {
       this.videoEl = document.createElement('video');
       this.videoEl.muted = true;
       this.videoEl.playsInline = true;
-      this.videoEl.loop = true;
+      this.videoEl.loop = false;
       this.videoEl.crossOrigin = 'anonymous';
       this.videoEl.preload = 'metadata';
     }
@@ -244,6 +244,18 @@ export class VeoCinemaView {
   startBattlePresentation(e = {}) {
     const atkKey = (e.attacker || e.choreo?.attacker || 'b').toLowerCase();
     const defKey = (e.defender || e.choreo?.defender || 'p').toLowerCase();
+    // Deduplicate back-to-back events (e.g. PIECE_CAPTURED / WOW_ARENA_CLASH + BATTLE_STARTED)
+    // within the same battle opening window so we never reset battleElapsed or restart the video!
+    if (
+      this.mode === 'battle' &&
+      this.activeBattle &&
+      this.activeBattle.attacker === atkKey &&
+      this.activeBattle.defender === defKey &&
+      this.battleElapsed < 0.6 &&
+      !e.forceRestart
+    ) {
+      return;
+    }
     const baseEntry = BATTLE_MATRIX[atkKey]?.[defKey] || BATTLE_MATRIX.b.p;
     const matrix36Entry =
       BATTLE_MATRIX_36?.[atkKey]?.[defKey] || getBattle36?.(atkKey, defKey) || {};

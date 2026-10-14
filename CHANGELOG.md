@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.66] - 2026-10-14
+
+- 🎵🔇 **Zero-Loop 10s Combat Music & Strictly `+15%` Combat Volume Calibration (`src/listeners/AudioListener.js`, `src/views/VeoCinemaView.js`, `tests/voices_idle.test.mjs`, `docs/spec/SPEC.md`, `sw.js`, `VERSION`)**:
+  - **Eliminated Mid-Battle Music Looping & Phrase Repetition (`COMBAT_CUE_POINTS_S = [0.0, 8.0, 15.5]`, `loop = false`)**:
+    - Previously, `COMBAT_CUE_POINTS_S` included `22.0s` with `combatAudioEl.loop = true` on the `30.77s` `assets/audio/combat-suspense.mp3` file, causing the music to hit the end of the file after `8.0s` (`22.0s + 8.0s = 30.0s`) and loop back to `0.0s` right in the middle of the `10.0s` combat (`+ 3.5s` outro).
+    - Set `this.combatAudioEl.loop = false` and updated `COMBAT_CUE_POINTS_S` to `Object.freeze([0.0, 8.0, 15.5])` so every cue point has **`>= 14.0 seconds`** of continuous, non-repeating forward music before `29.5s` (`15.5s + 13.5s = 29.0s < 29.5s`).
+    - Made the fallback WebAudio combat sequencer (`_stepCombatSequencer`) through-composed across `102` steps (`10.0s`) with evolving bar transpositions and halted it cleanly at `s > 102` so it never repeats a short loop.
+    - Set `this.videoEl.loop = false` in `VeoCinemaView.initCanvasAndVideo()` and deduplicated back-to-back `startBattlePresentation()` triggers within `0.6s` (`PIECE_CAPTURED` / `WOW_ARENA_CLASH` + `BATTLE_STARTED`).
+  - **Calibrated Combat Volume to Strictly `+15%` (`1.15×`) Above Normal Music (`0.276` vs `0.24`)**:
+    - Exported `NORMAL_MUSIC_VOLUME = 0.24` and `COMBAT_MUSIC_PEAK_VOLUME = Number((NORMAL_MUSIC_VOLUME * 1.15).toFixed(3))` (`0.276`, down from `0.72`–`0.78`), and softened `synthCombatEntryBraaam()` (`0.06` / `0.07`) so combat music is a refined **`+15%`** boost over normal play — never `100%+`.
+
 ## [0.3.65] - 2026-10-14
 
 - 🐛🖥️📐 **Showcase Viewport Layout & Headless Screenshot Fix at 1600×900 and 1920×1080 (Fixes Issue #30, PR #35) (`showcase/index.html`, `VERSION`, `CHANGELOG.md`, `tests/test_character_pov.py`)**:
