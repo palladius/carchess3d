@@ -5,10 +5,10 @@
  *   on GitHub Pages (`max-age=600`) always fetch the latest version without stale cache traps.
  * - Lightweight core precache on `install` (no 35 MB `.glb`/`.mp3` install storm on mobile GPUs),
  *   while lazy-caching portraits, `.glb` models, and audio assets (`chess-strings-theme.mp3`,
- *   `chess-strings-bg.mp3`, `combat-suspense.mp3`, `voice-*.mp3`) on demand for offline play.
+ *   `chess-strings-bg.mp3`, `combat-suspense.mp3`, `checkmate-jingle.mp3`, `voice-*.mp3`) on demand for offline play.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v36';
+const CACHE_NAME = 'carchess3d-offline-v37';
 
 const PRECACHE_URLS = [
   './',

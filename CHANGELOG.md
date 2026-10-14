@@ -1,12 +1,21 @@
 # Changelog
 
-## [0.3.68] - 2026-10-14
+## [0.3.69] - 2026-10-14
 
 - 🕵️‍♂️📊 **Dossier Forense Completo di Jetski su `derek` (`article/DEREK_JETSKI_FORENSICS.md`, `article/SHOWCASE_BEFORE_AFTER.md`)**:
   - Analizzati tutti i log `.jsonl` delle sessioni Jetski eseguite sulla workstation `derek` (`~/.gemini/jetski/brain/*/transcript.jsonl`) dal `2026-10-09` al `2026-10-14` per estrarre l'intera telemetria, i `/goal`, gli Swarm multi-agente e i loop avversari VLM/audio/biometrici di CarChess3D:
     - **41 sessioni totali** (`16` orchestratori/umani + `25` subagent/Swarm worker), **12.868 step**, **232 prompt umani**, **46,77M token di input freschi**, **713,28M token letti da cache (93,8% hit rate)** e **5,34M token di output**.
     - Ricostruiti in dettaglio gli **8 Loop Complessi** (`/roastme` + `/goal` v1 con 4 subagent 3D + 4 round di Art Critic `6.2 -> 9.9/10`; Native Swarm 5-worker per Issue `#10`–`#16`; Pipeline 36 battaglie Nano Banana + Veo 3.1 con Video Critic `4930d699`; Swarm Multi-Modello `fable-5.1-high` + Mode A/B local SDF & Face-Grafting + `riccardo-likeness-critic`; Standing MAIN Merger & Daily Playwright UAT `83ee7dd5`; Cinema XXL `10s` + Audio `+15%` zero-loop; Simulazione Mobile Pixel 10 / Galaxy Tab S9 Ultra + SW fix; 5-Agent Blind VLM Piece Recognizer Swarm `S1..S5`).
     - Catalogati i prompt testuali originali più belli ed emblematici di Riccardo come materiale pronto per la stesura dell'articolo.
+
+## [0.3.68] - 2026-10-14
+
+- 🎻🏰😂 **Baroque Staccato Overture as Default Theme, Warm Chamber Strings on Castling & Comic "BUAHAHAHAHAH! / Ooh No!" Checkmate Jingle (`assets/audio/checkmate-jingle.mp3`, `assets/audio/checkmate-jingle.txt`, `src/listeners/AudioListener.js`, `sw.js`, `showcase/audio.html`, `showcase/index.html`, `tests/voices_idle.test.mjs`, `VERSION`)**:
+  - **Ouverture Staccato as Primary Game Theme (`assets/audio/chess-strings-theme.mp3`)**: Restored the urgent, energetic `128 BPM` Baroque String Octet Overture (Staccato strings in E Dorian) as track 0 (`CHESS_STRINGS_TRACKS[0]`) in `AudioListener`, honoring Riccardo's musical preference for the main chessboard soundtrack.
+  - **Warm Chamber Strings Fortress Loop on Castling (`assets/audio/chess-strings-bg.mp3`)**: Seamlessly activates track 1 (`106 BPM` Chamber Strings loop) on `CASTLING_EXECUTED` (`playCastlingTheme()`) so the peaceful fortress track is put to good use when the King and Rook castle into safety ("per non buttarla via").
+  - **Hilarious Comic Checkmate Jingle (`assets/audio/checkmate-jingle.mp3`)**: Generated a 30s comic victory fanfare via Google Lyria 3 (`lyria-3-clip-preview`) featuring a deep baritone villain laughter *"BUAHAHAHAHAHAH!"*, a comically defeated tenor crying *"Ooh no!"*, and a triumphant marching band choir chanting *"SCACCO MATTO, CHECKMATE!"*, working seamlessly in both Italian and English. Wired into `AudioListener` on `CHECKMATE` (`playCheckmateJingle()`).
+  - **Showcase Player & PWA Cache**: Added the new checkmate jingle card and reordered themes in `showcase/audio.html`, linked the audio player from `showcase/index.html`, updated `sw.js` (`v37`), and expanded Node unit tests in `tests/voices_idle.test.mjs`.
+- 🔀 Merged branch `build_carchess3d_v1_worktree` (originally numbered 0.3.45; renumbered above main's 0.3.67).
 
 ## [0.3.67] - 2026-10-14
 
