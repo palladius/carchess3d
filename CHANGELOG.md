@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.45] - 2026-10-14
+
+- 🎻🏰😂 **Baroque Staccato Overture as Default Theme, Warm Chamber Strings on Castling & Comic "BUAHAHAHAHAH! / Ooh No!" Checkmate Jingle (`assets/audio/checkmate-jingle.mp3`, `src/listeners/AudioListener.js`, `sw.js`, `showcase/audio.html`, `showcase/index.html`, `tests/voices_idle.test.mjs`, `VERSION`)**:
+  - **Ouverture Staccato as Primary Game Theme (`assets/audio/chess-strings-theme.mp3`)**: Restored the urgent, energetic `128 BPM` Baroque String Octet Overture (Staccato strings in E Dorian) as track 0 (`CHESS_STRINGS_TRACKS[0]`) in `AudioListener`, honoring Riccardo's musical preference for the main chessboard soundtrack.
+  - **Warm Chamber Strings Fortress Loop on Castling (`assets/audio/chess-strings-bg.mp3`)**: Seamlessly activates track 1 (`106 BPM` Chamber Strings loop) on `CASTLING_EXECUTED` (`playCastlingTheme()`) so the peaceful fortress track is put to good use when the King and Rook castle into safety ("per non buttarla via").
+  - **Hilarious Comic Checkmate Jingle (`assets/audio/checkmate-jingle.mp3`)**: Generated a 30s comic victory fanfare via Google Lyria 3 (`lyria-3-clip-preview`) featuring a deep baritone villain laughter *"BUAHAHAHAHAHAH!"*, a comically defeated tenor crying *"Ooh no!"*, and a triumphant marching band choir chanting *"SCACCO MATTO, CHECKMATE!"*, working seamlessly in both Italian and English. Wired into `AudioListener` on `CHECKMATE` (`playCheckmateJingle()`).
+  - **Showcase Player & PWA Precache**: Added the new checkmate jingle card and reordered themes in `showcase/audio.html`, linked the audio player from `showcase/index.html`, added `checkmate-jingle.mp3` to `sw.js` (`v33`) offline cache, and expanded Node unit tests in `tests/voices_idle.test.mjs`.
+
 ## [0.3.44] - 2026-10-11
 
 - 🎻🔇🕹️ **Non-Fatiguing 30s Chamber Strings Background Loop (`chess-strings-bg.mp3`) + Complete Removal of 1980s Arcade Oscillator Sequencers (`assets/audio/chess-strings-bg.mp3`, `src/listeners/AudioListener.js`, `sw.js`, `tests/voices_idle.test.mjs`)**:
