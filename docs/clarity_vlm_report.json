@@ -1,0 +1,1727 @@
+{
+  "benchmark_angles": {
+    "0deg": {
+      "label": "0° Vertical Zenithal",
+      "pos": [
+        0.0,
+        12.8,
+        0.01
+      ],
+      "lookAt": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "30deg": {
+      "label": "30° Semi-High (arctan(6.40/11.08)=30°)",
+      "pos": [
+        0.0,
+        11.08,
+        6.4
+      ],
+      "lookAt": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "opening_moves_pgn": "1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. Qe2 Qe7",
+  "contact_sheet": "docs/clarity_comparison_0deg_30deg.png",
+  "winner": "s5",
+  "leaderboard": [
+    {
+      "mode": "s5",
+      "label": "S5 (Hybrid All-In)",
+      "description": "Hybrid Champion: Obsidian + 3D Add-Ons + Wreath + Crest + Auto-2D Zenith",
+      "composite_score": 9.5,
+      "overall_score": 9,
+      "bw_contrast_score": 10,
+      "role_recognition_0deg_score": 10,
+      "role_recognition_30deg_score": 9,
+      "kid_low_fatigue_score": 9,
+      "mean_white_rank12_luma": 153.98,
+      "mean_black_rank78_luma": 73.11,
+      "mean_luma_separation_delta": 80.88,
+      "mean_contrast_ratio": 1.95,
+      "distinct_roles_0deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "distinct_roles_30deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "critique_it": "La visuale a 0° con medaglioni 2D provvisti di glifi e sigle alfabetiche elimina ogni ambiguità anche nei mirror match più complessi. A 30° la combinazione di add-on 3D, ghirlande di piedistallo e stemmi fluttuanti mantiene una leggibilità eccezionale, sebbene nei settori centrali densi si percepisca una lieve saturazione visiva. Il contrasto cromatico tra bianco avorio dorato e nero ossidiana violaceo è netto, azzerando qualsiasi affaticamento cognitivo per i bambini.",
+      "vlm_source": "gemini-flash-latest",
+      "rank": 1
+    },
+    {
+      "mode": "s1",
+      "label": "S1 (Zenith 2D)",
+      "description": "Zenith 2D Classic B/W Medallion Icons + Obsidian Contrast",
+      "composite_score": 8.5,
+      "overall_score": 8,
+      "bw_contrast_score": 9,
+      "role_recognition_0deg_score": 10,
+      "role_recognition_30deg_score": 7,
+      "kid_low_fatigue_score": 8,
+      "mean_white_rank12_luma": 157.54,
+      "mean_black_rank78_luma": 71.98,
+      "mean_luma_separation_delta": 85.56,
+      "mean_contrast_ratio": 2.01,
+      "distinct_roles_0deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "distinct_roles_30deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "critique_it": "A 0° la leggibilità è insuperabile grazie ai medaglioni 2D standardizzati con lettere e icone chiare. A 30°, tuttavia, i dischi orizzontali subiscono uno schiacciamento prospettico e parziali sovrapposizioni nelle retrovie, riducendo l'impatto tridimensionale. L'eccellente contrasto cromatico tra Bianco e Nero garantisce comunque zero ambiguità anche nelle partite speculari.",
+      "vlm_source": "gemini-flash-latest",
+      "rank": 2
+    },
+    {
+      "mode": "s2",
+      "label": "S2 (3D GLB Add-Ons)",
+      "description": "Universal 3D Static Role Add-Ons + Obsidian Contrast",
+      "composite_score": 8.5,
+      "overall_score": 8,
+      "bw_contrast_score": 9,
+      "role_recognition_0deg_score": 8,
+      "role_recognition_30deg_score": 9,
+      "kid_low_fatigue_score": 8,
+      "mean_white_rank12_luma": 146.07,
+      "mean_black_rank78_luma": 61.77,
+      "mean_luma_separation_delta": 84.3,
+      "mean_contrast_ratio": 2.16,
+      "distinct_roles_0deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Knight",
+        "Bishop",
+        "Pawn"
+      ],
+      "distinct_roles_30deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Knight",
+        "Bishop",
+        "Pawn"
+      ],
+      "critique_it": "L'eccellente contrasto cromatico tra l'avorio dorato e l'ossidiana violacea rende immediata la distinzione delle fazioni anche nei mirror match. A 0° i simboli volumetrici apicali (croci, corone e teste equine) guidano chiaramente la lettura dei ruoli senza affaticare gli occhi. A 30° la silhouette complessiva guadagna ulteriore tridimensionalità, offrendo una leggibilità ludica ideale per un pubblico giovane.",
+      "vlm_source": "gemini-flash-latest",
+      "rank": 3
+    },
+    {
+      "mode": "s4",
+      "label": "S4 (Pedestal Wreath + Crest)",
+      "description": "3D Pedestal Role Wreath + Floating 2D Crest + Obsidian",
+      "composite_score": 8.5,
+      "overall_score": 8,
+      "bw_contrast_score": 9,
+      "role_recognition_0deg_score": 8,
+      "role_recognition_30deg_score": 9,
+      "kid_low_fatigue_score": 8,
+      "mean_white_rank12_luma": 139.2,
+      "mean_black_rank78_luma": 72.41,
+      "mean_luma_separation_delta": 66.79,
+      "mean_contrast_ratio": 1.81,
+      "distinct_roles_0deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "distinct_roles_30deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "critique_it": "L'integrazione di badge fluttuanti con icone 2D standardizzate risolve brillantemente l'ambiguità geometrica sia a 0° che a 30°, garantendo un riconoscimento immediato anche nei mirror match. Il contrasto cromatico tra l'ossidiana profonda dei Neri e l'avorio dorato dei Bianchi è netto e senza fraintendimenti. L'unico limite risiede nel leggero affollamento visivo dei billboard nelle mischie centrali, che può affaticare la lettura spaziale della scacchiera durante partite lunghe.",
+      "vlm_source": "gemini-flash-latest",
+      "rank": 4
+    },
+    {
+      "mode": "s3",
+      "label": "S3 (Obsidian Contrast)",
+      "description": "True Obsidian Black vs Warm Ivory Contrast Only",
+      "composite_score": 5.25,
+      "overall_score": 5,
+      "bw_contrast_score": 6,
+      "role_recognition_0deg_score": 4,
+      "role_recognition_30deg_score": 6,
+      "kid_low_fatigue_score": 5,
+      "mean_white_rank12_luma": 137.26,
+      "mean_black_rank78_luma": 64.8,
+      "mean_luma_separation_delta": 72.46,
+      "mean_contrast_ratio": 1.98,
+      "distinct_roles_0deg": [
+        "Pawn",
+        "Rook"
+      ],
+      "distinct_roles_30deg": [
+        "Pawn",
+        "Knight",
+        "Bishop",
+        "Rook",
+        "King"
+      ],
+      "critique_it": "Il contrasto cromatico tra i due schieramenti risulta sufficiente ma la vista a 0 gradi soffre per la mancanza di indicatori grafici chiari sulle teste dei pezzi. La visuale a 30 gradi migliora la lettura delle silhouette principali, pur mantenendo qualche ambiguita tra figure maggiori.",
+      "vlm_source": "gemini-flash-latest",
+      "rank": 5
+    },
+    {
+      "mode": "off",
+      "label": "Off (Baseline)",
+      "description": "Original 3D Models Only (Legacy Baseline)",
+      "composite_score": 5.0,
+      "overall_score": 5,
+      "bw_contrast_score": 5,
+      "role_recognition_0deg_score": 4,
+      "role_recognition_30deg_score": 7,
+      "kid_low_fatigue_score": 4,
+      "mean_white_rank12_luma": 115.31,
+      "mean_black_rank78_luma": 96.61,
+      "mean_luma_separation_delta": 18.71,
+      "mean_contrast_ratio": 1.22,
+      "distinct_roles_0deg": [
+        "Rook",
+        "Knight",
+        "Pawn"
+      ],
+      "distinct_roles_30deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "critique_it": "La vista zenitale a 0° soffre fortemente per l'assenza di indicatori 2D sui dischi, rendendo Re e Regina difficilmente distinguibili dalla sola sommità del copricapo. A 30° la silhouette tridimensionale migliora la leggibilità dei singoli pezzi, ma nel Mirror Match il basso contrasto di luminanza (solo 1.3x-1.5x) e le basette simili affaticano notevolmente gli occhi di un bambino.",
+      "vlm_source": "gemini-flash-latest",
+      "rank": 6
+    }
+  ],
+  "vlm_audits": {
+    "off": {
+      "blind_predictions": [
+        {
+          "square": "e1",
+          "team_color": "White",
+          "role": "King",
+          "visual_cue_used": "Ornate crowned head with cross finial on bright circular pedestal"
+        },
+        {
+          "square": "e2",
+          "team_color": "White",
+          "role": "Queen",
+          "visual_cue_used": "Tall crowned headdress on light circular pedestal"
+        },
+        {
+          "square": "c4",
+          "team_color": "White",
+          "role": "Bishop",
+          "visual_cue_used": "Blue rounded clerical cap with white trim on golden rim base"
+        },
+        {
+          "square": "f3",
+          "team_color": "White",
+          "role": "Knight",
+          "visual_cue_used": "Asymmetric mount silhouette with blue rider profile"
+        },
+        {
+          "square": "a1",
+          "team_color": "White",
+          "role": "Rook",
+          "visual_cue_used": "Faceted purple crystal tower bastion"
+        },
+        {
+          "square": "e4",
+          "team_color": "White",
+          "role": "Pawn",
+          "visual_cue_used": "Small circular helmet with red feather crest"
+        },
+        {
+          "square": "e8",
+          "team_color": "Black",
+          "role": "King",
+          "visual_cue_used": "Dark cross-topped crown tall silhouette"
+        },
+        {
+          "square": "e7",
+          "team_color": "Black",
+          "role": "Queen",
+          "visual_cue_used": "Dark coronet piece positioned centrally on seventh rank"
+        },
+        {
+          "square": "c5",
+          "team_color": "Black",
+          "role": "Bishop",
+          "visual_cue_used": "Pointed mitre form positioned along active diagonal"
+        },
+        {
+          "square": "c6",
+          "team_color": "Black",
+          "role": "Knight",
+          "visual_cue_used": "Carved equine head profile on obsidian pedestal"
+        }
+      ],
+      "distinct_roles_recognized_0deg": [
+        "Rook",
+        "Knight",
+        "Pawn"
+      ],
+      "distinct_roles_recognized_30deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "bw_contrast_score": 5,
+      "role_recognition_0deg_score": 4,
+      "role_recognition_30deg_score": 7,
+      "kid_low_fatigue_score": 4,
+      "overall_score": 5,
+      "critique_it": "La vista zenitale a 0° soffre fortemente per l'assenza di indicatori 2D sui dischi, rendendo Re e Regina difficilmente distinguibili dalla sola sommità del copricapo. A 30° la silhouette tridimensionale migliora la leggibilità dei singoli pezzi, ma nel Mirror Match il basso contrasto di luminanza (solo 1.3x-1.5x) e le basette simili affaticano notevolmente gli occhi di un bambino.",
+      "source": "gemini-flash-latest"
+    },
+    "s1": {
+      "blind_predictions": [
+        {
+          "square": "e1",
+          "team_color": "White",
+          "role": "King",
+          "visual_cue_used": "2D disc icon with crown and letter K"
+        },
+        {
+          "square": "e2",
+          "team_color": "White",
+          "role": "Queen",
+          "visual_cue_used": "2D disc icon with coronet and letter Q"
+        },
+        {
+          "square": "c4",
+          "team_color": "White",
+          "role": "Bishop",
+          "visual_cue_used": "2D disc icon with miter and letter B"
+        },
+        {
+          "square": "f3",
+          "team_color": "White",
+          "role": "Knight",
+          "visual_cue_used": "2D disc icon with horse head and letter N"
+        },
+        {
+          "square": "a1",
+          "team_color": "White",
+          "role": "Rook",
+          "visual_cue_used": "2D disc icon with castle tower and letter R"
+        },
+        {
+          "square": "e4",
+          "team_color": "White",
+          "role": "Pawn",
+          "visual_cue_used": "2D disc icon with pawn silhouette and letter P"
+        },
+        {
+          "square": "e8",
+          "team_color": "Black",
+          "role": "King",
+          "visual_cue_used": "Purple-rimmed 2D disc with crown and letter K"
+        },
+        {
+          "square": "e7",
+          "team_color": "Black",
+          "role": "Queen",
+          "visual_cue_used": "Purple-rimmed 2D disc with coronet and letter Q"
+        },
+        {
+          "square": "c5",
+          "team_color": "Black",
+          "role": "Bishop",
+          "visual_cue_used": "Purple-rimmed 2D disc with miter and letter B"
+        },
+        {
+          "square": "c6",
+          "team_color": "Black",
+          "role": "Knight",
+          "visual_cue_used": "Purple-rimmed 2D disc with horse head and letter N"
+        }
+      ],
+      "distinct_roles_recognized_0deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "distinct_roles_recognized_30deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "bw_contrast_score": 9,
+      "role_recognition_0deg_score": 10,
+      "role_recognition_30deg_score": 7,
+      "kid_low_fatigue_score": 8,
+      "overall_score": 8,
+      "critique_it": "A 0° la leggibilità è insuperabile grazie ai medaglioni 2D standardizzati con lettere e icone chiare. A 30°, tuttavia, i dischi orizzontali subiscono uno schiacciamento prospettico e parziali sovrapposizioni nelle retrovie, riducendo l'impatto tridimensionale. L'eccellente contrasto cromatico tra Bianco e Nero garantisce comunque zero ambiguità anche nelle partite speculari.",
+      "source": "gemini-flash-latest"
+    },
+    "s2": {
+      "blind_predictions": [
+        {
+          "square": "e1",
+          "team_color": "White",
+          "role": "King",
+          "visual_cue_used": "cross"
+        },
+        {
+          "square": "e2",
+          "team_color": "White",
+          "role": "Queen",
+          "visual_cue_used": "crown"
+        },
+        {
+          "square": "c4",
+          "team_color": "White",
+          "role": "Bishop",
+          "visual_cue_used": "pedestal wreath"
+        },
+        {
+          "square": "f3",
+          "team_color": "White",
+          "role": "Knight",
+          "visual_cue_used": "horse wings"
+        },
+        {
+          "square": "a1",
+          "team_color": "White",
+          "role": "Rook",
+          "visual_cue_used": "crown"
+        },
+        {
+          "square": "e4",
+          "team_color": "White",
+          "role": "Pawn",
+          "visual_cue_used": "color"
+        },
+        {
+          "square": "e8",
+          "team_color": "Black",
+          "role": "King",
+          "visual_cue_used": "cross"
+        },
+        {
+          "square": "e7",
+          "team_color": "Black",
+          "role": "Queen",
+          "visual_cue_used": "crown"
+        },
+        {
+          "square": "c5",
+          "team_color": "Black",
+          "role": "Bishop",
+          "visual_cue_used": "pike"
+        },
+        {
+          "square": "c6",
+          "team_color": "Black",
+          "role": "Knight",
+          "visual_cue_used": "horse wings"
+        }
+      ],
+      "distinct_roles_recognized_0deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Knight",
+        "Bishop",
+        "Pawn"
+      ],
+      "distinct_roles_recognized_30deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Knight",
+        "Bishop",
+        "Pawn"
+      ],
+      "bw_contrast_score": 9,
+      "role_recognition_0deg_score": 8,
+      "role_recognition_30deg_score": 9,
+      "kid_low_fatigue_score": 8,
+      "overall_score": 8,
+      "critique_it": "L'eccellente contrasto cromatico tra l'avorio dorato e l'ossidiana violacea rende immediata la distinzione delle fazioni anche nei mirror match. A 0° i simboli volumetrici apicali (croci, corone e teste equine) guidano chiaramente la lettura dei ruoli senza affaticare gli occhi. A 30° la silhouette complessiva guadagna ulteriore tridimensionalità, offrendo una leggibilità ludica ideale per un pubblico giovane.",
+      "source": "gemini-flash-latest"
+    },
+    "s3": {
+      "blind_predictions": [
+        {
+          "square": "e1",
+          "team_color": "White",
+          "role": "King",
+          "visual_cue_used": "crown"
+        },
+        {
+          "square": "e2",
+          "team_color": "White",
+          "role": "Queen",
+          "visual_cue_used": "tiara"
+        },
+        {
+          "square": "c4",
+          "team_color": "White",
+          "role": "Bishop",
+          "visual_cue_used": "mitre"
+        },
+        {
+          "square": "f3",
+          "team_color": "White",
+          "role": "Knight",
+          "visual_cue_used": "horse profile"
+        },
+        {
+          "square": "a1",
+          "team_color": "White",
+          "role": "Rook",
+          "visual_cue_used": "battlement base"
+        },
+        {
+          "square": "e4",
+          "team_color": "White",
+          "role": "Pawn",
+          "visual_cue_used": "small pedestal"
+        },
+        {
+          "square": "e8",
+          "team_color": "Black",
+          "role": "King",
+          "visual_cue_used": "tall dark crown"
+        },
+        {
+          "square": "e7",
+          "team_color": "Black",
+          "role": "Queen",
+          "visual_cue_used": "coronet headpiece"
+        },
+        {
+          "square": "c5",
+          "team_color": "Black",
+          "role": "Bishop",
+          "visual_cue_used": "tapered hood"
+        },
+        {
+          "square": "c6",
+          "team_color": "Black",
+          "role": "Knight",
+          "visual_cue_used": "equine shape"
+        }
+      ],
+      "distinct_roles_recognized_0deg": [
+        "Pawn",
+        "Rook"
+      ],
+      "distinct_roles_recognized_30deg": [
+        "Pawn",
+        "Knight",
+        "Bishop",
+        "Rook",
+        "King"
+      ],
+      "bw_contrast_score": 6,
+      "role_recognition_0deg_score": 4,
+      "role_recognition_30deg_score": 6,
+      "kid_low_fatigue_score": 5,
+      "overall_score": 5,
+      "critique_it": "Il contrasto cromatico tra i due schieramenti risulta sufficiente ma la vista a 0 gradi soffre per la mancanza di indicatori grafici chiari sulle teste dei pezzi. La visuale a 30 gradi migliora la lettura delle silhouette principali, pur mantenendo qualche ambiguita tra figure maggiori.",
+      "source": "gemini-flash-latest"
+    },
+    "s4": {
+      "blind_predictions": [
+        {
+          "square": "e1",
+          "team_color": "White",
+          "role": "King",
+          "visual_cue_used": "floating billboard badge with cross crown symbol and ornate golden pedestal"
+        },
+        {
+          "square": "e2",
+          "team_color": "White",
+          "role": "Queen",
+          "visual_cue_used": "floating billboard badge with coronet glyph and royal female figure"
+        },
+        {
+          "square": "c4",
+          "team_color": "White",
+          "role": "Bishop",
+          "visual_cue_used": "floating billboard badge with mitre symbol and bishop staff/figure"
+        },
+        {
+          "square": "f3",
+          "team_color": "White",
+          "role": "Knight",
+          "visual_cue_used": "floating billboard badge with horse head profile"
+        },
+        {
+          "square": "a1",
+          "team_color": "White",
+          "role": "Rook",
+          "visual_cue_used": "floating billboard badge with castle crenellated battlement"
+        },
+        {
+          "square": "e4",
+          "team_color": "White",
+          "role": "Pawn",
+          "visual_cue_used": "floating billboard badge with round pawn dome icon and small infantry model"
+        },
+        {
+          "square": "e8",
+          "team_color": "Black",
+          "role": "King",
+          "visual_cue_used": "dark obsidian king crown symbol on overhead badge and tallest dark silhouette"
+        },
+        {
+          "square": "e7",
+          "team_color": "Black",
+          "role": "Queen",
+          "visual_cue_used": "dark queen coronet icon on floating badge positioned on e7"
+        },
+        {
+          "square": "c5",
+          "team_color": "Black",
+          "role": "Bishop",
+          "visual_cue_used": "floating badge with bishop mitre glyph and pointed dark headgear"
+        },
+        {
+          "square": "c6",
+          "team_color": "Black",
+          "role": "Knight",
+          "visual_cue_used": "floating badge with equestrian knight symbol and dark steed model"
+        }
+      ],
+      "distinct_roles_recognized_0deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "distinct_roles_recognized_30deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "bw_contrast_score": 9,
+      "role_recognition_0deg_score": 8,
+      "role_recognition_30deg_score": 9,
+      "kid_low_fatigue_score": 8,
+      "overall_score": 8,
+      "critique_it": "L'integrazione di badge fluttuanti con icone 2D standardizzate risolve brillantemente l'ambiguità geometrica sia a 0° che a 30°, garantendo un riconoscimento immediato anche nei mirror match. Il contrasto cromatico tra l'ossidiana profonda dei Neri e l'avorio dorato dei Bianchi è netto e senza fraintendimenti. L'unico limite risiede nel leggero affollamento visivo dei billboard nelle mischie centrali, che può affaticare la lettura spaziale della scacchiera durante partite lunghe.",
+      "source": "gemini-flash-latest"
+    },
+    "s5": {
+      "blind_predictions": [
+        {
+          "square": "e1",
+          "team_color": "White",
+          "role": "King",
+          "visual_cue_used": "Zenithal 2D medallion with letter 'K', cross crown symbol, and gold pedestal ring"
+        },
+        {
+          "square": "e2",
+          "team_color": "White",
+          "role": "Queen",
+          "visual_cue_used": "2D tournament medallion with letter 'Q', coronet glyph, and 30° floating crest"
+        },
+        {
+          "square": "c4",
+          "team_color": "White",
+          "role": "Bishop",
+          "visual_cue_used": "Medallion with letter 'B' and mitre icon, accompanied by pedestal wreath"
+        },
+        {
+          "square": "f3",
+          "team_color": "White",
+          "role": "Knight",
+          "visual_cue_used": "Medallion with letter 'N' and horse profile icon with gold border"
+        },
+        {
+          "square": "a1",
+          "team_color": "White",
+          "role": "Rook",
+          "visual_cue_used": "Medallion with letter 'R' and castle battlement glyph"
+        },
+        {
+          "square": "e4",
+          "team_color": "White",
+          "role": "Pawn",
+          "visual_cue_used": "Compact medallion with letter 'P' and pawn silhouette on advanced central square"
+        },
+        {
+          "square": "e8",
+          "team_color": "Black",
+          "role": "King",
+          "visual_cue_used": "Dark obsidian body with purple-bordered 'K' medallion and cross finial"
+        },
+        {
+          "square": "e7",
+          "team_color": "Black",
+          "role": "Queen",
+          "visual_cue_used": "Obsidian piece on e7 displaying 'Q' coronet medallion with purple halo"
+        },
+        {
+          "square": "c5",
+          "team_color": "Black",
+          "role": "Bishop",
+          "visual_cue_used": "Dark body on c5 showing purple 'B' mitre medallion"
+        },
+        {
+          "square": "c6",
+          "team_color": "Black",
+          "role": "Knight",
+          "visual_cue_used": "Purple-ringed medallion with letter 'N' and horse head icon on c6"
+        }
+      ],
+      "distinct_roles_recognized_0deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "distinct_roles_recognized_30deg": [
+        "King",
+        "Queen",
+        "Rook",
+        "Bishop",
+        "Knight",
+        "Pawn"
+      ],
+      "bw_contrast_score": 10,
+      "role_recognition_0deg_score": 10,
+      "role_recognition_30deg_score": 9,
+      "kid_low_fatigue_score": 9,
+      "overall_score": 9,
+      "critique_it": "La visuale a 0° con medaglioni 2D provvisti di glifi e sigle alfabetiche elimina ogni ambiguità anche nei mirror match più complessi. A 30° la combinazione di add-on 3D, ghirlande di piedistallo e stemmi fluttuanti mantiene una leggibilità eccezionale, sebbene nei settori centrali densi si percepisca una lieve saturazione visiva. Il contrasto cromatico tra bianco avorio dorato e nero ossidiana violaceo è netto, azzerando qualsiasi affaticamento cognitivo per i bambini.",
+      "source": "gemini-flash-latest"
+    }
+  },
+  "telemetry": {
+    "off": {
+      "mode": "off",
+      "label": "Off (Baseline)",
+      "description": "Original 3D Models Only (Legacy Baseline)",
+      "matchups": {
+        "carlesso_vs_classic": {
+          "matchup_id": "carlesso_vs_classic",
+          "white": "carlesso",
+          "black": "classic",
+          "label": "Carlesso (W) vs Classic (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/off_carlesso_vs_classic_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 107.15,
+                "black_rank78_luma": 94.59,
+                "luma_separation_rank12_vs_78": 12.56,
+                "white_all_luma": 112.05,
+                "black_all_luma": 99.76,
+                "luma_separation_all": 12.29,
+                "contrast_ratio": 1.12,
+                "obsidian_black_verified": false
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "off",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/off_carlesso_vs_classic_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 119.71,
+                "black_rank78_luma": 106.75,
+                "luma_separation_rank12_vs_78": 12.96,
+                "white_all_luma": 121.26,
+                "black_all_luma": 110.82,
+                "luma_separation_all": 10.44,
+                "contrast_ratio": 1.11,
+                "obsidian_black_verified": false
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "off",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        },
+        "carlesso_vs_swamp": {
+          "matchup_id": "carlesso_vs_swamp",
+          "white": "carlesso",
+          "black": "swamp",
+          "label": "Carlesso (W) vs Swamp (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/off_carlesso_vs_swamp_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 109.07,
+                "black_rank78_luma": 128.75,
+                "luma_separation_rank12_vs_78": -19.68,
+                "white_all_luma": 116.84,
+                "black_all_luma": 131.71,
+                "luma_separation_all": -14.87,
+                "contrast_ratio": 0.86,
+                "obsidian_black_verified": false
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "off",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/off_carlesso_vs_swamp_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 123.49,
+                "black_rank78_luma": 107.75,
+                "luma_separation_rank12_vs_78": 15.74,
+                "white_all_luma": 125.4,
+                "black_all_luma": 106.37,
+                "luma_separation_all": 19.03,
+                "contrast_ratio": 1.13,
+                "obsidian_black_verified": false
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "off",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        },
+        "carlesso_vs_carlesso": {
+          "matchup_id": "carlesso_vs_carlesso",
+          "white": "carlesso",
+          "black": "carlesso",
+          "label": "Carlesso (W) vs Carlesso (B) [Mirror]",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/off_carlesso_vs_carlesso_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 108.78,
+                "black_rank78_luma": 70.29,
+                "luma_separation_rank12_vs_78": 38.49,
+                "white_all_luma": 116.45,
+                "black_all_luma": 72.32,
+                "luma_separation_all": 44.13,
+                "contrast_ratio": 1.46,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "off",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/off_carlesso_vs_carlesso_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 123.66,
+                "black_rank78_luma": 71.5,
+                "luma_separation_rank12_vs_78": 52.16,
+                "white_all_luma": 123.48,
+                "black_all_luma": 75.5,
+                "luma_separation_all": 47.98,
+                "contrast_ratio": 1.62,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "off",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "s1": {
+      "mode": "s1",
+      "label": "S1 (Zenith 2D)",
+      "description": "Zenith 2D Classic B/W Medallion Icons + Obsidian Contrast",
+      "matchups": {
+        "carlesso_vs_classic": {
+          "matchup_id": "carlesso_vs_classic",
+          "white": "carlesso",
+          "black": "classic",
+          "label": "Carlesso (W) vs Classic (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s1_carlesso_vs_classic_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 161.31,
+                "black_rank78_luma": 75.68,
+                "luma_separation_rank12_vs_78": 85.63,
+                "white_all_luma": 160.63,
+                "black_all_luma": 86.72,
+                "luma_separation_all": 73.91,
+                "contrast_ratio": 1.97,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s1",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 32,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s1_carlesso_vs_classic_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 152.65,
+                "black_rank78_luma": 70.59,
+                "luma_separation_rank12_vs_78": 82.06,
+                "white_all_luma": 151.16,
+                "black_all_luma": 78.43,
+                "luma_separation_all": 72.73,
+                "contrast_ratio": 1.98,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s1",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 32,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        },
+        "carlesso_vs_swamp": {
+          "matchup_id": "carlesso_vs_swamp",
+          "white": "carlesso",
+          "black": "swamp",
+          "label": "Carlesso (W) vs Swamp (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s1_carlesso_vs_swamp_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 161.27,
+                "black_rank78_luma": 76.29,
+                "luma_separation_rank12_vs_78": 84.98,
+                "white_all_luma": 160.59,
+                "black_all_luma": 87.21,
+                "luma_separation_all": 73.39,
+                "contrast_ratio": 1.95,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s1",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 32,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s1_carlesso_vs_swamp_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 155.07,
+                "black_rank78_luma": 75.53,
+                "luma_separation_rank12_vs_78": 79.54,
+                "white_all_luma": 152.27,
+                "black_all_luma": 83.09,
+                "luma_separation_all": 69.18,
+                "contrast_ratio": 1.9,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s1",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 32,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        },
+        "carlesso_vs_carlesso": {
+          "matchup_id": "carlesso_vs_carlesso",
+          "white": "carlesso",
+          "black": "carlesso",
+          "label": "Carlesso (W) vs Carlesso (B) [Mirror]",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s1_carlesso_vs_carlesso_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 161.36,
+                "black_rank78_luma": 68.55,
+                "luma_separation_rank12_vs_78": 92.81,
+                "white_all_luma": 161.06,
+                "black_all_luma": 80.92,
+                "luma_separation_all": 80.13,
+                "contrast_ratio": 2.14,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s1",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 32,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s1_carlesso_vs_carlesso_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 153.59,
+                "black_rank78_luma": 65.26,
+                "luma_separation_rank12_vs_78": 88.33,
+                "white_all_luma": 152.42,
+                "black_all_luma": 72.85,
+                "luma_separation_all": 79.57,
+                "contrast_ratio": 2.13,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s1",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 32,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "s2": {
+      "mode": "s2",
+      "label": "S2 (3D GLB Add-Ons)",
+      "description": "Universal 3D Static Role Add-Ons + Obsidian Contrast",
+      "matchups": {
+        "carlesso_vs_classic": {
+          "matchup_id": "carlesso_vs_classic",
+          "white": "carlesso",
+          "black": "classic",
+          "label": "Carlesso (W) vs Classic (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s2_carlesso_vs_classic_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 143.72,
+                "black_rank78_luma": 56.11,
+                "luma_separation_rank12_vs_78": 87.61,
+                "white_all_luma": 152.89,
+                "black_all_luma": 58.04,
+                "luma_separation_all": 94.85,
+                "contrast_ratio": 2.27,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s2",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 32
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s2_carlesso_vs_classic_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 149.11,
+                "black_rank78_luma": 69.15,
+                "luma_separation_rank12_vs_78": 79.96,
+                "white_all_luma": 148.48,
+                "black_all_luma": 70.66,
+                "luma_separation_all": 77.81,
+                "contrast_ratio": 1.98,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s2",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 32
+              }
+            }
+          }
+        },
+        "carlesso_vs_swamp": {
+          "matchup_id": "carlesso_vs_swamp",
+          "white": "carlesso",
+          "black": "swamp",
+          "label": "Carlesso (W) vs Swamp (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s2_carlesso_vs_swamp_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 142.54,
+                "black_rank78_luma": 66.58,
+                "luma_separation_rank12_vs_78": 75.96,
+                "white_all_luma": 152.09,
+                "black_all_luma": 66.44,
+                "luma_separation_all": 85.65,
+                "contrast_ratio": 1.96,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s2",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 32
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s2_carlesso_vs_swamp_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 149.07,
+                "black_rank78_luma": 73.2,
+                "luma_separation_rank12_vs_78": 75.87,
+                "white_all_luma": 150.29,
+                "black_all_luma": 72.73,
+                "luma_separation_all": 77.56,
+                "contrast_ratio": 1.88,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s2",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 32
+              }
+            }
+          }
+        },
+        "carlesso_vs_carlesso": {
+          "matchup_id": "carlesso_vs_carlesso",
+          "white": "carlesso",
+          "black": "carlesso",
+          "label": "Carlesso (W) vs Carlesso (B) [Mirror]",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s2_carlesso_vs_carlesso_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 142.96,
+                "black_rank78_luma": 48.34,
+                "luma_separation_rank12_vs_78": 94.62,
+                "white_all_luma": 152.26,
+                "black_all_luma": 50.53,
+                "luma_separation_all": 101.73,
+                "contrast_ratio": 2.55,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s2",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 32
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s2_carlesso_vs_carlesso_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 149.03,
+                "black_rank78_luma": 57.22,
+                "luma_separation_rank12_vs_78": 91.8,
+                "white_all_luma": 148.51,
+                "black_all_luma": 57.7,
+                "luma_separation_all": 90.81,
+                "contrast_ratio": 2.31,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s2",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 32
+              }
+            }
+          }
+        }
+      }
+    },
+    "s3": {
+      "mode": "s3",
+      "label": "S3 (Obsidian Contrast)",
+      "description": "True Obsidian Black vs Warm Ivory Contrast Only",
+      "matchups": {
+        "carlesso_vs_classic": {
+          "matchup_id": "carlesso_vs_classic",
+          "white": "carlesso",
+          "black": "classic",
+          "label": "Carlesso (W) vs Classic (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s3_carlesso_vs_classic_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 129.3,
+                "black_rank78_luma": 59.59,
+                "luma_separation_rank12_vs_78": 69.71,
+                "white_all_luma": 136.06,
+                "black_all_luma": 61.35,
+                "luma_separation_all": 74.71,
+                "contrast_ratio": 1.96,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s3",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s3_carlesso_vs_classic_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 145.53,
+                "black_rank78_luma": 69.11,
+                "luma_separation_rank12_vs_78": 76.42,
+                "white_all_luma": 147.07,
+                "black_all_luma": 70.36,
+                "luma_separation_all": 76.71,
+                "contrast_ratio": 1.93,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s3",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        },
+        "carlesso_vs_swamp": {
+          "matchup_id": "carlesso_vs_swamp",
+          "white": "carlesso",
+          "black": "swamp",
+          "label": "Carlesso (W) vs Swamp (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s3_carlesso_vs_swamp_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 129.34,
+                "black_rank78_luma": 83.98,
+                "luma_separation_rank12_vs_78": 45.36,
+                "white_all_luma": 135.77,
+                "black_all_luma": 84.01,
+                "luma_separation_all": 51.76,
+                "contrast_ratio": 1.47,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s3",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s3_carlesso_vs_swamp_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 145.02,
+                "black_rank78_luma": 73.26,
+                "luma_separation_rank12_vs_78": 71.76,
+                "white_all_luma": 144.97,
+                "black_all_luma": 72.66,
+                "luma_separation_all": 72.31,
+                "contrast_ratio": 1.83,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s3",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        },
+        "carlesso_vs_carlesso": {
+          "matchup_id": "carlesso_vs_carlesso",
+          "white": "carlesso",
+          "black": "carlesso",
+          "label": "Carlesso (W) vs Carlesso (B) [Mirror]",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s3_carlesso_vs_carlesso_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 129.34,
+                "black_rank78_luma": 46.46,
+                "luma_separation_rank12_vs_78": 82.88,
+                "white_all_luma": 135.77,
+                "black_all_luma": 46.79,
+                "luma_separation_all": 88.98,
+                "contrast_ratio": 2.4,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s3",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s3_carlesso_vs_carlesso_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 145.02,
+                "black_rank78_luma": 56.4,
+                "luma_separation_rank12_vs_78": 88.62,
+                "white_all_luma": 144.97,
+                "black_all_luma": 56.82,
+                "luma_separation_all": 88.15,
+                "contrast_ratio": 2.28,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s3",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 0,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "s4": {
+      "mode": "s4",
+      "label": "S4 (Pedestal Wreath + Crest)",
+      "description": "3D Pedestal Role Wreath + Floating 2D Crest + Obsidian",
+      "matchups": {
+        "carlesso_vs_classic": {
+          "matchup_id": "carlesso_vs_classic",
+          "white": "carlesso",
+          "black": "classic",
+          "label": "Carlesso (W) vs Classic (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s4_carlesso_vs_classic_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 132.9,
+                "black_rank78_luma": 70.48,
+                "luma_separation_rank12_vs_78": 62.42,
+                "white_all_luma": 136.77,
+                "black_all_luma": 80.03,
+                "luma_separation_all": 56.74,
+                "contrast_ratio": 1.75,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s4",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 32,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s4_carlesso_vs_classic_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 145.29,
+                "black_rank78_luma": 74.97,
+                "luma_separation_rank12_vs_78": 70.31,
+                "white_all_luma": 146.18,
+                "black_all_luma": 76.89,
+                "luma_separation_all": 69.28,
+                "contrast_ratio": 1.8,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s4",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 32,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        },
+        "carlesso_vs_swamp": {
+          "matchup_id": "carlesso_vs_swamp",
+          "white": "carlesso",
+          "black": "swamp",
+          "label": "Carlesso (W) vs Swamp (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s4_carlesso_vs_swamp_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 132.9,
+                "black_rank78_luma": 89.14,
+                "luma_separation_rank12_vs_78": 43.75,
+                "white_all_luma": 136.77,
+                "black_all_luma": 94.83,
+                "luma_separation_all": 41.94,
+                "contrast_ratio": 1.43,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s4",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 32,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s4_carlesso_vs_swamp_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 145.42,
+                "black_rank78_luma": 78.74,
+                "luma_separation_rank12_vs_78": 66.68,
+                "white_all_luma": 145.32,
+                "black_all_luma": 78.95,
+                "luma_separation_all": 66.37,
+                "contrast_ratio": 1.73,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s4",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 32,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        },
+        "carlesso_vs_carlesso": {
+          "matchup_id": "carlesso_vs_carlesso",
+          "white": "carlesso",
+          "black": "carlesso",
+          "label": "Carlesso (W) vs Carlesso (B) [Mirror]",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s4_carlesso_vs_carlesso_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 132.9,
+                "black_rank78_luma": 57.83,
+                "luma_separation_rank12_vs_78": 75.07,
+                "white_all_luma": 136.77,
+                "black_all_luma": 66.87,
+                "luma_separation_all": 69.9,
+                "contrast_ratio": 2.06,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s4",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 32,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s4_carlesso_vs_carlesso_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 145.8,
+                "black_rank78_luma": 63.29,
+                "luma_separation_rank12_vs_78": 82.51,
+                "white_all_luma": 147.34,
+                "black_all_luma": 64.19,
+                "luma_separation_all": 83.15,
+                "contrast_ratio": 2.08,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s4",
+                "addonVisibleCount": 0,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 32,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "s5": {
+      "mode": "s5",
+      "label": "S5 (Hybrid All-In)",
+      "description": "Hybrid Champion: Obsidian + 3D Add-Ons + Wreath + Crest + Auto-2D Zenith",
+      "matchups": {
+        "carlesso_vs_classic": {
+          "matchup_id": "carlesso_vs_classic",
+          "white": "carlesso",
+          "black": "classic",
+          "label": "Carlesso (W) vs Classic (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s5_carlesso_vs_classic_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 160.96,
+                "black_rank78_luma": 75.7,
+                "luma_separation_rank12_vs_78": 85.27,
+                "white_all_luma": 159.68,
+                "black_all_luma": 86.76,
+                "luma_separation_all": 72.91,
+                "contrast_ratio": 1.96,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s5",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 32,
+                "bakedGlbAddonCount": 32
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s5_carlesso_vs_classic_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 146.78,
+                "black_rank78_luma": 74.82,
+                "luma_separation_rank12_vs_78": 71.96,
+                "white_all_luma": 146.36,
+                "black_all_luma": 76.68,
+                "luma_separation_all": 69.68,
+                "contrast_ratio": 1.82,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s5",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 32,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 32
+              }
+            }
+          }
+        },
+        "carlesso_vs_swamp": {
+          "matchup_id": "carlesso_vs_swamp",
+          "white": "carlesso",
+          "black": "swamp",
+          "label": "Carlesso (W) vs Swamp (B)",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s5_carlesso_vs_swamp_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 160.8,
+                "black_rank78_luma": 76.43,
+                "luma_separation_rank12_vs_78": 84.37,
+                "white_all_luma": 159.54,
+                "black_all_luma": 87.36,
+                "luma_separation_all": 72.19,
+                "contrast_ratio": 1.95,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s5",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 32,
+                "bakedGlbAddonCount": 32
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s5_carlesso_vs_swamp_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 147.23,
+                "black_rank78_luma": 79.44,
+                "luma_separation_rank12_vs_78": 67.79,
+                "white_all_luma": 148.27,
+                "black_all_luma": 79.39,
+                "luma_separation_all": 68.89,
+                "contrast_ratio": 1.73,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s5",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 32,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 32
+              }
+            }
+          }
+        },
+        "carlesso_vs_carlesso": {
+          "matchup_id": "carlesso_vs_carlesso",
+          "white": "carlesso",
+          "black": "carlesso",
+          "label": "Carlesso (W) vs Carlesso (B) [Mirror]",
+          "angles": {
+            "0deg": {
+              "screenshot": "/tmp/carchess_clarity/s5_carlesso_vs_carlesso_0deg.png",
+              "luminance": {
+                "white_rank12_luma": 160.74,
+                "black_rank78_luma": 68.63,
+                "luma_separation_rank12_vs_78": 92.11,
+                "white_all_luma": 159.49,
+                "black_all_luma": 81.01,
+                "luma_separation_all": 78.48,
+                "contrast_ratio": 2.13,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s5",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 0,
+                "zenithDiscVisibleCount": 32,
+                "bakedGlbAddonCount": 32
+              }
+            },
+            "30deg": {
+              "screenshot": "/tmp/carchess_clarity/s5_carlesso_vs_carlesso_30deg.png",
+              "luminance": {
+                "white_rank12_luma": 147.37,
+                "black_rank78_luma": 63.61,
+                "luma_separation_rank12_vs_78": 83.75,
+                "white_all_luma": 148.58,
+                "black_all_luma": 64.43,
+                "luma_separation_all": 84.15,
+                "contrast_ratio": 2.1,
+                "obsidian_black_verified": true
+              },
+              "scene_features": {
+                "livingPieces": 32,
+                "clarityModeActive": "s5",
+                "addonVisibleCount": 32,
+                "wreathVisibleCount": 32,
+                "billboardVisibleCount": 32,
+                "zenithDiscVisibleCount": 0,
+                "bakedGlbAddonCount": 32
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

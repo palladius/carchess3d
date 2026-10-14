@@ -490,3 +490,26 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
   3. **3D Vertex Sculpting + Zero-Bleed Silver Hair (`recolor_strict_hair_texels_zero_bleed`) + Mirrored Temple Skin (`prepare_clean_front_face`)**: Sculpted jaw/chin/forehead/nose (`jaw_slim=0.045, chin_taper=0.025, nose_shorten=0.14, nose_widen=0.12`), mirrored clean warm cheek skin beyond `col >= 593` to prevent right-eye corner smudging, and recolored non-shell hair texels inside exact barycentric triangles (`lum < 0.50, r - b < 0.105`) with zero UV island bleed.
   4. **Multimodal Adversarial Critic (`gemini-3.1-pro-preview` + `riccardo-likeness-critic`)**: Evaluated 6-panel biometric sheets across iterations (`adversarial_iter_1.png`, `adversarial_iter_2.png`, `adversarial_iter_3.png`) and logged full structured JSON critiques to `tools/model-pipeline/king/out/adversarial_likeness/adversarial_history.json`.
 
+---
+
+## 29. 2026-10-14 — Universal 3D Static Role Add-Ons Baked into all 22 GLB Models (`tools/model-pipeline/bake_universal_role_addons.py`)
+
+- **Goal (Idea #2B, GHI #32)**: Ensure every `.glb` across all 3 families (`carlesso`, `classic`, `swamp`) embeds an invariant, watertight 3D static role signifier (`UniversalRoleAddon_<type>`) using the `faction_trim` PBR material (`baseColorFactor: [0.85, 0.70, 0.24, 1.0]`, `metallicFactor: 0.80`, `roughnessFactor: 0.24`), automatically tinted per faction by `PieceView.js` (Royal Gold for White, Violet-Silver for Black).
+- **Script & Command**:
+  ```bash
+  UV_INDEX_URL="https://pypi.org/simple" uv run tools/model-pipeline/bake_universal_role_addons.py
+  ```
+- **Role Signifier Geometries (100% Watertight 2-Manifold `trimesh.Trimesh`)**:
+  - **King (`k`, `+7,040 tris`)**: Single-diadem royal crown ring (`wave_cycles=4`) + 4 cardinal diadem jewel bosses + wide X/Z Cross Pattee finial at the top apex + 4 cardinal cross reliefs at the base rim.
+  - **Queen (`q`, `+8,640 tris`)**: 8-spike splayed royal coronet ring (`wave_cycles=8`) + 8 large spherical pearls crowning the top perimeter + 8-star base studs.
+  - **Rook (`r`, `+5,568 tris`)**: 6-merlon crenellated castle battlement turret crown + 6-buttress base fortress collar.
+  - **Bishop (`b`, `+3,424 tris`)**: Sacred nimbus halo + tall Episcopal Cross / Crosier finial with diagonal X-crossbars + 4 diagonal (`45°, 135°, 225°, 315°`) mitre diamond studs at the base.
+  - **Knight (`n`, `+4,160 tris`)**: Wide bilateral warhorse-crest / horseshoe-arch side wings (`±X`) that visibly widen the Knight's silhouette from `0°` and `30°` + dorsal scalloped mane crest + front/back horseshoe base emblem.
+  - **Pawn (`p`, `+2,688 tris`)**: Vertical Swiss-Guard pike spearhead + Staunton sphere finial + neck collar ring at the top + front/back pike chevron spearheads at the base.
+- **Invariants & Idempotency**:
+  - Preserves existing UV textures, materials, animations, and skeletal skins (`bishop-ale-rigged.glb`).
+  - Strictly preserves each model's existing `min_y` (`0.0m`) and `max_y` (`height_m`) and horizontal pedestal bounds.
+  - Stores pre-addon buffer/array slice offsets in `asset.extras.universal_role_addon` so repeated runs are 100% byte-for-byte deterministic and idempotent.
+  - Automatically syncs all 22 `.glb` MD5 checksums and byte sizes in `docs/models-provenance.yaml` (`python3 scripts/test_provenance.py` and `python3 scripts/check.py` pass with 0 errors).
+
+

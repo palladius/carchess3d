@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.3.52] - 2026-10-14
+
+- 🔍👑♟️ **Piece Visual Recognition Engine, True Obsidian vs Ivory Contrast, Universal 3D GLB Role Add-Ons & 5-Solution Adversarial VLM Benchmark (`#32`, `src/views/PieceClarityHelper.js`, `src/views/PieceView.js`, `src/listeners/HudListener.js`, `src/listeners/ProfileStorageListener.js`, `src/core/Registry.js`, `tools/model-pipeline/bake_universal_role_addons.py`, `scripts/critic_recognizability.py`, `docs/spec/SPEC.md`)**:
+  - **Eliminated the 3 Root Causes of Overhead Visual Fatigue (`0°` Zenithal & `30°` Semi-High)**:
+    1. **Black Pedestal Top Face (`topCyl`)**: Replaced legacy ice-white/silver (`0xdce7f7`) on the Black pedestal top plate (`y = 0.18..0.22m`) with **Deep Matte Obsidian (`0x0d1017`, roughness `0.36`, metalness `0.12`)** and side trim rings in **Burnished Dark Steel (`0x4e5d6c`)** + **Cobalt-Violet (`0x7c4dff`)**, while White pedestals use **Warm Ivory Marble (`0xfffdf5`)** + **Gleaming Royal Gold (`0xffca28`)**. Pawns (`p`) use a `0.86×` pedestal radius for an immediately smaller footprint.
+    2. **Black `.glb` Albedo & Shader Ivory Suppressor (`applyBlackTeamGlbContrast` + `uIsBlackObsidian`)**: Darkens textured Black `.glb` models (`0x48506a`, `emissive = 0x140c2e`, `emissiveMap = null`), sets untextured `faction_primary` to `0x0d1017` and `faction_trim` to `0x7c4dff`, and injects a fragment shader clamp (`uIsBlackObsidian`) in `PieceView.injectLocomotionShader` to darken baked-in `.glb` bottom plinths (`vNormY < 0.15`) and high-luma pixels (`luma > 0.65`) — increasing White vs Black luminance separation from `ΔLuma = +18.71` (`1.22×` in legacy `off`) to **`ΔLuma = +80.88 .. +85.56` (`2.13× .. 2.55×` in Mirror Match)**.
+    3. **Persistent Role Signifiers Outside `bodyContainer`**: Universal 3D Role Add-Ons, Sculpted 3D Pedestal Role Wreaths, Floating 2D Role Billboards, and Zenithal 2D Tournament Medallion Discs are mounted directly on `pieceGroup` outside `bodyContainer` so asynchronous `.glb` loading never clears them.
+  - **Universal Static 3D Role Add-Ons Baked into All 22 `.glb` Models (`tools/model-pipeline/bake_universal_role_addons.py`)**:
+    - Baked deterministic, watertight `UniversalRoleAddon_<type>` meshes (`faction_trim` material) directly into all 22 `.glb` models across `carlesso` (10), `classic` (6), and `swamp` (6) while preserving exact `min_y = 0.0m` / `max_y = height_m` grounding invariants, UV textures, and armatures (`docs/models-provenance.yaml` MD5 hashes synced):
+      - `k` (King): Royal single-diadem crown ring + wide `0.26m` Cross Pattee finial + 4 cardinal base cross emblems.
+      - `q` (Queen): 8-point splayed royal coronet + 8 spherical pearls (`Ø 0.40m`) + 8-star base studs.
+      - `r` (Rook): 6-merlon crenellated castle turret crown (`Ø 0.42m`) + 6-buttress base collar.
+      - `b` (Bishop): Sacred nimbus halo + tall Episcopal Crosier Cross + 4 diagonal mitre base studs.
+      - `n` (Knight): Wide bilateral warhorse-crest / horseshoe side wings (`>= 0.50m` along X) + dorsal mane + horseshoe base arch.
+      - `p` (Pawn): Vertical Swiss-Guard pike spearhead + Staunton sphere finial + pike base chevron.
+  - **5 Combinable Solutions (`?clarity=s1|s2|s3|s4|s5|off`, Default `s5`) + Live HUD Selector (`#hud-clarity-btn`)**:
+    - **`s1` (Zenith 2D — `8.50/10`)**: High-contrast 2D tournament medallions (`♔K ♕Q ♖R ♗B ♘N ♙P` + vector Staunton silhouettes, anti-bloom `#e8dec8` warm parchment for White and `#090c14` obsidian for Black) at `< 35°` or when `📐 Vista dall'Alto (2D)` is active.
+    - **`s2` (3D GLB Add-Ons — `8.50/10`)**: Universal static 3D role add-ons (runtime + baked `.glb` nodes) + Obsidian contrast at all angles.
+    - **`s3` (Obsidian Contrast — `5.25/10`)**: Pure Deep Matte Obsidian vs Warm Ivory material/shader contrast.
+    - **`s4` (Pedestal Wreath + Crest — `8.50/10`)**: Sculpted 3D Pedestal Role Wreath (`y = 0.04..0.24m`) + compact camera-facing Floating 2D Role Crest (`THREE.Sprite`).
+    - **`s5` (Hybrid Champion — Default — `9.50/10` 🥇)**: Combines `s2 + s3 + s4` at 3D/semi-high angles (`>= 20°`) and automatically switches to clean `s1` 2D tournament medallions when looking nearly straight down (`< 20°` or in Top-Down mode).
+  - **Adversarial Swarm & Blind VLM Recognizer (`scripts/critic_recognizability.py`, `docs/clarity_vlm_report.md`, `docs/clarity_comparison_0deg_30deg.png`)**:
+    - Automated Playwright benchmark capturing 36 screenshots (`6 modes × 3 matchups × 2 angles: 0° & 30°`) + blind `gemini-flash-latest` VLM evaluation and pixel luminance contrast telemetry.
+  - **Tests**: Added `tests/piece_clarity.test.mjs` (6 unit test suites); all 51 Node unit tests and `just test` / `just provenance` pass 100%.
+
 ## [0.3.51] - 2026-10-12
 
 - 🚫 **IP safety / Be Googley (#24)**: no more third-party brand or franchise names in the app (381 replacements across 22 files: UI, code, identifiers, data, prompts, tests).

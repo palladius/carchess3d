@@ -324,6 +324,27 @@ is the "victim" and is removed at the end.
   - **Problem**: Desktop `.glb` characters (`assets/models/*.glb`) weigh `2–5 MB` each with `50k–97k` triangles and `2048×1024` / `2048×2048` uncompressed RGBA textures (`~850,000` triangles and `~180 MB` VRAM across all 32 pieces on the board), whereas on a `6.3"` smartphone screen each chess piece occupies only `~60×90` physical pixels (causing `15–20` sub-pixel triangles per screen pixel).
   - **Planned Solution (`assets/models/mobile/*.glb`)**: Generate a dedicated mobile `LOD1` asset set downsampled by **`10×–20×`** in triangle count (`~3,000–5,000` tris for heroes, `~1,500` tris for pawns via Quadric Error Metric decimation) and **`4×–16×`** in texture area (`512×512` WebP/JPEG baked atlas, `~150–300 KB` per `.glb`), and have `PieceView` load `assets/models/mobile/<piece>.glb` automatically on `isMobilePhone` so smartphones render the full 3D sculpted characters at `60 fps` with `< 5 MB` total download and `< 15 MB` VRAM.
 
+## Visual Piece Recognition, True Obsidian vs Ivory Contrast & 5-Mode Clarity Engine (`v0.3.52` — GHI #32)
+
+- **Root Causes Addressed (`src/views/PieceClarityHelper.js`, `src/views/PieceView.js`)**:
+  1. **Black Pedestal Top Plate (`topCyl`)**: Replaced legacy ice-white/silver (`0xdce7f7`) on the Black pedestal top face (`y = 0.18..0.22m`) with **Deep Matte Obsidian (`0x0d1017`, roughness `0.36`, metalness `0.12`)** and side trim rings in **Burnished Dark Steel (`0x4e5d6c`)** + **Cobalt-Violet (`0x7c4dff`)**, while White pedestals use **Warm Ivory Marble (`0xfffdf5`)** + **Gleaming Royal Gold (`0xffca28`)**. Pawns (`p`) use a `0.86×` pedestal radius for immediate footprint differentiation.
+  2. **Black `.glb` Albedo & Shader Ivory Clamp (`applyBlackTeamGlbContrast` + `uIsBlackObsidian`)**: Darkens textured Black `.glb` models (`0x48506a`, `emissive = 0x140c2e`, `emissiveMap = null`), maps untextured `faction_primary` to `0x0d1017` and `faction_trim` to `0x7c4dff`, and clamps baked-in `.glb` bottom plinths (`vNormY < 0.15`) and high-luminance texels (`luma > 0.65`) in `injectLocomotionShader`.
+  3. **Persistent Role Signifiers Outside `bodyContainer`**: Universal 3D Role Add-Ons (`universalRoleAddOn`), Sculpted 3D Pedestal Role Wreaths (`pedestalWreath`), Floating 2D Role Billboards (`floatingBillboard`), and Zenithal 2D Tournament Medallion Discs (`zenithal2dDisc`) are mounted directly on `pieceGroup` outside `bodyContainer` so asynchronous `.glb` loading never clears them.
+- **Universal Static 3D Role Add-Ons Baked into All 22 `.glb` Models (`tools/model-pipeline/bake_universal_role_addons.py`)**:
+  - Physically bakes a watertight `UniversalRoleAddon_<type>` mesh (`faction_trim` material) into all 22 `.glb` models across `carlesso`, `classic`, and `swamp` while preserving exact `min_y = 0.0m` and `max_y = height_m` grounding invariants and `docs/models-provenance.yaml` MD5 hashes:
+    - `k` (King): Single-diadem royal crown ring + wide `0.26m` Cross Pattee finial + 4 cardinal base cross emblems.
+    - `q` (Queen): 8-point splayed royal coronet + 8 spherical pearls (`Ø 0.40m`) + 8-star base studs.
+    - `r` (Rook): 6-merlon crenellated castle turret crown (`Ø 0.42m`) + 6-buttress base collar.
+    - `b` (Bishop): Sacred nimbus halo + tall Episcopal Crosier Cross + 4 diagonal mitre base studs.
+    - `n` (Knight): Wide bilateral warhorse-crest / horseshoe side wings (`>= 0.50m` along X) + dorsal mane + horseshoe base arch.
+    - `p` (Pawn): Vertical Swiss-Guard pike spearhead + Staunton sphere finial + pike base chevron.
+- **5 Combinable Clarity Modes (`?clarity=s1|s2|s3|s4|s5|off`, Default `s5`) & HUD Selector (`#hud-clarity-btn`)**:
+  - **`s1` (Zenith 2D)**: Auto-switches to high-contrast 2D tournament medallions (`♔K ♕Q ♖R ♗B ♘N ♙P` + vector Staunton silhouettes, anti-bloom `#e8dec8` warm parchment for White and `#090c14` obsidian for Black) when camera polar angle `< 35°` or when `📐 Vista dall'Alto (2D)` is active.
+  - **`s2` (3D GLB Add-Ons)**: Displays the universal static 3D role add-ons (both runtime and baked `.glb` nodes) + Obsidian contrast at all angles.
+  - **`s3` (Obsidian Contrast)**: Pure Deep Matte Obsidian vs Warm Ivory material/shader contrast without extra 2D/3D role overlays.
+  - **`s4` (Pedestal Wreath + Crest)**: Sculpted 3D Pedestal Role Wreath (`y = 0.04..0.24m`) + compact camera-facing Floating 2D Role Crest (`THREE.Sprite`).
+  - **`s5` (Hybrid Champion — Default)**: Combines `s2 + s3 + s4` at 3D/semi-high angles (`>= 20°`) and automatically switches to clean `s1` 2D tournament medallions when looking nearly straight down (`< 20°` or in Top-Down mode). Evaluated by the Blind VLM Recognizer (`scripts/critic_recognizability.py`, [`docs/clarity_vlm_report.md`](../clarity_vlm_report.md)) at **9.50 / 10** (`10/10` B/W contrast, `10/10` `0°` role recognition, `9/10` `30°` role recognition).
+
 ## Open Questions
 
 - ~~Implementation repo~~ → **[palladius/carchess3d](https://github.com/palladius/carchess3d)** (public), deployed live on GitHub Pages at **https://palladius.github.io/carchess3d/**.
