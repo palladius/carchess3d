@@ -553,11 +553,11 @@ models:
     character: "Orco Brontolo"
     status: "CANONICAL"
     target_path: "assets/models/swamp/king-swamp-orco.glb"
-    size_bytes: 3603976
-    md5: "43a1179097038407eeff512c32387898"
+    size_bytes: 644180
+    md5: "fd50f43eb1f6ec738440465047100cf1"
     pipeline:
-      tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
-      script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
+      tool: "Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting"
+      script: "tools/model-pipeline/swamp/build_swamp_models.py"
       resolution: 1024
       texture_size: 1024
     concept_sources:
@@ -593,11 +593,11 @@ models:
     character: "Don Gatto Spadaccino-Vescovo"
     status: "CANONICAL"
     target_path: "assets/models/swamp/bishop-swamp-focaccina.glb"
-    size_bytes: 2699276
-    md5: "55a4921259c34d869a289c5aa3351f32"
+    size_bytes: 578704
+    md5: "dbfeaa805fce703980bfbdf2e72674d4"
     pipeline:
-      tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
-      script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
+      tool: "Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting"
+      script: "tools/model-pipeline/swamp/build_swamp_models.py"
       resolution: 1024
       texture_size: 1024
     concept_sources:
@@ -613,11 +613,11 @@ models:
     character: "Asinello Chiacchierone"
     status: "CANONICAL"
     target_path: "assets/models/swamp/knight-swamp-asinello.glb"
-    size_bytes: 2212328
-    md5: "4e8637549f621199a39cbb3b81f7006a"
+    size_bytes: 489140
+    md5: "194cefa23096e5dc8082f58e69211daa"
     pipeline:
-      tool: "Mode A 2D-to-3D SDF + 40-Tooth Relief + Seamless UV Baking"
-      script: "tools/model-pipeline/swamp/reconstruct_asinello_3d.py"
+      tool: "Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting"
+      script: "tools/model-pipeline/swamp/build_swamp_models.py"
       resolution: 1024
       texture_size: 1024
     concept_sources:
@@ -633,11 +633,11 @@ models:
     character: "Draghessa della Palude"
     status: "CANONICAL"
     target_path: "assets/models/swamp/rook-swamp-draghessa.glb"
-    size_bytes: 3473616
-    md5: "33a2ee99ed921c4d7aeea418441a65b7"
+    size_bytes: 554652
+    md5: "a9f61943495a61a957c218418cf470bf"
     pipeline:
-      tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
-      script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
+      tool: "Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting"
+      script: "tools/model-pipeline/swamp/build_swamp_models.py"
       resolution: 1024
       texture_size: 1024
     concept_sources:
@@ -653,11 +653,11 @@ models:
     character: "Zenzy Pan di Zenzero & Focaccina"
     status: "CANONICAL"
     target_path: "assets/models/swamp/pawn-swamp-tappo.glb"
-    size_bytes: 2353828
-    md5: "46804482aab9933c677e29666b7b7e83"
+    size_bytes: 455804
+    md5: "40082af98ebb85e04f301754c210598e"
     pipeline:
-      tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
-      script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
+      tool: "Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting"
+      script: "tools/model-pipeline/swamp/build_swamp_models.py"
       resolution: 1024
       texture_size: 1024
     concept_sources:

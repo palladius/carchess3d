@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.63] - 2026-10-14
+
+- 🐸🎭 **Human-In-The-Loop Aesthetic Critique & Swamp Restoration**:
+  - Based on user visual inspection of the Before/After showcase, reverted bulky extruded Mode A models for King (Orco), Bishop (Don Gatto), Knight (Asinello), Rook (Draghessa), and Pawn (Tappo) back to procedural watertight chibi 3D sculptures (`tools/model-pipeline/swamp/build_swamp_models.py`), restoring their true 3D proportions, chess lathe bases, and beloved details (cat rapier, 3D dragon coiled around stone tower, 40-tooth grin).
+  - Preserved Mode A UV-textured mesh for Queen Orchessa (Fiona) which achieved high aesthetic fidelity.
+  - Parked all Before/After comparisons, lineup cards, and 16:9 article hero banner under `article/assets/before_after/` and `article/SHOWCASE_BEFORE_AFTER.md`.
+  - Added AGENTS.md / GEMINI.md mandate to automatically save notable visual showcases under `article/` for future technical articles.
+- 🔀 Merged branch `generate_swamp_classic_models` (it was numbered 0.3.59; renumbered above main's 0.3.62).
+
 ## [0.3.62] - 2026-10-14
 
 - 🎙️👦 **Authentic Male Boy Voice Synthesis & Soundboard Integration**:
