@@ -86,4 +86,6 @@ daily-uat:
     just test
     just uat --publish-ghi
 
-
+# run automated Audio QA Critic on voice lines (signal processing + optional Gemini 3.8 Flash LLM)
+audio-critic *args:
+    python3 tools/model-pipeline/critic/critic_audio.py {{args}}

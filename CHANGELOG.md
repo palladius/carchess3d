@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.3.62] - 2026-10-14
+
+- 🎙️👦 **Authentic Male Boy Voice Synthesis & Soundboard Integration**:
+  - Eliminated the adult female "anime dubbing actress" trope for young boys by benchmarking Gemini TTS (`Fenrir`, `Puck`) and dedicated neural models.
+  - Mastered authentic young male child voices for:
+    - **Seby (Knight `n`)**:
+      - *"Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!"* (`voice-n-scrivilescemo.mp3`).
+      - *"Hey Google, uccidi questo mostro per me!"* (`voice-n-uccidimostro.mp3`).
+    - **Ale (Bishop `b`)**:
+      - *"Mummy... I'm still hungry!"* (`voice-b-stillhungry.mp3`, English with sweet boy pleading tone).
+      - *"Papino, tu sì che cucini bene!"* (`voice-b-cucinibene.mp3`, Italian affectionate dad cooking compliment).
+  - Wired all lines into `src/core/CharacterPovData.js` soundboards, `src/core/Registry.js` voice line variants, and the Character POV showcase.
+- 🧪🎧 **Automated Audio QA Critic Tool & Regression Test Suite**:
+  - Built `tools/model-pipeline/critic/critic_audio.py` featuring:
+    - Deterministic PCM acoustic envelope analysis (24kHz mono): peak level detection, digital clipping check (`peak >= -0.05 dBFS`), and trailing glitch/burst detector (detects anomalous energy rebounds after post-speech silence).
+    - Multimodal LLM QA critic using `gemini-3.8-flash` with structured Pydantic schema (`LlmAudioCritique`) auditing word-for-word transcript, speaker persona (boy vs female anime dubber), naturalness score (1-10), and release cleanliness.
+  - Added CLI command in `justfile`: `just audio-critic <file> [--llm] [--all]`.
+  - Added automated test suite `tests/test_audio_quality.py` (integrated into `just test`):
+    - Tests duration, volume headroom, clipping, and glitch-free envelopes for all target voice lines.
+    - Added regression fixture `tests/fixtures/buggy_pinguini_defect.mp3` asserting that the detector specifically isolates the un-mastered trailing +62.6 dB pop/spike after silence in the Pinguini clip.
+- 🎛️ **Audio Mastering & Glitch Removal**:
+  - Fixed the trailing digital burst / inhale pop in the Pinguini Tattici Nucleari clip by applying precise speech endpoint truncation, smooth 140ms cosine fade-out, and broadcast-grade peak limiting (`alimiter=limit=-1.0dB`), achieving -1.36dB peak with 0.0 clipping and zero end defects.
+
 ## [0.3.61] - 2026-10-14
 
 - 🐸✨ **Swamp 3D Mesh Solid Hull Refinement & Before/After Showcase**:
