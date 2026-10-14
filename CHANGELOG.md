@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.67] - 2026-10-14
+
+- 📸👨‍👦‍👦 **Articolo: Foto "Il Vero UAT" con Ale & Seby al Tablet (`docs/ARTICLE.md`, `docs/visual-progress/kids_playing_carchess3d.jpg`, `article/assets/kids_playing_carchess3d.jpg`, `article/SHOWCASE_BEFORE_AFTER.md`)**:
+  - Ritagliata la foto di Alessandro e Sebastian mentre giocano a CarChess3D sul tablet (`1522×1620`, rimossa la nonna a sinistra e la bottiglia d'olio a destra per focalizzare l'inquadratura sui bimbi e sulla scacchiera 3D con le ninfee della palude), aggiunta nella sezione TL;DR di `docs/ARTICLE.md` e parcheggiata anche sotto `article/assets/kids_playing_carchess3d.jpg`.
+
 ## [0.3.66] - 2026-10-14
 
 - 🎵🔇 **Zero-Loop 10s Combat Music & Strictly `+15%` Combat Volume Calibration (`src/listeners/AudioListener.js`, `src/views/VeoCinemaView.js`, `tests/voices_idle.test.mjs`, `docs/spec/SPEC.md`, `sw.js`, `VERSION`)**:

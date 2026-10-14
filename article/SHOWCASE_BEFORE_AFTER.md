@@ -15,6 +15,14 @@ Uno screenshot ad alta risoluzione (1920×1080) ambientato sulla scacchiera con 
 
 ---
 
+## 👨‍👦‍👦 Il Vero UAT (*User Acceptance Testing*): Ale & Seby al Tablet
+
+Foto ritagliata (`1522×1620`, focalizzata sui bimbi e sul gioco) di Alessandro (🐉) e Sebastian (🏎️) mentre giocano a **CarChess3D** sul tablet, con la scacchiera 3D e le ninfee della palude ben visibili sullo schermo.
+
+![Alessandro e Sebastian giocano a CarChess3D sul tablet](assets/kids_playing_carchess3d.jpg)
+
+---
+
 ## ⚔️ Confronto d'Insieme: Famiglia Classic
 
 Tutti i 6 pezzi della fazione **Classic**: Re, Regina, Alfiere, Cavallo, Torre e Pedone.

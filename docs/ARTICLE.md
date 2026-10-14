@@ -14,6 +14,10 @@ In **meno di 48 ore** (e più precisamente in **~4 ore di pipeline 3D** il vener
 3. **Sullo sfondo, sospeso tra le due torri del Grossmünster di Zurigo**, brilla uno **Specchio Magico 16:9** che proietta i video `.mp4`/`.webm` degli scontri tra Ale e Seby (con fallback automatico a 60fps su Canvas 2D per non dipendere mai da Human-In-The-Loop!).
 4. **Easter Egg Fraterno**: quando il Cavaliere Seby e la Torre Pupurabbu (il suo peluche del cuore) si "catturano", **non si fanno mai male** — parte un **SUPER ABBRACCIO PUFFOSO! 💜🤗** con pioggia di cuoricini 3D!
 
+![Il vero UAT (User Acceptance Testing): Alessandro (🐉) e Sebastian (🏎️) che giocano a CarChess3D sul tablet, con la scacchiera 3D e le ninfee della palude sullo schermo!](./visual-progress/kids_playing_carchess3d.jpg)
+
+> 👨‍👦‍👦 **Il Vero UAT (*User Acceptance Testing*)**: Più dei 576 step agentici e del `9.9/10` del Critic VLM, il vero test di produzione sono gli occhi di **Ale (🐉)** e **Seby (🏎️)** incollati al tablet mentre muovono i pezzi della famiglia e li vedono tuffarsi tra le ninfee della palude!
+
 ![CarChess3D v0.2.0 — Vista della Palude Incantata di Zurigo con i pezzi che sguazzano nella Palude di Shrek](./visual-progress/round4_1_swamp_party.png)
 
 ---
