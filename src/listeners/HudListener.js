@@ -1502,7 +1502,6 @@ export class HudListener {
         width: auto;
         padding: 0 7px;
       }
-      #carchess-hud-root.mobile-simplified #hud-dock-gallery,
       #carchess-hud-root.mobile-simplified #hud-dock-videos,
       #carchess-hud-root.mobile-simplified #hud-console-btn,
       #carchess-hud-root.mobile-simplified #hud-skeletons-btn,
@@ -1596,9 +1595,7 @@ export class HudListener {
 
         <div class="hud-controls-row">
           <button type="button" id="hud-top-reload-btn" class="hud-btn gold" title="Force Reload & Clear Cache (${this.appVersion})">🔄 Reload</button>
-          <button id="hud-mode1-btn" class="hud-btn active">${this.t('mode1Btn')}</button>
-          <button id="hud-mode2-btn" class="hud-btn">${this.t('mode2Btn')}</button>
-          <button id="hud-matrix-btn" class="hud-btn gold" title="6×6 Battle Matrix & Videos">${this.t('matrixBtn')}</button>
+          <a id="hud-top-gallery-link" href="./showcase/?view=pov" class="hud-btn gold-emerald" style="text-decoration:none;font-weight:800;" title="Open Heroes POV Cinema (3D + 6 Attack & 6 Defense Movies)">${this.t('galleryBtn')}</a>
 
           <label style="font-size:11px;color:#b0bac9;margin-left:4px;" id="hud-who-label">${this.t('whoPlays')}</label>
           <select id="hud-profile-select" class="hud-select" aria-label="Who plays">
@@ -1624,8 +1621,6 @@ export class HudListener {
             <option value="swamp">${this.t('setSwamp')}</option>
             <option value="stone">${this.t('setStone')}</option>
           </select>
-
-          <a id="hud-top-gallery-link" href="showcase/" class="hud-btn" style="text-decoration:none;" title="Open 3D Gallery of all 18 Pieces">${this.t('galleryBtn')}</a>
 
           <div id="hud-lang-btn" style="display:inline-flex;gap:4px;align-items:center;" role="group" aria-label="Language / Lingua">
             <button type="button" id="hud-top-flag-en" class="hud-btn ${this.lang === 'en' ? 'active' : ''}" data-set-lang="en" title="English 🇬🇧">🇬🇧 EN</button>
@@ -1770,6 +1765,7 @@ export class HudListener {
 
             <div style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;">
               <span class="hud-version-pill">⚡ ${this.appVersion}</span>
+              <a id="hud-setup-pov-link" href="./showcase/?view=pov" class="hud-btn gold" style="font-size:11px;padding:4px 10px;text-decoration:none;">${this.t('galleryBtn')}</a>
               <button type="button" id="hud-mobile-advanced-toggle" class="hud-btn" style="font-size:11px;padding:4px 10px;opacity:0.88;">
                 ${this.t('mobileAdvOptionsBtn')}
               </button>
@@ -1876,13 +1872,18 @@ export class HudListener {
             <span id="hud-setup-badge-text">${this.t('defaultSetupBadge')}</span>
           </div>
 
-          <div class="hud-desktop-setup-only" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:center;margin-top:4px;">
-            <button id="hud-setup-apply-btn" class="hud-btn" style="padding:10px 18px;font-size:13px;" title="Update factions, players and AI in the current match without resetting board pieces">
-              ${this.t('applyCurrentBtn')}
-            </button>
-            <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 22px;font-size:14px;" title="Apply settings and start a brand new match (resets all 32 pieces)">
-              ${this.t('startMatchBtn')}
-            </button>
+          <div class="hud-desktop-setup-only" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-top:4px;">
+            <a id="hud-setup-desktop-pov-link" href="./showcase/?view=pov" class="hud-btn gold" style="padding:10px 16px;font-size:13px;text-decoration:none;" title="Open Heroes POV Cinema (Seby, Ale, Riccardo, Kate... with 6 Attack + 6 Defense Movies)">
+              ${this.t('galleryBtn')}
+            </a>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+              <button id="hud-setup-apply-btn" class="hud-btn" style="padding:10px 18px;font-size:13px;" title="Update factions, players and AI in the current match without resetting board pieces">
+                ${this.t('applyCurrentBtn')}
+              </button>
+              <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 22px;font-size:14px;" title="Apply settings and start a brand new match (resets all 32 pieces)">
+                ${this.t('startMatchBtn')}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1942,9 +1943,6 @@ export class HudListener {
           <button type="button" id="hud-hint-btn" class="hud-btn hud-icon-btn" title="${this.t('hintBtn')}" aria-label="${this.t('hintBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>
           </button>
-          <button type="button" id="hud-matrix36-btn" class="hud-btn hud-icon-btn" title="${this.t('matrixBtn')}" aria-label="${this.t('matrixBtn')}">
-            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/></svg>
-          </button>
 
           <span class="hud-dock-sep"></span>
 
@@ -1958,9 +1956,10 @@ export class HudListener {
 
           <span class="hud-dock-sep"></span>
 
-          <!-- Desktop Utility Icons: 3D Gallery, FEN/PGN, Quake Console, Topbar Menu -->
-          <a id="hud-dock-gallery" href="./showcase/" class="hud-btn hud-icon-btn" style="text-decoration:none;" title="${this.t('galleryBtn')}" aria-label="${this.t('galleryBtn')}">
-            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11V9L12 2 2 9v2h2v9H2v2h20v-2h-2v-9h2zm-6 9H8v-9h8v9zm-4-7-2 3h4l-2-3z"/></svg>
+          <!-- Unified Heroes POV Cinema Link (1-click to ./showcase/?view=pov) + Utility Icons -->
+          <a id="hud-dock-gallery" href="./showcase/?view=pov" class="hud-btn hud-icon-btn with-badge gold" style="text-decoration:none;" title="${this.t('galleryBtn')}" aria-label="${this.t('galleryBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            <span class="hud-icon-badge">POV</span>
           </a>
           <button type="button" id="hud-fen-btn" class="hud-btn hud-icon-btn" title="${this.t('fenBtn')}" aria-label="${this.t('fenBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.4 16.6 4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0 4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
@@ -1979,7 +1978,7 @@ export class HudListener {
           </div>
 
           <!-- Hidden legacy/debug action hooks (preserved for keyboard/Quake console & URL flags) -->
-          <a id="hud-dock-videos" href="./battles.html" class="hud-btn" style="display:none;" title="${this.t('videosBtn')}"></a>
+          <a id="hud-dock-videos" href="./showcase/?view=pov" class="hud-btn" style="display:none;" title="${this.t('videosBtn')}"></a>
           <button type="button" id="hud-skeletons-btn" class="hud-btn hud-icon-btn" style="display:none;" title="${this.t('skeletonsBtn')}">🦴</button>
           <button type="button" id="hud-swamp-btn" class="hud-btn" style="display:none;" title="${this.t('swampBtn')}"></button>
           <button type="button" id="hud-zoom-in-btn" class="hud-btn" style="display:none;" title="Zoom In (+)"></button>
@@ -2994,16 +2993,12 @@ export class HudListener {
     return colHeaders + rowsHtml;
   }
 
-  openMatrix36Modal(atk = null, def = null) {
-    this.matrixModalOpen = true;
-    if (!this.rootEl) return;
-    const modal = this.rootEl.querySelector('#hud-matrix36-modal');
-    if (modal) {
-      modal.style.display = 'grid';
+  openMatrix36Modal(atk = null, _def = null) {
+    if (typeof window !== 'undefined' && window.location) {
+      const heroParam = atk ? `&hero=${encodeURIComponent(atk)}` : '';
+      window.location.href = `./showcase/?view=pov${heroParam}`;
+      return;
     }
-    const targetAtk = atk || this.matrixSelectedPair.atk || 'b';
-    const targetDef = def || this.matrixSelectedPair.def || 'n';
-    this._updateMatrixPreviewPane(targetAtk, targetDef, true);
   }
 
   closeMatrix36Modal() {
@@ -3574,7 +3569,7 @@ export class HudListener {
         this.logToQuake('INFO', '  pgn              - Show current PGN history');
         this.logToQuake('INFO', '  hint             - Request move hint');
         this.logToQuake('INFO', '  reset / new      - Reset chess board');
-        this.logToQuake('INFO', '  matrix           - Open interactive 6x6 battle matrix');
+        this.logToQuake('INFO', '  pov / cinema     - Open Heroes POV Cinema (./showcase/?view=pov)');
         this.logToQuake('INFO', '  swamp            - Splash pieces in the swamp');
         this.logToQuake('INFO', '  skeletons        - Toggle 3D skeletons');
         this.logToQuake('INFO', '  clear            - Clear console');
@@ -3616,8 +3611,13 @@ export class HudListener {
         this.logToQuake('RESET', 'Board reset to starting position.', 'green');
         break;
 
+      case 'pov':
+      case 'cinema':
+      case 'showcase':
       case 'matrix':
-        this.openMatrix36Modal();
+        if (typeof window !== 'undefined' && window.location) {
+          window.location.href = './showcase/?view=pov';
+        }
         break;
 
       case 'swamp':
@@ -3656,13 +3656,9 @@ export class HudListener {
     this.flowState = e.to;
     if (!this.rootEl) return;
 
-    const isWow = e.to === 'Mode2_WowArena';
-    this.rootEl.querySelector('#hud-mode1-btn')?.classList.toggle('active', !isWow);
-    this.rootEl.querySelector('#hud-mode2-btn')?.classList.toggle('active', isWow);
-
     const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
     if (wowPanel) {
-      wowPanel.style.display = isWow ? 'flex' : 'none';
+      wowPanel.style.display = 'none';
     }
   }
 
@@ -3951,10 +3947,9 @@ export class HudListener {
     if (!this.rootEl) return;
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
     if (bannerEl) bannerEl.style.display = 'none';
-    // Restore WOW drawer if we returned to Mode2_WowArena
     const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
     if (wowPanel) {
-      wowPanel.style.display = this.flowState === 'Mode2_WowArena' ? 'flex' : 'none';
+      wowPanel.style.display = 'none';
     }
     if (!this.ctx?.scene?.userData?.vfxControlsCombatBlend) {
       this.setCombatBlend(0.0);
@@ -4268,6 +4263,8 @@ export class HudListener {
     setTxt('#hud-mode2-btn', 'mode2Btn');
     setTxt('#hud-matrix-btn', 'matrixBtn');
     setTxt('#hud-top-gallery-link', 'galleryBtn');
+    setTxt('#hud-setup-pov-link', 'galleryBtn');
+    setTxt('#hud-setup-desktop-pov-link', 'galleryBtn');
     setTxt('#hud-who-label', 'whoPlays');
     setTxt('#hud-opponent-select option[value="hotseat"]', 'hotseat');
     setTxt('#hud-opponent-select option[value="easy"]', 'cpuEasy');

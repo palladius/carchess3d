@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.52';
+export const APP_VERSION = '0.3.53';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -1090,8 +1090,8 @@ export const I18N = Object.freeze({
     mode2Btn: '🌟 WOW Mode & Cinema',
     matrixBtn: '🎬 Matrice 6×6',
     matrix36Btn: '🎬 Matrice 6×6 (36 Scontri)',
-    galleryBtn: '🎨 Galleria',
-    videosBtn: '🎬 36 Video',
+    galleryBtn: '🎬 Cinema Eroi POV',
+    videosBtn: '🎬 Cinema Eroi POV',
     skeletonsBtn: '🦴 Scheletri',
     swampBtn: '🐸 Palude',
     trackpadRotateBtn: '🖐️ 2-Dita: Ruota',
@@ -1201,8 +1201,8 @@ export const I18N = Object.freeze({
     mode2Btn: '🌟 3D WOW Mode & Cinema',
     matrixBtn: '🎬 6×6 Matrix',
     matrix36Btn: '🎬 6×6 Matrix (36 Clashes)',
-    galleryBtn: '🎨 3D Gallery',
-    videosBtn: '🎬 36 Videos',
+    galleryBtn: '🎬 Heroes POV Cinema',
+    videosBtn: '🎬 Heroes POV Cinema',
     skeletonsBtn: '🦴 Skeletons',
     swampBtn: '🐸 Swamp',
     trackpadRotateBtn: '🖐️ 2-Finger: Rotate',

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.53] - 2026-10-13
+
+- 🎬🐴✨ **Unified Backstage Entry Point: Single "Cinema Eroi POV" (`./showcase/?view=pov`) Link & Removal of Duplicate 6×6 Matrix / WOW Mode Buttons (`src/listeners/HudListener.js`, `src/core/Registry.js`, `showcase/index.html`, `nocache.html`, `sw.js`, `docs/spec/SPEC.md`, `VERSION`)**:
+  - **Unified Backstage Navigation (`./showcase/?view=pov`)**:
+    - Removed the semi-duplicate backstage buttons from the HUD top bar (`#hud-mode1-btn`, `#hud-mode2-btn` "WOW Mode & Cinema", `#hud-matrix-btn` "Matrice 6×6") and bottom dock (`#hud-matrix36-btn`).
+    - Consolidated backstage navigation into the single **`🎬 Cinema Eroi POV` / `🎬 Heroes POV Cinema`** (`./showcase/?view=pov`) view — featuring the 6 Carlesso hero chips at the top (defaulting to Knight Seby `'n'`), the 3D turntable + voice soundboard on the top-left, the main 16:9 video player on the right, and the 6 Attack (Red Risiko) + 6 Defense (Blue Risiko) videos below.
+    - Exposed the unified `./showcase/?view=pov` link prominently in:
+      1. The Top Bar (`#hud-top-gallery-link`, styled as `gold-emerald`),
+      2. The Bottom Action Dock (`#hud-dock-gallery`, movie-clapper icon with `POV` badge, now visible on mobile phones too),
+      3. The Startup / Match Setup Modal (`#hud-setup-pov-link` on mobile Quick Start and `#hud-setup-desktop-pov-link` on desktop), and
+      4. The `nocache.html` top status pill (`🎬 Cinema Eroi POV`).
+    - Removed the `🎬 Scontri 6×6` (`../battles.html`) links from `showcase/index.html` header and footer so users stay inside the unified POV Cinema showcase.
+
 ## [0.3.52] - 2026-10-13
 
 - 📱🔄🧹 **Pixel 10 & Mobile Self-Healing Cache Recovery, Service Worker De-Poisoning, Restored Mobile Top-Bar Toggle (`☰` + `🔄 Reload` + Pull-to-Refresh) & Portrait Board Framing (`index.html`, `nocache.html`, `sw.js`, `src/listeners/HudListener.js`, `src/core/Registry.js`, `docs/spec/SPEC.md`, `VERSION`)**:
