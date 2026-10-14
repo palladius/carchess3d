@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.68] - 2026-10-14
+
+- 🕵️‍♂️📊 **Dossier Forense Completo di Jetski su `derek` (`article/DEREK_JETSKI_FORENSICS.md`, `article/SHOWCASE_BEFORE_AFTER.md`)**:
+  - Analizzati tutti i log `.jsonl` delle sessioni Jetski eseguite sulla workstation `derek` (`~/.gemini/jetski/brain/*/transcript.jsonl`) dal `2026-10-09` al `2026-10-14` per estrarre l'intera telemetria, i `/goal`, gli Swarm multi-agente e i loop avversari VLM/audio/biometrici di CarChess3D:
+    - **41 sessioni totali** (`16` orchestratori/umani + `25` subagent/Swarm worker), **12.868 step**, **232 prompt umani**, **46,77M token di input freschi**, **713,28M token letti da cache (93,8% hit rate)** e **5,34M token di output**.
+    - Ricostruiti in dettaglio gli **8 Loop Complessi** (`/roastme` + `/goal` v1 con 4 subagent 3D + 4 round di Art Critic `6.2 -> 9.9/10`; Native Swarm 5-worker per Issue `#10`–`#16`; Pipeline 36 battaglie Nano Banana + Veo 3.1 con Video Critic `4930d699`; Swarm Multi-Modello `fable-5.1-high` + Mode A/B local SDF & Face-Grafting + `riccardo-likeness-critic`; Standing MAIN Merger & Daily Playwright UAT `83ee7dd5`; Cinema XXL `10s` + Audio `+15%` zero-loop; Simulazione Mobile Pixel 10 / Galaxy Tab S9 Ultra + SW fix; 5-Agent Blind VLM Piece Recognizer Swarm `S1..S5`).
+    - Catalogati i prompt testuali originali più belli ed emblematici di Riccardo come materiale pronto per la stesura dell'articolo.
+
 ## [0.3.67] - 2026-10-14
 
 - 📸👨‍👦‍👦 **Articolo: Foto "Il Vero UAT" con Ale & Seby al Tablet (`docs/ARTICLE.md`, `docs/visual-progress/kids_playing_carchess3d.jpg`, `article/assets/kids_playing_carchess3d.jpg`, `article/SHOWCASE_BEFORE_AFTER.md`)**:

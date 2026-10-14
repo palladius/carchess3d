@@ -21,6 +21,8 @@ Foto ritagliata (`1522×1620`, focalizzata sui bimbi e sul gioco) di Alessandro 
 
 ![Alessandro e Sebastian giocano a CarChess3D sul tablet](assets/kids_playing_carchess3d.jpg)
 
+> 🕵️‍♂️ **Dossier Forensico Completo di `derek`**: Vedi [`article/DEREK_JETSKI_FORENSICS.md`](DEREK_JETSKI_FORENSICS.md) per la telemetria completa delle **41 sessioni Jetski (`12.868 step`, `760M token`)**, gli **8 Loop Complessi / Swarm** e i **`/goal`** eseguiti su `derek`.
+
 ---
 
 ## ⚔️ Confronto d'Insieme: Famiglia Classic
