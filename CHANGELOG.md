@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.59] - 2026-10-14
+
+- 🎨🖌️ **Local GPU 3D Paint/Texture Pipeline Verified on RTX 5080 (Blackwell sm_120) with TurboSebux (Issue #5 Phase 2)**:
+  - Recompiled C++/CUDA `custom_rasterizer_kernel` with PTX forward-compatibility (`TORCH_CUDA_ARCH_LIST="9.0+PTX"` using `g++-12`), enabling native JIT execution on Blackwell `sm_120`.
+  - Added Quadric Edge Collapse decimation (`--max-faces 60000` by default in `hunyuan_shape.py`), reducing face count from 697k to 60k faces (12.5 MB -> 1.1 MB) in 9.9 seconds with zero visual loss.
+  - Implemented `tools/model-pipeline/local/hunyuan_paint.py` and `just local3d-paint` recipe.
+  - Successfully executed end-to-end local texture painting: `ale1_hy2_shape_60k.glb` + `tools/model-pipeline/ale/front.png` -> `ale1_hy2_textured.glb` (60k faces, 3.7 MB with 2048x2048 PBR texture map) in **45 seconds** on RTX 5080 with 9.7 GB peak VRAM.
+
 ## [0.3.58] - 2026-10-14
 
 - 🎙️👦 **Knight Seby Voice Line ("Scrivile Scemo")**:

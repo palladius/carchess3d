@@ -541,3 +541,13 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
   - `pawn-swamp-tappo.glb` (0.95m, 9.9k tris, 1.6MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
 - All 12 models strictly comply with `assets/families/_contract.json` (min.y == 0.0m, canonical heights, footprint in [0.70m, 0.86m], named materials `faction_primary` + `faction_trim`). Provenance checksums added to `docs/models-provenance.yaml` (22 total models verified by `just test`).
 
+### 10.13 Local 3D Paint & Texturing Pipeline on Pupurabbux GPU (RTX 5080 + TurboSebux, Issue #5 Phase 2)
+- **C++/CUDA Kernel JIT on Blackwell**: Recompiled `custom_rasterizer_kernel` with `-gencode=arch=compute_90,code=compute_90` (`TORCH_CUDA_ARCH_LIST="9.0+PTX"` using `g++-12`), resolving `cudaErrorNoKernelImageForDevice` on Blackwell `sm_120` via runtime driver PTX JIT.
+- **Mesh Decimation**: Integrated Quadric Edge Collapse decimation (`--max-faces 60000` default in `hunyuan_shape.py` and `hunyuan_paint.py`), reducing face counts from 697k down to 60k faces (12.5 MB -> 1.1 MB) in 9.9s with zero visual degradation.
+- **Pipeline Implementation**: Created `tools/model-pipeline/local/hunyuan_paint.py` and recipe `just local3d-paint <mesh_glb> <image> <label>`.
+- **First Full Texturing Benchmark**:
+  - Command: `just local3d-paint /media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_shape_60k.glb tools/model-pipeline/ale/front.png ale1_hy2`
+  - Output: `/media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_textured.glb` (60,000 faces, 3.7 MB with 2048x2048 PBR diffuse map).
+  - Multi-view diffusion + UV back-projection time: **45 seconds** (total 76s with model init).
+  - Peak VRAM: **9.7 GB** (fits easily in RTX 5080 16 GB).
+  - Contact sheet preview: `tools/model-pipeline/local/out/ale1_hy2_textured_preview.png`.

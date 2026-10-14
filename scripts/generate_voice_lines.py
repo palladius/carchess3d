@@ -142,6 +142,14 @@ VOICE_CLIPS = [
         "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.4",
     },
     {
+        "filename": "voice-n-uccidimostro.mp3",
+        "piece": "n",
+        "voice_name": "Puck",
+        "transcript": "Hey Google, <short pause> uccidi questo mostro per me!",
+        "style": "A cheerful young Italian boy/lad with natural male adolescent vocal cords. Casual, spontaneous, realistic male voice speaking Italian with cheeky heroic determination. Authentic male child timbre.",
+        "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.4",
+    },
+    {
         "filename": "voice-n-hmm.mp3",
         "piece": "n",
         "voice_name": "Puck",
@@ -168,6 +176,22 @@ VOICE_CLIPS = [
         "transcript": "Agli ordini, Signore!",
         "style": "10-year-old Italian boy speaking native Italian, bright, enthusiastic, heroic young wizard saluting proudly",
         "ffmpeg_filter": "asetrate=24000*1.06,aresample=24000,atempo=0.98,silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.45",
+    },
+    {
+        "filename": "voice-b-stillhungry.mp3",
+        "piece": "b",
+        "voice_name": "Puck",
+        "transcript": "Mummy... <short pause> I'm still hungry!",
+        "style": "A 10-year-old boy speaking English with a slight cute Italian accent, pleading affectionately to his mum with puppy eyes that he is still hungry",
+        "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.4",
+    },
+    {
+        "filename": "voice-b-cucinibene.mp3",
+        "piece": "b",
+        "voice_name": "Puck",
+        "transcript": "Papino, <short pause> tu sì che cucini bene!",
+        "style": "A 10-year-old Italian boy speaking native Italian, sweet, affectionate, genuinely complimenting his dad's cooking with a proud smile",
+        "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.4",
     },
     {
         "filename": "voice-b-timanco.mp3",
