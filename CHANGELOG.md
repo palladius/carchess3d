@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.68] - 2026-10-14
+
+- 🎻🏰😂 **Baroque Staccato Overture as Default Theme, Warm Chamber Strings on Castling & Comic "BUAHAHAHAHAH! / Ooh No!" Checkmate Jingle (`assets/audio/checkmate-jingle.mp3`, `assets/audio/checkmate-jingle.txt`, `src/listeners/AudioListener.js`, `sw.js`, `showcase/audio.html`, `showcase/index.html`, `tests/voices_idle.test.mjs`, `VERSION`)**:
+  - **Ouverture Staccato as Primary Game Theme (`assets/audio/chess-strings-theme.mp3`)**: Restored the urgent, energetic `128 BPM` Baroque String Octet Overture (Staccato strings in E Dorian) as track 0 (`CHESS_STRINGS_TRACKS[0]`) in `AudioListener`, honoring Riccardo's musical preference for the main chessboard soundtrack.
+  - **Warm Chamber Strings Fortress Loop on Castling (`assets/audio/chess-strings-bg.mp3`)**: Seamlessly activates track 1 (`106 BPM` Chamber Strings loop) on `CASTLING_EXECUTED` (`playCastlingTheme()`) so the peaceful fortress track is put to good use when the King and Rook castle into safety ("per non buttarla via").
+  - **Hilarious Comic Checkmate Jingle (`assets/audio/checkmate-jingle.mp3`)**: Generated a 30s comic victory fanfare via Google Lyria 3 (`lyria-3-clip-preview`) featuring a deep baritone villain laughter *"BUAHAHAHAHAHAH!"*, a comically defeated tenor crying *"Ooh no!"*, and a triumphant marching band choir chanting *"SCACCO MATTO, CHECKMATE!"*, working seamlessly in both Italian and English. Wired into `AudioListener` on `CHECKMATE` (`playCheckmateJingle()`).
+  - **Showcase Player & PWA Cache**: Added the new checkmate jingle card and reordered themes in `showcase/audio.html`, linked the audio player from `showcase/index.html`, updated `sw.js` (`v37`), and expanded Node unit tests in `tests/voices_idle.test.mjs`.
+- 🔀 Merged branch `build_carchess3d_v1_worktree` (originally numbered 0.3.45; renumbered above main's 0.3.67).
+
 ## [0.3.67] - 2026-10-14
 
 - 📸👨‍👦‍👦 **Articolo: Foto "Il Vero UAT" con Ale & Seby al Tablet (`docs/ARTICLE.md`, `docs/visual-progress/kids_playing_carchess3d.jpg`, `article/assets/kids_playing_carchess3d.jpg`, `article/SHOWCASE_BEFORE_AFTER.md`)**:

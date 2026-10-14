@@ -39,11 +39,12 @@ const THEME_LYRICS = Object.freeze({
 });
 
 // Baroque & Chamber String Octet Loops in E Dorian / E Minor (100% acoustic strings, zero 80s chiptune)
-export const CHESS_STRINGS_BG_URL = 'assets/audio/chess-strings-bg.mp3';
 export const CHESS_STRINGS_THEME_URL = 'assets/audio/chess-strings-theme.mp3';
+export const CHESS_STRINGS_BG_URL = 'assets/audio/chess-strings-bg.mp3';
+export const CHECKMATE_AUDIO_URL = 'assets/audio/checkmate-jingle.mp3';
 export const CHESS_STRINGS_TRACKS = Object.freeze([
-  CHESS_STRINGS_BG_URL,
   CHESS_STRINGS_THEME_URL,
+  CHESS_STRINGS_BG_URL,
 ]);
 const BAROQUE_VIOLIN_MELODY_HZ = Object.freeze([
   659.25, 739.99, 783.99, 739.99, 659.25, 587.33, 554.37, 523.25,
@@ -86,6 +87,8 @@ export class AudioListener {
     this.audioEl = null;
     this.themeTrackIndex = 0;
     this.themeAudioFailed = false;
+    this.checkmateAudioEl = null;
+    this.castlingAudioEl = null;
     this.combatAudioEl = null;
     this.combatAudioFailed = false;
     this.combatMusicActive = false;
@@ -170,8 +173,9 @@ export class AudioListener {
           this.playSfx('move_hop', () => this.synthStoneHop());
         }
       }),
-      bus.on('CASTLING_EXECUTED', () => {
+      bus.on('CASTLING_EXECUTED', (e) => {
         this.playSfx('castling_boing', () => this.synthCastlingBoing());
+        this.playCastlingTheme();
       }),
       bus.on('PIECE_CAPTURED', (e) => {
         this.playSfx(`capture_${e.attacker}`, () => this.synthCaptureImpact());
@@ -191,12 +195,23 @@ export class AudioListener {
       }),
       bus.on('BOARD_RESET', () => {
         this.stopCombatMusic(true);
+        this.stopCheckmateJingle();
+        if (this.castlingAudioEl) {
+          try {
+            this.castlingAudioEl.pause();
+            this.castlingAudioEl.currentTime = 0;
+          } catch {}
+        }
+        if (this.themeTrackIndex !== 0) {
+          this.switchThemeTrack(0);
+        }
       }),
       bus.on('CHECK_DETECTED', () => {
         this.playSfx('check_alarm', () => this.synthCheckAlarm());
       }),
-      bus.on('CHECKMATE', () => {
+      bus.on('CHECKMATE', (e) => {
         this.playSfx('checkmate_fanfare', () => this.synthCheckmateFanfare());
+        this.playCheckmateJingle(e);
       }),
       bus.on('DROP_SPAWNED', (e) => {
         if (e.tier === 'golden_crit' || e.sticker) {
@@ -697,7 +712,7 @@ export class AudioListener {
       try {
         const trackUrl =
           CHESS_STRINGS_TRACKS[this.themeTrackIndex % CHESS_STRINGS_TRACKS.length] ||
-          CHESS_STRINGS_BG_URL;
+          CHESS_STRINGS_THEME_URL;
         const audio = new Audio(trackUrl);
         audio.preload = 'auto';
         audio.loop = true;
@@ -770,6 +785,120 @@ export class AudioListener {
     }
     this.ctx?.bus?.emit({ type: 'LYRIA_CAPTION', lang: this.lang, text: '' });
     this.ctx?.bus?.flush?.();
+  }
+
+  /**
+   * Switches the active theme music track to another track in `CHESS_STRINGS_TRACKS`.
+   * @param {string|number} trackUrlOrIndex
+   */
+  switchThemeTrack(trackUrlOrIndex) {
+    if (typeof trackUrlOrIndex === 'number') {
+      this.themeTrackIndex = trackUrlOrIndex;
+    } else if (typeof trackUrlOrIndex === 'string') {
+      const idx = CHESS_STRINGS_TRACKS.indexOf(trackUrlOrIndex);
+      this.themeTrackIndex = idx >= 0 ? idx : 0;
+    }
+    const targetUrl =
+      CHESS_STRINGS_TRACKS[this.themeTrackIndex % CHESS_STRINGS_TRACKS.length] ||
+      CHESS_STRINGS_THEME_URL;
+
+    if (this.musicPlaying && typeof Audio !== 'undefined') {
+      try {
+        if (!this.audioEl) {
+          this.audioEl = new Audio(targetUrl);
+          this.audioEl.preload = 'auto';
+          this.audioEl.loop = true;
+        } else if (!this.audioEl.src.includes(targetUrl)) {
+          this.audioEl.src = targetUrl;
+          this.audioEl.currentTime = 0;
+        }
+        this.audioEl.volume = this.combatMusicActive ? 0.06 : NORMAL_MUSIC_VOLUME;
+        this.audioEl.play().catch(() => {});
+      } catch {}
+    }
+  }
+
+  /**
+   * Plays the warm chamber strings fortress loop (`chess-strings-bg.mp3`) when castling (arrocco),
+   * putting track 1 to good use ("per non buttarla via") so the king enjoys royal chamber peace.
+   */
+  playCastlingTheme() {
+    this.playedSfx.push('castling_theme');
+    if (this.playedSfx.length > 100) this.playedSfx.shift();
+
+    if (this.musicPlaying) {
+      this.switchThemeTrack(CHESS_STRINGS_BG_URL);
+    } else if (this.sfxEnabled && typeof Audio !== 'undefined') {
+      try {
+        if (!this.castlingAudioEl) {
+          this.castlingAudioEl = new Audio(CHESS_STRINGS_BG_URL);
+          this.castlingAudioEl.preload = 'auto';
+        }
+        this.castlingAudioEl.currentTime = 0;
+        this.castlingAudioEl.volume = 0.52;
+        this.castlingAudioEl.play().catch(() => {});
+      } catch {}
+    }
+  }
+
+  /**
+   * Plays the hilarious checkmate jingle (`assets/audio/checkmate-jingle.mp3`) with deep baritone
+   * "BUAHAHAHAHAH!" villain laughter, defeated "Ooh no!", and comic "Scacco Matto, Checkmate!" chorus.
+   * @param {object} [e]
+   */
+  playCheckmateJingle(e = null) {
+    this.playedSfx.push('checkmate_jingle');
+    if (this.playedSfx.length > 100) this.playedSfx.shift();
+
+    // Duck background music while comic victory jingle plays
+    if (this.audioEl && this.musicPlaying) {
+      try {
+        this.audioEl.volume = 0.05;
+      } catch {}
+    }
+
+    this.ctx?.bus?.emit?.({
+      type: 'LYRIA_CAPTION',
+      lang: this.lang,
+      text: '😂 BUAHAHAHAHAH! ... "Ooh no!" 🏆 SCACCO MATTO / CHECKMATE!',
+    });
+    this.ctx?.bus?.flush?.();
+
+    if (typeof Audio !== 'undefined') {
+      try {
+        if (!this.checkmateAudioEl) {
+          this.checkmateAudioEl = new Audio(CHECKMATE_AUDIO_URL);
+          this.checkmateAudioEl.preload = 'auto';
+          this.checkmateAudioEl.onended = () => {
+            if (this.audioEl && this.musicPlaying && !this.combatMusicActive) {
+              try {
+                this.audioEl.volume = NORMAL_MUSIC_VOLUME;
+              } catch {}
+            }
+          };
+        }
+        this.checkmateAudioEl.currentTime = 0;
+        this.checkmateAudioEl.volume = 0.88;
+        const p = this.checkmateAudioEl.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {});
+        }
+      } catch {}
+    }
+  }
+
+  stopCheckmateJingle() {
+    if (this.checkmateAudioEl) {
+      try {
+        this.checkmateAudioEl.pause();
+        this.checkmateAudioEl.currentTime = 0;
+      } catch {}
+    }
+    if (this.audioEl && this.musicPlaying && !this.combatMusicActive) {
+      try {
+        this.audioEl.volume = NORMAL_MUSIC_VOLUME;
+      } catch {}
+    }
   }
 
   // ===========================================================================
@@ -1037,6 +1166,13 @@ export class AudioListener {
   dispose() {
     this._haltCombatMusicNow();
     this.stopThemeSong();
+    this.stopCheckmateJingle();
+    if (this.castlingAudioEl) {
+      try {
+        this.castlingAudioEl.pause();
+      } catch {}
+      this.castlingAudioEl = null;
+    }
     for (const off of this.offs) off();
     this.offs = [];
   }
