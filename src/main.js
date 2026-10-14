@@ -412,6 +412,14 @@ function bootstrapCarChess3D() {
   if (blackParam) {
     pieces.setRivalSetMode(blackParam);
   }
+  const bishopParam = urlParams.get('bishop') || urlParams.get('bishopvariant');
+  if (bishopParam) {
+    pieces.setBishopVariant(bishopParam);
+  }
+  const queenParam = urlParams.get('queen') || urlParams.get('queenvariant');
+  if (queenParam) {
+    pieces.setQueenVariant(queenParam);
+  }
 
   // Default setup: Famiglia Carlesso (White, Human) vs Scacchi Classici (Black, AI Easy)
   const cpuParam = urlParams.get('ai') || urlParams.get('cpu') || 'easy';

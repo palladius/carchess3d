@@ -1,0 +1,100 @@
+{
+  "character_id": "queen-kate-wedding2016",
+  "concept": "kate_turnaround_sheet.png",
+  "winner": {
+    "iteration": 2,
+    "seed": 1337,
+    "decimation_target": 150000,
+    "texture_size": 2048,
+    "glb_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_2_seed1337.glb",
+    "sheet_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_2_seed1337_sheet.png",
+    "report_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_2_report.json",
+    "face_score": 6.8,
+    "companion_score": 6.3,
+    "back_score": 6.7,
+    "overall_score": 6.6000000000000005,
+    "passed": true,
+    "tier": "ACCEPTABLE \ud83d\udfe1",
+    "generation_time_s": 0.0,
+    "flaws": [
+      "Unreadable fused text on base plaque",
+      "Slight geometric softening on scepter finial",
+      "Lower resolution on gold dress embroidery",
+      "Texture blurring across delicate jewelry elements"
+    ],
+    "summary": "Good caricature capture of facial proportions, glasses, and expression, though fine skin details are slightly softened."
+  },
+  "all_candidates": [
+    {
+      "iteration": 2,
+      "seed": 1337,
+      "decimation_target": 150000,
+      "texture_size": 2048,
+      "glb_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_2_seed1337.glb",
+      "sheet_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_2_seed1337_sheet.png",
+      "report_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_2_report.json",
+      "face_score": 6.8,
+      "companion_score": 6.3,
+      "back_score": 6.7,
+      "overall_score": 6.6000000000000005,
+      "passed": true,
+      "tier": "ACCEPTABLE \ud83d\udfe1",
+      "generation_time_s": 0.0,
+      "flaws": [
+        "Unreadable fused text on base plaque",
+        "Slight geometric softening on scepter finial",
+        "Lower resolution on gold dress embroidery",
+        "Texture blurring across delicate jewelry elements"
+      ],
+      "summary": "Good caricature capture of facial proportions, glasses, and expression, though fine skin details are slightly softened."
+    },
+    {
+      "iteration": 1,
+      "seed": 42,
+      "decimation_target": 100000,
+      "texture_size": 1024,
+      "glb_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_1_seed42.glb",
+      "sheet_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_1_seed42_sheet.png",
+      "report_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_1_report.json",
+      "face_score": 6.8,
+      "companion_score": 5.9,
+      "back_score": 6.5,
+      "overall_score": 6.3999999999999995,
+      "passed": true,
+      "tier": "ACCEPTABLE \ud83d\udfe1",
+      "generation_time_s": 0.0,
+      "flaws": [
+        "Softened geometric definition on hand grip around scepter",
+        "Compressed nameplate volume on base",
+        "Gold embroidery textures are slightly blurry compared to concept",
+        "Reduced specular contrast on jewelry and crown"
+      ],
+      "summary": "Facial proportions, smile, and glasses translate decently from the concept, though fine edge definition around the eyes and mouth is softened."
+    },
+    {
+      "iteration": 3,
+      "seed": 7,
+      "decimation_target": 200000,
+      "texture_size": 1024,
+      "glb_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_3_seed7.glb",
+      "sheet_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_3_seed7_sheet.png",
+      "report_path": "tools/model-pipeline/critic/out/queen-kate-wedding2016_refine/candidate_3_report.json",
+      "face_score": 4.0,
+      "companion_score": 4.0,
+      "back_score": 5.0,
+      "overall_score": 4.333333333333333,
+      "passed": false,
+      "tier": "FA_CAGARE \ud83d\udca9",
+      "generation_time_s": 0.0,
+      "flaws": [
+        "Hairstyle switched from an updo bun to loose hair",
+        "Crown and scepter geometry lacks proper form definition",
+        "Plaque text is distorted",
+        "Washed out velvet dress texture",
+        "Loss of crisp gold embroidery details",
+        "Muddy material definition on metallic elements"
+      ],
+      "summary": "Basic facial features and glasses are present, but hair style completely deviates from the concept updo to loose wavy hair."
+    }
+  ]
+}

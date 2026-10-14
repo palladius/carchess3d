@@ -54,6 +54,23 @@ models:
         size_bytes: 322341
         md5: "d37e425abd7a98d07c87f39b582a5e72"
 
+  - id: "bishop-ale-2-remastered"
+    name: "Bishop Ale #2 (Remaster Modulare - Ruota Celeste & Draghetto)"
+    piece: "bishop"
+    character: "Alessandro"
+    status: "REMASTERED"
+    target_path: "assets/models/bishop-ale-2-remastered.glb"
+    size_bytes: 5342008
+    md5: "1f0bf80cc0f848c7870690d8cfc2a1ee"
+    pipeline:
+      tool: "Blender Modular Assembly & Geometry Cleanup"
+      script: "tools/model-pipeline/ale2/assemble_modular_ale2.py"
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/bishop-ale-2.jpg"
+        size_bytes: 322341
+        md5: "d37e425abd7a98d07c87f39b582a5e72"
+
   - id: "bishop-ale-rigged"
     name: "Bishop Ale Rigged (with Animated Baby Dragon)"
     piece: "bishop"
@@ -120,12 +137,34 @@ models:
         md5: "2c20d6cc74fb9829efd8b69471b68434"
       - role: "turnaround_side_noglasses"
         path: "tools/model-pipeline/king/side.png"
-        size_bytes: 979294
-        md5: "66b8605efc889e81323b5a762a07f7dc"
+        size_bytes: 1214708
+        md5: "5fdc25180a1bbb3968c080d8719227d3"
       - role: "turnaround_back"
         path: "tools/model-pipeline/king/back.png"
         size_bytes: 955543
         md5: "afb263618bc824edc7169dfffe4aaf70"
+
+  - id: "king-riccardo-remastered"
+    name: "King Riccardo (Royal Robe & Cross Polish / Remastered)"
+    piece: "king"
+    character: "Riccardo"
+    status: "REMASTERED"
+    target_path: "assets/models/king-riccardo-remastered.glb"
+    size_bytes: 4188420
+    md5: "5f468ce3ca80b83fbfc1f086aed4fae9"
+    pipeline:
+      tool: "Blender 4.0 Headless Surface Polish & Cross Sharpening"
+      script: "tools/model-pipeline/king/clean_king_riccardo.py"
+      features:
+        - "Watertight UV seam welding and stray crumb pruning"
+        - "Ermine fur collar undercut with volume shadow crease"
+        - "Selective surface smoothing on cloak/robe preserving hard finials"
+        - "Floor grounded at Z=0.0"
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/king-riccardo-1.jpg"
+        size_bytes: 281037
+        md5: "7fddf31be685fbd654a8bcdb0ef87893"
 
   - id: "queen-kate"
     name: "Queen Kate (Young 4c Stylized / Canonico - Scelta da Kate 🏆)"
@@ -173,6 +212,31 @@ models:
       resolution: 1024
       decimation_target: 100000
       texture_size: 1024
+    concept_sources:
+      - role: "turnaround_front"
+        path: "tools/model-pipeline/kate/front.png"
+        size_bytes: 1236748
+        md5: "b01bab585fedce109ae3558ffb019aa5"
+      - role: "turnaround_threequarter"
+        path: "tools/model-pipeline/kate/threequarter.png"
+        size_bytes: 1280863
+        md5: "5bf7e360a893cdc04a942447b0cd3a4a"
+      - role: "turnaround_back"
+        path: "tools/model-pipeline/kate/back.png"
+        size_bytes: 1265720
+        md5: "8ec1d143a5e8756d7dc036dd7de6a395"
+
+  - id: "queen-kate-wedding2016-remastered"
+    name: "Queen Kate (Wedding 2016 Style / Remaster Modulare)"
+    piece: "queen"
+    character: "Kate"
+    status: "REMASTERED"
+    target_path: "assets/models/queen-kate-wedding2016-remastered.glb"
+    size_bytes: 3909340
+    md5: "8e5dbea27c2205dff68f4d9014f052cb"
+    pipeline:
+      tool: "Blender Geometry Cleanup & Smoothing"
+      script: "tools/model-pipeline/kate/clean_queen_kate.py"
     concept_sources:
       - role: "turnaround_front"
         path: "tools/model-pipeline/kate/front.png"
@@ -247,6 +311,66 @@ models:
         size_bytes: 1001439
         md5: "f2cc72a31d5fdcecc8f0e5916e761a63"
 
+  - id: "knight-seby-halberd"
+    name: "Knight Sebastian (Alabarda Reale / Modular)"
+    piece: "knight"
+    character: "Sebastian"
+    status: "MODULAR_VARIANT"
+    target_path: "assets/models/knight-seby-halberd.glb"
+    size_bytes: 4075148
+    md5: "eb14a3a63a725fae67e5fd658db8dc24"
+    pipeline:
+      tool: "Blender 4.0 Headless Procedural Weapon Assembly"
+      script: "tools/model-pipeline/seby/assemble_modular_seby.py"
+      weapon: "Alabarda Reale (Ceremonial Halberd with sapphire core & pennant)"
+      anchor: "Fist centroid [0.195, -0.025, 0.738]"
+      floor_grounded: true
+    concept_sources:
+      - role: "base_character"
+        path: "assets/models/knight-seby.glb"
+        size_bytes: 3740440
+        md5: "c060099e14059ba7fc8fdb3e4403db94"
+
+  - id: "knight-seby-lightsaber"
+    name: "Knight Sebastian (Spada Laser / Modular)"
+    piece: "knight"
+    character: "Sebastian"
+    status: "MODULAR_VARIANT"
+    target_path: "assets/models/knight-seby-lightsaber.glb"
+    size_bytes: 4110752
+    md5: "ef154f3d16caf20eceb83c69b6b20483"
+    pipeline:
+      tool: "Blender 4.0 Headless Procedural Weapon Assembly"
+      script: "tools/model-pipeline/seby/assemble_modular_seby.py"
+      weapon: "Spada Laser (Dual-layer plasma beam with cyan sheath & hot-white core)"
+      anchor: "Fist centroid [0.195, -0.025, 0.738]"
+      floor_grounded: true
+    concept_sources:
+      - role: "base_character"
+        path: "assets/models/knight-seby.glb"
+        size_bytes: 3740440
+        md5: "c060099e14059ba7fc8fdb3e4403db94"
+
+  - id: "knight-seby-aurora"
+    name: "Knight Sebastian (Sigillo dell'Acquario / Modular)"
+    piece: "knight"
+    character: "Sebastian"
+    status: "MODULAR_VARIANT"
+    target_path: "assets/models/knight-seby-aurora.glb"
+    size_bytes: 4074476
+    md5: "063fc92143ee290dad33f09eca0b354d"
+    pipeline:
+      tool: "Blender 4.0 Headless Procedural Weapon Assembly"
+      script: "tools/model-pipeline/seby/assemble_modular_seby.py"
+      weapon: "Sigillo dell'Acquario (Grecian golden amphora with constellation band & stardust)"
+      anchor: "Fist centroid [0.195, -0.025, 0.738]"
+      floor_grounded: true
+    concept_sources:
+      - role: "base_character"
+        path: "assets/models/knight-seby.glb"
+        size_bytes: 3740440
+        md5: "c060099e14059ba7fc8fdb3e4403db94"
+
   - id: "rook-pupurabbu"
     name: "Rook Pupurabbu (Canonico)"
     piece: "rook"
@@ -284,5 +408,263 @@ models:
         path: "tools/model-pipeline/rook/back.png"
         size_bytes: 930566
         md5: "792d084fd7ea6e9f6cc92b7e8440febb"
+
+  # =========================================================================
+  # Classic Family Models (Issue #20 Reconstructions)
+  # =========================================================================
+
+  - id: "king-classic-re"
+    name: "Classic King (Staunton Re / Canonico)"
+    piece: "king"
+    family: "classic"
+    character: "Re Classico"
+    status: "CANONICAL"
+    target_path: "assets/models/classic/king-classic-re.glb"
+    size_bytes: 4054804
+    md5: "17d736df4ea14bcb41355238f4023a3c"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/classic/gen_trellis2_batch.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/king-classic-re.jpg"
+        size_bytes: 106782
+        md5: "9b7f65ee85b5fce9846ebf133d661948"
+
+  - id: "queen-classic-regina"
+    name: "Classic Queen (Staunton Regina / Canonico)"
+    piece: "queen"
+    family: "classic"
+    character: "Regina Classica"
+    status: "CANONICAL"
+    target_path: "assets/models/classic/queen-classic-regina.glb"
+    size_bytes: 3591984
+    md5: "d6e8f490de3e89a275b226f2413cec2d"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/classic/gen_trellis2_batch.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/queen-classic-regina.jpg"
+        size_bytes: 110879
+        md5: "209af436e7b4d2ea988d91341c6f2b99"
+
+  - id: "bishop-classic-vescovo"
+    name: "Classic Bishop (San Gennaro Alfiere / Canonico)"
+    piece: "bishop"
+    family: "classic"
+    character: "San Gennaro (Alfiere)"
+    status: "CANONICAL"
+    target_path: "assets/models/classic/bishop-classic-vescovo.glb"
+    size_bytes: 4494576
+    md5: "eabb893d41ab58c37416b8cc244d306a"
+    pipeline:
+      tool: "TRELLIS.2"
+      space: "microsoft/TRELLIS.2"
+      script: "tools/model-pipeline/classic/gen_trellis2_batch.py"
+      seed: 42
+      resolution: 1024
+      decimation_target: 100000
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/bishop-classic-vescovo.jpg"
+        size_bytes: 189456
+        md5: "6c347bfc6897c62ed9f1edce688c8152"
+
+  - id: "knight-classic-cavallo"
+    name: "Classic Knight (Destriero Staunton / Canonico)"
+    piece: "knight"
+    family: "classic"
+    character: "Destriero Classico"
+    status: "CANONICAL"
+    target_path: "assets/models/classic/knight-classic-cavallo.glb"
+    size_bytes: 2895536
+    md5: "fd4f4d9f74fa297c6e3ddf5af944c71d"
+    pipeline:
+      tool: "Mode A Dual-Orthographic 3D SDF + Seamless UV Baking"
+      script: "tools/model-pipeline/classic/reconstruct_knight_3d.py"
+      resolution: 1024
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/knight-classic-cavallo.jpg"
+        size_bytes: 132490
+        md5: "3efa8979c48cecbd2e1967c88af93e02"
+
+  - id: "rook-classic-torre"
+    name: "Classic Rook (Torre Matildea / Canonico)"
+    piece: "rook"
+    family: "classic"
+    character: "Torre Matildea"
+    status: "CANONICAL"
+    target_path: "assets/models/classic/rook-classic-torre.glb"
+    size_bytes: 2803352
+    md5: "83a31436e17c44ce9ae642297d116b61"
+    pipeline:
+      tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
+      script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
+      resolution: 1024
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/rook-classic-torre.jpg"
+        size_bytes: 130644
+        md5: "838ee42a4da0172896e72b6aa9615f9a"
+
+  - id: "pawn-classic-pedone"
+    name: "Classic Pawn (Pedone Staunton / Canonico)"
+    piece: "pawn"
+    family: "classic"
+    character: "Pedone Classico"
+    status: "CANONICAL"
+    target_path: "assets/models/classic/pawn-classic-pedone.glb"
+    size_bytes: 1871776
+    md5: "80b7d8bd248caedab76411bdeb7bcd94"
+    pipeline:
+      tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
+      script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
+      resolution: 1024
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/pawn-classic-pedone.jpg"
+        size_bytes: 88466
+        md5: "ffe70ca31faca985e613ae966be90744"
+
+  # =========================================================================
+  # Swamp Family Models (Issue #20 Reconstructions)
+  # =========================================================================
+
+  - id: "king-swamp-orco"
+    name: "Swamp King (Orco Brontolo / Canonico)"
+    piece: "king"
+    family: "swamp"
+    character: "Orco Brontolo"
+    status: "CANONICAL"
+    target_path: "assets/models/swamp/king-swamp-orco.glb"
+    size_bytes: 644180
+    md5: "fd50f43eb1f6ec738440465047100cf1"
+    pipeline:
+      tool: "Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting"
+      script: "tools/model-pipeline/swamp/build_swamp_models.py"
+      resolution: 1024
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/king-swamp-orco.jpg"
+        size_bytes: 191642
+        md5: "1a035c31c7855c1d2b871a3eb3c6ec5f"
+
+  - id: "queen-swamp-orchessa"
+    name: "Swamp Queen (Principessa Orchessa / Canonico)"
+    piece: "queen"
+    family: "swamp"
+    character: "Principessa Orchessa"
+    status: "CANONICAL"
+    target_path: "assets/models/swamp/queen-swamp-orchessa.glb"
+    size_bytes: 3332776
+    md5: "d67560340c92d2b51cd3904eebb32f59"
+    pipeline:
+      tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
+      script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
+      resolution: 1024
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/queen-swamp-orchessa.jpg"
+        size_bytes: 159381
+        md5: "fc8d9ae7f0536f8dbceedde400021867"
+
+  - id: "bishop-swamp-focaccina"
+    name: "Swamp Bishop (Don Gatto Spadaccino-Vescovo / Canonico)"
+    piece: "bishop"
+    family: "swamp"
+    character: "Don Gatto Spadaccino-Vescovo"
+    status: "CANONICAL"
+    target_path: "assets/models/swamp/bishop-swamp-focaccina.glb"
+    size_bytes: 578704
+    md5: "dbfeaa805fce703980bfbdf2e72674d4"
+    pipeline:
+      tool: "Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting"
+      script: "tools/model-pipeline/swamp/build_swamp_models.py"
+      resolution: 1024
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/bishop-swamp-focaccina.jpg"
+        size_bytes: 159470
+        md5: "b553abcab3a2c3d80d83fbf22d4acdc0"
+
+  - id: "knight-swamp-asinello"
+    name: "Swamp Knight (Asinello Chiacchierone / Canonico)"
+    piece: "knight"
+    family: "swamp"
+    character: "Asinello Chiacchierone"
+    status: "CANONICAL"
+    target_path: "assets/models/swamp/knight-swamp-asinello.glb"
+    size_bytes: 489140
+    md5: "194cefa23096e5dc8082f58e69211daa"
+    pipeline:
+      tool: "Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting"
+      script: "tools/model-pipeline/swamp/build_swamp_models.py"
+      resolution: 1024
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/knight-swamp-asinello.jpg"
+        size_bytes: 164450
+        md5: "d390da09db343b4ebb540e97ca73c963"
+
+  - id: "rook-swamp-draghessa"
+    name: "Swamp Rook (Draghessa della Palude / Canonico)"
+    piece: "rook"
+    family: "swamp"
+    character: "Draghessa della Palude"
+    status: "CANONICAL"
+    target_path: "assets/models/swamp/rook-swamp-draghessa.glb"
+    size_bytes: 554652
+    md5: "a9f61943495a61a957c218418cf470bf"
+    pipeline:
+      tool: "Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting"
+      script: "tools/model-pipeline/swamp/build_swamp_models.py"
+      resolution: 1024
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/rook-swamp-draghessa.jpg"
+        size_bytes: 221744
+        md5: "6a872a97519f0ec0fce6a2f568053160"
+
+  - id: "pawn-swamp-tappo"
+    name: "Swamp Pawn (Zenzy Pan di Zenzero & Focaccina / Canonico)"
+    piece: "pawn"
+    family: "swamp"
+    character: "Zenzy Pan di Zenzero & Focaccina"
+    status: "CANONICAL"
+    target_path: "assets/models/swamp/pawn-swamp-tappo.glb"
+    size_bytes: 455804
+    md5: "40082af98ebb85e04f301754c210598e"
+    pipeline:
+      tool: "Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting"
+      script: "tools/model-pipeline/swamp/build_swamp_models.py"
+      resolution: 1024
+      texture_size: 1024
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/pawn-swamp-tappo.jpg"
+        size_bytes: 254241
+        md5: "cbb00673b4266b190f5ec8df8bfe502c"
+
 
 

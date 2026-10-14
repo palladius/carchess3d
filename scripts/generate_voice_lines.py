@@ -21,7 +21,10 @@ import urllib.request
 import wave
 from pathlib import Path
 
-from dotenv import dotenv_values
+try:
+    from dotenv import dotenv_values
+except ImportError:
+    dotenv_values = None
 
 ROOT = Path(__file__).resolve().parent.parent
 VOICES_DIR = ROOT / "assets/audio/voices"
@@ -134,6 +137,22 @@ VOICE_CLIPS = [
         "ffmpeg_filter": "asetrate=24000*1.14,aresample=24000,atempo=0.94,silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.45",
     },
     {
+        "filename": "voice-n-scrivilescemo.mp3",
+        "piece": "n",
+        "voice_name": "Puck",
+        "transcript": "Hey Google, <short pause> metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!",
+        "style": "A cheerful young Italian boy/lad with natural male adolescent vocal cords. Casual, spontaneous, realistic male voice speaking Italian. Absolutely NOT an adult woman doing a cartoon voice. Authentic male child timbre.",
+        "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.4",
+    },
+    {
+        "filename": "voice-n-uccidimostro.mp3",
+        "piece": "n",
+        "voice_name": "Puck",
+        "transcript": "Hey Google, <short pause> uccidi questo mostro per me!",
+        "style": "A cheerful young Italian boy/lad with natural male adolescent vocal cords. Casual, spontaneous, realistic male voice speaking Italian with cheeky heroic determination. Authentic male child timbre.",
+        "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.4",
+    },
+    {
         "filename": "voice-n-hmm.mp3",
         "piece": "n",
         "voice_name": "Puck",
@@ -160,6 +179,22 @@ VOICE_CLIPS = [
         "transcript": "Agli ordini, Signore!",
         "style": "10-year-old Italian boy speaking native Italian, bright, enthusiastic, heroic young wizard saluting proudly",
         "ffmpeg_filter": "asetrate=24000*1.06,aresample=24000,atempo=0.98,silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.45",
+    },
+    {
+        "filename": "voice-b-stillhungry.mp3",
+        "piece": "b",
+        "voice_name": "Puck",
+        "transcript": "Mummy... <short pause> I'm still hungry!",
+        "style": "A 10-year-old boy speaking English with a slight cute Italian accent, pleading affectionately to his mum with puppy eyes that he is still hungry",
+        "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.4",
+    },
+    {
+        "filename": "voice-b-cucinibene.mp3",
+        "piece": "b",
+        "voice_name": "Puck",
+        "transcript": "Papino, <short pause> tu sì che cucini bene!",
+        "style": "A 10-year-old Italian boy speaking native Italian, sweet, affectionate, genuinely complimenting his dad's cooking with a proud smile",
+        "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.4",
     },
     {
         "filename": "voice-b-timanco.mp3",
@@ -250,9 +285,10 @@ def load_api_key() -> str:
             m = re.search(r'GEMINI_API_KEY=["\']?(AIza[0-9A-Za-z_-]+)["\']?', txt)
             if m:
                 return m.group(1)
-            vals = dotenv_values(candidate)
-            if key := vals.get("GEMINI_API_KEY"):
-                return key
+            if dotenv_values is not None:
+                vals = dotenv_values(candidate)
+                if key := vals.get("GEMINI_API_KEY"):
+                    return key
     raise RuntimeError("GEMINI_API_KEY not found")
 
 

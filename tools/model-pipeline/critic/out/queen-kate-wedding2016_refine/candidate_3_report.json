@@ -1,0 +1,40 @@
+{
+  "iteration": 3,
+  "seed": 7,
+  "decimation_target": 200000,
+  "texture_size": 1024,
+  "model": "candidate_3_seed7.glb",
+  "concept": "kate_turnaround_sheet.png",
+  "generation_time_s": 0.0,
+  "geometry": {
+    "faces": 99504,
+    "vertices": 67448,
+    "is_watertight": false,
+    "tallest_axis": "Y",
+    "height": 1.002,
+    "min_ground_coord": -0.501,
+    "is_grounded_near_zero": false,
+    "stray_island_count": 7
+  },
+  "vlm": {
+    "face_likeness_score": 4.0,
+    "face_critique": "Basic facial features and glasses are present, but hair style completely deviates from the concept updo to loose wavy hair.",
+    "secondary_fidelity_score": 4.0,
+    "secondary_critique": "Scepter and crown are overly simplified, and base nameplate text is illegible.",
+    "back_view_score": 5.0,
+    "back_critique": "Volume is structurally coherent, but hair silhouette contradicts the 2D concept's braided bun.",
+    "structural_flaws": [
+      "Hairstyle switched from an updo bun to loose hair",
+      "Crown and scepter geometry lacks proper form definition",
+      "Plaque text is distorted"
+    ],
+    "aesthetic_flaws": [
+      "Washed out velvet dress texture",
+      "Loss of crisp gold embroidery details",
+      "Muddy material definition on metallic elements"
+    ],
+    "passed": false
+  },
+  "overall_score": 4.3,
+  "tier": "FA_CAGARE \ud83d\udca9"
+}

@@ -56,15 +56,27 @@ All 6 `.glb` models strictly satisfy `assets/families/_contract.json`:
 UV_INDEX_URL=https://pypi.org/simple UV_CACHE_DIR=/tmp/uv-cache UV_LINK_MODE=copy \
   uv run tools/model-pipeline/classic/gen_classic_portraits.py
 
-# 2. Build 6 watertight 3D .glb models
+# 2. Reconstruct High-Res UV-textured 3D .glb models (Issue #20)
 UV_INDEX_URL=https://pypi.org/simple UV_CACHE_DIR=/tmp/uv-cache UV_LINK_MODE=copy \
-  uv run tools/model-pipeline/classic/build_classic_pieces.py
-
-# 3. Run geometry QA & render 6x4 turntable contact sheet
+  uv run tools/model-pipeline/classic/gen_trellis2_batch.py --family classic --skip-existing
 UV_INDEX_URL=https://pypi.org/simple UV_CACHE_DIR=/tmp/uv-cache UV_LINK_MODE=copy \
-  uv run tools/model-pipeline/classic/critic_classic.py
+  uv run tools/model-pipeline/reconstruct_mode_a_batch.py --family classic
 
-# 4. Run repository sanity checks & unit tests
+# 3. Run repository sanity checks & unit tests
 python3 scripts/check.py
 python3 -m unittest tests/test_classic_family.py -v
 ```
+
+---
+
+## 5. 2026-10-13 — High-Res UV-Textured Model Reconstruction (Issue #20)
+
+- Reconstructed high-resolution 3D `.glb` models for the Classic family replacing procedural placeholders:
+  - **King (`king-classic-re.glb`)**: `1.80m`, `99,267` tris, `4,055 KB` via `microsoft/TRELLIS.2`.
+  - **Queen (`queen-classic-regina.glb`)**: `1.65m`, `99,541` tris, `3,592 KB` via `microsoft/TRELLIS.2`.
+  - **Bishop (`bishop-classic-vescovo.glb`)**: `1.45m`, `97,089` tris, `4,495 KB` via `microsoft/TRELLIS.2`.
+  - **Knight (`knight-classic-cavallo.glb`)**: `1.35m`, `22,080` tris, `2,896 KB` via Mode A Dual-Orthographic SDF + 1024x1024 UV baking (`reconstruct_knight_3d.py`).
+  - **Rook (`rook-classic-torre.glb`)**: `1.30m`, `20,180` tris, `2,803 KB` via Mode A 2D-to-3D SDF + 1024x1024 UV baking (`reconstruct_mode_a_batch.py`).
+  - **Pawn (`pawn-classic-pedone.glb`)**: `0.95m`, `13,296` tris, `1,872 KB` via Mode A 2D-to-3D SDF + 1024x1024 UV baking (`reconstruct_mode_a_batch.py`).
+- All models strictly satisfy `min.y == 0.0`, canonical height hierarchy (`pawn < rook < knight < bishop < queen < king`), base footprint within `[0.70m, 0.86m]`, and include named material slots `faction_primary` (with diffuse texture) and `faction_trim`. Checksums registered in `docs/models-provenance.yaml`.
+

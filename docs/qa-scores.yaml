@@ -1,70 +1,132 @@
-# QA Scoreboard for CarChess3D models and images
-# Generated and audited by VLM Critic (Gemini Flash + Geometry QA)
-# Tiers:
-#   🟢 [8.0 - 10.0] : TOP_QUALITY (Game ready)
-#   🟡 [6.0 - 7.9]  : ACCEPTABLE (Needs polish or refinement)
-#   💩 [< 6.0]      : FA_CAGARE (Severe drift, deformed anatomy, or hallucination)
-
 models:
-  - piece: "bishop"
-    character: "ale"
-    model_name: "bishop-ale-2.glb"
-    concept_file: "assets/characters/bishop-ale-2.jpg"
-    model_file: "assets/models/bishop-ale-2.glb"
-    evaluated_at: "2026-10-10"
-    scores:
-      face_likeness: 4.0
-      companion_fidelity: 4.0
-      back_view: 3.0
-      overall: 3.7
-    tier: "FA_CAGARE 💩"
-    passed: false
-    summary: "Il draghetto non c'azzecca (grumo fuso) e la faccia è molto diversa (appiattita, espressione persa)."
-    structural_flaws:
-      - "Shoulder dragon mesh fused into torso/collar"
-      - "Pinched facial mesh and flattened profile projection"
-      - "Non-watertight geometry with floating orphan face at pedestal base"
-      - "Model not grounded at Y=0 (sinks halfway below chessboard)"
-    aesthetic_flaws:
-      - "Severe underexposure and muddied textures on robes"
-      - "Loss of anime/chibi charm on the face"
-
-  - piece: "bishop"
-    character: "ale"
-    model_name: "bishop-ale-rigged.glb"
-    concept_file: "assets/characters/bishop-ale-1.jpg"
-    model_file: "assets/models/bishop-ale-rigged.glb"
-    evaluated_at: "2026-10-10"
-    scores:
-      face_likeness: 6.8
-      companion_fidelity: 6.2
-      back_view: 6.7
-      overall: 6.6
-    tier: "ACCEPTABLE 🟡"
-    passed: false  # strict threshold is 7.0 for game ready
-    summary: "Salto di qualità enorme con l'approccio modulare: viso riconoscibile e proporzioni buone, ma serve rifinire la saturazione del drago e il clipping con il mantello."
-    structural_flaws:
-      - "Minor geometry clipping between dragon belly and shoulder cloak"
-      - "Model origin needs grounding translation to Y=0"
-    aesthetic_flaws:
-      - "Slight saturation loss on dragon red scales"
-      - "Lighting contrast in renders needs extra fill light"
-
-  - piece: "pawn"
-    character: "puffin"
-    model_name: "pawn-puffin.glb"
-    concept_file: "assets/characters/pawn-puffin.jpg"
-    model_file: "assets/models/pawn-puffin.glb"
-    evaluated_at: "2026-10-09"
-    scores:
-      face_likeness: 7.5
-      companion_fidelity: 7.0
-      back_view: 4.5
-      overall: 6.3
-    tier: "ACCEPTABLE 🟡"
-    passed: false
-    summary: "Fronte molto bello e fedele; il retro è stato inventato da TRELLIS single-view (schiena bianca liscia invece del piumaggio nero)."
-    structural_flaws:
-      - "Halberd slightly fused to puffin right wing"
-    aesthetic_flaws:
-      - "Back side texture completely white/hallucinated (needs multi-view run)"
+- piece: bishop
+  character: ale
+  model_name: bishop-ale-2.glb
+  concept_file: assets/characters/bishop-ale-2.jpg
+  model_file: assets/models/bishop-ale-2.glb
+  evaluated_at: '2026-10-10'
+  scores:
+    face_likeness: 4.0
+    companion_fidelity: 4.0
+    back_view: 3.0
+    overall: 3.7
+  tier: FA_CAGARE 💩
+  passed: false
+  summary: Il draghetto non c'azzecca (grumo fuso) e la faccia è molto diversa (appiattita,
+    espressione persa).
+  structural_flaws:
+  - Shoulder dragon mesh fused into torso/collar
+  - Pinched facial mesh and flattened profile projection
+  - Non-watertight geometry with floating orphan face at pedestal base
+  - Model not grounded at Y=0 (sinks halfway below chessboard)
+  aesthetic_flaws:
+  - Severe underexposure and muddied textures on robes
+  - Loss of anime/chibi charm on the face
+- piece: bishop
+  character: ale
+  model_name: bishop-ale-rigged.glb
+  concept_file: assets/characters/bishop-ale-1.jpg
+  model_file: assets/models/bishop-ale-rigged.glb
+  evaluated_at: '2026-10-10'
+  scores:
+    face_likeness: 6.8
+    companion_fidelity: 6.2
+    back_view: 6.7
+    overall: 6.6
+  tier: ACCEPTABLE 🟡
+  passed: false
+  summary: 'Salto di qualità enorme con l''approccio modulare: viso riconoscibile
+    e proporzioni buone, ma serve rifinire la saturazione del drago e il clipping
+    con il mantello.'
+  structural_flaws:
+  - Minor geometry clipping between dragon belly and shoulder cloak
+  - Model origin needs grounding translation to Y=0
+  aesthetic_flaws:
+  - Slight saturation loss on dragon red scales
+  - Lighting contrast in renders needs extra fill light
+- piece: pawn
+  character: puffin
+  model_name: pawn-puffin.glb
+  concept_file: assets/characters/pawn-puffin.jpg
+  model_file: assets/models/pawn-puffin.glb
+  evaluated_at: '2026-10-09'
+  scores:
+    face_likeness: 7.5
+    companion_fidelity: 7.0
+    back_view: 4.5
+    overall: 6.3
+  tier: ACCEPTABLE 🟡
+  passed: false
+  summary: Fronte molto bello e fedele; il retro è stato inventato da TRELLIS single-view
+    (schiena bianca liscia invece del piumaggio nero).
+  structural_flaws:
+  - Halberd slightly fused to puffin right wing
+  aesthetic_flaws:
+  - Back side texture completely white/hallucinated (needs multi-view run)
+- piece: bishop
+  character: ale
+  model_name: bishop-ale-2-remastered.glb
+  concept_file: bishop-ale-2.jpg
+  model_file: assets/models/bishop-ale-2-remastered.glb
+  evaluated_at: '2026-10-10'
+  scores:
+    face_likeness: 4.5
+    companion_fidelity: 4.0
+    back_view: 3.8
+    overall: 4.1
+  tier: FA_CAGARE 💩
+  passed: false
+  summary: Facial proportions are vertically compressed and cheek fullness is distorted
+    relative to the 2D concept, diminishing the original stylized charm.
+  structural_flaws:
+  - Warped staff geometry and weak hand connection
+  - Distorted dragon companion anatomy
+  - Compressed facial volume
+  aesthetic_flaws:
+  - Excessively dark lighting and texture loss on the back view
+  - Muddy embroidery patterns on the robe
+  - Loss of clean material separation
+- piece: queen
+  character: kate
+  model_name: queen-kate-wedding2016-remastered.glb
+  concept_file: front.png
+  model_file: assets/models/queen-kate-wedding2016-remastered.glb
+  evaluated_at: '2026-10-10'
+  scores:
+    face_likeness: 6.5
+    companion_fidelity: 5.8
+    back_view: 6.7
+    overall: 6.3
+  tier: ACCEPTABLE 🟡
+  passed: true
+  summary: Face structure and glasses closely resemble the concept, though facial
+    expression and tooth definition appear slightly stiffened.
+  structural_flaws:
+  - Loss of fine geometric detailing on scepter finial
+  - Flattened unreadable text geometry on base plaque
+  aesthetic_flaws:
+  - Gold trim shader lacks metallic sharpness
+  - Slightly muted fabric vibrancy compared to 2D reference
+- piece: king
+  character: riccardo
+  model_name: king-riccardo-remastered.glb
+  concept_file: king-riccardo-1.jpg
+  model_file: assets/models/king-riccardo-remastered.glb
+  evaluated_at: '2026-10-10'
+  scores:
+    face_likeness: 4.2
+    companion_fidelity: 4.0
+    back_view: 5.2
+    overall: 4.5
+  tier: FA_CAGARE 💩
+  passed: false
+  summary: Face loses photographic definition; features and beard appear flattened
+    and blurry compared to concept.
+  structural_flaws:
+  - Warped crown struts
+  - Flimsy, slightly distorted scepter
+  - Missing engraved base text
+  aesthetic_flaws:
+  - Dull, non-metallic gold shader
+  - Low-resolution facial projection
+  - Muddy texture seams on cape and plinth

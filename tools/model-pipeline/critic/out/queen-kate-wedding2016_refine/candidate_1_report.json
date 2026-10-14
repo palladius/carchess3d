@@ -1,0 +1,38 @@
+{
+  "iteration": 1,
+  "seed": 42,
+  "decimation_target": 100000,
+  "texture_size": 1024,
+  "model": "candidate_1_seed42.glb",
+  "concept": "kate_turnaround_sheet.png",
+  "generation_time_s": 0.0,
+  "geometry": {
+    "faces": 97215,
+    "vertices": 71652,
+    "is_watertight": false,
+    "tallest_axis": "Y",
+    "height": 1.002,
+    "min_ground_coord": -0.501,
+    "is_grounded_near_zero": false,
+    "stray_island_count": 58
+  },
+  "vlm": {
+    "face_likeness_score": 6.8,
+    "face_critique": "Facial proportions, smile, and glasses translate decently from the concept, though fine edge definition around the eyes and mouth is softened.",
+    "secondary_fidelity_score": 5.9,
+    "secondary_critique": "The scepter and crown match the general silhouette, but small filigree details and the base nameplate text lack sharpness.",
+    "back_view_score": 6.5,
+    "back_critique": "Hair volume and braided updo remain structurally sound from the rear, with dress patterning reasonably aligned.",
+    "structural_flaws": [
+      "Softened geometric definition on hand grip around scepter",
+      "Compressed nameplate volume on base"
+    ],
+    "aesthetic_flaws": [
+      "Gold embroidery textures are slightly blurry compared to concept",
+      "Reduced specular contrast on jewelry and crown"
+    ],
+    "passed": true
+  },
+  "overall_score": 6.4,
+  "tier": "ACCEPTABLE \ud83d\udfe1"
+}

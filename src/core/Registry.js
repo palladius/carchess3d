@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.53';
+export const APP_VERSION = '0.3.64';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -201,6 +201,27 @@ export const VOICE_LINES = Object.freeze({
         },
       },
       {
+        id: 'b_stillhungry',
+        kind: 'signature',
+        weight: 1.6,
+        audioUrl: 'assets/audio/voices/voice-b-stillhungry.mp3',
+        speechLang: 'en-GB',
+        quote: {
+          it: "Mummy... I'm still hungry!",
+          en: "Mummy... I'm still hungry!",
+        },
+      },
+      {
+        id: 'b_cucinibene',
+        kind: 'signature',
+        weight: 1.6,
+        audioUrl: 'assets/audio/voices/voice-b-cucinibene.mp3',
+        quote: {
+          it: 'Papino, tu sì che cucini bene!',
+          en: 'Papino, tu sì che cucini bene!',
+        },
+      },
+      {
         id: 'b_timanco',
         kind: 'signature',
         weight: 1.5,
@@ -286,6 +307,26 @@ export const VOICE_LINES = Object.freeze({
         quote: {
           it: 'Dimmi papino!',
           en: 'Dimmi papino!',
+        },
+      },
+      {
+        id: 'n_scrivilescemo',
+        kind: 'signature',
+        weight: 1.8,
+        audioUrl: 'assets/audio/voices/voice-n-scrivilescemo.mp3',
+        quote: {
+          it: 'Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!',
+          en: 'Hey Google, play Scrivile Scemo by Pinguini Tattici Nucleari on YouTube Music!',
+        },
+      },
+      {
+        id: 'n_uccidimostro',
+        kind: 'signature',
+        weight: 1.8,
+        audioUrl: 'assets/audio/voices/voice-n-uccidimostro.mp3',
+        quote: {
+          it: 'Hey Google, uccidi questo mostro per me!',
+          en: 'Hey Google, kill this monster for me!',
         },
       },
       {
@@ -440,6 +481,17 @@ export const VOICE_LINES = Object.freeze({
   },
 });
 
+export const QUEEN_GLB_VARIANTS = Object.freeze({
+  young: 'assets/models/queen-kate.glb',
+  wedding: 'assets/models/queen-kate-wedding2016-remastered.glb',
+});
+
+export const BISHOP_GLB_VARIANTS = Object.freeze({
+  hat: 'assets/models/bishop-ale-1.glb',
+  astrolabe: 'assets/models/bishop-ale-2-remastered.glb',
+  rigged: 'assets/models/bishop-ale-rigged.glb',
+});
+
 export const CHARACTER_REGISTRY = Object.freeze({
   k: {
     type: 'k',
@@ -453,7 +505,11 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/king-riccardo-2.jpg',
     backPortrait: 'tools/model-pipeline/king/back.png',
     glbUrl: 'assets/models/king-riccardo.glb',
-    optionalGlbCandidates: ['assets/models/king-riccardo.glb'],
+    altGlbUrl: 'assets/models/king-riccardo-remastered.glb',
+    optionalGlbCandidates: [
+      'assets/models/king-riccardo.glb',
+      'assets/models/king-riccardo-remastered.glb',
+    ],
     accentColor: 0xffca28,
     signatureId: 'sceptre_lightning',
     voiceLine: VOICE_LINES.k,
@@ -471,12 +527,14 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/queen-kate-1.jpg',
     backPortrait: 'assets/characters/queen-kate-2.jpg',
     glbUrl: 'assets/models/queen-kate.glb',
-    altGlbUrl: 'assets/models/queen-kate-wedding2016.glb',
+    altGlbUrl: 'assets/models/queen-kate-wedding2016-remastered.glb',
     optionalGlbCandidates: [
       'assets/models/queen-kate.glb',
+      'assets/models/queen-kate-wedding2016-remastered.glb',
       'assets/models/queen-kate-young.glb',
       'assets/models/queen-kate-wedding2016.glb',
     ],
+    variants: QUEEN_GLB_VARIANTS,
     accentColor: 0xab47bc,
     signatureId: 'chocolate_wave',
     voiceLine: VOICE_LINES.q,
@@ -497,9 +555,11 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altGlbUrl: 'assets/models/bishop-ale-rigged.glb',
     optionalGlbCandidates: [
       'assets/models/bishop-ale-1.glb',
+      'assets/models/bishop-ale-2-remastered.glb',
       'assets/models/bishop-ale-rigged.glb',
       'assets/models/bishop-ale-2.glb',
     ],
+    variants: BISHOP_GLB_VARIANTS,
     accentColor: 0x2d6cdf,
     signatureId: 'crystal_shatter',
     voiceLine: VOICE_LINES.b,
@@ -522,7 +582,12 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/knight-seby-1.jpg',
     backPortrait: 'tools/model-pipeline/seby/back_nb_2.1.png',
     glbUrl: 'assets/models/knight-seby.glb',
-    optionalGlbCandidates: ['assets/models/knight-seby.glb'],
+    optionalGlbCandidates: [
+      'assets/models/knight-seby.glb',
+      'assets/models/knight-seby-halberd.glb',
+      'assets/models/knight-seby-lightsaber.glb',
+      'assets/models/knight-seby-aurora.glb',
+    ],
     accentColor: 0xff7043,
     signatureId: 'loop_track_cars',
     voiceLine: VOICE_LINES.n,
@@ -1118,6 +1183,7 @@ export const I18N = Object.freeze({
     hintBtn: '💡 Suggerimento',
     flipCamBtn: '🔄 Gira Scacchiera',
     topCamBtn: '📐 Vista dall’Alto',
+    resetCamBtn: '🎥 Ripristina Telecamera (R)',
     newGameBtn: '🔄 Nuova Partita',
     fenBtn: '📋 FEN / PGN',
     musicBtn: '🎵 Inno Ale & Seby',
@@ -1193,6 +1259,13 @@ export const I18N = Object.freeze({
     mobileCam3dBtn: '🎬 Vista: 3D',
     mobile3dUnlockedToast: '🎬 1° Attacco! Modalità 3D Attivata! (Tocca 📐 Alto / 🎬 3D per cambiare vista)',
     mobileStartToast: '📐 Vista Alto-Basso attiva! Fai la prima mossa: al 1° attacco entri nel 3D! ✨',
+    queenVariantLabel: 'Variante Regina:',
+    bishopVariantLabel: 'Variante Alfiere:',
+    queenVariantYoung: '👑 Kate Young (Canonico)',
+    queenVariantWedding: '👰 Kate Nozze 2016 (Remaster)',
+    bishopVariantHat: '🎩 Ale Mitria (Canonico)',
+    bishopVariantAstrolabe: '🟢 Ale Astrolabio (Remaster)',
+    bishopVariantRigged: '🐉 Ale Rigged (Drago)',
   },
   en: {
     title: 'CarChess3D · Family Wizard Chess',
@@ -1229,6 +1302,7 @@ export const I18N = Object.freeze({
     hintBtn: '💡 Magic Hint',
     flipCamBtn: '🔄 Flip Board',
     topCamBtn: '📐 Top-Down View',
+    resetCamBtn: '🎥 Reset Camera View (R)',
     newGameBtn: '🔄 New Match',
     fenBtn: '📋 FEN / PGN',
     musicBtn: '🎵 Ale & Seby Anthem',
@@ -1304,6 +1378,13 @@ export const I18N = Object.freeze({
     mobileCam3dBtn: '🎬 View: 3D',
     mobile3dUnlockedToast: '🎬 1st Attack! 3D Mode Unlocked! (Tap 📐 Top / 🎬 3D anytime to switch)',
     mobileStartToast: '📐 Easy Top-Down View active! Make a move: 1st attack unlocks 3D Mode! ✨',
+    queenVariantLabel: 'Queen Variant:',
+    bishopVariantLabel: 'Bishop Variant:',
+    queenVariantYoung: '👑 Kate Young (Canonical)',
+    queenVariantWedding: '👰 Kate Wedding 2016 (Remaster)',
+    bishopVariantHat: '🎩 Ale Mitre (Canonical)',
+    bishopVariantAstrolabe: '🟢 Ale Astrolabe (Remaster)',
+    bishopVariantRigged: '🐉 Ale Rigged (Dragon)',
   },
 });
 

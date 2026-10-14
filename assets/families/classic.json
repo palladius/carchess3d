@@ -13,7 +13,7 @@
   "board_square_size_m": 1.0,
   "pedestal_diameter_m": 0.75,
   "grounding_y_m": 0.0,
-  "max_triangles_per_piece": 25000,
+  "max_triangles_per_piece": 120000,
   "required_material_slots": [
     "faction_primary",
     "faction_trim"

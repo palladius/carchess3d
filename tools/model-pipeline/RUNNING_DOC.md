@@ -405,13 +405,35 @@ endpoint **`/lambda_1`**. Without calling it, `generate_and_extract_glb` runs
 - **Bishop Ale Decision**: Ale v1 with mitre hat (`assets/models/bishop-ale-1.glb`, MD5 `6b423e6daf1ed71f001c8912cc9035f7`) confirmed as the canonical piece; modular rigged version available in `bishop-ale-rigged.glb`.
 - **Registry Update**: `docs/models-provenance.yaml` updated with 10 total models and 27 source views, validated by `just test` and `scripts/test_provenance.py`.
 
-## 27. 2026-10-10 — Parallel Side Tracks: `classic` & `swamp` Families (Nano Banana 2.1 + Adversarial `fable-5.1-high` Art Critic)
+## 27. 2026-10-10 — Option C Modular Deep Dive (Bishop Ale #2 & Queen Kate Remaster)
+
+- **Option C Mandate**: Executed Option C deep-dive remaster on Bishop Ale #2 (`tools/model-pipeline/ale2/`) and Queen Kate Nozze 2016 (`assets/models/queen-kate-wedding2016.glb`) to address fused props, non-watertight geometry, and harsh surface noise.
+- **Queen Kate Nozze 2016 Remaster**:
+  - Script created: `tools/model-pipeline/kate/clean_queen_kate.py`.
+  - Chignon neck contour undercut defined at $Z \in [0.18, 0.24], Y > 0.04$ with neck crease inset by $-0.024$m.
+  - Scepter/hands forward offset by $-0.016$m in $Y$, creating clear depth separation from velvet gown.
+  - Selective surface smoothing applied via vertex group `Smooth_Gown_Skin` ($w=0$ on lathe pedestal and scepter rod to maintain sharp mechanical edges; $w=1$ on fabric and skin).
+  - Grounding translation applied so minimum $Z$ is exactly 0.0.
+  - Exported to canonical `assets/models/queen-kate-wedding2016-remastered.glb` (97.2k faces, 3.8 MB).
+  - VLM QA Critic audited against `tools/model-pipeline/kate/front.png`: Likeness $6.5/10$, Back $6.7/10$, Overall $6.3/10$, **passed: true (ACCEPTABLE 🟡)**.
+- **Bishop Ale #2 Modular Remaster**:
+  - Script created: `tools/model-pipeline/ale2/assemble_modular_ale2.py`.
+  - Body mesh clean-up: deleted floating orphan face at base ($Z < -0.485$), retracted staff protrusion into sleeve cuff, and retracted full-height dragon/smoke/wing lump across $Z \in [-0.12, 0.45]$. Standalone clean body exported to `tools/model-pipeline/ale2/out/ale_body_clean.glb`.
+  - Clean prop generated: `tools/model-pipeline/ale2/out/astrolabe_clean.glb`, featuring an authentic 8-spoked celestial navigation wheel astrolabe with raised central hub, sapphire core jewel, 8 radial spokes at 45°, top suspension loop, and full-length cylindrical staff shaft running straight through the left palm to rest securely on the wooden plinth base.
+  - Dragon companion clean-up: updated `tools/model-pipeline/dragon/texture_dragon.py` to assign concept-accurate ruby-red scales, pale lime-green underbelly/wing lining, dark burgundy horn tips, and emerald eyes (`dragon_clean.glb`). Mounted on right shoulder pad at $X = -0.20$ with clear negative space separation.
+  - Exported integrated model: `assets/models/bishop-ale-2-remastered.glb` (44.9k faces, 5.4 MB, zero stray islands, grounded at $Z=0$).
+- **Critic & Renderer Upgrades**:
+  - Enhanced `tools/model-pipeline/critic/render_contact_sheet.py` with camera-tracking rotating key/fill lights and studio ambient fill, eliminating dark angle dropoff.
+  - Added automatic detection of empty `VERTEX_COLOR` layer names for glTF imports in Cycles (`layer_name = 'Col'`).
+  - Audited both models and recorded in `docs/qa-scores.yaml`.
+
+## 28. 2026-10-10 — Parallel Side Tracks: `classic` & `swamp` Families (Nano Banana 2.1 + Adversarial `fable-5.1-high` Art Critic)
 
 - Executed in parallel via isolated per-track lab notebooks:
   - **🗿🚽 Carlessian Classic Family (`classic_default_pieces_20261010`)**: see [`tools/model-pipeline/classic/RUNNING_DOC.md`](classic/RUNNING_DOC.md) and `docs/qa-scores.classic.yaml` (2D NB 2.1 avg **8.6/10 🟢**, 3D avg **7.67/10 🟡**, 0 `💩`).
   - **🐸🧅 Swamp Parody Family (`swamp_family_pieces_20261010`)**: see [`tools/model-pipeline/swamp/RUNNING_DOC.md`](swamp/RUNNING_DOC.md) and `docs/qa-scores.swamp.yaml` (2D NB 2.1 avg **8.7/10 🟢**, 3D avg **7.45/10 🟡**, 0 `💩`).
 
-## 28. 2026-10-11 — Swamp Bishop & Pawn Upgrade (Don Gatto Zorro-Vescovo + Uomo Focaccina) & Classic TRELLIS.2
+## 29. 2026-10-11 — Swamp Bishop & Pawn Upgrade (Don Gatto Zorro-Vescovo + Uomo Focaccina) & Classic TRELLIS.2
 
 - **2D Nano Banana 2.1 (`gemini-nano-banana-2.1`)**:
   - `assets/characters/bishop-swamp-gatto.jpg` (Variant 1 approved by Riccardo; Variant 2 deleted): Ginger tabby cat with black Zorro domino mask, tall black-and-gold Papal Bishop Mitre with ruby cross & yellow ostrich plume, black-and-gold Zorro cape with `"Z"` clasp, leather boots, golden rapier, and blessing paw.
@@ -489,4 +511,87 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
   2. **Piecewise-Linear 3D Facial Landmark Calibration (`graft_papino_face_3d.py`)**: Calibrated `row_2d(y)` around `y_eye_3d = +0.1928m <-> row = 320.0` with `scale_y_upper = 1240.0 px/m` (so crown rim `y = +0.2750m` maps to `row = 218`) and `scale_y_lower = 892.0 px/m` (so nose tip `y = +0.1350m <-> row = 371.6`, mouth `y = +0.0750m <-> row = 425`, and chin tip `y = +0.0050m <-> row = 487.5`).
   3. **3D Vertex Sculpting + Zero-Bleed Silver Hair (`recolor_strict_hair_texels_zero_bleed`) + Mirrored Temple Skin (`prepare_clean_front_face`)**: Sculpted jaw/chin/forehead/nose (`jaw_slim=0.045, chin_taper=0.025, nose_shorten=0.14, nose_widen=0.12`), mirrored clean warm cheek skin beyond `col >= 593` to prevent right-eye corner smudging, and recolored non-shell hair texels inside exact barycentric triangles (`lum < 0.50, r - b < 0.105`) with zero UV island bleed.
   4. **Multimodal Adversarial Critic (`gemini-3.1-pro-preview` + `riccardo-likeness-critic`)**: Evaluated 6-panel biometric sheets across iterations (`adversarial_iter_1.png`, `adversarial_iter_2.png`, `adversarial_iter_3.png`) and logged full structured JSON critiques to `tools/model-pipeline/king/out/adversarial_likeness/adversarial_history.json`.
+### 10.11 Local 3D Shape Pipeline on Pupurabbux GPU (RTX 5080 + TurboSebux, Hunyuan3D-2)
+- **Host**: pupurabbux (NVIDIA GeForce RTX 5080, 16 GB VRAM, Blackwell `sm_120`, Ubuntu Linux).
+- **Storage**: `/media/riccardo/TurboSebux` (600 GB ext4 loop image at `/media/riccardo/TurboSeby/tmp/data/TurboSebux.ext4` on Samsung T7, mounted with `loop,noatime,nofail` in `/etc/fstab` and symlinked at `~/TurboSebux`). Zero storage footprint on system root `/`.
+- **Environment**: `/media/riccardo/TurboSebux/carchess3d/venv-hunyuan` with PyTorch 2.11.0+cu128 (native `sm_120`), `transformers==4.48.3` and `diffusers==0.31.0` (pinned to match Hunyuan3D-2 DiT checkpoint weights schema), `hy3dgen` editable install.
+- **First Benchmark Run**:
+  - Command: `just local3d-shape tools/model-pipeline/ale/front.png ale1_hy2_shape --octree 384 --steps 30`
+  - Output: `/media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_shape.glb` (12.5 MB, 697,264 faces).
+  - Generation time: **32 seconds** (total 74s including initial model load).
+  - Peak VRAM: **5.6 GB** (well within the 16 GB VRAM limit, drawing 311W at 99% GPU compute).
+- **Resumption / Persistence**:
+  - Status/mount check recipe: `just turbosebux` (or `bash tools/model-pipeline/local/ensure_turbosebux.sh`).
+  - Generate 3D shape recipe: `just local3d-shape <image> <label> [*args]`.
+
+### 10.12 Classic & Swamp High-Res UV-Textured Model Reconstructions (Issue #20)
+- **Classic Family Reconstructions**:
+  - `king-classic-re.glb` (1.80m, 99.2k tris, 4.0MB): `microsoft/TRELLIS.2`
+  - `queen-classic-regina.glb` (1.65m, 99.5k tris, 3.5MB): `microsoft/TRELLIS.2`
+  - `bishop-classic-vescovo.glb` (1.45m, 97.1k tris, 4.4MB): `microsoft/TRELLIS.2`
+  - `knight-classic-cavallo.glb` (1.35m, 22.1k tris, 2.8MB): Mode A Dual-Orthographic SDF (`reconstruct_knight_3d.py`)
+  - `rook-classic-torre.glb` (1.30m, 20.2k tris, 2.7MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `pawn-classic-pedone.glb` (0.95m, 13.3k tris, 1.8MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+- **Swamp Family Reconstructions**:
+  - `king-swamp-orco.glb` (1.80m, 21.6k tris, 3.0MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `queen-swamp-orchessa.glb` (1.65m, 15.8k tris, 2.2MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `bishop-swamp-focaccina.glb` (1.45m, 12.4k tris, 1.8MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `knight-swamp-asinello.glb` (1.35m, 16.5k tris, 2.2MB): Mode A 2D-to-3D SDF + 40-Tooth Relief (`reconstruct_asinello_3d.py`)
+  - `rook-swamp-draghessa.glb` (1.30m, 16.7k tris, 2.4MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `pawn-swamp-tappo.glb` (0.95m, 9.9k tris, 1.6MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+- All 12 models strictly comply with `assets/families/_contract.json` (min.y == 0.0m, canonical heights, footprint in [0.70m, 0.86m], named materials `faction_primary` + `faction_trim`). Provenance checksums added to `docs/models-provenance.yaml` (22 total models verified by `just test`).
+
+### 10.13 Local 3D Paint & Texturing Pipeline on Pupurabbux GPU (RTX 5080 + TurboSebux, Issue #5 Phase 2)
+- **C++/CUDA Kernel JIT on Blackwell**: Recompiled `custom_rasterizer_kernel` with `-gencode=arch=compute_90,code=compute_90` (`TORCH_CUDA_ARCH_LIST="9.0+PTX"` using `g++-12`), resolving `cudaErrorNoKernelImageForDevice` on Blackwell `sm_120` via runtime driver PTX JIT.
+- **Mesh Decimation**: Integrated Quadric Edge Collapse decimation (`--max-faces 60000` default in `hunyuan_shape.py` and `hunyuan_paint.py`), reducing face counts from 697k down to 60k faces (12.5 MB -> 1.1 MB) in 9.9s with zero visual degradation.
+- **Pipeline Implementation**: Created `tools/model-pipeline/local/hunyuan_paint.py` and recipe `just local3d-paint <mesh_glb> <image> <label>`.
+- **First Full Texturing Benchmark**:
+  - Command: `just local3d-paint /media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_shape_60k.glb tools/model-pipeline/ale/front.png ale1_hy2`
+  - Output: `/media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_textured.glb` (60,000 faces, 3.7 MB with 2048x2048 PBR diffuse map).
+  - Multi-view diffusion + UV back-projection time: **45 seconds** (total 76s with model init).
+  - Peak VRAM: **9.7 GB** (fits easily in RTX 5080 16 GB).
+  - Contact sheet preview: `tools/model-pipeline/local/out/ale1_hy2_textured_preview.png`.
+
+### 10.14 Knight Sebastian Modular Armaments & Headless Assembly Pipeline (`tools/model-pipeline/seby/assemble_modular_seby.py`)
+- **Base Model**: `assets/models/knight-seby.glb` (grounded strictly at Z=0.0m, height 1.001m).
+- **Fist Anchor Calibration**: Calibrated raised left clenched gauntlet centroid from grounded base mesh vertices at `(X=0.195, Y=-0.025, Z=0.738)`.
+- **Modular Weapon Variants Built**:
+  1. **Alabarda Reale (`assets/models/knight-seby-halberd.glb`)**:
+     - Polished dark mahogany shaft (`radius=0.009m`) extending from pedestal ferrule (`Z=0.140m`), through clenched left fist (`Z=0.738m`), to socket (`Z=1.050m`).
+     - Grounded brass/gold pedestal ferrule resting adjacent to horse hoof.
+     - 4-faceted diamond lance spearhead (`Z=1.070..1.340m`).
+     - Ornate crescent axe blade (`X=0.295m`) and reverse armor-piercing war hook (`X=0.155m`, safe clearance from head).
+     - Sapphire core medallion and flowing royal blue silk pennant ribbon.
+  2. **Spada Laser / Beam Saber (`assets/models/knight-seby-lightsaber.glb`)**:
+     - Ergonomic ribbed chrome/black hilt through fist (`Z=0.675..0.825m`).
+     - Heroic outward tilt: `rot_y = +12°`, `rot_x = -6°` to project beam diagonally upward away from hair and helmet.
+     - Radiant cyan plasma outer beam (`Z=0.825..1.285m`, emission strength 6.0) with intense white-hot inner core (emission strength 12.0).
+  3. **Sigillo dell'Acquario (`assets/models/knight-seby-aurora.glb`)**:
+     - Grecian celestial golden amphora held firmly by foot at `Z=0.725..0.770m`.
+     - Spheroid urn belly with central Sapphire Enamel constellation band and 6 gold star medallions (`Z=0.770..0.910m`).
+     - Scalloped pouring lip (`Z=0.970..1.010m`) and twin curved winged handles.
+     - Swirling Diamond Ice Aurora stardust cascade with 6 faceted star crystals (`Z=1.010..1.210m`).
+- **Watertightness & Floor Grounding**:
+  - Standalone weapons exported to `tools/model-pipeline/seby/out/weapon_{halberd,lightsaber,aurora}.glb` (zero non-manifold/boundary edges).
+  - All assembled variants grounded at Z=0.0m with valid glTF VEC3 bounds.
+- **Visual Verification**:
+  - 4-view contact sheets rendered via Cycles: `tools/model-pipeline/critic/out/knight-seby-{halberd,lightsaber,aurora}_critic_sheet.png`.
+
+### 10.15 Re Riccardo Polish & Royal Crown Jewel Remaster (`tools/model-pipeline/king/clean_king_riccardo.py`)
+- **Pillar**: Pillar 3 from `etc/prompts/GOAL_AUTONOMOUS_DAY_OF_CODE.md`.
+- **Pipeline & Tooling**:
+  - Headless Blender automation script: `tools/model-pipeline/king/clean_king_riccardo.py` (`blender -b -P tools/model-pipeline/king/clean_king_riccardo.py`).
+  - Welded coincident UV-split vertices (`dist=0.0012`) and eliminated 855 floating faces across 42 tiny disconnected crumbs (`< 50` faces).
+- **Geometric Sculpting & Polish**:
+  - **Ermine Collar Undercut**: Inset crease under white ermine fur collar (`0.14 <= z <= 0.18, y > 0.04`) providing volume separation and natural shadow against the royal blue velvet cape.
+  - **Cascading Cape Drape Folds**: Harmonic vertical drape modulation (`drape_fold = math.cos(x * 40.0) * 0.005`) sculpted along the rear mantle.
+  - **Sharpened Royal Orb Maltese Cross**: Straightened horizontal crossbar planar faces and sharpened the vertical crest to a defined peak (`x ~ 0.091, y ~ -0.094`).
+  - **Sharpened Scepter Finial**: Refined the ceremonial scepter bulb and tapered the spearhead cross point to a sharp tip (`x ~ -0.105, y ~ -0.104`).
+  - **Selective Surface Smoothing**: Created vertex group `Smooth_Cloak_Robe` (smoothing factor 0.45, 4 iterations on cloak, collar, and robe while strictly preserving 0-weight hard mechanical edges on scepter shaft, orb cross, crown filigree, biometric face graft, and turned pedestal).
+  - **Floor Grounding**: Translated all vertices along Z so minimum Z is exactly 0.000000m (Y=0.0 in glTF 2.0).
+- **Outputs & Verification**:
+  - `assets/models/king-riccardo-remastered.glb` (4,188,420 bytes, MD5 `5f468ce3ca80b83fbfc1f086aed4fae9`).
+  - 4-view contact sheet at 512px resolution: `tools/model-pipeline/critic/out/king-riccardo-remastered_critic_sheet.png` and `tools/model-pipeline/king/out/king_riccardo_remastered_contact_sheet.png`.
+  - VLM and geometric critic report logged: `tools/model-pipeline/critic/out/king-riccardo-remastered_report.json` and scoreboard updated in `docs/qa-scores.yaml`.
+  - Checksum and provenance registered in `docs/models-provenance.yaml`.
 

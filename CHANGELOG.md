@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.3.53] - 2026-10-13
+## [0.3.64] - 2026-10-14
 
-- 🎬🐴✨ **Unified Backstage Entry Point: Single "Cinema Eroi POV" (`./showcase/?view=pov`) Link & Removal of Duplicate 6×6 Matrix / WOW Mode Buttons (`src/listeners/HudListener.js`, `src/core/Registry.js`, `showcase/index.html`, `nocache.html`, `sw.js`, `docs/spec/SPEC.md`, `VERSION`)**:
+- 🎬🐴✨ **Unified Backstage Entry Point: Single "Cinema Eroi POV" (`./showcase/?view=pov`) Link & Removal of Duplicate 6×6 Matrix / WOW Mode Buttons (`src/listeners/HudListener.js`, `src/core/Registry.js`, `showcase/index.html`, `nocache.html`, `sw.js`, `tools/model-pipeline/critic/critic_audio.py`, `docs/spec/SPEC.md`, `VERSION`)**:
   - **Unified Backstage Navigation (`./showcase/?view=pov`)**:
     - Removed the semi-duplicate backstage buttons from the HUD top bar (`#hud-mode1-btn`, `#hud-mode2-btn` "WOW Mode & Cinema", `#hud-matrix-btn` "Matrice 6×6") and bottom dock (`#hud-matrix36-btn`).
     - Consolidated backstage navigation into the single **`🎬 Cinema Eroi POV` / `🎬 Heroes POV Cinema`** (`./showcase/?view=pov`) view — featuring the 6 Carlesso hero chips at the top (defaulting to Knight Seby `'n'`), the 3D turntable + voice soundboard on the top-left, the main 16:9 video player on the right, and the 6 Attack (Red Risiko) + 6 Defense (Blue Risiko) videos below.
@@ -12,6 +12,141 @@
       3. The Startup / Match Setup Modal (`#hud-setup-pov-link` on mobile Quick Start and `#hud-setup-desktop-pov-link` on desktop), and
       4. The `nocache.html` top status pill (`🎬 Cinema Eroi POV`).
     - Removed the `🎬 Scontri 6×6` (`../battles.html`) links from `showcase/index.html` header and footer so users stay inside the unified POV Cinema showcase.
+  - **Stdlib Fallback for `critic_audio.py` (`just test` Portability)**:
+    - Added Python stdlib fallbacks (`array`, `math`, `dataclasses`) in `tools/model-pipeline/critic/critic_audio.py` when `numpy` or `pydantic` are not installed in the system Python environment so `python3 -m unittest` passes cleanly everywhere.
+
+## [0.3.63] - 2026-10-14
+
+- 🐸🎭 **Human-In-The-Loop Aesthetic Critique & Swamp Restoration**:
+  - Based on user visual inspection of the Before/After showcase, reverted bulky extruded Mode A models for King (Orco), Bishop (Don Gatto), Knight (Asinello), Rook (Draghessa), and Pawn (Tappo) back to procedural watertight chibi 3D sculptures (`tools/model-pipeline/swamp/build_swamp_models.py`), restoring their true 3D proportions, chess lathe bases, and beloved details (cat rapier, 3D dragon coiled around stone tower, 40-tooth grin).
+  - Preserved Mode A UV-textured mesh for Queen Orchessa (Fiona) which achieved high aesthetic fidelity.
+  - Parked all Before/After comparisons, lineup cards, and 16:9 article hero banner under `article/assets/before_after/` and `article/SHOWCASE_BEFORE_AFTER.md`.
+  - Added AGENTS.md / GEMINI.md mandate to automatically save notable visual showcases under `article/` for future technical articles.
+- 🔀 Merged branch `generate_swamp_classic_models` (it was numbered 0.3.59; renumbered above main's 0.3.62).
+
+## [0.3.62] - 2026-10-14
+
+- 🎙️👦 **Authentic Male Boy Voice Synthesis & Soundboard Integration**:
+  - Eliminated the adult female "anime dubbing actress" trope for young boys by benchmarking Gemini TTS (`Fenrir`, `Puck`) and dedicated neural models.
+  - Mastered authentic young male child voices for:
+    - **Seby (Knight `n`)**:
+      - *"Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!"* (`voice-n-scrivilescemo.mp3`).
+      - *"Hey Google, uccidi questo mostro per me!"* (`voice-n-uccidimostro.mp3`).
+    - **Ale (Bishop `b`)**:
+      - *"Mummy... I'm still hungry!"* (`voice-b-stillhungry.mp3`, English with sweet boy pleading tone).
+      - *"Papino, tu sì che cucini bene!"* (`voice-b-cucinibene.mp3`, Italian affectionate dad cooking compliment).
+  - Wired all lines into `src/core/CharacterPovData.js` soundboards, `src/core/Registry.js` voice line variants, and the Character POV showcase.
+- 🧪🎧 **Automated Audio QA Critic Tool & Regression Test Suite**:
+  - Built `tools/model-pipeline/critic/critic_audio.py` featuring:
+    - Deterministic PCM acoustic envelope analysis (24kHz mono): peak level detection, digital clipping check (`peak >= -0.05 dBFS`), and trailing glitch/burst detector (detects anomalous energy rebounds after post-speech silence).
+    - Multimodal LLM QA critic using `gemini-3.8-flash` with structured Pydantic schema (`LlmAudioCritique`) auditing word-for-word transcript, speaker persona (boy vs female anime dubber), naturalness score (1-10), and release cleanliness.
+  - Added CLI command in `justfile`: `just audio-critic <file> [--llm] [--all]`.
+  - Added automated test suite `tests/test_audio_quality.py` (integrated into `just test`):
+    - Tests duration, volume headroom, clipping, and glitch-free envelopes for all target voice lines.
+    - Added regression fixture `tests/fixtures/buggy_pinguini_defect.mp3` asserting that the detector specifically isolates the un-mastered trailing +62.6 dB pop/spike after silence in the Pinguini clip.
+- 🎛️ **Audio Mastering & Glitch Removal**:
+  - Fixed the trailing digital burst / inhale pop in the Pinguini Tattici Nucleari clip by applying precise speech endpoint truncation, smooth 140ms cosine fade-out, and broadcast-grade peak limiting (`alimiter=limit=-1.0dB`), achieving -1.36dB peak with 0.0 clipping and zero end defects.
+
+## [0.3.61] - 2026-10-14
+
+- 🐸✨ **Swamp 3D Mesh Solid Hull Refinement & Before/After Showcase**:
+  - Refined Mode A reconstruction pipeline (`tools/model-pipeline/reconstruct_mode_a_batch.py`) with automatic aspect ratio detection (`aspect > 1.35` for 16:9 turnaround sheets vs 1:1 single portraits) and convex elliptical depth envelopes (`depth = 0.54 * width`), ensuring full solid watertight geometry without phantom gaps for all Swamp models.
+  - Re-sculpted and updated 5 Swamp GLBs (`king-swamp-orco`, `queen-swamp-orchessa`, `bishop-swamp-focaccina`, `rook-swamp-draghessa`, `pawn-swamp-tappo`) with updated MD5 checksums in `docs/models-provenance.yaml`.
+  - Generated Before/After visual comparison cards (2D concept vs procedural vs reconstructed 3D) and a 16:9 cinematic article hero banner.
+- 🔀 Merged branch `generate_swamp_classic_models` (originally numbered 0.3.58, renumbered above main's 0.3.60). Also re-synced the `nocache.html` title, which was stuck at v0.3.57.
+
+## [0.3.60] - 2026-10-14
+
+- 👑♗ **Pillar 1: In-Game 3D Piece Variant Integration & Live HUD Switching**:
+  - Registered declarative variant registries `QUEEN_GLB_VARIANTS` (`young` vs `wedding`) and `BISHOP_GLB_VARIANTS` (`hat` vs `astrolabe` vs `rigged`) in `src/core/Registry.js`.
+  - Updated `PieceManager.js` with headless `setQueenVariant` and `setBishopVariant`, event bus reactions (`PIECE_VARIANT_REQUESTED`), and synchronized emission on `PIECE_SET_CHANGED` and `PIECES_SYNCED` (strictly <= 300 LOC Niccolò contract).
+  - Wired live variant select dropdowns into the Setup Modal (`#hud-setup-queen-variant`, `#hud-setup-bishop-variant`), 360° WOW Inspector, and URL params (`?queen=` / `?bishop=`).
+  - Updated `PieceView.js` and `WowModeView.js` to render selected 3D GLB variants seamlessly onto the board altar.
+- ⚔️🛡️ **Pillar 2: Knight Sebastian Modular Weapon Armaments & Headless Assembly**:
+  - Built headless Blender pipeline `tools/model-pipeline/seby/assemble_modular_seby.py` with computer-vision calibrated fist anchor at `(X=0.195, Y=-0.025, Z=0.738)`.
+  - Assembled and floor-grounded 3 modular weapon variants with zero boundary edges and valid glTF VEC3 bounds:
+    - **Alabarda Reale** (`assets/models/knight-seby-halberd.glb`, 4.08 MB): Ceremonial dark mahogany halberd with sapphire core and royal blue pennant.
+    - **Spada Laser** (`assets/models/knight-seby-lightsaber.glb`, 4.11 MB): Dual-layer glowing plasma beam saber tilted +12° heroically away from helmet.
+    - **Sigillo dell'Acquario** (`assets/models/knight-seby-aurora.glb`, 4.07 MB): Golden amphora with Sapphire Enamel constellation band and swirling stardust cascade.
+  - Generated 4-view contact sheets (`tools/model-pipeline/critic/out/knight-seby-*_critic_sheet.png`).
+- 👑💎 **Pillar 3: King Riccardo Surface Polish & Royal Crown Jewel Remaster**:
+  - Built headless Blender polish tool `tools/model-pipeline/king/clean_king_riccardo.py`.
+  - Inset white ermine fur collar undercut (`0.14 <= z <= 0.18, y > 0.04`) for crisp shadow separation against blue velvet cape; sculpted harmonic drape folds.
+  - Sharpened Maltese cross finials on golden imperial orb and ceremonial scepter spearhead to razor-sharp points.
+  - Welded coincident UV seams, pruned 855 floating face crumbs, and grounded strictly at Z=0.0m (`assets/models/king-riccardo-remastered.glb`, 4.19 MB).
+  - Audited with Gemini VLM critic and logged contact sheet and report to `tools/model-pipeline/critic/out/king-riccardo-remastered_*`.
+- 📋🔐 **Pillar 4: Model Provenance Registry & Checksum Verification**:
+  - Updated `docs/models-provenance.yaml` with all newly added 3D models and their exact MD5 checksums.
+  - Automated verification via `python3 scripts/test_provenance.py` validating 28 models and 47 concept sources with 100% green integrity.
+- 🎙️👦 **Pillar 5: Voice Lines & Continuous Verification**:
+  - Added *"Hey Google, uccidi questo mostro per me!"* for Seby (`voice-n-uccidimostro.mp3`).
+  - Added *"Mummy... I'm still hungry!"* (`voice-b-stillhungry.mp3`) [EN] and *"Papino, tu sì che cucini bene!"* (`voice-b-cucinibene.mp3`) [IT] for Ale.
+  - Zero IP denylist infractions across all files; `just test` passes 100%.
+
+## [0.3.59] - 2026-10-14
+
+- 🎨🖌️ **Local GPU 3D Paint/Texture Pipeline Verified on RTX 5080 (Blackwell sm_120) with TurboSebux (Issue #5 Phase 2)**:
+  - Recompiled C++/CUDA `custom_rasterizer_kernel` with PTX forward-compatibility (`TORCH_CUDA_ARCH_LIST="9.0+PTX"` using `g++-12`), enabling native JIT execution on Blackwell `sm_120`.
+  - Added Quadric Edge Collapse decimation (`--max-faces 60000` by default in `hunyuan_shape.py`), reducing face count from 697k to 60k faces (12.5 MB -> 1.1 MB) in 9.9 seconds with zero visual loss.
+  - Implemented `tools/model-pipeline/local/hunyuan_paint.py` and `just local3d-paint` recipe.
+  - Successfully executed end-to-end local texture painting: `ale1_hy2_shape_60k.glb` + `tools/model-pipeline/ale/front.png` -> `ale1_hy2_textured.glb` (60k faces, 3.7 MB with 2048x2048 PBR texture map) in **45 seconds** on RTX 5080 with 9.7 GB peak VRAM.
+
+## [0.3.58] - 2026-10-14
+
+- 🎙️👦 **Knight Seby Voice Line ("Scrivile Scemo")**:
+  - Added *"Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!"* (`voice-n-scrivilescemo.mp3`) using Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`).
+  - Tuned acoustic synthesis to avoid cartoon/female dubbing artifacts, using natural prepubescent Italian boy vocal cords without artificial pitch-shift distortion.
+  - Registered soundboard clip in `src/core/CharacterPovData.js` and in `src/core/Registry.js` for in-game and showcase playback.
+- ♟️✨ **Showcase Hero Selector Navigation Polish**:
+  - Replaced cropped photo avatars with crisp 2D circular Staunton chess medallions (`getPieceMedallion`).
+  - Streamlined character chip labels to single-word names (*Sebi, Ale, Riccardo, Kate, Pupurabbu, Puffin*), removing *"Papà"* and *"Mamma"* prefixes.
+
+## [0.3.57] - 2026-10-14
+
+- 🧊🏰 **Reconstruct High-Res UV-Textured 3D GLB Models for Classic & Swamp Families (Issue #20)**:
+  - **Classic Family 3D Meshes (`assets/models/classic/`)**: Reconstructed high-res UV-textured 3D models complying with `assets/families/_contract.json`. King (1.80m, 99.2k tris), Queen (1.65m, 99.5k tris), and Bishop (1.45m, 97.1k tris) generated via `microsoft/TRELLIS.2`. Knight (1.35m, 22.1k tris), Rook (1.30m, 20.2k tris), and Pawn (0.95m, 13.3k tris) sculpted via Mode A 2D-to-3D SDF visual hull and 1024x1024 diffuse UV baking.
+  - **Swamp Family 3D Meshes (`assets/models/swamp/`)**: Reconstructed high-res UV-textured 3D models complying with `assets/families/_contract.json`. King (1.80m, 21.6k tris), Queen (1.65m, 15.8k tris), Bishop (1.45m, 12.4k tris), Knight (1.35m, 16.5k tris with 40-tooth smile relief), Rook (1.30m, 16.7k tris), and Pawn (0.95m, 9.9k tris) sculpted via Mode A 2D-to-3D SDF visual hull and 1024x1024 diffuse UV baking.
+  - **Model Provenance Registry (`docs/models-provenance.yaml`)**: Added all 12 newly reconstructed models with exact MD5 checksums, target paths, sizes, and pipeline details. `scripts/check.py` validates all 22 tracked models.
+  - **Contract & Budget Alignment**: Grounding at `min.y == 0.0m`, canonical piece heights, clamped footprint spans (`0.70m <= span <= 0.86m`), named material slots `faction_primary` (diffuse 1024x1024 UV map) and `faction_trim`, aligned triangle budgets (`assets/families/classic.json`).
+  - **Tooling (`tools/model-pipeline/`)**: Added zero-GPU local Mode A batch sculpting pipeline (`reconstruct_mode_a_batch.py`) utilizing `rembg` foreground segmentation, visual hull density carving, Taubin fairing, and UV texture baking.
+
+
+## [0.3.56] - 2026-10-13
+
+- 🚀🎮 **Local GPU 3D Shape Pipeline Verified on RTX 5080 (Blackwell sm_120) with TurboSebux (Issue #5)**:
+  - Validated zero-footprint local inference environment on host `pupurabbux` using the 600 GB ext4 loop volume `TurboSebux` (`/media/riccardo/TurboSebux`).
+  - Added `just turbosebux` recipe and `tools/model-pipeline/local/ensure_turbosebux.sh` to safely verify or mount TurboSebux across reboots.
+  - Pinned `diffusers==0.31.0` and `transformers==4.48.3` in `setup_local.sh` and `venv-hunyuan` to ensure compatibility with `Hunyuan3D-2` shape checkpoints.
+  - Successfully executed first local shape generation on RTX 5080: `tools/model-pipeline/ale/front.png` produced `ale1_hy2_shape.glb` (697,264 faces, 12.5 MB) in 32s with 5.6 GB peak VRAM.
+  - Added documentation to `tools/model-pipeline/RUNNING_DOC.md` §10.11 and host log in Obsidian.
+
+## [0.3.55] - 2026-10-13
+
+- 🔐 **No local paths in the public repo**: `critic/refine_loop.py` dropped a hard-coded `/home/<user>/…/.env` candidate and now writes **repo-relative** `glb_path` / `sheet_path` / `report_path` in its reports; the committed `queen-kate-wedding2016_refine_summary.json` (v0.3.54) was scrubbed of 12 absolute agent-worktree paths. `scripts/check.py` secret scan now also fails on `/home/<user>/` paths.
+
+## [0.3.54] - 2026-10-13
+
+- ♗✨ **Bishop Ale #2 Modular Remaster (`bishop-ale-2-remastered.glb`)**:
+  - Executed Option C modular clean-up on Bishop Ale #2, eliminating fused props / "two half dragons" artifacts by completely retracting the dragon and smoke lump into the mantle drape and retracting staff protrusion into the sleeve cuff.
+  - Modeled an authentic 8-spoked celestial navigation wheel astrolabe with raised central hub and full-length grounded brass crosier staff (`tools/model-pipeline/ale2/out/astrolabe_clean.glb`).
+  - Re-textured modular baby dragon with concept-accurate ruby-red scales, lime-green underbelly/wing lining, and emerald eyes (`tools/model-pipeline/dragon/out/dragon_clean.glb`), perching cleanly on the shoulder pad with clear negative space separation.
+  - Automated headless assembly in `assemble_modular_ale2.py` (44.9k faces, zero stray islands, grounded at Z=0).
+- 👑💇 **Queen Kate Nozze 2016 Geometry & Hair Clean-up (`queen-kate-wedding2016-remastered.glb`)**:
+  - Created `tools/model-pipeline/kate/clean_queen_kate.py` to undercut the chignon bun from the collar creating a crisp neck crease.
+  - Pulled scepter/hands forward by 1.6 cm to eliminate dress coplanarity, applied selective Surface Smooth preserving lathe pedestal edges, and grounded to Z=0. Passed VLM QA audit at 6.3 ACCEPTABLE tier (`passed: true`).
+- 🌐 **Web Showcase Complete Character Suite (`showcase/index.html`)**:
+  - Updated showcase with explicit v1..v4 model selectors for both Bishop Ale and Queen Kate, allowing side-by-side inspection of all original monolithic and remastered modular iterations.
+- 📸💡 **Critic & Renderer Studio Lighting Upgrade**: upgraded `tools/model-pipeline/critic/render_contact_sheet.py` with camera-tracking rotating key/fill studio suns and neutral ambient backdrop, permanently solving dark angle dropoffs. Added automatic detection and assignment of empty `VERTEX_COLOR` layers for glTF imports in Cycles.
+- 📋 **QA Scoreboard & Running Doc**: updated `docs/qa-scores.yaml` and documented Section 27 in `tools/model-pipeline/RUNNING_DOC.md`.
+
+## [0.3.53] - 2026-10-13
+
+- 🔄🎥 **'Reset View' Camera Button & Hotkey `R` (Issue #29)**:
+  - **HUD Action Button**: Added `#hud-reset-cam-btn` to the HUD bottom dock with intuitive target/recenter icon and bilingual tooltips (`🎥 Ripristina Telecamera (R)` / `🎥 Reset Camera View (R)`).
+  - **Keyboard Shortcut**: Pressing `r` or `R` during gameplay instantly animates/restores the camera position back to the default canonical 3D framing and centers controls target.
+  - **Bilingual Toast Notification**: Brief feedback toast confirming camera reset in Italian and English.
+  - **Unit Test Coverage**: Added Node.js test suite verification in `tests/core.test.mjs`.
+  - **Merge fixes (main agent)**: branch renumbered 0.3.49 → 0.3.53 (main had moved to 0.3.52); the `R` hotkey now ignores Ctrl/Cmd/Alt so **Ctrl+R / Cmd+R still reloads the page**; on mobile phones Reset View delegates to `applyMobileCameraMode('3d')` so it keeps the v0.3.52 portrait framing.
 
 ## [0.3.52] - 2026-10-13
 

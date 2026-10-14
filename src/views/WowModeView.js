@@ -29,7 +29,7 @@ import {
   CANONICAL_PIECE_HEIGHTS,
   PEDESTAL_HEIGHT,
 } from '../utils/glbGrounding.js';
-import { BISHOP_GLB_VARIANTS } from '../managers/PieceManager.js';
+import { BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS } from '../managers/PieceManager.js';
 import {
   createArticulatedSkeletonRig,
   updateSkeletonRigPose,
@@ -66,8 +66,10 @@ export class WowModeView {
     this.subMode = 'inspector';
     /** @type {'k'|'q'|'b'|'n'|'r'|'p'} */
     this.selectedKey = 'b';
-    /** @type {'rigged'|'hat'} */
+    /** @type {'hat'|'astrolabe'|'rigged'} */
     this.bishopVariant = 'hat';
+    /** @type {'young'|'wedding'} */
+    this.queenVariant = 'young';
     /** @type {'front'|'back'} */
     this.cardSide = 'front';
     this.autoRotate = true;
@@ -193,6 +195,12 @@ export class WowModeView {
           if (e.bishopVariant && e.bishopVariant !== this.bishopVariant) {
             this.bishopVariant = e.bishopVariant;
             if (this.active && this.selectedKey === 'b') {
+              this.loadSelectedHero();
+            }
+          }
+          if (e.queenVariant && e.queenVariant !== this.queenVariant) {
+            this.queenVariant = e.queenVariant;
+            if (this.active && this.selectedKey === 'q') {
               this.loadSelectedHero();
             }
           }
@@ -426,6 +434,7 @@ export class WowModeView {
   onInspectCharacter(e = {}) {
     const prevKey = this.selectedKey;
     const prevVariant = this.bishopVariant;
+    const prevQueenVariant = this.queenVariant;
 
     if (e.subMode) {
       this.setSubMode(e.subMode);
@@ -444,10 +453,16 @@ export class WowModeView {
       }
     }
 
-    if (e.bishopVariant === 'hat' || e.bishopVariant === 'rigged') {
+    if (e.bishopVariant === 'hat' || e.bishopVariant === 'astrolabe' || e.bishopVariant === 'rigged') {
       this.bishopVariant = e.bishopVariant;
       const pm = this.ctx?.pieces || this.ctx?.pieceManager;
       pm?.setBishopVariant?.(this.bishopVariant);
+    }
+
+    if (e.queenVariant === 'young' || e.queenVariant === 'wedding') {
+      this.queenVariant = e.queenVariant;
+      const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+      pm?.setQueenVariant?.(this.queenVariant);
     }
 
     const rawKey = String(e.pieceType || e.character || this.selectedKey).toLowerCase();
@@ -456,6 +471,7 @@ export class WowModeView {
     const heroChanged =
       this.selectedKey !== prevKey ||
       this.bishopVariant !== prevVariant ||
+      this.queenVariant !== prevQueenVariant ||
       !this.currentHeroObject;
 
     if (this.active && heroChanged) {
@@ -490,10 +506,12 @@ export class WowModeView {
       this.skeletonsVisible = this.pieceView.skeletonsVisible;
     }
 
-    // Determine GLB URL (supporting Ale #1 hat vs Ale #2 rigged dragon)
+    // Determine GLB URL (supporting Ale variants & Kate variants)
     let glbUrl = meta.glbUrl;
     if (this.selectedKey === 'b') {
       glbUrl = BISHOP_GLB_VARIANTS[this.bishopVariant] || meta.glbUrl;
+    } else if (this.selectedKey === 'q') {
+      glbUrl = QUEEN_GLB_VARIANTS[this.queenVariant] || meta.glbUrl;
     }
 
     const baseHeroHeight = CANONICAL_PIECE_HEIGHTS[this.selectedKey] ?? 1.45;

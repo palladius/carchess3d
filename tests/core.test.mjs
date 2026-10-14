@@ -188,4 +188,69 @@ test('Mobile Simplified UX: detects Pixel 10 & phones while leaving iPad/Desktop
   assert.equal(hud.remoteAvailableVersion, 'v9.9.99', 'Tracks newer available remote version separately');
 });
 
+test("Issue #29: 'Reset view' camera button and hotkey 'R' restores default 3D camera pose", () => {
+  const bus = new GameEventBus();
+  const cameraEvents = [];
+  bus.on('CAMERA_VIEW_REQUESTED', (e) => cameraEvents.push(e));
+
+  const camera = {
+    position: {
+      x: 99,
+      y: 99,
+      z: 99,
+      set(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+      },
+    },
+  };
+  const controls = {
+    target: {
+      x: 5,
+      y: 5,
+      z: 5,
+      set(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+      },
+    },
+    update() {},
+  };
+
+  const hud = new HudListener({ bus, camera, controls, lang: 'en' });
+  // Move into top-down mode
+  hud.topDownCamera = true;
+
+  // Trigger resetCameraView()
+  hud.resetCameraView();
+
+  assert.equal(hud.topDownCamera, false, 'topDownCamera reset to false');
+  assert.equal(camera.position.x, 0);
+  assert.equal(camera.position.y, 5.85);
+  assert.equal(camera.position.z, 12.6);
+  assert.equal(controls.target.x, 0);
+  assert.equal(controls.target.y, 2.15);
+  assert.equal(controls.target.z, -2.2);
+  assert.ok(
+    cameraEvents.some((e) => e.view === 'reset'),
+    'Emits CAMERA_VIEW_REQUESTED with view: reset',
+  );
+
+  // Test hotkey 'r' / 'R' via onKeyDown
+  camera.position.set(42, 42, 42);
+  let prevented = false;
+  hud.onKeyDown({
+    key: 'r',
+    preventDefault() {
+      prevented = true;
+    },
+  });
+  assert.equal(prevented, true);
+  assert.equal(camera.position.y, 5.85);
+  assert.equal(camera.position.z, 12.6);
+});
+
+
 

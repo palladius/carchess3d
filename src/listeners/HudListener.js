@@ -114,8 +114,11 @@ export class HudListener {
     this.activeBanner = null;
     this.pendingPromotion = null;
     this.wowSubMode = 'inspector';
+    this.bishopVariant = 'hat';
+    this.queenVariant = 'young';
     this.wowChar = 'b';
-    this.wowBishopVariant = 'rigged';
+    this.wowBishopVariant = 'hat';
+    this.wowQueenVariant = 'young';
     this.wowCardSide = 'front';
     this.wowAutoRotate = true;
     this.wowAttacker = 'b';
@@ -1664,9 +1667,15 @@ export class HudListener {
               .join('')}
           </div>
 
-          <div id="hud-ale-variant-row" style="display:flex;gap:5px;">
-            <button id="hud-ale-rigged-btn" class="hud-btn active" style="flex:1;justify-content:center;">🐉 Ale #2 (Dragon Rigged)</button>
-            <button id="hud-ale-hat-btn" class="hud-btn" style="flex:1;justify-content:center;">🎩 Ale #1 (Hat)</button>
+          <div id="hud-ale-variant-row" style="display:${this.wowChar === 'b' ? 'flex' : 'none'};gap:5px;">
+            <button id="hud-ale-hat-btn" class="hud-btn ${this.wowBishopVariant === 'hat' ? 'active' : ''}" style="flex:1;justify-content:center;">🎩 Ale #1 (Hat)</button>
+            <button id="hud-ale-astrolabe-btn" class="hud-btn ${this.wowBishopVariant === 'astrolabe' ? 'active' : ''}" style="flex:1;justify-content:center;">🟢 Ale #2 (Astrolabe)</button>
+            <button id="hud-ale-rigged-btn" class="hud-btn ${this.wowBishopVariant === 'rigged' ? 'active' : ''}" style="flex:1;justify-content:center;">🐉 Ale Rigged</button>
+          </div>
+
+          <div id="hud-kate-variant-row" style="display:${this.wowChar === 'q' ? 'flex' : 'none'};gap:5px;">
+            <button id="hud-kate-young-btn" class="hud-btn ${this.wowQueenVariant === 'young' ? 'active' : ''}" style="flex:1;justify-content:center;">👑 Kate Young</button>
+            <button id="hud-kate-wedding-btn" class="hud-btn ${this.wowQueenVariant === 'wedding' ? 'active' : ''}" style="flex:1;justify-content:center;">👰 Kate Nozze 2016</button>
           </div>
 
           <div style="display:flex;gap:5px;">
@@ -1811,6 +1820,24 @@ export class HudListener {
                 </select>
               </label>
 
+              <div id="hud-setup-variants-wrap" class="hud-setup-label" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+                <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                  <span id="hud-setup-queen-var-lbl">${this.t('queenVariantLabel')}</span>
+                  <select id="hud-setup-queen-variant" class="hud-select" style="min-width:140px;">
+                    <option value="young" ${this.queenVariant === 'young' ? 'selected' : ''}>${this.t('queenVariantYoung')}</option>
+                    <option value="wedding" ${this.queenVariant === 'wedding' ? 'selected' : ''}>${this.t('queenVariantWedding')}</option>
+                  </select>
+                </label>
+                <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                  <span id="hud-setup-bishop-var-lbl">${this.t('bishopVariantLabel')}</span>
+                  <select id="hud-setup-bishop-variant" class="hud-select" style="min-width:140px;">
+                    <option value="hat" ${this.bishopVariant === 'hat' ? 'selected' : ''}>${this.t('bishopVariantHat')}</option>
+                    <option value="astrolabe" ${this.bishopVariant === 'astrolabe' ? 'selected' : ''}>${this.t('bishopVariantAstrolabe')}</option>
+                    <option value="rigged" ${this.bishopVariant === 'rigged' ? 'selected' : ''}>${this.t('bishopVariantRigged')}</option>
+                  </select>
+                </label>
+              </div>
+
               <label id="hud-setup-white-ai-wrap" class="hud-setup-label" style="display:none;">
                 <span id="hud-setup-white-diff-lbl">${this.t('difficultyLabel')}</span>
                 <select id="hud-setup-white-diff" class="hud-select" style="width:100%;">
@@ -1939,6 +1966,9 @@ export class HudListener {
           </button>
           <button type="button" id="hud-flip-btn" class="hud-btn hud-icon-btn" title="${this.t('flipCamBtn')}" aria-label="${this.t('flipCamBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3 5 6.99h3V14h2V6.99h3L9 3z"/></svg>
+          </button>
+          <button type="button" id="hud-reset-cam-btn" class="hud-btn hud-icon-btn" title="${this.t('resetCamBtn')}" aria-label="${this.t('resetCamBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
           </button>
           <button type="button" id="hud-hint-btn" class="hud-btn hud-icon-btn" title="${this.t('hintBtn')}" aria-label="${this.t('hintBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>
@@ -2270,6 +2300,10 @@ export class HudListener {
       this.ctx?.bus?.flush?.();
     });
 
+    q('#hud-reset-cam-btn')?.addEventListener('click', () => {
+      this.resetCameraView();
+    });
+
     q('#hud-top-btn')?.addEventListener('click', () => {
       if (this.isMobilePhone) {
         this.applyMobileCameraMode(this.topDownCamera ? '3d' : 'top', { silent: false });
@@ -2437,20 +2471,50 @@ export class HudListener {
         );
         const aleRow = q('#hud-ale-variant-row');
         if (aleRow) aleRow.style.display = this.wowChar === 'b' ? 'flex' : 'none';
+        const kateRow = q('#hud-kate-variant-row');
+        if (kateRow) kateRow.style.display = this.wowChar === 'q' ? 'flex' : 'none';
         this.ctx?.bus?.emit({
           type: 'WOW_INSPECT_CHARACTER',
           subMode: 'inspector',
           pieceType: this.wowChar,
           bishopVariant: this.wowBishopVariant,
+          queenVariant: this.wowQueenVariant,
         });
         this.ctx?.bus?.flush?.();
       });
+    });
+
+    q('#hud-ale-hat-btn')?.addEventListener('click', () => {
+      this.wowBishopVariant = 'hat';
+      q('#hud-ale-hat-btn')?.classList.add('active');
+      q('#hud-ale-astrolabe-btn')?.classList.remove('active');
+      q('#hud-ale-rigged-btn')?.classList.remove('active');
+      this.ctx?.bus?.emit({
+        type: 'WOW_INSPECT_CHARACTER',
+        pieceType: 'b',
+        bishopVariant: 'hat',
+      });
+      this.ctx?.bus?.flush?.();
+    });
+
+    q('#hud-ale-astrolabe-btn')?.addEventListener('click', () => {
+      this.wowBishopVariant = 'astrolabe';
+      q('#hud-ale-astrolabe-btn')?.classList.add('active');
+      q('#hud-ale-hat-btn')?.classList.remove('active');
+      q('#hud-ale-rigged-btn')?.classList.remove('active');
+      this.ctx?.bus?.emit({
+        type: 'WOW_INSPECT_CHARACTER',
+        pieceType: 'b',
+        bishopVariant: 'astrolabe',
+      });
+      this.ctx?.bus?.flush?.();
     });
 
     q('#hud-ale-rigged-btn')?.addEventListener('click', () => {
       this.wowBishopVariant = 'rigged';
       q('#hud-ale-rigged-btn')?.classList.add('active');
       q('#hud-ale-hat-btn')?.classList.remove('active');
+      q('#hud-ale-astrolabe-btn')?.classList.remove('active');
       this.ctx?.bus?.emit({
         type: 'WOW_INSPECT_CHARACTER',
         pieceType: 'b',
@@ -2459,14 +2523,26 @@ export class HudListener {
       this.ctx?.bus?.flush?.();
     });
 
-    q('#hud-ale-hat-btn')?.addEventListener('click', () => {
-      this.wowBishopVariant = 'hat';
-      q('#hud-ale-hat-btn')?.classList.add('active');
-      q('#hud-ale-rigged-btn')?.classList.remove('active');
+    q('#hud-kate-young-btn')?.addEventListener('click', () => {
+      this.wowQueenVariant = 'young';
+      q('#hud-kate-young-btn')?.classList.add('active');
+      q('#hud-kate-wedding-btn')?.classList.remove('active');
       this.ctx?.bus?.emit({
         type: 'WOW_INSPECT_CHARACTER',
-        pieceType: 'b',
-        bishopVariant: 'hat',
+        pieceType: 'q',
+        queenVariant: 'young',
+      });
+      this.ctx?.bus?.flush?.();
+    });
+
+    q('#hud-kate-wedding-btn')?.addEventListener('click', () => {
+      this.wowQueenVariant = 'wedding';
+      q('#hud-kate-wedding-btn')?.classList.add('active');
+      q('#hud-kate-young-btn')?.classList.remove('active');
+      this.ctx?.bus?.emit({
+        type: 'WOW_INSPECT_CHARACTER',
+        pieceType: 'q',
+        queenVariant: 'wedding',
       });
       this.ctx?.bus?.flush?.();
     });
@@ -2674,6 +2750,9 @@ export class HudListener {
         root.querySelector('input[name="black-player-type"]:checked')?.value || 'ai';
       const blackDiff = q('#hud-setup-black-diff')?.value || 'easy';
 
+      const queenVariant = q('#hud-setup-queen-variant')?.value || this.queenVariant || 'young';
+      const bishopVariant = q('#hud-setup-bishop-variant')?.value || this.bishopVariant || 'hat';
+
       this.applySetup({
         whiteFamily,
         whitePlayerType,
@@ -2682,6 +2761,8 @@ export class HudListener {
         rivalSet,
         blackPlayerType,
         blackDiff,
+        queenVariant,
+        bishopVariant,
         resetBoard,
       });
     };
@@ -3215,6 +3296,61 @@ export class HudListener {
   }
 
   /**
+   * Resets the player camera and orbit controls back to default canonical framing.
+   * Shortcut: Hotkey 'r' / 'R' or HUD reset button (#hud-reset-cam-btn).
+   */
+  resetCameraView() {
+    // Phones: reuse the portrait-aware framing (v0.3.52) instead of the desktop constants.
+    if (this.isMobilePhone) {
+      this.applyMobileCameraMode('3d', { silent: false });
+      this.showToast(
+        this.lang === 'it'
+          ? '🎥 Visuale ripristinata alla posizione iniziale (Scorciatoia: R)'
+          : '🎥 Camera view reset to default (Shortcut: R)',
+        2200,
+      );
+      return;
+    }
+    this.topDownCamera = false;
+    const pos = this.cameraFlipped
+      ? { x: 0, y: 7.0, z: -8.2 }
+      : { x: 0, y: 5.85, z: 12.6 };
+    const target = this.cameraFlipped
+      ? { x: 0, y: 0.3, z: 0 }
+      : { x: 0, y: 2.15, z: -2.2 };
+
+    if (this.ctx?.camera?.position?.set) {
+      this.ctx.camera.position.set(pos.x, pos.y, pos.z);
+      this.ctx.controls?.target?.set?.(target.x, target.y, target.z);
+      this.ctx.controls?.update?.();
+    }
+
+    if (this.rootEl) {
+      const topBtn = this.rootEl.querySelector('#hud-top-btn');
+      const topBadge = this.rootEl.querySelector('#hud-top-badge');
+      if (topBadge) topBadge.textContent = '3D';
+      if (topBtn) topBtn.classList.add('active');
+    }
+
+    if (this.ctx?.bus) {
+      this.ctx.bus.emit({
+        type: 'CAMERA_VIEW_REQUESTED',
+        view: 'reset',
+        pos,
+        target,
+      });
+      this.ctx.bus.flush?.();
+    }
+
+    this.showToast(
+      this.lang === 'it'
+        ? '🎥 Visuale ripristinata alla posizione iniziale (Scorciatoia: R)'
+        : '🎥 Camera view reset to default (Shortcut: R)',
+      2200,
+    );
+  }
+
+  /**
    * 1-tap "Easy Adopter" mobile match launcher:
    * - White: Guest (`ospite`) with Papino's Team (`carlesso`)
    * - Black: CPU (`easy` / `medium`) or 2P (`hotseat`) with Classic Rivals (`classic`)
@@ -3260,6 +3396,13 @@ export class HudListener {
       if (bDiff) bDiff.value = this.blackDifficulty || this.opponentMode || 'easy';
       const wDiff = this.rootEl.querySelector('#hud-setup-white-diff');
       if (wDiff) wDiff.value = this.whiteDifficulty || 'easy';
+      const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+      const qVar = this.rootEl.querySelector('#hud-setup-queen-variant');
+      if (qVar) qVar.value = this.queenVariant || pm?.getQueenVariant?.() || 'young';
+      const bVar = this.rootEl.querySelector('#hud-setup-bishop-variant');
+      if (bVar) bVar.value = this.bishopVariant || pm?.getBishopVariant?.() || 'hat';
+      const varWrap = this.rootEl.querySelector('#hud-setup-variants-wrap');
+      if (varWrap && wSet) varWrap.style.display = wSet.value === 'carlesso' ? 'flex' : 'none';
 
       const wType = this.whitePlayerType || 'human';
       this.rootEl.querySelectorAll('input[name="white-player-type"]').forEach((r) => {
@@ -3383,6 +3526,14 @@ export class HudListener {
     const pm = this.ctx?.pieces || this.ctx?.pieceManager;
     if (pm?.setWhiteFamily) pm.setWhiteFamily(whiteFamily);
     if (pm?.setRivalSetMode) pm.setRivalSetMode(rivalSet);
+    if (settings.bishopVariant) {
+      this.bishopVariant = settings.bishopVariant;
+      if (pm?.setBishopVariant) pm.setBishopVariant(settings.bishopVariant);
+    }
+    if (settings.queenVariant) {
+      this.queenVariant = settings.queenVariant;
+      if (pm?.setQueenVariant) pm.setQueenVariant(settings.queenVariant);
+    }
 
     // Emit configuration changes to Bus & Piece Manager
     if (this.ctx?.bus) {
@@ -4162,6 +4313,14 @@ export class HudListener {
       return;
     }
 
+    // Hotkey 'r' / 'R' to reset camera view when not typing in an input.
+    // Ignore Ctrl/Cmd/Alt so the browser's Ctrl+R / Cmd+R reload keeps working.
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'r' || e.key === 'R')) {
+      e.preventDefault();
+      this.resetCameraView();
+      return;
+    }
+
     if ((e.code === 'Space' || e.code === 'Enter') && !isTextInput) {
       if (this.isCombatCutsceneActive()) {
         e.preventDefault();
@@ -4295,6 +4454,7 @@ export class HudListener {
     setTip('#hud-skeletons-btn', 'skeletonsBtn');
     setTip('#hud-swamp-btn', 'swampBtn');
     setTip('#hud-flip-btn', 'flipCamBtn');
+    setTip('#hud-reset-cam-btn', 'resetCamBtn');
     setTip('#hud-top-btn', this.isMobilePhone ? (this.topDownCamera ? 'mobileCamTopBtn' : 'mobileCam3dBtn') : 'topCamBtn');
     const topBadge = this.rootEl.querySelector('#hud-top-badge');
     if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
@@ -4358,6 +4518,13 @@ export class HudListener {
     setTxt('#hud-setup-apply-btn', 'applyCurrentBtn');
     setTxt('#hud-setup-start-btn', 'startMatchBtn');
     setTxt('#hud-setup-badge-text', 'defaultSetupBadge');
+    setTxt('#hud-setup-queen-var-lbl', 'queenVariantLabel');
+    setTxt('#hud-setup-bishop-var-lbl', 'bishopVariantLabel');
+    setTxt('#hud-setup-queen-variant option[value="young"]', 'queenVariantYoung');
+    setTxt('#hud-setup-queen-variant option[value="wedding"]', 'queenVariantWedding');
+    setTxt('#hud-setup-bishop-variant option[value="hat"]', 'bishopVariantHat');
+    setTxt('#hud-setup-bishop-variant option[value="astrolabe"]', 'bishopVariantAstrolabe');
+    setTxt('#hud-setup-bishop-variant option[value="rigged"]', 'bishopVariantRigged');
 
     // Mode 2 WOW Panel & Modals
     setTxt('#hud-promo-title', 'promoTitle');

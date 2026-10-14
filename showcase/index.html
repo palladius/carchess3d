@@ -184,10 +184,9 @@
       width: 26px;
       height: 26px;
       border-radius: 50%;
-      object-fit: cover;
-      border: 1.5px solid var(--gold);
+      object-fit: contain;
       flex-shrink: 0;
-      background: #090d15;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     }
     .hero-chip-label {
       font-weight: 800;
@@ -1337,6 +1336,7 @@
       HERO_SOUNDBOARDS,
       getHeroAttacks,
       getHeroDefenses,
+      getPieceMedallion,
     } from '../src/core/CharacterPovData.js';
 
     // ── DATA FOR MULTI-FAMILY 18-PIECE SHOWCASE ──
@@ -1359,30 +1359,36 @@
       // ── 1. FAMIGLIA CARLESSO ──
       {
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
-        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Ale 1 — CON CAPPELLO + Drago Rosso', winner: true, defaultConfirmed: true,
+        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Alfiere Alessandro', winner: true, defaultConfirmed: true,
         tagline: 'Il Vincitore Designato per la scacchiera',
         front: '../assets/characters/bishop-ale-1.jpg',
         back: '../tools/model-pipeline/ale/experiments_back/back_nb_2.1.png',
         backGrid: '../tools/model-pipeline/ale/experiments_back/ale_hat_back_comparison_grid.jpg',
         models: [
-          { label: 'v1 · 1 vista (Canonico)', url: '../assets/models/bishop-ale-1.glb?v=0.3.31',
-            note: 'v1 (canonico attuale): TRELLIS da sola vista frontale, retro inventato.' },
-          { label: 'v3 · Rigged 🐉', url: '../assets/models/bishop-ale-rigged.glb?v=0.3.31',
+          { label: 'v1 · Mitria (Canonico 🏆)', url: '../assets/models/bishop-ale-1.glb',
+            note: 'v1 (canonico scacchiera): Con mitria vescovile e draghetto, TRELLIS da sola vista frontale.' },
+          { label: 'v2 · Astrolabio Remaster 🟢', url: '../assets/models/bishop-ale-2-remastered.glb',
+            note: 'v2 Remaster Modulare: Ruota celeste a 8 raggi in ottone, draghetto rubino separato sulla spalla, zero mezzi draghi!' },
+          { label: 'v3 · Astrolabio Vecchio 🔴', url: '../assets/models/bishop-ale-2.glb',
+            note: 'v3 Vecchio monolitico: astrolabio informe fuso con la manica e due mezzi draghi compenetrati sul retro.' },
+          { label: 'v4 · Mitria Rigged 🐉', url: '../assets/models/bishop-ale-rigged.glb',
             note: 'Assemblaggio modulare con drago 3D pulito e rig a 26 ossa (Idle + Click_Fire_Breath).' },
-          { label: 'v2 · 3 viste ❌', url: '../tools/model-pipeline/ale/out/ale1_hat_f_tq_back.glb?v=0.3.31',
-            note: 'v2 (scartata da Riccardo: 2 mezzi draghi): TRELLIS multi-image fronte + 3/4 + retro NB 2.1, seed 42.' },
         ],
-        details: 'Mitria vescovile blu e oro, occhioni verdi sorridenti, drago rosso sulla spalla, bastoncino pastorale in legno, basamento marmo + legno.',
+        details: 'Alfiere Ale in tutte le sue incarnazioni: il canonico con mitria (v1), il nuovo remaster modulare con astrolabio e draghetto pulito (v2), la vecchia versione monolitica (v3) e la versione con armatura a 26 ossa (v4).',
       },
       {
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
         glyph: '♔', piece: 'King (1.80m)', name: 'Re Riccardo', winner: true, defaultConfirmed: true,
         tagline: 'Re della famiglia Carlesso',
-        front: '../assets/characters/king-riccardo-1.jpg?v=0.3.31',
+        front: '../assets/characters/king-riccardo-1.jpg',
         back: '../tools/model-pipeline/king/back.png',
-        model: '../assets/models/king-riccardo.glb?v=0.3.31',
+        models: [
+          { label: 'v1 · Biometrico (Canonico 🏆)', url: '../assets/models/king-riccardo.glb',
+            note: 'v1 Canonico: TRELLIS.2 + Adversarial Biometric Likeness Loop (9.1/10) + Mode B 2048×1024 Face-Grafting.' },
+          { label: 'v2 · Mantello & Croci Remaster 🟢', url: '../assets/models/king-riccardo-remastered.glb',
+            note: 'v2 Remaster: Sottosquadro d\'ermellino sul colletto, drappeggio verticale del mantello, scettro e croce maltese affilati.' },
+        ],
         details: 'Re con corona imperiale ad archi, mantello blu con bordi d\'ermellino, globo crucigero nella mano sinistra e scettro d\'oro nella destra.',
-        modelNote: 'TRELLIS.2 + Adversarial Biometric Likeness Loop (9.1/10) + Mode B 2048×1024 Face-Grafting & Cylindrical Side Unwrapping.',
       },
       {
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
@@ -1391,12 +1397,16 @@
         front: '../tools/model-pipeline/kate/queen-kate-4c.png',
         back: '../tools/model-pipeline/kate/back.png',
         models: [
-          { label: 'Young 4c (Scelta di Kate 🏆)', url: '../assets/models/queen-kate.glb',
-            note: 'Versione giovane stilizzata (4c, confermata da Riccardo & Kate): capelli biondi ondulati sciolti, occhiali viola, abito regale.' },
-          { label: 'Nozze 2016', url: '../assets/models/queen-kate-wedding2016.glb',
-            note: 'Stile nozze 2016: chignon raccolto, occhiali navy chic, occhi smeraldo, abito porpora con ricami dorati.' },
+          { label: 'v1 · Young 4c (Canonico 🏆)', url: '../assets/models/queen-kate.glb',
+            note: 'v1 Young 4c (scelta ufficiale di Kate & Riccardo): capelli biondi ondulati sciolti, occhiali viola, abito regale.' },
+          { label: 'v2 · Nozze 2016 Remaster 🟢', url: '../assets/models/queen-kate-wedding2016-remastered.glb',
+            note: 'v2 Remaster Modulare: chignon raccolto staccato con taglio nuca, scettro staccato dall\'abito, abito levigato.' },
+          { label: 'v3 · Nozze 2016 Vecchia 🔴', url: '../assets/models/queen-kate-wedding2016.glb',
+            note: 'v3 Vecchia monolitica: chignon fuso con il colletto e scettro compenetrato nel velluto.' },
+          { label: 'v4 · Young 4c Standalone', url: '../assets/models/queen-kate-young.glb',
+            note: 'v4 Young 4c copia standalone ad alta risoluzione.' },
         ],
-        details: 'Regina Kate: versione canonica giovane 4c (capelli sciolti mossi, scelta da Kate) affiancata dalla variante nozze 2016 (chignon raccolto).',
+        details: 'Regina Kate: dalla versione giovane 4c (v1) al nuovo remaster nozze 2016 (v2) confrontato con la vecchia versione monolitica (v3).',
       },
       {
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
@@ -1404,9 +1414,17 @@
         tagline: 'Cavaliere della famiglia Carlesso',
         front: '../tools/model-pipeline/seby/front.png',
         back: '../tools/model-pipeline/seby/back.png',
-        model: '../assets/models/knight-seby.glb',
-        details: 'Cavaliere su destriero con armatura dorata completa, mantello blu reale, occhi azzurri vispi, pugno alzato pronto a equipaggiare armi o poteri dell\'Acquario.',
-        modelNote: 'TRELLIS.2: 100k triangoli, texture 1024x1024, destriero e cavaliere in armatura dorata.',
+        models: [
+          { label: 'v1 · Base Dorato (Canonico 🏆)', url: '../assets/models/knight-seby.glb',
+            note: 'v1 Base: Cavaliere su destriero con armatura dorata completa e pugno sinistro alzato.' },
+          { label: 'v2 · Alabarda Reale 🔱', url: '../assets/models/knight-seby-halberd.glb',
+            note: 'v2 Alabarda Reale: Asta in mogano dal piedistallo al pugno con lama a mezzaluna, gancio e pennacchio blu.' },
+          { label: 'v3 · Spada Laser ⚡', url: '../assets/models/knight-seby-lightsaber.glb',
+            note: 'v3 Spada Laser: Impugnatura cromata con lama al plasma ciano inclinata a +12°.' },
+          { label: 'v4 · Sigillo dell\'Acquario 🏺', url: '../assets/models/knight-seby-aurora.glb',
+            note: 'v4 Sigillo dell\'Acquario: Anfora greca celeste con fascia di costellazioni e cascata di polvere di stelle.' },
+        ],
+        details: 'Cavaliere su destriero con armatura dorata completa, mantello blu reale, occhi azzurri vispi, pugno alzato equipaggiato con armi modulari.',
       },
       {
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
@@ -1891,10 +1909,11 @@ if (uDragonCoilMode > 0.5) {
       heroSelectorEl.innerHTML = CARLESSO_HERO_KEYS.map((key) => {
         const hero = HERO_PROFILES[key];
         const isActive = key === currentHeroKey;
+        const medallionSrc = getPieceMedallion(key, 'white', '../');
         return `
           <button type="button" class="hero-chip-btn ${isActive ? 'active' : ''}" data-hero="${key}" aria-pressed="${isActive}" title="${hero.fullName} (${hero.role})">
-            <img src="../${hero.avatar}" alt="${hero.heroName}" class="hero-chip-avatar">
-            <span class="hero-chip-label">${hero.glyph} ${hero.heroName}</span>
+            <img src="${medallionSrc}" alt="${hero.fullName}" class="hero-chip-avatar">
+            <span class="hero-chip-label">${hero.heroName}</span>
           </button>
         `;
       }).join('');
@@ -2437,7 +2456,7 @@ if (uDragonCoilMode > 0.5) {
   </script>
 
   <footer style="text-align:center;padding:24px 16px 40px;color:#90a4ae;font-size:12px;border-top:1px solid rgba(255,213,79,0.2);margin-top:40px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
-    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.53</span>
+    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.64</span>
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener noreferrer" style="color:#9be7c4;text-decoration:none;font-weight:600;">🐙 GitHub Code</a>
     <span>·</span>

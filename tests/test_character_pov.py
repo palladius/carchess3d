@@ -32,6 +32,10 @@ class TestCharacterPovShowcase(unittest.TestCase):
         content = POV_DATA_PATH.read_text(encoding="utf-8")
         self.assertIn("I'll bear that in mind", content, "Kate's catchphrase must be present")
         self.assertIn("Catchphrase!", content, "Pupurabbu's Blue Shirt Guy catchphrase must be present")
+        self.assertIn("Scrivile Scemo", content, "Seby's Pinguini Tattici Nucleari catchphrase must be present")
+        self.assertIn("uccidi questo mostro per me", content, "Seby's monster slaying catchphrase must be present")
+        self.assertIn("I'm still hungry", content, "Ale's hungry catchphrase must be present")
+        self.assertIn("cucini bene", content, "Ale's cooking compliment catchphrase must be present")
 
     def test_showcase_html_has_pov_elements(self):
         self.assertTrue(SHOWCASE_HTML_PATH.exists(), "showcase/index.html must exist")

@@ -25,3 +25,4 @@ This is the **implementation** repo for the Carlesso family 3D chess.
 - Git: only move forward (no `reset --hard`, no `clean`, no force push).
 - 3D pipeline work goes in `tools/model-pipeline/` and is logged in its
   `RUNNING_DOC.md` (prompts, API/MCP calls, parameters, results).
+- **Showcase & Articoli (`article/`)**: ogni volta che generi uno showcase visivo significativo (render Prima/Dopo, banner 16:9, lineup 3D, turntable o confronti grafici), parcheggialo anche sotto `article/` (immagini sotto `article/assets/` e markdown descrittivo) come materiale pronto per la scrittura di articoli.

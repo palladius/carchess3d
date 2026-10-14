@@ -40,6 +40,8 @@ export function getPieceMedallion(key, color = 'white', prefix = '') {
 export const HERO_SOUNDBOARDS = Object.freeze({
   n: [
     { id: 'voice-n', label: '🐴 Sono Seby!', audio: 'assets/audio/voices/voice-n.mp3', quote: 'Dimmi papino!', badge: 'Saluto' },
+    { id: 'voice-n-scrivilescemo', label: '🐧 Scrivile Scemo!', audio: 'assets/audio/voices/voice-n-scrivilescemo.mp3', quote: 'Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!', badge: 'Musica' },
+    { id: 'voice-n-uccidimostro', label: '⚔️ Uccidi Mostro!', audio: 'assets/audio/voices/voice-n-uccidimostro.mp3', quote: 'Hey Google, uccidi questo mostro per me!', badge: 'Google' },
     { id: 'voice-n-bottom', label: '🧻 Clean My Bottom!', audio: 'assets/audio/voices/voice-n-bottom.mp3', quote: 'Mummy, can you clean my bottooooom?!', badge: 'Iconico' },
     { id: 'voice-n-cacca', label: '💩 Cacca!', audio: 'assets/audio/voices/voice-n-cacca.mp3', quote: 'Mi scappa la cacca!', badge: 'Risate' },
     { id: 'voice-n-mybody', label: '💪 My Body!', audio: 'assets/audio/voices/voice-n-mybody.mp3', quote: 'My body, my choice!', badge: 'Top' },
@@ -50,6 +52,8 @@ export const HERO_SOUNDBOARDS = Object.freeze({
   ],
   b: [
     { id: 'voice-b', label: '🧙‍♂️ Sono Ale!', audio: 'assets/audio/voices/voice-b.mp3', quote: 'Agli ordini, Signore!', badge: 'Saluto' },
+    { id: 'voice-b-stillhungry', label: '🥣 Still Hungry!', audio: 'assets/audio/voices/voice-b-stillhungry.mp3', quote: "Mummy... I'm still hungry!", badge: 'Fame' },
+    { id: 'voice-b-cucinibene', label: '🍝 Cucini Bene!', audio: 'assets/audio/voices/voice-b-cucinibene.mp3', quote: 'Papino, tu sì che cucini bene!', badge: 'Cucina' },
     { id: 'voice-b-cafonazzo', label: '💥 CafoNAZZO!', audio: 'assets/audio/voices/voice-b-cafonazzo.mp3', quote: 'Sei proprio un cafoNAZZO!', badge: 'Iconico' },
     { id: 'voice-b-piuforte', label: '🏆 Il Più Forte!', audio: 'assets/audio/voices/voice-b-piuforte.mp3', quote: 'Papino, qual è il più forte?', badge: 'Domanda' },
     { id: 'voice-b-regalo', label: '🎁 Un Regalo!', audio: 'assets/audio/voices/voice-b-regalo.mp3', quote: 'Papino, quando mi compri un regalo?', badge: 'Desiderio' },
@@ -121,7 +125,7 @@ export const HERO_PROFILES = Object.freeze({
   },
   k: {
     key: 'k',
-    heroName: 'Papà (Riccardo)',
+    heroName: 'Riccardo',
     fullName: 'Re Riccardo',
     role: 'Re',
     glyph: '♔',
@@ -139,7 +143,7 @@ export const HERO_PROFILES = Object.freeze({
   },
   q: {
     key: 'q',
-    heroName: 'Mamma (Kate)',
+    heroName: 'Kate',
     fullName: 'Regina Kate',
     role: 'Regina',
     glyph: '♕',

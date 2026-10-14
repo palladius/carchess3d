@@ -27,14 +27,23 @@ showcase port="8000":
 # local image->3D root (ext4 loop image on the external SSD in Riccardo's setup); override with LOCAL3D_ROOT
 local3d_root := env_var_or_default("LOCAL3D_ROOT", "/media/riccardo/TurboSebux/carchess3d")
 
+# check or mount TurboSebux (600 GB ext4 volume on Samsung T7)
+turbosebux:
+    bash tools/model-pipeline/local/ensure_turbosebux.sh
+
 # set up the local GPU environment (phase 1: Hunyuan3D-2 shape). Everything under local3d_root
 local3d-setup:
     LOCAL3D_ROOT={{local3d_root}} bash tools/model-pipeline/local/setup_local.sh
 
-# image -> untextured GLB with Hunyuan3D-2 on the local GPU. e.g. just local3d-shape tools/model-pipeline/ale/front.png ale1_hy2 --octree 512
+# image -> untextured GLB with Hunyuan3D-2 on the local GPU. e.g. just local3d-shape tools/model-pipeline/ale/front.png ale1_hy2 --octree 384
 local3d-shape image label *args:
-    HF_HOME={{local3d_root}}/hf-cache TMPDIR={{local3d_root}}/tmp U2NET_HOME={{local3d_root}}/hf-cache/u2net LOCAL3D_ROOT={{local3d_root}} \
+    HF_HOME={{local3d_root}}/hf-cache TMPDIR={{local3d_root}}/tmp U2NET_HOME={{local3d_root}}/hf-cache/u2net HY3DGEN_MODELS={{local3d_root}}/hf-cache/hy3dgen LOCAL3D_ROOT={{local3d_root}} \
       {{local3d_root}}/venv-hunyuan/bin/python tools/model-pipeline/local/hunyuan_shape.py {{image}} {{label}} {{args}}
+
+# untextured GLB + image -> textured PBR GLB with Hunyuan3D-2 paint on the local GPU
+local3d-paint mesh image label *args:
+    HF_HOME={{local3d_root}}/hf-cache TMPDIR={{local3d_root}}/tmp U2NET_HOME={{local3d_root}}/hf-cache/u2net HY3DGEN_MODELS={{local3d_root}}/hf-cache/hy3dgen LOCAL3D_ROOT={{local3d_root}} \
+      {{local3d_root}}/venv-hunyuan/bin/python tools/model-pipeline/local/hunyuan_paint.py {{mesh}} {{image}} {{label}} {{args}}
 
 # show where the spec lives (it is in-repo now: no external respec dependency)
 spec:
@@ -77,4 +86,6 @@ daily-uat:
     just test
     just uat --publish-ghi
 
-
+# run automated Audio QA Critic on voice lines (signal processing + optional Gemini 3.8 Flash LLM)
+audio-critic *args:
+    python3 tools/model-pipeline/critic/critic_audio.py {{args}}

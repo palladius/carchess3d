@@ -186,7 +186,7 @@ export class PieceView {
           this.syncPiecesFromManager();
         }),
         bus.on('PIECES_SYNCED', (e) => {
-          if (e.reason === 'board_sync' || e.reason === 'rival_set_changed' || e.reason === 'bishop_variant_changed') {
+          if (e.reason === 'board_sync' || e.reason === 'rival_set_changed' || e.reason === 'bishop_variant_changed' || e.reason === 'queen_variant_changed') {
             this.syncPiecesFromManager(e.pieces, e.captured);
           } else if (e.reason === 'move_executed' && e.move) {
             this.animateMove(e.move, e.pieces, e.captured);
@@ -1859,7 +1859,7 @@ if (uCombatAmp > 0.001) {
    * Creates a standalone 3D piece Group for Mode 2 WOW 360° Turntable Inspector & 3D Scazzottata Stage.
    * @param {string} type - 'k'|'q'|'b'|'n'|'r'|'p'
    * @param {'w'|'b'} [color='w']
-   * @param {{ isStoneSet?: boolean, bishopVariant?: 'rigged'|'hat' }} [opts]
+   * @param {{ isStoneSet?: boolean, bishopVariant?: 'hat'|'astrolabe'|'rigged', queenVariant?: 'young'|'wedding' }} [opts]
    * @returns {THREE.Group}
    */
   createStandalonePiece(type = 'b', color = 'w', opts = {}) {
@@ -1872,7 +1872,12 @@ if (uCombatAmp > 0.001) {
     if (type === 'b' && opts.bishopVariant) {
       desc.glbUrl = opts.bishopVariant === 'hat'
         ? 'assets/models/bishop-ale-1.glb'
-        : 'assets/models/bishop-ale-rigged.glb';
+        : (opts.bishopVariant === 'astrolabe' ? 'assets/models/bishop-ale-2-remastered.glb' : 'assets/models/bishop-ale-rigged.glb');
+    }
+    if (type === 'q' && opts.queenVariant) {
+      desc.glbUrl = opts.queenVariant === 'wedding'
+        ? 'assets/models/queen-kate-wedding2016-remastered.glb'
+        : 'assets/models/queen-kate.glb';
     }
     const group = this.buildPieceGroup(desc);
     group.position.set(0, 0, 0);
