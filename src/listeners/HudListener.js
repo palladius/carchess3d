@@ -32,6 +32,15 @@ import {
 import { BATTLE_MATRIX_36 } from '../core/BattleMatrix36.js';
 
 const PIECE_ORDER = ['k', 'q', 'b', 'n', 'r', 'p'];
+const CLARITY_CYCLE = ['s5', 's1', 's2', 's3', 's4', 'off'];
+const CLARITY_I18N_KEYS = {
+  s5: 'clarityS5',
+  s1: 'clarityS1',
+  s2: 'clarityS2',
+  s3: 'clarityS3',
+  s4: 'clarityS4',
+  off: 'clarityOff',
+};
 
 const WEAPON_LABELS_IT = {
   k: '⚡ Scettro Reale & Trono d’Oro',
@@ -76,14 +85,29 @@ export class HudListener {
   constructor(ctx = null) {
     this.ctx = ctx;
     let initialLang = ctx?.lang === 'it' ? 'it' : 'en';
+    let initialClarity = ctx?.clarityMode ? String(ctx.clarityMode).toLowerCase() : 's5';
+    let initialForce2d = Boolean(ctx?.force2dIcons);
     if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
-      const urlLang = new URLSearchParams(window.location.search).get('lang');
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlLang = urlParams.get('lang');
       if (urlLang === 'it' || urlLang === 'en') {
         initialLang = urlLang;
+      }
+      const rawClarity = (urlParams.get('clarity') || '').toLowerCase();
+      if (rawClarity === '2d') {
+        initialClarity = 's1';
+        initialForce2d = true;
+      } else if (CLARITY_CYCLE.includes(rawClarity)) {
+        initialClarity = rawClarity;
+      }
+      if (urlParams.get('icons2d') === '1' || urlParams.get('icons2d') === 'true') {
+        initialForce2d = true;
       }
     }
     /** @type {'it'|'en'} */
     this.lang = initialLang;
+    this.clarityMode = CLARITY_CYCLE.includes(initialClarity) ? initialClarity : 's5';
+    this.force2dIcons = initialForce2d;
     this.isMobilePhone =
       typeof ctx?.isMobilePhone === 'boolean' ? ctx.isMobilePhone : isMobilePhoneViewport();
     this.portraitDismissed = false;
@@ -228,6 +252,7 @@ export class HudListener {
         bus.on('LYRIA_CAPTION', (e) => this.onLyriaCaption(e)),
         bus.on('TOGGLE_SKELETONS', (e) => this.onSkeletonsToggled(e)),
         bus.on('PIECE_SET_CHANGED', (e) => this.onPieceSetChanged(e)),
+        bus.on('CLARITY_MODE_CHANGED', (e) => this.onClarityModeChanged(e)),
         bus.on('AI_THINKING', (e) => this.onAiThinking(e)),
         bus.on('AI_MOVE_READY', (e) => this.onAiMoveReady(e)),
       );
@@ -1581,7 +1606,7 @@ export class HudListener {
         <div id="quake-log-body" class="quake-body"></div>
         <form id="quake-form" class="quake-prompt-row">
           <span class="quake-prompt-symbol">&gt;</span>
-          <input id="quake-input" class="quake-input" type="text" placeholder="help, fen, pgn, hint, setup, reset, topbar, clear, close..." autocomplete="off" spellcheck="false">
+          <input id="quake-input" class="quake-input" type="text" placeholder="help, clarity, fen, pgn, hint, setup, reset, topbar, clear, close..." autocomplete="off" spellcheck="false">
           <button type="submit" class="quake-btn gold">Invia</button>
         </form>
       </aside>
@@ -1894,6 +1919,18 @@ export class HudListener {
             </div>
           </div>
 
+          <label class="hud-setup-label hud-desktop-setup-only" style="background:rgba(20,27,42,0.88);border:1.5px solid rgba(255,213,79,0.45);border-radius:10px;padding:9px 12px;">
+            <span id="hud-setup-clarity-lbl" style="color:#ffe082;font-size:12px;">${this.t('clarityLabel')}</span>
+            <select id="hud-setup-clarity-select" class="hud-select" style="width:100%;">
+              <option value="s5" ${this.clarityMode === 's5' ? 'selected' : ''}>${this.t('clarityS5')}</option>
+              <option value="s1" ${this.clarityMode === 's1' ? 'selected' : ''}>${this.t('clarityS1')}</option>
+              <option value="s2" ${this.clarityMode === 's2' ? 'selected' : ''}>${this.t('clarityS2')}</option>
+              <option value="s3" ${this.clarityMode === 's3' ? 'selected' : ''}>${this.t('clarityS3')}</option>
+              <option value="s4" ${this.clarityMode === 's4' ? 'selected' : ''}>${this.t('clarityS4')}</option>
+              <option value="off" ${this.clarityMode === 'off' ? 'selected' : ''}>${this.t('clarityOff')}</option>
+            </select>
+          </label>
+
           <div class="hud-setup-badge hud-desktop-setup-only">
             <span>✨</span>
             <span id="hud-setup-badge-text">${this.t('defaultSetupBadge')}</span>
@@ -1959,10 +1996,14 @@ export class HudListener {
 
           <span class="hud-dock-sep"></span>
 
-          <!-- Camera & Gameplay Assistance: 2D/3D Camera, Flip Board, Hint, 6x6 Battle Matrix -->
+          <!-- Camera & Gameplay Assistance: 2D/3D Camera, Piece Clarity, Flip Board, Hint, 6x6 Battle Matrix -->
           <button type="button" id="hud-top-btn" class="hud-btn hud-icon-btn with-badge ${!this.topDownCamera ? 'active' : ''}" title="${this.t('topCamBtn')}" aria-label="${this.t('topCamBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.25 7.6 12.75 4.4a1.5 1.5 0 0 0-1.5 0L5.75 7.6A1.5 1.5 0 0 0 5 8.9v6.2c0 .54.29 1.03.75 1.3l5.5 3.2c.46.27 1.04.27 1.5 0l5.5-3.2c.46-.27.75-.76.75-1.3V8.9c0-.54-.29-1.03-.75-1.3zM12 6.15l4.62 2.69L12 11.53 7.38 8.84 12 6.15zm-5 4.42 4.25 2.47v4.88L7 15.45v-4.88zm6.25 7.35v-4.88L17.5 10.57v4.88l-4.25 2.47z"/></svg>
             <span id="hud-top-badge" class="hud-icon-badge">${this.topDownCamera ? '2D' : '3D'}</span>
+          </button>
+          <button type="button" id="hud-clarity-btn" class="hud-btn hud-icon-btn with-badge ${this.clarityMode !== 'off' ? 'active' : ''}" title="${this.t('clarityBtn')}" aria-label="${this.t('clarityBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+            <span id="hud-clarity-badge" class="hud-icon-badge">${(this.clarityMode || 's5').toUpperCase()}</span>
           </button>
           <button type="button" id="hud-flip-btn" class="hud-btn hud-icon-btn" title="${this.t('flipCamBtn')}" aria-label="${this.t('flipCamBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3 5 6.99h3V14h2V6.99h3L9 3z"/></svg>
@@ -2287,6 +2328,7 @@ export class HudListener {
     q('#hud-flip-btn')?.addEventListener('click', () => {
       this.cameraFlipped = !this.cameraFlipped;
       this.topDownCamera = false;
+      this.ctx?.pieceView?.setTopDownMode?.(false);
       if (this.ctx?.camera) {
         if (this.cameraFlipped) {
           this.ctx.camera.position.set(0, 7.0, -8.2);
@@ -2310,6 +2352,7 @@ export class HudListener {
         return;
       }
       this.topDownCamera = !this.topDownCamera;
+      this.ctx?.pieceView?.setTopDownMode?.(this.topDownCamera);
       const topBtn = q('#hud-top-btn');
       const topBadge = q('#hud-top-badge');
       if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
@@ -2327,7 +2370,17 @@ export class HudListener {
         type: 'CAMERA_VIEW_REQUESTED',
         view: this.topDownCamera ? 'top' : 'default',
       });
+      this.ctx?.bus?.emit({
+        type: 'CLARITY_MODE_CHANGED',
+        mode: this.clarityMode,
+        force2dIcons: this.force2dIcons,
+        topDownCamera: this.topDownCamera,
+      });
       this.ctx?.bus?.flush?.();
+    });
+
+    q('#hud-clarity-btn')?.addEventListener('click', () => {
+      this.cycleClarityMode();
     });
 
     if (this.isMobilePhone) {
@@ -2749,6 +2802,7 @@ export class HudListener {
       const blackPlayerType =
         root.querySelector('input[name="black-player-type"]:checked')?.value || 'ai';
       const blackDiff = q('#hud-setup-black-diff')?.value || 'easy';
+      const clarityMode = q('#hud-setup-clarity-select')?.value || this.clarityMode || 's5';
 
       const queenVariant = q('#hud-setup-queen-variant')?.value || this.queenVariant || 'young';
       const bishopVariant = q('#hud-setup-bishop-variant')?.value || this.bishopVariant || 'hat';
@@ -2763,6 +2817,7 @@ export class HudListener {
         blackDiff,
         queenVariant,
         bishopVariant,
+        clarityMode,
         resetBoard,
       });
     };
@@ -3257,6 +3312,7 @@ export class HudListener {
       ? Math.min(1.85, Math.max(1.0, (window.innerHeight / Math.max(1, window.innerWidth)) * 0.78))
       : 1.0;
 
+    this.ctx?.pieceView?.setTopDownMode?.(isTop);
     const pos = isTop
       ? { x: 0, y: Number((12.8 * portraitScale).toFixed(2)), z: this.cameraFlipped ? -0.01 : 0.01 }
       : {
@@ -3290,6 +3346,12 @@ export class HudListener {
         view: isTop ? 'top' : 'default',
         pos,
         target,
+      });
+      this.ctx.bus.emit({
+        type: 'CLARITY_MODE_CHANGED',
+        mode: this.clarityMode,
+        force2dIcons: this.force2dIcons,
+        topDownCamera: isTop,
       });
       this.ctx.bus.flush?.();
     }
@@ -3403,6 +3465,8 @@ export class HudListener {
       if (bVar) bVar.value = this.bishopVariant || pm?.getBishopVariant?.() || 'hat';
       const varWrap = this.rootEl.querySelector('#hud-setup-variants-wrap');
       if (varWrap && wSet) varWrap.style.display = wSet.value === 'carlesso' ? 'flex' : 'none';
+      const cSel = this.rootEl.querySelector('#hud-setup-clarity-select');
+      if (cSel) cSel.value = this.clarityMode || 's5';
 
       const wType = this.whitePlayerType || 'human';
       this.rootEl.querySelectorAll('input[name="white-player-type"]').forEach((r) => {
@@ -3487,6 +3551,10 @@ export class HudListener {
     this.whiteDifficulty = whiteDiff;
     this.blackDifficulty = blackDiff;
     this.activeProfile = whiteProfile;
+
+    if (settings.clarityMode) {
+      this.setClarityMode(settings.clarityMode, { silent: true });
+    }
 
     // Configure CPU AI side(s)
     let cpuColor = 'none';
@@ -3610,6 +3678,72 @@ export class HudListener {
     );
   }
 
+  _hasUrlClarityOverride() {
+    if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
+      return new URLSearchParams(window.location?.search || '').has('clarity');
+    }
+    return false;
+  }
+
+  _syncClarityUi() {
+    if (!this.rootEl) return;
+    const badge = this.rootEl.querySelector('#hud-clarity-badge');
+    if (badge) {
+      badge.textContent = (this.clarityMode || 's5').toUpperCase();
+    }
+    const btn = this.rootEl.querySelector('#hud-clarity-btn');
+    if (btn) {
+      btn.classList.toggle('active', this.clarityMode !== 'off');
+    }
+    const sel = this.rootEl.querySelector('#hud-setup-clarity-select');
+    if (sel && CLARITY_CYCLE.includes(this.clarityMode)) {
+      sel.value = this.clarityMode;
+    }
+  }
+
+  /**
+   * Sets visual clarity / piece recognition mode ('s5', 's1', 's2', 's3', 's4', 'off').
+   * @param {string} mode
+   * @param {{ force2dIcons?: boolean, silent?: boolean }} [opts]
+   */
+  setClarityMode(mode = 's5', opts = {}) {
+    const raw = String(mode || 's5').trim().toLowerCase();
+    let normalized = raw === '2d' ? 's1' : raw;
+    if (!CLARITY_CYCLE.includes(normalized)) {
+      normalized = 's5';
+    }
+    this.clarityMode = normalized;
+    this.force2dIcons =
+      typeof opts.force2dIcons === 'boolean'
+        ? opts.force2dIcons
+        : normalized === 's1' || raw === '2d';
+    this._syncClarityUi();
+    this.ctx?.pieceView?.setClarityMode?.(this.clarityMode, this.force2dIcons);
+    if (this.ctx?.bus) {
+      this.ctx.bus.emit({
+        type: 'CLARITY_MODE_CHANGED',
+        mode: this.clarityMode,
+        force2dIcons: this.force2dIcons,
+        topDownCamera: this.topDownCamera,
+      });
+      this.ctx.bus.flush?.();
+    }
+    if (!opts.silent) {
+      const i18nKey = CLARITY_I18N_KEYS[this.clarityMode] || 'clarityS5';
+      this.showToast(this.t(i18nKey), 3200);
+    }
+  }
+
+  /**
+   * Cycles clarity mode through ['s5', 's1', 's2', 's3', 's4', 'off'] and shows a bilingual toast.
+   */
+  cycleClarityMode() {
+    const idx = CLARITY_CYCLE.indexOf(this.clarityMode);
+    const nextMode = CLARITY_CYCLE[(idx + 1) % CLARITY_CYCLE.length];
+    this.setClarityMode(nextMode, { force2dIcons: nextMode === 's1' });
+    return this.clarityMode;
+  }
+
   setTopbarVisible(visible) {
     this.topbarVisible = Boolean(visible);
     if (!this.rootEl) return;
@@ -3708,12 +3842,13 @@ export class HudListener {
     if (!cmd) return;
     this.logToQuake('USER', `> ${cmd}`, 'cyan');
 
-    const [action] = cmd.toLowerCase().split(/\s+/);
+    const [action, arg1] = cmd.toLowerCase().split(/\s+/);
     switch (action) {
       case 'help':
       case '?':
         this.logToQuake('INFO', 'Available commands / Comandi disponibili:', 'gold');
         this.logToQuake('INFO', '  help             - Show this list / Mostra questo elenco');
+        this.logToQuake('INFO', '  clarity [mode]   - Piece clarity (s5, s1, s2, s3, s4, 2d, off)');
         this.logToQuake('INFO', '  setup            - Open player & faction setup');
         this.logToQuake('INFO', '  topbar           - Show/Hide top bar');
         this.logToQuake('INFO', '  fen              - Show and copy current FEN');
@@ -3726,6 +3861,22 @@ export class HudListener {
         this.logToQuake('INFO', '  clear            - Clear console');
         this.logToQuake('INFO', '  close / exit     - Close Quake console');
         break;
+
+      case 'clarity': {
+        if (!arg1) {
+          this.cycleClarityMode();
+        } else if (arg1 === '2d') {
+          this.setClarityMode('s1', { force2dIcons: true });
+        } else {
+          this.setClarityMode(arg1);
+        }
+        this.logToQuake(
+          'CLARITY',
+          `Visual clarity mode: ${this.clarityMode.toUpperCase()} (force2dIcons=${this.force2dIcons})`,
+          'gold',
+        );
+        break;
+      }
 
       case 'setup':
         this.openSetupModal();
@@ -4200,6 +4351,27 @@ export class HudListener {
       this.luck.w = e.luck;
       this.updateLuckUi('w');
     }
+    if (e?.clarityMode && !this._hasUrlClarityOverride()) {
+      const m = String(e.clarityMode).toLowerCase();
+      if (CLARITY_CYCLE.includes(m)) {
+        this.clarityMode = m;
+        this.force2dIcons = m === 's1';
+        this._syncClarityUi();
+      }
+    }
+  }
+
+  onClarityModeChanged(e) {
+    if (e?.mode) {
+      const m = String(e.mode).toLowerCase();
+      if (CLARITY_CYCLE.includes(m)) {
+        this.clarityMode = m;
+      }
+    }
+    if (typeof e?.force2dIcons === 'boolean') {
+      this.force2dIcons = e.force2dIcons;
+    }
+    this._syncClarityUi();
   }
 
   onLyriaCaption(e) {
@@ -4458,6 +4630,8 @@ export class HudListener {
     setTip('#hud-top-btn', this.isMobilePhone ? (this.topDownCamera ? 'mobileCamTopBtn' : 'mobileCam3dBtn') : 'topCamBtn');
     const topBadge = this.rootEl.querySelector('#hud-top-badge');
     if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
+    setTip('#hud-clarity-btn', 'clarityBtn');
+    this._syncClarityUi();
     setTip('#hud-new-btn', 'newGameBtn');
     setTip('#hud-fen-btn', 'fenBtn');
     setTip('#hud-music-btn', 'musicBtn');
@@ -4514,6 +4688,13 @@ export class HudListener {
     setTxt('#hud-setup-black-diff option[value="easy"]', 'cpuEasy');
     setTxt('#hud-setup-black-diff option[value="medium"]', 'cpuMed');
     setTxt('#hud-setup-black-diff option[value="hard"]', 'cpuHard');
+    setTxt('#hud-setup-clarity-lbl', 'clarityLabel');
+    setTxt('#hud-setup-clarity-select option[value="s5"]', 'clarityS5');
+    setTxt('#hud-setup-clarity-select option[value="s1"]', 'clarityS1');
+    setTxt('#hud-setup-clarity-select option[value="s2"]', 'clarityS2');
+    setTxt('#hud-setup-clarity-select option[value="s3"]', 'clarityS3');
+    setTxt('#hud-setup-clarity-select option[value="s4"]', 'clarityS4');
+    setTxt('#hud-setup-clarity-select option[value="off"]', 'clarityOff');
     setTxt('#hud-setup-black-human-wrap', 'hotseatDesc');
     setTxt('#hud-setup-apply-btn', 'applyCurrentBtn');
     setTxt('#hud-setup-start-btn', 'startMatchBtn');
