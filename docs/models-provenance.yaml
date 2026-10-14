@@ -471,8 +471,8 @@ models:
     character: "Orco Brontolo"
     status: "CANONICAL"
     target_path: "assets/models/swamp/king-swamp-orco.glb"
-    size_bytes: 3043652
-    md5: "b643f755493e6d026e7a6c20b956cd78"
+    size_bytes: 3603976
+    md5: "43a1179097038407eeff512c32387898"
     pipeline:
       tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
       script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
@@ -491,8 +491,8 @@ models:
     character: "Principessa Orchessa"
     status: "CANONICAL"
     target_path: "assets/models/swamp/queen-swamp-orchessa.glb"
-    size_bytes: 2266476
-    md5: "50d923dd873bd1255b2c6118354fd2dd"
+    size_bytes: 3332776
+    md5: "d67560340c92d2b51cd3904eebb32f59"
     pipeline:
       tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
       script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
@@ -511,8 +511,8 @@ models:
     character: "Don Gatto Spadaccino-Vescovo"
     status: "CANONICAL"
     target_path: "assets/models/swamp/bishop-swamp-focaccina.glb"
-    size_bytes: 1835436
-    md5: "21fab11034c463e19bba262e3ba78270"
+    size_bytes: 2699276
+    md5: "55a4921259c34d869a289c5aa3351f32"
     pipeline:
       tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
       script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
@@ -551,8 +551,8 @@ models:
     character: "Draghessa della Palude"
     status: "CANONICAL"
     target_path: "assets/models/swamp/rook-swamp-draghessa.glb"
-    size_bytes: 2449644
-    md5: "a5bf78170da10d2c7fa6ec01fe42d2b7"
+    size_bytes: 3473616
+    md5: "33a2ee99ed921c4d7aeea418441a65b7"
     pipeline:
       tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
       script: "tools/model-pipeline/reconstruct_mode_a_batch.py"
@@ -571,8 +571,8 @@ models:
     character: "Zenzy Pan di Zenzero & Focaccina"
     status: "CANONICAL"
     target_path: "assets/models/swamp/pawn-swamp-tappo.glb"
-    size_bytes: 1613580
-    md5: "df8bff39f631b497f4f10c4e270690e0"
+    size_bytes: 2353828
+    md5: "46804482aab9933c677e29666b7b7e83"
     pipeline:
       tool: "Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking"
       script: "tools/model-pipeline/reconstruct_mode_a_batch.py"

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.58] - 2026-10-14
+
+- 🐸✨ **Swamp 3D Mesh Solid Hull Refinement & Before/After Showcase**:
+  - Refined Mode A reconstruction pipeline (`tools/model-pipeline/reconstruct_mode_a_batch.py`) with automatic aspect ratio detection (`aspect > 1.35` for 16:9 turnaround sheets vs 1:1 single portraits) and convex elliptical depth envelopes (`depth = 0.54 * width`), ensuring full solid watertight geometry without phantom gaps for all Swamp models.
+  - Re-sculpted and updated 5 Swamp GLBs (`king-swamp-orco`, `queen-swamp-orchessa`, `bishop-swamp-focaccina`, `rook-swamp-draghessa`, `pawn-swamp-tappo`) with updated MD5 checksums in `docs/models-provenance.yaml`.
+  - Generated Before/After visual comparison cards (2D concept vs procedural vs reconstructed 3D) and a 16:9 cinematic article hero banner.
+
 ## [0.3.57] - 2026-10-14
 
 - 🧊🏰 **Reconstruct High-Res UV-Textured 3D GLB Models for Classic & Swamp Families (Issue #20)**:
