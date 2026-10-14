@@ -184,10 +184,9 @@
       width: 26px;
       height: 26px;
       border-radius: 50%;
-      object-fit: cover;
-      border: 1.5px solid var(--gold);
+      object-fit: contain;
       flex-shrink: 0;
-      background: #090d15;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     }
     .hero-chip-label {
       font-weight: 800;
@@ -1338,6 +1337,7 @@
       HERO_SOUNDBOARDS,
       getHeroAttacks,
       getHeroDefenses,
+      getPieceMedallion,
     } from '../src/core/CharacterPovData.js';
 
     // ── DATA FOR MULTI-FAMILY 18-PIECE SHOWCASE ──
@@ -1898,10 +1898,11 @@ if (uDragonCoilMode > 0.5) {
       heroSelectorEl.innerHTML = CARLESSO_HERO_KEYS.map((key) => {
         const hero = HERO_PROFILES[key];
         const isActive = key === currentHeroKey;
+        const medallionSrc = getPieceMedallion(key, 'white', '../');
         return `
           <button type="button" class="hero-chip-btn ${isActive ? 'active' : ''}" data-hero="${key}" aria-pressed="${isActive}" title="${hero.fullName} (${hero.role})">
-            <img src="../${hero.avatar}" alt="${hero.heroName}" class="hero-chip-avatar">
-            <span class="hero-chip-label">${hero.glyph} ${hero.heroName}</span>
+            <img src="${medallionSrc}" alt="${hero.fullName}" class="hero-chip-avatar">
+            <span class="hero-chip-label">${hero.heroName}</span>
           </button>
         `;
       }).join('');

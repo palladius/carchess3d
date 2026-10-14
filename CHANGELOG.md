@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.58] - 2026-10-14
+
+- 🎙️👦 **Knight Seby Voice Line ("Scrivile Scemo")**:
+  - Added *"Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!"* (`voice-n-scrivilescemo.mp3`) using Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`).
+  - Tuned acoustic synthesis to avoid cartoon/female dubbing artifacts, using natural prepubescent Italian boy vocal cords without artificial pitch-shift distortion.
+  - Registered soundboard clip in `src/core/CharacterPovData.js` and in `src/core/Registry.js` for in-game and showcase playback.
+- ♟️✨ **Showcase Hero Selector Navigation Polish**:
+  - Replaced cropped photo avatars with crisp 2D circular Staunton chess medallions (`getPieceMedallion`).
+  - Streamlined character chip labels to single-word names (*Sebi, Ale, Riccardo, Kate, Pupurabbu, Puffin*), removing *"Papà"* and *"Mamma"* prefixes.
+
 ## [0.3.57] - 2026-10-14
 
 - 🧊🏰 **Reconstruct High-Res UV-Textured 3D GLB Models for Classic & Swamp Families (Issue #20)**:
@@ -8,6 +18,7 @@
   - **Model Provenance Registry (`docs/models-provenance.yaml`)**: Added all 12 newly reconstructed models with exact MD5 checksums, target paths, sizes, and pipeline details. `scripts/check.py` validates all 22 tracked models.
   - **Contract & Budget Alignment**: Grounding at `min.y == 0.0m`, canonical piece heights, clamped footprint spans (`0.70m <= span <= 0.86m`), named material slots `faction_primary` (diffuse 1024x1024 UV map) and `faction_trim`, aligned triangle budgets (`assets/families/classic.json`).
   - **Tooling (`tools/model-pipeline/`)**: Added zero-GPU local Mode A batch sculpting pipeline (`reconstruct_mode_a_batch.py`) utilizing `rembg` foreground segmentation, visual hull density carving, Taubin fairing, and UV texture baking.
+
 
 ## [0.3.56] - 2026-10-13
 

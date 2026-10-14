@@ -40,6 +40,7 @@ export function getPieceMedallion(key, color = 'white', prefix = '') {
 export const HERO_SOUNDBOARDS = Object.freeze({
   n: [
     { id: 'voice-n', label: '🐴 Sono Seby!', audio: 'assets/audio/voices/voice-n.mp3', quote: 'Dimmi papino!', badge: 'Saluto' },
+    { id: 'voice-n-scrivilescemo', label: '🐧 Scrivile Scemo!', audio: 'assets/audio/voices/voice-n-scrivilescemo.mp3', quote: 'Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!', badge: 'Musica' },
     { id: 'voice-n-bottom', label: '🧻 Clean My Bottom!', audio: 'assets/audio/voices/voice-n-bottom.mp3', quote: 'Mummy, can you clean my bottooooom?!', badge: 'Iconico' },
     { id: 'voice-n-cacca', label: '💩 Cacca!', audio: 'assets/audio/voices/voice-n-cacca.mp3', quote: 'Mi scappa la cacca!', badge: 'Risate' },
     { id: 'voice-n-mybody', label: '💪 My Body!', audio: 'assets/audio/voices/voice-n-mybody.mp3', quote: 'My body, my choice!', badge: 'Top' },
@@ -121,7 +122,7 @@ export const HERO_PROFILES = Object.freeze({
   },
   k: {
     key: 'k',
-    heroName: 'Papà (Riccardo)',
+    heroName: 'Riccardo',
     fullName: 'Re Riccardo',
     role: 'Re',
     glyph: '♔',
@@ -139,7 +140,7 @@ export const HERO_PROFILES = Object.freeze({
   },
   q: {
     key: 'q',
-    heroName: 'Mamma (Kate)',
+    heroName: 'Kate',
     fullName: 'Regina Kate',
     role: 'Regina',
     glyph: '♕',

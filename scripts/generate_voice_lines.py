@@ -134,6 +134,14 @@ VOICE_CLIPS = [
         "ffmpeg_filter": "asetrate=24000*1.14,aresample=24000,atempo=0.94,silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.45",
     },
     {
+        "filename": "voice-n-scrivilescemo.mp3",
+        "piece": "n",
+        "voice_name": "Puck",
+        "transcript": "Hey Google, <short pause> metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!",
+        "style": "A cheerful young Italian boy/lad with natural male adolescent vocal cords. Casual, spontaneous, realistic male voice speaking Italian. Absolutely NOT an adult woman doing a cartoon voice. Authentic male child timbre.",
+        "ffmpeg_filter": "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB,volume=1.4",
+    },
+    {
         "filename": "voice-n-hmm.mp3",
         "piece": "n",
         "voice_name": "Puck",

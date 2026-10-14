@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.57';
+export const APP_VERSION = '0.3.58';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -286,6 +286,16 @@ export const VOICE_LINES = Object.freeze({
         quote: {
           it: 'Dimmi papino!',
           en: 'Dimmi papino!',
+        },
+      },
+      {
+        id: 'n_scrivilescemo',
+        kind: 'signature',
+        weight: 1.8,
+        audioUrl: 'assets/audio/voices/voice-n-scrivilescemo.mp3',
+        quote: {
+          it: 'Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!',
+          en: 'Hey Google, play Scrivile Scemo by Pinguini Tattici Nucleari on YouTube Music!',
         },
       },
       {
