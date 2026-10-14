@@ -70,33 +70,45 @@ def dilate_rgb_outside_mask(rgb: np.ndarray, mask: np.ndarray, iters: int = 36) 
 
 
 def extract_aligned_views(img_path: Path, target_height_m: float, grid_h: int = 240, grid_w: int = 180):
-    """Extract segmented Front and Side views from 16:9 turnaround image."""
+    """Extract segmented Front and Side views from 16:9 turnaround or 1:1 single image."""
     full_img = Image.open(img_path).convert("RGB")
     W, H = full_img.size
-    half_w = W // 2
+    aspect = W / max(1, H)
 
-    front_crop = full_img.crop((0, 0, half_w, H))
-    side_crop = full_img.crop((half_w, 0, W, H))
-
-    front_rgba = np.asarray(remove(front_crop), dtype=np.float32) / 255.0
-    side_rgba = np.asarray(remove(side_crop), dtype=np.float32) / 255.0
-
-    f_mask_raw = front_rgba[:, :, 3] > 0.45
-    s_mask_raw = side_rgba[:, :, 3] > 0.45
-
-    fy, fx = np.where(f_mask_raw)
-    sy, sx = np.where(s_mask_raw)
-
-    y_top = min(int(fy.min()), int(sy.min()))
-    y_bot = max(int(fy.max()), int(sy.max()))
-    height_px = y_bot - y_top + 1
-
-    ped_y0 = int(y_bot - 0.20 * height_px)
-    f_ped_y, f_ped_x = np.where(f_mask_raw[ped_y0 : y_bot + 1, :])
-    f_cx = float(np.median(f_ped_x)) if len(f_ped_x) > 0 else float(front_crop.width // 2)
-
-    s_ped_y, s_ped_x = np.where(s_mask_raw[ped_y0 : y_bot + 1, :])
-    s_cx = float(np.median(s_ped_x)) if len(s_ped_x) > 0 else float(side_crop.width // 2)
+    if aspect > 1.35:
+        # Multi-view 16:9 turnaround (Front left, Side right)
+        half_w = W // 2
+        front_crop = full_img.crop((0, 0, half_w, H))
+        side_crop = full_img.crop((half_w, 0, W, H))
+        front_rgba = np.asarray(remove(front_crop), dtype=np.float32) / 255.0
+        side_rgba = np.asarray(remove(side_crop), dtype=np.float32) / 255.0
+        f_mask_raw = front_rgba[:, :, 3] > 0.45
+        s_mask_raw = side_rgba[:, :, 3] > 0.45
+        fy, fx = np.where(f_mask_raw)
+        sy, sx = np.where(s_mask_raw)
+        y_top = min(int(fy.min()), int(sy.min()))
+        y_bot = max(int(fy.max()), int(sy.max()))
+        height_px = y_bot - y_top + 1
+        ped_y0 = int(y_bot - 0.20 * height_px)
+        f_ped_y, f_ped_x = np.where(f_mask_raw[ped_y0 : y_bot + 1, :])
+        f_cx = float(np.median(f_ped_x)) if len(f_ped_x) > 0 else float(front_crop.width // 2)
+        s_ped_y, s_ped_x = np.where(s_mask_raw[ped_y0 : y_bot + 1, :])
+        s_cx = float(np.median(s_ped_x)) if len(s_ped_x) > 0 else float(side_crop.width // 2)
+    else:
+        # Single 1:1 square portrait (Full front image)
+        full_rgba = np.asarray(remove(full_img), dtype=np.float32) / 255.0
+        front_rgba = full_rgba
+        side_rgba = full_rgba
+        f_mask_raw = front_rgba[:, :, 3] > 0.45
+        s_mask_raw = f_mask_raw
+        fy, fx = np.where(f_mask_raw)
+        y_top = int(fy.min())
+        y_bot = int(fy.max())
+        height_px = y_bot - y_top + 1
+        ped_y0 = int(y_bot - 0.20 * height_px)
+        f_ped_y, f_ped_x = np.where(f_mask_raw[ped_y0 : y_bot + 1, :])
+        f_cx = float(np.median(f_ped_x)) if len(f_ped_x) > 0 else float(full_img.width // 2)
+        s_cx = f_cx
 
     span_xz_m = 0.82
     px_per_m = height_px / max(0.1, target_height_m)
@@ -124,7 +136,7 @@ def extract_aligned_views(img_path: Path, target_height_m: float, grid_h: int = 
 
     f_rgb, f_mask = resample_view(front_rgba, f_cx)
     s_rgb, s_mask = resample_view(side_rgba, s_cx)
-    return f_rgb, f_mask, s_rgb, s_mask
+    return f_rgb, f_mask, s_rgb, s_mask, (aspect > 1.35)
 
 
 def sculpt_piece_sdf_mesh(
@@ -133,6 +145,7 @@ def sculpt_piece_sdf_mesh(
     s_rgb: np.ndarray,
     s_mask: np.ndarray,
     target_height_m: float,
+    is_turnaround: bool = True,
 ) -> trimesh.Trimesh:
     """Build a 3D density volume and extract iso-surface with marching cubes."""
     H, W = f_mask.shape
@@ -156,19 +169,22 @@ def sculpt_piece_sdf_mesh(
         y_m = float(ys[iy])
         row_f = f_mask[iy, :]
         row_s = s_mask[iy, :]
-        if not np.any(row_f) or not np.any(row_s):
+        if not np.any(row_f):
             continue
 
         fx_idx = np.where(row_f)[0]
-        sz_idx = np.where(row_s)[0]
-
         f_xmin, f_xmax = float(xs[fx_idx[0]]), float(xs[fx_idx[-1]])
         f_half_w = max(0.5 * (f_xmax - f_xmin), 0.015)
         f_mid_x = 0.5 * (f_xmin + f_xmax)
 
-        s_zmin, s_zmax = float(zs[sz_idx[0]]), float(zs[sz_idx[-1]])
-        s_half_d = max(0.5 * (s_zmax - s_zmin), 0.015)
-        s_mid_z = 0.5 * (s_zmin + s_zmax)
+        if is_turnaround and np.any(row_s):
+            sz_idx = np.where(row_s)[0]
+            s_zmin, s_zmax = float(zs[sz_idx[0]]), float(zs[sz_idx[-1]])
+            s_half_d = max(0.5 * (s_zmax - s_zmin), 0.015)
+            s_mid_z = 0.5 * (s_zmin + s_zmax)
+        else:
+            s_half_d = max(0.54 * f_half_w, 0.035)
+            s_mid_z = 0.0
 
         # 1. Turned Pedestal (bottom 20%): circular symmetry
         ped_blend = float(np.clip((y_ped_m - y_m) / max(0.01, y_ped_m * 0.25), 0.0, 1.0))
@@ -180,25 +196,43 @@ def sculpt_piece_sdf_mesh(
         else:
             ped_field = None
 
-        # 2. Main Body: Elliptical cross-section intersected with front and side silhouettes
+        # 2. Main Body
         if ped_blend < 1.0:
-            sd_row = s_dist[iy, :]
-            sd_max = max(float(sd_row.max()), 1.0)
-            z_env = np.clip(sd_row / (sd_max * 0.65), 0.0, 1.0) ** 0.54
+            if is_turnaround and np.any(row_s):
+                sd_row = s_dist[iy, :]
+                sd_max = max(float(sd_row.max()), 1.0)
+                z_env = np.clip(sd_row / (sd_max * 0.65), 0.0, 1.0) ** 0.54
 
-            local_half_w = f_half_w * z_env
-            xx, zz = np.meshgrid(xs - f_mid_x, zs - s_mid_z, indexing="ij")
-            ellip_field = local_half_w[None, :] - np.abs(xx)
+                local_half_w = f_half_w * z_env
+                xx, zz = np.meshgrid(xs - f_mid_x, zs - s_mid_z, indexing="ij")
+                ellip_field = local_half_w[None, :] - np.abs(xx)
 
-            fd_row = f_dist[iy, :]
-            front_sdf_m = (fd_row - 0.5) * (span_xz / W)
-            f_out_dist = ndimage.distance_transform_edt(~row_f).astype(np.float32) * (span_xz / W)
-            front_signed = np.where(row_f, front_sdf_m, -f_out_dist)[:, None]
+                fd_row = f_dist[iy, :]
+                front_sdf_m = (fd_row - 0.5) * (span_xz / W)
+                f_out_dist = ndimage.distance_transform_edt(~row_f).astype(np.float32) * (span_xz / W)
+                front_signed = np.where(row_f, front_sdf_m, -f_out_dist)[:, None]
 
-            s_out_dist = ndimage.distance_transform_edt(~row_s).astype(np.float32) * (span_xz / W)
-            side_signed = np.where(row_s, sd_row * (span_xz / W), -s_out_dist)[None, :]
+                s_out_dist = ndimage.distance_transform_edt(~row_s).astype(np.float32) * (span_xz / W)
+                side_signed = np.where(row_s, sd_row * (span_xz / W), -s_out_dist)[None, :]
 
-            body_field = np.minimum(np.minimum(ellip_field, front_signed), side_signed)
+                body_field = np.minimum(np.minimum(ellip_field, front_signed), side_signed)
+                relief_add = 0.007 * s_relief[iy, :][None, :] + 0.006 * f_relief[iy, :][:, None]
+                body_field = body_field + relief_add
+            else:
+                xx, zz = np.meshgrid(xs - f_mid_x, zs - s_mid_z, indexing="ij")
+                z_norm = np.clip(np.abs(zz) / s_half_d, 0.0, 1.0)
+                local_half_w = f_half_w * np.sqrt(np.maximum(0.0, 1.0 - z_norm**2))
+                ellip_field = local_half_w - np.abs(xx)
+
+                fd_row = f_dist[iy, :]
+                front_sdf_m = (fd_row - 0.5) * (span_xz / W)
+                f_out_dist = ndimage.distance_transform_edt(~row_f).astype(np.float32) * (span_xz / W)
+                front_signed = np.where(row_f, front_sdf_m, -f_out_dist)[:, None]
+
+                depth_signed = s_half_d - np.abs(zz)
+                body_field = np.minimum(np.minimum(ellip_field, front_signed), depth_signed)
+                relief_add = 0.008 * f_relief[iy, :][:, None] * np.maximum(0.0, 1.0 - z_norm)
+                body_field = body_field + relief_add
 
             # Emboss luminance relief for high-contrast features (eyes, belts, crenels, gems, feathers)
             relief_add = 0.007 * s_relief[iy, :][None, :] + 0.006 * f_relief[iy, :][:, None]
@@ -279,6 +313,7 @@ def bake_uv_atlas_and_export_glb(
     s_mask: np.ndarray,
     target_height_m: float,
     out_glb_path: Path,
+    is_turnaround: bool = True,
 ) -> dict:
     """Build 1024x1024 UV atlas and write valid binary glTF 2.0 .glb."""
     H_grid, W_grid, _ = f_rgb.shape
@@ -304,13 +339,17 @@ def bake_uv_atlas_and_export_glb(
     v_pos = mesh.vertices[faces].reshape(-1, 3).astype(np.float32)
     v_norm = mesh.vertex_normals[faces].reshape(-1, 3).astype(np.float32)
 
-    # Front panel for front-facing triangles (nz > 0.35, z > 0), Side panel for sides/back/pedestal
+    # Front panel for front-facing triangles (nz > 0.35, z > 0), Side/back panel for sides/back/pedestal
     f_norms = mesh.face_normals
     tri_centers = v_pos.reshape(-1, 3, 3).mean(axis=1)
     use_front_panel = (f_norms[:, 2] > 0.30) & (tri_centers[:, 2] > -0.05)
     tri_front = np.repeat(use_front_panel, 3)
 
-    u_side = np.clip(((v_pos[:, 2] / span_xz) + 0.5), 0.02, 0.98) * 0.48 + 0.01
+    if is_turnaround:
+        u_side = np.clip(((v_pos[:, 2] / span_xz) + 0.5), 0.02, 0.98) * 0.48 + 0.01
+    else:
+        u_side = np.clip(((-v_pos[:, 0] / span_xz) + 0.5), 0.02, 0.98) * 0.48 + 0.01
+
     u_front = np.clip(((v_pos[:, 0] / span_xz) + 0.5), 0.02, 0.98) * 0.48 + 0.51
     u_coord = np.where(tri_front, u_front, u_side).astype(np.float32)
     v_coord = np.clip(1.0 - (v_pos[:, 1] / target_height_m), 0.01, 0.99).astype(np.float32)
@@ -460,9 +499,9 @@ def reconstruct_piece(family: str, role: str, slug: str, height_m: float, src_re
     dest_path = REPO_ROOT / dest_rel
     print(f"🗿 [{slug}] Processing 2D turnaround {src_path.name} -> {dest_path.name} ({height_m}m)...", flush=True)
 
-    f_rgb, f_mask, s_rgb, s_mask = extract_aligned_views(src_path, height_m)
-    mesh = sculpt_piece_sdf_mesh(f_rgb, f_mask, s_rgb, s_mask, height_m)
-    stats = bake_uv_atlas_and_export_glb(mesh, f_rgb, f_mask, s_rgb, s_mask, height_m, dest_path)
+    f_rgb, f_mask, s_rgb, s_mask, is_turnaround = extract_aligned_views(src_path, height_m)
+    mesh = sculpt_piece_sdf_mesh(f_rgb, f_mask, s_rgb, s_mask, height_m, is_turnaround=is_turnaround)
+    stats = bake_uv_atlas_and_export_glb(mesh, f_rgb, f_mask, s_rgb, s_mask, height_m, dest_path, is_turnaround=is_turnaround)
     elapsed = time.time() - t0
     print(
         f"  ✅ [{slug}] Saved {dest_rel} ({stats['size_kb']} KB, {stats['faces']} tris, {height_m}m) in {elapsed:.1f}s",
