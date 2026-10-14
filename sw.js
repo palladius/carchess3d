@@ -8,7 +8,7 @@
  *   `chess-strings-bg.mp3`, `combat-suspense.mp3`, `voice-*.mp3`) on demand for offline play.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v34';
+const CACHE_NAME = 'carchess3d-offline-v35';
 
 const PRECACHE_URLS = [
   './',

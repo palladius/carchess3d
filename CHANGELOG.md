@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.65] - 2026-10-14
+
+- 🐛🖥️📐 **Showcase Viewport Layout & Headless Screenshot Fix at 1600×900 and 1920×1080 (Fixes Issue #30, PR #35) (`showcase/index.html`, `VERSION`, `CHANGELOG.md`, `tests/test_character_pov.py`)**:
+  - **Eliminated Black Band & Top Bar Offset**:
+    - Removed window-level `card.scrollIntoView(...)` in `showcase/index.html` which previously forced the entire browser window down, leaving a ~300px black band above the sticky header in headless Chrome.
+  - **Expanded Left Panel & Fixed Text Truncation**:
+    - Increased `.pov-left-panel` and `.pov-stage-grid` column width from 280px to 330px, ensuring `🖱️ Trascina per ruotare` and weapon/counter badges fit cleanly on a single line without clipping.
+    - Updated `.sound-btn-quote` with `-webkit-line-clamp: 2` and `word-break: break-word`, allowing quotes to wrap to 2 lines instead of abruptly truncating with ellipsis.
+  - **Regression Test Added**:
+    - Added `test_showcase_viewport_layout_regression_prevention` to `tests/test_character_pov.py` to prevent regressions.
+- 🔀 Merged branch `origin/fix/issue-30` (originally numbered 0.3.49; renumbered above main's 0.3.64).
+
 ## [0.3.64] - 2026-10-14
 
 - 🎬🐴✨ **Unified Backstage Entry Point: Single "Cinema Eroi POV" (`./showcase/?view=pov`) Link & Removal of Duplicate 6×6 Matrix / WOW Mode Buttons (`src/listeners/HudListener.js`, `src/core/Registry.js`, `showcase/index.html`, `nocache.html`, `sw.js`, `tools/model-pipeline/critic/critic_audio.py`, `docs/spec/SPEC.md`, `VERSION`)**:
