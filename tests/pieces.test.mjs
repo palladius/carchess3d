@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { GameEventBus } from '../src/core/EventBus.js';
 import { mulberry32 } from '../src/core/Rng.js';
 import { BoardMapManager } from '../src/managers/BoardMapManager.js';
-import { PieceManager, BISHOP_GLB_VARIANTS } from '../src/managers/PieceManager.js';
+import { PieceManager, BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS } from '../src/managers/PieceManager.js';
 import { CANONICAL_PIECE_HEIGHTS } from '../src/utils/glbGrounding.js';
 
 function createPieceSetup() {
@@ -54,7 +54,7 @@ test('PieceManager: resolves 32 initial pieces with canonical heights, GLBs, and
   assert.equal(whitePawn.glbUrl, 'assets/models/pawn-puffin.glb');
 });
 
-test('PieceManager: toggles rival set mode (family vs stone) and Bishop Ale variant (hat vs rigged)', () => {
+test('PieceManager: toggles rival set mode (family vs stone), Bishop Ale variants (hat, astrolabe, rigged), and Queen Kate variants (young, wedding)', () => {
   const { bus, pieces } = createPieceSetup();
   const setEvents = [];
   bus.on('PIECE_SET_CHANGED', (e) => setEvents.push(e));
@@ -100,8 +100,29 @@ test('PieceManager: toggles rival set mode (family vs stone) and Bishop Ale vari
   pieces.setWhiteFamily('carlesso');
   bus.flush();
 
-  // Toggle back to canonical 'hat' (bishop-ale-1.glb) and restore family set
-  pieces.setBishopVariant('hat');
+  // Toggle Bishop Ale variant to 'astrolabe' (bishop-ale-2-remastered.glb)
+  pieces.setBishopVariant('astrolabe');
+  bus.flush();
+  assert.equal(pieces.getBishopVariant(), 'astrolabe');
+  assert.equal(pieces.getPieceAt('c1').glbUrl, BISHOP_GLB_VARIANTS.astrolabe);
+
+  // Toggle Queen Kate variant to 'wedding' (queen-kate-wedding2016-remastered.glb)
+  assert.equal(pieces.getQueenVariant(), 'young');
+  assert.equal(pieces.getPieceAt('d1').glbUrl, QUEEN_GLB_VARIANTS.young);
+  pieces.setQueenVariant('wedding');
+  bus.flush();
+  assert.equal(pieces.getQueenVariant(), 'wedding');
+  assert.equal(pieces.getPieceAt('d1').glbUrl, QUEEN_GLB_VARIANTS.wedding);
+
+  // Test PIECE_VARIANT_REQUESTED bus event
+  bus.emit({ type: 'PIECE_VARIANT_REQUESTED', bishopVariant: 'hat', queenVariant: 'young' });
+  bus.flush();
+  assert.equal(pieces.getBishopVariant(), 'hat');
+  assert.equal(pieces.getQueenVariant(), 'young');
+  assert.equal(pieces.getPieceAt('c1').glbUrl, BISHOP_GLB_VARIANTS.hat);
+  assert.equal(pieces.getPieceAt('d1').glbUrl, QUEEN_GLB_VARIANTS.young);
+
+  // Restore family set and verify mirror black bishop
   pieces.setRivalSetMode('family');
   bus.flush();
   assert.equal(pieces.getPieceAt('c8').isStoneSet, false);

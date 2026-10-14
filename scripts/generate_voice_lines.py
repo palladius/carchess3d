@@ -21,7 +21,10 @@ import urllib.request
 import wave
 from pathlib import Path
 
-from dotenv import dotenv_values
+try:
+    from dotenv import dotenv_values
+except ImportError:
+    dotenv_values = None
 
 ROOT = Path(__file__).resolve().parent.parent
 VOICES_DIR = ROOT / "assets/audio/voices"
@@ -282,9 +285,10 @@ def load_api_key() -> str:
             m = re.search(r'GEMINI_API_KEY=["\']?(AIza[0-9A-Za-z_-]+)["\']?', txt)
             if m:
                 return m.group(1)
-            vals = dotenv_values(candidate)
-            if key := vals.get("GEMINI_API_KEY"):
-                return key
+            if dotenv_values is not None:
+                vals = dotenv_values(candidate)
+                if key := vals.get("GEMINI_API_KEY"):
+                    return key
     raise RuntimeError("GEMINI_API_KEY not found")
 
 

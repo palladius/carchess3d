@@ -5,13 +5,16 @@
  * and Bishop Ale GLB variant (`'rigged'|'hat'`). Zero DOM or Three.js imports (`<= 300` LOC).
  */
 
-import { CHARACTER_REGISTRY, FAMILY_REGISTRIES, squareToWorld } from '../core/Registry.js';
+import {
+  CHARACTER_REGISTRY,
+  FAMILY_REGISTRIES,
+  squareToWorld,
+  BISHOP_GLB_VARIANTS,
+  QUEEN_GLB_VARIANTS,
+} from '../core/Registry.js';
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const BISHOP_GLB_VARIANTS = Object.freeze({
-  rigged: 'assets/models/bishop-ale-rigged.glb',
-  hat: 'assets/models/bishop-ale-1.glb',
-});
+export { BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS };
 
 export const CLIP_ALIASES = Object.freeze({
   Idle: 'Idle_Track',
@@ -27,8 +30,10 @@ export class PieceManager {
     this.whiteFamily = 'carlesso';
     /** @type {'family'|'swamp'|'classic'|'stone'} */
     this.rivalSetMode = 'family';
-    /** @type {'rigged'|'hat'} */
+    /** @type {'hat'|'astrolabe'|'rigged'} */
     this.bishopVariant = 'hat';
+    /** @type {'young'|'wedding'} */
+    this.queenVariant = 'young';
     /** @type {Map<string, object>} */
     this.livingBySquare = new Map();
     /** @type {{ w: Array<object>, b: Array<object> }} */
@@ -51,6 +56,10 @@ export class PieceManager {
       ctx.bus.on('CASTLING_EXECUTED', (e) => this.handleCastling(e)),
       ctx.bus.on('MOVE_EXECUTED', (e) => this.handleMoveExecuted(e)),
       ctx.bus.on('WOW_TRIGGER_ANIMATION', (e) => this.requestAnimation(e)),
+      ctx.bus.on('PIECE_VARIANT_REQUESTED', (e) => {
+        if (e.bishopVariant) this.setBishopVariant(e.bishopVariant);
+        if (e.queenVariant) this.setQueenVariant(e.queenVariant);
+      }),
     );
   }
 
@@ -67,9 +76,13 @@ export class PieceManager {
 
     let glbUrl = null;
     if (!isStoneSet) {
-      glbUrl = activeFamily === 'carlesso' && type === 'b'
-        ? (BISHOP_GLB_VARIANTS[this.bishopVariant] || meta.glbUrl)
-        : (meta.glbUrl || null);
+      if (activeFamily === 'carlesso' && type === 'b') {
+        glbUrl = BISHOP_GLB_VARIANTS[this.bishopVariant] || meta.glbUrl;
+      } else if (activeFamily === 'carlesso' && type === 'q') {
+        glbUrl = QUEEN_GLB_VARIANTS[this.queenVariant] || meta.glbUrl;
+      } else {
+        glbUrl = meta.glbUrl || null;
+      }
     }
 
     const pos = squareToWorld(square);
@@ -120,9 +133,7 @@ export class PieceManager {
     if (trayList.some((item) => item.id === captureId)) return false;
 
     const sideSign = victimColor === 'w' ? -1 : 1;
-    const trayX = sideSign * (6.25 + (slotIndex % 2) * 0.95);
-    const trayY = -0.28;
-    const trayZ = Math.floor(slotIndex / 2) * 1.05 - 2.65;
+    const trayX = sideSign * (6.25 + (slotIndex % 2) * 0.95), trayY = -0.28, trayZ = Math.floor(slotIndex / 2) * 1.05 - 2.65;
 
     const desc = this.resolveDescriptor({ type: defType, color: victimColor, square: capturedSq, id: captureId });
     trayList.push({
@@ -137,12 +148,9 @@ export class PieceManager {
 
   seedSwampParty() {
     const swimmers = [
-      { defender: 'b', victimColor: 'w', capturedSquare: 'c1', attacker: 'n' },
-      { defender: 'n', victimColor: 'w', capturedSquare: 'g1', attacker: 'r' },
-      { defender: 'p', victimColor: 'w', capturedSquare: 'e2', attacker: 'q' },
-      { defender: 'n', victimColor: 'b', capturedSquare: 'b8', attacker: 'b' },
-      { defender: 'b', victimColor: 'b', capturedSquare: 'f8', attacker: 'k' },
-      { defender: 'r', victimColor: 'b', capturedSquare: 'h8', attacker: 'n' },
+      { defender: 'b', victimColor: 'w', capturedSquare: 'c1', attacker: 'n' }, { defender: 'n', victimColor: 'w', capturedSquare: 'g1', attacker: 'r' },
+      { defender: 'p', victimColor: 'w', capturedSquare: 'e2', attacker: 'q' }, { defender: 'n', victimColor: 'b', capturedSquare: 'b8', attacker: 'b' },
+      { defender: 'b', victimColor: 'b', capturedSquare: 'f8', attacker: 'k' }, { defender: 'r', victimColor: 'b', capturedSquare: 'h8', attacker: 'n' },
     ];
     let added = 0;
     for (const s of swimmers) {
@@ -159,14 +167,8 @@ export class PieceManager {
       this.livingBySquare.set(e.rookTo, this.resolveDescriptor({ ...rook, square: e.rookTo, id: rook.id }));
     }
     this.ctx?.bus?.emit({
-      type: 'PIECE_ANIM_REQUESTED',
-      animType: 'castling_belly_bounce',
-      color: e.color,
-      side: e.side,
-      kingFrom: e.kingFrom,
-      kingTo: e.kingTo,
-      rookFrom: e.rookFrom,
-      rookTo: e.rookTo,
+      type: 'PIECE_ANIM_REQUESTED', animType: 'castling_belly_bounce',
+      color: e.color, side: e.side, kingFrom: e.kingFrom, kingTo: e.kingTo, rookFrom: e.rookFrom, rookTo: e.rookTo,
     });
   }
 
@@ -191,10 +193,8 @@ export class PieceManager {
   _applySetChange(reason) {
     this.reResolveAll();
     this.ctx?.bus?.emit({
-      type: 'PIECE_SET_CHANGED',
-      whiteFamily: this.whiteFamily,
-      rivalSetMode: this.rivalSetMode,
-      bishopVariant: this.bishopVariant,
+      type: 'PIECE_SET_CHANGED', whiteFamily: this.whiteFamily, rivalSetMode: this.rivalSetMode,
+      bishopVariant: this.bishopVariant, queenVariant: this.queenVariant,
     });
     this.emitPiecesSynced(reason);
   }
@@ -215,10 +215,19 @@ export class PieceManager {
   }
 
   setBishopVariant(variant) {
-    const normalized = variant === 'hat' ? 'hat' : 'rigged';
+    const valid = ['hat', 'astrolabe', 'rigged'];
+    const normalized = valid.includes(variant) ? variant : 'hat';
     if (this.bishopVariant === normalized) return;
     this.bishopVariant = normalized;
     this._applySetChange('bishop_variant_changed');
+  }
+
+  setQueenVariant(variant) {
+    const valid = ['young', 'wedding'];
+    const normalized = valid.includes(variant) ? variant : 'young';
+    if (this.queenVariant === normalized) return;
+    this.queenVariant = normalized;
+    this._applySetChange('queen_variant_changed');
   }
 
   reResolveAll() {
@@ -227,11 +236,7 @@ export class PieceManager {
     }
     for (const color of ['w', 'b']) {
       this.capturedTrays[color] = this.capturedTrays[color].map((item) => ({
-        ...item,
-        ...this.resolveDescriptor(item),
-        trayX: item.trayX,
-        trayY: item.trayY,
-        trayZ: item.trayZ,
+        ...item, ...this.resolveDescriptor(item), trayX: item.trayX, trayY: item.trayY, trayZ: item.trayZ,
       }));
     }
   }
@@ -247,26 +252,18 @@ export class PieceManager {
       'Idle_Track';
 
     this.ctx?.bus?.emit({
-      type: 'PIECE_ANIM_REQUESTED',
-      animType: 'clip',
-      square: payload.square || null,
-      pieceType,
-      clipKey: rawKey,
-      resolvedClip,
+      type: 'PIECE_ANIM_REQUESTED', animType: 'clip',
+      square: payload.square || null, pieceType, clipKey: rawKey, resolvedClip,
     });
     return resolvedClip;
   }
 
   emitPiecesSynced(reason = 'sync', move = null) {
     this.ctx?.bus?.emit({
-      type: 'PIECES_SYNCED',
-      reason,
-      move,
-      whiteFamily: this.whiteFamily,
-      rivalSetMode: this.rivalSetMode,
-      bishopVariant: this.bishopVariant,
-      pieces: this.getLivingPieces(),
-      captured: this.getCapturedTrays(),
+      type: 'PIECES_SYNCED', reason, move,
+      whiteFamily: this.whiteFamily, rivalSetMode: this.rivalSetMode,
+      bishopVariant: this.bishopVariant, queenVariant: this.queenVariant,
+      pieces: this.getLivingPieces(), captured: this.getCapturedTrays(),
     });
   }
 
@@ -276,6 +273,7 @@ export class PieceManager {
   getWhiteFamily() { return this.whiteFamily; }
   getRivalSetMode() { return this.rivalSetMode; }
   getBishopVariant() { return this.bishopVariant; }
+  getQueenVariant() { return this.queenVariant; }
   update(_dt) {}
   dispose() {
     for (const off of this.offs) off();

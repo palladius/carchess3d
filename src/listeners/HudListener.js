@@ -114,8 +114,11 @@ export class HudListener {
     this.activeBanner = null;
     this.pendingPromotion = null;
     this.wowSubMode = 'inspector';
+    this.bishopVariant = 'hat';
+    this.queenVariant = 'young';
     this.wowChar = 'b';
-    this.wowBishopVariant = 'rigged';
+    this.wowBishopVariant = 'hat';
+    this.wowQueenVariant = 'young';
     this.wowCardSide = 'front';
     this.wowAutoRotate = true;
     this.wowAttacker = 'b';
@@ -1669,9 +1672,15 @@ export class HudListener {
               .join('')}
           </div>
 
-          <div id="hud-ale-variant-row" style="display:flex;gap:5px;">
-            <button id="hud-ale-rigged-btn" class="hud-btn active" style="flex:1;justify-content:center;">🐉 Ale #2 (Dragon Rigged)</button>
-            <button id="hud-ale-hat-btn" class="hud-btn" style="flex:1;justify-content:center;">🎩 Ale #1 (Hat)</button>
+          <div id="hud-ale-variant-row" style="display:${this.wowChar === 'b' ? 'flex' : 'none'};gap:5px;">
+            <button id="hud-ale-hat-btn" class="hud-btn ${this.wowBishopVariant === 'hat' ? 'active' : ''}" style="flex:1;justify-content:center;">🎩 Ale #1 (Hat)</button>
+            <button id="hud-ale-astrolabe-btn" class="hud-btn ${this.wowBishopVariant === 'astrolabe' ? 'active' : ''}" style="flex:1;justify-content:center;">🟢 Ale #2 (Astrolabe)</button>
+            <button id="hud-ale-rigged-btn" class="hud-btn ${this.wowBishopVariant === 'rigged' ? 'active' : ''}" style="flex:1;justify-content:center;">🐉 Ale Rigged</button>
+          </div>
+
+          <div id="hud-kate-variant-row" style="display:${this.wowChar === 'q' ? 'flex' : 'none'};gap:5px;">
+            <button id="hud-kate-young-btn" class="hud-btn ${this.wowQueenVariant === 'young' ? 'active' : ''}" style="flex:1;justify-content:center;">👑 Kate Young</button>
+            <button id="hud-kate-wedding-btn" class="hud-btn ${this.wowQueenVariant === 'wedding' ? 'active' : ''}" style="flex:1;justify-content:center;">👰 Kate Nozze 2016</button>
           </div>
 
           <div style="display:flex;gap:5px;">
@@ -1814,6 +1823,24 @@ export class HudListener {
                   ${PROFILES.map((p) => `<option value="${p.id}" ${p.id === (this.isMobilePhone ? 'ospite' : 'ale') ? 'selected' : ''}>${p.name}</option>`).join('')}
                 </select>
               </label>
+
+              <div id="hud-setup-variants-wrap" class="hud-setup-label" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+                <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                  <span id="hud-setup-queen-var-lbl">${this.t('queenVariantLabel')}</span>
+                  <select id="hud-setup-queen-variant" class="hud-select" style="min-width:140px;">
+                    <option value="young" ${this.queenVariant === 'young' ? 'selected' : ''}>${this.t('queenVariantYoung')}</option>
+                    <option value="wedding" ${this.queenVariant === 'wedding' ? 'selected' : ''}>${this.t('queenVariantWedding')}</option>
+                  </select>
+                </label>
+                <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                  <span id="hud-setup-bishop-var-lbl">${this.t('bishopVariantLabel')}</span>
+                  <select id="hud-setup-bishop-variant" class="hud-select" style="min-width:140px;">
+                    <option value="hat" ${this.bishopVariant === 'hat' ? 'selected' : ''}>${this.t('bishopVariantHat')}</option>
+                    <option value="astrolabe" ${this.bishopVariant === 'astrolabe' ? 'selected' : ''}>${this.t('bishopVariantAstrolabe')}</option>
+                    <option value="rigged" ${this.bishopVariant === 'rigged' ? 'selected' : ''}>${this.t('bishopVariantRigged')}</option>
+                  </select>
+                </label>
+              </div>
 
               <label id="hud-setup-white-ai-wrap" class="hud-setup-label" style="display:none;">
                 <span id="hud-setup-white-diff-lbl">${this.t('difficultyLabel')}</span>
@@ -2445,20 +2472,50 @@ export class HudListener {
         );
         const aleRow = q('#hud-ale-variant-row');
         if (aleRow) aleRow.style.display = this.wowChar === 'b' ? 'flex' : 'none';
+        const kateRow = q('#hud-kate-variant-row');
+        if (kateRow) kateRow.style.display = this.wowChar === 'q' ? 'flex' : 'none';
         this.ctx?.bus?.emit({
           type: 'WOW_INSPECT_CHARACTER',
           subMode: 'inspector',
           pieceType: this.wowChar,
           bishopVariant: this.wowBishopVariant,
+          queenVariant: this.wowQueenVariant,
         });
         this.ctx?.bus?.flush?.();
       });
+    });
+
+    q('#hud-ale-hat-btn')?.addEventListener('click', () => {
+      this.wowBishopVariant = 'hat';
+      q('#hud-ale-hat-btn')?.classList.add('active');
+      q('#hud-ale-astrolabe-btn')?.classList.remove('active');
+      q('#hud-ale-rigged-btn')?.classList.remove('active');
+      this.ctx?.bus?.emit({
+        type: 'WOW_INSPECT_CHARACTER',
+        pieceType: 'b',
+        bishopVariant: 'hat',
+      });
+      this.ctx?.bus?.flush?.();
+    });
+
+    q('#hud-ale-astrolabe-btn')?.addEventListener('click', () => {
+      this.wowBishopVariant = 'astrolabe';
+      q('#hud-ale-astrolabe-btn')?.classList.add('active');
+      q('#hud-ale-hat-btn')?.classList.remove('active');
+      q('#hud-ale-rigged-btn')?.classList.remove('active');
+      this.ctx?.bus?.emit({
+        type: 'WOW_INSPECT_CHARACTER',
+        pieceType: 'b',
+        bishopVariant: 'astrolabe',
+      });
+      this.ctx?.bus?.flush?.();
     });
 
     q('#hud-ale-rigged-btn')?.addEventListener('click', () => {
       this.wowBishopVariant = 'rigged';
       q('#hud-ale-rigged-btn')?.classList.add('active');
       q('#hud-ale-hat-btn')?.classList.remove('active');
+      q('#hud-ale-astrolabe-btn')?.classList.remove('active');
       this.ctx?.bus?.emit({
         type: 'WOW_INSPECT_CHARACTER',
         pieceType: 'b',
@@ -2467,14 +2524,26 @@ export class HudListener {
       this.ctx?.bus?.flush?.();
     });
 
-    q('#hud-ale-hat-btn')?.addEventListener('click', () => {
-      this.wowBishopVariant = 'hat';
-      q('#hud-ale-hat-btn')?.classList.add('active');
-      q('#hud-ale-rigged-btn')?.classList.remove('active');
+    q('#hud-kate-young-btn')?.addEventListener('click', () => {
+      this.wowQueenVariant = 'young';
+      q('#hud-kate-young-btn')?.classList.add('active');
+      q('#hud-kate-wedding-btn')?.classList.remove('active');
       this.ctx?.bus?.emit({
         type: 'WOW_INSPECT_CHARACTER',
-        pieceType: 'b',
-        bishopVariant: 'hat',
+        pieceType: 'q',
+        queenVariant: 'young',
+      });
+      this.ctx?.bus?.flush?.();
+    });
+
+    q('#hud-kate-wedding-btn')?.addEventListener('click', () => {
+      this.wowQueenVariant = 'wedding';
+      q('#hud-kate-wedding-btn')?.classList.add('active');
+      q('#hud-kate-young-btn')?.classList.remove('active');
+      this.ctx?.bus?.emit({
+        type: 'WOW_INSPECT_CHARACTER',
+        pieceType: 'q',
+        queenVariant: 'wedding',
       });
       this.ctx?.bus?.flush?.();
     });
@@ -2682,6 +2751,9 @@ export class HudListener {
         root.querySelector('input[name="black-player-type"]:checked')?.value || 'ai';
       const blackDiff = q('#hud-setup-black-diff')?.value || 'easy';
 
+      const queenVariant = q('#hud-setup-queen-variant')?.value || this.queenVariant || 'young';
+      const bishopVariant = q('#hud-setup-bishop-variant')?.value || this.bishopVariant || 'hat';
+
       this.applySetup({
         whiteFamily,
         whitePlayerType,
@@ -2690,6 +2762,8 @@ export class HudListener {
         rivalSet,
         blackPlayerType,
         blackDiff,
+        queenVariant,
+        bishopVariant,
         resetBoard,
       });
     };
@@ -3327,6 +3401,13 @@ export class HudListener {
       if (bDiff) bDiff.value = this.blackDifficulty || this.opponentMode || 'easy';
       const wDiff = this.rootEl.querySelector('#hud-setup-white-diff');
       if (wDiff) wDiff.value = this.whiteDifficulty || 'easy';
+      const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+      const qVar = this.rootEl.querySelector('#hud-setup-queen-variant');
+      if (qVar) qVar.value = this.queenVariant || pm?.getQueenVariant?.() || 'young';
+      const bVar = this.rootEl.querySelector('#hud-setup-bishop-variant');
+      if (bVar) bVar.value = this.bishopVariant || pm?.getBishopVariant?.() || 'hat';
+      const varWrap = this.rootEl.querySelector('#hud-setup-variants-wrap');
+      if (varWrap && wSet) varWrap.style.display = wSet.value === 'carlesso' ? 'flex' : 'none';
 
       const wType = this.whitePlayerType || 'human';
       this.rootEl.querySelectorAll('input[name="white-player-type"]').forEach((r) => {
@@ -3450,6 +3531,14 @@ export class HudListener {
     const pm = this.ctx?.pieces || this.ctx?.pieceManager;
     if (pm?.setWhiteFamily) pm.setWhiteFamily(whiteFamily);
     if (pm?.setRivalSetMode) pm.setRivalSetMode(rivalSet);
+    if (settings.bishopVariant) {
+      this.bishopVariant = settings.bishopVariant;
+      if (pm?.setBishopVariant) pm.setBishopVariant(settings.bishopVariant);
+    }
+    if (settings.queenVariant) {
+      this.queenVariant = settings.queenVariant;
+      if (pm?.setQueenVariant) pm.setQueenVariant(settings.queenVariant);
+    }
 
     // Emit configuration changes to Bus & Piece Manager
     if (this.ctx?.bus) {
@@ -4432,6 +4521,13 @@ export class HudListener {
     setTxt('#hud-setup-apply-btn', 'applyCurrentBtn');
     setTxt('#hud-setup-start-btn', 'startMatchBtn');
     setTxt('#hud-setup-badge-text', 'defaultSetupBadge');
+    setTxt('#hud-setup-queen-var-lbl', 'queenVariantLabel');
+    setTxt('#hud-setup-bishop-var-lbl', 'bishopVariantLabel');
+    setTxt('#hud-setup-queen-variant option[value="young"]', 'queenVariantYoung');
+    setTxt('#hud-setup-queen-variant option[value="wedding"]', 'queenVariantWedding');
+    setTxt('#hud-setup-bishop-variant option[value="hat"]', 'bishopVariantHat');
+    setTxt('#hud-setup-bishop-variant option[value="astrolabe"]', 'bishopVariantAstrolabe');
+    setTxt('#hud-setup-bishop-variant option[value="rigged"]', 'bishopVariantRigged');
 
     // Mode 2 WOW Panel & Modals
     setTxt('#hud-promo-title', 'promoTitle');

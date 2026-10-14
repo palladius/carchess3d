@@ -144,6 +144,28 @@ models:
         size_bytes: 955543
         md5: "afb263618bc824edc7169dfffe4aaf70"
 
+  - id: "king-riccardo-remastered"
+    name: "King Riccardo (Royal Robe & Cross Polish / Remastered)"
+    piece: "king"
+    character: "Riccardo"
+    status: "REMASTERED"
+    target_path: "assets/models/king-riccardo-remastered.glb"
+    size_bytes: 4188420
+    md5: "5f468ce3ca80b83fbfc1f086aed4fae9"
+    pipeline:
+      tool: "Blender 4.0 Headless Surface Polish & Cross Sharpening"
+      script: "tools/model-pipeline/king/clean_king_riccardo.py"
+      features:
+        - "Watertight UV seam welding and stray crumb pruning"
+        - "Ermine fur collar undercut with volume shadow crease"
+        - "Selective surface smoothing on cloak/robe preserving hard finials"
+        - "Floor grounded at Z=0.0"
+    concept_sources:
+      - role: "concept_turnaround_sheet"
+        path: "assets/characters/king-riccardo-1.jpg"
+        size_bytes: 281037
+        md5: "7fddf31be685fbd654a8bcdb0ef87893"
+
   - id: "queen-kate"
     name: "Queen Kate (Young 4c Stylized / Canonico - Scelta da Kate 🏆)"
     piece: "queen"
@@ -288,6 +310,66 @@ models:
         path: "tools/model-pipeline/seby/back.png"
         size_bytes: 1001439
         md5: "f2cc72a31d5fdcecc8f0e5916e761a63"
+
+  - id: "knight-seby-halberd"
+    name: "Knight Sebastian (Alabarda Reale / Modular)"
+    piece: "knight"
+    character: "Sebastian"
+    status: "MODULAR_VARIANT"
+    target_path: "assets/models/knight-seby-halberd.glb"
+    size_bytes: 4075148
+    md5: "eb14a3a63a725fae67e5fd658db8dc24"
+    pipeline:
+      tool: "Blender 4.0 Headless Procedural Weapon Assembly"
+      script: "tools/model-pipeline/seby/assemble_modular_seby.py"
+      weapon: "Alabarda Reale (Ceremonial Halberd with sapphire core & pennant)"
+      anchor: "Fist centroid [0.195, -0.025, 0.738]"
+      floor_grounded: true
+    concept_sources:
+      - role: "base_character"
+        path: "assets/models/knight-seby.glb"
+        size_bytes: 3740440
+        md5: "c060099e14059ba7fc8fdb3e4403db94"
+
+  - id: "knight-seby-lightsaber"
+    name: "Knight Sebastian (Spada Laser / Modular)"
+    piece: "knight"
+    character: "Sebastian"
+    status: "MODULAR_VARIANT"
+    target_path: "assets/models/knight-seby-lightsaber.glb"
+    size_bytes: 4110752
+    md5: "ef154f3d16caf20eceb83c69b6b20483"
+    pipeline:
+      tool: "Blender 4.0 Headless Procedural Weapon Assembly"
+      script: "tools/model-pipeline/seby/assemble_modular_seby.py"
+      weapon: "Spada Laser (Dual-layer plasma beam with cyan sheath & hot-white core)"
+      anchor: "Fist centroid [0.195, -0.025, 0.738]"
+      floor_grounded: true
+    concept_sources:
+      - role: "base_character"
+        path: "assets/models/knight-seby.glb"
+        size_bytes: 3740440
+        md5: "c060099e14059ba7fc8fdb3e4403db94"
+
+  - id: "knight-seby-aurora"
+    name: "Knight Sebastian (Sigillo dell'Acquario / Modular)"
+    piece: "knight"
+    character: "Sebastian"
+    status: "MODULAR_VARIANT"
+    target_path: "assets/models/knight-seby-aurora.glb"
+    size_bytes: 4074476
+    md5: "063fc92143ee290dad33f09eca0b354d"
+    pipeline:
+      tool: "Blender 4.0 Headless Procedural Weapon Assembly"
+      script: "tools/model-pipeline/seby/assemble_modular_seby.py"
+      weapon: "Sigillo dell'Acquario (Grecian golden amphora with constellation band & stardust)"
+      anchor: "Fist centroid [0.195, -0.025, 0.738]"
+      floor_grounded: true
+    concept_sources:
+      - role: "base_character"
+        path: "assets/models/knight-seby.glb"
+        size_bytes: 3740440
+        md5: "c060099e14059ba7fc8fdb3e4403db94"
 
   - id: "rook-pupurabbu"
     name: "Rook Pupurabbu (Canonico)"

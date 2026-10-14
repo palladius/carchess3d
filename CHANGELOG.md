@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.3.60] - 2026-10-14
+
+- 👑♗ **Pillar 1: In-Game 3D Piece Variant Integration & Live HUD Switching**:
+  - Registered declarative variant registries `QUEEN_GLB_VARIANTS` (`young` vs `wedding`) and `BISHOP_GLB_VARIANTS` (`hat` vs `astrolabe` vs `rigged`) in `src/core/Registry.js`.
+  - Updated `PieceManager.js` with headless `setQueenVariant` and `setBishopVariant`, event bus reactions (`PIECE_VARIANT_REQUESTED`), and synchronized emission on `PIECE_SET_CHANGED` and `PIECES_SYNCED` (strictly <= 300 LOC Niccolò contract).
+  - Wired live variant select dropdowns into the Setup Modal (`#hud-setup-queen-variant`, `#hud-setup-bishop-variant`), 360° WOW Inspector, and URL params (`?queen=` / `?bishop=`).
+  - Updated `PieceView.js` and `WowModeView.js` to render selected 3D GLB variants seamlessly onto the board altar.
+- ⚔️🛡️ **Pillar 2: Knight Sebastian Modular Weapon Armaments & Headless Assembly**:
+  - Built headless Blender pipeline `tools/model-pipeline/seby/assemble_modular_seby.py` with computer-vision calibrated fist anchor at `(X=0.195, Y=-0.025, Z=0.738)`.
+  - Assembled and floor-grounded 3 modular weapon variants with zero boundary edges and valid glTF VEC3 bounds:
+    - **Alabarda Reale** (`assets/models/knight-seby-halberd.glb`, 4.08 MB): Ceremonial dark mahogany halberd with sapphire core and royal blue pennant.
+    - **Spada Laser** (`assets/models/knight-seby-lightsaber.glb`, 4.11 MB): Dual-layer glowing plasma beam saber tilted +12° heroically away from helmet.
+    - **Sigillo dell'Acquario** (`assets/models/knight-seby-aurora.glb`, 4.07 MB): Golden amphora with Sapphire Enamel constellation band and swirling stardust cascade.
+  - Generated 4-view contact sheets (`tools/model-pipeline/critic/out/knight-seby-*_critic_sheet.png`).
+- 👑💎 **Pillar 3: King Riccardo Surface Polish & Royal Crown Jewel Remaster**:
+  - Built headless Blender polish tool `tools/model-pipeline/king/clean_king_riccardo.py`.
+  - Inset white ermine fur collar undercut (`0.14 <= z <= 0.18, y > 0.04`) for crisp shadow separation against blue velvet cape; sculpted harmonic drape folds.
+  - Sharpened Maltese cross finials on golden imperial orb and ceremonial scepter spearhead to razor-sharp points.
+  - Welded coincident UV seams, pruned 855 floating face crumbs, and grounded strictly at Z=0.0m (`assets/models/king-riccardo-remastered.glb`, 4.19 MB).
+  - Audited with Gemini VLM critic and logged contact sheet and report to `tools/model-pipeline/critic/out/king-riccardo-remastered_*`.
+- 📋🔐 **Pillar 4: Model Provenance Registry & Checksum Verification**:
+  - Updated `docs/models-provenance.yaml` with all newly added 3D models and their exact MD5 checksums.
+  - Automated verification via `python3 scripts/test_provenance.py` validating 28 models and 47 concept sources with 100% green integrity.
+- 🎙️👦 **Pillar 5: Voice Lines & Continuous Verification**:
+  - Added *"Hey Google, uccidi questo mostro per me!"* for Seby (`voice-n-uccidimostro.mp3`).
+  - Added *"Mummy... I'm still hungry!"* (`voice-b-stillhungry.mp3`) [EN] and *"Papino, tu sì che cucini bene!"* (`voice-b-cucinibene.mp3`) [IT] for Ale.
+  - Zero IP denylist infractions across all files; `just test` passes 100%.
+
 ## [0.3.59] - 2026-10-14
 
 - 🎨🖌️ **Local GPU 3D Paint/Texture Pipeline Verified on RTX 5080 (Blackwell sm_120) with TurboSebux (Issue #5 Phase 2)**:

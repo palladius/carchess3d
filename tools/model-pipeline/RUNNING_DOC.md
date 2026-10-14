@@ -551,3 +551,47 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
   - Multi-view diffusion + UV back-projection time: **45 seconds** (total 76s with model init).
   - Peak VRAM: **9.7 GB** (fits easily in RTX 5080 16 GB).
   - Contact sheet preview: `tools/model-pipeline/local/out/ale1_hy2_textured_preview.png`.
+
+### 10.14 Knight Sebastian Modular Armaments & Headless Assembly Pipeline (`tools/model-pipeline/seby/assemble_modular_seby.py`)
+- **Base Model**: `assets/models/knight-seby.glb` (grounded strictly at Z=0.0m, height 1.001m).
+- **Fist Anchor Calibration**: Calibrated raised left clenched gauntlet centroid from grounded base mesh vertices at `(X=0.195, Y=-0.025, Z=0.738)`.
+- **Modular Weapon Variants Built**:
+  1. **Alabarda Reale (`assets/models/knight-seby-halberd.glb`)**:
+     - Polished dark mahogany shaft (`radius=0.009m`) extending from pedestal ferrule (`Z=0.140m`), through clenched left fist (`Z=0.738m`), to socket (`Z=1.050m`).
+     - Grounded brass/gold pedestal ferrule resting adjacent to horse hoof.
+     - 4-faceted diamond lance spearhead (`Z=1.070..1.340m`).
+     - Ornate crescent axe blade (`X=0.295m`) and reverse armor-piercing war hook (`X=0.155m`, safe clearance from head).
+     - Sapphire core medallion and flowing royal blue silk pennant ribbon.
+  2. **Spada Laser / Beam Saber (`assets/models/knight-seby-lightsaber.glb`)**:
+     - Ergonomic ribbed chrome/black hilt through fist (`Z=0.675..0.825m`).
+     - Heroic outward tilt: `rot_y = +12°`, `rot_x = -6°` to project beam diagonally upward away from hair and helmet.
+     - Radiant cyan plasma outer beam (`Z=0.825..1.285m`, emission strength 6.0) with intense white-hot inner core (emission strength 12.0).
+  3. **Sigillo dell'Acquario (`assets/models/knight-seby-aurora.glb`)**:
+     - Grecian celestial golden amphora held firmly by foot at `Z=0.725..0.770m`.
+     - Spheroid urn belly with central Sapphire Enamel constellation band and 6 gold star medallions (`Z=0.770..0.910m`).
+     - Scalloped pouring lip (`Z=0.970..1.010m`) and twin curved winged handles.
+     - Swirling Diamond Ice Aurora stardust cascade with 6 faceted star crystals (`Z=1.010..1.210m`).
+- **Watertightness & Floor Grounding**:
+  - Standalone weapons exported to `tools/model-pipeline/seby/out/weapon_{halberd,lightsaber,aurora}.glb` (zero non-manifold/boundary edges).
+  - All assembled variants grounded at Z=0.0m with valid glTF VEC3 bounds.
+- **Visual Verification**:
+  - 4-view contact sheets rendered via Cycles: `tools/model-pipeline/critic/out/knight-seby-{halberd,lightsaber,aurora}_critic_sheet.png`.
+
+### 10.15 Re Riccardo Polish & Royal Crown Jewel Remaster (`tools/model-pipeline/king/clean_king_riccardo.py`)
+- **Pillar**: Pillar 3 from `etc/prompts/GOAL_AUTONOMOUS_DAY_OF_CODE.md`.
+- **Pipeline & Tooling**:
+  - Headless Blender automation script: `tools/model-pipeline/king/clean_king_riccardo.py` (`blender -b -P tools/model-pipeline/king/clean_king_riccardo.py`).
+  - Welded coincident UV-split vertices (`dist=0.0012`) and eliminated 855 floating faces across 42 tiny disconnected crumbs (`< 50` faces).
+- **Geometric Sculpting & Polish**:
+  - **Ermine Collar Undercut**: Inset crease under white ermine fur collar (`0.14 <= z <= 0.18, y > 0.04`) providing volume separation and natural shadow against the royal blue velvet cape.
+  - **Cascading Cape Drape Folds**: Harmonic vertical drape modulation (`drape_fold = math.cos(x * 40.0) * 0.005`) sculpted along the rear mantle.
+  - **Sharpened Royal Orb Maltese Cross**: Straightened horizontal crossbar planar faces and sharpened the vertical crest to a defined peak (`x ~ 0.091, y ~ -0.094`).
+  - **Sharpened Scepter Finial**: Refined the ceremonial scepter bulb and tapered the spearhead cross point to a sharp tip (`x ~ -0.105, y ~ -0.104`).
+  - **Selective Surface Smoothing**: Created vertex group `Smooth_Cloak_Robe` (smoothing factor 0.45, 4 iterations on cloak, collar, and robe while strictly preserving 0-weight hard mechanical edges on scepter shaft, orb cross, crown filigree, biometric face graft, and turned pedestal).
+  - **Floor Grounding**: Translated all vertices along Z so minimum Z is exactly 0.000000m (Y=0.0 in glTF 2.0).
+- **Outputs & Verification**:
+  - `assets/models/king-riccardo-remastered.glb` (4,188,420 bytes, MD5 `5f468ce3ca80b83fbfc1f086aed4fae9`).
+  - 4-view contact sheet at 512px resolution: `tools/model-pipeline/critic/out/king-riccardo-remastered_critic_sheet.png` and `tools/model-pipeline/king/out/king_riccardo_remastered_contact_sheet.png`.
+  - VLM and geometric critic report logged: `tools/model-pipeline/critic/out/king-riccardo-remastered_report.json` and scoreboard updated in `docs/qa-scores.yaml`.
+  - Checksum and provenance registered in `docs/models-provenance.yaml`.
+
