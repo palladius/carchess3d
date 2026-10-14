@@ -52,6 +52,15 @@ class TestCharacterPovShowcase(unittest.TestCase):
         html = BATTLES_HTML_PATH.read_text(encoding="utf-8")
         self.assertIn('showcase/index.html?view=pov', html)
 
+    def test_showcase_viewport_layout_regression_prevention(self):
+        """Regression test for Issue #30: prevent unwanted window scroll and text truncation."""
+        html = SHOWCASE_HTML_PATH.read_text(encoding="utf-8")
+        # Ensure scrollIntoView is not called, which causes headless 300px header shift & black band
+        self.assertNotIn("card.scrollIntoView", html, "scrollIntoView scrolls whole window causing viewport clipping")
+        # Ensure left panel has room for quotes and icons
+        self.assertIn("width: 330px;", html, "Left panel must have sufficient width (330px)")
+        self.assertIn("-webkit-line-clamp: 2", html, "Soundboard quote must clamp cleanly to 2 lines")
+
 
 if __name__ == "__main__":
     unittest.main()

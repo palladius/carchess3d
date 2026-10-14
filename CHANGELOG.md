@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.49] - 2026-10-14
+
+- 🐛🖥️📐 **Showcase Viewport Layout & Headless Screenshot Fix at 1600×900 and 1920×1080 (Fixes Issue #30) (`showcase/index.html`, `VERSION`, `CHANGELOG.md`, `tests/test_character_pov.py`)**:
+  - **Eliminated Black Band & Top Bar Offset**:
+    - Removed window-level `card.scrollIntoView(...)` in `showcase/index.html` which previously forced the entire browser window down, leaving a ~300px black band above the sticky header in headless Chrome.
+  - **Expanded Left Panel & Fixed Text Truncation**:
+    - Increased `.pov-left-panel` and `.pov-stage-grid` column width from 280px to 330px, ensuring `🖱️ Trascina per ruotare` and weapon/counter badges fit cleanly on a single line without clipping.
+    - Updated `.sound-btn-quote` with `-webkit-line-clamp: 2` and `word-break: break-word`, allowing quotes to wrap to 2 lines instead of abruptly truncating with ellipsis.
+  - **Regression Test Added**:
+    - Added `test_showcase_viewport_layout_regression_prevention` to `tests/test_character_pov.py` to prevent regressions.
+
 ## [0.3.48] - 2026-10-12
 
 - 🎲🔴🎲🔵👑 **6+6 Risiko Shelves (Attacco Dadi Rossi & Difesa Dadi Blu), Medaglione Target Scacchistico 48px Sovraimpresso sul Film e Rotator 3D Snello (`showcase/index.html`, `src/core/CharacterPovData.js`, `VERSION`, `src/core/Registry.js`, `tests/character-pov.test.mjs`, `tests/test_character_pov.py`)**:

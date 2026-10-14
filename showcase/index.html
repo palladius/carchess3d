@@ -196,7 +196,7 @@
     /* Dual Stage Grid (3D + Soundboard on Left | Netflix Theater on Right) */
     .pov-stage-grid {
       display: grid;
-      grid-template-columns: 280px minmax(0, 1fr);
+      grid-template-columns: 330px minmax(0, 1fr);
       gap: 12px;
       align-items: start;
     }
@@ -206,12 +206,12 @@
       }
     }
 
-    /* ── LEFT PANEL: 3D Turntable & Soundboard (Ultra-Compact) ── */
+    /* ── LEFT PANEL: 3D Turntable & Soundboard ── */
     .pov-left-panel {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      width: 280px;
+      width: 330px;
       flex-shrink: 0;
     }
     @media (max-width: 960px) {
@@ -513,7 +513,12 @@
       color: var(--muted);
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-height: 1.25;
+      word-break: break-word;
+      min-height: 1.6em;
     }
 
     /* ── RIGHT PANEL: Netflix Video Theater & Shelf ── */
@@ -2299,9 +2304,7 @@ if (uDragonCoilMode > 0.5) {
             existingPill.remove();
           }
 
-          if (isThisActive) {
-            card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-          }
+          // Active card state updated without scrolling the parent window (prevents header shift / black band)
         });
       };
 
