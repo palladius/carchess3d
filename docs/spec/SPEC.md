@@ -356,6 +356,20 @@ is the "victim" and is removed at the end.
   - **`s4` (Pedestal Wreath + Crest)**: Sculpted 3D Pedestal Role Wreath (`y = 0.04..0.24m`) + compact camera-facing Floating 2D Role Crest (`THREE.Sprite`).
   - **`s5` (Hybrid Champion — Default)**: Combines `s2 + s3 + s4` at 3D/semi-high angles (`>= 20°`) and automatically switches to clean `s1` 2D tournament medallions when looking nearly straight down (`< 20°` or in Top-Down mode). Evaluated by the Blind VLM Recognizer (`scripts/critic_recognizability.py`, [`docs/clarity_vlm_report.md`](../clarity_vlm_report.md)) at **9.50 / 10** (`10/10` B/W contrast, `10/10` `0°` role recognition, `9/10` `30°` role recognition).
 
+## 3D Camera Controls, Mouse Wheel Zoom Default, Help Modal, New-Game Guard & Solid Ruby-Marble d20 (`v0.3.74`)
+
+- **Mouse Wheel Zoom by Default (`src/core/Registry.js` `applyWheelZoomOrOrbit`, `src/main.js`)**:
+  - Scrolling the mouse wheel (`deltaY < 0` / `deltaY > 0`) **zooms in/out by default** (`trackpadTwoFingerRotate = false`), matching standard 3D camera ergonomics since left-click + drag already orbits/tilts the camera.
+  - Modifier keys: `Ctrl` / `Cmd` + wheel always zooms in/out; `Shift` + wheel pans the camera target; `Alt` + wheel (or `?trackpad=rotate` / `?wheel=rotate`) orbits/tilts the camera.
+  - Keyboard `+` / `=` zooms in (`_dollyIn`), `-` / `_` zooms out (`_dollyOut`), and Arrow keys orbit/tilt the camera.
+- **Interactive Help & Shortcuts Guide (`H` / `?`, `#hud-help-btn`, `#hud-help-modal`)**:
+  - Pressing `H`, `h`, or `?` (or clicking the `?` icon in the bottom dock) toggles a bilingual (`IT` / `EN`) 4-quadrant Help & Controls cheat-sheet covering **Mouse & Trackpad 3D Camera**, **Keyboard Shortcuts (`H/?`, `+/-`, `Arrows`, `R`, `V`, `F`, `C`, `D`, `M`, `Space/Enter/Esc`, `~`)**, **Bottom Action Dock Icons**, and **Carlesso Family Lore & Tips**.
+- **New Game Confirmation Modal (`🔄 Nuova`, `#hud-new-btn` → `#hud-confirm-new-modal`)**:
+  - Clicking `🔄 Nuova` (`#hud-new-btn`) no longer wipes an active game immediately; instead it opens `#hud-confirm-new-modal` (`requestNewGame()`) asking for confirmation (`🔄 Sì, ricomincia da capo` / `Enter` vs `↩️ Annulla (continua partita)` / `Escape`) before calling `startNewGame()`.
+- **Solid Ruby-Marble d20 (`🎲 Dado d20 Rubino`, `#hud-d20-btn`, `VFXPoolView.createRubyMarbleD20Prop`, `DropManager`)**:
+  - Replaced the `0 / 12` luck progress bar in the HUD with a **Solid Ruby-Marble 20-Sided Die (`d20`)** featuring a slightly-translucent solid ruby-red marble shell (`opacity: 0.92`) over a solid deep-ruby core (`opacity: 0.98`), rose-white marble veins, silver-white bevelled edges, and crisp engraved white numerals (`1..20`).
+  - Rolling on every capture (`DROP_SPAWNED`, where `golden_crit` guarantees a Natural `20` and unlocks a sticker) or on demand via clicking `#hud-d20-btn` / pressing `D` (`D20_ROLL_REQUESTED` → `D20_ROLLED`) physically tumbles and bounces the 3D 20-sided icosahedron across the chessboard (`triggerRubyD20Roll`) and animates the HUD Ruby d20 gem badge.
+
 ## Open Questions
 
 - ~~Implementation repo~~ → **[palladius/carchess3d](https://github.com/palladius/carchess3d)** (public), deployed live on GitHub Pages at **https://palladius.github.io/carchess3d/**.

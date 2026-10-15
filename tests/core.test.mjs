@@ -11,6 +11,7 @@ import {
   GITHUB_NEW_ISSUE_URL,
   isMobilePhoneViewport,
   isPortraitOrientation,
+  applyWheelZoomOrOrbit,
 } from '../src/core/Registry.js';
 import { HudListener } from '../src/listeners/HudListener.js';
 
@@ -251,6 +252,228 @@ test("Issue #29: 'Reset view' camera button and hotkey 'R' restores default 3D c
   assert.equal(camera.position.y, 5.85);
   assert.equal(camera.position.z, 12.6);
 });
+
+test('Mouse Wheel Zoom Default & Modifiers: applyWheelZoomOrOrbit zooms in/out by default on mouse wheel, pans on Shift+wheel, and rotates on Alt+wheel or trackpadTwoFingerRotate=true', () => {
+  const createMockControls = (trackpadTwoFingerRotate = false) => {
+    const calls = [];
+    return {
+      calls,
+      trackpadTwoFingerRotate,
+      enableZoom: true,
+      enablePan: true,
+      enableRotate: true,
+      rotateSpeed: 1.0,
+      domElement: { clientHeight: 800 },
+      _getZoomScale(delta) {
+        return Math.pow(0.95, Math.abs(delta * 0.01));
+      },
+      _dollyIn(scale) {
+        calls.push({ fn: '_dollyIn', scale });
+      },
+      _dollyOut(scale) {
+        calls.push({ fn: '_dollyOut', scale });
+      },
+      _pan(dx, dy) {
+        calls.push({ fn: '_pan', dx, dy });
+      },
+      _rotateLeft(angle) {
+        calls.push({ fn: '_rotateLeft', angle });
+      },
+      _rotateUp(angle) {
+        calls.push({ fn: '_rotateUp', angle });
+      },
+      update() {
+        calls.push({ fn: 'update' });
+      },
+    };
+  };
+
+  // 1. Default (trackpadTwoFingerRotate = false): Wheel Up (deltaY < 0) -> Zoom IN (_dollyIn)
+  const ctrl = createMockControls(false);
+  const resIn = applyWheelZoomOrOrbit(ctrl, { deltaY: -100, deltaX: 0, deltaMode: 0 });
+  assert.equal(resIn, 'zoom', 'Wheel scroll up must zoom in by default');
+  assert.equal(ctrl.calls[0].fn, '_dollyIn');
+  assert.equal(ctrl.calls[1].fn, 'update');
+
+  // 2. Default (trackpadTwoFingerRotate = false): Wheel Down (deltaY > 0) -> Zoom OUT (_dollyOut)
+  ctrl.calls.length = 0;
+  const resOut = applyWheelZoomOrOrbit(ctrl, { deltaY: 100, deltaX: 0, deltaMode: 0 });
+  assert.equal(resOut, 'zoom', 'Wheel scroll down must zoom out by default');
+  assert.equal(ctrl.calls[0].fn, '_dollyOut');
+  assert.equal(ctrl.calls[1].fn, 'update');
+
+  // 3. Shift + Wheel -> Pan camera target
+  ctrl.calls.length = 0;
+  const resPan = applyWheelZoomOrOrbit(ctrl, {
+    deltaY: 80,
+    deltaX: 20,
+    deltaMode: 0,
+    shiftKey: true,
+  });
+  assert.equal(resPan, 'pan', 'Shift + wheel must pan camera');
+  assert.equal(ctrl.calls[0].fn, '_pan');
+
+  // 4. Alt + Wheel -> Orbit / Rotate camera even when default is zoom
+  ctrl.calls.length = 0;
+  const resAltRotate = applyWheelZoomOrOrbit(ctrl, {
+    deltaY: 60,
+    deltaX: 0,
+    deltaMode: 0,
+    altKey: true,
+  });
+  assert.equal(resAltRotate, 'rotate', 'Alt + wheel must rotate camera');
+  assert.ok(ctrl.calls.some((c) => c.fn === '_rotateUp'));
+
+  // 5. Legacy opt-in (trackpadTwoFingerRotate = true): plain wheel rotates, Ctrl/Cmd+wheel still zooms
+  const ctrlRotate = createMockControls(true);
+  const resTrackpadRot = applyWheelZoomOrOrbit(ctrlRotate, {
+    deltaY: 60,
+    deltaX: 30,
+    deltaMode: 0,
+  });
+  assert.equal(resTrackpadRot, 'rotate', 'When trackpadTwoFingerRotate=true, plain wheel rotates');
+  ctrlRotate.calls.length = 0;
+  const resCtrlZoom = applyWheelZoomOrOrbit(ctrlRotate, {
+    deltaY: -100,
+    deltaX: 0,
+    deltaMode: 0,
+    ctrlKey: true,
+  });
+  assert.equal(resCtrlZoom, 'zoom', 'Ctrl/Cmd + wheel always zooms even in trackpad rotate mode');
+  assert.equal(ctrlRotate.calls[0].fn, '_dollyIn');
+});
+
+test("Help & Shortcuts Modal: hotkeys 'h', 'H', and '?' toggle Help modal, Escape closes it, and 'v'/'f'/'c' hotkeys trigger camera & clarity actions", () => {
+  const bus = new GameEventBus();
+  const hud = new HudListener({ bus, isMobilePhone: false, lang: 'it' });
+  assert.equal(hud.helpModalOpen, false, 'Help modal starts closed');
+
+  // Press 'h' -> opens help modal
+  let prevented = false;
+  hud.onKeyDown({
+    key: 'h',
+    preventDefault() {
+      prevented = true;
+    },
+  });
+  assert.equal(prevented, true);
+  assert.equal(hud.helpModalOpen, true, "'h' opens Help modal");
+
+  // Press '?' -> closes help modal (toggle)
+  hud.onKeyDown({
+    key: '?',
+    preventDefault() {},
+  });
+  assert.equal(hud.helpModalOpen, false, "'?' toggles Help modal closed");
+
+  // Press '?' again -> opens help modal, then Escape closes it
+  hud.onKeyDown({
+    key: '?',
+    preventDefault() {},
+  });
+  assert.equal(hud.helpModalOpen, true);
+  hud.onKeyDown({
+    key: 'Escape',
+    code: 'Escape',
+    preventDefault() {},
+  });
+  assert.equal(hud.helpModalOpen, false, 'Escape closes Help modal');
+
+  // Typing 'h' or '?' inside an <input> must NOT toggle the Help modal
+  hud.onKeyDown({
+    key: 'h',
+    target: { tagName: 'INPUT' },
+    preventDefault() {},
+  });
+  assert.equal(hud.helpModalOpen, false, 'Typing in input must not trigger hotkey');
+
+  // Bilingual Help body rendering contains key shortcuts
+  const htmlIt = hud._renderHelpModalBodyHtml();
+  assert.ok(htmlIt.includes('Rotella'), 'Italian help mentions mouse wheel zoom');
+  assert.ok(htmlIt.includes('H / ?'), 'Italian help mentions H / ? shortcut');
+
+  hud.setLanguage('en');
+  const htmlEn = hud._renderHelpModalBodyHtml();
+  assert.ok(htmlEn.includes('Mouse Wheel'), 'English help mentions mouse wheel zoom');
+  assert.ok(htmlEn.includes('Left-Click + Drag'), 'English help mentions left-click drag orbit');
+
+  // Verify 'v' toggles topDownCamera and 'f' toggles cameraFlipped
+  assert.equal(hud.topDownCamera, false);
+  hud.onKeyDown({ key: 'v', preventDefault() {} });
+  assert.equal(hud.topDownCamera, true, "'v' toggles top-down 2D camera");
+  hud.onKeyDown({ key: 'f', preventDefault() {} });
+  assert.equal(hud.cameraFlipped, true, "'f' flips camera perspective");
+});
+
+test('HudListener: New Game confirmation modal guards against accidental board reset (#hud-new-btn -> requestNewGame -> cancel/confirm)', () => {
+  const bus = new GameEventBus();
+  let boardResets = 0;
+  const board = {
+    reset() {
+      boardResets++;
+      bus.emit({ type: 'BOARD_RESET', turn: 'w' });
+    },
+  };
+  const hud = new HudListener({ bus, board, isMobilePhone: false, lang: 'it' });
+
+  assert.equal(hud.confirmNewModalOpen, false, 'Confirmation modal starts closed');
+
+  // 1. Clicking "🔄 Nuova" calls requestNewGame(), which opens modal and does NOT reset the board
+  hud.requestNewGame();
+  bus.flush();
+  assert.equal(hud.confirmNewModalOpen, true, 'requestNewGame() must open confirmation modal');
+  assert.equal(boardResets, 0, 'requestNewGame() must NOT reset the board before user confirms');
+
+  // 2. Pressing Escape cancels the modal without resetting the board
+  hud.onKeyDown({ key: 'Escape', code: 'Escape', preventDefault() {} });
+  bus.flush();
+  assert.equal(hud.confirmNewModalOpen, false, 'Escape closes confirmation modal');
+  assert.equal(boardResets, 0, 'Cancelling confirmation modal must NOT reset the board');
+
+  // 3. Re-open confirmation modal and confirm with Enter (or confirmNewGame()) -> resets board
+  hud.requestNewGame();
+  assert.equal(hud.confirmNewModalOpen, true);
+  hud.onKeyDown({ key: 'Enter', code: 'Enter', preventDefault() {} });
+  bus.flush();
+  assert.equal(hud.confirmNewModalOpen, false, 'Confirming closes the modal');
+  assert.equal(boardResets, 1, 'Confirming calls board.reset()');
+});
+
+test('HudListener & VFXPoolView: Solid Ruby-Marble d20 replaces 0/12 luck bar, rolls on hotkey D and capture', () => {
+  const bus = new GameEventBus();
+  const hud = new HudListener({ bus, isMobilePhone: false, lang: 'it' });
+
+  const rollRequests = [];
+  bus.on('D20_ROLL_REQUESTED', (e) => rollRequests.push(e));
+
+  // Pressing 'd' triggers rollRubyD20() -> emits D20_ROLL_REQUESTED
+  let prevented = false;
+  hud.onKeyDown({
+    key: 'd',
+    preventDefault() {
+      prevented = true;
+    },
+  });
+  bus.flush();
+  assert.equal(prevented, true, "Hotkey 'd' prevents default");
+  assert.equal(rollRequests.length, 1, "Hotkey 'd' emits D20_ROLL_REQUESTED");
+  assert.equal(rollRequests[0].playerId, 'w');
+
+  // Receiving D20_ROLLED updates hud.lastD20Roll
+  hud.onD20Rolled({ playerId: 'w', d20Roll: 20 });
+  assert.equal(hud.lastD20Roll, 20, 'onD20Rolled updates lastD20Roll to 20');
+
+  // Verify VFXPoolView.js contains the 3D Solid Ruby-Marble Icosahedron d20 implementation
+  const vfxSrc = readFileSync(new URL('../src/views/VFXPoolView.js', import.meta.url), 'utf8');
+  assert.ok(
+    vfxSrc.includes('createRubyMarbleD20Prop') &&
+      vfxSrc.includes('IcosahedronGeometry') &&
+      vfxSrc.includes('triggerRubyD20Roll'),
+    'VFXPoolView.js must implement 3D Ruby-Marble Icosahedron d20 prop and tumble animation',
+  );
+});
+
+
 
 
 

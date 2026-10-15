@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.77] - 2026-10-15
+
+- 🖱️🔍❓🎲 **Mouse Wheel Zoom by Default, Interactive Help Modal (`H` / `?`), `🔄 Nuova` Confirmation Guard & 3D Solid Ruby-Marble d20 (`src/core/Registry.js`, `src/main.js`, `src/listeners/HudListener.js`, `src/managers/DropManager.js`, `src/views/VFXPoolView.js`, `tests/core.test.mjs`, `tests/drop-manager.test.mjs`, `docs/spec/SPEC.md`)**:
+  - **Mouse Wheel Zoom Default (`applyWheelZoomOrOrbit`)**: Fixed the mouse wheel utilization bug where scrolling the wheel tilted the camera up/down (`alto/basso`) instead of zooming in/out. Set `controls.trackpadTwoFingerRotate = false` by default so the mouse wheel zooms in (`deltaY < 0 -> _dollyIn`) and out (`deltaY > 0 -> _dollyOut`) out of the box without requiring `Ctrl`, while Left-Click + Drag (or `Alt + Wheel`, or `?trackpad=rotate`) orbits/tilts the 3D camera and `Shift + Wheel` pans.
+  - **Fixed Keyboard `+`/`-` & HUD Zoom Dolly Direction**: Aligned `+`/`=` and `#hud-zoom-in-btn` to `_dollyIn` (zoom closer) and `-`/`_` and `#hud-zoom-out-btn` to `_dollyOut` (zoom further).
+  - **Help & Shortcuts Modal (`H` / `?` + `#hud-help-btn`)**: Added keyboard shortcuts `H`, `h`, and `?` (plus a `?` vector button in the bottom dock) that toggle a bilingual (`IT`/`EN`) 4-section Help & Controls cheat-sheet (`#hud-help-modal`), and wired single-key hotkeys `V` (2D/3D top-down toggle), `F` (flip board White ↔ Black), `C` (cycle S5..Off piece clarity), and `D` (roll the Ruby d20).
+  - **Confirmation Guard on `🔄 Nuova` (`#hud-confirm-new-modal`)**: Clicking `🔄 Nuova` (`#hud-new-btn`) now opens a safety confirmation modal (`requestNewGame()` -> `confirmNewGame()` / `cancelNewGame()`, supporting `Enter` and `Escape`) so players never accidentally wipe an ongoing 32-piece match.
+  - **Solid Ruby-Marble d20 (`🎲 Dado d20 Rubino`) Replaces `0/12` Luck Bar**: Replaced the confusing `0 / 12` luck progress bar with a 3D **20-sided icosahedron (`THREE.IcosahedronGeometry`) in solid ruby-red marble** (`opacity: 0.92` veined ruby shell over a `0.98` deep-ruby core, silver-white bevels, and crisp engraved white numerals `1..20`) that physically tumbles and bounces on the 3D chessboard (`VFXPoolView.createRubyMarbleD20Prop` + `triggerRubyD20Roll`) and spins in the HUD (`#hud-d20-btn`) on every capture or when clicking the die / pressing `D`.
+
 ## [0.3.76] - 2026-10-15
 
 - 📰🧹 **Article Unification, Privacy Sanitization, Antigravity Daily UAT Section & `ricc.rocks` Sync (`article/ARTICLE.md`, `article/DEREK_TODO.md`, `article/list_carchess_chats.py`, `article/sources/chats_list.md`, `article/sources/derek_chats_list.md`)**:

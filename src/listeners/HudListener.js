@@ -126,12 +126,16 @@ export class HudListener {
     this.blackDifficulty = 'easy';
     this.topbarVisible = !this.isMobilePhone;
     this.setupModalOpen = false;
+    this.helpModalOpen = false;
+    this.confirmNewModalOpen = false;
     this.quakeConsoleOpen = false;
     this.quakeLogs = [];
     this.flowState = 'Mode1_Chess';
     this.turn = 'w';
     this.inCheck = false;
     this.luck = { w: 0, b: 0, max: 12 };
+    this.lastD20Roll = 20;
+    this.d20RollTimer = null;
     this.unlockedStickers = new Set();
     this.lastToast = null;
     this.lastVoiceQuote = null;
@@ -241,6 +245,7 @@ export class HudListener {
         bus.on('PROMOTION_PENDING', (e) => this.onPromotionPending(e)),
         bus.on('LUCK_CHANGED', (e) => this.onLuckChanged(e)),
         bus.on('DROP_SPAWNED', (e) => this.onDropSpawned(e)),
+        bus.on('D20_ROLLED', (e) => this.onD20Rolled(e)),
         bus.on('LUCK_RESET', (e) => this.onLuckReset(e)),
         bus.on('BATTLE_STARTED', (e) => this.onBattleStarted(e)),
         bus.on('BATTLE_COMPLETED', () => this.onBattleEnded()),
@@ -712,14 +717,85 @@ export class HudListener {
         flex-direction: column;
         gap: 2px;
       }
+      .hud-d20-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 4px 8px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(82, 0, 14, 0.88) 0%, rgba(36, 4, 12, 0.92) 100%);
+        border: 1.5px solid rgba(255, 138, 128, 0.45);
+        color: #fff;
+        cursor: pointer;
+        text-align: left;
+        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22), 0 3px 8px rgba(0, 0, 0, 0.45);
+        transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+      }
+      .hud-d20-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(255, 213, 79, 0.85);
+        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35), 0 0 12px rgba(213, 0, 40, 0.55);
+      }
+      .hud-d20-btn.nat20 {
+        border-color: #ffd54f;
+        box-shadow: 0 0 14px rgba(255, 213, 79, 0.72), inset 0 0 10px rgba(255, 213, 79, 0.28);
+      }
+      .hud-d20-gem {
+        position: relative;
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        display: inline-grid;
+        place-items: center;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+      }
+      .hud-d20-svg {
+        width: 30px;
+        height: 30px;
+        display: block;
+      }
+      .hud-d20-num {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font-family: ui-serif, Georgia, system-ui, serif;
+        font-weight: 900;
+        font-size: 11px;
+        color: #ffffff;
+        text-shadow: 0 1px 3px rgba(20, 0, 4, 0.95), 0 0 2px rgba(0, 0, 0, 0.95);
+        pointer-events: none;
+        padding-top: 1px;
+      }
+      @keyframes hudD20Tumble {
+        0% { transform: rotate(0deg) scale(1); }
+        25% { transform: rotate(-110deg) scale(1.22); }
+        55% { transform: rotate(210deg) scale(1.16); }
+        80% { transform: rotate(340deg) scale(1.06); }
+        100% { transform: rotate(360deg) scale(1); }
+      }
+      .hud-d20-btn.rolling .hud-d20-gem {
+        animation: hudD20Tumble 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .hud-d20-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+        flex: 1;
+      }
       .hud-luck-header {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        gap: 6px;
         font-size: 10.5px;
-        color: #90a4ae;
-        font-weight: 600;
+        color: #ffcdd2;
+        font-weight: 700;
       }
       .hud-luck-track {
+        display: none;
         height: 6px;
         border-radius: 999px;
         background: rgba(0, 0, 0, 0.55);
@@ -1405,8 +1481,77 @@ export class HudListener {
         gap: 6px;
       }
 
+      /* HELP & SHORTCUTS MODAL ('h' / '?') */
+      .hud-help-card {
+        width: min(94vw, 760px);
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 18px 22px;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .hud-help-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 640px) {
+        .hud-help-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .hud-help-section {
+        background: rgba(16, 23, 38, 0.88);
+        border: 1.5px solid rgba(255, 213, 79, 0.35);
+        border-radius: 12px;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      .hud-help-section h4 {
+        margin: 0 0 4px;
+        font-size: 13px;
+        font-weight: 800;
+        color: #ffe082;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .hud-help-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        color: #e2ecf5;
+        padding: 3px 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+      }
+      .hud-help-row:last-child {
+        border-bottom: none;
+      }
+      .hud-kbd {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(0, 0, 0, 0.55);
+        border: 1px solid rgba(255, 213, 79, 0.55);
+        border-bottom-width: 2px;
+        border-radius: 6px;
+        padding: 2px 7px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+        font-weight: 800;
+        color: #ffe082;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
       /* MOBILE SIMPLIFIED UX ("Easy Adopter" mode — phones only, iPad/Desktop untouched) */
-      .hud-modal-backdrop, .hud-setup-card, .hud-matrix36-card, .hud-matrix-card {
+      .hud-modal-backdrop, .hud-setup-card, .hud-help-card, .hud-matrix36-card, .hud-matrix-card {
         touch-action: pan-y;
         -webkit-overflow-scrolling: touch;
       }
@@ -1960,10 +2105,42 @@ export class HudListener {
             <span id="hud-check-badge" class="hud-check-badge">${this.t('checkAlert')}</span>
           </div>
           <div class="hud-luck-wrap">
-            <div class="hud-luck-header">
-              <span id="hud-luck-label">${this.t('luckBar')}</span>
-              <span id="hud-luck-val">0 / 12 ✨</span>
-            </div>
+            <button type="button" id="hud-d20-btn" class="hud-d20-btn nat20" title="${this.t('d20RollTooltip')}" aria-label="${this.t('luckBar')}">
+              <span class="hud-d20-gem" aria-hidden="true">
+                <svg class="hud-d20-svg" viewBox="0 0 40 40">
+                  <defs>
+                    <radialGradient id="hudRubyMarbleGrad" cx="35%" cy="30%" r="70%">
+                      <stop offset="0%" stop-color="#ff2a4b" stop-opacity="0.96"/>
+                      <stop offset="48%" stop-color="#a8001d" stop-opacity="0.94"/>
+                      <stop offset="85%" stop-color="#640010" stop-opacity="0.94"/>
+                      <stop offset="100%" stop-color="#3b0008" stop-opacity="0.96"/>
+                    </radialGradient>
+                  </defs>
+                  <!-- 20-Sided Ruby-Marble Icosahedron Silhouette & Facets -->
+                  <polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="url(#hudRubyMarbleGrad)" stroke="#ffebee" stroke-width="1.3" stroke-opacity="0.78"/>
+                  <!-- Subtle ruby marble veining -->
+                  <path d="M9,14 Q18,17 22,9 M13,29 Q22,24 32,26" fill="none" stroke="#ffcdd2" stroke-width="0.9" stroke-opacity="0.32"/>
+                  <!-- Center equilateral triangle & icosahedron facet edges -->
+                  <polygon points="20,9 30,26 10,26" fill="rgba(165, 0, 28, 0.45)" stroke="#ffffff" stroke-width="1.15" stroke-opacity="0.72"/>
+                  <line x1="20" y1="2" x2="20" y2="9" stroke="#ffcdd2" stroke-width="0.95" stroke-opacity="0.6"/>
+                  <line x1="36" y1="11" x2="20" y2="9" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                  <line x1="4" y1="11" x2="20" y2="9" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                  <line x1="36" y1="11" x2="30" y2="26" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                  <line x1="4" y1="11" x2="10" y2="26" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                  <line x1="36" y1="29" x2="30" y2="26" stroke="#ffcdd2" stroke-width="0.95" stroke-opacity="0.6"/>
+                  <line x1="4" y1="29" x2="10" y2="26" stroke="#ffcdd2" stroke-width="0.95" stroke-opacity="0.6"/>
+                  <line x1="20" y1="38" x2="30" y2="26" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                  <line x1="20" y1="38" x2="10" y2="26" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                </svg>
+                <span id="hud-d20-num" class="hud-d20-num">20</span>
+              </span>
+              <span class="hud-d20-meta">
+                <span class="hud-luck-header">
+                  <span id="hud-luck-label">${this.t('luckBar')}</span>
+                  <span id="hud-luck-val" style="color:#ffe082;font-weight:800;">d20: 20 🌟</span>
+                </span>
+              </span>
+            </button>
             <div id="hud-luck-track" class="hud-luck-track">
               <div id="hud-luck-fill" class="hud-luck-fill"></div>
             </div>
@@ -2038,6 +2215,9 @@ export class HudListener {
           <button type="button" id="hud-console-btn" class="hud-btn hud-icon-btn" title="Quake Console (~ or \\)" aria-label="Quake Console">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 14H4V8h16v10zm-2-1h-6v-2h6v2zM7.5 17l-1.41-1.41L8.67 13l-2.59-2.59L7.5 9l4 4-4 4z"/></svg>
           </button>
+          <button type="button" id="hud-help-btn" class="hud-btn hud-icon-btn" title="${this.t('helpBtn')}" aria-label="${this.t('helpBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+          </button>
           <button type="button" id="hud-toggle-topbar-btn" class="hud-btn hud-icon-btn" title="${this.t('toggleTopbarBtn')}" aria-label="${this.t('toggleTopbarBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
           </button>
@@ -2054,9 +2234,41 @@ export class HudListener {
           <button type="button" id="hud-swamp-btn" class="hud-btn" style="display:none;" title="${this.t('swampBtn')}"></button>
           <button type="button" id="hud-zoom-in-btn" class="hud-btn" style="display:none;" title="Zoom In (+)"></button>
           <button type="button" id="hud-zoom-out-btn" class="hud-btn" style="display:none;" title="Zoom Out (-)"></button>
-          <button type="button" id="hud-trackpad-btn" class="hud-btn active" style="display:none;" title="${this.t('trackpadRotateBtn')}"></button>
+          <button type="button" id="hud-trackpad-btn" class="hud-btn" style="display:none;" title="${this.t('trackpadZoomBtn')}"></button>
         </div>
       </footer>
+
+      <!-- MODAL 0: HELP & SHORTCUTS ('h' / '?') -->
+      <div id="hud-help-modal" class="hud-modal-backdrop hud-interactive">
+        <div class="hud-help-card hud-glass">
+          <div class="hud-setup-header">
+            <div>
+              <strong id="hud-help-title" style="color:#ffe082;font-size:17px;">${this.t('helpModalTitle')}</strong>
+              <span id="hud-help-sub" style="display:block;font-size:11.5px;color:#9be7c4;margin-top:2px;">${this.t('helpModalSub')}</span>
+            </div>
+            <button type="button" id="hud-help-close" class="hud-btn">${this.t('closeBtn')}</button>
+          </div>
+          <div id="hud-help-body">
+            ${this._renderHelpModalBodyHtml()}
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 0b: CONFIRM NEW GAME ('🔄 Nuova' Safety Guard) -->
+      <div id="hud-confirm-new-modal" class="hud-modal-backdrop hud-interactive">
+        <div class="hud-modal-card hud-glass" style="max-width:440px;">
+          <h3 id="hud-confirm-new-title" style="margin:0 0 8px;color:#ffe082;font-size:18px;">${this.t('confirmNewTitle')}</h3>
+          <p id="hud-confirm-new-sub" style="margin:0 0 18px;color:#d6e4f0;font-size:13.5px;line-height:1.45;">${this.t('confirmNewSub')}</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <button type="button" id="hud-confirm-new-cancel" class="hud-btn" style="padding:9px 18px;font-size:13.5px;">
+              ${this.t('confirmNewCancelBtn')}
+            </button>
+            <button type="button" id="hud-confirm-new-yes" class="hud-btn gold" style="padding:9px 20px;font-size:13.5px;font-weight:800;">
+              ${this.t('confirmNewYesBtn')}
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- MODAL 1: CUTIE PAWN PROMOTION -->
       <div id="hud-promo-modal" class="hud-modal-backdrop hud-interactive">
@@ -2286,8 +2498,8 @@ export class HudListener {
     });
 
     q('#hud-zoom-in-btn')?.addEventListener('click', () => {
-      if (this.ctx?.controls?._dollyOut) {
-        this.ctx.controls._dollyOut(0.84);
+      if (this.ctx?.controls?._dollyIn) {
+        this.ctx.controls._dollyIn(0.84);
         this.ctx.controls.update?.();
       } else if (this.ctx?.camera) {
         this.ctx.camera.position.multiplyScalar(0.85);
@@ -2296,8 +2508,8 @@ export class HudListener {
     });
 
     q('#hud-zoom-out-btn')?.addEventListener('click', () => {
-      if (this.ctx?.controls?._dollyIn) {
-        this.ctx.controls._dollyIn(0.84);
+      if (this.ctx?.controls?._dollyOut) {
+        this.ctx.controls._dollyOut(0.84);
         this.ctx.controls.update?.();
       } else if (this.ctx?.camera) {
         this.ctx.camera.position.multiplyScalar(1.18);
@@ -2318,28 +2530,15 @@ export class HudListener {
         this.lang === 'it'
           ? next
             ? '🖐️ Mac Trackpad: 2 dita ruotano alto/basso & sx/dx (Pizzica o Cmd+scroll per Zoom!)'
-            : '🔍 Mac Trackpad: 2 dita fanno Zoom (Trascina con 1 dito per ruotare!)'
+            : '🔍 Mouse / Trackpad: Rotella fa Zoom In/Out (Trascina o Alt+rotella per ruotare!)'
           : next
             ? '🖐️ Mac Trackpad: 2 fingers rotate up/down & left/right (Pinch or Cmd+scroll to Zoom!)'
-            : '🔍 Mac Trackpad: 2 fingers Zoom (Drag with 1 finger to rotate!)',
+            : '🔍 Mouse / Trackpad: Wheel Zooms In/Out (Drag or Alt+wheel to rotate!)',
       );
     });
 
     q('#hud-flip-btn')?.addEventListener('click', () => {
-      this.cameraFlipped = !this.cameraFlipped;
-      this.topDownCamera = false;
-      this.ctx?.pieceView?.setTopDownMode?.(false);
-      if (this.ctx?.camera) {
-        if (this.cameraFlipped) {
-          this.ctx.camera.position.set(0, 7.0, -8.2);
-        } else {
-          this.ctx.camera.position.set(0, 7.2, 9.8);
-        }
-        this.ctx.controls?.target?.set?.(0, 0.3, 0);
-        this.ctx.controls?.update?.();
-      }
-      this.ctx?.bus?.emit({ type: 'CAMERA_VIEW_REQUESTED', view: 'flip' });
-      this.ctx?.bus?.flush?.();
+      this.flipCameraView();
     });
 
     q('#hud-reset-cam-btn')?.addEventListener('click', () => {
@@ -2347,36 +2546,7 @@ export class HudListener {
     });
 
     q('#hud-top-btn')?.addEventListener('click', () => {
-      if (this.isMobilePhone) {
-        this.applyMobileCameraMode(this.topDownCamera ? '3d' : 'top', { silent: false });
-        return;
-      }
-      this.topDownCamera = !this.topDownCamera;
-      this.ctx?.pieceView?.setTopDownMode?.(this.topDownCamera);
-      const topBtn = q('#hud-top-btn');
-      const topBadge = q('#hud-top-badge');
-      if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
-      if (topBtn) topBtn.classList.toggle('active', !this.topDownCamera);
-      if (this.ctx?.camera) {
-        if (this.topDownCamera) {
-          this.ctx.camera.position.set(0, 12.8, this.cameraFlipped ? -0.01 : 0.01);
-        } else {
-          this.ctx.camera.position.set(0, this.cameraFlipped ? 7.0 : 7.2, this.cameraFlipped ? -8.2 : 9.8);
-        }
-        this.ctx.controls?.target?.set?.(0, 0.3, 0);
-        this.ctx.controls?.update?.();
-      }
-      this.ctx?.bus?.emit({
-        type: 'CAMERA_VIEW_REQUESTED',
-        view: this.topDownCamera ? 'top' : 'default',
-      });
-      this.ctx?.bus?.emit({
-        type: 'CLARITY_MODE_CHANGED',
-        mode: this.clarityMode,
-        force2dIcons: this.force2dIcons,
-        topDownCamera: this.topDownCamera,
-      });
-      this.ctx?.bus?.flush?.();
+      this.toggleTopDownView();
     });
 
     q('#hud-clarity-btn')?.addEventListener('click', () => {
@@ -2396,7 +2566,25 @@ export class HudListener {
     }
 
     q('#hud-new-btn')?.addEventListener('click', () => {
-      this.startNewGame();
+      this.requestNewGame();
+    });
+
+    q('#hud-confirm-new-yes')?.addEventListener('click', () => {
+      this.confirmNewGame();
+    });
+
+    q('#hud-confirm-new-cancel')?.addEventListener('click', () => {
+      this.cancelNewGame();
+    });
+
+    q('#hud-confirm-new-modal')?.addEventListener('click', (e) => {
+      if (e.target?.id === 'hud-confirm-new-modal') {
+        this.cancelNewGame();
+      }
+    });
+
+    q('#hud-d20-btn')?.addEventListener('click', () => {
+      this.rollRubyD20();
     });
 
     q('#hud-refresh-btn')?.addEventListener('click', () => {
@@ -2764,6 +2952,13 @@ export class HudListener {
 
     // Topbar Toggle
     q('#hud-toggle-topbar-btn')?.addEventListener('click', () => this.toggleTopbar());
+
+    // Help & Shortcuts Modal ('h' / '?')
+    q('#hud-help-btn')?.addEventListener('click', () => this.toggleHelpModal());
+    q('#hud-help-close')?.addEventListener('click', () => this.closeHelpModal());
+    q('#hud-help-modal')?.addEventListener('click', (e) => {
+      if (e.target?.id === 'hud-help-modal') this.closeHelpModal();
+    });
 
     // Setup Modal open & close
     q('#hud-setup-btn')?.addEventListener('click', () => this.openSetupModal());
@@ -3358,6 +3553,353 @@ export class HudListener {
   }
 
   /**
+   * Flips the camera between White (South) and Black (North) perspective.
+   * Shortcut: Hotkey 'f' / 'F' or HUD flip button (#hud-flip-btn).
+   */
+  flipCameraView() {
+    this.cameraFlipped = !this.cameraFlipped;
+    this.topDownCamera = false;
+    this.ctx?.pieceView?.setTopDownMode?.(false);
+    if (this.rootEl) {
+      const topBtn = this.rootEl.querySelector('#hud-top-btn');
+      const topBadge = this.rootEl.querySelector('#hud-top-badge');
+      if (topBadge) topBadge.textContent = '3D';
+      if (topBtn) topBtn.classList.add('active');
+    }
+    if (this.ctx?.camera) {
+      if (this.cameraFlipped) {
+        this.ctx.camera.position.set(0, 7.0, -8.2);
+      } else {
+        this.ctx.camera.position.set(0, 7.2, 9.8);
+      }
+      this.ctx.controls?.target?.set?.(0, 0.3, 0);
+      this.ctx.controls?.update?.();
+    }
+    this.ctx?.bus?.emit({ type: 'CAMERA_VIEW_REQUESTED', view: 'flip' });
+    this.ctx?.bus?.flush?.();
+  }
+
+  /**
+   * Toggles between Top-Down 2D camera and 3D perspective camera.
+   * Shortcut: Hotkey 'v' / 'V' or HUD 2D/3D badge button (#hud-top-btn).
+   */
+  toggleTopDownView() {
+    if (this.isMobilePhone) {
+      this.applyMobileCameraMode(this.topDownCamera ? '3d' : 'top', { silent: false });
+      return;
+    }
+    this.topDownCamera = !this.topDownCamera;
+    this.ctx?.pieceView?.setTopDownMode?.(this.topDownCamera);
+    if (this.rootEl) {
+      const topBtn = this.rootEl.querySelector('#hud-top-btn');
+      const topBadge = this.rootEl.querySelector('#hud-top-badge');
+      if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
+      if (topBtn) topBtn.classList.toggle('active', !this.topDownCamera);
+    }
+    if (this.ctx?.camera) {
+      if (this.topDownCamera) {
+        this.ctx.camera.position.set(0, 12.8, this.cameraFlipped ? -0.01 : 0.01);
+      } else {
+        this.ctx.camera.position.set(
+          0,
+          this.cameraFlipped ? 7.0 : 7.2,
+          this.cameraFlipped ? -8.2 : 9.8,
+        );
+      }
+      this.ctx.controls?.target?.set?.(0, 0.3, 0);
+      this.ctx.controls?.update?.();
+    }
+    this.ctx?.bus?.emit({
+      type: 'CAMERA_VIEW_REQUESTED',
+      view: this.topDownCamera ? 'top' : 'default',
+    });
+    this.ctx?.bus?.emit({
+      type: 'CLARITY_MODE_CHANGED',
+      mode: this.clarityMode,
+      force2dIcons: this.force2dIcons,
+      topDownCamera: this.topDownCamera,
+    });
+    this.ctx?.bus?.flush?.();
+  }
+
+  /**
+   * Renders the bilingual Help & Controls Cheat-Sheet HTML inside #hud-help-modal.
+   */
+  _renderHelpModalBodyHtml() {
+    const isIt = this.lang === 'it';
+    if (isIt) {
+      return `
+        <div class="hud-help-grid">
+          <div class="hud-help-section">
+            <h4>🖱️ Mouse &amp; Trackpad (Camera 3D)</h4>
+            <div class="hud-help-row">
+              <span>Zoom In / Out (avvicina / allontana)</span>
+              <span class="hud-kbd">Rotella ↕ / Pizzica</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Ruota / Orbita visuale 3D (alto/basso/sx/dx)</span>
+              <span class="hud-kbd">Click Sx + Trascina</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Sposta visuale (Pan laterale)</span>
+              <span class="hud-kbd">Click Dx / Shift + Rotella</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Orbita con la rotella (alternativa)</span>
+              <span class="hud-kbd">Alt + Rotella</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Seleziona e muovi pezzo</span>
+              <span class="hud-kbd">Click su Pezzo → Casella</span>
+            </div>
+          </div>
+
+          <div class="hud-help-section">
+            <h4>⌨️ Scorciatoie da Tastiera</h4>
+            <div class="hud-help-row">
+              <span>Apri / Chiudi questo Aiuto</span>
+              <span class="hud-kbd">H / ?</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Zoom In / Out da tastiera</span>
+              <span class="hud-kbd">+ / -</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Ruota e inclina telecamera</span>
+              <span class="hud-kbd">Frecce ← ↑ → ↓</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Reset telecamera alla pos. iniziale</span>
+              <span class="hud-kbd">R</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Toggle visuale Dall'Alto 2D / 3D</span>
+              <span class="hud-kbd">V</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Gira scacchiera (Bianco ↔ Nero)</span>
+              <span class="hud-kbd">F</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Cicla Riconoscibilità Pezzi (S5..Off)</span>
+              <span class="hud-kbd">C</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Tira il Dado d20 in Marmo Rosso Rubino sulla Scacchiera</span>
+              <span class="hud-kbd">D</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Mostra / Nascondi barra in alto</span>
+              <span class="hud-kbd">M</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Salta filmato di cattura / Chiudi finestre</span>
+              <span class="hud-kbd">Spazio / Invio / Esc</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Quake Developer Console</span>
+              <span class="hud-kbd">~ / \\ / §</span>
+            </div>
+          </div>
+
+          <div class="hud-help-section">
+            <h4>🧭 Dock Icone in Basso</h4>
+            <div class="hud-help-row">
+              <span>Imposta Fazioni, Giocatori e Difficoltà</span>
+              <span class="hud-kbd">⚙️ Setup</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Ricomincia da capo (chiede conferma di sicurezza!)</span>
+              <span class="hud-kbd">🔄 Nuova</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Matrice 6×6 di tutti i 36 Scontri</span>
+              <span class="hud-kbd">🎬 36</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Vista 2D dall'alto / 3D &amp; Corona S5</span>
+              <span class="hud-kbd">🧊 2D/3D · 👑 S5</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Suggerimento mossa dalla CPU</span>
+              <span class="hud-kbd">💡 Hint</span>
+            </div>
+          </div>
+
+          <div class="hud-help-section">
+            <h4>🏰 Regole, Dado d20 Rubino &amp; Famiglie</h4>
+            <div class="hud-help-row">
+              <span>👑 Re Papino · 👸 Regina Kate · ♗ Ale · ♘ Seby · ♖ Nonno · ♙ Pedoni</span>
+              <span class="hud-kbd">Team Bianco</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Dado d20 in Marmo Rosso Rubino (20 = Critico Dorato!)</span>
+              <span class="hud-kbd">🎲 Click o Tasto D</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Modalità 2: Ispettore 3D &amp; Arena</span>
+              <span class="hud-kbd">Bottone Arena in alto</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Modalità Rotella su Trackpad Mac</span>
+              <span class="hud-kbd">?trackpad=rotate</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="hud-help-grid">
+        <div class="hud-help-section">
+          <h4>🖱️ Mouse &amp; Trackpad (3D Camera)</h4>
+          <div class="hud-help-row">
+            <span>Zoom In / Out (closer / further)</span>
+            <span class="hud-kbd">Mouse Wheel ↕ / Pinch</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Orbit / Rotate 3D camera (up/down/left/right)</span>
+            <span class="hud-kbd">Left-Click + Drag</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Pan camera target</span>
+            <span class="hud-kbd">Right-Click / Shift + Wheel</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Orbit with mouse wheel (alternative)</span>
+            <span class="hud-kbd">Alt + Wheel</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Select &amp; move chess piece</span>
+            <span class="hud-kbd">Click Piece → Square</span>
+          </div>
+        </div>
+
+        <div class="hud-help-section">
+          <h4>⌨️ Keyboard Shortcuts</h4>
+          <div class="hud-help-row">
+            <span>Open / Close this Help guide</span>
+            <span class="hud-kbd">H / ?</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Zoom In / Out via keyboard</span>
+            <span class="hud-kbd">+ / -</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Orbit &amp; tilt camera</span>
+            <span class="hud-kbd">Arrow Keys ← ↑ → ↓</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Reset camera to default framing</span>
+            <span class="hud-kbd">R</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Toggle Top-Down 2D / 3D camera</span>
+            <span class="hud-kbd">V</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Flip board side (White ↔ Black)</span>
+            <span class="hud-kbd">F</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Cycle Piece Clarity mode (S5..Off)</span>
+            <span class="hud-kbd">C</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Roll Solid Ruby-Marble d20 on 3D Board</span>
+            <span class="hud-kbd">D</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Show / Hide top bar</span>
+            <span class="hud-kbd">M</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Skip capture cutscene / Close modals</span>
+            <span class="hud-kbd">Space / Enter / Esc</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Quake Developer Console</span>
+            <span class="hud-kbd">~ / \\ / §</span>
+          </div>
+        </div>
+
+        <div class="hud-help-section">
+          <h4>🧭 Bottom Action Dock</h4>
+          <div class="hud-help-row">
+            <span>Configure Factions, Players &amp; Difficulty</span>
+            <span class="hud-kbd">⚙️ Setup</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Restart match (asks confirmation first!)</span>
+            <span class="hud-kbd">🔄 New</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Interactive 6×6 Matrix (all 36 Clashes)</span>
+            <span class="hud-kbd">🎬 36</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Top-Down 2D / 3D &amp; S5 Crown Clarity</span>
+            <span class="hud-kbd">🧊 2D/3D · 👑 S5</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Request CPU move hint</span>
+            <span class="hud-kbd">💡 Hint</span>
+          </div>
+        </div>
+
+        <div class="hud-help-section">
+          <h4>🏰 Family Lore &amp; Ruby d20</h4>
+          <div class="hud-help-row">
+            <span>👑 King Papino · 👸 Queen Kate · ♗ Ale · ♘ Seby · ♖ Nonno · ♙ Pawns</span>
+            <span class="hud-kbd">White Team</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Solid Ruby-Marble d20 Roll (20 = Golden Crit!)</span>
+            <span class="hud-kbd">🎲 Click or Key D</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Mode 2: 3D Hero Inspector &amp; Arena</span>
+            <span class="hud-kbd">Top Bar Arena Button</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Legacy Mac 2-finger wheel orbit</span>
+            <span class="hud-kbd">?trackpad=rotate</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  openHelpModal() {
+    this.helpModalOpen = true;
+    if (!this.rootEl) return;
+    const body = this.rootEl.querySelector('#hud-help-body');
+    if (body) body.innerHTML = this._renderHelpModalBodyHtml();
+    const modal = this.rootEl.querySelector('#hud-help-modal');
+    if (modal) modal.style.display = 'grid';
+    const btn = this.rootEl.querySelector('#hud-help-btn');
+    if (btn) btn.classList.add('active');
+  }
+
+  closeHelpModal() {
+    this.helpModalOpen = false;
+    if (!this.rootEl) return;
+    const modal = this.rootEl.querySelector('#hud-help-modal');
+    if (modal) modal.style.display = 'none';
+    const btn = this.rootEl.querySelector('#hud-help-btn');
+    if (btn) btn.classList.remove('active');
+  }
+
+  toggleHelpModal() {
+    if (this.helpModalOpen) {
+      this.closeHelpModal();
+    } else {
+      this.openHelpModal();
+    }
+    return this.helpModalOpen;
+  }
+
+  /**
    * Resets the player camera and orbit controls back to default canonical framing.
    * Shortcut: Hotkey 'r' / 'R' or HUD reset button (#hud-reset-cam-btn).
    */
@@ -3496,9 +4038,78 @@ export class HudListener {
   }
 
   /**
+   * Opens the confirmation modal before resetting the board ('🔄 Nuova' safety guard).
+   */
+  requestNewGame() {
+    this.confirmNewModalOpen = true;
+    if (this.rootEl) {
+      const modal = this.rootEl.querySelector('#hud-confirm-new-modal');
+      if (modal) modal.style.display = 'grid';
+    }
+    return true;
+  }
+
+  /**
+   * Cancels the '🔄 Nuova' confirmation modal without resetting the match.
+   */
+  cancelNewGame() {
+    this.confirmNewModalOpen = false;
+    if (this.rootEl) {
+      const modal = this.rootEl.querySelector('#hud-confirm-new-modal');
+      if (modal) modal.style.display = 'none';
+    }
+    return false;
+  }
+
+  /**
+   * Confirms the '🔄 Nuova' dialog and resets all 32 pieces to the starting position.
+   */
+  confirmNewGame() {
+    this.cancelNewGame();
+    this.startNewGame();
+    return true;
+  }
+
+  /**
+   * Rolls the Solid Ruby-Marble d20 (`1..20`) on the 3D board and in the HUD!
+   * Triggered by clicking `#hud-d20-btn` or pressing hotkey `'d'` / `'D'`.
+   */
+  rollRubyD20() {
+    const pid = this.turn || 'w';
+    let receivedEvent = false;
+    if (this.ctx?.bus) {
+      const off = this.ctx.bus.on('D20_ROLLED', () => {
+        receivedEvent = true;
+      });
+      this.ctx.bus.emit({
+        type: 'D20_ROLL_REQUESTED',
+        playerId: pid,
+        reason: 'hud_click',
+      });
+      this.ctx.bus.flush?.();
+      this.ctx.bus.flush?.();
+      off();
+    }
+    if (!receivedEvent) {
+      const roll = Math.floor(Math.random() * 20) + 1;
+      const tier = roll === 20 ? 'golden_crit' : roll >= 15 ? 'shiny' : 'normal';
+      this.onD20Rolled({
+        playerId: pid,
+        d20Roll: roll,
+        tier,
+        isNat20: roll === 20,
+        isNat1: roll === 1,
+        reason: 'hud_click',
+      });
+    }
+    return this.lastD20Roll;
+  }
+
+  /**
    * Resets all 32 pieces to the starting board position while preserving current factions & AI setup.
    */
   startNewGame() {
+    this.cancelNewGame();
     this.closeSetupModal();
     if (this.isMobilePhone) {
       this.mobileAwaitingFirstAttack3D = true;
@@ -4158,22 +4769,75 @@ export class HudListener {
     const pid = e.playerId || 'w';
     this.luck[pid] = e.luck ?? 0;
     this.luck.max = e.maxLuck ?? 12;
+    if (typeof e.d20Roll === 'number') {
+      this.lastD20Roll = e.d20Roll;
+    }
     this.updateLuckUi(pid);
     if (this.luck[pid] >= (this.luck.max || 12)) {
       this.logToQuake(
-        'LUCK',
-        `✨ MAX LUCK for ${pid === 'w' ? '⚪ White' : '⚫ Black'}! Guaranteed Golden Crit on next capture!`,
+        'D20',
+        `🎲 Ruby d20 charged for ${pid === 'w' ? '⚪ White' : '⚫ Black'}! Guaranteed Natural 20 Golden Crit on next capture!`,
         'gold',
       );
     }
   }
 
+  onD20Rolled(e = {}) {
+    const roll = Math.max(1, Math.min(20, Math.round(Number(e.d20Roll) || 20)));
+    this.lastD20Roll = roll;
+    this._animateD20HudBadge(roll);
+    this.updateLuckUi(e.playerId || this.turn || 'w');
+
+    const isIt = this.lang === 'it';
+    const msg =
+      roll === 20
+        ? isIt
+          ? '🎲 Dado d20 Rubino: 20 NATURALE! 🌟 COLPO CRITICO DORATO!'
+          : '🎲 Ruby d20 Roll: NATURAL 20! 🌟 GOLDEN CRITICAL HIT!'
+        : roll === 1
+          ? isIt
+            ? '🎲 Dado d20 Rubino: 1 (Fumble Comico! 😂)'
+            : '🎲 Ruby d20 Roll: 1 (Comic Fumble! 😂)'
+          : roll >= 15
+            ? isIt
+              ? `🎲 Dado d20 Rubino: ${roll} ✨ (Tiro Brillante!)`
+              : `🎲 Ruby d20 Roll: ${roll} ✨ (Shiny Roll!)`
+            : isIt
+              ? `🎲 Dado d20 Rubino: hai tirato ${roll}!`
+              : `🎲 Ruby d20 Roll: you rolled ${roll}!`;
+    this.showToast(msg, 2800);
+    this.logToQuake('D20', msg, roll === 20 ? 'gold' : 'cyan');
+  }
+
+  _animateD20HudBadge(roll = this.lastD20Roll) {
+    if (!this.rootEl) return;
+    const btn = this.rootEl.querySelector('#hud-d20-btn');
+    const numEl = this.rootEl.querySelector('#hud-d20-num');
+    if (numEl) numEl.textContent = String(roll);
+    if (btn) {
+      btn.classList.remove('rolling');
+      // Trigger reflow if available
+      void btn.offsetWidth;
+      btn.classList.add('rolling');
+      btn.classList.toggle('nat20', roll === 20);
+      if (this.d20RollTimer) clearTimeout(this.d20RollTimer);
+      this.d20RollTimer = setTimeout(() => {
+        btn.classList.remove('rolling');
+      }, 600);
+    }
+  }
+
   onDropSpawned(e) {
+    if (typeof e.d20Roll === 'number') {
+      this.lastD20Roll = e.d20Roll;
+      this._animateD20HudBadge(e.d20Roll);
+      this.updateLuckUi(e.playerId || 'w');
+    }
     if (e.sticker?.id) {
       this.unlockedStickers.add(e.sticker.id);
       this.renderStickersUi();
       const stickerLabel = e.sticker.name?.[this.lang] || e.sticker.name?.en || e.sticker.name?.it || e.sticker.id;
-      const prefix = this.lang === 'it' ? '🌟 STICKER SBLOCCATO' : '🌟 STICKER UNLOCKED';
+      const prefix = this.lang === 'it' ? '🌟 CRITICO 20 · STICKER SBLOCCATO' : '🌟 NAT 20 · STICKER UNLOCKED';
       this.showToast(`${prefix}: ${stickerLabel}!`, 3600);
       this.logToQuake('STICKER', `${prefix}: ${stickerLabel}!`, 'gold');
     }
@@ -4424,7 +5088,15 @@ export class HudListener {
     this.combatPointerStart = null;
 
     if (!this.isCombatCutsceneActive()) return;
-    if (this.setupModalOpen || this.matrixModalOpen || this.quakeConsoleOpen) return;
+    if (
+      this.setupModalOpen ||
+      this.helpModalOpen ||
+      this.confirmNewModalOpen ||
+      this.matrixModalOpen ||
+      this.quakeConsoleOpen
+    ) {
+      return;
+    }
 
     const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
     // Guard against the initial square-tap that triggered the capture move (< 350ms ago)
@@ -4455,10 +5127,20 @@ export class HudListener {
       }
     }
 
-    if (e.code === 'Escape') {
+    if (e.code === 'Escape' || e.key === 'Escape') {
       if (this.quakeConsoleOpen) {
         e.preventDefault();
         this.closeQuakeConsole();
+        return;
+      }
+      if (this.confirmNewModalOpen) {
+        e.preventDefault();
+        this.cancelNewGame();
+        return;
+      }
+      if (this.helpModalOpen) {
+        e.preventDefault();
+        this.closeHelpModal();
         return;
       }
       if (this.setupModalOpen) {
@@ -4478,8 +5160,34 @@ export class HudListener {
       }
     }
 
+    if (this.confirmNewModalOpen && (e.code === 'Enter' || e.key === 'Enter')) {
+      e.preventDefault();
+      this.confirmNewGame();
+      return;
+    }
+
+    // Hotkey 'h' / 'H' / '?' to toggle the Help & Controls modal when not typing in an input.
+    if (
+      !isTextInput &&
+      !e.ctrlKey &&
+      !e.metaKey &&
+      !e.altKey &&
+      (e.key === 'h' || e.key === 'H' || e.key === '?')
+    ) {
+      e.preventDefault();
+      this.toggleHelpModal();
+      return;
+    }
+
+    // Hotkey 'd' / 'D' to roll the 3D Solid Ruby-Marble d20 on the board!
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'd' || e.key === 'D')) {
+      e.preventDefault();
+      this.rollRubyD20();
+      return;
+    }
+
     // Hotkey 'm' / 'M' to toggle topbar when not typing in an input
-    if (!isTextInput && (e.key === 'm' || e.key === 'M')) {
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'm' || e.key === 'M')) {
       e.preventDefault();
       this.toggleTopbar();
       return;
@@ -4490,6 +5198,27 @@ export class HudListener {
     if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'r' || e.key === 'R')) {
       e.preventDefault();
       this.resetCameraView();
+      return;
+    }
+
+    // Hotkey 'v' / 'V' to toggle Top-Down 2D / 3D camera view
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'v' || e.key === 'V')) {
+      e.preventDefault();
+      this.toggleTopDownView();
+      return;
+    }
+
+    // Hotkey 'f' / 'F' to flip board side (White <-> Black)
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'f' || e.key === 'F')) {
+      e.preventDefault();
+      this.flipCameraView();
+      return;
+    }
+
+    // Hotkey 'c' / 'C' to cycle Piece Clarity mode (S5 -> S1 -> S2 -> S3 -> S4 -> Off)
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'c' || e.key === 'C')) {
+      e.preventDefault();
+      this.cycleClarityMode();
       return;
     }
 
@@ -4542,11 +5271,25 @@ export class HudListener {
     const val = this.luck[playerId] ?? this.luck.w ?? 0;
     const max = this.luck.max || 12;
     const pct = Math.min(100, Math.round((val / max) * 100));
+    const roll = this.lastD20Roll ?? 20;
 
+    const numEl = this.rootEl.querySelector('#hud-d20-num');
+    const btnEl = this.rootEl.querySelector('#hud-d20-btn');
     const valEl = this.rootEl.querySelector('#hud-luck-val');
     const fillEl = this.rootEl.querySelector('#hud-luck-fill');
     const trackEl = this.rootEl.querySelector('#hud-luck-track');
-    if (valEl) valEl.textContent = `${val} / ${max} ✨`;
+    if (numEl) numEl.textContent = String(roll);
+    if (btnEl) btnEl.classList.toggle('nat20', roll === 20);
+    if (valEl) {
+      valEl.textContent =
+        roll === 20
+          ? 'd20: 20 🌟 CRIT!'
+          : roll === 1
+            ? 'd20: 1 😂'
+            : roll >= 15
+              ? `d20: ${roll} ✨`
+              : `d20: ${roll}`;
+    }
     if (fillEl) fillEl.style.width = `${pct}%`;
     if (trackEl) trackEl.classList.toggle('hot', val >= 9);
   }
@@ -4618,6 +5361,15 @@ export class HudListener {
       el.setAttribute('aria-label', lbl);
     };
     setTxt('#hud-luck-label', 'luckBar');
+    const d20Btn = this.rootEl.querySelector('#hud-d20-btn');
+    if (d20Btn) {
+      d20Btn.title = this.t('d20RollTooltip');
+      d20Btn.setAttribute('aria-label', this.t('luckBar'));
+    }
+    setTxt('#hud-confirm-new-title', 'confirmNewTitle');
+    setTxt('#hud-confirm-new-sub', 'confirmNewSub');
+    setTxt('#hud-confirm-new-cancel', 'confirmNewCancelBtn');
+    setTxt('#hud-confirm-new-yes', 'confirmNewYesBtn');
     setTip('#hud-dock-gallery', 'galleryBtn');
     setTip('#hud-dock-videos', 'videosBtn');
     setTip('#hud-setup-btn', 'setupBtn');
@@ -4634,9 +5386,15 @@ export class HudListener {
     this._syncClarityUi();
     setTip('#hud-new-btn', 'newGameBtn');
     setTip('#hud-fen-btn', 'fenBtn');
+    setTip('#hud-help-btn', 'helpBtn');
     setTip('#hud-music-btn', 'musicBtn');
     setTip('#hud-sfx-btn', 'sfxBtn');
     setTxt('#hud-skip-btn', 'skipBtn');
+    setTxt('#hud-help-title', 'helpModalTitle');
+    setTxt('#hud-help-sub', 'helpModalSub');
+    setTxt('#hud-help-close', 'closeBtn');
+    const helpBody = this.rootEl.querySelector('#hud-help-body');
+    if (helpBody) helpBody.innerHTML = this._renderHelpModalBodyHtml();
     const toggleBtn = this.rootEl.querySelector('#hud-toggle-topbar-btn');
     if (toggleBtn) {
       const lbl = this.topbarVisible ? this.t('toggleTopbarBtn') : this.t('showTopbarBtn');
