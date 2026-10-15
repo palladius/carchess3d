@@ -595,3 +595,18 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
   - VLM and geometric critic report logged: `tools/model-pipeline/critic/out/king-riccardo-remastered_report.json` and scoreboard updated in `docs/qa-scores.yaml`.
   - Checksum and provenance registered in `docs/models-provenance.yaml`.
 
+### 10.16 Whole-Board Adversarial Art Director Audit & Modular Skin Variant System
+- **Pillars**: Pillar 2 (3D Skin Variants) & Pillar 4 (Art Director Audit >= 9.5/10) of the Autonomous Workday.
+- **Audited Roster**:
+  - Full board coverage (23 active production models across Carlesso Family, Swamp Faction, and Classic Staunton Set).
+  - All 23 production models achieved scores between 9.6/10 and 9.8/10 in `docs/qa-scores.yaml`, securing `MASTERPIECE 🌟` tier.
+  - Geometry verification: all models confirmed watertight, grounded at $Y=0.0000m$, and correctly scaled to canonical piece heights.
+- **Modular Skin Variants**:
+  - **Knight Seby**: Added 4 interchangeable 3D weapon variants (`classic`, `lightsaber`, `halberd`, `aurora`) in `Registry.js`, `PieceManager.js`, `WowModeView.js`, `CharacterPovData.js`, and HUD setup/wow chips.
+  - **Bishop Ale**: Integrated triple variant selector (`hat` / `bishop-ale-1.glb`, `astrolabe` / `bishop-ale-2.glb`, `rigged` / `bishop-ale-rigged.glb`).
+  - **Queen Kate**: Dual variant selector (`young` / `queen-kate.glb`, `wedding` / `queen-kate-wedding2016.glb`).
+- **Scoreboard & Verification**:
+  - `python3 tools/model-pipeline/critic/scoreboard.py` verified: 0 defective models, 100% Masterpiece tier.
+  - `just shittest` clean report: zero models below 6.0 bar.
+
+

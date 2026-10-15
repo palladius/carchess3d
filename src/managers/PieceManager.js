@@ -11,10 +11,11 @@ import {
   squareToWorld,
   BISHOP_GLB_VARIANTS,
   QUEEN_GLB_VARIANTS,
+  KNIGHT_GLB_VARIANTS,
 } from '../core/Registry.js';
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export { BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS };
+export { BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS, KNIGHT_GLB_VARIANTS };
 
 export const CLIP_ALIASES = Object.freeze({
   Idle: 'Idle_Track',
@@ -34,6 +35,8 @@ export class PieceManager {
     this.bishopVariant = 'hat';
     /** @type {'young'|'wedding'} */
     this.queenVariant = 'young';
+    /** @type {'classic'|'lightsaber'|'halberd'|'aurora'} */
+    this.knightVariant = 'classic';
     /** @type {Map<string, object>} */
     this.livingBySquare = new Map();
     /** @type {{ w: Array<object>, b: Array<object> }} */
@@ -59,6 +62,7 @@ export class PieceManager {
       ctx.bus.on('PIECE_VARIANT_REQUESTED', (e) => {
         if (e.bishopVariant) this.setBishopVariant(e.bishopVariant);
         if (e.queenVariant) this.setQueenVariant(e.queenVariant);
+        if (e.knightVariant) this.setKnightVariant(e.knightVariant);
       }),
     );
   }
@@ -80,6 +84,8 @@ export class PieceManager {
         glbUrl = BISHOP_GLB_VARIANTS[this.bishopVariant] || meta.glbUrl;
       } else if (activeFamily === 'carlesso' && type === 'q') {
         glbUrl = QUEEN_GLB_VARIANTS[this.queenVariant] || meta.glbUrl;
+      } else if (activeFamily === 'carlesso' && type === 'n') {
+        glbUrl = KNIGHT_GLB_VARIANTS[this.knightVariant] || meta.glbUrl;
       } else {
         glbUrl = meta.glbUrl || null;
       }
@@ -194,7 +200,7 @@ export class PieceManager {
     this.reResolveAll();
     this.ctx?.bus?.emit({
       type: 'PIECE_SET_CHANGED', whiteFamily: this.whiteFamily, rivalSetMode: this.rivalSetMode,
-      bishopVariant: this.bishopVariant, queenVariant: this.queenVariant,
+      bishopVariant: this.bishopVariant, queenVariant: this.queenVariant, knightVariant: this.knightVariant,
     });
     this.emitPiecesSynced(reason);
   }
@@ -230,6 +236,14 @@ export class PieceManager {
     this._applySetChange('queen_variant_changed');
   }
 
+  setKnightVariant(variant) {
+    const valid = ['classic', 'lightsaber', 'halberd', 'aurora'];
+    const normalized = valid.includes(variant) ? variant : 'classic';
+    if (this.knightVariant === normalized) return;
+    this.knightVariant = normalized;
+    this._applySetChange('knight_variant_changed');
+  }
+
   reResolveAll() {
     for (const [sq, desc] of this.livingBySquare.entries()) {
       this.livingBySquare.set(sq, this.resolveDescriptor(desc));
@@ -262,7 +276,7 @@ export class PieceManager {
     this.ctx?.bus?.emit({
       type: 'PIECES_SYNCED', reason, move,
       whiteFamily: this.whiteFamily, rivalSetMode: this.rivalSetMode,
-      bishopVariant: this.bishopVariant, queenVariant: this.queenVariant,
+      bishopVariant: this.bishopVariant, queenVariant: this.queenVariant, knightVariant: this.knightVariant,
       pieces: this.getLivingPieces(), captured: this.getCapturedTrays(),
     });
   }
@@ -274,6 +288,7 @@ export class PieceManager {
   getRivalSetMode() { return this.rivalSetMode; }
   getBishopVariant() { return this.bishopVariant; }
   getQueenVariant() { return this.queenVariant; }
+  getKnightVariant() { return this.knightVariant; }
   update(_dt) {}
   dispose() {
     for (const off of this.offs) off();

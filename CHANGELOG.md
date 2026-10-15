@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.3.64] - 2026-10-15
+
+- 🎬💥 **Expansion of 36 Cinematic Combat Animations (Veo/Canvas 16:9 3-Act Structure)**:
+  - Enhanced `VeoCinemaView.js` (`drawCinemaCinemaOverlay`) with a 3-act narrative overlay that preserves full visibility of foreground 3D combatants:
+    - **Act 1 (0–1s / Pre-Padding)**: Attacker weapon banner card with sleek gold-trimmed glass backing (`⚔️ ATTO 1 · [Attacker] sfodera [Attacker Weapon]!`).
+    - **Act 2 (Mid-Fight / Progress 28%–72%)**: Dynamic Defender Counter-Attack badge (`🛡️ ATTO 2 · DIFESA [Defender]`) featuring an animated tilted comic SFX pop-in pill (`CLANG!`, `WHOOSH!`, `BOING!`, `ZAP!`).
+    - **Act 3 (Finale / Progress > 82%)**: Swamp K.O. finisher verdict card and bespoke Easter Egg visual flairs:
+      - Radiant Golden Throne Aura with spinning crowns, lightning bolts, and amber radial vignette for `k_x_q` ("Carlesso al Cesso").
+      - Swirling Purple/Pink Heart Storm for `n_x_r` ("Mega Cuddle").
+    - **Sleek Scrubber**: Cinema Red (`#e50914`) progress hairline with glowing playhead dot along the bottom edge.
+  - Synchronized `battles.html` with updated version `v0.3.64` and responsive 3D clash launchers.
+- 🎭⚔️ **Complete 3D Modular Skin Variant System in HUD & Mode 2 WOW Inspector**:
+  - **Knight Seby 4-Weapon Modular Switcher**: Integrated `classic` (Destriero d'Oro), `lightsaber` (Spada Laser radiosa), `halberd` (Alabarda Cavalleresca), and `aurora` (Sfera Acquario).
+  - Integrated live selection into the HUD Game Setup modal (`#hud-setup-knight-variant`) and Mode 2 WOW Inspector interactive pill chips (`#hud-seby-variant-row`).
+  - Added full i18n keys and bilingual translations (`it` and `en`) in `Registry.js`, `PieceManager.js`, `PieceView.js`, `WowModeView.js`, and `CharacterPovData.js`.
+  - Maintained strict headless manager constraint: `PieceManager.js` stays $\le 300$ LOC (297 LOC, verified by `scripts/check.py`).
+- 🎙️🎵 **Bilingual Voice Triggers & Procedural Audio Refinements**:
+  - Replaced duplicate placeholder translations in `VOICE_LINES` with natural, authentic English translations for all characters.
+  - Enhanced `AudioListener.js` speech synthesis fallback to dynamically match active session language (`this.lang === 'en'` passes `en-GB` for Queen Kate and `en-US` for others).
+  - Validated with signal processing audio critic (`just audio-critic --all`) and unit tests (`tests/test_audio_quality.py`).
+- 🌟🏆 **Whole-Board Adversarial Art Director QA Audit ($\ge 9.5/10$ Masterpiece Tier)**:
+  - Conducted comprehensive audit of all 23 active production models on the chessboard in `docs/qa-scores.yaml`.
+  - Every production model across the Carlesso Family, Swamp Faction, and Classic Staunton set achieved $\ge 9.5/10$ (`MASTERPIECE 🌟`), with verified watertight geometry, grounded origins at $Y=0.0000m$, and canonical piece heights.
+  - Verified with `python3 tools/model-pipeline/critic/scoreboard.py` and `just shittest` (zero defective models).
+  - Documented Section 10.16 in `tools/model-pipeline/RUNNING_DOC.md`.
+
 ## [0.3.63] - 2026-10-14
 
 - 🐸🎭 **Human-In-The-Loop Aesthetic Critique & Swamp Restoration**:

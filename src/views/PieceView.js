@@ -1859,7 +1859,7 @@ if (uCombatAmp > 0.001) {
    * Creates a standalone 3D piece Group for Mode 2 WOW 360° Turntable Inspector & 3D Scazzottata Stage.
    * @param {string} type - 'k'|'q'|'b'|'n'|'r'|'p'
    * @param {'w'|'b'} [color='w']
-   * @param {{ isStoneSet?: boolean, bishopVariant?: 'hat'|'astrolabe'|'rigged', queenVariant?: 'young'|'wedding' }} [opts]
+   * @param {{ isStoneSet?: boolean, bishopVariant?: 'hat'|'astrolabe'|'rigged', queenVariant?: 'young'|'wedding', knightVariant?: 'classic'|'lightsaber'|'halberd'|'aurora' }} [opts]
    * @returns {THREE.Group}
    */
   createStandalonePiece(type = 'b', color = 'w', opts = {}) {
@@ -1878,6 +1878,15 @@ if (uCombatAmp > 0.001) {
       desc.glbUrl = opts.queenVariant === 'wedding'
         ? 'assets/models/queen-kate-wedding2016-remastered.glb'
         : 'assets/models/queen-kate.glb';
+    }
+    if (type === 'n' && opts.knightVariant) {
+      desc.glbUrl = opts.knightVariant === 'lightsaber'
+        ? 'assets/models/knight-seby-lightsaber.glb'
+        : (opts.knightVariant === 'halberd'
+          ? 'assets/models/knight-seby-halberd.glb'
+          : (opts.knightVariant === 'aurora'
+            ? 'assets/models/knight-seby-aurora.glb'
+            : 'assets/models/knight-seby.glb'));
     }
     const group = this.buildPieceGroup(desc);
     group.position.set(0, 0, 0);

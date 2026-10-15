@@ -97,6 +97,9 @@ export const HERO_PROFILES = Object.freeze({
     avatar: 'assets/characters/knight-seby-4.jpg',
     models: [
       { label: 'Destriero d’Oro 3D', url: 'assets/models/knight-seby.glb', note: 'Cavaliere in armatura dorata su destriero con mantello blu reale' },
+      { label: 'Spada Laser 🌟', url: 'assets/models/knight-seby-lightsaber.glb', note: 'Cavaliere Seby armato di spada laser radiosa' },
+      { label: 'Alabarda Cavalleresca 🛡️', url: 'assets/models/knight-seby-halberd.glb', note: 'Cavaliere Seby con alabarda dorata' },
+      { label: 'Sfera Aurora 🔮', url: 'assets/models/knight-seby-aurora.glb', note: 'Cavaliere Seby con sfera d’acquario e destriero celestiale' },
     ],
     catchphrase: 'Can you clean my bottooooom?!',
     bio: 'Il più giovane e veloce pilota dell’Acquario! Salta a L sopra qualsiasi ostacolo con le sue macchinine turbo e il suo destriero.',
@@ -114,7 +117,8 @@ export const HERO_PROFILES = Object.freeze({
     themeGradient: 'linear-gradient(135deg, #ba68c8 0%, #7b1fa2 100%)',
     avatar: 'assets/characters/bishop-ale-1.jpg',
     models: [
-      { label: 'Ale con Drago 3D', url: 'assets/models/bishop-ale-1.glb', note: 'Mitria blu/oro, occhioni vispi e drago rosso sulla spalla' },
+      { label: 'Ale col Cappello 3D', url: 'assets/models/bishop-ale-1.glb', note: 'Mitria blu/oro, occhioni vispi e drago rosso sulla spalla' },
+      { label: 'Ale con Astrolabio 🔮', url: 'assets/models/bishop-ale-2.glb', note: 'Alfiere Ale con astrolabio stellare del Cristallo Ametista' },
       { label: 'Variante Riggata 🐉', url: 'assets/models/bishop-ale-rigged.glb', note: 'Drago riggato a 26 ossa con animazione fiammata' },
     ],
     catchphrase: 'Sei proprio un cafoNAZZO!',
