@@ -1,6 +1,6 @@
-# 🕵️‍♂️🦖 Analisi Forensica su `derek`: Tutti i `/goal`, gli Swarm Multi-Agente e i Loop Complessi di Jetski per CarChess3D (`9–14 Ottobre 2026`)
+# 🕵️‍♂️🦖 Analisi Forensica su `derek`: Tutti i `/goal`, gli Swarm Multi-Agente e i Loop Complessi di Antigravity per CarChess3D (`9–15 Ottobre 2026`)
 
-> **Scopo di questo documento (`article/DEREK_JETSKI_FORENSICS.md`)**: Raccogliere in un unico dossier forensico — estratto direttamente dai log `transcript.jsonl` di `~/.gemini/jetski/brain/` sulla workstation Linux **`derek`** — **tutti i numeri reali, i prompt esatti, i `/goal`, gli Swarm paralleli, i Critic VLM avversariali e i loop autonomi** eseguiti su questo computer tra il **9 e il 14 Ottobre 2026**, pronto come materiale per l'articolo tecnico.
+> **Scopo di questo documento (`article/DEREK_JETSKI_FORENSICS.md`)**: Raccogliere in un unico dossier forensico — estratto direttamente dai log `transcript.jsonl` di `~/.gemini/antigravity/brain/` sulla workstation Linux **`derek`** — **tutti i numeri reali, i prompt esatti, i `/goal`, gli Swarm paralleli, i Critic VLM avversariali e i loop autonomi** eseguiti su questo computer tra il **9 e il 15 Ottobre 2026**, pronto come materiale per l'articolo tecnico.
 
 ---
 
@@ -171,7 +171,7 @@ flowchart TD
 
 ---
 
-## 🗂️ 3. Registro Completo delle 41 Conversazioni Jetski su `derek` (`9–14 Ottobre 2026`)
+## 🗂️ 3. Registro Completo delle Conversazioni Antigravity su `derek` (`9–15 Ottobre 2026`)
 
 ### A. Le 13 Sessioni Orchestratrici (Guidate da `RiccardinoCM26 🦖`)
 

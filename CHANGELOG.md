@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.76] - 2026-10-15
+
+- 📰🧹 **Article Unification, Privacy Sanitization, Antigravity Daily UAT Section & `ricc.rocks` Sync (`article/ARTICLE.md`, `article/DEREK_TODO.md`, `article/list_carchess_chats.py`, `article/sources/chats_list.md`, `article/sources/derek_chats_list.md`)**:
+  - Fixed Python syntax error in `article/list_carchess_chats.py` and filtered out 251 unrelated personal sessions from `article/sources/chats_list.md` and `article/sources/telemetry/chats_index.json` (`-23,041` lines), keeping only the **22 true `pupurabbux` CarChess3D sessions** and exporting the **54 `derek` CarChess3D sessions** (`article/sources/derek_chats_list.md`).
+  - Unified `article/ARTICLE.md` with the 8 autonomous Antigravity loops/Swarms on `derek`, the 16:9 Hero Banner (`article_hero_banner_16x9.png`), the "Vero UAT" photo of Ale & Seby (`kids_playing_carchess3d.jpg`), the `S1..S5` Blind VLM benchmark (`clarity_comparison_0deg_30deg.png`), and a dedicated section on the **Autonomous Antigravity Daily UAT Review** via GitHub Issues ([`label:"gemini-uat"`](https://github.com/palladius/carchess3d/issues?q=state%3Aopen%20label%3A%22gemini-uat%22), Issues `#18` & `#36`).
+  - Synced the article and all assets to `ricc.rocks` (`zzo.ricc.rocks`) in unlisted `under_review` mode (`build: { list: never, render: always }`) and marked `article/DEREK_TODO.md` completed.
+
 ## [0.3.75] - 2026-10-15
 
 - 🧪🎬📰 **Articolo & Post-Mortem: Sezione Dedicata al Daily UAT Playtest & GitHub Issue #36 (`article/ARTICLE.md`, `docs/ARTICLE.md`, `article/INVESTIGATION.md`, `article/assets/gallery/daily_uat_gameplay_20261015.gif`, `docs/visual-progress/daily_uat_gameplay_20261015.gif`)**:
