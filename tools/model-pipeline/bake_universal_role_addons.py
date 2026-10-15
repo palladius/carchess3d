@@ -886,7 +886,56 @@ def update_provenance_registry() -> int:
     return updated_count
 
 
+def strip_glb(glb_path: Path, role: str) -> dict:
+    """Restore `glb_path` to its clean pre-addon state (removing baked `UniversalRoleAddon_*`)."""
+    gltf = pygltflib.GLTF2().load(str(glb_path))
+    raw_blob = gltf.binary_blob() or b""
+    raw_blob = restore_pre_addon_state(gltf, raw_blob)
+    if getattr(gltf.asset, "extras", None) and isinstance(gltf.asset.extras, dict):
+        gltf.asset.extras.pop("universal_role_addon", None)
+        if not gltf.asset.extras:
+            gltf.asset.extras = None
+
+    min_xyz, max_xyz, _ = extract_original_bounds(gltf, raw_blob)
+    gltf.buffers[0].byteLength = len(raw_blob)
+    gltf.set_binary_blob(bytes(raw_blob))
+
+    part_path = glb_path.with_suffix(".glb.part")
+    gltf.save_binary(str(part_path))
+    os.replace(part_path, glb_path)
+
+    return {
+        "path": glb_path.relative_to(REPO_ROOT).as_posix(),
+        "role": role,
+        "stripped": True,
+        "height_m": round(float(max_xyz[1] - min_xyz[1]), 4),
+        "size_bytes": glb_path.stat().st_size,
+        "md5": file_md5(glb_path),
+    }
+
+
 def main() -> None:
+    import sys
+
+    strip_mode = "--strip" in sys.argv
+    if strip_mode:
+        print(f"🧹 Stripping baked UniversalRoleAddon_* from {len(TARGET_MODELS)} GLB models...")
+        results = []
+        for rel_path, role in TARGET_MODELS:
+            glb_path = REPO_ROOT / rel_path
+            if not glb_path.exists():
+                raise FileNotFoundError(f"Missing target GLB: {glb_path}")
+            info = strip_glb(glb_path, role)
+            results.append(info)
+            print(
+                f"  ✅ [{info['role'].upper()}] {info['path']:44s} "
+                f"| stripped | height={info['height_m']:.3f}m | md5={info['md5'][:10]}..."
+            )
+        n_prov = update_provenance_registry()
+        print(f"📜 Updated docs/models-provenance.yaml for {n_prov} models.")
+        print(json.dumps({"stripped_count": len(results), "provenance_count": n_prov}, indent=2))
+        return
+
     print(f"👑 Baking Universal 3D Role Signifiers into {len(TARGET_MODELS)} GLB models...")
     results = []
     for rel_path, role in TARGET_MODELS:

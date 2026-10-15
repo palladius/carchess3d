@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.74] - 2026-10-15
+
+- 👑📐✨ **Piece Clarity Refinements (`A1`, `A2`, `A3`): Clean `S2` 3D Default, Single Head-Juxtaposed Sculpted Crowns, 100% Square-Aligned `2D` Medallions & Simplified Single-Icon Design (`#32`, `src/views/PieceClarityHelper.js`, `src/views/PieceView.js`, `src/listeners/HudListener.js`, `src/listeners/ProfileStorageListener.js`, `src/core/Registry.js`, `tools/model-pipeline/bake_universal_role_addons.py`, `docs/models-provenance.yaml`, `docs/spec/SPEC.md`)**:
+  - **A1 — Default Clean `S2` in 3D, Auto-Toggle on `📐 2D`, 100% Square Alignment (`y = 0.04m`) & Simplified Single-Icon Medallions**:
+    - **Default Mode (`S2`)**: In normal 3D play (`topDownCamera = false`), all floating 2D billboards, pedestal wreaths, and 2D discs are **disabled by default**, keeping ONLY True Matte Obsidian Black vs Warm Ivory White contrast (`useObsidianContrast: true`) and the single sleek head-mounted 3D crown (`showUniversal3dAddon: true`).
+    - **`📐 2D` Button Auto-Toggle (`#hud-top-btn`)**: Pressing `📐 2D` (`topDownCamera = true`) automatically toggles ON the 2D top-cap medallions (`showZenith2dDisc = true`) in any active clarity mode (`s1..s5`) and hides them when returning to `3D` (or pressing `R` Reset Camera).
+    - **100% Square Alignment (Zero Parallax Offset)**: Placed `Zenithal2DClassicDisc` at **board level (`y = ZENITH_DISC_BOARD_Y = 0.04m`, identical across all 6 piece types)** instead of `y = pieceHeight + 0.30m` (`1.20m..2.15m`), hides the 3D piece body/pedestal while `showZenith2dDisc` is active on board pieces, and aims the `2D` top-down camera straight down at `(0, 0.04, 0)` so all 32 medallions sit 100% dead-center inside their squares (`a1..h8`) with zero perspective parallax offset.
+    - **Simplified Single-Icon 2D Medallion + Optional Accessibility Letters/Braille Toggle**: By default (`showRoleLetters = false`), each 2D medallion renders **ONLY ONE large, crisp, dead-centered classic chess icon (`♚ ♛ ♜ ♝ ♞ ♟`)** — no `K, Q, R, B, N, P` letters and no double-stacked polygon+glyph. Added an optional accessibility checkbox in `#hud-setup-modal` (`#hud-setup-letters-toggle` / `?letters=1` / `?braille=1`, persisted per profile) for players who want role letters + Braille (`K ⠇`, `Q ⠟`, `R ⠗`, `B ⠃`, `N ⠝`, `P ⠏`).
+  - **A2 & A3 — Stripped Duplicate Baked `.glb` Nodes & Rebuilt Single Head-Juxtaposed Sculpted `S2` Crowns (`computeGroundedHeadAnchor`)**:
+    - **Eliminated Duplicate + Floating Crowns**: Stripped the duplicate baked `UniversalRoleAddon_*` meshes from all 22 `.glb` files (`tools/model-pipeline/bake_universal_role_addons.py --strip`, verified via `just provenance` across all 28 models) and added `computeGroundedHeadAnchor(THREE, holder, transform, desc.type)` in `PieceView.attachGlbToPiece` so the single runtime `S2` crown mounts inside `bodyContainer` directly on the character's actual grounded head top (`headTopY - 0.024m`, e.g. `1.16m` on King Riccardo and `1.12m` on Queen Kate instead of floating at `1.85m`/`1.65m`).
+    - **Zero-Cube Sleek Sculpted 3D Royal Geometry (All 6 Roles)**: Rebuilt `buildUniversalGlbRoleAddOn` with head-proportioned (`r ≈ 0.11m..0.148m`), high-segment royal geometry and zero `BoxGeometry` cubes:
+      - `k` (King): Imperial arched diadem with 8 cabochon jewels, 4 intersecting pearl arches, velvet cap, monde orb, and flared pyramidal Cross Pattee finial.
+      - `q` (Queen): Graceful 8-spire curved tiara coronet with 8 delicate proportionate pearls (`r = 0.015m`) and central sovereign jewel.
+      - `b` (Bishop): Sculpted liturgical mitre (`LatheGeometry` profile) + lappets + tapered pastoral cross finial.
+      - `n` (Knight): Sleek Corinthian warhorse crest with swept curved dorsal plume and aerodynamic bilateral side-crests.
+      - `r` (Rook): Curved 6-merlon cylindrical mural crown (`CylinderGeometry` radial segments) with battlement molding.
+      - `p` (Pawn): Braided circlet + Staunton finial sphere + tapered Swiss-Guard pike tip.
+
 ## [0.3.73] - 2026-10-15
 
 - 🧪🎬 **Daily UAT Adversarial Playtest & `index.html` Core Modules Sync (`scripts/daily_uat_playtest.py`, `index.html`, `#36`)**:

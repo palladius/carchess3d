@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.73';
+export const APP_VERSION = '0.3.74';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -1268,12 +1268,13 @@ export const I18N = Object.freeze({
     bishopVariantRigged: '🐉 Ale Rigged (Drago)',
     clarityBtn: '🔍 Chiarezza Pezzi',
     clarityLabel: '🔍 Chiarezza Visiva (Riconoscimento Pezzi):',
-    clarityS5: '✨ S5: Ibrida Totale (Add-on 3D + Ossidiana + 2D dall’Alto)',
-    clarityS1: '📐 S1: Icone 2D Classiche B/N (Auto Verticale & Toggle)',
-    clarityS2: '👑 S2: Add-On 3D Statici Universali (Corona, Picca, Cavallo Largo)',
-    clarityS3: '🌑 S3: Contrasto Puro Nero Ossidiana vs Bianco Avorio',
+    clarityS2: '👑 S2 (Default 3D): Corone & Stemmi 3D sulla Testa + Contrasto Ossidiana/Avorio',
+    clarityS1: '📐 S1: Medaglioni 2D Classici B/N Allineati alla Casella',
+    clarityS3: '🌑 S3: Solo Contrasto Puro Nero Ossidiana vs Bianco Avorio',
     clarityS4: '🛡️ S4: Ghirlanda 3D Piedistallo + Stemma 2D Flottante',
+    clarityS5: '✨ S5: Ibrida Completa (Corone 3D + Ghirlanda + Ossidiana + 2D dall’Alto)',
     clarityOff: '🎨 Off: Solo Modelli 3D Originali',
+    clarityLettersLabel: '🔤 Accessibilità: Mostra lettere e Braille (K, Q, R, B, N, P) sulle icone 2D',
   },
   en: {
     title: 'CarChess3D · Family Wizard Chess',
@@ -1395,12 +1396,13 @@ export const I18N = Object.freeze({
     bishopVariantRigged: '🐉 Ale Rigged (Dragon)',
     clarityBtn: '🔍 Piece Clarity',
     clarityLabel: '🔍 Visual Clarity (Piece Recognition):',
-    clarityS5: '✨ S5: Hybrid All-In (3D Add-ons + Obsidian + Auto-2D Top)',
-    clarityS1: '📐 S1: Classic 2D B/W Icons (Auto Vertical & Toggle)',
-    clarityS2: '👑 S2: Universal 3D Static Role Add-Ons (Crowns, Pike, Wide Horse)',
-    clarityS3: '🌑 S3: Pure Obsidian Black vs Ivory White Contrast',
+    clarityS2: '👑 S2 (Default 3D): Head-Mounted 3D Crowns/Crests + Obsidian/Ivory Contrast',
+    clarityS1: '📐 S1: Square-Aligned Classic 2D B/W Medallions',
+    clarityS3: '🌑 S3: Pure Obsidian Black vs Ivory White Contrast Only',
     clarityS4: '🛡️ S4: 3D Pedestal Role Wreath + Floating 2D Crest',
+    clarityS5: '✨ S5: Hybrid Full (3D Crowns + Wreath + Obsidian + Auto-2D Top)',
     clarityOff: '🎨 Off: Original 3D Models Only',
+    clarityLettersLabel: '🔤 Accessibility: Show role letters & Braille (K, Q, R, B, N, P) on 2D icons',
   },
 });
 
