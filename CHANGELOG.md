@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.74] - 2026-10-15
+
+- 🚨⏱️🍷 **Post-Mortem Forense SRE `article/INVESTIGATION.md` & Diario Parallelo Colmar vs Loop Agentici (`article/INVESTIGATION.md`, `article/ARTICLE.md`, `article/DEREK_TODO.md`)**:
+  - Redatto il Post-Mortem Blameless in formato Google SRE (`article/INVESTIGATION.md`, `PoMo-20261009-CARCHESS3D`) con i timestamp al singolo secondo (`TZ=Europe/Zurich CEST`) di tutti i **10 Loop Agentici** eseguiti tra `derek` e `pupurabbux` dal `2026-10-09 15:34:37` al `2026-10-15 12:47:36`.
+  - Aggiunto in `article/INVESTIGATION.md` e `article/ARTICLE.md` il **Diario Parallelo Giorno per Giorno (Venerdì 9 → Giovedì 15 Ottobre)** che affianca la vita reale a Colmar con Kate (con segnaposto `<foto: ...>` e la foto reale del Vero UAT di Ale & Seby al tablet) alle finestre di autonomia totale dei loop (`16h 33m` Venerdì notte, `3h 12m` Sabato mattina con 4 loop simultanei, `0h 47m` Swarm 6×6 + `10h 53m` cena di anniversario, `1h 46m` Veo notturno + `2h 38m` Video Critic a colazione + `2h 09m` Face-Grafting biometrico durante il viaggio in auto Colmar → Zurigo, `11h 50m` RTX 5080 a LED spenti Martedì notte, `3h 22m` Swarm Chiarezza `S1..S5`).
+
 ## [0.3.73] - 2026-10-15
 
 - 🧪🎬 **Daily UAT Adversarial Playtest & `index.html` Core Modules Sync (`scripts/daily_uat_playtest.py`, `index.html`, `#36`)**:

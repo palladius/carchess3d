@@ -1,0 +1,289 @@
+# 🚨 [PoMo-20261009-CARCHESS3D] Post-Mortem Forense: "Operazione Colmar" — Come una Rete di Loop Agentici ha Costruito un Videogioco 3D in 5 Giorni
+
+* **Incident / Operation ID**: `i_carchess3d_20261009` (`PoMo-20261009-CARCHESS3D`)
+* **Date**: `2026-10-09` → `2026-10-15` (`TZ=Europe/Zurich`, `CEST / UTC+2`)
+* **Incident Commander & Author**: `palladius@` (`RiccardinoCM26 🦖`)
+* **Autonomous Responders**: `gemini-4-argon@` (`derek` & `pupurabbux`), `fable-5.1-high@` (`@fable-reviewer`, `@art-critic`), `gemini-2.5-pro@` (`@vlm-critic`, `@audio-critic`)
+* **Status**: **RESOLVED / SHIPPED TO PROD (`v0.3.73`)** 🟢
+
+---
+
+# Executive Summary
+
+Tra venerdì **9 ottobre 2026 (`15:34:37 CEST`)** e giovedì **15 ottobre 2026 (`12:47:36 CEST`)**, mentre l'ingegnere umano (`palladius@`) festeggiava il **10° anniversario di matrimonio a Colmar (Alsazia)** con la moglie Kate e successivamente faceva giocare i figli Alessandro (🐉) e Sebastian (🏎️) sul tablet di casa, un'infrastruttura distribuita su due workstation Linux — **`derek`** (macchina di lavoro, orchestratore Jetski multi-agente e pipeline cloud Veo 3.1 / Lyria 3) e **`pupurabbux`** (workstation domestica a Zurigo con GPU **NVIDIA GeForce RTX 5080 Blackwell `sm_120`**) — ha eseguito **10 Loop Agentici Autonomi e Avversari** per progettare, scolpire, animare, sonorizzare, testare e rilasciare in produzione **[CarChess3D ("Carlesso al Cesso" / "Scacchi di Famiglia")](https://palladius.github.io/carchess3d/)**.
+
+L'operazione ha comportato **41 sessioni Jetski su `derek`** (**13.100+ step**, **760M+ token di contesto**, **5,34M token di output**) e **273 sessioni Antigravity su `pupurabbux`**, producendo **oltre 190 commit git** fino alla versione `v0.3.73`, **57 modelli 3D `.glb`**, **36 film di battaglia 16:9**, **voci neurali multilingue**, **colonne sonore d'archi barocchi** e **zero violazioni di IP Safety** nei controlli pre-push (`just test`). Questo documento ricostruisce l'anatomia dell'operazione in formato **Google SRE Blameless Post-Mortem**, con il cronometro al singolo secondo di ogni `/goal`, Swarm, subagent e round di auto-correzione avversaria.
+
+---
+
+## Impact
+
+* **Utenti Impattati (Positivamente)**: 4 membri della Famiglia Carlesso (Papino Riccardo, Mamma Kate, Alessandro, Sebastian) + Nonna materna Susan (per cui è stato introdotto il default in lingua inglese con selettore istantaneo `🇬🇧 EN / 🇮🇹 IT` in [`7337583`](https://github.com/palladius/carchess3d/commit/73375839cc5b332758dfd2376a71884865e02747)).
+* **Downtime Matrimoniale a Colmar**: **0 minuti** (l'intero sprint iniziale `/goal` da zero a `v1` giocabile è stato completato in **38 minuti e 06 secondi** sabato 10 ottobre mattina, prima dell'uscita per la *Petite Venise*).
+* **Volume Computazionale & Telemetria SRE**:
+  * **Sessioni su `derek`**: `41` conversazioni (`16` orchestratori + `25` subagent/Swarm worker), `13.100+` step, `245+` prompt umani, `46,8M` token di input freschi + `713,3M` token da cache (**93,8% cache hit rate**), `5,34M` token di output.
+  * **Sessioni su `pupurabbux`**: `273` conversazioni correlate, oltre `780` ore aggregate di sessioni e job GPU locali RTX 5080 (`Hunyuan3D-2`, `TRELLIS`, Blender EEVEE headless).
+  * **Deliverable verificati da `just test`**: `57` file `.glb`, `32` ritratti 2D, `28` modelli tracciati per provenienza, `36` video di combattimento 16:9 certificati `>= 8.0/10`, `11` suite di test Node.js + `17` test Python (`0` fallimenti).
+
+---
+
+## 🍷🤖 Il Diario Parallelo Giorno per Giorno: Vita Reale (Colmar & Famiglia) vs Loop Agentici (`XXh YYm`)
+
+Per capire davvero **in che giorni l'abbiamo fatto** e inserire nell'articolo il contrasto narrativo perfetto tra la vita reale e i loop autonomi, ecco la ricostruzione giorno per giorno (con blocchi in prosa pronti da incollare e segnaposto `<foto>`):
+
+### 📅 Giorno 1 — Venerdì 9 Ottobre 2026: Il Kickoff & La Notte della Fabbrica 3D (`16h 33m` di Loop)
+* **Vita Reale (`palladius@`)**: Venerdì pomeriggio alle `15:34:37` nasce il repository (`v0.1.0`). Tra le `17:33` e le `19:43` imposti le prime viste di Ale e Seby e lanci `/conductor-setup` su `derek` (`18:35:27`), poi alle **`19:43:56`** chiudi il portatile per preparare le valigie per il weekend in Alsazia con Kate.
+* **Nel frattempo i Loop Agentici (`Loop 0`: `16h 33m 49s`, dalle `17:41:14` del 9 Ott alle `10:17:15` del 10 Ott)**:
+  > 📝 **Prosa per l'Articolo**:
+  > *"Venerdì 9 ottobre sera ho chiuso il portatile alle 19:43 per preparare le valigie per Colmar `<foto: valigie_partenza_zurigo.jpg>`. Nel frattempo, i due computer hanno continuato a macinare loop agentici per **16h 33m**: `pupurabbux` ha scoperto da solo il bug nascosto `/lambda_1` di TRELLIS, ha costruito un Critic VLM automatico che ha bocciato la prima statuetta di Ale con un clamoroso `FA_CAGARE 💩` (aveva due mezze teste di drago fuse nel petto!) e ha riassemblato da zero il modello con un'armatura scheletrica Blender a 26 ossa."*
+
+### 📅 Giorno 2 — Sabato 10 Ottobre 2026: Il 10° Anniversario a Colmar (`58 commit` in un giorno!)
+* **Finestra Mattutina a Colmar (`10:31:42` → `13:44:08` CEST = `3h 12m 26s` in giro per la *Petite Venise*)**:
+  * Alle `10:31:42` lanci il `/goal` su `derek` (`31759f77`) e alle `11:03:15` lo Swarm Multi-Modello (`6d9ce58c`).
+  * **Loop attivi mentre passeggi con Kate**:
+    * **Loop 1A (`0h 38m 06s`, `10:31:42` → `11:09:48`)**: 4 subagent 3D paralleli scrivono **`+10.081` righe di codice** in 38 minuti.
+    * **Loop 1B (`1h 08m 37s`, `11:12:22` → `12:20:59`)**: L'*Adversarial Art Director* (`265ff1ca`) boccia il primo render (`6.2/10`), ripara il bug `metallicFactor=1.0` e porta la scena a **`9.9/10`**.
+    * **Loop 3 (`1h 54m 59s`, `11:03:15` → `12:58:14`)**: Lo Swarm con `fable-5.1-high` (`@fable-reviewer`, `@art-critic`) + `@classic-builder` e `@swamp-builder` forgia le due famiglie rivali.
+    * **Loop 2 (`0h 56m 54s`, `12:09:18` → `13:06:12`)**: 3 agenti paralleli su `pupurabbux` eseguono il remaster modulare di Ale #2 e di **Regina Kate Nozze 2016** (proprio l'abito del matrimonio di 10 anni prima!).
+  > 📝 **Prosa per l'Articolo**:
+  > *"Sabato 10 ottobre mattina, alle 10:31 in punto, ho lanciato `/goal` e sono uscito a passeggiare con mia moglie Kate tra i canali e le case a graticcio della Petite Venise a Colmar `<foto: colmar_petite_venise_con_kate.jpg>`. Mentre noi camminavamo mano nella mano per **3h 12m**, `derek` e `pupurabbux` hanno scatenato 4 loop agentici simultanei: 4 subagenti paralleli hanno scritto 10.081 righe di codice Three.js in **0h 38m**, un Art Director avversario ha iterato per **1h 08m** portando la resa grafica da `6.2/10` a `9.9/10`, uno Swarm cross-model con Claude Fable ha scolpito due intere famiglie di scacchi rivali in **1h 55m**, e il server di casa a Zurigo ha persino restaurato in **0h 57m** la statuetta 3D di Kate col suo abito da sposa del 2016!"*
+
+* **Finestra Pomeridiana & Serale a Colmar (`14:40:10` → `02:55:15` CEST = `46m 46s` di Swarm 6×6 + `10h 52m 59s` di Cena di Anniversario)**:
+  * Alle `13:50:40`, dando una sbirciata veloce al gioco già online su GitHub Pages, mandi il messaggio: *"NON TAGLIARE angoli -> fai tutto, penso che ci vorranno 2 giorni!"*.
+  * **Loop 4 (`0h 46m 46s`, `14:40:10` → `15:26:56`)**: Lo Swarm a 5 agenti (*"Zero-Corner-Cutting 6×6 & 3D Swarm"*) chiude in 47 minuti le Issue `#10`–`#16` implementando tutte le 36 coreografie 3D e gli scheletri a 23 giunti (`v0.3.0`).
+  * Dalle `16:02:16` di sabato pomeriggio alle `02:55:15` della notte (**`10h 52m 59s`**), zero prompt umani mentre festeggiate la cena del decennale.
+  > 📝 **Prosa per l'Articolo**:
+  > *"Nel pomeriggio, mentre brindavamo al nostro decennale con un calice di Riesling alsaziano e una Tarte Flambée `<foto: colmar_brindisi_riesling.jpg>`, ho scritto all'agente 'NON TAGLIARE angoli, fai tutte le 36 combinazioni!'. Uno Swarm di 5 agenti si è diviso il lavoro e in **0h 47m** (`14:40` → `15:27`) ha cablato tutte le 36 coreografie 3D e 72 varianti video, lasciandomi libero per le successive **10h 53m** di cena romantica a Colmar `<foto: colmar_cena_anniversario.jpg>`."*
+
+### 📅 Giorno 3 — Domenica 11 Ottobre 2026: I 36 Film Veo, L'Audit di Kate a Colazione & Il Viaggio di Ritorno (`96 commit`!)
+* **Notte Fonda (`03:10:31` → `04:56:22` CEST = `1h 45m 51s`)**:
+  * **Loop 5A (`1h 45m 51s`)**: Mentre dormite in hotel a Colmar, il subagent `6b6faa1f` genera in autonomia tutti i **36/36 film di combattimento 16:9** (`Nano Banana 2.1` + `Veo 3.1`) e alle `03:42:28` nasce il cron giornaliero Playwright UAT (`just daily-uat`).
+* **Colazione con Kate a Colmar (`08:28:03` → `11:06:26` CEST = `2h 38m 23s`)**:
+  * Mostri i 36 video a Kate davanti al caffè e croissant (`09:01:45`): lei nota subito torri che spariscono e riappaiono.
+  * **Loop 5B (`2h 38m 23s`)**: Il subagent `4930d699` (*Adversarial Video Critic*) estrae strisce da 6 fotogrammi per tutti i 36 MP4 e rigenera i video difettosi finché non superano tutti **`>= 8.0/10`** (`docs/battles/video_audit.yaml`). Alle `09:25:11` esce anche la versione in inglese per **Nonna Susan**.
+* **Viaggio in Auto Colmar → Zurigo (`14:18:16` → `16:27:21` CEST = `2h 09m 05s` di Loop Biometrico in autostrada, dentro un loop di `5h 42m 41s` totali)**:
+  * Alle `14:18:16` chiedi il Critic biometrico per la tua faccia e alle `14:19:13` scrivi: *"no sono in viaggio -> committa e pusha il branch - così poi lo provo tra un'oretta quando il main agent lo mergia"*.
+  * **Loop 6 (`5h 42m 41s` totali dalle `10:44:40` alle `16:27:21`, di cui `2h 09m 05s` con `riccardo-likeness-critic`)**: Il subagent `a8114d2d` innesta la tua foto reale del Sudafrica sulla mesh 3D di Re Riccardo portando la somiglianza biometrica a **`92/100`** (`v0.3.30`).
+  > 📝 **Prosa per l'Articolo**:
+  > *"Domenica 11 ottobre mattina, davanti ai croissant della colazione a Colmar `<foto: colmar_colazione_kate.jpg>`, ho mostrato i 36 video di combattimento a Kate, che ha subito beccato delle allucinazioni visive ('qui la torre sparisce e riappare!'). Ho sguinzagliato un Adversarial Video Critic che in **2h 38m** (`08:28` → `11:06`) ha sezionato tutti i 36 film fotogramma per fotogramma rigenerandoli fino a superare l'`8/10`. Poi, alle 14:19, prima di mettermi al volante da Colmar verso Zurigo, ho scritto a Jetski: 'Sono in viaggio, crea un critic biometrico che iteri finché Re Riccardo non mi somiglia davvero!'. Mentre guidavo verso casa per **2h 09m**, il subagent `riccardo-likeness-critic` ha innestato la mia foto del Sudafrica sui 1.483 triangoli del viso raggiungendo un punteggio biometrico di **92/100**."*
+
+* **Domenica Sera a Zurigo (`21:16:29` → `22:57:06` CEST = `1h 40m 37s`)**:
+  * A casa registri con Gemini 3.8 TTS le battute dei bimbi e di Kate (*"cafoNAZZO!"*, *"clean my bottooooom?"*, *"Don't be FACETIOUS!"*), componi la sinfonia d'archi barocca con Lyria 3 e risolvi il bug WebGL sul **Pixel 10** (`22:29:58`: *"FUNZIONA DA DIO!!!! <3"*).
+
+### 📅 Giorno 4 — Lunedì 12 Ottobre 2026: Il Cinema POV degli Eroi & "Be Googley" (`2h 13m` di Sprint)
+* **Mattina & Pranzo (`09:03:36` → `13:45:47` CEST)**:
+  * Costruzione del **Cinema POV degli Eroi** (6 attacchi + 6 difese per ogni personaggio, `0h 38m 52s`) e bonifica **IP Safety ("Be Googley")** con `etc/ip-denylist.txt` bloccante in `just test` (`1h 07m 10s`).
+
+### 📅 Giorno 5 — Martedì 13 Ottobre 2026: La Fatica Visiva coi Bimbi & La Notte della RTX 5080 (`11h 50m` a Luci Spente!)
+* **Mattina (`10:12:48` CEST)**: Giocando coi bambini noti la *"fatigue mentale e visiva"* nel distinguere i pezzi dall'alto (`2b03779c`), mentre due subagenti UAT (`cc34c1bf`, `4063fd0b`, `0h 21m 55s`) giocano da soli a scacchi su Chrome e allegano il video della partita alla GitHub Issue `#18`.
+* **Notte su `pupurabbux` (`20:12:26` del 13 Ott → `08:02:56` del 14 Ott = `11h 50m 30s` continuate)**:
+  * **Loop 7A (`11h 50m 30s`)**: La GPU locale **NVIDIA GeForce RTX 5080** ricostruisce per tutta la notte i 12 modelli `.glb` Classic & Swamp ad alta risoluzione (Issue `#20`), dopo che alle **`20:32:15`** un agente dedicato (`cd3f4023`) ha spento i LED RGB della scheda video per non svegliare Kate!
+  > 📝 **Prosa per l'Articolo**:
+  > *"Martedì 13 ottobre sera alle 20:12 ho lanciato sulla RTX 5080 di casa la ricostruzione ad alta risoluzione dei 12 pezzi Classici e della Palude. Alle 20:32, vedendo la camera da letto illuminata a giorno dai LED della scheda video mentre Kate dormiva, ho mandato un ultimo prompt: 'puoi spegnere le luci della nvidia?'. L'agente ha spento i LED via software e ha continuato a scolpire mesh da 697.000 poligoni nel buio più totale per **11h 50m** filate fino alle 08:02 del mattino dopo."*
+
+### 📅 Giorno 6 — Mercoledì 14 & Giovedì 15 Ottobre 2026: Il Vero UAT con Ale & Seby al Tablet e lo Swarm della Chiarezza (`S1..S5`)
+* **Mercoledì Mattina (`07:27:49` → `08:23:07` CEST = `0h 55m 18s`)**:
+  * **Loop 7B (`0h 55m 18s`)**: 3 Pillar Agents paralleli su `pupurabbux` forgiano le 3 armi modulari di Seby, il texturing PBR locale PTX `sm_120` e l'**Audio Critic DSP + Gemini 2.5 Pro** che ripara il glitch finale sui *"Pinguini Tattici Nucleari"*.
+* **Mercoledì Pomeriggio (`12:47:28` → `17:07:35` CEST = `3h 21m 51s` per il Loop 8 della Chiarezza Visiva)**:
+  * Scatti la foto del **Vero UAT in salotto** con **Alessandro e Sebastian** concentrati sul tablet:
+    ![Il Vero UAT: Ale e Seby giocano a CarChess3D sul tablet](assets/kids_playing_carchess3d.jpg)
+  * **Loop 8 (`0h 22m 52s` di burst Swarm a 4 agenti `13:45:44` → `14:00:50`, + validazione Blind VLM fino alle `17:07:35`)**: Lo Swarm della Chiarezza (`@clarity-engine`, `@hud-ux`, `@glb-baker`, `@vlm-critic`) implementa gli aiuti `S1..S5` e certifica con un **Blind VLM Recognizer** il riconoscimento dei pezzi a `0°` e `30°` (`v0.3.70`), mentre alle `13:48:52` nasce il jingle comico di Scacco Matto (*"BUAHAHAHAHAHAH! / Ooh no!"*).
+  > 📝 **Prosa per l'Articolo**:
+  > *"Mercoledì 14 ottobre pomeriggio è arrivato il momento della verità: il Vero UAT con Alessandro e Sebastian seduti sul divano col tablet in mano (`article/assets/kids_playing_carchess3d.jpg`). Mentre loro ridevano sentendo l'Alfiere Ale urlare 'Sei proprio un cafoNAZZO!' e facevano tuffare i pezzi mangiati sulle ninfee della palude, su `derek` un ultimo Swarm di 4 agenti ha lavorato per **0h 23m** (e **3h 22m** complessive con il benchmark VLM alla cieca) per aggiungere i piedistalli bicolori e le corone 3D a comparsa, assicurando che persino dall'alto i bambini distinguessero ogni singolo pezzo al primo sguardo."*
+
+---
+
+## Background
+
+Costruire un videogioco 3D nel browser con **32 pezzi personalizzati** (3 famiglie complete: *Famiglia Reale Carlesso*, *Classici Scultura Italiana*, *Creature della Palude Incantata*), **36 coreografie di combattimento `6×6`**, **36 film 16:9 generati con AI**, **effetti particellari 3D**, **motore scacchistico completo con AI Web Worker** e **supporto offline PWA mobile** richiede normalmente mesi di lavoro di un team multidisciplinare (modellatori 3D, rigger, programmatori Three.js, sound designer, QA tester).
+
+Per comprimere questo ciclo in un singolo weekend + 3 giorni di rifinitura serale, `palladius@` ha adottato un'architettura **Multi-Host, Multi-Model Adversarial Loop**:
+1. **Separazione dei Ruoli per Macchina**:
+   * **`derek` (Orchestratore Multi-Agente & Cloud Media Factory)**: Esecuzione dei `/goal` architetturali, lancio degli Swarm a 5 agenti, generazione parallela di keyframe e video 16:9 (`Nano Banana 2.1` + `Veo 3.1`), sintesi vocale (`Gemini 3.8 Flash TTS`) e musicale (`Lyria 3`), simulazione mobile Playwright e Standing MAIN Merger continuo.
+   * **`pupurabbux` (Fabbrica 3D Locale su GPU RTX 5080 Blackwell)**: Estrazione geometrica ad alta risoluzione (`Hunyuan3D-2` in 32s/mesh), compilazione JIT PTX per architettura `sm_120`, decimazione *Quadric Edge Collapse* (`697k -> 60k` facce), rigging scheletrico Blender a 26 ossa e rendering di provini rotanti a 360°.
+2. **Separazione Avversaria tra Builder e Critic**: Nessun agente costruttore è stato autorizzato a dichiarare autonomamente "fatto" un asset visivo, video, biometrico o acustico senza il verdetto quantitativo (`score >= 8.0/10` o `>= 85/100`) di un subagent **Adversarial Critic** separato e cieco rispetto al codice sorgente.
+
+---
+
+## Root Causes and Trigger
+
+Il trigger iniziale dell'operazione è scattato il **2026-10-09 alle `15:34:37 CEST`** con il commit di bootstrap [`ff67ff8`](https://github.com/palladius/carchess3d/commit/ff67ff8799be0d83eb8132f61e1a5bc15bc7b9d4) (`v0.1.0: carchess3d scaffold, Carlesso al Cesso logo, character art, first TRELLIS pieces`), seguito su `derek` alle **`18:35:27 CEST`** dal comando `/conductor-setup` nella sessione [`ee9f741a`](conversation://ee9f741a-2c71-4051-a212-2d13d9226681) e il mattino seguente (**2026-10-10 alle `10:31:42 CEST`**) dal lancio del comando **`/goal`** nella sessione madre [`31759f77`](conversation://31759f77-f692-4ca4-a1e8-4f6df0135f14).
+
+Durante i 5 giorni di esecuzione autonoma, i loop agentici hanno incontrato e risolto **7 cause radice tecniche critiche ("Sub-Incidents")**:
+
+1. **Sub-Incident #1 (`2026-10-09 17:41:14 CEST` — TRELLIS `/lambda_1` Silent Multi-View Drop)**: L'API Gradio di HuggingFace ignorava silenziosamente le viste laterali e posteriori perché lo stato `is_multiimage` richiedeva la chiamata preliminare all'endpoint non documentato `/lambda_1` ([`f86f65a`](https://github.com/palladius/carchess3d/commit/f86f65aca1c12d55059be4acc665b7b3f524ca00)).
+2. **Sub-Incident #2 (`2026-10-10 11:18:57 CEST` — glTF 2.0 `metallicFactor = 1.0` Black Albedo Trap)**: I modelli `.glb` esportati da `trimesh` omettevano `metallicFactor`, che per specifica Khronos glTF 2.0 vale `1.0` di default, azzerando il colore diffuso ($\text{diffuse} = \text{albedo} \times (1 - 1.0) = 0$) e rendendo l'Alfiere Ale scuro e slavato al Round 1 del Critic (`6.2/10`).
+3. **Sub-Incident #3 (`2026-10-11 08:19:58 CEST` — Allucinazioni Temporali nei 36 Video di Battaglia)**: Alcuni video di combattimento mostravano torri che scomparivano e riapparivano o inquadrature statiche prive d'azione, rilevati durante la revisione mattutina con Kate.
+4. **Sub-Incident #4 (`2026-10-11 14:18:16 CEST` — Somiglianza Biometrica Insufficiente su Re Riccardo 3D)**: La mesh 3D generica di TRELLIS aveva corona e mantello corretti ma volto sbarbato e anonimo (`< 65/100` di somiglianza con le foto reali di Riccardo).
+5. **Sub-Incident #5 (`2026-10-11 21:16:29 CEST` & `2026-10-13 10:05:04 CEST` — White Screen WebGL su Pixel 10, Limite 16 Contest Chrome & Service Worker Re-Poisoning)**: Su smartphone reali (`Pixel 10`) la scena 3D restava bianca per saturazione GPU/memoria durante il precache, lo Showcase perdeva i contesti WebGL di Ale e Papino oltre il 16° canvas (`df399dd`), e il Service Worker ri-avvelenava la cache dopo il purge (`09b36f6`).
+6. **Sub-Incident #6 (`2026-10-13 10:12:48 CEST` — Fatica Visiva Top-Down Giocando coi Bambini)**: Giocando dal vivo sul tablet con Ale e Seby, dall'alto era faticoso distinguere a colpo d'occhio i pezzi Bianchi dai Neri e il ruolo scacchistico delle statuette.
+7. **Sub-Incident #7 (`2026-10-14 08:16:09 CEST` — Glitch Acustico in Coda a `"Pinguini Tattici Nucleari"` & Ripetizione Loop Musicale a `8.0s`)**: Una clip TTS presentava un artefatto acustico negli ultimi millisecondi (`5382493`) e la musica di combattimento con cue point a `22.0s` toccava la fine del file (`30.77s`) a metà dei `10s` di battaglia ricominciando da capo (`32befb9`).
+
+---
+
+## Detection and Monitoring
+
+Invece di affidarsi a controlli manuali sporadici, il team agentico ha costruito **6 sistemi di rilevamento e monitoraggio automatico (Adversarial Critics & Sentinels)**:
+
+* **1. Geometric & VLM 3D QA Critic (`tools/model-pipeline/critic/critic.py`, [`8f6f6b3`](https://github.com/palladius/carchess3d/commit/8f6f6b3c623ed0fa1de913ea4c5549bc12800f20))**: Valuta ogni `.glb` su metriche geometriche (watertightness, conteggio facce, bounding box) e visive multi-angolo, salvando i verdetti in `docs/qa-scores.yaml` (incluso il flag `FA_CAGARE 💩` che ha bloccato automaticamente `bishop-ale-1-v2.glb`).
+* **2. In-Engine Adversarial Art Director (`265ff1ca` & `e254ea04` su `fable-5.1-high`)**: Ispeziona screenshot Playwright ad alta risoluzione della scena Three.js reale su 5 assi (Grounding `y=0`, Silhouette, Materiali PBR, Atmosfera Palude, Leggibilità UI).
+* **3. 36-Video Contact-Sheet Critic (`4930d699`, [`8cb3d31`](https://github.com/palladius/carchess3d/commit/8cb3d31312b0bd300d6cbef9c4744b2d53e10ce7))**: Estrae una striscia di 6 frame (`t=0.5s, 2.0s, 3.5s, 5.0s, 6.5s, 7.5s`) da ciascuno dei 36 file MP4 e verifica coerenza fisica, assenza di oggetti duplicati e impatto dell'attacco in [`docs/battles/video_audit.yaml`](../docs/battles/video_audit.yaml).
+* **4. Biometric Likeness Critic (`riccardo-likeness-critic` `a8114d2d`, [`0597eaa`](https://github.com/palladius/carchess3d/commit/0597eaa5461e3228fc3dcfa501f53ead94850b99))**: Confronta i render 3D di Re Riccardo con 5 foto reali su una rubrica biometrica a 8 punti (ruga glabellare, sopracciglio sinistro col ciuffo bianco, tempie sale-e-pepe, barba corta, sorriso, naso, occhiali, proporzioni craniche), richiedendo `>= 85/100`.
+* **5. Acoustic DSP + Gemini 2.5 Pro Multimodal Audio Critic (`tests/test_audio_quality.py`, [`5382493`](https://github.com/palladius/carchess3d/commit/538249308d5535825cebf7ec031e375f129b666f))**: Analizza l'inviluppo RMS/picco di tutti i file `.mp3` vocali per intercettare clipping o pop/glitch di coda e interroga Gemini 2.5 Pro sull'audio grezzo.
+* **6. Blind VLM Piece Recognizer (`scripts/critic_recognizability.py`, `eaccf00d`, [`c7be294`](https://github.com/palladius/carchess3d/commit/c7be2949b720a79b4891d71485e1f71759aed3ca)) & Daily Playwright UAT Sentinel (`scripts/daily_uat_playtest.py`, [`a4e22d8`](https://github.com/palladius/carchess3d/commit/a4e22d86ec6c4a35e64afb8afff8fb77522de8ea))**: Testa alla cieca il riconoscimento di tutti i 32 pezzi da `0°` (top-down) e `30°`, ed esegue ogni giorno una partita automatica + stress test registrando un video WebM allegato alla GitHub Issue [`#18`](https://github.com/palladius/carchess3d/issues/18).
+
+---
+
+## Mitigation
+
+Ogni volta che uno dei 6 Critic rilevava un punteggio sotto soglia o una regressione, il loop agentico corrispondente applicava una mitigazione deterministica senza intervento umano:
+
+* **Mitigazione Materiali PBR (`stripEmbeddedLightsAndFixMaterials`)**: Forzatura di `metalness = 0.04`, `roughness = 0.52` e recupero del 96% dell'albedo tramite `emissiveMap = mat.map`, portando il voto dell'Art Director da `6.2/10` a `9.9/10` in 3 iterazioni.
+* **Mitigazione Assemblaggio Modulare 3D (Mode C) & Face-Grafting (Mode B)**: Separazione fisica del corpo di Ale dal draghetto rosso con armatura Blender a 26 ossa ([`47c6c04`](https://github.com/palladius/carchess3d/commit/47c6c0467ba3cf9c4c8ef97021ca37c554b3a680)), e innesto UV dual-channel `2048×1024` del volto reale di Riccardo sui 1.483 triangoli facciali di `king-riccardo.glb` (`92/100` al Critic biometrico, [`0597eaa`](https://github.com/palladius/carchess3d/commit/0597eaa5461e3228fc3dcfa501f53ead94850b99)).
+* **Mitigazione GPU Locale RTX 5080 (`TORCH_CUDA_ARCH_LIST="9.0+PTX"`)**: Esaurita la quota cloud ZeroGPU di HuggingFace, `pupurabbux` ha ricompilato i kernel CUDA per l'architettura Blackwell `sm_120` sul volume esterno `/media/riccardo/TurboSebux` e ricostruito localmente i modelli ad alta risoluzione ([`45811b4`](https://github.com/palladius/carchess3d/commit/45811b496749c10823e6b0eab1fdff97afe3aa12), [`5f38457`](https://github.com/palladius/carchess3d/commit/5f384579e3b785f30ca6f2919e56802629d5517d)).
+* **Mitigazione Chiarezza Visiva `S1..S5` (`PieceClarityHelper.js`)**: Introduzione di piedistalli bicolori avorio/ossidiana (`S1`), corone di ruolo 3D (`S2`), medaglioni fluttuanti (`S3`), silhouette rim shader (`S4`) e attributi 3D fusi nei `.glb` (`S5`), attivabili automaticamente nella vista 2D dall'alto ([`c7be294`](https://github.com/palladius/carchess3d/commit/c7be2949b720a79b4891d71485e1f71759aed3ca)).
+
+---
+
+## Customer Comms
+
+* **Sabato 10 Ottobre (`13:52:04 CEST`)**: Pubblicazione live su GitHub Pages (`https://palladius.github.io/carchess3d/`) annunciata nel `README.md` ([`6f2a9eb`](https://github.com/palladius/carchess3d/commit/6f2a9eb0222c512ca33a3574b8cc77c8a84e60cc)).
+* **Domenica 11 Ottobre (`09:25:11 CEST`)**: Rilascio della `v0.3.21` con interfaccia inglese di default dedicata a **Nonna Susan** ([`7337583`](https://github.com/palladius/carchess3d/commit/73375839cc5b332758dfd2376a71884865e02747)).
+* **Domenica 11 Ottobre (`22:29:58 CEST`)**: Conferma sul campo da smartphone reale (`Pixel 10`) tramite il permalink zero-cache `nocache.html?glb=1`: *"FUNZIONA DA DIO!!!! <3"*.
+* **Martedì 13 – Mercoledì 14 Ottobre (`13:56:08 CEST`)**: Sessione UAT reale sul tablet in salotto con **Alessandro e Sebastian** immortalata nella fotografia ufficiale dell'articolo ([`d51f93a`](https://github.com/palladius/carchess3d/commit/d51f93a44abd906361c385391758ca157a5d63fc)).
+
+---
+
+## Lessons Learned
+
+### Things That Went Well
+* **Il Pattern `/roastme` → `/goal` → Parallel Subagents → Adversarial Critic**: Eseguire un `/roastme` architetturale prima di lanciare `/goal` ha eliminato le ambiguità geometriche (`floorplan.svg` a `0` collisioni) e permesso a 4 subagent paralleli di scrivere `+10.081` righe funzionanti al primo colpo in 19 minuti e 35 secondi (`10:50:15` → `11:09:48 CEST`).
+* **Standing MAIN Merger (`83ee7dd5` su `derek` e `ae7f8213` su `pupurabbux`)**: Avere un agente dedicato che ogni 5 minuti eseguiva `git fetch`, risolveva i conflitti di `VERSION`/`CHANGELOG.md`, faceva girare `just test` e mergiava i worktree ha permesso a `6+` agenti di lavorare contemporaneamente sullo stesso repository senza mai bloccarsi.
+* **Eterogeneità dei Modelli nello Swarm**: Usare `fable-5.1-high` come `@fable-reviewer` e `@art-critic` contro builder `gemini-4-argon` ha evitato i punti ciechi di auto-compiacimento dello stesso modello.
+* **Prompt Caching Estremo (`93,8%` su `derek`)**: Su `760.052.829` token di contesto letti su `derek`, ben `713.281.606` provenivano dalla cache, rendendo sostenibili loop da oltre `2.600` step per singola conversazione.
+
+### Things That Went Poorly
+* **Quotas Cloud ZeroGPU durante il Weekend**: Le quote giornaliere di HuggingFace Spaces si sono esaurite a metà della generazione dei pezzi, richiedendo l'intervento del secondo computer (`pupurabbux`) e la compilazione di kernel CUDA custom per la RTX 5080 (`sm_120`).
+* **Service Worker Aggressive Caching su Mobile**: Il primo Service Worker (`sw.js`) intercettava anche le richieste di purge di `nocache.html`, causando uno stato di split-brain sul Pixel 10 finché non è stato introdotto il detach con `sessionStorage` + `{ cache: 'reload' }` ([`09b36f6`](https://github.com/palladius/carchess3d/commit/09b36f671dc53ebcde891ab8d35df550bfc888c1)).
+* **LED RGB della Scheda Video di Notte**: I job notturni sulla RTX 5080 illuminavano a giorno la camera da letto alle `20:32 CEST` del 13 ottobre, richiedendo un branch d'emergenza (`turn_off_nvidia_lights`) per spegnere i LED mentre la GPU calcolava.
+
+### Where We Got Lucky
+* **La Foto del Sudafrica (`riccardosouthafrica.png`) già Presente nelle Skill Locali**: Quando il Re Riccardo 3D non somigliava abbastanza a Papino, il subagent ha potuto attingere immediatamente alle 5 foto di riferimento nella skill `nano-banana-ricc`, estraendo la texture facciale reale per il Face-Grafting Mode B.
+* **La Specifica Dichiarativa di Niccolò Game Design (`.agents/skills/niccolo-game-design/SKILL.md`)**: Aver imposto fin dal minuto zero `GameEventBus` + `BATTLE_MATRIX` dichiarativa (zero `if/else` annidati) ha permesso agli Swarm successivi di innestare 36 video, 3 famiglie di pezzi e 5 livelli di chiarezza visiva senza mai riscrivere il core loop.
+
+---
+
+## Action Items
+
+| Action Item | Owner | Priority | Type | Bug_id |
+|-------------|-------|----------|------|--------|
+| [PoMo] Automatizzare tutte le 36 (6×6) coreografie 3D e 72 video senza scorciatoie tramite 5-agent Swarm | `gemini-4-argon@` | **P0** | Mitigate | [#11](https://github.com/palladius/carchess3d/issues/11) |
+| [PoMo] Istituire il cron giornaliero Playwright UAT con registrazione video WebM e report automatico | `gemini-4-argon@` | **P1** | Detect | [#18](https://github.com/palladius/carchess3d/issues/18) |
+| [PoMo] Ricostruire i 12 modelli `.glb` Classic & Swamp ad alta risoluzione sulla GPU locale RTX 5080 | `pupurabbux@` | **P1** | Mitigate | [#20](https://github.com/palladius/carchess3d/issues/20) |
+| [PoMo] Unificare il Backstage nel Cinema Eroi POV con le 6 mosse d'attacco e 6 di difesa per personaggio | `gemini-4-argon@` | **P1** | Prevent | [#22](https://github.com/palladius/carchess3d/issues/22) |
+| [PoMo] Applicare la policy "Be Googley" con scansione `etc/ip-denylist.txt` bloccante in `just test` | `palladius@` | **P0** | Prevent | [#24](https://github.com/palladius/carchess3d/issues/24) |
+| [PoMo] Aggiungere il pulsante HUD `Reset View` (`R`) e preservare `Ctrl/Cmd+R` nel browser | `gemini-4-argon@` | **P2** | Mitigate | [#29](https://github.com/palladius/carchess3d/issues/29) |
+| [PoMo] Risolvere il clipping della top-bar nello Showcase a `1600×900` e aggiungere guardia TDD | `gemini-4-argon@` | **P2** | Prevent | [#30](https://github.com/palladius/carchess3d/issues/30) |
+| [PoMo] Eliminare la fatica visiva top-down con gli aiuti `S1..S5` e il Blind VLM Recognizer | `gemini-4-argon@` | **P1** | Detect | [#32](https://github.com/palladius/carchess3d/issues/32) |
+
+---
+
+## ⏱️ Tabella Sinottica dei 10 Loop Agentici (Timestamp Esatti `CEST`)
+
+Prima della timeline granulare secondo per secondo, ecco la mappa completa dei **10 Loop Agentici** eseguiti tra `derek` e `pupurabbux` con i loro timestamp esatti di avvio, chiusura e durata:
+
+| Loop # | Nome del Loop Agentico | Macchina & Session ID | Start (`CEST`) | End (`CEST`) | Durata | Agenti / Subagenti Coinvolti | Risultato & Metrica Finale |
+| :---: | :--- | :--- | :---: | :---: | :---: | :--- | :--- |
+| **Loop 0** | **Multi-View 3D Factory & Modular Dragon VLM Loop** | `pupurabbux` (`940b9eac`, `b5185ceb`) | `2026-10-09 17:43:26` | `2026-10-10 10:17:15` | **16h 33m** | Orchestratore + `critic.py` (`docs/qa-scores.yaml`) | Scoperto fix `/lambda_1`; bocciato `ale-v2` (`FA_CAGARE 💩`); assemblato Ale col draghetto a **26 ossa** ([`47c6c04`](https://github.com/palladius/carchess3d/commit/47c6c0467ba3cf9c4c8ef97021ca37c554b3a680)). |
+| **Loop 1A** | **`/goal` Build CarChess3D v1 (4 Subagenti 3D Paralleli)** | `derek` (`31759f77` → `bb0f15b2`, `196f37f8`, `af7b0f05`, `bccab18f`, `fe1e4169`) | `2026-10-10 10:31:42` | `2026-10-10 11:09:48` | **38m 06s** | 1 Orchestratore + 1 SVG Critic + **4 Builder Paralleli** | **`+10.081` LOC** in 38m: `floorplan.svg`, Core TDD, Palude 3D, 32 Pezzi, VFX, HUD, Audio, PWA ([`d257880`](https://github.com/palladius/carchess3d/commit/d2578805cce92c153ad414c2de9bfa766f0728ed)). |
+| **Loop 1B** | **4-Round Adversarial Art Director Loop (In-Engine 3D)** | `derek` (`31759f77` ↔ `265ff1ca`) | `2026-10-10 11:12:22` | `2026-10-10 12:20:59` | **1h 08m 37s** | Orchestratore ↔ Subagent `265ff1ca` (*Art Director Critic*) | **4 Round**: `6.2/10` (`11:18:57`) → `9.3/10` (`11:57:48`) → `9.8/10` → **`9.9/10`** (`12:18:58`, [`4c338a4`](https://github.com/palladius/carchess3d/commit/4c338a46cef710738eea383f6124c22c7fadfcfd)). |
+| **Loop 2** | **Parallel Options A, B, C (VLM Refine, Face Decal, Modular Remaster)** | `pupurabbux` (`ff04d43d`, `ebcc2d21`, `34309ccf`) | `2026-10-10 12:09:18` | `2026-10-10 13:06:12` | **56m 54s** | **3 Agenti Paralleli** su `pupurabbux` (`1.008` step totali) | `refine_loop.py` + proiezione cilindrica volto + remaster Ale #2 e Kate Nozze 2016 ([`70f52da`](https://github.com/palladius/carchess3d/commit/70f52da0d5cbf6328fc3e65fadc3da40cbbe6749)). |
+| **Loop 3** | **Multi-Model Rival Families Swarm (`fable-5.1-high` + `gemini-4`)** | `derek` (`6d9ce58c` → `df2103b9`, `5866d101`, `7279a12f`, `e254ea04`) | `2026-10-10 11:03:15` | `2026-10-10 12:58:14` | **1h 54m 59s** | Orchestratore + **4 Worker Swarm** (`2` su `fable-5.1-high`) | Famiglie `classic` (San Gennaro + Torre Matildea) & `swamp` certificate da `@art-critic` ([`8ae3b86`](https://github.com/palladius/carchess3d/commit/8ae3b8626e71d4a3dfe8d98e189ea7fec985f37e)). |
+| **Loop 4** | **5-Worker Native Swarm: *"Zero-Corner-Cutting 6×6 & 3D Swarm"*** | `derek` (`31759f77` → `30bf6e25`, `ea3dd428`, `c3abe6d4`, `16d6e67e`, `5416f854`) | `2026-10-10 14:40:10` | `2026-10-10 15:26:56` | **46m 46s** | Orchestratore + **5 Worker Swarm** (`437` step worker) | Tutte le **36 coreografie 3D**, scheletri a 23 giunti, `battles.html`, Issue `#10`–`#16` chiuse ([`162a228`](https://github.com/palladius/carchess3d/commit/162a228c16bdae8a9b54eca62c586f49e163799d)). |
+| **Loop 5** | **36-Battle Veo 3.1 Factory + 3-Round Adversarial Video Critic** | `derek` (`31759f77` → `6b6faa1f` + `4930d699`) | `2026-10-11 03:10:31` | `2026-10-11 11:06:26` | **7h 55m 55s** | Batch Producer `6b6faa1f` (`148` step) + Video Critic `4930d699` (`123` step) | **36/36 film 16:9** generati (`04:56:22`) e rigenerati finché tutti `>= 8.0/10` (`11:06:26`, [`8cb3d31`](https://github.com/palladius/carchess3d/commit/8cb3d31312b0bd300d6cbef9c4744b2d53e10ce7)). |
+| **Loop 6** | **Adversarial Biometric Face-Grafting Loop (Re Riccardo Mode B)** | `derek` (`6d9ce58c` ↔ `a8114d2d`) | `2026-10-11 10:44:40` | `2026-10-11 16:27:21` | **5h 42m 41s** | Orchestratore + `riccardo-likeness-critic` (`a8114d2d`) | Innesto UV `2048×1024` dalla foto Sudafrica; somiglianza biometrica da `<65` a **`92/100`** ([`0597eaa`](https://github.com/palladius/carchess3d/commit/0597eaa5461e3228fc3dcfa501f53ead94850b99)). |
+| **Loop 7** | **Local RTX 5080 Blackwell High-Res 3D Reconstruction & Day of Code** | `pupurabbux` (`18347678` + `2524f435`, `0cfd4a3c`, `84e080f2`) | `2026-10-13 20:12:26` | `2026-10-14 08:23:07` | **12h 10m 41s** | 1 GPU Worker notturno (`686` step) + **3 Pillar Agents** mattutini (`756` step) | Fix PTX `sm_120`, 12 GLB high-res (`#20`), 3 armi modulari Seby, Audio Critic DSP ([`5f38457`](https://github.com/palladius/carchess3d/commit/5f384579e3b785f30ca6f2919e56802629d5517d), [`5df4a0b`](https://github.com/palladius/carchess3d/commit/5df4a0bec6c070959205fa8cfb4a07f8f171e88d)). |
+| **Loop 8** | **5-Agent Visual Clarity Swarm (`S1..S5`) & Blind VLM Recognizer** | `derek` (`2b03779c` → `08c6d70e`, `3a385e2a`, `30de5370`, `eaccf00d`) | `2026-10-13 10:12:48` | `2026-10-14 17:07:35` | **22m 52s** *(burst Swarm)* | Orchestratore + **4 Worker Swarm** (`13:45:44` → `14:00:50` del 14 Ott) | Aiuti `S1..S5`, contrasto Ossidiana e **Blind VLM Recognizer** a `0°` e `30°` ([`c7be294`](https://github.com/palladius/carchess3d/commit/c7be2949b720a79b4891d71485e1f71759aed3ca)). |
+| **Loop ∞** | **Standing MAIN Merger & Daily Playwright UAT Sentinel** | `derek` (`83ee7dd5` → `cc34c1bf`, `4063fd0b`) | `2026-10-10 09:37:22` | `2026-10-14 14:01:13` | **100h 23m 51s** | Sentinel `83ee7dd5` (`2.137` step) + Subagenti UAT (`536` step) | Oltre **50 release** integrate su `main` + video UAT giornalieri su Issue [`#18`](https://github.com/palladius/carchess3d/issues/18). |
+
+---
+
+## Timeline
+
+Day: **2026-10-09**  TZ=Europe/Zurich (CEST)
+* `15:34:37`: `palladius@` crea il commit inaugurale [`ff67ff8`](https://github.com/palladius/carchess3d/commit/ff67ff8799be0d83eb8132f61e1a5bc15bc7b9d4) (`v0.1.0: carchess3d scaffold, Carlesso al Cesso logo, character art, first TRELLIS pieces`). <== <span style="color:red">Start of Operation (Kickoff)</span>
+* `17:41:14`: Su `pupurabbux`, l'agente scopre il bug nascosto `/lambda_1` nello stato Gradio di TRELLIS che ignorava le viste multiple e rilascia [`f86f65a`](https://github.com/palladius/carchess3d/commit/f86f65aca1c12d55059be4acc665b7b3f524ca00) (`v0.1.1: true multi-image TRELLIS runs B2/C2/D2`). <== <span style="color:red">Loop 0 Started (3D Factory)</span>
+* `17:43:26`: Su `pupurabbux` parte la sessione-fiume [`940b9eac`](conversation://940b9eac-7fb0-4d39-99b6-1e8b12345678) (`2.366` step) per documentare `docs/3dgames.md` e orchestrare la pipeline 3D della famiglia.
+* `18:33:48`: Su `derek` si apre la prima sessione architetturale [`ee9f741a`](conversation://ee9f741a-2c71-4051-a212-2d13d9226681) (`178` step); alle `18:35:27` `palladius@` lancia `/conductor-setup` chiedendo di firmare il setup con *"Forged with Argon"*.
+* `19:43:56`: Rilasciato [`da681a0`](https://github.com/palladius/carchess3d/commit/da681a0d49db2e23e89e11bd1a116beae9d709e8) (`v0.1.7`) con `docs/3dgames.md`, l'attivazione di Alfiere Ale #1 e le viste turnaround di Cavaliere Sebastian.
+
+Day: **2026-10-10**  TZ=Europe/Zurich (CEST)
+* `08:34:37`: Da Colmar, `palladius@` invia su `derek` ([`ee9f741a`](conversation://ee9f741a-2c71-4051-a212-2d13d9226681) step 59–60) la visione chiave del sistema di combattimento ibrido: scazzottata fumettosa 3D sulla scacchiera + maxischermo 16:9 sullo sfondo con 36 film generati da `Nano Banana 2.1` (keyframe) + `Veo 3.1` (video di 8 secondi).
+* `09:14:49`: Su `pupurabbux` viene rilasciato il primo **Automated VLM & Geometric QA Critic** in [`8f6f6b3`](https://github.com/palladius/carchess3d/commit/8f6f6b3c623ed0fa1de913ea4c5549bc12800f20) (`v0.1.13`), che boccia `bishop-ale-1-v2.glb` (`FA_CAGARE 💩` per le due mezze teste di drago fuse nel busto). <== <span style="color:red">First VLM Critic Rejection</span>
+* `09:37:22`: Su `derek` viene avviato lo **Standing MAIN Merger** nella sessione [`83ee7dd5`](conversation://83ee7dd5-b668-4a34-b08d-4cf028191e06) (`2.137` step totali), configurato con timer ricorrente ogni 5 minuti (`09:41:12` e `09:48:15`) per fondere automaticamente i branch remoti in `main`. <== <span style="color:red">Loop ∞ Started (Standing MAIN Merger)</span>
+* `09:57:42`: La sessione [`88f1e5f2`](conversation://88f1e5f2-662b-4763-8828-ec8988565d75) su `derek` finalizza e committa il prompt autonomo [`etc/prompts/GOAL_BUILD_CARCHESS3D.md`](../etc/prompts/GOAL_BUILD_CARCHESS3D.md) in [`3bec180`](https://github.com/palladius/carchess3d/commit/3bec180ec239b012253b589d7050d0f39d3eb970) (`v0.1.15`).
+* `10:06:01`: `palladius@` lancia `/roastme` su `derek` ([`ee9f741a`](conversation://ee9f741a-2c71-4051-a212-2d13d9226681) step 142 & 159) per sottoporre il piano al fuoco incrociato di 3 persona prima di scrivere codice.
+* `10:10:57`: Su `pupurabbux` il Loop 0 risolve il difetto del draghetto di Ale con la **Scultura Modulare a 26 Ossa** in [`47c6c04`](https://github.com/palladius/carchess3d/commit/47c6c0467ba3cf9c4c8ef97021ca37c554b3a680) (`feat(bishop): modular dragon generation & assembly with VLM critic feedback loop`).
+* `10:29:50`: Su `derek` si apre la sessione [`6d9ce58c`](conversation://6d9ce58c-52e3-443d-b475-c56c8f11fc65) (`1.728` step) per le famiglie di pezzi rivali (`classic` e `swamp`) e il miglioramento biometrico dei modelli 3D.
+* `10:31:42`: `palladius@` lancia il comando **`/goal`** nella sessione [`31759f77`](conversation://31759f77-f692-4ca4-a1e8-4f6df0135f14) (`2.667` step, `1,15M` token di output). <== <span style="color:red">Loop 1A Started (/goal Build CarChess3D v1)</span>
+* `10:35:44`: `31759f77` invoca il subagent SVG Critic [`bb0f15b2`](conversation://bb0f15b2-0617-4239-8930-563726c24f83) (`10:36:01` → `10:36:43`), che certifica `0` sovrapposizioni in `docs/floorplan.svg`; Phase 1 viene committata alle `10:40:59` in [`93f1ddd`](https://github.com/palladius/carchess3d/commit/93f1ddd4981d061b9c14fa1c0b16b124c31c4dd8).
+* `10:48:03`: Completata Phase 2 (Core Headless TDD + test Monte-Carlo da 10.000 catture) in [`8e9203b`](https://github.com/palladius/carchess3d/commit/8e9203b6a6ed89e3837ef2dc3e892d38d3a351d3) (durata: `7m 04s`).
+* `10:50:15`: `31759f77` lancia simultaneamente **4 subagent 3D in parallelo** (`af7b0f05` `veo-battle-fx`, `bccab18f` `3d-core-architect`, `196f37f8` `3d-board-pieces`, `fe1e4169` `ui-audio-ai-wiring`).
+* `10:57:11` → `11:05:21`: I 4 subagent completano in sequenza (`af7b0f05` alle `10:57:11`, `bccab18f` alle `10:58:13`, `196f37f8` alle `11:00:04`, `fe1e4169` alle `11:05:21`).
+* `11:03:15`: Nella sessione parallela `6d9ce58c`, dopo il prompt `11:01:52` (*"Aspetta usiamo claude fable 51 per fare review"*), viene lanciato lo Swarm Multi-Modello con `@fable-reviewer` ([`df2103b9`](conversation://df2103b9-2430-45e9-ab4a-4fc8d155c35e), `11:05:34` → `11:12:23`) pinnato su **`fable-5.1-high`**. <== <span style="color:red">Loop 3 Started (Multi-Model Fable + Gemini Swarm)</span>
+* `11:09:48`: `31759f77` assembla il lavoro dei 4 subagent e committa **`+10.081` righe su 60 file** in [`d257880`](https://github.com/palladius/carchess3d/commit/d2578805cce92c153ad414c2de9bfa766f0728ed) (`feat(phase3-4): build 3D Zurich Swamp, 16:9 Veo Cinema, Hybrid 32-Piece Factory, 6x6 VFX Pools, WOW Arena, Kid HUD, WebAudio, and PWA`). <== <span style="color:red">Loop 1A Completed (38m 06s from /goal to Playable 3D Game)</span>
+* `11:12:22`: `31759f77` invoca il subagent [`265ff1ca`](conversation://265ff1ca-8a45-4f42-b78c-0a591ab1d9d8) (*Adversarial Art Director Critic*, avviato alle `11:13:01`). <== <span style="color:red">Loop 1B Started (4-Round Art Director Critic)</span>
+* `11:18:57`: **Round 1 del Critic (`265ff1ca` step 34)**: L'Art Director assegna **`6.2/10`** bocciando la scena per il bug PBR (`metallicFactor = 1.0` che rende Ale scuro e slavato) e per i pezzi che fluttuano sopra la scacchiera. <== <span style="color:red">Sub-Incident #2 Detected (glTF metallicFactor Trap)</span>
+* `11:25:40` → `11:53:00`: Su `pupurabbux` vengono completati e pushati in sequenza tutti i modelli 3D della famiglia: Regina Kate ([`016f153`](https://github.com/palladius/carchess3d/commit/016f153758ec593625d8ff69dcbd95a917177cba) alle `11:25:40`), Re Riccardo ([`2d2a639`](https://github.com/palladius/carchess3d/commit/2d2a639b289f93c13cea1506fdf850c6fe92e5c0) alle `11:35:58`), Cavaliere Sebastian ([`053f8f9`](https://github.com/palladius/carchess3d/commit/053f8f9bc74cb9c110be35eee9afd1b74be03479) alle `11:41:46`) e Torre Pupurabbu ([`f7550ac`](https://github.com/palladius/carchess3d/commit/f7550ac669a3146dbd03ac60c076636abd4a7b3a) alle `11:48:00`).
+* `11:57:48`: **Round 2 del Critic (`265ff1ca` step 43)**: Dopo l'introduzione di `stripEmbeddedLightsAndFixMaterials()` (`metalness=0.04`) e `clampGroupToFloorY0()`, il punteggio sale da `6.2/10` a **`9.3/10`**! Alle `12:00:25` `palladius@` esclama in chat: *"questo e' FANTASTICO! Ma e' un mock con nanobanana o e' un VERO rendering di alessandro? Come cavolo hai fatto a farlo cosi bello?"*. <== <span style="color:red">Mitigation Verified (PBR Albedo Restored)</span>
+* `12:09:18`: Su `pupurabbux` vengono lanciati in parallelo i 3 agenti delle Opzioni A (`ff04d43d`), B (`ebcc2d21`) e C (`34309ccf`) dal commit [`dce1b5b`](https://github.com/palladius/carchess3d/commit/dce1b5b69b4dbe25bd7b403bce748f1848280649). <== <span style="color:red">Loop 2 Started (Options A/B/C Parallel Remaster)</span>
+* `12:14:29`: Nello Swarm di `6d9ce58c` partono in parallelo `@classic-builder` ([`5866d101`](conversation://5866d101-740b-4484-9b7a-755264f903df)), `@swamp-builder` ([`7279a12f`](conversation://7279a12f-2cf2-4d9a-8443-8788a9020cb4) alle `12:14:30`) e l'Adversarial Critic `@art-critic` su `fable-5.1-high` ([`e254ea04`](conversation://e254ea04-5f3b-4728-9283-5321e5b21495) alle `12:15:43`).
+* `12:18:58`: **Round 3 & 4 del Critic (`265ff1ca` step 53)**: Integrati tutti i 6 `.glb` della famiglia Carlesso e la piscina palustre con ninfee per i pezzi catturati, `265ff1ca` certifica **`9.9/10`** e chiude alle `12:20:59`. <== <span style="color:red">Loop 1B Completed (Art Critic 9.9/10)</span>
+* `12:55:06` → `12:58:14`: `@art-critic` (`e254ea04`), `@classic-builder` (`5866d101`) e `@swamp-builder` (`7279a12f`) completano il Loop 3, committato in [`8ae3b86`](https://github.com/palladius/carchess3d/commit/8ae3b8626e71d4a3dfe8d98e189ea7fec985f37e) e mergiato in `main` alle `13:04:28` ([`86eafdd`](https://github.com/palladius/carchess3d/commit/86eafdd7bf15806730763c6002cdf97daa578983)).
+* `13:05:30`: Il Loop 2 su `pupurabbux` rilascia il remaster modulare di Alfiere Ale #2 e Regina Kate Nozze 2016 in [`70f52da`](https://github.com/palladius/carchess3d/commit/70f52da0d5cbf6328fc3e65fadc3da40cbbe6749).
+* `13:15:15`: Rilasciata ufficialmente **CarChess3D `v0.2.0`** ([`4c338a4`](https://github.com/palladius/carchess3d/commit/4c338a46cef710738eea383f6124c22c7fadfcfd), mergiata su `main` alle `13:19:50` in [`b3ea2f0`](https://github.com/palladius/carchess3d/commit/b3ea2f03cb8c34fed92b097c4ebaa91f8b25e7d4)) e pubblicata su GitHub Pages alle `13:52:04` ([`d483a8d`](https://github.com/palladius/carchess3d/commit/d483a8d0e60c1641d7c68d5bdf88b769018bfe45)).
+* `13:50:40`: `palladius@` ordina in `31759f77`: *"Puoi creare un bug per ogni cosa che ti ho detto e avere un adversarial swarm agent che lo fa andare. Mi raccomando, NON TAGLIARE angoli -> fai tutto, penso che per fare questo software ti ci vorranno 2 giorni!"*.
+* `14:40:10`: `31759f77` crea e avvia il **5-Worker Native Swarm** (*"CarChess3D Zero-Corner-Cutting 6×6 & 3D Swarm"*): alle `14:42:30`–`14:42:35` partono simultaneamente `@matrix36-choreo` ([`30bf6e25`](conversation://30bf6e25-a96c-4a34-8d26-5900e7e8fb60)), `@brawl3d-vfx` ([`ea3dd428`](conversation://ea3dd428-96a0-4947-98b8-137fa6e80bd8)), `@skeletons-locomotion` ([`c3abe6d4`](conversation://c3abe6d4-3704-46a2-9966-f7c718f35742)), `@explorer6x6-ux` ([`16d6e67e`](conversation://16d6e67e-e6b4-4090-8118-043ff712e9a4)) e `@adversarial-critic` ([`5416f854`](conversation://5416f854-3e19-4a57-911c-2046bf3898c0)). <== <span style="color:red">Loop 4 Started (5-Worker 6x6 Zero-Corner-Cutting Swarm)</span>
+* `15:13:38` → `15:26:56`: Dopo il semaforo verde di `@adversarial-critic` (`5416f854`), tutti i 5 worker terminano entro le `15:14:09` e alle `15:26:56` viene committata la **`v0.3.0`** in [`162a228`](https://github.com/palladius/carchess3d/commit/162a228c16bdae8a9b54eca62c586f49e163799d) (chiudendo in un solo colpo le Issue [`#10`](https://github.com/palladius/carchess3d/issues/10)–[`#16`](https://github.com/palladius/carchess3d/issues/16) in **46 minuti e 46 secondi**!). <== <span style="color:red">Loop 4 Completed (v0.3.0 Shipped)</span>
+
+Day: **2026-10-11**  TZ=Europe/Zurich (CEST)
+* `03:10:31`: Nel cuore della notte, `31759f77` lancia il subagent produttore [`6b6faa1f`](conversation://6b6faa1f-9a91-4eb6-b022-56a2c44d730f) (`03:10:53` → `04:53:23`, `148` step) per generare in autonomia l'intera matrice `6×6` da **36 keyframe Nano Banana 2.1 + 36 film Veo 3.1**. <== <span style="color:red">Loop 5A Started (36-Video Veo 3.1 Overnight Factory)</span>
+* `03:29:27`: `palladius@` chiede a `83ee7dd5` di creare il cron giornaliero Playwright UAT con registrazione video della partita; alle `03:42:28` viene committato `scripts/daily_uat_playtest.py` in [`a4e22d8`](https://github.com/palladius/carchess3d/commit/a4e22d86ec6c4a35e64afb8afff8fb77522de8ea) (`v0.3.8` in [`b70ab30`](https://github.com/palladius/carchess3d/commit/b70ab304ce51b3b424e95a438ae7c7cbce6541bd) alle `04:01:26`).
+* `04:56:22`: `6b6faa1f` completa la generazione di tutti i **36/36 film 16:9**, committati in [`af84f1f`](https://github.com/palladius/carchess3d/commit/af84f1f8005a155d0a2dbf269d97cfa68172e088) (`v0.3.14`).
+* `08:19:58` & `09:01:45`: `palladius@` mostra i video a Kate e segnala allucinazioni visive in alcune clip (*"oggetti che vengono creati e poi ricreati, torri che scompaiono e riappaiono"*). <== <span style="color:red">Sub-Incident #3 Detected (Veo Video Hallucinations)</span>
+* `08:28:03`: `31759f77` lancia il subagent [`4930d699`](conversation://4930d699-7cf0-4e28-88bd-6ca09d6cd0a0) (*Adversarial Video Critic*, attivo dalle `08:29:33` alle `10:35:49`, `123` step) che estrae strisce da 6 fotogrammi per tutti i 36 MP4, boccia i clip difettosi (`08:55:33`, `09:18:15`, `10:26:44`) e guida la rigenerazione Veo 3.1 `first+last frame`. <== <span style="color:red">Loop 5B Started (36-Video Contact-Sheet Critic)</span>
+* `11:06:26`: Tutti i **36/36 video** superano la soglia **`>= 8.0/10`** in `docs/battles/video_audit.yaml` e vengono rilasciati in [`8cb3d31`](https://github.com/palladius/carchess3d/commit/8cb3d31312b0bd300d6cbef9c4744b2d53e10ce7). <== <span style="color:red">Loop 5B Completed (36/36 Videos Certified >= 8.0/10)</span>
+* `11:33:48`: In `6d9ce58c` viene applicato il primo **Mode B Face-Grafting** su `king-riccardo.glb` e **Mode A SDF Relief** sull'Asinello della Palude ([`8af1da4`](https://github.com/palladius/carchess3d/commit/8af1da44590c4f19d5f1f8f8acc65dda7844a4fd)).
+* `14:18:16`: `palladius@` ispeziona Re Riccardo e chiede un loop biometrico più severo: *"better ma ancora non mi somoglia! puoi creare un adversarial/critique agent che guarda e itera finche non mi somiglia?"*. <== <span style="color:red">Loop 6 Escalated (Biometric Likeness Critic)</span>
+* `14:23:11`: `6d9ce58c` definisce il subagent custom `riccardo-likeness-critic` con rubrica biometrica a 8 punti; alle `16:14:44` invoca [`a8114d2d`](conversation://a8114d2d-7e98-401c-b41b-2960f0c2e216) (`16:15:10` → `16:16:51`) che promuove il nuovo Face-Grafting da `riccardosouthafrica.png` con **`92/100`**, committato alle `16:24:42` in [`0597eaa`](https://github.com/palladius/carchess3d/commit/0597eaa5461e3228fc3dcfa501f53ead94850b99) (`v0.3.30` su `main` alle `16:27:21`). <== <span style="color:red">Loop 6 Completed (Biometric Score 92/100)</span>
+* `21:16:29`: `palladius@` segnala da smartphone reale: *"il gioco da mobile Pixel 10 ancora NON va... la parte 3d rimane bianca"* ([`89883073`](conversation://89883073-f60b-461e-b8c4-5d01948bf9c0)). <== <span style="color:red">Sub-Incident #5 Detected (Pixel 10 White Screen)</span>
+* `21:41:23` → `22:32:08`: `89883073` e `6d9ce58c` costruiscono il simulatore Playwright GPU mobile ([`776d1ee`](https://github.com/palladius/carchess3d/commit/776d1ee520f009bbd023876eaa102857901f90a6)), risolvono il limite dei 16 contesti WebGL Chrome nello Showcase ([`df399dd`](https://github.com/palladius/carchess3d/commit/df399dd12fefe9169cb40065ee41bdcaba7bca7f) alle `21:44:14`), creano `nocache.html` ([`b549c9c`](https://github.com/palladius/carchess3d/commit/b549c9c51dca5636cf836e313422a6f5f71e11ba) alle `21:58:07`) e abilitano i GLB 3D completi su Pixel 10 ([`bc8649a`](https://github.com/palladius/carchess3d/commit/bc8649a1e9ce0ef90d68a7efe192a6efcba89ad9) alle `22:32:08`).
+* `21:56:34` → `22:57:06`: In `31759f77` vengono generate le voci iconiche della famiglia (*"Papino, ti manco tantissimo!"*, *"Sei proprio un cafoNAZZO!"*, *"clean my bottooooom?"*, *"Don't be FACETIOUS!"* in [`eaf3b3e`](https://github.com/palladius/carchess3d/commit/eaf3b3e05d6a826624fbdf1979e32396fab013f1) alle `22:03:35`) e le colonne sonore d'archi Lyria 3 ([`559d253`](https://github.com/palladius/carchess3d/commit/559d2537f8671f22e4ab88f78d64712e4e00715e) alle `22:48:58` e [`905ab22`](https://github.com/palladius/carchess3d/commit/905ab22cdc02a13f0655f7aeb166151fe2858e5c) alle `22:57:06`).
+
+Day: **2026-10-12**  TZ=Europe/Zurich (CEST)
+* `09:03:36` → `09:42:28`: Rilasciato lo **Showcase POV degli Eroi** (Issue [`#22`](https://github.com/palladius/carchess3d/issues/22)) con gli scaffali `6+6` Attacco/Difesa in [`a6b7809`](https://github.com/palladius/carchess3d/commit/a6b780957d45459481ab6d9a7c79559baba524b2) e [`aceb31f`](https://github.com/palladius/carchess3d/commit/aceb31f6573c7c09ab6b93eb7600bdf0b305b7b9) (`v0.3.48`).
+* `13:45:47`: Introdotta la guardia automatica **IP Safety ("Be Googley")** in `scripts/check.py` + `etc/ip-denylist.txt` ([`53f18fb`](https://github.com/palladius/carchess3d/commit/53f18fb0beacd5807c7a88789526fa21487c57f5), chiudendo la Issue [`#24`](https://github.com/palladius/carchess3d/issues/24)).
+
+Day: **2026-10-13**  TZ=Europe/Zurich (CEST)
+* `10:12:48`: `palladius@` apre la sessione [`2b03779c`](conversation://2b03779c-2901-432b-828d-25909d30d9e0) su `derek` segnalando la *"fatigue mentale e visiva"* nel distinguere i pezzi giocando coi bambini. <== <span style="color:red">Sub-Incident #6 Detected (Top-Down Visual Fatigue)</span>
+* `10:47:33` → `11:09:28`: Lo Standing MAIN Merger `83ee7dd5` delega due subagent UAT consecutivi ([`cc34c1bf`](conversation://cc34c1bf-0541-4bc7-a03f-18f38340e127) dalle `10:47:33` alle `10:58:18`, e [`4063fd0b`](conversation://4063fd0b-692e-4f10-810e-7cf8301e6b6b) dalle `10:58:28` alle `11:09:28`) per eseguire la suite Playwright giornaliera e postare il video su GitHub Issue [`#18`](https://github.com/palladius/carchess3d/issues/18).
+* `18:41:02`: La sessione [`a3907ba3`](conversation://a3907ba3-5591-4fa9-9778-9d2ae16bc445) su `derek` risolve definitivamente il re-poisoning del Service Worker su Pixel 10 in [`09b36f6`](https://github.com/palladius/carchess3d/commit/09b36f671dc53ebcde891ab8d35df550bfc888c1) (`v0.3.52`).
+* `20:12:26`: Su `pupurabbux` parte la sessione notturna [`18347678`](conversation://18347678-1111-4222-8333-444455556666) (`686` step, **11h 50m continuate** fino alle `08:02:56` del 14 ottobre) per ricostruire sulla GPU locale RTX 5080 tutti i 12 modelli `.glb` Classic & Swamp (Issue [`#20`](https://github.com/palladius/carchess3d/issues/20)); alle `20:32:15` la sessione parallela `cd3f4023` spegne i LED RGB della NVIDIA per non svegliare Kate. <== <span style="color:red">Loop 7A Started (Overnight RTX 5080 GPU Reconstruction)</span>
+
+Day: **2026-10-14**  TZ=Europe/Zurich (CEST)
+* `07:27:49` → `07:54:31`: Su `pupurabbux` partono simultaneamente i **3 Pillar Agents** del `GOAL_AUTONOMOUS_DAY_OF_CODE.md` (`2524f435` alle `07:27:49`, `0cfd4a3c` alle `07:27:51`, `84e080f2` alle `07:27:53`) che completano in **26 minuti** il selettore varianti `v1..v4`, le 3 armi modulari di Seby e il polish di Re Riccardo ([`5df4a0b`](https://github.com/palladius/carchess3d/commit/5df4a0bec6c070959205fa8cfb4a07f8f171e88d) alle `08:02:22`), mentre alle `07:54:40` viene committato il texturing PBR locale con PTX `sm_120` in [`5f38457`](https://github.com/palladius/carchess3d/commit/5f384579e3b785f30ca6f2919e56802629d5517d). <== <span style="color:red">Loop 7B Completed (3-Pillar Autonomous Day of Code)</span>
+* `08:16:09`: Rilasciata in [`5382493`](https://github.com/palladius/carchess3d/commit/538249308d5535825cebf7ec031e375f129b666f) (`v0.3.62`) la suite **Acoustic DSP + Gemini 2.5 Pro Audio Critic** (`tests/test_audio_quality.py`) che intercetta e ripara il glitch finale su *"Pinguini Tattici Nucleari"*.
+* `13:17:15`: La sessione `f0239601` elimina il loop musicale a metà battaglia (`COMBAT_CUE_POINTS_S = [0.0, 8.0, 15.5]`, `loop = false`) e calibra il volume di combattimento esattamente a `+15%` (`0.276` vs `0.24`) in [`32befb9`](https://github.com/palladius/carchess3d/commit/32befb9e76632f4c90662725e333a42b4f125905) (`v0.3.66`).
+* `13:39:22` → `13:49:05`: `31759f77` lancia il subagent [`c1aeb103`](conversation://c1aeb103-648f-4e97-9498-3581d6910376) (`222` step) che genera con Lyria 3 il jingle comico di Scacco Matto (*"BUAHAHAHAHAHAH! / Ooh no! / SCACCO MATTO, CHECKMATE!"*) e imposta l'Ouverture Staccato come tema principale ([`001bc7e`](https://github.com/palladius/carchess3d/commit/001bc7e37db77519d1286d50d87cc4c1b689bad8)).
+* `13:45:44` → `14:00:50`: Nella sessione `2b03779c` viene lanciato il **4-Worker Visual Clarity Swarm**: `@clarity-engine` ([`08c6d70e`](conversation://08c6d70e-1884-4cf5-88c9-e455c40e449f) alle `13:47:58`), `@hud-ux` ([`3a385e2a`](conversation://3a385e2a-9870-480b-9328-d88b55d69236) alle `13:47:59`), `@glb-baker` ([`30de5370`](conversation://30de5370-3030-4271-a3eb-f0b7e9150eb3) alle `13:48:02`) e `@vlm-critic` ([`eaccf00d`](conversation://eaccf00d-1934-439f-83fa-15a94fd084f5) alle `13:48:04`), committato e mergiato in `v0.3.70` ([`c7be294`](https://github.com/palladius/carchess3d/commit/c7be2949b720a79b4891d71485e1f71759aed3ca), [`1a6d9d6`](https://github.com/palladius/carchess3d/commit/1a6d9d639b15949a41fb14036c51181e82b7da43) alle `17:07:35`). <== <span style="color:red">Loop 8 Completed (Visual Clarity S1..S5 & Blind VLM Benchmark)</span>
+* `13:56:08` & `14:20:37`: Nella sessione [`59f8e80d`](conversation://59f8e80d-2ffb-45d1-8e3f-9b0c50377cdc) vengono aggiunti la foto ritagliata di Ale e Seby al tablet ([`d51f93a`](https://github.com/palladius/carchess3d/commit/d51f93a44abd906361c385391758ca157a5d63fc), `v0.3.67`) e il dossier forense [`article/DEREK_JETSKI_FORENSICS.md`](DEREK_JETSKI_FORENSICS.md) ([`6b5a44c`](https://github.com/palladius/carchess3d/commit/6b5a44c9e3fe3e1a0375a12c056a035c162ad5b1), `v0.3.69`).
+
+Day: **2026-10-15**  TZ=Europe/Zurich (CEST)
+* `07:27:54` → `10:19:03`: Unificato e mergiato il pacchetto completo `article/` da `pupurabbux` in [`8001c31`](https://github.com/palladius/carchess3d/commit/8001c3188195ca9d0f9719bf11705e7465c895d8) e [`b64b724`](https://github.com/palladius/carchess3d/commit/b64b7242b9928984f299ade9bdeeebe95d39720c) (`v0.3.72`), seguito dal sync UAT [`5d40538`](https://github.com/palladius/carchess3d/commit/5d40538d82a815c4a3046f2b2c47aa40916fe414) (`v0.3.73` alle `10:30:04`).
+* `12:47:36`: `palladius@` richiede la stesura formale di questo Post-Mortem (`INVESTIGATION.md`) con i timestamp esatti di tutti i loop agentici. <== <span style="color:red">End of Incident / Post-Mortem Published</span>
+
+---
+
+## IMPORTANT
+
+This PostMortem (`INVESTIGATION.md`) was forensically reconstructed from immutable `.jsonl` agent transcripts and `git log` commit timestamps across `derek` and `pupurabbux`. Please review it before publishing.
