@@ -229,6 +229,31 @@ Il Critic analizza i provini e compila automaticamente il registro YAML `docs/qa
 
 Se un modello riceve il bollino `FA_CAGARE 💩`, il comando CLI `just shittest` blocca il deploy e ordina all'agente di rifare la scultura (come accaduto per l'Alfiere Ale v2 che aveva "due mezzi draghi", prontamente bocciato e ricostruito con rig scheletrico modulare).
 
+### 🧪🎬 L'Agente UAT Giornaliero che Gioca a Scacchi da Solo e Apre GitHub Issue col Film della Partita ([#36](https://github.com/palladius/carchess3d/issues/36))
+
+I test unitari in Node.js e Python sono fondamentali, ma in un videogioco 3D con WebGL, shader custom, Service Worker e Web Worker AI il vero nemico è la regressione silenziosa: la telecamera che ruotando a `180°` finisce dentro un muro mostrando uno schermo nero, i pezzi bianchi e neri che guardano nella stessa direzione, o il computer che smette di rispondere dopo una cattura.
+
+Così, alle `03:29` di domenica 11 ottobre, ho dato allo Standing MAIN Merger un prompt folle:
+> *"Fai un cron GIORNALIERO che fa unit test, dà un'occhiata al codice overall e prova a fare una partita lui (integration test) e registra un video del suo UAT (max 1 minuto) facendo cose normali e cose pazze tipo cliccare 10 volte un bottone per vedere se si rompe... e genera una GHI chiamata `Gemini UAT $YYYYMMDD` col film della partita attaccato!"*
+
+Il risultato è [`scripts/daily_uat_playtest.py`](../scripts/daily_uat_playtest.py) (`just daily-uat`), che ogni mattina lancia Google Chrome in modalità WebGL, registra un video di 60 secondi mentre gioca contro `CPU Easy`, misura la luminanza e la deviazione standard dei pixel su ogni inquadratura per certificare l'assenza di black screen, carica i file `.mp4` e `.gif` su una GitHub Release taggata `uat-media-$YYYYMMDD` e pubblica un report automatico come **[GitHub Issue #36 — `Gemini UAT 20261015`](https://github.com/palladius/carchess3d/issues/36)** (e la capostipite [#18 — `Gemini UAT 20261011`](https://github.com/palladius/carchess3d/issues/18)):
+
+![Registrazione reale dell'Agente UAT Giornaliero (GitHub Issue #36) mentre ruota la camera, attiva gli scheletri 3D, tuffa i pezzi nella palude e gioca contro la CPU](assets/gallery/daily_uat_gameplay_20261015.gif)
+
+Ecco i **9 gate automatici (`9 / 9 PASS`)** eseguiti e certificati nell'Issue [#36](https://github.com/palladius/carchess3d/issues/36):
+
+| Gate / Sottosistema | Esito | Metriche Reali Misurate dall'Agente (`2026-10-15 10:27 CEST`) |
+| :--- | :---: | :--- |
+| **`engine_boot`** | ✅ PASS | `window.__CARCHESS__` inizializzato con tutti i manager e le viste 3D |
+| **`piece_orientations`** | ✅ PASS | Bianchi orientati a Nord (`3.142 rad`), Neri orientati a Sud (`0.0 rad`) faccia a faccia |
+| **`camera_flip_180`** | ✅ PASS | Luminanza media: `93.4/255`, Contrasto `stddev: 69.0` (zero black screen) |
+| **`camera_top_down`** | ✅ PASS | Luminanza media: `84.2/255`, Contrasto `stddev: 72.2` |
+| **`skeletons_toggle`** | ✅ PASS | Armature ossee 3D visibili sui pezzi vivi e nella palude |
+| **`swamp_party`** | ✅ PASS | 6 pezzi che nuotano e beccheggiano sulle ninfee del fossato |
+| **`matrix36_modal`** | ✅ PASS | Matrice interattiva `6×6` (36 combinazioni) e link `./showcase/?view=pov` verificati |
+| **`wow_mode`** | ✅ PASS | Mode 2 WOW Turntable Inspector & Arena attiva con controlli personaggio |
+| **`match_gameplay`** | ✅ PASS | 8 mosse giocate tra Agente UAT e `CPU Easy` (latenza media CPU: **`458 ms`** vs target `< 1500 ms`) |
+
 ---
 
 ## 💛 7. L'Architettura di Gioco di Niccolò (`niccolo-game-design`)

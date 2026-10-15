@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.75] - 2026-10-15
+
+- 🧪🎬📰 **Articolo & Post-Mortem: Sezione Dedicata al Daily UAT Playtest & GitHub Issue #36 (`article/ARTICLE.md`, `docs/ARTICLE.md`, `article/INVESTIGATION.md`, `article/assets/gallery/daily_uat_gameplay_20261015.gif`, `docs/visual-progress/daily_uat_gameplay_20261015.gif`)**:
+  - Aggiunta una sezione dedicata al cron giornaliero Playwright UAT (`scripts/daily_uat_playtest.py` / `just daily-uat`) e alla **[GitHub Issue #36 (`Gemini UAT 20261015`)](https://github.com/palladius/carchess3d/issues/36)** in `article/ARTICLE.md`, `docs/ARTICLE.md` e `article/INVESTIGATION.md`, con la tabella dei 9 gate superati (`9/9 PASS`, luminanza camera `180°` `93.4/255`, latenza media CPU `458 ms`) e la GIF animata della partita automatica (`daily_uat_gameplay_20261015.gif`).
+
 ## [0.3.74] - 2026-10-15
 
 - 🚨⏱️🍷 **Post-Mortem Forense SRE `article/INVESTIGATION.md` & Diario Parallelo Colmar vs Loop Agentici (`article/INVESTIGATION.md`, `article/ARTICLE.md`, `article/DEREK_TODO.md`)**:

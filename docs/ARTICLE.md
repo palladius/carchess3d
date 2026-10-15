@@ -129,6 +129,14 @@ Durante gli ultimi 45 minuti, mentre osservavo il preview artifact crescere in t
 
 ---
 
+## 🧪🎬 Il Cron Giornaliero Playwright UAT che Gioca da Solo e Apre GitHub Issue col Film della Partita ([#36](https://github.com/palladius/carchess3d/issues/36))
+
+Oltre al Vero UAT coi bambini sul divano, ogni mattina [`scripts/daily_uat_playtest.py`](../scripts/daily_uat_playtest.py) (`just daily-uat`) avvia Google Chrome con WebGL, esegue **9 gate avversari** (orientamento opposto Bianchi/Neri, rotazione camera `180°` e top-down con analisi di luminanza/contrasto anti-black-screen, scheletri 3D, festa nella palude, matrice `6×6`, WOW Arena e una vera partita di 8 mosse contro `CPU Easy` con latenza media di `458 ms`), registra un film `.mp4` + `.gif` di 60 secondi e apre automaticamente una GitHub Issue taggata `gemini-uat` come **[GitHub Issue #36 — `Gemini UAT 20261015`](https://github.com/palladius/carchess3d/issues/36)** (e [#18 — `Gemini UAT 20261011`](https://github.com/palladius/carchess3d/issues/18)):
+
+![Registrazione reale dell'Agente UAT Giornaliero (GitHub Issue #36) mentre testa la scacchiera 3D e gioca contro la CPU](./visual-progress/daily_uat_gameplay_20261015.gif)
+
+---
+
 ## 🎮 Come provarlo subito in 10 secondi
 
 Zero `npm install`, zero bundler, zero dipendenze esterne:
