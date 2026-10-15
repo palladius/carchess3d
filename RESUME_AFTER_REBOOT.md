@@ -25,7 +25,7 @@ Tutti i modelli 3D per le famiglie **Classic** e **Swamp** sono stati generati, 
 
 ## 🐸 Famiglia Swamp (`assets/models/swamp/`):
 - [x] **King** (`king-swamp-orco.glb`): 1.80m, 24.1k tris, 644KB — Procedurale Chibi 3D (tunica, corona e proporzioni scacchistiche)
-- [x] **Queen** (`queen-swamp-orchessa.glb`): 1.65m, 15.8k tris, 3.3MB — Mode A UV-Textured (Fiona 3D fedele al concept)
+- [x] **Queen** (`queen-swamp-orchessa.glb`): 1.65m, 15.8k tris, 3.3MB — Mode A UV-Textured (Principessa Orchessa 3D fedele al concept)
 - [x] **Bishop** (`bishop-swamp-focaccina.glb`): 1.45m, 21.6k tris, 578KB — Procedurale Chibi 3D (Don Gatto con mitria, stocco e stivali)
 - [x] **Knight** (`knight-swamp-asinello.glb`): 1.35m, 18.2k tris, 489KB — Procedurale Chibi 3D (Asinello quadrupedale con sorriso a 40 denti)
 - [x] **Rook** (`rook-swamp-draghessa.glb`): 1.30m, 20.8k tris, 554KB — Procedurale Chibi 3D (Torre merlata in pietra con draghetto rubino avvolto a 360°)
