@@ -8,7 +8,7 @@
  *   `chess-strings-bg.mp3`, `combat-suspense.mp3`, `voice-*.mp3`) on demand for offline play.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v33';
+const CACHE_NAME = 'carchess3d-offline-v34';
 
 const PRECACHE_URLS = [
   './',
@@ -49,6 +49,7 @@ const PRECACHE_URLS = [
   './src/listeners/AudioListener.js',
   './src/listeners/ProfileStorageListener.js',
   './docs/logo/logo.svg',
+  './assets/environments/zurich_panorama.jpg',
 ];
 
 self.addEventListener('install', (event) => {

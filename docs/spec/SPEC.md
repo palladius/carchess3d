@@ -329,6 +329,23 @@ is the "victim" and is removed at the end.
   - **Problem**: Desktop `.glb` characters (`assets/models/*.glb`) weigh `2–5 MB` each with `50k–97k` triangles and `2048×1024` / `2048×2048` uncompressed RGBA textures (`~850,000` triangles and `~180 MB` VRAM across all 32 pieces on the board), whereas on a `6.3"` smartphone screen each chess piece occupies only `~60×90` physical pixels (causing `15–20` sub-pixel triangles per screen pixel).
   - **Planned Solution (`assets/models/mobile/*.glb`)**: Generate a dedicated mobile `LOD1` asset set downsampled by **`10×–20×`** in triangle count (`~3,000–5,000` tris for heroes, `~1,500` tris for pawns via Quadric Error Metric decimation) and **`4×–16×`** in texture area (`512×512` WebP/JPEG baked atlas, `~150–300 KB` per `.glb`), and have `PieceView` load `assets/models/mobile/<piece>.glb` automatically on `isMobilePhone` so smartphones render the full 3D sculpted characters at `60 fps` with `< 5 MB` total download and `< 15 MB` VRAM.
 
+## Luxury Black & White Marble Chessboard & Nanobanana Zurich Diorama (`v0.3.57`)
+
+- **Luxury Black & White Marble Board Redesign**:
+  - Replaced the yellowish-cream squares and golden square frames with an authentic luxury marble aesthetic:
+    - **Light Squares**: Pure *Bianco Carrara / Calacatta* marble (`#fafbfd`) with procedural branching smoky-grey fractures and crystalline depth.
+    - **Dark Squares**: Deep *Nero Marquina / Black Obsidian* marble (`#111317`) with crisp white calcite lightning fissures.
+    - **Zero Yellow Frames**: Eliminated the tacky golden inlay rings around every individual square in favor of micro-thin polished obsidian slate tile grout lines (`#141820`).
+    - **Granite & Platinum Altar**: Altar borders and under-board foundations feature refined dark slate and granite with silver-platinum engraved coordinates (`A`–`H`, `1`–`8`) and Nordic runes.
+    - **Combat Translucency**: Preserves full 100% opacity in normal mode, smoothly transitioning to 90% translucency during 3D combat cinematics.
+- **Nanobanana Fairytale Zurich & Swiss Alps Panorama**:
+  - Replaced the crude rectangular placeholder box guild houses and crude cone peaks with an authentic, high-detail panoramic diorama generated with Nanobanana (`assets/environments/zurich_panorama.jpg`, `1584×672`).
+  - Mapped onto a curved panoramic backdrop screen at `z = -22.5m` along the horizon, seamlessly framing the Limmat river, Münsterbrücke arched bridge, historic church spires, and snow-capped Alpine peaks.
+- **Architectural "Made with Gemini 4 Argon" Plaque**:
+  - A dedicated 3D architectural bronze and stone plaque (`✦ ZÜRICH · MADE WITH GEMINI 4 ARGON ✦`) is permanently mounted on the Münsterbrücke bridge parapet in the 3D diorama overlooking the Limmat river.
+- **Distant Easter Egg — Google Zurich at Hürlimann Areal**:
+  - In the south-west distance (`x = -15.6m, z = -17.0m`), the historic red-brick Hürlimann brewery campus (Brandschenkestrasse 110) features the Backstein Sudhaus, modern glass innovation atrium, the tall Hürlimann chimney tower (`h = 8.6m`), 4 subtle Google primary-color rooftop lanterns, and a campus plaque.
+
 ## Open Questions
 
 - ~~Implementation repo~~ → **[palladius/carchess3d](https://github.com/palladius/carchess3d)** (public), deployed live on GitHub Pages at **https://palladius.github.io/carchess3d/**.

@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.3.57] - 2026-10-14
+
+- 🏛️✨ **Luxury Black & White Marble Chessboard Redesign (`src/views/ZurichSwampView.js`)**:
+  - Eliminated the tacky yellow/cream squares and golden square inlays (`inlayContainer` / `inlayFrameGeo` with `goldTrimMat`) that gave the board a cheap look.
+  - Replaced tile textures with high-resolution (512×512) procedural luxury marble:
+    - **Light Squares**: Pure *Bianco Carrara / Calacatta* marble (`#fafbfd`) with organic branching smoky-grey fractures and crystalline depth.
+    - **Dark Squares**: Deep *Nero Marquina / Black Obsidian* marble (`#111317`) with crisp white calcite lightning fissures.
+  - Micro-thin dark obsidian slate grout lines (`#141820`, roughness 0.85) between tiles give every square a solid, polished marble slab feel without any tacky yellow outlining.
+  - Updated altar rim borders and foundations to dark granite and slate with silver-platinum engraved coordinates (`A`–`H`, `1`–`8`) and Nordic runes (`#b0bec5` / `#e2e8f0`).
+  - Preserved 100% compatibility with sliding-window combat translucency (`setCombatBlend` smoothly transitioning between 100% normal opacity and 90% combat translucency).
+- 🇨🇭🌄 **Nanobanana Fairytale Zurich & Swiss Alps Panorama (`assets/environments/zurich_panorama.jpg`)**:
+  - Generated an authentic 1584×672 fairytale diorama painting with the Nanobanana MCP tool depicting the Limmat river flowing into Lake Zurich, Grossmünster twin towers, Fraumünster, Münsterbrücke stone bridge with warm lantern light, and snow-capped Alpine peaks.
+  - Removed the crude rectangular placeholder box guild houses ("orribili rettangoloni") and crude cone peaks in favor of a smooth curved panoramic backdrop (`z = -22.5m`) that seamlessly blends with the 3D diorama and automatically dissolves during combat mode.
+  - Added to offline Service Worker precache (`sw.js`, bumped cache name to `carchess3d-offline-v34`).
+- 🏛️🎖️ **Civic Monument: "Made with Gemini 4 Argon" on Münsterbrücke (`src/views/ZurichSwampView.js`)**:
+  - Added a dedicated 3D architectural bronze and stone monument (`✦ ZÜRICH · MADE WITH GEMINI 4 ARGON ✦`) mounted on the Münsterbrücke bridge parapet overlooking the Limmat river in the 3D diorama.
+- 🏢🍻 **Easter Egg: Google Zurich at Hürlimann Areal (`src/views/ZurichSwampView.js`)**:
+  - Modeled the historic Hürlimann brewery campus (Brandschenkestrasse 110) in the south-west background skyline (`x = -15.6m, z = -17.0m`), featuring the main red Backstein brick Sudhaus, modern glass innovation atrium wing, and the iconic tall Hürlimann brewery chimney tower with decorative sandstone collars and copper cap.
+  - Placed 4 subtle Google-colored lantern pods (Blue `#4285F4`, Red `#EA4335`, Yellow `#FBBC05`, Green `#34A853`) on the campus terrace and a dedicated bronze plaque (`HÜRLIMANN AREAL · Brandschenkestrasse 110`).
+- 📐 **Documentation & Spec**: Updated `docs/spec/SPEC.md` and logged the generation in `tools/model-pipeline/RUNNING_DOC.md` §10.12.
+
 ## [0.3.56] - 2026-10-13
 
 - 🚀🎮 **Local GPU 3D Shape Pipeline Verified on RTX 5080 (Blackwell sm_120) with TurboSebux (Issue #5)**:

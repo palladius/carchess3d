@@ -34,8 +34,8 @@ import {
   isMobileOrTabletDevice,
 } from '../core/Registry.js';
 
-const LIGHT_SQUARE_HEX = 0xf3ebd9;
-const DARK_SQUARE_HEX = 0x232938;
+const LIGHT_SQUARE_HEX = 0xfafbfd;
+const DARK_SQUARE_HEX = 0x111317;
 const SELECT_HIGHLIGHT_HEX = 0xffeb3b;
 const LEGAL_MOVE_HEX = 0x4cd9a2;
 const CAPTURE_MOVE_HEX = 0xff5252;
@@ -209,13 +209,13 @@ export class ZurichSwampView {
     foundationGeo.translate(0, -0.36, 0); // y = -0.65m .. -0.07m
     const runeFriezeTex = this.createRuneFriezeTexture();
     const foundationMat = new THREE.MeshStandardMaterial({
-      color: 0x3b3129,
-      roughness: 0.65,
-      metalness: 0.18,
+      color: 0x1e242d,
+      roughness: 0.62,
+      metalness: 0.16,
       map: runeFriezeTex,
-      emissive: new THREE.Color(0xffd54f),
+      emissive: new THREE.Color(0xb0bec5),
       emissiveMap: runeFriezeTex,
-      emissiveIntensity: 0.88,
+      emissiveIntensity: 0.45,
     });
     this.runeMaterials.push(foundationMat);
     const foundationMesh = new THREE.Mesh(foundationGeo, foundationMat);
@@ -229,22 +229,22 @@ export class ZurichSwampView {
     const topRuneTexV = this.createBorderTopTexture('vertical');
 
     const borderMatH = new THREE.MeshStandardMaterial({
-      color: 0x3d332a,
-      roughness: 0.50,
+      color: 0x242a33,
+      roughness: 0.45,
       metalness: 0.22,
       map: topRuneTexH,
-      emissive: new THREE.Color(0xffd54f),
+      emissive: new THREE.Color(0xb0bec5),
       emissiveMap: topRuneTexH,
-      emissiveIntensity: 0.65,
+      emissiveIntensity: 0.35,
     });
     const borderMatV = new THREE.MeshStandardMaterial({
-      color: 0x3d332a,
-      roughness: 0.50,
+      color: 0x242a33,
+      roughness: 0.45,
       metalness: 0.22,
       map: topRuneTexV,
-      emissive: new THREE.Color(0xffd54f),
+      emissive: new THREE.Color(0xb0bec5),
       emissiveMap: topRuneTexV,
-      emissiveIntensity: 0.65,
+      emissiveIntensity: 0.35,
     });
     this.runeMaterials.push(borderMatH, borderMatV);
     this.borderMatH = borderMatH;
@@ -274,21 +274,21 @@ export class ZurichSwampView {
       this.altarBorderMeshes.push(rim);
     }
 
-    // Outer Golden Bevel Molding framing the 8.0m x 8.0m board & 9.6m x 9.6m altar
+    // Outer Silver-Platinum Bevel Molding framing the 8.0m x 8.0m board & 9.6m x 9.6m altar
     const goldTrimMat = new THREE.MeshStandardMaterial({
-      color: 0xffd54f,
-      roughness: 0.28,
-      metalness: 0.38,
-      emissive: 0x6e4b08,
-      emissiveIntensity: 0.45,
+      color: 0xcfd8dc,
+      roughness: 0.26,
+      metalness: 0.55,
+      emissive: 0x263238,
+      emissiveIntensity: 0.35,
     });
     this.goldTrimMat = goldTrimMat;
 
     // Mossy Corner Stones & Stepped Buttresses grounded at y = -0.5m .. 0.0m
     const mossStoneMat = new THREE.MeshStandardMaterial({
-      color: 0x3b4d3e,
-      roughness: 0.82,
-      metalness: 0.08,
+      color: 0x333d47,
+      roughness: 0.80,
+      metalness: 0.10,
     });
     this.mossStoneMat = mossStoneMat;
     const cornerOffsets = [
@@ -307,7 +307,7 @@ export class ZurichSwampView {
       altarGroup.add(cornerStone);
       this.altarBorderMeshes.push(cornerStone);
 
-      // Golden corner cap medallion at y = 0.015m
+      // Silver-platinum corner cap medallion at y = 0.015m
       const capGeo = new THREE.CylinderGeometry(0.22, 0.26, 0.03, 8);
       const cap = new THREE.Mesh(capGeo, goldTrimMat);
       cap.position.set(cx, 0.015, cz);
@@ -315,16 +315,16 @@ export class ZurichSwampView {
       this.altarBorderMeshes.push(cap);
     }
 
-    // Marble textures for light & dark squares
-    const lightMarbleTex = this.createMarbleTexture('#f3ebd9', '#dfd2b5', '#c8b48a');
-    const darkMarbleTex = this.createMarbleTexture('#232938', '#181d28', '#3c465c');
+    // High-resolution procedural marble textures for Bianco Carrara & Nero Marquina
+    const lightMarbleTex = this.createMarbleTexture('light');
+    const darkMarbleTex = this.createMarbleTexture('dark');
 
     // 64 Bevelled / Framed Chess Squares (1.0m x 1.0m, top surface strictly at y = 0.0m)
     const tileThickness = 0.08;
     const squareGeo = new THREE.BoxGeometry(0.965, tileThickness, 0.965);
     squareGeo.translate(0, -tileThickness / 2, 0);
 
-    // Thin golden inlay frame around each square at y = 0.001m
+    // Micro-thin dark obsidian slate grout frame around each square at y = 0.001m (no yellow/gold borders)
     const inlayFrameGeo = new THREE.RingGeometry(0.468, 0.495, 4);
     inlayFrameGeo.rotateZ(Math.PI / 4);
     inlayFrameGeo.rotateX(-Math.PI / 2);
@@ -334,9 +334,13 @@ export class ZurichSwampView {
     altarGroup.add(squaresContainer);
 
     const inlayContainer = new THREE.Group();
-    inlayContainer.name = 'GoldenSquareInlays';
+    inlayContainer.name = 'MarbleTileSeams';
     altarGroup.add(inlayContainer);
-    this.squareInlayMat = goldTrimMat.clone();
+    this.squareInlayMat = new THREE.MeshStandardMaterial({
+      color: 0x141820,
+      roughness: 0.85,
+      metalness: 0.12,
+    });
 
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
@@ -348,8 +352,8 @@ export class ZurichSwampView {
         const mat = new THREE.MeshStandardMaterial({
           color: baseColor,
           map: isLight ? lightMarbleTex : darkMarbleTex,
-          roughness: isLight ? 0.28 : 0.22,
-          metalness: isLight ? 0.08 : 0.18,
+          roughness: isLight ? 0.18 : 0.14,
+          metalness: isLight ? 0.04 : 0.08,
         });
 
         const sqMesh = new THREE.Mesh(squareGeo, mat);
@@ -368,7 +372,7 @@ export class ZurichSwampView {
         this.squareMeshes.push(sqMesh);
         this.squaresByName.set(square, sqMesh);
 
-        // Golden trim inlay at y = 0.001m
+        // Dark obsidian slate tile seam at y = 0.001m
         const inlay = new THREE.Mesh(inlayFrameGeo, this.squareInlayMat);
         inlay.position.set(col - 3.5, 0.001, row - 3.5);
         inlay.receiveShadow = true;
@@ -905,6 +909,106 @@ export class ZurichSwampView {
     skyline.add(fraumunster);
 
     // -------------------------------------------------------------------------
+    // C2. EASTER EGG: GOOGLE ZURICH AT HÜRLIMANN AREAL (Brandschenkestrasse 110)
+    //     Distant south-west brewery campus with iconic red-brick Hürlimann Tower
+    //     and subtle 4-color Google rooftop lantern pods.
+    // -------------------------------------------------------------------------
+    const campusGroup = new THREE.Group();
+    campusGroup.name = 'Hurlimann_Google_Zurich_Campus';
+    campusGroup.position.set(-15.6, -0.45, -17.0);
+
+    const brickMat = new THREE.MeshStandardMaterial({
+      color: 0x853a2b, // Historic Backstein red brick
+      roughness: 0.78,
+      metalness: 0.12,
+    });
+    const slateRoofMat = new THREE.MeshStandardMaterial({
+      color: 0x2b3340,
+      roughness: 0.65,
+      metalness: 0.20,
+    });
+    const glassAtriumMat = new THREE.MeshStandardMaterial({
+      color: 0x64b5f6,
+      roughness: 0.18,
+      metalness: 0.85,
+      transparent: true,
+      opacity: 0.75,
+      emissive: new THREE.Color(0x0d47a1),
+      emissiveIntensity: 0.35,
+    });
+
+    // 1. Main Hürlimann Heritage Brick Building (Sudhaus / Main Mill)
+    const mainBuildingGeo = new THREE.BoxGeometry(4.6, 3.8, 3.0);
+    mainBuildingGeo.translate(0, 1.9, 0);
+    const mainBuilding = new THREE.Mesh(mainBuildingGeo, brickMat);
+    campusGroup.add(mainBuilding);
+
+    const mainRoofGeo = new THREE.BoxGeometry(4.4, 1.1, 2.8);
+    mainRoofGeo.translate(0, 4.35, 0);
+    const mainRoof = new THREE.Mesh(mainRoofGeo, slateRoofMat);
+    campusGroup.add(mainRoof);
+
+    // Warm factory / office windows
+    for (const wy of [1.3, 2.5]) {
+      for (const wx of [-1.5, 0, 1.5]) {
+        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.55, 0.75), warmWindowMat);
+        win.position.set(wx, wy, 1.52);
+        campusGroup.add(win);
+      }
+    }
+
+    // 2. Modern Glass Innovation Atrium (Connecting Campus Wing)
+    const atriumGeo = new THREE.BoxGeometry(2.2, 3.2, 2.5);
+    atriumGeo.translate(-3.0, 1.6, 0.2);
+    const atrium = new THREE.Mesh(atriumGeo, glassAtriumMat);
+    campusGroup.add(atrium);
+
+    // 3. The Iconic Hürlimann Brauerei Chimney Tower
+    const towerGeo = new THREE.CylinderGeometry(0.52, 0.78, 8.2, 8);
+    towerGeo.translate(2.2, 4.1, 0.4);
+    const tower = new THREE.Mesh(towerGeo, brickMat);
+    campusGroup.add(tower);
+
+    // Decorative sandstone collars on the tower
+    for (const ty of [3.6, 6.8]) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.66, 0.05, 6, 12), sandstoneMat);
+      ring.position.set(2.2, ty, 0.4);
+      ring.rotateX(Math.PI / 2);
+      campusGroup.add(ring);
+    }
+
+    // Copper chimney cap
+    const capGeo = new THREE.CylinderGeometry(0.62, 0.48, 0.4, 8);
+    capGeo.translate(2.2, 8.4, 0.4);
+    campusGroup.add(new THREE.Mesh(capGeo, copperDomeMat));
+
+    // 4. Rooftop Easter Egg: 4 Subtle Google-Colored Lantern Pods
+    const podColors = [0x4285f4, 0xea4335, 0xfbbc05, 0x34a853]; // Blue, Red, Yellow, Green
+    const podGeo = new THREE.SphereGeometry(0.12, 12, 8);
+    for (let i = 0; i < 4; i++) {
+      const pMat = new THREE.MeshBasicMaterial({
+        color: podColors[i],
+      });
+      const pod = new THREE.Mesh(podGeo, pMat);
+      pod.position.set(-0.9 + i * 0.6, 5.0, 1.1);
+      campusGroup.add(pod);
+    }
+
+    // 5. Campus Sign Plaque
+    const campusSignTex = this.createHurlimannCampusSignTexture();
+    const campusSignMat = new THREE.MeshStandardMaterial({
+      map: campusSignTex,
+      color: campusSignTex ? 0xffffff : 0x1e242d,
+      roughness: 0.4,
+      metalness: 0.6,
+    });
+    const campusSign = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.45, 0.05), campusSignMat);
+    campusSign.position.set(0, 0.6, 1.54);
+    campusGroup.add(campusSign);
+
+    skyline.add(campusGroup);
+
+    // -------------------------------------------------------------------------
     // D. LIMMAT RIVER, MÜNSTERBRÜCKE ARCHED BRIDGE, GUILD HOUSES & BANNERS (z = -14m .. -18m)
     // -------------------------------------------------------------------------
     const bridgeGroup = new THREE.Group();
@@ -926,40 +1030,25 @@ export class ZurichSwampView {
       lantern.position.set(bx, 1.25, 0.85);
       bridgeGroup.add(lantern);
     }
+
+    // Dedicated Architectural Plaque: "✦ ZÜRICH · MADE WITH GEMINI 4 ARGON ✦"
+    const plaqueTex = this.createGeminiArgonPlaqueTexture();
+    const plaqueMat = new THREE.MeshStandardMaterial({
+      map: plaqueTex,
+      color: plaqueTex ? 0xffffff : 0x241d17,
+      roughness: 0.35,
+      metalness: 0.65,
+      emissive: new THREE.Color(0xd4af37),
+      emissiveMap: plaqueTex,
+      emissiveIntensity: 0.35,
+    });
+    const plaqueGeo = new THREE.BoxGeometry(3.6, 0.9, 0.08);
+    const plaqueMesh = new THREE.Mesh(plaqueGeo, plaqueMat);
+    plaqueMesh.position.set(0, 1.05, 0.94); // Center of Münsterbrücke balustrade overlooking Limmat
+    plaqueMesh.name = 'Plaque_GeminiArgon_Zurich';
+    bridgeGroup.add(plaqueMesh);
+
     skyline.add(bridgeGroup);
-
-    // Old Town Guild Houses (Zunfthäuser) along the Limmat quay (z = -17.2m)
-    const houseSpecs = [
-      { x: -16.0, w: 2.8, h: 4.6, c: 0x3b322c },
-      { x: -13.6, w: 2.2, h: 5.2, c: 0x453a30 },
-      { x: -8.6, w: 2.5, h: 4.8, c: 0x38404d },
-      { x: 8.6, w: 2.5, h: 4.9, c: 0x42382e },
-      { x: 13.6, w: 2.4, h: 5.1, c: 0x353e4a },
-      { x: 16.2, w: 2.8, h: 4.5, c: 0x473a32 },
-    ];
-    for (const hs of houseSpecs) {
-      const hGroup = new THREE.Group();
-      hGroup.position.set(hs.x, -0.5, -17.2);
-      const bodyGeo = new THREE.BoxGeometry(hs.w, hs.h, 2.4);
-      bodyGeo.translate(0, hs.h / 2, 0);
-      const bodyMat = new THREE.MeshStandardMaterial({ color: hs.c, roughness: 0.8 });
-      hGroup.add(new THREE.Mesh(bodyGeo, bodyMat));
-
-      const roofGeo = new THREE.ConeGeometry(hs.w * 0.78, 1.8, 4);
-      roofGeo.rotateY(Math.PI / 4);
-      roofGeo.translate(0, hs.h + 0.9, 0);
-      hGroup.add(new THREE.Mesh(roofGeo, darkRoofMat));
-
-      // Lit windows
-      for (let wy = 1.4; wy < hs.h - 0.6; wy += 1.2) {
-        for (const wx of [-0.55, 0.55]) {
-          const wMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.45), warmWindowMat);
-          wMesh.position.set(wx, wy, 1.22);
-          hGroup.add(wMesh);
-        }
-      }
-      skyline.add(hGroup);
-    }
 
     // Blue-and-white Zurich & Red-and-white Swiss Banners flanking the Grossmünster
     const zurichBannerTex = this.createBannerTexture('zurich');
@@ -984,60 +1073,54 @@ export class ZurichSwampView {
     }
 
     // -------------------------------------------------------------------------
-    // E. SNOW-CAPPED SWISS ALPS PANORAMA at z = -25.0m (width = 65m, height = 17m)
+    // E. NANOBANANA FAIRYTALE ZURICH & SWISS ALPS PANORAMA (z = -23.0m)
+    //    Eliminates the crude box buildings ("rettangoloni") and cone mountains
+    //    with an authentic, enchanted twilight view of Limmat, Lake Zurich & Alps.
     // -------------------------------------------------------------------------
-    const alpsGroup = new THREE.Group();
-    alpsGroup.name = 'SwissAlpsPanorama';
-    alpsGroup.position.set(0, -0.5, -24.5);
-
-    const rockAlpsMat = new THREE.MeshStandardMaterial({
-      color: 0x2a3d5c,
-      roughness: 0.78,
-      metalness: 0.14,
-      emissive: 0x101c30,
-      emissiveIntensity: 0.25,
-    });
-    const snowCapMat = new THREE.MeshStandardMaterial({
-      color: 0xf0f6ff,
-      roughness: 0.38,
-      metalness: 0.12,
-      emissive: 0x5c85d6,
-      emissiveIntensity: 0.38,
-    });
-
-    // Overlapping jagged alpine peaks framed cleanly in the 3/4 overview horizon
-    const peaks = [
-      { x: -24.0, z: -1.0, r: 7.0, h: 10.8 },
-      { x: -18.0, z: 0.4, r: 6.4, h: 12.6 },
-      { x: -12.5, z: -0.6, r: 6.8, h: 11.4 },
-      { x: -7.2, z: 0.2, r: 7.2, h: 13.4 },
-      { x: 0.0, z: -0.8, r: 8.0, h: 13.8 },
-      { x: 7.2, z: 0.3, r: 7.2, h: 13.2 },
-      { x: 12.6, z: -0.5, r: 6.6, h: 11.6 },
-      { x: 18.2, z: 0.4, r: 6.5, h: 12.5 },
-      { x: 24.2, z: -0.9, r: 7.0, h: 11.0 },
-    ];
-
-    for (const pk of peaks) {
-      const mtnGeo = new THREE.ConeGeometry(pk.r, pk.h, 6);
-      mtnGeo.translate(0, pk.h / 2, 0);
-      const mtn = new THREE.Mesh(mtnGeo, rockAlpsMat);
-      mtn.position.set(pk.x, 0, pk.z);
-      mtn.rotation.y = (pk.x * 0.17) % Math.PI;
-      alpsGroup.add(mtn);
-
-      // Snow cap on upper 42% of each peak
-      const capH = pk.h * 0.44;
-      const capR = pk.r * 0.44;
-      const capGeo = new THREE.ConeGeometry(capR, capH, 6);
-      capGeo.translate(0, pk.h - capH / 2 + 0.05, 0);
-      const cap = new THREE.Mesh(capGeo, snowCapMat);
-      cap.position.set(pk.x, 0, pk.z);
-      cap.rotation.y = mtn.rotation.y;
-      alpsGroup.add(cap);
+    let zurichTex = null;
+    if (typeof document !== 'undefined') {
+      try {
+        const loader = new THREE.TextureLoader();
+        zurichTex = loader.load('./assets/environments/zurich_panorama.jpg');
+        if (zurichTex) {
+          zurichTex.colorSpace = THREE.SRGBColorSpace;
+        }
+      } catch {
+        zurichTex = null;
+      }
     }
 
-    skyline.add(alpsGroup);
+    const panoGroup = new THREE.Group();
+    panoGroup.name = 'ZurichFairytalePanoramaBackdrop';
+    panoGroup.position.set(0, 5.2, 0);
+
+    // Curved backdrop plane (width 58m, height 16m) curved naturally along the horizon
+    const panoWidth = 58.0;
+    const panoHeight = 16.0;
+    const panoGeo = new THREE.PlaneGeometry(panoWidth, panoHeight, 36, 1);
+    const posAttr = panoGeo.attributes.position;
+    for (let i = 0; i < posAttr.count; i++) {
+      const vx = posAttr.getX(i);
+      // Gentle parabolic cylindrical arc curving away at the horizon: z = -22.5m at center, -28m at edges
+      const vz = -22.5 - Math.pow(vx / (panoWidth * 0.5), 2) * 5.5;
+      posAttr.setZ(i, vz);
+    }
+    panoGeo.computeVertexNormals();
+
+    const panoMat = new THREE.MeshStandardMaterial({
+      map: zurichTex,
+      color: zurichTex ? 0xffffff : 0x1a2638,
+      roughness: 0.85,
+      metalness: 0.05,
+      emissive: new THREE.Color(0xffffff),
+      emissiveMap: zurichTex,
+      emissiveIntensity: 0.70,
+      side: THREE.DoubleSide,
+      depthWrite: true,
+    });
+    const panoMesh = new THREE.Mesh(panoGeo, panoMat);
+    panoGroup.add(panoMesh);
+    skyline.add(panoGroup);
   }
 
   // ===========================================================================
@@ -1228,7 +1311,7 @@ export class ZurichSwampView {
         mat.needsUpdate = true;
       }
       mat.opacity = opacity;
-      mat.roughness = translucent ? (isLight ? 0.28 : 0.22) + 0.57 * blend : isLight ? 0.28 : 0.22;
+      mat.roughness = translucent ? (isLight ? 0.18 : 0.14) + 0.60 * blend : isLight ? 0.18 : 0.14;
     }
     if (this.squareInlayMat) {
       const nextDepthWrite = !translucent;
@@ -1427,35 +1510,130 @@ export class ZurichSwampView {
   // 7. PROCEDURAL CANVAS TEXTURE GENERATORS (SAFE IN HEADLESS NODE TOO)
   // ===========================================================================
 
-  createMarbleTexture(baseHex, veinHex1, veinHex2) {
+  createMarbleTexture(type = 'light') {
     if (typeof document === 'undefined') return null;
     const canvas = document.createElement('canvas');
-    canvas.width = 256;
-    canvas.height = 256;
+    canvas.width = 512;
+    canvas.height = 512;
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
-    ctx.fillStyle = baseHex;
-    ctx.fillRect(0, 0, 256, 256);
+    const isLight = type === 'light' || type === '#f3ebd9' || type === '#fafbfd' || type === 0xfafbfd;
 
-    ctx.strokeStyle = veinHex1;
-    ctx.lineWidth = 2.2;
-    ctx.globalAlpha = 0.35;
-    for (let i = 0; i < 7; i++) {
-      ctx.beginPath();
-      ctx.moveTo(0, i * 38);
-      ctx.bezierCurveTo(85, i * 38 + 28, 170, i * 38 - 24, 256, i * 38 + 14);
-      ctx.stroke();
-    }
+    if (isLight) {
+      // 1. Bianco Carrara / Calacatta Luxury White Marble
+      const baseGrad = ctx.createLinearGradient(0, 0, 512, 512);
+      baseGrad.addColorStop(0.0, '#ffffff');
+      baseGrad.addColorStop(0.3, '#f5f7fa');
+      baseGrad.addColorStop(0.7, '#eef2f6');
+      baseGrad.addColorStop(1.0, '#fafbfc');
+      ctx.fillStyle = baseGrad;
+      ctx.fillRect(0, 0, 512, 512);
 
-    ctx.strokeStyle = veinHex2;
-    ctx.lineWidth = 1.2;
-    ctx.globalAlpha = 0.25;
-    for (let i = 0; i < 5; i++) {
+      // Subtle soft smoky clouding
+      ctx.fillStyle = 'rgba(176, 190, 197, 0.12)';
+      for (let i = 0; i < 9; i++) {
+        const cx = (i * 73) % 512;
+        const cy = (i * 97) % 512;
+        const r = 60 + (i % 4) * 35;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Primary smoky-grey branching fractures
+      ctx.strokeStyle = 'rgba(100, 116, 139, 0.38)';
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
       ctx.beginPath();
-      ctx.moveTo(i * 52, 0);
-      ctx.bezierCurveTo(i * 52 - 20, 90, i * 52 + 30, 180, i * 52 + 10, 256);
+      ctx.moveTo(0, 110);
+      ctx.bezierCurveTo(140, 160, 260, 80, 512, 220);
       ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(80, 512);
+      ctx.bezierCurveTo(190, 360, 310, 390, 512, 340);
+      ctx.stroke();
+
+      // Secondary fine veins & branching offshoots
+      ctx.strokeStyle = 'rgba(71, 85, 105, 0.28)';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(170, 145);
+      ctx.bezierCurveTo(240, 220, 290, 270, 380, 290);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(270, 95);
+      ctx.bezierCurveTo(340, 140, 390, 110, 480, 160);
+      ctx.stroke();
+
+      // Delicate micro-veins
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+      ctx.lineWidth = 1.0;
+      for (let i = 0; i < 6; i++) {
+        const sy = 60 + i * 75;
+        ctx.beginPath();
+        ctx.moveTo(0, sy);
+        ctx.bezierCurveTo(150, sy + 30, 340, sy - 30, 512, sy + 15);
+        ctx.stroke();
+      }
+    } else {
+      // 2. Nero Marquina / Black Obsidian Luxury Dark Marble
+      const baseGrad = ctx.createLinearGradient(0, 0, 512, 512);
+      baseGrad.addColorStop(0.0, '#0c0e12');
+      baseGrad.addColorStop(0.4, '#14181f');
+      baseGrad.addColorStop(0.7, '#101318');
+      baseGrad.addColorStop(1.0, '#0a0c10');
+      ctx.fillStyle = baseGrad;
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Deep mineral smoky undertones
+      ctx.fillStyle = 'rgba(30, 41, 59, 0.35)';
+      for (let i = 0; i < 8; i++) {
+        const cx = (i * 89) % 512;
+        const cy = (i * 67) % 512;
+        const r = 70 + (i % 3) * 40;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Crisp white calcite lightning fractures
+      ctx.strokeStyle = 'rgba(248, 250, 252, 0.75)';
+      ctx.lineWidth = 2.4;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(0, 390);
+      ctx.bezierCurveTo(120, 350, 210, 420, 340, 270);
+      ctx.bezierCurveTo(410, 180, 460, 210, 512, 120);
+      ctx.stroke();
+
+      // Branching white calcite capillaries
+      ctx.strokeStyle = 'rgba(226, 232, 240, 0.55)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(170, 375);
+      ctx.bezierCurveTo(220, 310, 280, 300, 360, 340);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(340, 270);
+      ctx.bezierCurveTo(390, 310, 440, 360, 512, 380);
+      ctx.stroke();
+
+      // Pale grey crystalline vein webs
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.32)';
+      ctx.lineWidth = 1.0;
+      for (let i = 0; i < 5; i++) {
+        const sy = 80 + i * 85;
+        ctx.beginPath();
+        ctx.moveTo(0, sy);
+        ctx.bezierCurveTo(160, sy - 25, 320, sy + 35, 512, sy - 15);
+        ctx.stroke();
+      }
     }
 
     const tex = new THREE.CanvasTexture(canvas);
@@ -1471,14 +1649,14 @@ export class ZurichSwampView {
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
-    ctx.fillStyle = '#241e19';
+    ctx.fillStyle = '#181d24';
     ctx.fillRect(0, 0, 1024, 128);
 
-    ctx.strokeStyle = '#ffd54f';
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2.5;
     ctx.strokeRect(8, 14, 1008, 100);
 
-    ctx.fillStyle = '#ffe082';
+    ctx.fillStyle = '#e2e8f0';
     ctx.font = 'bold 42px serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -1498,14 +1676,14 @@ export class ZurichSwampView {
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
-    ctx.fillStyle = '#2b241d';
+    ctx.fillStyle = '#1e242d';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.strokeStyle = '#e6b84a';
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 3;
     ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
 
-    ctx.fillStyle = '#ffe082';
+    ctx.fillStyle = '#f8fafc';
     ctx.font = 'bold 34px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -1520,6 +1698,93 @@ export class ZurichSwampView {
         const y = 85 + (i + 0.5) * ((1024 - 170) / 8);
         ctx.fillText(String(8 - i), 64, y);
       }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  createGeminiArgonPlaqueTexture() {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const grad = ctx.createLinearGradient(0, 0, 0, 128);
+    grad.addColorStop(0, '#2d251d');
+    grad.addColorStop(0.5, '#1e1814');
+    grad.addColorStop(1, '#15110e');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 512, 128);
+
+    ctx.strokeStyle = '#c5a059';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(6, 6, 500, 116);
+    ctx.strokeStyle = '#e0c080';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(12, 12, 488, 104);
+
+    ctx.fillStyle = '#e0c080';
+    for (const [rx, ry] of [[18, 18], [494, 18], [18, 110], [494, 110]]) {
+      ctx.beginPath();
+      ctx.arc(rx, ry, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.font = 'bold 15px sans-serif';
+    ctx.fillStyle = '#b0bec5';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('STADT ZÜRICH · LIMMATQUAI', 256, 36);
+
+    ctx.font = 'bold 24px sans-serif';
+    ctx.fillStyle = '#ffe082';
+    ctx.fillText('✦ MADE WITH GEMINI 4 ARGON ✦', 256, 76);
+
+    ctx.font = 'italic 12px sans-serif';
+    ctx.fillStyle = '#90a4ae';
+    ctx.fillText('CarChess3D · Family Wizard Chess Demo', 256, 102);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  createHurlimannCampusSignTexture() {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.fillStyle = '#1c222a';
+    ctx.fillRect(0, 0, 256, 64);
+
+    ctx.strokeStyle = '#4285f4';
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(4, 4, 248, 56);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('HÜRLIMANN AREAL', 128, 18);
+
+    ctx.fillStyle = '#90caf9';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Brandschenkestrasse 110', 128, 34);
+
+    // 4 subtle Google primary color dots: Blue, Red, Yellow, Green
+    const colors = ['#4285f4', '#ea4335', '#fbbc05', '#34a853'];
+    for (let i = 0; i < 4; i++) {
+      ctx.fillStyle = colors[i];
+      ctx.beginPath();
+      ctx.arc(104 + i * 16, 48, 3, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     const tex = new THREE.CanvasTexture(canvas);

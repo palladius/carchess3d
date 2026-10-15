@@ -523,3 +523,12 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
 - **Resumption / Persistence**:
   - Status/mount check recipe: `just turbosebux` (or `bash tools/model-pipeline/local/ensure_turbosebux.sh`).
   - Generate 3D shape recipe: `just local3d-shape <image> <label> [*args]`.
+
+### 10.12 Zurich Fairytale Diorama Panorama Generation with Nanobanana (`assets/environments/zurich_panorama.jpg`)
+- **Objective**: Replace the placeholder primitive box guild houses ("orribili rettangoloni") and crude cone mountains with an authentic, fairytale diorama panorama of Zurich, Lake Zurich, and the Swiss Alps.
+- **Tool**: Nanobanana MCP tool `generate_image`.
+- **Prompt**:
+  > "Panoramic fairy-tale view of Zurich Switzerland at twilight, showing the Limmat river flowing into Lake Zurich, historic Grossmünster twin towers, Fraumünster church, Münsterbrücke stone bridge, old town guild houses, and snow-capped Swiss Alps in the background, magical enchanted storybook aesthetic, high detail, warm window lights reflecting on the water, evening twilight sky."
+- **Output**: `assets/environments/zurich_panorama.jpg` (`1584×672`, 1.1 MB JPEG).
+- **Integration**: Mapped to a curved panoramic horizon diorama mesh (`z = -22.0m`) in `src/views/ZurichSwampView.js`, eliminating box houses and cone peaks while preserving the 3D Grossmünster twin towers and Münsterbrücke stone bridge with river lantern reflections.
+
