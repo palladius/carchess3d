@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.71] - 2026-10-15
+
+- 🧹 **Merge `generate_swamp_classic_models` (`23db733`)**: remove the agent scratch note `RESUME_AFTER_REBOOT.md` from the repo root (it was only a WIP note after a reboot, not documentation). No functional changes.
+
 ## [0.3.70] - 2026-10-14
 
 - 🔍👑♟️ **Piece Visual Recognition Engine, True Obsidian vs Ivory Contrast, Universal 3D GLB Role Add-Ons & 5-Solution Adversarial VLM Benchmark (`#32`, `src/views/PieceClarityHelper.js`, `src/views/PieceView.js`, `src/listeners/HudListener.js`, `src/listeners/ProfileStorageListener.js`, `src/core/Registry.js`, `tools/model-pipeline/bake_universal_role_addons.py`, `scripts/critic_recognizability.py`, `docs/spec/SPEC.md`, `article/SHOWCASE_VISUAL_CLARITY.md`)**:
