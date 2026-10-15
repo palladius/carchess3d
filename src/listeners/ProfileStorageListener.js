@@ -20,7 +20,8 @@ function createDefaultProfileEntry(profileId) {
     fen: null,
     pgn: '',
     luck: 0,
-    clarityMode: 's5',
+    clarityMode: 's2',
+    showRoleLetters: false,
     stickers: [],
     stats: {
       wins: 0,
@@ -99,11 +100,14 @@ export class ProfileStorageListener {
         this.switchProfile(e.profileId || 'ale', e.restoreBoard !== false);
       }),
       bus.on('CLARITY_MODE_CHANGED', (e) => {
+        const entry = this.getProfile(this.activeProfile);
         if (e?.mode) {
-          const entry = this.getProfile(this.activeProfile);
           entry.clarityMode = String(e.mode).toLowerCase();
-          this.saveStore();
         }
+        if (typeof e?.showRoleLetters === 'boolean') {
+          entry.showRoleLetters = e.showRoleLetters;
+        }
+        this.saveStore();
       }),
     );
   }
@@ -201,7 +205,7 @@ export class ProfileStorageListener {
         urlClarityOverride = p.get('clarity').toLowerCase();
       }
     }
-    const effectiveClarityMode = urlClarityOverride || entry.clarityMode || 's5';
+    const effectiveClarityMode = urlClarityOverride || entry.clarityMode || 's2';
 
     this.ctx?.bus?.emit({
       type: 'PROFILE_RESTORED',
@@ -210,6 +214,7 @@ export class ProfileStorageListener {
       pgn: entry.pgn,
       luck: entry.luck,
       clarityMode: effectiveClarityMode,
+      showRoleLetters: Boolean(entry.showRoleLetters),
       stickers: [...entry.stickers],
       stats: { ...entry.stats },
     });
@@ -218,6 +223,7 @@ export class ProfileStorageListener {
         type: 'CLARITY_MODE_CHANGED',
         mode: entry.clarityMode,
         force2dIcons: entry.clarityMode === 's1',
+        showRoleLetters: Boolean(entry.showRoleLetters),
       });
     }
     return entry;

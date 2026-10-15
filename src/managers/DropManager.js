@@ -48,6 +48,8 @@ export class DropManager {
       ['w', new Set()],
       ['b', new Set()],
     ]);
+    this.lastD20Roll = 20;
+    this._lastUnitRoll = 0.5;
     this.offs = [];
   }
 
@@ -58,13 +60,37 @@ export class DropManager {
     this.ctx = ctx;
     this.offs.push(
       ctx.bus.on('PIECE_CAPTURED', (e) => this.onPieceCaptured(e)),
+      ctx.bus.on('D20_ROLL_REQUESTED', (e) => this.onD20RollRequested(e)),
       ctx.bus.on('BOARD_RESET', () => {
         this.luckByPlayer.set('w', 0);
         this.luckByPlayer.set('b', 0);
+        this.lastD20Roll = 20;
         this.emitLuckChanged('w');
         this.emitLuckChanged('b');
       }),
     );
+  }
+
+  /**
+   * Rolls the Ruby-Marble d20 (`1..20`) on demand (when player clicks the HUD d20 or presses 'D').
+   * @param {{ playerId?: string, reason?: string }} [e]
+   */
+  onD20RollRequested(e = {}) {
+    const playerId = e.playerId || 'w';
+    const raw = this.ctx?.rng ? this.ctx.rng.next() : Math.random();
+    const d20Roll = Math.max(1, Math.min(20, Math.floor(raw * 20) + 1));
+    this.lastD20Roll = d20Roll;
+    const tier = d20Roll === 20 ? 'golden_crit' : d20Roll >= 15 ? 'shiny' : 'normal';
+    this.ctx?.bus.emit({
+      type: 'D20_ROLLED',
+      playerId,
+      d20Roll,
+      tier,
+      isNat20: d20Roll === 20,
+      isNat1: d20Roll === 1,
+      reason: e.reason || 'manual',
+    });
+    return d20Roll;
   }
 
   getLuck(playerId = 'w') {
@@ -95,6 +121,13 @@ export class DropManager {
     const hardPity = newLuck >= this.cfg.luckMax;
     const tierIndex = this.pickTierIndex(t, hardPity);
     const tier = SPECTACLE_TIERS[tierIndex];
+    const d20Roll =
+      tierIndex >= GOLDEN_CRIT_INDEX
+        ? 20
+        : tierIndex === 1
+          ? 15 + (Math.floor(this._lastUnitRoll * 997) % 5)
+          : 1 + (Math.floor(this._lastUnitRoll * 997) % 14);
+    this.lastD20Roll = d20Roll;
 
     let sticker = null;
     if (tierIndex >= GOLDEN_CRIT_INDEX) {
@@ -105,6 +138,8 @@ export class DropManager {
       type: 'DROP_SPAWNED',
       playerId,
       tier,
+      d20Roll,
+      isNat20: d20Roll === 20,
       spectacle: this.resolveSpectacleLabel(e.attacker, tier),
       sticker,
       attacker: e.attacker,
@@ -118,12 +153,17 @@ export class DropManager {
   }
 
   pickTierIndex(t, hardPity) {
-    if (hardPity) return GOLDEN_CRIT_INDEX;
+    if (hardPity) {
+      this._lastUnitRoll = 1.0;
+      return GOLDEN_CRIT_INDEX;
+    }
     const w = this.cfg.baseWeights.map(
       (base, i) => base + (this.cfg.luckyWeights[i] - base) * t,
     );
     const total = w.reduce((acc, val) => acc + val, 0);
-    let roll = (this.ctx?.rng ? this.ctx.rng.next() : 0.5) * total;
+    const unit = this.ctx?.rng ? this.ctx.rng.next() : 0.5;
+    this._lastUnitRoll = unit;
+    let roll = unit * total;
     for (let i = 0; i < w.length; i++) {
       roll -= w[i];
       if (roll < 0) return i;
@@ -172,6 +212,7 @@ export class DropManager {
       luck,
       maxLuck: this.cfg.luckMax,
       t,
+      d20Roll: this.lastD20Roll,
     });
   }
 

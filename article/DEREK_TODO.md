@@ -8,26 +8,23 @@ Ciao Riccardo! Quando arrivi al lavoro e apri **Derek** (la tua macchina corp), 
 
 ### 1. 🔍 Estrazione Chat Logs & Prompt Interni
 - [x] **Chat Antigravity / Gemini su Derek** *(Completato in [`DEREK_JETSKI_FORENSICS.md`](DEREK_JETSKI_FORENSICS.md) e nel Post-Mortem [`INVESTIGATION.md`](INVESTIGATION.md))*:
-  Cerca se ci sono state conversazioni su Derek (in `~/.gemini/jetski/brain/` o via CLI) relative a:
-  - Generazione di video con Veo (es. script interni, prompt per le battaglie 16:9).
-  - Prompt di Nano Banana per i concept 2D iniziali dei bambini o delle guardie svizzere.
-  - Test su Imagen / Lyria 3 per la colonna sonora.
-- [x] **Esportazione log**: Estratte tutte le 41 sessioni (`13.100+` step, `760M+` token) e la timeline al secondo in [`INVESTIGATION.md`](INVESTIGATION.md).
+  Estratte tutte le **54 sessioni di `derek`** in [`article/DEREK_JETSKI_FORENSICS.md`](DEREK_JETSKI_FORENSICS.md) e [`article/sources/derek_chats_list.md`](sources/derek_chats_list.md), e bonificate le **22 sessioni di `pupurabbux`** in [`article/sources/chats_list.md`](sources/chats_list.md).
+- [x] **Esportazione log**: Indici JSON e Markdown sanificati in `article/sources/telemetry/chats_index.json` e `article/sources/telemetry/derek_chats_index.json`, più timeline al secondo in [`INVESTIGATION.md`](INVESTIGATION.md).
 
 ### 2. 🎬 Recupero Asset Multimediali ad Alta Risoluzione
 - [x] **Video Veo non ancora sincronizzati**:
-  Tutti i 36 video `.mp4` certificati dal Video Critic (`>= 8.0/10`) sono committati in `assets/battles/` e tracciati in `docs/battles/video_audit.yaml`.
+  Tutti i 72 file video (`36 .mp4` + `36 .webm`) certificati dal Video Critic (`>= 8.0/10`) sono versionati in `assets/battles/videos/` e tracciati in `docs/battles/video_audit.yaml`.
 - [x] **Musica Lyria 3**:
-  Tutte e 4 le tracce Lyria 3 (`chess-strings-theme.mp3`, `chess-strings-bg.mp3`, `combat-suspense.mp3`, `checkmate-jingle.mp3`) sono committate in `assets/audio/`.
+  Tutte e 4 le tracce Lyria 3 (`chess-strings-theme.mp3`, `chess-strings-bg.mp3`, `combat-suspense.mp3`, `checkmate-jingle.mp3`) e le 31 clip vocali della famiglia sono versionate in `assets/audio/`.
 
 ### 3. 🌿 Sincronizzazione Git & Worktree
-- [x] Sincronizzato e mergiato in `main` (`v0.3.74`).
-- [x] Verificato che tutti i percorsi e i file generati su `pupurabbux` e `derek` (`article/`) siano unificati.
+- [x] Sincronizzato e mergiato in `main` (`v0.3.76`).
+- [x] Tutti i percorsi e gli showcase (`SHOWCASE_BEFORE_AFTER.md`, `SHOWCASE_VISUAL_CLARITY.md`, `DEREK_JETSKI_FORENSICS.md`, `INVESTIGATION.md`) sono verificati e integrati in `article/ARTICLE.md`.
 
 ### 4. 📝 Revisione Finale dell'Articolo
-- [ ] Leggi la bozza completa in `article/ARTICLE.md`.
-- [ ] Aggiungi eventuali aneddoti o dettagli vissuti in prima persona durante il viaggio a Colmar per il 10° anniversario di matrimonio.
-- [ ] Se hai scattato una foto reale a Colmar (tu e Kate brindando con Riesling o passeggiando a Petite Venise!), salvala in `article/assets/gallery/colmar_anniversary.jpg` per metterla come copertina romantica a contrasto con la scheda madre di casa! ❤️🍷
+- [x] Integrata la bozza completa in [`article/ARTICLE.md`](ARTICLE.md) unendo `pupurabbux` + `derek`, gli 8 loop agentici, il benchmark `S1..S5` e il **Daily UAT Review** con Antigravity ([`label:"gemini-uat"`](https://github.com/palladius/carchess3d/issues?q=state%3Aopen%20label%3A%22gemini-uat%22)).
+- [x] Pubblicata in locale e in modalità "in sordina" (`_build: { list: never, render: always }`) su `ricc.rocks` (`zzo.ricc.rocks`).
+- [ ] *(Opzionale per Riccardo)* Se hai scattato una foto reale a Colmar (tu e Kate brindando con Riesling o passeggiando a Petite Venise!), salvala in `article/assets/gallery/colmar_anniversary.jpg` per metterla come copertina romantica a contrasto con la scheda madre di casa! ❤️🍷
 
 ---
 

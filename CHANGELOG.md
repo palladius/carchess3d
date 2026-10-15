@@ -1,10 +1,44 @@
 # Changelog
 
-## [0.3.76] - 2026-10-15
+## [0.3.79] - 2026-10-15
 
 - ✂️🎬 **Trim Selezione Iniziale da Video & GIF UAT (`scripts/daily_uat_playtest.py`, `article/assets/gallery/daily_uat_gameplay_20261015.gif`, `docs/visual-progress/daily_uat_gameplay_20261015.gif`, GitHub Release `uat-media-20261015`)**:
   - Tagliata la schermata modale di selezione iniziale (`#hud-setup-modal`, primi `27s`) dal video `uat_gameplay.mp4` (`74.2s` di puro gameplay 3D) e dalla GIF `daily_uat_gameplay_20261015.gif` (`26s` a `2.8x` con rotazione camera, toggle 2D/3D, mosse e scontro 3D Battle Arena `Ale vs Puffin`), aggiornando anche la release GitHub `uat-media-20261015` collegata alla **[Issue #36](https://github.com/palladius/carchess3d/issues/36)**.
   - Aggiornato `scripts/daily_uat_playtest.py` per chiudere immediatamente il modale di setup allo startup e calcolare automaticamente `trim_start_s` (`-ss`) durante il post-processing `ffmpeg`.
+
+## [0.3.78] - 2026-10-15
+
+- 👑📐✨ **Piece Clarity Refinements (`A1`, `A2`, `A3`): Clean `S2` 3D Default, Single Head-Juxtaposed Sculpted Crowns, 100% Square-Aligned `2D` Medallions & Simplified Single-Icon Design (`#32`, `src/views/PieceClarityHelper.js`, `src/views/PieceView.js`, `src/listeners/HudListener.js`, `src/listeners/ProfileStorageListener.js`, `src/core/Registry.js`, `tools/model-pipeline/bake_universal_role_addons.py`, `docs/models-provenance.yaml`, `docs/spec/SPEC.md`)**:
+  - **A1 — Default Clean `S2` in 3D, Auto-Toggle on `📐 2D`, 100% Square Alignment (`y = 0.04m`) & Simplified Single-Icon Medallions**:
+    - **Default Mode (`S2`)**: In normal 3D play (`topDownCamera = false`), all floating 2D billboards, pedestal wreaths, and 2D discs are **disabled by default**, keeping ONLY True Matte Obsidian Black vs Warm Ivory White contrast (`useObsidianContrast: true`) and the single sleek head-mounted 3D crown (`showUniversal3dAddon: true`).
+    - **`📐 2D` Button Auto-Toggle (`#hud-top-btn`)**: Pressing `📐 2D` (`topDownCamera = true`) automatically toggles ON the 2D top-cap medallions (`showZenith2dDisc = true`) in any active clarity mode (`s1..s5`) and hides them when returning to `3D` (or pressing `R` Reset Camera).
+    - **100% Square Alignment (Zero Parallax Offset)**: Placed `Zenithal2DClassicDisc` at **board level (`y = ZENITH_DISC_BOARD_Y = 0.04m`, identical across all 6 piece types)** instead of `y = pieceHeight + 0.30m` (`1.20m..2.15m`), hides the 3D piece body/pedestal while `showZenith2dDisc` is active on board pieces, and aims the `2D` top-down camera straight down at `(0, 0.04, 0)` so all 32 medallions sit 100% dead-center inside their squares (`a1..h8`) with zero perspective parallax offset.
+    - **Simplified Single-Icon 2D Medallion + Optional Accessibility Letters/Braille Toggle**: By default (`showRoleLetters = false`), each 2D medallion renders **ONLY ONE large, crisp, dead-centered classic chess icon (`♚ ♛ ♜ ♝ ♞ ♟`)** — no `K, Q, R, B, N, P` letters and no double-stacked polygon+glyph. Added an optional accessibility checkbox in `#hud-setup-modal` (`#hud-setup-letters-toggle` / `?letters=1` / `?braille=1`, persisted per profile) for players who want role letters + Braille (`K ⠇`, `Q ⠟`, `R ⠗`, `B ⠃`, `N ⠝`, `P ⠏`).
+  - **A2 & A3 — Stripped Duplicate Baked `.glb` Nodes & Rebuilt Single Head-Juxtaposed Sculpted `S2` Crowns (`computeGroundedHeadAnchor`)**:
+    - **Eliminated Duplicate + Floating Crowns**: Stripped the duplicate baked `UniversalRoleAddon_*` meshes from all 22 `.glb` files (`tools/model-pipeline/bake_universal_role_addons.py --strip`, verified via `just provenance` across all 28 models) and added `computeGroundedHeadAnchor(THREE, holder, transform, desc.type)` in `PieceView.attachGlbToPiece` so the single runtime `S2` crown mounts inside `bodyContainer` directly on the character's actual grounded head top (`headTopY - 0.024m`, e.g. `1.16m` on King Riccardo and `1.12m` on Queen Kate instead of floating at `1.85m`/`1.65m`).
+    - **Zero-Cube Sleek Sculpted 3D Royal Geometry (All 6 Roles)**: Rebuilt `buildUniversalGlbRoleAddOn` with head-proportioned (`r ≈ 0.11m..0.148m`), high-segment royal geometry and zero `BoxGeometry` cubes:
+      - `k` (King): Imperial arched diadem with 8 cabochon jewels, 4 intersecting pearl arches, velvet cap, monde orb, and flared pyramidal Cross Pattee finial.
+      - `q` (Queen): Graceful 8-spire curved tiara coronet with 8 delicate proportionate pearls (`r = 0.015m`) and central sovereign jewel.
+      - `b` (Bishop): Sculpted liturgical mitre (`LatheGeometry` profile) + lappets + tapered pastoral cross finial.
+      - `n` (Knight): Sleek Corinthian warhorse crest with swept curved dorsal plume and aerodynamic bilateral side-crests.
+      - `r` (Rook): Curved 6-merlon cylindrical mural crown (`CylinderGeometry` radial segments) with battlement molding.
+      - `p` (Pawn): Braided circlet + Staunton finial sphere + tapered Swiss-Guard pike tip.
+
+## [0.3.77] - 2026-10-15
+
+- 🖱️🔍❓🎲 **Mouse Wheel Zoom by Default, Interactive Help Modal (`H` / `?`), `🔄 Nuova` Confirmation Guard & 3D Solid Ruby-Marble d20 (`src/core/Registry.js`, `src/main.js`, `src/listeners/HudListener.js`, `src/managers/DropManager.js`, `src/views/VFXPoolView.js`, `tests/core.test.mjs`, `tests/drop-manager.test.mjs`, `docs/spec/SPEC.md`)**:
+  - **Mouse Wheel Zoom Default (`applyWheelZoomOrOrbit`)**: Fixed the mouse wheel utilization bug where scrolling the wheel tilted the camera up/down (`alto/basso`) instead of zooming in/out. Set `controls.trackpadTwoFingerRotate = false` by default so the mouse wheel zooms in (`deltaY < 0 -> _dollyIn`) and out (`deltaY > 0 -> _dollyOut`) out of the box without requiring `Ctrl`, while Left-Click + Drag (or `Alt + Wheel`, or `?trackpad=rotate`) orbits/tilts the 3D camera and `Shift + Wheel` pans.
+  - **Fixed Keyboard `+`/`-` & HUD Zoom Dolly Direction**: Aligned `+`/`=` and `#hud-zoom-in-btn` to `_dollyIn` (zoom closer) and `-`/`_` and `#hud-zoom-out-btn` to `_dollyOut` (zoom further).
+  - **Help & Shortcuts Modal (`H` / `?` + `#hud-help-btn`)**: Added keyboard shortcuts `H`, `h`, and `?` (plus a `?` vector button in the bottom dock) that toggle a bilingual (`IT`/`EN`) 4-section Help & Controls cheat-sheet (`#hud-help-modal`), and wired single-key hotkeys `V` (2D/3D top-down toggle), `F` (flip board White ↔ Black), `C` (cycle S5..Off piece clarity), and `D` (roll the Ruby d20).
+  - **Confirmation Guard on `🔄 Nuova` (`#hud-confirm-new-modal`)**: Clicking `🔄 Nuova` (`#hud-new-btn`) now opens a safety confirmation modal (`requestNewGame()` -> `confirmNewGame()` / `cancelNewGame()`, supporting `Enter` and `Escape`) so players never accidentally wipe an ongoing 32-piece match.
+  - **Solid Ruby-Marble d20 (`🎲 Dado d20 Rubino`) Replaces `0/12` Luck Bar**: Replaced the confusing `0 / 12` luck progress bar with a 3D **20-sided icosahedron (`THREE.IcosahedronGeometry`) in solid ruby-red marble** (`opacity: 0.92` veined ruby shell over a `0.98` deep-ruby core, silver-white bevels, and crisp engraved white numerals `1..20`) that physically tumbles and bounces on the 3D chessboard (`VFXPoolView.createRubyMarbleD20Prop` + `triggerRubyD20Roll`) and spins in the HUD (`#hud-d20-btn`) on every capture or when clicking the die / pressing `D`.
+
+## [0.3.76] - 2026-10-15
+
+- 📰🧹 **Article Unification, Privacy Sanitization, Antigravity Daily UAT Section & `ricc.rocks` Sync (`article/ARTICLE.md`, `article/DEREK_TODO.md`, `article/list_carchess_chats.py`, `article/sources/chats_list.md`, `article/sources/derek_chats_list.md`)**:
+  - Fixed Python syntax error in `article/list_carchess_chats.py` and filtered out 251 unrelated personal sessions from `article/sources/chats_list.md` and `article/sources/telemetry/chats_index.json` (`-23,041` lines), keeping only the **22 true `pupurabbux` CarChess3D sessions** and exporting the **54 `derek` CarChess3D sessions** (`article/sources/derek_chats_list.md`).
+  - Unified `article/ARTICLE.md` with the 8 autonomous Antigravity loops/Swarms on `derek`, the 16:9 Hero Banner (`article_hero_banner_16x9.png`), the "Vero UAT" photo of Ale & Seby (`kids_playing_carchess3d.jpg`), the `S1..S5` Blind VLM benchmark (`clarity_comparison_0deg_30deg.png`), and a dedicated section on the **Autonomous Antigravity Daily UAT Review** via GitHub Issues ([`label:"gemini-uat"`](https://github.com/palladius/carchess3d/issues?q=state%3Aopen%20label%3A%22gemini-uat%22), Issues `#18` & `#36`).
+  - Synced the article and all assets to `ricc.rocks` (`zzo.ricc.rocks`) in unlisted `under_review` mode (`build: { list: never, render: always }`) and marked `article/DEREK_TODO.md` completed.
 
 ## [0.3.75] - 2026-10-15
 

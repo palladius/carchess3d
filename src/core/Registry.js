@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.76';
+export const APP_VERSION = '0.3.79';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -1179,7 +1179,14 @@ export const I18N = Object.freeze({
     setStone: '⚫🗿 Nero: Pietra Magica (Wizard)',
     turnWhite: 'Turno del Bianco (Avorio & Oro)',
     turnBlack: 'Turno del Nero (Ossidiana & Argento)',
-    luckBar: '🍀 Barra della Fortuna',
+    luckBar: '🎲 Dado d20 Rubino',
+    d20RollTooltip:
+      '🎲 Dado d20 in marmo rosso rubino! Si tira ad ogni cattura (20 = Critico Dorato!) oppure clicca / premi D per tirarlo sulla scacchiera 3D!',
+    confirmNewTitle: '⚠️ Ricominciare la partita da capo?',
+    confirmNewSub:
+      'Tutti i 32 pezzi torneranno alla posizione iniziale e le mosse della partita in corso andranno perse.',
+    confirmNewCancelBtn: '✕ Annulla',
+    confirmNewYesBtn: '🔄 Sì, Nuova Partita!',
     hintBtn: '💡 Suggerimento',
     flipCamBtn: '🔄 Gira Scacchiera',
     topCamBtn: '📐 Vista dall’Alto',
@@ -1268,12 +1275,17 @@ export const I18N = Object.freeze({
     bishopVariantRigged: '🐉 Ale Rigged (Drago)',
     clarityBtn: '🔍 Chiarezza Pezzi',
     clarityLabel: '🔍 Chiarezza Visiva (Riconoscimento Pezzi):',
-    clarityS5: '✨ S5: Ibrida Totale (Add-on 3D + Ossidiana + 2D dall’Alto)',
-    clarityS1: '📐 S1: Icone 2D Classiche B/N (Auto Verticale & Toggle)',
-    clarityS2: '👑 S2: Add-On 3D Statici Universali (Corona, Picca, Cavallo Largo)',
-    clarityS3: '🌑 S3: Contrasto Puro Nero Ossidiana vs Bianco Avorio',
+    clarityS2: '👑 S2 (Default 3D): Corone & Stemmi 3D sulla Testa + Contrasto Ossidiana/Avorio',
+    clarityS1: '📐 S1: Medaglioni 2D Classici B/N Allineati alla Casella',
+    clarityS3: '🌑 S3: Solo Contrasto Puro Nero Ossidiana vs Bianco Avorio',
     clarityS4: '🛡️ S4: Ghirlanda 3D Piedistallo + Stemma 2D Flottante',
+    clarityS5: '✨ S5: Ibrida Completa (Corone 3D + Ghirlanda + Ossidiana + 2D dall’Alto)',
     clarityOff: '🎨 Off: Solo Modelli 3D Originali',
+    helpBtn: '❓ Aiuto & Comandi (H / ?)',
+    helpModalTitle: '🏰❓ Guida Rapida, Telecamera 3D & Scorciatoie',
+    helpModalSub:
+      'Tutto quello che serve per muovere la telecamera, usare la rotella per lo zoom e goderti gli Scacchi di Famiglia (Premi H, ? o Esc per chiudere)',
+    clarityLettersLabel: '🔤 Accessibilità: Mostra lettere e Braille (K, Q, R, B, N, P) sulle icone 2D',
   },
   en: {
     title: 'CarChess3D · Family Wizard Chess',
@@ -1306,7 +1318,14 @@ export const I18N = Object.freeze({
     setStone: '⚫🗿 Black: Wizard Stone',
     turnWhite: 'White’s Turn (Ivory & Gold)',
     turnBlack: 'Black’s Turn (Obsidian & Silver)',
-    luckBar: '🍀 Luck Meter',
+    luckBar: '🎲 Ruby d20',
+    d20RollTooltip:
+      '🎲 Solid Ruby-Marble d20! Rolls on every capture (20 = Golden Crit!) or click / press D to roll it on the 3D board!',
+    confirmNewTitle: '⚠️ Restart match from scratch?',
+    confirmNewSub:
+      'All 32 pieces will reset to their starting squares and the current match progress will be lost.',
+    confirmNewCancelBtn: '✕ Cancel',
+    confirmNewYesBtn: '🔄 Yes, New Match!',
     hintBtn: '💡 Magic Hint',
     flipCamBtn: '🔄 Flip Board',
     topCamBtn: '📐 Top-Down View',
@@ -1395,14 +1414,75 @@ export const I18N = Object.freeze({
     bishopVariantRigged: '🐉 Ale Rigged (Dragon)',
     clarityBtn: '🔍 Piece Clarity',
     clarityLabel: '🔍 Visual Clarity (Piece Recognition):',
-    clarityS5: '✨ S5: Hybrid All-In (3D Add-ons + Obsidian + Auto-2D Top)',
-    clarityS1: '📐 S1: Classic 2D B/W Icons (Auto Vertical & Toggle)',
-    clarityS2: '👑 S2: Universal 3D Static Role Add-Ons (Crowns, Pike, Wide Horse)',
-    clarityS3: '🌑 S3: Pure Obsidian Black vs Ivory White Contrast',
+    clarityS2: '👑 S2 (Default 3D): Head-Mounted 3D Crowns/Crests + Obsidian/Ivory Contrast',
+    clarityS1: '📐 S1: Square-Aligned Classic 2D B/W Medallions',
+    clarityS3: '🌑 S3: Pure Obsidian Black vs Ivory White Contrast Only',
     clarityS4: '🛡️ S4: 3D Pedestal Role Wreath + Floating 2D Crest',
+    clarityS5: '✨ S5: Hybrid Full (3D Crowns + Wreath + Obsidian + Auto-2D Top)',
     clarityOff: '🎨 Off: Original 3D Models Only',
+    helpBtn: '❓ Help & Controls (H / ?)',
+    helpModalTitle: '🏰❓ Quick Guide, 3D Camera & Shortcuts',
+    helpModalSub:
+      'Everything you need to control the 3D camera, zoom with the mouse wheel, and enjoy Family Wizard Chess (Press H, ? or Esc to close)',
+    clarityLettersLabel: '🔤 Accessibility: Show role letters & Braille (K, Q, R, B, N, P) on 2D icons',
   },
 });
+
+/**
+ * Pure camera mouse-wheel / trackpad gesture handler for `OrbitControls`.
+ *
+ * - **Default (`controls.trackpadTwoFingerRotate === false`)**: Mouse wheel (and 2-finger scroll)
+ *   zooms in (`deltaY < 0` -> `_dollyIn`) and zooms out (`deltaY > 0` -> `_dollyOut`).
+ * - **`Ctrl` or `Cmd` (`metaKey`) + Wheel / Trackpad Pinch**: Always zooms in/out.
+ * - **`Shift` + Wheel**: Pans the camera target (`_pan`).
+ * - **`Alt` + Wheel** (or 2-finger scroll when `controls.trackpadTwoFingerRotate === true`):
+ *   Orbits/rotates left/right (`_rotateLeft`) and up/down (`_rotateUp`).
+ *
+ * @param {object} controls
+ * @param {{ clientX?: number, clientY?: number, deltaX?: number, deltaY?: number, ctrlKey?: boolean, metaKey?: boolean, altKey?: boolean, shiftKey?: boolean }} event
+ * @returns {'zoom'|'pan'|'rotate'}
+ */
+export function applyWheelZoomOrOrbit(controls, event = {}) {
+  if (!controls) return 'zoom';
+  controls._updateZoomParameters?.(event.clientX ?? 0, event.clientY ?? 0);
+
+  const deltaX = Number(event.deltaX ?? 0);
+  const deltaY = Number(event.deltaY ?? 0);
+  const zoomSpeed = Number(controls.zoomSpeed ?? 1.25);
+  const rotateSpeed = Number(controls.rotateSpeed ?? 0.95);
+
+  if (event.shiftKey && !event.ctrlKey && !event.metaKey) {
+    controls._pan?.(-deltaX * 0.65, -deltaY * 0.65);
+    controls.update?.();
+    return 'pan';
+  }
+
+  const shouldZoom =
+    Boolean(event.ctrlKey) ||
+    Boolean(event.metaKey) ||
+    (!event.altKey && !controls.trackpadTwoFingerRotate);
+
+  if (shouldZoom) {
+    const pinchScale = Math.pow(
+      0.95,
+      zoomSpeed * Math.min(8.0, Math.abs(deltaY) * 0.025 + 0.35),
+    );
+    if (deltaY < 0) {
+      controls._dollyIn?.(pinchScale);
+    } else if (deltaY > 0) {
+      controls._dollyOut?.(pinchScale);
+    }
+    controls.update?.();
+    return 'zoom';
+  }
+
+  const h = Math.max(1, Number(controls.domElement?.clientHeight || 800));
+  const twoPi = Math.PI * 2;
+  controls._rotateLeft?.((twoPi * deltaX * rotateSpeed * 0.85) / h);
+  controls._rotateUp?.((twoPi * deltaY * rotateSpeed * 0.85) / h);
+  controls.update?.();
+  return 'rotate';
+}
 
 /**
  * Detects whether the current viewport is a compact smartphone (e.g., Pixel 10, iPhone)

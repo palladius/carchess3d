@@ -74,3 +74,24 @@
   - `30°`: White Luma `123.66` vs Black Luma `71.5` (Δ `52.16`, Ratio `1.62x`, 3D Add-Ons `0`, Baked GLB Add-Ons `0`, Wreaths `0`, Billboards `0`)
 - **Critica VLM (`gemini-flash-latest`)**: _La vista zenitale a 0° soffre fortemente per l'assenza di indicatori 2D sui dischi, rendendo Re e Regina difficilmente distinguibili dalla sola sommità del copricapo. A 30° la silhouette tridimensionale migliora la leggibilità dei singoli pezzi, ma nel Mirror Match il basso contrasto di luminanza (solo 1.3x-1.5x) e le basette simili affaticano notevolmente gli occhi di un bambino._
 
+---
+
+## 👑 v0.3.74 — Human-in-the-Loop Polish: `S2` Default (Single Grounded 3D Crowns) + `📐 2D` Auto-Toggled Square-Aligned Medallions
+
+Dopo aver testato dal vivo tutte le modalità (`S1..S5`), abbiamo affinato il design unendo il meglio del 3D pulito e del 2D tattico:
+
+1. **Modalità 3D Default = `👑 S2` (Corone 3D Singole Giustapposte sulla Testa + Contrasto Ossidiana vs Avorio)**:
+   - Rimossi tutti i nodi duplicati `UniversalRoleAddon_*` pre-cotti nei `.glb` che creavano una seconda corona fluttuante a mezz'aria.
+   - Sostituite le primitive cubiche (`BoxGeometry`) con **corone 3D scolpite ad alta risoluzione** (Diadema Imperiale + Croce Pattee per il Re `♚`, Tiara a 8 Punte e 8 Perle per la Regina `♛`, Mitra Liturgica Scolpita per l'Alfiere `♝`, Cimiero Corinzio + Ali Equine per il Cavallo `♞`, Corona Muraria Curva a 6 Merli per la Torre `♜`, Cerchietto Intrecciato + Finiale Staunton per il Pedone `♟`) ancorate direttamente sulla sommità del capo del personaggio (`computeGroundedHeadAnchor`).
+   - Nessun badge 2D fluttuante in 3D di default per lasciare pulita la scena cinematografica.
+2. **Pulsante `📐 2D` Auto-Toggle + Allineamento 100% Centrato sulla Casella (`ZENITH_DISC_BOARD_Y = 0.04m`)**:
+   - Premendo `📐 2D` i medaglioni 2D si attivano automaticamente a quota scacchiera (`y = 0.04m`) nascondendo il fusto 3D sottostante: **zero parallasse prospettico**, ogni medaglione cade al 100% nel centro geometrico della propria casella (`a1..h8`).
+   - **Design Semplificato a Singola Icona**: di default il medaglione mostra solo **una grande icona scacchistica classica (`♚ ♛ ♜ ♝ ♞ ♟`) perfettamente centrata e orientata a Nord (`0°`)**, senza lettere `K, Q, R, B, N, P` né doppi disegni sovrapposti (le lettere + Braille `K ⠇..P ⠏` restano attivabili nelle impostazioni di accessibilità `#hud-setup-letters-toggle` o via `?letters=1`).
+
+| Vista | Screenshot |
+| :--- | :--- |
+| **Close-up Re & Regina (`👑 S2`)** — Singola corona 3D scolpita giustapposta sulla testa | ![Close-up S2 Re e Regina](assets/v2_s2_closeup_king_queen.png) |
+| **Vista `📐 2D` Zenitale** — Medaglioni 100% allineati alle caselle con singola icona centrata | ![Vista 2D Allineata](assets/v2_topdown_2d_aligned.png) |
+| **Vista `👑 S2` 3D a `30°` (Default)** — Contrasto Ossidiana vs Avorio + Corone 3D sul capo | ![Vista 3D S2 30°](assets/v2_s2_3d_30deg.png) |
+
+

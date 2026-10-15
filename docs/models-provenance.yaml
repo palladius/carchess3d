@@ -11,8 +11,8 @@ models:
   character: Alessandro
   status: CANONICAL
   target_path: assets/models/bishop-ale-1.glb
-  size_bytes: 1888348
-  md5: fcafc819f25d72100d6e943cce92ebbd
+  size_bytes: 1804572
+  md5: d2b5e2a4ccd8cfb28623c5991ae51f37
   pipeline:
     tool: TRELLIS
     space: trellis-community/TRELLIS
@@ -38,8 +38,8 @@ models:
   character: Alessandro
   status: ALTERNATIVE
   target_path: assets/models/bishop-ale-2.glb
-  size_bytes: 1978540
-  md5: a5153d750fbf7c2f558a985f9ab8d217
+  size_bytes: 1894764
+  md5: 097c2ef0ea33f0b697222019a7eeb1b1
   pipeline:
     tool: TRELLIS
     space: trellis-community/TRELLIS
@@ -73,8 +73,8 @@ models:
   character: Alessandro
   status: ANIMATED
   target_path: assets/models/bishop-ale-rigged.glb
-  size_bytes: 6572496
-  md5: 4485dc3615485df1111276f43b28b54f
+  size_bytes: 6488700
+  md5: 25f742448ef13ccbe8c30c207e68ee1e
   pipeline:
     tool: Blender Armature Skinning & Assembly
     script: tools/model-pipeline/rigging/assemble_modular_bishop.py
@@ -87,15 +87,15 @@ models:
   concept_sources:
   - role: base_character
     path: assets/models/bishop-ale-1.glb
-    md5: fcafc819f25d72100d6e943cce92ebbd
+    md5: d2b5e2a4ccd8cfb28623c5991ae51f37
 - id: pawn-puffin
   name: Puffin Swiss Guard
   piece: pawn
   character: Puffin
   status: CANONICAL
   target_path: assets/models/pawn-puffin.glb
-  size_bytes: 1783192
-  md5: c50032ecb6bbbf5011ddf5407d860076
+  size_bytes: 1717180
+  md5: 08bb110a6f50da36280cef7fd73e8d10
   pipeline:
     tool: TRELLIS
     space: trellis-community/TRELLIS
@@ -112,8 +112,8 @@ models:
   character: Riccardo
   status: CANONICAL
   target_path: assets/models/king-riccardo.glb
-  size_bytes: 4437660
-  md5: 949b21784605e5a1dbfa6efced60bad6
+  size_bytes: 4266572
+  md5: 81271989d981bdb8d55872640ebf5fea
   pipeline:
     tool: TRELLIS.2 + Adversarial Biometric Mode B Dual-Chart 2048x1024 UV Face-Grafting
     space: microsoft/TRELLIS.2
@@ -166,8 +166,8 @@ models:
   character: Kate
   status: CANONICAL
   target_path: assets/models/queen-kate.glb
-  size_bytes: 3923836
-  md5: 737810b944c0830b7bb4f006f03f4489
+  size_bytes: 3714108
+  md5: a9c36585f7163eee3e818db2d635fcbc
   pipeline:
     tool: TRELLIS.2
     space: microsoft/TRELLIS.2
@@ -195,8 +195,8 @@ models:
   character: Kate
   status: ALTERNATIVE
   target_path: assets/models/queen-kate-wedding2016.glb
-  size_bytes: 4046368
-  md5: d065ed89e408d553e6d1b9506ea1a0e2
+  size_bytes: 3836644
+  md5: ab5cb2daf1da2e2df49fe8fd40ec494c
   pipeline:
     tool: TRELLIS.2
     space: microsoft/TRELLIS.2
@@ -248,8 +248,8 @@ models:
   character: Kate
   status: ALTERNATIVE
   target_path: assets/models/queen-kate-young.glb
-  size_bytes: 3923836
-  md5: 737810b944c0830b7bb4f006f03f4489
+  size_bytes: 3714108
+  md5: a9c36585f7163eee3e818db2d635fcbc
   pipeline:
     tool: TRELLIS.2
     space: microsoft/TRELLIS.2
@@ -277,8 +277,8 @@ models:
   character: Sebastian
   status: CANONICAL
   target_path: assets/models/knight-seby.glb
-  size_bytes: 3842256
-  md5: a7cddf9909a343e9f1f10db7a38062e5
+  size_bytes: 3740580
+  md5: fd40035f602c5b3ee2aa1289335634a8
   pipeline:
     tool: TRELLIS.2
     space: microsoft/TRELLIS.2
@@ -317,8 +317,8 @@ models:
   concept_sources:
   - role: base_character
     path: assets/models/knight-seby.glb
-    size_bytes: 3842256
-    md5: a7cddf9909a343e9f1f10db7a38062e5
+    size_bytes: 3740580
+    md5: fd40035f602c5b3ee2aa1289335634a8
 - id: knight-seby-lightsaber
   name: Knight Sebastian (Spada Laser / Modular)
   piece: knight
@@ -336,8 +336,8 @@ models:
   concept_sources:
   - role: base_character
     path: assets/models/knight-seby.glb
-    size_bytes: 3842256
-    md5: a7cddf9909a343e9f1f10db7a38062e5
+    size_bytes: 3740580
+    md5: fd40035f602c5b3ee2aa1289335634a8
 - id: knight-seby-aurora
   name: Knight Sebastian (Sigillo dell'Acquario / Modular)
   piece: knight
@@ -356,16 +356,16 @@ models:
   concept_sources:
   - role: base_character
     path: assets/models/knight-seby.glb
-    size_bytes: 3842256
-    md5: a7cddf9909a343e9f1f10db7a38062e5
+    size_bytes: 3740580
+    md5: fd40035f602c5b3ee2aa1289335634a8
 - id: rook-pupurabbu
   name: Rook Pupurabbu (Canonico)
   piece: rook
   character: Pupurabbu
   status: CANONICAL
   target_path: assets/models/rook-pupurabbu.glb
-  size_bytes: 3999780
-  md5: 4a562d03fbb6659ec088f096da91889b
+  size_bytes: 3864356
+  md5: 1e51533876fb0f9de6a49d1e260f7862
   pipeline:
     tool: TRELLIS.2
     space: microsoft/TRELLIS.2
@@ -402,8 +402,8 @@ models:
   character: Re Classico
   status: CANONICAL
   target_path: assets/models/classic/king-classic-re.glb
-  size_bytes: 4225688
-  md5: cda847b30eb34c7baf84c0f989583bb1
+  size_bytes: 4054804
+  md5: 17d736df4ea14bcb41355238f4023a3c
   pipeline:
     tool: TRELLIS.2
     space: microsoft/TRELLIS.2
@@ -424,8 +424,8 @@ models:
   character: Regina Classica
   status: CANONICAL
   target_path: assets/models/classic/queen-classic-regina.glb
-  size_bytes: 3801508
-  md5: 5e0812f9b5fee2b85669953434c6b170
+  size_bytes: 3591984
+  md5: d6e8f490de3e89a275b226f2413cec2d
   pipeline:
     tool: TRELLIS.2
     space: microsoft/TRELLIS.2
@@ -446,8 +446,8 @@ models:
   character: San Gennaro (Alfiere)
   status: CANONICAL
   target_path: assets/models/classic/bishop-classic-vescovo.glb
-  size_bytes: 4578144
-  md5: 149d20e1b00eed5d6e40c630b4b7c8e0
+  size_bytes: 4494576
+  md5: eabb893d41ab58c37416b8cc244d306a
   pipeline:
     tool: TRELLIS.2
     space: microsoft/TRELLIS.2
@@ -468,8 +468,8 @@ models:
   character: Destriero Classico
   status: CANONICAL
   target_path: assets/models/classic/knight-classic-cavallo.glb
-  size_bytes: 2997200
-  md5: 963f1456c52d145f3a213826cd202972
+  size_bytes: 2895728
+  md5: ce7410c948e593735050bb8e30f55e5b
   pipeline:
     tool: Mode A Dual-Orthographic 3D SDF + Seamless UV Baking
     script: tools/model-pipeline/classic/reconstruct_knight_3d.py
@@ -487,8 +487,8 @@ models:
   character: Torre Matildea
   status: CANONICAL
   target_path: assets/models/classic/rook-classic-torre.glb
-  size_bytes: 2938760
-  md5: cef4a6519a6679a22b1b04e4c23c4142
+  size_bytes: 2803544
+  md5: 1c492956ae5b3cd7d2cb6eac47ccef74
   pipeline:
     tool: Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking
     script: tools/model-pipeline/reconstruct_mode_a_batch.py
@@ -506,8 +506,8 @@ models:
   character: Pedone Classico
   status: CANONICAL
   target_path: assets/models/classic/pawn-classic-pedone.glb
-  size_bytes: 1937780
-  md5: 49b43b39dfecd99d2e8298f2bd28b388
+  size_bytes: 1871968
+  md5: 682abba3dc15a7994bf4a9786d7174eb
   pipeline:
     tool: Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking
     script: tools/model-pipeline/reconstruct_mode_a_batch.py
@@ -525,8 +525,8 @@ models:
   character: Orco Brontolo
   status: CANONICAL
   target_path: assets/models/swamp/king-swamp-orco.glb
-  size_bytes: 816376
-  md5: d0932c4eb4ffd5b53bae8d3b60ba81c3
+  size_bytes: 645488
+  md5: 5de6950ca8411ad977db2fe5b55e968c
   pipeline:
     tool: Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting
     script: tools/model-pipeline/swamp/build_swamp_models.py
@@ -544,8 +544,8 @@ models:
   character: Principessa Orchessa
   status: CANONICAL
   target_path: assets/models/swamp/queen-swamp-orchessa.glb
-  size_bytes: 3542496
-  md5: f436ba2b0a7b24b5e2c7ac816139dbd9
+  size_bytes: 3332972
+  md5: c8b4c91bb2951685a9761bb5ad7164fe
   pipeline:
     tool: Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking
     script: tools/model-pipeline/reconstruct_mode_a_batch.py
@@ -563,8 +563,8 @@ models:
   character: Don Gatto Spadaccino-Vescovo
   status: CANONICAL
   target_path: assets/models/swamp/bishop-swamp-focaccina.glb
-  size_bytes: 663696
-  md5: cbfc45313dce9ddb5021bec84f3d2263
+  size_bytes: 580120
+  md5: 818011e6c59a0584cb2ba0d107593fa1
   pipeline:
     tool: Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting
     script: tools/model-pipeline/swamp/build_swamp_models.py
@@ -582,8 +582,8 @@ models:
   character: Asinello Chiacchierone
   status: CANONICAL
   target_path: assets/models/swamp/knight-swamp-asinello.glb
-  size_bytes: 591820
-  md5: a9e3cdffab93373a66a6bffef9ba4006
+  size_bytes: 490340
+  md5: ec43652c9a24a04d18991c48dba9f954
   pipeline:
     tool: Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting
     script: tools/model-pipeline/swamp/build_swamp_models.py
@@ -601,8 +601,8 @@ models:
   character: Draghessa della Palude
   status: CANONICAL
   target_path: assets/models/swamp/rook-swamp-draghessa.glb
-  size_bytes: 690964
-  md5: 4f5a4e6a8686114df15ebfc2728175af
+  size_bytes: 555740
+  md5: 8c389056ef78845b81abe04552ebb5e1
   pipeline:
     tool: Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting
     script: tools/model-pipeline/swamp/build_swamp_models.py
@@ -620,8 +620,8 @@ models:
   character: Zenzy Pan di Zenzero & Focaccina
   status: CANONICAL
   target_path: assets/models/swamp/pawn-swamp-tappo.glb
-  size_bytes: 522708
-  md5: 535c0d0c80e245e22d8bd38a7c335a33
+  size_bytes: 456892
+  md5: 4a55e5e968d606cf86c82c4da73ec57b
   pipeline:
     tool: Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting
     script: tools/model-pipeline/swamp/build_swamp_models.py
