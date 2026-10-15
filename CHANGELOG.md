@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.72] - 2026-10-15
+
+- 📰🏰 **CarChess3D Master Article, Telemetry, WOW Turntables & Autonomous Swarm Post-Mortem (`article/`)**:
+  - Authored comprehensive technical and narrative article `article/ARTICLE.md` detailing the autonomous construction of CarChess3D during Riccardo & Kate's 10th anniversary in Colmar.
+  - Rendered 360° rotating GIF turntables for the entire family: Seby (`seby_cavaliere_turntable.gif` via headless Blender EEVEE), Ale, Papino, Mamma, Ciuchino, and Puffin under `article/assets/turntables/`.
+  - Built `article/list_carchess_chats.py` tool indexing 273 Antigravity sessions on pupurabbux (`article/sources/chats_list.md`).
+  - Documented SRE telemetry (176 commits, 159 over weekend, 38m to v1), QEC decimation math (697k to 60k faces in 9.9s), RTX 5080 local GPU pivot, and the 7 major technical iterations.
+  - Added corporate work checklist `article/DEREK_TODO.md` and copy-paste all-day autonomous prompt `article/goals/GOAL_ALL_DAY_AUTONOMOUS_EXPANSION.md`.
+- 🔀 Merged branch `origin/write_family_3d_article` (originally numbered 0.3.60; renumbered above main's 0.3.71).
+
 ## [0.3.71] - 2026-10-15
 
 - 🧹 **Merge `generate_swamp_classic_models` (`23db733`)**: remove the agent scratch note `RESUME_AFTER_REBOOT.md` from the repo root (it was only a WIP note after a reboot, not documentation). No functional changes.
