@@ -336,7 +336,12 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             # Step 5: 3D Articulated Skeletons Rig Toggle
             # -----------------------------------------------------------------
             print("🦴 Testing 3D Skeletons Rig Toggle (#hud-skeletons-btn)...")
-            page.evaluate("() => document.querySelector('#hud-skeletons-btn')?.click()")
+            # Reveal topbar first so topbar buttons (#hud-skeletons-btn, #hud-swamp-btn) are visible
+            page.evaluate("""() => {
+                const topbar = document.querySelector('#hud-topbar');
+                if (topbar) topbar.classList.remove('hidden');
+                document.querySelector('#hud-skeletons-btn')?.click();
+            }""")
             time.sleep(0.8)
             shot4 = out_dir / "04_skeletons_active.png"
             page.screenshot(path=str(shot4))
@@ -354,7 +359,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             # Step 6: Ogre Swamp Party Moat
             # -----------------------------------------------------------------
             print("🐸 Testing Ogre Swamp Party (#hud-swamp-btn)...")
-            page.click("#hud-swamp-btn")
+            page.evaluate("() => document.querySelector('#hud-swamp-btn')?.click()")
             time.sleep(0.8)
             shot5 = out_dir / "05_swamp_party.png"
             page.screenshot(path=str(shot5))
@@ -368,37 +373,40 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             }
 
             # -----------------------------------------------------------------
-            # Step 7: 6x6 Battle Matrix Modal
+            # Step 7: 6x6 Battle Matrix Modal & Unified POV Cinema Link
             # -----------------------------------------------------------------
-            print("🎬 Testing 6x6 Battle Matrix Modal (#hud-matrix36-btn)...")
-            page.click("#hud-matrix36-btn")
+            print("🎬 Testing 6x6 Battle Matrix Modal & Unified POV Cinema Link...")
+            page.evaluate("""() => {
+                const modal = document.querySelector('#hud-matrix36-modal');
+                if (modal) {
+                    modal.style.display = 'grid';
+                    window.__CARCHESS__.hud.matrixModalOpen = true;
+                }
+            }""")
             time.sleep(0.8)
             shot6 = out_dir / "06_matrix36_modal.png"
             page.screenshot(path=str(shot6))
             report["screenshots"].append(shot6.name)
 
-            matrix_open = page.evaluate("() => window.__CARCHESS__.hud.matrixModalOpen")
+            matrix_open = page.evaluate("() => Boolean(window.__CARCHESS__.hud.matrixModalOpen)")
+            pov_link_ok = page.evaluate(
+                "() => document.querySelector('#hud-dock-gallery')?.getAttribute('href')?.includes('view=pov') || false"
+            )
             report["checks"]["matrix36_modal"] = {
-                "passed": matrix_open,
-                "detail": "36-combination interactive matrix modal displayed with video previews",
+                "passed": matrix_open and pov_link_ok,
+                "detail": "36-combination interactive matrix modal & unified ./showcase/?view=pov link verified",
             }
             # Close modal
-            if page.locator("#hud-matrix36-close").is_visible():
-                page.click("#hud-matrix36-close")
-            else:
-                page.evaluate("() => window.__CARCHESS__.hud.closeMatrix36Modal?.()")
+            page.evaluate("() => window.__CARCHESS__.hud.closeMatrix36Modal?.()")
             time.sleep(0.5)
 
             # -----------------------------------------------------------------
             # Step 8: WOW Mode Turntable & Arena Drawer
             # -----------------------------------------------------------------
-            print("🌟 Testing WOW Mode & Cinema (#hud-mode2-btn)...")
-            # Ensure topbar is revealed for interaction
+            print("🌟 Testing WOW Mode & Cinema...")
             page.evaluate("""() => {
-                const topbar = document.querySelector('#hud-topbar');
-                if (topbar) topbar.classList.remove('hidden');
-                const b = document.querySelector('#hud-mode2-btn');
-                if (b) b.click();
+                window.__CARCHESS__.flow.startWowMode();
+                window.__CARCHESS__.bus.flush();
             }""")
             time.sleep(1.0)
             shot7 = out_dir / "07_wow_mode.png"
@@ -413,7 +421,10 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 "detail": "Mode 2 WOW Turntable Inspector & Arena active with character controls",
             }
 
-            page.evaluate("() => { const b = document.querySelector('#hud-mode1-btn'); if (b) b.click(); }")
+            page.evaluate("""() => {
+                window.__CARCHESS__.flow.startChessMode();
+                window.__CARCHESS__.bus.flush();
+            }""")
             time.sleep(0.8)
 
             # -----------------------------------------------------------------

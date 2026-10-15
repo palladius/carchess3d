@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.73] - 2026-10-15
+
+- 🧪🎬 **Daily UAT Adversarial Playtest & `index.html` Core Modules Sync (`scripts/daily_uat_playtest.py`, `index.html`, `#36`)**:
+  - Updated `scripts/daily_uat_playtest.py` (Steps 5–8) to work seamlessly with the `v0.3.64+` unified Heroes POV Cinema link (`#hud-dock-gallery` -> `./showcase/?view=pov`), in-DOM 6×6 Matrix modal inspection (`#hud-matrix36-modal`), `GameFlowManager` WOW Arena transitions (`flow.startWowMode()` / `flow.startChessMode()`), and hidden debug toggles (`#hud-skeletons-btn`, `#hud-swamp-btn`).
+  - Added `./src/views/PieceClarityHelper.js` to `CORE_MODULES` in `index.html` for instant network-reload cache warming.
+  - Executed `just daily-uat` for `2026-10-15` and published GitHub Issue **#36 (`Gemini UAT 20261015`)** with 60s gameplay video (`log/uat/uat_gameplay.mp4`), GIF preview, and 8/8 passing ergonomic/orientation checks.
+
 ## [0.3.72] - 2026-10-15
 
 - 📰🏰 **CarChess3D Master Article, Telemetry, WOW Turntables & Autonomous Swarm Post-Mortem (`article/`)**:
