@@ -32,13 +32,13 @@ import {
 import { BATTLE_MATRIX_36 } from '../core/BattleMatrix36.js';
 
 const PIECE_ORDER = ['k', 'q', 'b', 'n', 'r', 'p'];
-const CLARITY_CYCLE = ['s5', 's1', 's2', 's3', 's4', 'off'];
+const CLARITY_CYCLE = ['s2', 's1', 's3', 's4', 's5', 'off'];
 const CLARITY_I18N_KEYS = {
-  s5: 'clarityS5',
-  s1: 'clarityS1',
   s2: 'clarityS2',
+  s1: 'clarityS1',
   s3: 'clarityS3',
   s4: 'clarityS4',
+  s5: 'clarityS5',
   off: 'clarityOff',
 };
 
@@ -85,8 +85,9 @@ export class HudListener {
   constructor(ctx = null) {
     this.ctx = ctx;
     let initialLang = ctx?.lang === 'it' ? 'it' : 'en';
-    let initialClarity = ctx?.clarityMode ? String(ctx.clarityMode).toLowerCase() : 's5';
+    let initialClarity = ctx?.clarityMode ? String(ctx.clarityMode).toLowerCase() : 's2';
     let initialForce2d = Boolean(ctx?.force2dIcons);
+    let initialShowLetters = Boolean(ctx?.showRoleLetters);
     if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const urlLang = urlParams.get('lang');
@@ -103,11 +104,20 @@ export class HudListener {
       if (urlParams.get('icons2d') === '1' || urlParams.get('icons2d') === 'true') {
         initialForce2d = true;
       }
+      if (
+        urlParams.get('letters') === '1' ||
+        urlParams.get('letters') === 'true' ||
+        urlParams.get('braille') === '1' ||
+        urlParams.get('braille') === 'true'
+      ) {
+        initialShowLetters = true;
+      }
     }
     /** @type {'it'|'en'} */
     this.lang = initialLang;
-    this.clarityMode = CLARITY_CYCLE.includes(initialClarity) ? initialClarity : 's5';
+    this.clarityMode = CLARITY_CYCLE.includes(initialClarity) ? initialClarity : 's2';
     this.force2dIcons = initialForce2d;
+    this.showRoleLetters = initialShowLetters;
     this.isMobilePhone =
       typeof ctx?.isMobilePhone === 'boolean' ? ctx.isMobilePhone : isMobilePhoneViewport();
     this.portraitDismissed = false;
@@ -2064,17 +2074,23 @@ export class HudListener {
             </div>
           </div>
 
-          <label class="hud-setup-label hud-desktop-setup-only" style="background:rgba(20,27,42,0.88);border:1.5px solid rgba(255,213,79,0.45);border-radius:10px;padding:9px 12px;">
-            <span id="hud-setup-clarity-lbl" style="color:#ffe082;font-size:12px;">${this.t('clarityLabel')}</span>
-            <select id="hud-setup-clarity-select" class="hud-select" style="width:100%;">
-              <option value="s5" ${this.clarityMode === 's5' ? 'selected' : ''}>${this.t('clarityS5')}</option>
-              <option value="s1" ${this.clarityMode === 's1' ? 'selected' : ''}>${this.t('clarityS1')}</option>
-              <option value="s2" ${this.clarityMode === 's2' ? 'selected' : ''}>${this.t('clarityS2')}</option>
-              <option value="s3" ${this.clarityMode === 's3' ? 'selected' : ''}>${this.t('clarityS3')}</option>
-              <option value="s4" ${this.clarityMode === 's4' ? 'selected' : ''}>${this.t('clarityS4')}</option>
-              <option value="off" ${this.clarityMode === 'off' ? 'selected' : ''}>${this.t('clarityOff')}</option>
-            </select>
-          </label>
+          <div class="hud-setup-label hud-desktop-setup-only" style="background:rgba(20,27,42,0.88);border:1.5px solid rgba(255,213,79,0.45);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:7px;">
+            <label style="display:flex;flex-direction:column;gap:4px;">
+              <span id="hud-setup-clarity-lbl" style="color:#ffe082;font-size:12px;">${this.t('clarityLabel')}</span>
+              <select id="hud-setup-clarity-select" class="hud-select" style="width:100%;">
+                <option value="s2" ${this.clarityMode === 's2' ? 'selected' : ''}>${this.t('clarityS2')}</option>
+                <option value="s1" ${this.clarityMode === 's1' ? 'selected' : ''}>${this.t('clarityS1')}</option>
+                <option value="s3" ${this.clarityMode === 's3' ? 'selected' : ''}>${this.t('clarityS3')}</option>
+                <option value="s4" ${this.clarityMode === 's4' ? 'selected' : ''}>${this.t('clarityS4')}</option>
+                <option value="s5" ${this.clarityMode === 's5' ? 'selected' : ''}>${this.t('clarityS5')}</option>
+                <option value="off" ${this.clarityMode === 'off' ? 'selected' : ''}>${this.t('clarityOff')}</option>
+              </select>
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#b9f6ca;cursor:pointer;">
+              <input id="hud-setup-letters-toggle" type="checkbox" ${this.showRoleLetters ? 'checked' : ''}>
+              <span id="hud-setup-letters-lbl">${this.t('clarityLettersLabel')}</span>
+            </label>
+          </div>
 
           <div class="hud-setup-badge hud-desktop-setup-only">
             <span>✨</span>
@@ -2180,7 +2196,7 @@ export class HudListener {
           </button>
           <button type="button" id="hud-clarity-btn" class="hud-btn hud-icon-btn with-badge ${this.clarityMode !== 'off' ? 'active' : ''}" title="${this.t('clarityBtn')}" aria-label="${this.t('clarityBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
-            <span id="hud-clarity-badge" class="hud-icon-badge">${(this.clarityMode || 's5').toUpperCase()}</span>
+            <span id="hud-clarity-badge" class="hud-icon-badge">${(this.clarityMode || 's2').toUpperCase()}</span>
           </button>
           <button type="button" id="hud-flip-btn" class="hud-btn hud-icon-btn" title="${this.t('flipCamBtn')}" aria-label="${this.t('flipCamBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3 5 6.99h3V14h2V6.99h3L9 3z"/></svg>
@@ -2997,7 +3013,8 @@ export class HudListener {
       const blackPlayerType =
         root.querySelector('input[name="black-player-type"]:checked')?.value || 'ai';
       const blackDiff = q('#hud-setup-black-diff')?.value || 'easy';
-      const clarityMode = q('#hud-setup-clarity-select')?.value || this.clarityMode || 's5';
+      const clarityMode = q('#hud-setup-clarity-select')?.value || this.clarityMode || 's2';
+      const showRoleLetters = Boolean(q('#hud-setup-letters-toggle')?.checked);
 
       const queenVariant = q('#hud-setup-queen-variant')?.value || this.queenVariant || 'young';
       const bishopVariant = q('#hud-setup-bishop-variant')?.value || this.bishopVariant || 'hat';
@@ -3013,9 +3030,14 @@ export class HudListener {
         queenVariant,
         bishopVariant,
         clarityMode,
+        showRoleLetters,
         resetBoard,
       });
     };
+
+    q('#hud-setup-letters-toggle')?.addEventListener('change', (e) => {
+      this.setShowRoleLetters(Boolean(e.target.checked));
+    });
 
     q('#hud-setup-apply-btn')?.addEventListener('click', () => submitSetupFromModal(false));
     q('#hud-setup-start-btn')?.addEventListener('click', () => submitSetupFromModal(true));
@@ -3509,13 +3531,13 @@ export class HudListener {
 
     this.ctx?.pieceView?.setTopDownMode?.(isTop);
     const pos = isTop
-      ? { x: 0, y: Number((12.8 * portraitScale).toFixed(2)), z: this.cameraFlipped ? -0.01 : 0.01 }
+      ? { x: 0, y: Number((12.6 * portraitScale).toFixed(2)), z: this.cameraFlipped ? -0.001 : 0.001 }
       : {
           x: 0,
           y: Number(((this.cameraFlipped ? 7.0 : 7.2) * portraitScale).toFixed(2)),
           z: Number(((this.cameraFlipped ? -8.2 : 9.8) * portraitScale).toFixed(2)),
         };
-    const target = { x: 0, y: 0.3, z: 0 };
+    const target = isTop ? { x: 0, y: 0.04, z: 0 } : { x: 0, y: 0.3, z: 0 };
 
     if (this.ctx?.camera?.position?.set) {
       this.ctx.camera.position.set(pos.x, pos.y, pos.z);
@@ -3598,15 +3620,16 @@ export class HudListener {
     }
     if (this.ctx?.camera) {
       if (this.topDownCamera) {
-        this.ctx.camera.position.set(0, 12.8, this.cameraFlipped ? -0.01 : 0.01);
+        this.ctx.camera.position.set(0, 12.6, this.cameraFlipped ? -0.001 : 0.001);
+        this.ctx.controls?.target?.set?.(0, 0.04, 0);
       } else {
         this.ctx.camera.position.set(
           0,
           this.cameraFlipped ? 7.0 : 7.2,
           this.cameraFlipped ? -8.2 : 9.8,
         );
+        this.ctx.controls?.target?.set?.(0, 0.3, 0);
       }
-      this.ctx.controls?.target?.set?.(0, 0.3, 0);
       this.ctx.controls?.update?.();
     }
     this.ctx?.bus?.emit({
@@ -3618,6 +3641,7 @@ export class HudListener {
       mode: this.clarityMode,
       force2dIcons: this.force2dIcons,
       topDownCamera: this.topDownCamera,
+      showRoleLetters: this.showRoleLetters,
     });
     this.ctx?.bus?.flush?.();
   }
@@ -3916,6 +3940,7 @@ export class HudListener {
       return;
     }
     this.topDownCamera = false;
+    this.ctx?.pieceView?.setTopDownMode?.(false);
     const pos = this.cameraFlipped
       ? { x: 0, y: 7.0, z: -8.2 }
       : { x: 0, y: 5.85, z: 12.6 };
@@ -3942,6 +3967,13 @@ export class HudListener {
         view: 'reset',
         pos,
         target,
+      });
+      this.ctx.bus.emit({
+        type: 'CLARITY_MODE_CHANGED',
+        mode: this.clarityMode,
+        force2dIcons: this.force2dIcons,
+        topDownCamera: false,
+        showRoleLetters: this.showRoleLetters,
       });
       this.ctx.bus.flush?.();
     }
@@ -4008,7 +4040,9 @@ export class HudListener {
       const varWrap = this.rootEl.querySelector('#hud-setup-variants-wrap');
       if (varWrap && wSet) varWrap.style.display = wSet.value === 'carlesso' ? 'flex' : 'none';
       const cSel = this.rootEl.querySelector('#hud-setup-clarity-select');
-      if (cSel) cSel.value = this.clarityMode || 's5';
+      if (cSel) cSel.value = this.clarityMode || 's2';
+      const lChk = this.rootEl.querySelector('#hud-setup-letters-toggle');
+      if (lChk) lChk.checked = Boolean(this.showRoleLetters);
 
       const wType = this.whitePlayerType || 'human';
       this.rootEl.querySelectorAll('input[name="white-player-type"]').forEach((r) => {
@@ -4163,6 +4197,9 @@ export class HudListener {
     this.blackDifficulty = blackDiff;
     this.activeProfile = whiteProfile;
 
+    if (typeof settings.showRoleLetters === 'boolean') {
+      this.setShowRoleLetters(settings.showRoleLetters, { silent: true });
+    }
     if (settings.clarityMode) {
       this.setClarityMode(settings.clarityMode, { silent: true });
     }
@@ -4300,7 +4337,7 @@ export class HudListener {
     if (!this.rootEl) return;
     const badge = this.rootEl.querySelector('#hud-clarity-badge');
     if (badge) {
-      badge.textContent = (this.clarityMode || 's5').toUpperCase();
+      badge.textContent = (this.clarityMode || 's2').toUpperCase();
     }
     const btn = this.rootEl.querySelector('#hud-clarity-btn');
     if (btn) {
@@ -4310,18 +4347,43 @@ export class HudListener {
     if (sel && CLARITY_CYCLE.includes(this.clarityMode)) {
       sel.value = this.clarityMode;
     }
+    const chk = this.rootEl.querySelector('#hud-setup-letters-toggle');
+    if (chk) {
+      chk.checked = Boolean(this.showRoleLetters);
+    }
   }
 
   /**
-   * Sets visual clarity / piece recognition mode ('s5', 's1', 's2', 's3', 's4', 'off').
+   * Toggles accessibility role letters & Braille on 2D medallions (`K, Q, R, B, N, P`).
+   * @param {boolean} enabled
+   * @param {{ silent?: boolean }} [opts]
+   */
+  setShowRoleLetters(enabled = false, opts = {}) {
+    this.showRoleLetters = Boolean(enabled);
+    this._syncClarityUi();
+    this.ctx?.pieceView?.setShowRoleLetters?.(this.showRoleLetters);
+    if (this.ctx?.bus && !opts.silent) {
+      this.ctx.bus.emit({
+        type: 'CLARITY_MODE_CHANGED',
+        mode: this.clarityMode,
+        force2dIcons: this.force2dIcons,
+        topDownCamera: this.topDownCamera,
+        showRoleLetters: this.showRoleLetters,
+      });
+      this.ctx.bus.flush?.();
+    }
+  }
+
+  /**
+   * Sets visual clarity / piece recognition mode ('s2', 's1', 's3', 's4', 's5', 'off').
    * @param {string} mode
    * @param {{ force2dIcons?: boolean, silent?: boolean }} [opts]
    */
-  setClarityMode(mode = 's5', opts = {}) {
-    const raw = String(mode || 's5').trim().toLowerCase();
+  setClarityMode(mode = 's2', opts = {}) {
+    const raw = String(mode || 's2').trim().toLowerCase();
     let normalized = raw === '2d' ? 's1' : raw;
     if (!CLARITY_CYCLE.includes(normalized)) {
-      normalized = 's5';
+      normalized = 's2';
     }
     this.clarityMode = normalized;
     this.force2dIcons =
@@ -4336,11 +4398,12 @@ export class HudListener {
         mode: this.clarityMode,
         force2dIcons: this.force2dIcons,
         topDownCamera: this.topDownCamera,
+        showRoleLetters: this.showRoleLetters,
       });
       this.ctx.bus.flush?.();
     }
     if (!opts.silent) {
-      const i18nKey = CLARITY_I18N_KEYS[this.clarityMode] || 'clarityS5';
+      const i18nKey = CLARITY_I18N_KEYS[this.clarityMode] || 'clarityS2';
       this.showToast(this.t(i18nKey), 3200);
     }
   }
@@ -5015,6 +5078,10 @@ export class HudListener {
       this.luck.w = e.luck;
       this.updateLuckUi('w');
     }
+    if (typeof e?.showRoleLetters === 'boolean') {
+      this.showRoleLetters = e.showRoleLetters;
+      this.ctx?.pieceView?.setShowRoleLetters?.(this.showRoleLetters);
+    }
     if (e?.clarityMode && !this._hasUrlClarityOverride()) {
       const m = String(e.clarityMode).toLowerCase();
       if (CLARITY_CYCLE.includes(m)) {
@@ -5034,6 +5101,9 @@ export class HudListener {
     }
     if (typeof e?.force2dIcons === 'boolean') {
       this.force2dIcons = e.force2dIcons;
+    }
+    if (typeof e?.showRoleLetters === 'boolean') {
+      this.showRoleLetters = e.showRoleLetters;
     }
     this._syncClarityUi();
   }
@@ -5453,6 +5523,7 @@ export class HudListener {
     setTxt('#hud-setup-clarity-select option[value="s3"]', 'clarityS3');
     setTxt('#hud-setup-clarity-select option[value="s4"]', 'clarityS4');
     setTxt('#hud-setup-clarity-select option[value="off"]', 'clarityOff');
+    setTxt('#hud-setup-letters-lbl', 'clarityLettersLabel');
     setTxt('#hud-setup-black-human-wrap', 'hotseatDesc');
     setTxt('#hud-setup-apply-btn', 'applyCurrentBtn');
     setTxt('#hud-setup-start-btn', 'startMatchBtn');

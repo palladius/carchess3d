@@ -35,12 +35,15 @@ import {
 } from './SkeletonRigHelper.js';
 import {
   CLARITY_MODES,
+  ZENITH_DISC_BOARD_Y,
   resolveClarityConfig,
   buildObsidianOrIvoryPedestal,
   buildPedestalRoleWreath,
   buildUniversalGlbRoleAddOn,
+  computeGroundedHeadAnchor,
   buildFloatingRoleBillboard,
   buildZenithal2DClassicDisc,
+  updateRoleIcon2DLettersMode,
   applyBlackTeamGlbContrast,
 } from './PieceClarityHelper.js';
 
@@ -112,12 +115,21 @@ export class PieceView {
     );
     const rawClarity = (searchParams?.get('clarity') || '').trim().toLowerCase();
     this._hasUrlClarityOverride = Boolean(searchParams && searchParams.has('clarity'));
-    this.clarityMode = CLARITY_MODES.includes(rawClarity) ? rawClarity : 's5';
+    this.clarityMode = CLARITY_MODES.includes(rawClarity) ? rawClarity : 's2';
     this.force2dIcons = Boolean(
       searchParams &&
         (searchParams.get('icons2d') === '1' ||
           searchParams.get('icons2d') === 'true' ||
           expList.includes('icons2d')),
+    );
+    this.showRoleLetters = Boolean(
+      searchParams &&
+        (searchParams.get('letters') === '1' ||
+          searchParams.get('letters') === 'true' ||
+          searchParams.get('braille') === '1' ||
+          searchParams.get('braille') === 'true' ||
+          expList.includes('letters') ||
+          expList.includes('braille')),
     );
     this.topDownCamera = false;
     this.lastPolarAngleDeg = 45;
@@ -234,10 +246,21 @@ export class PieceView {
           if (typeof e?.topDownCamera === 'boolean') {
             this.topDownCamera = e.topDownCamera;
           }
+          if (typeof e?.showRoleLetters === 'boolean') {
+            this.setShowRoleLetters(e.showRoleLetters);
+          }
           this.setClarityMode(e?.mode ?? this.clarityMode, e?.force2dIcons);
         }),
         bus.on('PROFILE_RESTORED', (e) => {
           const savedMode = e?.profile?.clarityMode || e?.clarityMode;
+          if (
+            typeof e?.showRoleLetters === 'boolean' ||
+            typeof e?.profile?.showRoleLetters === 'boolean'
+          ) {
+            this.setShowRoleLetters(
+              Boolean(e?.showRoleLetters ?? e?.profile?.showRoleLetters),
+            );
+          }
           if (
             !this._hasUrlClarityOverride &&
             savedMode &&
@@ -290,14 +313,14 @@ export class PieceView {
   }
 
   /**
-   * Sets the active Visual Clarity / Piece Recognition Mode (`s1..s5` or `off`)
+   * Sets the active Visual Clarity / Piece Recognition Mode (`s1..s5` or `off`, default `'s2'`)
    * and immediately updates all piece clarity layers and obsidian contrast states.
-   * @param {string} [mode='s5']
+   * @param {string} [mode='s2']
    * @param {boolean} [force2dIcons]
    * @returns {string}
    */
-  setClarityMode(mode = 's5', force2dIcons = undefined) {
-    const raw = String(mode || this.clarityMode || 's5').trim().toLowerCase();
+  setClarityMode(mode = 's2', force2dIcons = undefined) {
+    const raw = String(mode || this.clarityMode || 's2').trim().toLowerCase();
     const nextMode = CLARITY_MODES.includes(raw) ? raw : this.clarityMode;
     const prevCfg = resolveClarityConfig(
       this.clarityMode,
@@ -325,7 +348,34 @@ export class PieceView {
   }
 
   /**
-   * Notifies `PieceView` whether HUD Top-Down Camera (`📐 Vista dall'Alto`) is active.
+   * Toggles whether 2D Zenithal Medallions and Billboards include role letters & Braille
+   * (`K, Q, R, B, N, P` + `⠇ ⠟ ⠗ ⠃ ⠝ ⠏`) for accessibility, or render ONLY the single clean
+   * centered classic chess icon (`♚ ♛ ♜ ♝ ♞ ♟`).
+   * @param {boolean} [enabled=false]
+   * @returns {boolean}
+   */
+  setShowRoleLetters(enabled = false) {
+    this.showRoleLetters = Boolean(enabled);
+    const updateGroup = (group) => {
+      if (!group?.userData) return;
+      if (group.userData.zenithal2dDisc) {
+        updateRoleIcon2DLettersMode(group.userData.zenithal2dDisc, this.showRoleLetters);
+      }
+      if (group.userData.floatingBillboard) {
+        updateRoleIcon2DLettersMode(group.userData.floatingBillboard, this.showRoleLetters);
+      }
+    };
+    for (const group of this.pieceBySquare.values()) {
+      updateGroup(group);
+    }
+    for (const swimmer of this.trayGroup.children) {
+      updateGroup(swimmer);
+    }
+    return this.showRoleLetters;
+  }
+
+  /**
+   * Notifies `PieceView` whether HUD Top-Down Camera (`📐 Vista dall'Alto / 2D`) is active.
    * @param {boolean} [enabled=false]
    */
   setTopDownMode(enabled = false) {
@@ -365,7 +415,10 @@ export class PieceView {
 
   /**
    * Updates the visibility and orientation of `zenithal2dDisc`, `universalRoleAddOn`,
-   * `pedestalWreath`, `floatingBillboard`, and baked GLB add-ons across all pieces.
+   * `pedestalWreath`, `floatingBillboard`, and 3D bodies across all pieces.
+   * When `cfg.showZenith2dDisc` is `true` on board pieces, places the 2D medallion flat on the board
+   * (`y = ZENITH_DISC_BOARD_Y = 0.04m`) and hides the tall 3D body/pedestal so every medallion is
+   * 100% centered in its chessboard square (`a1..h8`) with zero perspective parallax offset!
    */
   updateClarityVisibilities() {
     const polarAngleDeg = this.computeCameraPolarAngleDeg();
@@ -376,29 +429,37 @@ export class PieceView {
       this.force2dIcons,
     );
 
-    const applyToGroup = (group) => {
+    const applyToGroup = (group, isBoardPiece = true) => {
       if (!group?.userData) return;
       const ud = group.userData;
       const pieceHeight = ud.pieceHeight || CANONICAL_PIECE_HEIGHTS[ud.type] || 1.25;
+      const show2d = Boolean(cfg.showZenith2dDisc && isBoardPiece);
 
       if (ud.zenithal2dDisc) {
-        ud.zenithal2dDisc.visible = Boolean(cfg.showZenith2dDisc);
+        ud.zenithal2dDisc.visible = show2d;
+        ud.zenithal2dDisc.position.set(0, ZENITH_DISC_BOARD_Y, 0);
         // Keep top-cap 2D chess icon strictly upright (-Z = North/Up) regardless of piece yaw
-        ud.zenithal2dDisc.rotation.y = Math.PI * 0.5 - (group.rotation.y || 0);
+        ud.zenithal2dDisc.rotation.y = -(group.rotation.y || 0);
+      }
+      if (ud.bodyContainer) {
+        ud.bodyContainer.visible = !show2d;
+      }
+      if (ud.pedestal) {
+        ud.pedestal.visible = !show2d;
       }
       if (ud.universalRoleAddOn) {
-        ud.universalRoleAddOn.visible = Boolean(cfg.showUniversal3dAddon);
+        ud.universalRoleAddOn.visible = Boolean(cfg.showUniversal3dAddon && !show2d);
       }
       if (Array.isArray(ud.bakedGlbAddons)) {
         for (const node of ud.bakedGlbAddons) {
-          node.visible = Boolean(cfg.showUniversal3dAddon);
+          node.visible = false;
         }
       }
       if (ud.pedestalWreath) {
-        ud.pedestalWreath.visible = Boolean(cfg.showPedestalWreath);
+        ud.pedestalWreath.visible = Boolean(cfg.showPedestalWreath && !show2d);
       }
       if (ud.floatingBillboard) {
-        ud.floatingBillboard.visible = Boolean(cfg.showFloatingBillboard);
+        ud.floatingBillboard.visible = Boolean(cfg.showFloatingBillboard && !show2d);
         ud.floatingBillboard.position.y = pieceHeight + 0.36;
       }
       if (ud.locomotionUniforms?.uIsBlackObsidian) {
@@ -408,10 +469,10 @@ export class PieceView {
     };
 
     for (const group of this.pieceBySquare.values()) {
-      applyToGroup(group);
+      applyToGroup(group, true);
     }
     for (const swimmer of this.trayGroup.children) {
-      applyToGroup(swimmer);
+      applyToGroup(swimmer, false);
     }
     return cfg;
   }
@@ -820,6 +881,7 @@ export class PieceView {
       pieceType,
       normColor,
       pieceHeight,
+      this.showRoleLetters,
     );
     floatingBillboard.visible = Boolean(clarityCfg.showFloatingBillboard);
     floatingBillboard.position.y = pieceHeight + 0.36;
@@ -829,9 +891,11 @@ export class PieceView {
       pieceType,
       normColor,
       pieceHeight,
+      this.showRoleLetters,
     );
     zenithal2dDisc.visible = Boolean(clarityCfg.showZenith2dDisc);
-    zenithal2dDisc.rotation.y = Math.PI * 0.5 - homeYaw;
+    zenithal2dDisc.position.set(0, ZENITH_DISC_BOARD_Y, 0);
+    zenithal2dDisc.rotation.y = -homeYaw;
 
     group.userData = {
       isChessPiece: true,
@@ -860,20 +924,22 @@ export class PieceView {
     };
     group.rotation.set(0, homeYaw, 0);
 
-    // 1. Sculpted 3D Faction Pedestal + S1..S5 Clarity Overlays (outside bodyContainer!)
+    // 1. Sculpted 3D Faction Pedestal + S1..S5 Clarity Overlays
     group.add(
       pedestal,
       pedestalWreath,
-      universalRoleAddOn,
       floatingBillboard,
       zenithal2dDisc,
     );
 
-    // 2. Body container atop pedestal
+    // 2. Body container atop pedestal (contains 3D figure + single head-seated S2 crown!)
     const bodyContainer = new THREE.Group();
     bodyContainer.name = 'PieceBodyContainer';
+    bodyContainer.visible = !clarityCfg.showZenith2dDisc;
+    pedestal.visible = !clarityCfg.showZenith2dDisc;
     group.add(bodyContainer);
     group.userData.bodyContainer = bodyContainer;
+    bodyContainer.add(universalRoleAddOn);
 
     if (desc.isStoneSet || (this.mobileLite3D && desc.family === 'classic')) {
       const stoneMesh = this.buildStoneWarriorFigure(
@@ -1297,7 +1363,7 @@ export class PieceView {
         pieceGroup.userData.bakedGlbAddons = bakedGlbAddons;
 
         // Ground & normalize character atop its pedestal (y = PEDESTAL_HEIGHT = 0.22m)
-        const { holder } = groundAndNormalizeObject3D(
+        const { holder, transform } = groundAndNormalizeObject3D(
           THREE,
           clonedScene,
           desc.type,
@@ -1306,9 +1372,27 @@ export class PieceView {
         // Face straight along pieceGroup's forward axis (White=Math.PI North, Black=0 South)
         holder.rotation.y = 0;
 
-        // Remove fallback medallion figure and mount the grounded 3D GLB + articulated skeleton rig
+        // Compute the grounded character's exact central head apex so the single S2 3D crown
+        // sits snugly juxtaposed right on the character's head with zero air gap!
+        const headAnchor = computeGroundedHeadAnchor(
+          THREE,
+          holder,
+          transform,
+          desc.type,
+        );
+        pieceGroup.userData.pieceHeight = headAnchor.y;
+        pieceGroup.userData.headAnchor = headAnchor;
+
+        // Remove fallback medallion figure and mount the grounded 3D GLB + single head-seated S2 crown + skeleton rig
         bodyContainer.clear();
         bodyContainer.add(holder);
+        if (pieceGroup.userData.universalRoleAddOn) {
+          const addon = pieceGroup.userData.universalRoleAddOn;
+          const seatY = Number.isFinite(headAnchor.seatY) ? headAnchor.seatY : headAnchor.y - 0.055;
+          addon.position.set(headAnchor.x, seatY, headAnchor.z);
+          addon.scale.setScalar(headAnchor.scale);
+          bodyContainer.add(addon);
+        }
         if (pieceGroup.userData.skeletonRig) {
           bodyContainer.add(pieceGroup.userData.skeletonRig);
         }

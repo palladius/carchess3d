@@ -6,21 +6,36 @@ import * as THREE from '../vendor/three/three.module.js';
 import {
   CLARITY_MODES,
   CLASSIC_ROLE_GLYPHS,
+  CLASSIC_ROLE_SOLID_GLYPHS,
   CLASSIC_ROLE_LETTERS,
+  CLASSIC_ROLE_BRAILLE,
+  ZENITH_DISC_BOARD_Y,
   resolveClarityConfig,
   buildObsidianOrIvoryPedestal,
   buildPedestalRoleWreath,
   buildUniversalGlbRoleAddOn,
+  computeGroundedHeadAnchor,
   buildFloatingRoleBillboard,
   buildZenithal2DClassicDisc,
+  updateRoleIcon2DLettersMode,
   applyBlackTeamGlbContrast,
 } from '../src/views/PieceClarityHelper.js';
-import { CANONICAL_PIECE_HEIGHTS, PEDESTAL_RADIUS } from '../src/utils/glbGrounding.js';
+import { CANONICAL_PIECE_HEIGHTS, PEDESTAL_HEIGHT } from '../src/utils/glbGrounding.js';
 
 const ROLES = ['k', 'q', 'r', 'b', 'n', 'p'];
 
-test('PieceClarityHelper: CLARITY_MODES and resolveClarityConfig cover s1..s5 + off at 0°, 30°, and 45°', () => {
+test('PieceClarityHelper: CLARITY_MODES and resolveClarityConfig default to s2 and auto-toggle 2D medallions on 📐 2D', () => {
   assert.deepEqual(CLARITY_MODES, ['off', 's1', 's2', 's3', 's4', 's5']);
+  assert.equal(ZENITH_DISC_BOARD_Y, 0.04);
+
+  // Default mode when unspecified is 's2' (clean 3D head-mounted crowns + obsidian contrast, NO floating 2D badges)
+  const defaultCfg = resolveClarityConfig();
+  assert.equal(defaultCfg.mode, 's2');
+  assert.equal(defaultCfg.useObsidianContrast, true);
+  assert.equal(defaultCfg.showUniversal3dAddon, true);
+  assert.equal(defaultCfg.showZenith2dDisc, false);
+  assert.equal(defaultCfg.showPedestalWreath, false);
+  assert.equal(defaultCfg.showFloatingBillboard, false);
 
   // Baseline 'off': all clarity features disabled
   const offCfg = resolveClarityConfig('off', 0, true, true);
@@ -42,19 +57,27 @@ test('PieceClarityHelper: CLARITY_MODES and resolveClarityConfig cover s1..s5 + 
   assert.equal(s1Forced.showZenith2dDisc, true);
   assert.equal(s1At0.useObsidianContrast, true);
 
-  // S2 (GLB 3D Add-Ons): shows universal 3D add-ons + obsidian contrast
-  const s2Cfg = resolveClarityConfig('s2', 30, false, false);
-  assert.equal(s2Cfg.showUniversal3dAddon, true);
-  assert.equal(s2Cfg.useObsidianContrast, true);
-  assert.equal(s2Cfg.showPedestalWreath, false);
-  assert.equal(s2Cfg.showFloatingBillboard, false);
+  // S2 (Default 3D: Head-Mounted 3D Crowns/Crests + Obsidian Contrast):
+  // In 3D (topDownCamera = false): shows 1 head-mounted 3D crown, ZERO 2D discs/billboards
+  // When pressing '📐 2D' (topDownCamera = true): auto-enables showZenith2dDisc and hides 3D crown
+  const s2Cfg3d = resolveClarityConfig('s2', 30, false, false);
+  const s2Cfg2d = resolveClarityConfig('s2', 30, false, true);
+  assert.equal(s2Cfg3d.showUniversal3dAddon, true);
+  assert.equal(s2Cfg3d.useObsidianContrast, true);
+  assert.equal(s2Cfg3d.showZenith2dDisc, false);
+  assert.equal(s2Cfg3d.showPedestalWreath, false);
+  assert.equal(s2Cfg3d.showFloatingBillboard, false);
+  assert.equal(s2Cfg2d.showZenith2dDisc, true, 'Pressing 📐 2D in S2 must toggle ON the 2D medallion');
+  assert.equal(s2Cfg2d.showUniversal3dAddon, false, 'Pressing 📐 2D in S2 hides 3D add-on while in 2D view');
 
-  // S3 (Obsidian Contrast): pure material & pedestal contrast only
+  // S3 (Obsidian Contrast): pure material & pedestal contrast in 3D, auto-toggles 2D disc when 📐 2D is pressed
   const s3Cfg = resolveClarityConfig('s3', 30, false, false);
+  const s3Top = resolveClarityConfig('s3', 30, false, true);
   assert.equal(s3Cfg.useObsidianContrast, true);
   assert.equal(s3Cfg.showUniversal3dAddon, false);
   assert.equal(s3Cfg.showPedestalWreath, false);
   assert.equal(s3Cfg.showFloatingBillboard, false);
+  assert.equal(s3Top.showZenith2dDisc, true);
 
   // S4 (Pedestal Wreath + Floating Billboard)
   const s4Cfg = resolveClarityConfig('s4', 30, false, false);
@@ -63,15 +86,16 @@ test('PieceClarityHelper: CLARITY_MODES and resolveClarityConfig cover s1..s5 + 
   assert.equal(s4Cfg.useObsidianContrast, true);
   assert.equal(s4Cfg.showUniversal3dAddon, false);
 
-  // S5 (Hybrid Champion, default): combines S2 + S3 + S4 and auto-activates S1 zenith disc at < 20° (0°)
+  // S5 (Hybrid Full): combines S2 + S3 + S4 and auto-activates S1 zenith disc at < 20° (0°) or topDownCamera
   const s5At0 = resolveClarityConfig('s5', 0, false, false);
   const s5At30 = resolveClarityConfig('s5', 30, false, false);
   assert.equal(s5At0.mode, 's5');
   assert.equal(s5At0.useObsidianContrast, true);
-  assert.equal(s5At0.showUniversal3dAddon, true);
-  assert.equal(s5At0.showPedestalWreath, true);
+  assert.equal(s5At0.showUniversal3dAddon, false, 'At 0° zenith view, 3D add-ons hide so 2D disc sits cleanly');
   assert.equal(s5At0.showFloatingBillboard, false, 'S5 at 0° hides vertical billboard when zenith 2D disc is active');
   assert.equal(s5At0.showZenith2dDisc, true, 'S5 at 0° must show Zenith 2D disc');
+  assert.equal(s5At30.showUniversal3dAddon, true, 'S5 at 30° shows 3D crowns');
+  assert.equal(s5At30.showPedestalWreath, true, 'S5 at 30° shows pedestal wreath');
   assert.equal(s5At30.showFloatingBillboard, true, 'S5 at 30° shows floating billboard');
   assert.equal(s5At30.showZenith2dDisc, false, 'S5 at 30° must keep 3D crowns visible');
 });
@@ -118,7 +142,7 @@ test('PieceClarityHelper: buildObsidianOrIvoryPedestal eliminates ice-white topC
   assert.equal(legacyBlackPed.userData.topCyl.material.color.getHex(), 0xdce7f7);
 });
 
-test('PieceClarityHelper: buildPedestalRoleWreath & buildUniversalGlbRoleAddOn create distinct 3D silhouettes for all 6 roles', () => {
+test('PieceClarityHelper: buildUniversalGlbRoleAddOn & computeGroundedHeadAnchor create sleek, zero-cube head-mounted crowns', () => {
   for (const role of ROLES) {
     for (const color of ['w', 'b']) {
       const h = CANONICAL_PIECE_HEIGHTS[role];
@@ -131,55 +155,67 @@ test('PieceClarityHelper: buildPedestalRoleWreath & buildUniversalGlbRoleAddOn c
 
       assert.equal(addon.userData.isUniversalRoleAddon, true);
       assert.equal(addon.userData.pieceType, role);
-      assert.equal(addon.position.y, h, `Addon for ${role} must be mounted at y = pieceHeight (${h}m)`);
+      assert.equal(addon.position.y, h, `Addon for ${role} defaults to y = pieceHeight (${h}m) before GLB head anchoring`);
       assert.ok(addon.children.length >= 2, `Addon for ${role} must have sculpted 3D children`);
+
+      // Verify ZERO blocky BoxGeometry cubes are used in S2 head-mounted crowns!
+      addon.traverse((child) => {
+        if (child.isMesh && child.geometry) {
+          assert.notEqual(
+            child.geometry.type,
+            'BoxGeometry',
+            `S2 head-mounted crown for role '${role}' must use sleek sculpted geometry, never BoxGeometry`,
+          );
+        }
+      });
     }
   }
 
-  // Verify Knight ('n') Universal 3D Add-On is WIDE (>= 0.50m along X axis)
-  const knightAddon = buildUniversalGlbRoleAddOn(THREE, 'n', 'w', CANONICAL_PIECE_HEIGHTS.n);
-  knightAddon.updateMatrixWorld(true);
-  const knightBox = new THREE.Box3().setFromObject(knightAddon);
-  const knightWidthX = knightBox.max.x - knightBox.min.x;
-  assert.ok(
-    knightWidthX >= 0.50,
-    `Knight 3D warhorse crest must be >= 0.50m wide along X, got ${knightWidthX.toFixed(3)}m`,
-  );
-
-  // Verify King ('k') Cross Pattee Finial rises +0.28m above pieceHeight with >= 0.26m wide arms
-  const kingH = CANONICAL_PIECE_HEIGHTS.k;
+  // Verify head-proportioned bounds and computeGroundedHeadAnchor seating directly on actual GLB head top
+  const kingH = 1.184; // Actual grounded King Riccardo top Y
   const kingAddon = buildUniversalGlbRoleAddOn(THREE, 'k', 'w', kingH);
   kingAddon.updateMatrixWorld(true);
   const kingBox = new THREE.Box3().setFromObject(kingAddon);
+  const kingSpanX = kingBox.max.x - kingBox.min.x;
   assert.ok(
-    kingBox.max.y >= kingH + 0.27,
-    `King Cross Pattee finial must reach ~+0.28m above ${kingH}m, got ${kingBox.max.y.toFixed(3)}m`,
+    kingSpanX >= 0.24 && kingSpanX <= 0.36,
+    `King head-proportioned imperial crown must span ~0.28m, got ${kingSpanX.toFixed(3)}m`,
   );
   assert.ok(
-    kingBox.max.x - kingBox.min.x >= 0.25,
-    `King Cross Pattee arms must be >= 0.26m wide`,
+    kingBox.max.y >= kingH + 0.21,
+    `King imperial arched crown + cross finial must rise ~0.23m above head, got ${(kingBox.max.y - kingH).toFixed(3)}m`,
   );
 
-  // Verify Queen ('q') 8-Pearl Coronet has Ø >= 0.40m
-  const queenAddon = buildUniversalGlbRoleAddOn(THREE, 'q', 'w', CANONICAL_PIECE_HEIGHTS.q);
+  const queenH = 1.141; // Actual grounded Queen Kate top Y
+  const queenAddon = buildUniversalGlbRoleAddOn(THREE, 'q', 'w', queenH);
   queenAddon.updateMatrixWorld(true);
   const queenBox = new THREE.Box3().setFromObject(queenAddon);
+  const queenSpanX = queenBox.max.x - queenBox.min.x;
   assert.ok(
-    queenBox.max.x - queenBox.min.x >= 0.40,
-    `Queen 8-pearl coronet must span >= 0.40m, got ${(queenBox.max.x - queenBox.min.x).toFixed(3)}m`,
+    queenSpanX >= 0.24 && queenSpanX <= 0.36,
+    `Queen 8-spire tiara coronet must span ~0.29m, got ${queenSpanX.toFixed(3)}m`,
   );
 
-  // Verify Rook ('r') 6-Merlon Battlement Turret Crown has Ø >= 0.42m
-  const rookAddon = buildUniversalGlbRoleAddOn(THREE, 'r', 'w', CANONICAL_PIECE_HEIGHTS.r);
-  rookAddon.updateMatrixWorld(true);
-  const rookBox = new THREE.Box3().setFromObject(rookAddon);
-  assert.ok(
-    rookBox.max.x - rookBox.min.x >= 0.41,
-    `Rook 6-merlon turret crown must span ~0.42m, got ${(rookBox.max.x - rookBox.min.x).toFixed(3)}m`,
+  // Verify computeGroundedHeadAnchor finds the true top of a grounded mesh
+  const mockHolder = new THREE.Group();
+  const bodyMesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.14, 0.22, 0.96, 16),
+    new THREE.MeshBasicMaterial(),
   );
+  bodyMesh.position.set(0.01, PEDESTAL_HEIGHT + 0.48, -0.015);
+  mockHolder.add(bodyMesh);
+  const anchor = computeGroundedHeadAnchor(
+    THREE,
+    mockHolder,
+    { finalMaxY: PEDESTAL_HEIGHT + 0.96 },
+    'k',
+  );
+  assert.ok(Math.abs(anchor.y - (PEDESTAL_HEIGHT + 0.96)) < 1e-3);
+  assert.ok(Math.abs(anchor.x - 0.01) < 0.05);
+  assert.ok(Math.abs(anchor.z - -0.015) < 0.05);
 });
 
-test('PieceClarityHelper: buildFloatingRoleBillboard & buildZenithal2DClassicDisc work in both headless Node and Canvas 2D contexts', () => {
+test('PieceClarityHelper: buildZenithal2DClassicDisc sits at board level (y=0.04m) and renders simplified single icon by default', () => {
   // 1. Headless mode (typeof document === 'undefined')
   for (const role of ROLES) {
     const h = CANONICAL_PIECE_HEIGHTS[role];
@@ -189,12 +225,19 @@ test('PieceClarityHelper: buildFloatingRoleBillboard & buildZenithal2DClassicDis
     assert.ok(Math.abs(wBillboard.position.y - (h + 0.36)) < 1e-6);
     assert.ok(Math.abs(wBillboard.scale.x - 0.38) < 1e-6);
     assert.equal(wBillboard.userData.glyph, CLASSIC_ROLE_GLYPHS[role]);
+    assert.equal(wBillboard.userData.solidGlyph, CLASSIC_ROLE_SOLID_GLYPHS[role]);
     assert.equal(bBillboard.userData.letter, CLASSIC_ROLE_LETTERS[role]);
+    assert.equal(bBillboard.userData.braille, CLASSIC_ROLE_BRAILLE[role]);
+    assert.equal(wBillboard.userData.showRoleLetters, false);
 
     const wDisc = buildZenithal2DClassicDisc(THREE, role, 'w', h);
     const bDisc = buildZenithal2DClassicDisc(THREE, role, 'b', h);
     assert.ok(wDisc.isMesh);
-    assert.ok(Math.abs(wDisc.position.y - (h + 0.30)) < 1e-6);
+    // CRITICAL FOR SQUARE ALIGNMENT: Zenith 2D disc sits at board level (0.04m), NOT pieceHeight + 0.30!
+    assert.ok(
+      Math.abs(wDisc.position.y - ZENITH_DISC_BOARD_Y) < 1e-6,
+      `Expected Zenith 2D disc at board level y=${ZENITH_DISC_BOARD_Y}m for zero parallax offset, got ${wDisc.position.y}`,
+    );
     assert.equal(wDisc.userData.background, '#e8dec8');
     assert.equal(wDisc.userData.outerRing, '#2a1d08');
     assert.equal(wDisc.userData.innerRing, '#c69214');
@@ -205,7 +248,7 @@ test('PieceClarityHelper: buildFloatingRoleBillboard & buildZenithal2DClassicDis
     assert.equal(bDisc.userData.iconColor, '#ffffff');
   }
 
-  // 2. Mock DOM Canvas 2D context to exercise drawTournamentChessIcon2D for all 6 roles
+  // 2. Mock DOM Canvas 2D context to verify simplified single-icon default vs accessibility letters+Braille mode
   const drawCalls = [];
   const mockCtx2D = {
     save() {},
@@ -229,6 +272,9 @@ test('PieceClarityHelper: buildFloatingRoleBillboard & buildZenithal2DClassicDis
       drawCalls.push('stroke');
     },
     translate() {},
+    strokeText(txt) {
+      drawCalls.push(`strokeText:${txt}`);
+    },
     fillText(txt) {
       drawCalls.push(`fillText:${txt}`);
     },
@@ -246,18 +292,26 @@ test('PieceClarityHelper: buildFloatingRoleBillboard & buildZenithal2DClassicDis
     },
   };
   try {
+    // Default (showRoleLetters = false): ONLY the single centered classic icon (♚ ♛ ♜ ♝ ♞ ♟), NO letters!
     for (const role of ROLES) {
-      const disc = buildZenithal2DClassicDisc(THREE, role, 'b', 1.5);
-      const sprite = buildFloatingRoleBillboard(THREE, role, 'w', 1.5);
+      const disc = buildZenithal2DClassicDisc(THREE, role, 'b', 1.5, false);
+      const sprite = buildFloatingRoleBillboard(THREE, role, 'w', 1.5, false);
       assert.equal(disc.material.map.userData.width, 512);
       assert.equal(sprite.material.map.userData.width, 256);
     }
-    assert.ok(drawCalls.includes('fillText:♔K'));
-    assert.ok(drawCalls.includes('fillText:♕Q'));
-    assert.ok(drawCalls.includes('fillText:♖R'));
-    assert.ok(drawCalls.includes('fillText:♗B'));
-    assert.ok(drawCalls.includes('fillText:♘N'));
-    assert.ok(drawCalls.includes('fillText:♙P'));
+    assert.ok(drawCalls.includes('fillText:♚'));
+    assert.ok(drawCalls.includes('fillText:♛'));
+    assert.ok(drawCalls.includes('fillText:♜'));
+    assert.ok(drawCalls.includes('fillText:♝'));
+    assert.ok(drawCalls.includes('fillText:♞'));
+    assert.ok(drawCalls.includes('fillText:♟'));
+    assert.ok(!drawCalls.some((c) => c.includes('K ⠇')), 'Letters/Braille must be OFF by default');
+
+    // Toggle accessibility letters + Braille ON via updateRoleIcon2DLettersMode
+    const kingDisc = buildZenithal2DClassicDisc(THREE, 'k', 'w', 1.85, false);
+    updateRoleIcon2DLettersMode(kingDisc, true);
+    assert.equal(kingDisc.userData.showRoleLetters, true);
+    assert.ok(drawCalls.includes('fillText:K ⠇'), 'Accessibility toggle must render role letter + Braille');
   } finally {
     delete globalThis.document;
   }
