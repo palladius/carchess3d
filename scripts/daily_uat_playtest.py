@@ -179,6 +179,8 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 ],
             )
 
+            video_start_time = time.time()
+            trim_start_s = 0.0
             context = browser.new_context(
                 record_video_dir=str(video_raw_dir),
                 record_video_size={"width": 1280, "height": 720},
@@ -201,6 +203,16 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             page.goto(f"http://localhost:{port}/index.html", wait_until="networkidle")
             page.wait_for_selector("#game-canvas", timeout=10000)
             time.sleep(1.8)
+
+            # Immediately dismiss startup match-setup modal if already open
+            try:
+                setup_visible = page.evaluate("() => { const m = document.querySelector('#hud-setup-modal'); return Boolean(m && getComputedStyle(m).display !== 'none'); }")
+                if setup_visible:
+                    page.evaluate("() => { const b = document.querySelector('#hud-setup-start-btn') || document.querySelector('#hud-setup-close'); if (b) b.click(); }")
+                    time.sleep(0.6)
+                    trim_start_s = max(0.0, round(time.time() - video_start_time, 1))
+            except Exception:
+                pass
 
             shot1 = out_dir / "01_initial_board.png"
             page.screenshot(path=str(shot1))
@@ -276,6 +288,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                     print("⚙️ Startup Match Setup Modal detected: confirming default match setup...")
                     page.evaluate("() => { const b = document.querySelector('#hud-setup-start-btn') || document.querySelector('#hud-setup-close'); if (b) b.click(); }")
                     time.sleep(0.8)
+                    trim_start_s = max(0.0, round(time.time() - video_start_time, 1))
             except Exception as e:
                 print(f"   ℹ️ Setup modal handling note: {e}")
 
@@ -599,15 +612,21 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 ffmpeg_bin = shutil.which("ffmpeg")
                 if ffmpeg_bin:
                     target_mp4 = out_dir / "uat_gameplay.mp4"
+                    ss_args = ["-ss", str(trim_start_s)] if trim_start_s > 0 else []
                     cmd = [
                         ffmpeg_bin,
                         "-y",
+                        *ss_args,
                         "-i",
                         str(target_webm),
                         "-t",
-                        "60",
+                        "75",
                         "-c:v",
                         "libx264",
+                        "-preset",
+                        "fast",
+                        "-crf",
+                        "26",
                         "-pix_fmt",
                         "yuv420p",
                         "-movflags",
@@ -617,7 +636,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                     res = subprocess.run(cmd, capture_output=True)
                     if res.returncode == 0:
                         report["video_mp4"] = target_mp4.name
-                        print(f"🎬 Video rendered & encoded (max 1 min): {target_mp4} ({min(60.0, report['video_duration_s'])}s)")
+                        print(f"🎬 Video rendered & encoded (trimmed first {trim_start_s}s): {target_mp4}")
 
                     # Generate animated preview GIF for inline GitHub Issue embedding
                     target_gif = out_dir / "uat_gameplay.gif"
@@ -627,9 +646,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                         "-i",
                         str(target_mp4 if target_mp4.exists() else target_webm),
                         "-vf",
-                        "fps=8,scale=540:-1:flags=lanczos",
-                        "-t",
-                        "12",
+                        "setpts=0.35*PTS,fps=8,scale=480:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=96[p];[s1][p]paletteuse=dither=bayer:bayer_scale=3",
                         "-loop",
                         "0",
                         str(target_gif),

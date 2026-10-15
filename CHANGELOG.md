@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.76] - 2026-10-15
+
+- ✂️🎬 **Trim Selezione Iniziale da Video & GIF UAT (`scripts/daily_uat_playtest.py`, `article/assets/gallery/daily_uat_gameplay_20261015.gif`, `docs/visual-progress/daily_uat_gameplay_20261015.gif`, GitHub Release `uat-media-20261015`)**:
+  - Tagliata la schermata modale di selezione iniziale (`#hud-setup-modal`, primi `27s`) dal video `uat_gameplay.mp4` (`74.2s` di puro gameplay 3D) e dalla GIF `daily_uat_gameplay_20261015.gif` (`26s` a `2.8x` con rotazione camera, toggle 2D/3D, mosse e scontro 3D Battle Arena `Ale vs Puffin`), aggiornando anche la release GitHub `uat-media-20261015` collegata alla **[Issue #36](https://github.com/palladius/carchess3d/issues/36)**.
+  - Aggiornato `scripts/daily_uat_playtest.py` per chiudere immediatamente il modale di setup allo startup e calcolare automaticamente `trim_start_s` (`-ss`) durante il post-processing `ffmpeg`.
+
 ## [0.3.75] - 2026-10-15
 
 - 🧪🎬📰 **Articolo & Post-Mortem: Sezione Dedicata al Daily UAT Playtest & GitHub Issue #36 (`article/ARTICLE.md`, `docs/ARTICLE.md`, `article/INVESTIGATION.md`, `article/assets/gallery/daily_uat_gameplay_20261015.gif`, `docs/visual-progress/daily_uat_gameplay_20261015.gif`)**:
