@@ -56,7 +56,7 @@ def redact(text: str) -> str:
     text = re.sub(r"gh[op]_[A-Za-z0-9]{20,}", "ghp_REDACTED_TOKEN", text)
     corp_prefix = "/usr/local/" + "google/home/"
     text = re.sub(re.escape(corp_prefix) + r"[a-z_][a-z0-9_-]*/", "~/", text)
-    text = text.replace("/usr/local/" + "google", "/usr/local/corp")
+    text = text.replace("/usr/local/" + "google", "<corp-path>")
     home_prefix = "/home/"
     text = re.sub(re.escape(home_prefix) + r"[a-z_][a-z0-9_-]*/", "~/", text)
     text = re.sub(r"\.gemini/" + r"jetski", ".gemini/antigravity", text)

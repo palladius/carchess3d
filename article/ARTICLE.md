@@ -207,7 +207,7 @@ Once our script (`gen_mv.py`) explicitly invoked `/lambda_1` right after `/start
 
 #### Engine 2: Local GPU Pivot on `pupurabbux` (NVIDIA RTX 5080 + TurboSebux)
 When Hugging Face ZeroGPU hit quota limits (*"Exceeded ZeroGPU quota"*), the agent didn't stall waiting for a credit card. It pivoted autonomously to my home PC's local hardware:
-- **External Samsung T7 SSD**: mounted a 600 GB ext4 loop volume at `/media/riccardo/TurboSebux` so root `/` wouldn't fill up.
+- **External Samsung T7 SSD**: mounted a 600 GB ext4 loop volume at `<external-ssd>` so root `/` wouldn't fill up.
 - **Hunyuan3D-2 Shape**: generated complete meshes locally in **32 seconds** using just **5.6 GB of VRAM** on the RTX 5080.
 - **Blackwell `sm_120` CUDA PTX JIT Fix**: Because prebuilt PyTorch/rasterizer wheels didn't yet include native binaries for NVIDIA's new Blackwell `sm_120` architecture (`cudaErrorNoKernelImageForDevice`), the agent recompiled `custom_rasterizer_kernel` with `TORCH_CUDA_ARCH_LIST="9.0+PTX"`, leveraging the NVIDIA driver's PTX JIT compiler.
 

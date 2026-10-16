@@ -736,7 +736,7 @@
       {
         "step": 316,
         "timestamp": "2026-10-10T08:11:04Z",
-        "text": "<USER_REQUEST>\nno intentedvo montare /media/riccardo/TurboSeby/tmp/data/carchess3d/ come un /media/riccardo/TurboSebux/ e avere piu spazio e usarlo per PIU che solo questo project e documentarlo su obsidian! e montarlo at startup...\n\n</USER_REQUEST>\n<ADDITIONAL_METADATA>\nThe current local time is: 2026-10-10T10:11:04+02:00.\n</ADDITIONAL_METADATA>"
+        "text": "<USER_REQUEST>\nno intentedvo montare <external-ssd> come un <external-ssd> e avere piu spazio e usarlo per PIU che solo questo project e documentarlo su obsidian! e montarlo at startup...\n\n</USER_REQUEST>\n<ADDITIONAL_METADATA>\nThe current local time is: 2026-10-10T10:11:04+02:00.\n</ADDITIONAL_METADATA>"
       },
       {
         "step": 320,
@@ -751,7 +751,7 @@
       {
         "step": 330,
         "timestamp": "2026-10-10T08:14:41Z",
-        "text": "<USER_REQUEST>\nriccardo@pupurabbux:🏡~/git/carchess3d$ pupurabbux-setup-turboseby-turbosebux-ext4        # 600 GB di default\n\n▶ 1/5 image file /media/riccardo/TurboSeby/tmp/data/TurboSebux.ext4 (600G)\n\n▶ 2/5 ext4 filesystem (label TurboSebux)\nmke2fs 1.47.0 (5-Feb-2023)\nCreating filesystem with 157286400 4k blocks and 39321600 inodes\nFilesystem UUID: 82123a01-33e7-4da6-b83a-3ae3c253ddd5\nSuperblock backups stored on blocks: \n\t32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208, \n\t4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968, \n\t102400000\n\nAllocating group tables: done                            \n\n\n\n... PAUSE ....\n</USER_REQUEST>\n<ADDITIONAL_METADATA>\nThe current local time is: 2026-10-10T10:14:41+02:00.\n</ADDITIONAL_METADATA>"
+        "text": "<USER_REQUEST>\nriccardo@pupurabbux:🏡~/git/carchess3d$ pupurabbux-setup-turboseby-turbosebux-ext4        # 600 GB di default\n\n▶ 1/5 image file <external-ssd> (600G)\n\n▶ 2/5 ext4 filesystem (label TurboSebux)\nmke2fs 1.47.0 (5-Feb-2023)\nCreating filesystem with 157286400 4k blocks and 39321600 inodes\nFilesystem UUID: 82123a01-33e7-4da6-b83a-3ae3c253ddd5\nSuperblock backups stored on blocks: \n\t32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208, \n\t4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968, \n\t102400000\n\nAllocating group tables: done                            \n\n\n\n... PAUSE ....\n</USER_REQUEST>\n<ADDITIONAL_METADATA>\nThe current local time is: 2026-10-10T10:14:41+02:00.\n</ADDITIONAL_METADATA>"
       },
       {
         "step": 340,

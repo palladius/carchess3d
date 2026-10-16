@@ -114,7 +114,7 @@
 
 > 💬 *[Step 14 @ 2026-10-09T16:35:27]*
 > <USER_REQUEST> 
-> /conductor-setup inizia un conduictor set up e fammi TUTTE LE DOMANDE NECESSARIE per capire. Se vuoi capire tutto fatti un idea guardando quetso video in quyesto deck con demo di scacchi - voglio far elo stesso per la mia famiglia :) slide 29 qui @[https://docs.google.com/presentation/d/1TwBPdUomanTe6r0-8XI6bVxSFQVw5LSf6PsxIHfy6ns/edit?resourcekey=0-C3w7d-WvzzUqK83XcFfhHw&slide=id.demo_slide_wizard_chess_v1#slide=id.demo_slide_wizard_chess_v1:Skywalker Demo Lab - Gemini 4 ]  vedi il video? 
+> /conductor-setup inizia un conduictor set up e fammi TUTTE LE DOMANDE NECESSARIE per capire. Se vuoi capire tutto fatti un idea guardando quetso video in quyesto deck con demo di scacchi - voglio far elo stesso per la mia famiglia :) slide 29 qui @[<private-doc-link> Demo Lab - Gemini 4 ]  vedi il video? 
 > </USER_REQUEST> 
 > <ADDITIONAL_METADATA> 
 > The user is: ricc. 
@@ -129,7 +129,7 @@
 
 > 💬 *[Step 26 @ 2026-10-09T16:36:00]*
 > <USER_REQUEST> 
-> video su drive @[https://drive.google.com/file/d/1kCyTseB4Gmcqt18PtLikPj09F7CoQTmB/view?resourcekey:wizardChess-edit-261008d.mp4]   
+> video su drive @[<private-doc-link>]   
 > </USER_REQUEST> 
 > <ADDITIONAL_METADATA> 
 > The user is: ricc. 
@@ -221,7 +221,7 @@
 
 > 💬 *[Step 1 @ 2026-10-10T07:38:44]*
 > <USER_REQUEST> 
-> I want you to help me CODE this amazing game. read the Niccolo skill in .agents/skills/ , then read this doc @[https://docs.google.com/document/d/19fRGUyVhANuhPx1rmTOEAnyvmbOI7-Pb9tbf_NK9V0U/edit?tab=t.0:Building 3D Games and Procedural Worlds with Gemini 4 Argon | go/argon-3D]  and finally read the conductor plan. Once done all, THEN I want you to show me the enxt steps in Genevieve thoughts, finally getting to the ideal /goal but maybe have first a /roastme phase ? 
+> I want you to help me CODE this amazing game. read the Niccolo skill in .agents/skills/ , then read this doc @[<private-doc-link> 3D Games and Procedural Worlds with Gemini 4 Argon | <internal-link>]  and finally read the conductor plan. Once done all, THEN I want you to show me the enxt steps in Genevieve thoughts, finally getting to the ideal /goal but maybe have first a /roastme phase ? 
 > </USER_REQUEST> 
 > <ADDITIONAL_METADATA> 
 > The user is: ricc. 
@@ -920,7 +920,7 @@
 >   3. `assets/battles/videos/*.mp4` and `assets/battles/videos/*.webm` (all 36 pairs!) 
 >   4. `tests/matrix36.test.mjs` (NEW FILE) 
 > - Do NOT edit `src/core/Registry.js`, `src/views/*`, `src/listeners/*`, `VERSION`, `CHANGELOG.md`, or `.env`. 
-> - Never put `/usr/local/corp` inside any file content (`scripts/check.py` forbids it). 
+> - Never put `<corp-path>` inside any file content (`scripts/check.py` forbids it). 
 > - Do NOT run `git commit` or `git push`. 
 >  
 > YOUR MISSION (ZERO CORNER-CUTTING): 
@@ -974,7 +974,7 @@
 >   1. `src/views/VFXPoolView.js` 
 >   2. `src/views/VeoCinemaView.js` 
 > - Do NOT edit `PieceView.js`, `HudListener.js`, `BoardInteractionView.js`, `Registry.js`, `VERSION`, or `CHANGELOG.md`. 
-> - Keep each file cleanly structured, valid ES module syntax (`node --check`), and never include `/usr/local/corp` in any file. 
+> - Keep each file cleanly structured, valid ES module syntax (`node --check`), and never include `<corp-path>` in any file. 
 > - Do NOT run `git commit` or `git push`. 
 >  
 > YOUR MISSION (ZERO CORNER-CUTTING): 
@@ -1024,7 +1024,7 @@
 >   2. `src/views/PieceView.js` 
 >   3. `src/views/WowModeView.js` 
 > - Do NOT edit `VFXPoolView.js`, `HudListener.js`, `BoardInteractionView.js`, `Registry.js`, `VERSION`, or `CHANGELOG.md`. 
-> - Never include `/usr/local/corp` in any file content. 
+> - Never include `<corp-path>` in any file content. 
 > - Do NOT run `git commit` or `git push`. 
 >  
 > YOUR MISSION (ZERO CORNER-CUTTING): 
@@ -1069,7 +1069,7 @@
 >   2. `src/listeners/HudListener.js` 
 >   3. `src/views/BoardInteractionView.js` 
 > - Do NOT edit `PieceView.js`, `VFXPoolView.js`, `VeoCinemaView.js`, `src/main.js`, `VERSION`, or `CHANGELOG.md`. 
-> - Never include `/usr/local/corp` in any file content. 
+> - Never include `<corp-path>` in any file content. 
 > - Do NOT run `git commit` or `git push`. 
 >  
 > YOUR MISSION (ZERO CORNER-CUTTING): 
@@ -1113,7 +1113,7 @@
 > - You ONLY own: 
 >   1. `scripts/adversarial_swarm_audit.py` (NEW FILE) 
 >   2. `docs/visual-progress/round6_*.png` (diagnostic screenshots captured during your audit) 
-> - Never put `/usr/local/corp` inside any tracked file. 
+> - Never put `<corp-path>` inside any tracked file. 
 >  
 > YOUR MISSION: 
 > 1. Build `scripts/adversarial_swarm_audit.py` (using `socketserver.ThreadingTCPServer` + headless Playwright Chromium `--use-gl=angle --use-angle=swiftshader` + `os._exit(0)` at the end so it never hangs) to ruthlessly test all 7 GitHub Issues (`#10` through `#16`): 
@@ -1379,7 +1379,7 @@
 
 > 💬 *[Step 1 @ 2026-10-12T10:36:50]*
 > <USER_REQUEST> 
-> Come Ambrogio e' il nostro agente milanese, crea un agente di VIAGGI che chiamiamo o Brunella o Brunello. Lui mantiene il doc [go/ricc-ai:events](http://goto.google.com/ricc-ai:events) da go/ricc-tom e ogni giorno guarda se manca qualcosa, ad esempio "Hey, hai un viaggio tra una settiman a ma manca il volo /  l'hotel..." qualcosa che guarda il calendario e si accorge se l'hotel o il volo sono in giorni sbagliati e cosi via. 
+> Come Ambrogio e' il nostro agente milanese, crea un agente di VIAGGI che chiamiamo o Brunella o Brunello. Lui mantiene il doc [<internal-link>](<internal-link>) da <internal-link> e ogni giorno guarda se manca qualcosa, ad esempio "Hey, hai un viaggio tra una settiman a ma manca il volo /  l'hotel..." qualcosa che guarda il calendario e si accorge se l'hotel o il volo sono in giorni sbagliati e cosi via. 
 >  
 > Brunella e' la mia agente viaggi, quindi mi paice brunella se hai voce femminile. 
 > </USER_REQUEST> 

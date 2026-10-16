@@ -41,7 +41,7 @@ Mentre Riccardo era via nel weekend per il decennale di matrimonio a Colmar, non
 ### La Soluzione Autonoma
 Gemini 4 Argon ha eseguito il pivot sull'hardware locale presente sul computer di casa (**pupurabbux**):
 - **GPU**: NVIDIA GeForce RTX 5080 (Blackwell `sm_120`), 16 GB VRAM.
-- **Storage**: per non intasare la partizione root `/` del computer di casa, è stato configurato un volume ext4 loop da 600 GB sull'SSD esterno Samsung T7: `/media/riccardo/TurboSebux` montato via `/etc/fstab` con `loop,noatime,nofail`.
+- **Storage**: per non intasare la partizione root `/` del computer di casa, è stato configurato un volume ext4 loop da 600 GB sull'SSD esterno Samsung T7: `<external-ssd>` montato via `/etc/fstab` con `loop,noatime,nofail`.
 - **Hunyuan3D-2 Shape in Locale**:
   - Tempo di generazione: **32 secondi** per mesh completa (contro i 4-5 minuti in coda remota).
   - VRAM picco: **5.6 GB** (utilizzando appena il 35% dei 16 GB della RTX 5080).

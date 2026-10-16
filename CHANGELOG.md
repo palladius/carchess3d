@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.80] - 2026-10-16
+
+- 🔒 **Privacy scrub `article/` (MAIN agent review del merge `write_family_3d_article`)**: redatti 43 riferimenti interni rimasti nei dossier (`article/sources/derek_chats_list.md`, `article/sources/telemetry/*_chats_index.json`, `iterations_log.md`, `ARTICLE.md`, `INVESTIGATION.md`, `list_carchess_chats.py`): short-link interni → `<internal-link>`, link a Docs/Drive privati → `<private-doc-link>`, path corp → `<corp-path>`, path assoluti del disco esterno/home → `<external-ssd>` / `<home>`. Nessun cambiamento al gioco.
+
 ## [0.3.79] - 2026-10-15
 
 - ✂️🎬 **Trim Selezione Iniziale da Video & GIF UAT (`scripts/daily_uat_playtest.py`, `article/assets/gallery/daily_uat_gameplay_20261015.gif`, `docs/visual-progress/daily_uat_gameplay_20261015.gif`, GitHub Release `uat-media-20261015`)**:
