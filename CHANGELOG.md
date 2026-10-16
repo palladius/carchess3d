@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.81] - 2026-10-16
+
+- 🧪🎬 **Daily UAT `20261016` & `#hud-confirm-new-yes` Guard Support (`scripts/daily_uat_playtest.py`, `#37`)**:
+  - Updated Step 9 of `scripts/daily_uat_playtest.py` to confirm the `v0.3.77` `#hud-confirm-new-modal` (`#hud-confirm-new-yes` / `confirmNewGame()`) after clicking `#hud-new-btn`.
+  - Executed `just daily-uat` for `2026-10-16` and published **[GitHub Issue #37 (`Gemini UAT 20261016`)](https://github.com/palladius/carchess3d/issues/37)** with 8/8 passing checks (`180°` flip luminance `95.1/255`, `2D` top-down luminance `77.7/255`, CPU Easy avg latency `511ms`).
+
 ## [0.3.80] - 2026-10-16
 
 - 🔒 **Privacy scrub `article/` (MAIN agent review del merge `write_family_3d_article`)**: redatti 43 riferimenti interni rimasti nei dossier (`article/sources/derek_chats_list.md`, `article/sources/telemetry/*_chats_index.json`, `iterations_log.md`, `ARTICLE.md`, `INVESTIGATION.md`, `list_carchess_chats.py`): short-link interni → `<internal-link>`, link a Docs/Drive privati → `<private-doc-link>`, path corp → `<corp-path>`, path assoluti del disco esterno/home → `<external-ssd>` / `<home>`. Nessun cambiamento al gioco.

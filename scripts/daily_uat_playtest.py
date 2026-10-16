@@ -445,6 +445,11 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
             # -----------------------------------------------------------------
             print("♟️ Starting Simulated Match: Human White vs CPU Easy Black...")
             page.click("#hud-new-btn")
+            time.sleep(0.3)
+            if page.locator("#hud-confirm-new-yes").is_visible():
+                page.click("#hud-confirm-new-yes")
+            else:
+                page.evaluate("() => window.__CARCHESS__?.hud?.confirmNewGame?.()")
             time.sleep(0.5)
 
             page.evaluate("""() => {
