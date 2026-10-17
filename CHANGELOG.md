@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.83] - 2026-10-17
+
+- 🔒 **Path scrub `render_ale_comparison.py`**: rimossi i path assoluti del disco esterno; i GLB locali ora si leggono da `$LOCAL3D_ROOT/out` (stessa convenzione di `hunyuan_paint.py` e del `justfile`). Nessun cambiamento al gioco.
+
 ## [0.3.82] - 2026-10-17
 
 - 🎩🐉 **Local 3D Ale Visual Audit & Comparison Showcase (`da109ff`, `article/SHOWCASE_LOCAL3D_ALE.md`, `article/assets/ale_visual_audit_color.png`, `showcase/ale_visual_audit_color.png`, `tools/model-pipeline/local/render_ale_comparison.py`)**:

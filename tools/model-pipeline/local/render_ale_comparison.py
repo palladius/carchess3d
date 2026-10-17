@@ -10,9 +10,11 @@ HERE = Path(__file__).parent.resolve()
 ROOT = HERE.parent.parent.parent.resolve()
 
 GLB_OLD = ROOT / "assets/models/bishop-ale-1.glb"
-GLB_NEW_TEX = Path("/media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_textured.glb")
-GLB_SHAPE_700K = Path("/media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_shape.glb")
-GLB_SHAPE_60K = Path("/media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_shape_60k.glb")
+# Local GPU outputs live under $LOCAL3D_ROOT/out (same convention as hunyuan_paint.py / justfile).
+LOCAL3D_OUT = Path(os.environ.get("LOCAL3D_ROOT", str(HERE))) / "out"
+GLB_NEW_TEX = LOCAL3D_OUT / "ale1_hy2_textured.glb"
+GLB_SHAPE_700K = LOCAL3D_OUT / "ale1_hy2_shape.glb"
+GLB_SHAPE_60K = LOCAL3D_OUT / "ale1_hy2_shape_60k.glb"
 IMG_REF = ROOT / "tools/model-pipeline/ale/front.png"
 
 OUT_DIR = HERE / "out"
