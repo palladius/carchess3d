@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.82] - 2026-10-17
+
+- 🎩🐉 **Local 3D Ale Visual Audit & Comparison Showcase (`da109ff`, `article/SHOWCASE_LOCAL3D_ALE.md`, `article/assets/ale_visual_audit_color.png`, `showcase/ale_visual_audit_color.png`, `tools/model-pipeline/local/render_ale_comparison.py`)**:
+  - Added side-by-side color visual audit of the 3 Alessandro (Bishop) 3D models (`bishop-ale-1.glb`, `bishop-ale-2.glb`, `bishop-ale-rigged.glb`) and comparison renderer script `tools/model-pipeline/local/render_ale_comparison.py`.
+- 🧪🎬 **Daily UAT `20261017` (`#38`)**:
+  - Executed `just daily-uat` for `2026-10-17` and published **[GitHub Issue #38 (`Gemini UAT 20261017`)](https://github.com/palladius/carchess3d/issues/38)** with 8/8 passing checks (`180°` flip luminance `94.2/255`, `2D` top-down luminance `78.9/255`, CPU Easy avg latency `407ms`).
+
 ## [0.3.81] - 2026-10-16
 
 - 🧪🎬 **Daily UAT `20261016` & `#hud-confirm-new-yes` Guard Support (`scripts/daily_uat_playtest.py`, `#37`)**:
