@@ -32,6 +32,15 @@ import {
 import { BATTLE_MATRIX_36 } from '../core/BattleMatrix36.js';
 
 const PIECE_ORDER = ['k', 'q', 'b', 'n', 'r', 'p'];
+const CLARITY_CYCLE = ['s2', 's1', 's3', 's4', 's5', 'off'];
+const CLARITY_I18N_KEYS = {
+  s2: 'clarityS2',
+  s1: 'clarityS1',
+  s3: 'clarityS3',
+  s4: 'clarityS4',
+  s5: 'clarityS5',
+  off: 'clarityOff',
+};
 
 const WEAPON_LABELS_IT = {
   k: '⚡ Scettro Reale & Trono d’Oro',
@@ -76,14 +85,39 @@ export class HudListener {
   constructor(ctx = null) {
     this.ctx = ctx;
     let initialLang = ctx?.lang === 'it' ? 'it' : 'en';
+    let initialClarity = ctx?.clarityMode ? String(ctx.clarityMode).toLowerCase() : 's2';
+    let initialForce2d = Boolean(ctx?.force2dIcons);
+    let initialShowLetters = Boolean(ctx?.showRoleLetters);
     if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
-      const urlLang = new URLSearchParams(window.location.search).get('lang');
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlLang = urlParams.get('lang');
       if (urlLang === 'it' || urlLang === 'en') {
         initialLang = urlLang;
+      }
+      const rawClarity = (urlParams.get('clarity') || '').toLowerCase();
+      if (rawClarity === '2d') {
+        initialClarity = 's1';
+        initialForce2d = true;
+      } else if (CLARITY_CYCLE.includes(rawClarity)) {
+        initialClarity = rawClarity;
+      }
+      if (urlParams.get('icons2d') === '1' || urlParams.get('icons2d') === 'true') {
+        initialForce2d = true;
+      }
+      if (
+        urlParams.get('letters') === '1' ||
+        urlParams.get('letters') === 'true' ||
+        urlParams.get('braille') === '1' ||
+        urlParams.get('braille') === 'true'
+      ) {
+        initialShowLetters = true;
       }
     }
     /** @type {'it'|'en'} */
     this.lang = initialLang;
+    this.clarityMode = CLARITY_CYCLE.includes(initialClarity) ? initialClarity : 's2';
+    this.force2dIcons = initialForce2d;
+    this.showRoleLetters = initialShowLetters;
     this.isMobilePhone =
       typeof ctx?.isMobilePhone === 'boolean' ? ctx.isMobilePhone : isMobilePhoneViewport();
     this.portraitDismissed = false;
@@ -102,20 +136,27 @@ export class HudListener {
     this.blackDifficulty = 'easy';
     this.topbarVisible = !this.isMobilePhone;
     this.setupModalOpen = false;
+    this.helpModalOpen = false;
+    this.confirmNewModalOpen = false;
     this.quakeConsoleOpen = false;
     this.quakeLogs = [];
     this.flowState = 'Mode1_Chess';
     this.turn = 'w';
     this.inCheck = false;
     this.luck = { w: 0, b: 0, max: 12 };
+    this.lastD20Roll = 20;
+    this.d20RollTimer = null;
     this.unlockedStickers = new Set();
     this.lastToast = null;
     this.lastVoiceQuote = null;
     this.activeBanner = null;
     this.pendingPromotion = null;
     this.wowSubMode = 'inspector';
+    this.bishopVariant = 'hat';
+    this.queenVariant = 'young';
     this.wowChar = 'b';
-    this.wowBishopVariant = 'rigged';
+    this.wowBishopVariant = 'hat';
+    this.wowQueenVariant = 'young';
     this.wowCardSide = 'front';
     this.wowAutoRotate = true;
     this.wowAttacker = 'b';
@@ -214,6 +255,7 @@ export class HudListener {
         bus.on('PROMOTION_PENDING', (e) => this.onPromotionPending(e)),
         bus.on('LUCK_CHANGED', (e) => this.onLuckChanged(e)),
         bus.on('DROP_SPAWNED', (e) => this.onDropSpawned(e)),
+        bus.on('D20_ROLLED', (e) => this.onD20Rolled(e)),
         bus.on('LUCK_RESET', (e) => this.onLuckReset(e)),
         bus.on('BATTLE_STARTED', (e) => this.onBattleStarted(e)),
         bus.on('BATTLE_COMPLETED', () => this.onBattleEnded()),
@@ -225,6 +267,7 @@ export class HudListener {
         bus.on('LYRIA_CAPTION', (e) => this.onLyriaCaption(e)),
         bus.on('TOGGLE_SKELETONS', (e) => this.onSkeletonsToggled(e)),
         bus.on('PIECE_SET_CHANGED', (e) => this.onPieceSetChanged(e)),
+        bus.on('CLARITY_MODE_CHANGED', (e) => this.onClarityModeChanged(e)),
         bus.on('AI_THINKING', (e) => this.onAiThinking(e)),
         bus.on('AI_MOVE_READY', (e) => this.onAiMoveReady(e)),
       );
@@ -684,14 +727,85 @@ export class HudListener {
         flex-direction: column;
         gap: 2px;
       }
+      .hud-d20-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 4px 8px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(82, 0, 14, 0.88) 0%, rgba(36, 4, 12, 0.92) 100%);
+        border: 1.5px solid rgba(255, 138, 128, 0.45);
+        color: #fff;
+        cursor: pointer;
+        text-align: left;
+        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22), 0 3px 8px rgba(0, 0, 0, 0.45);
+        transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+      }
+      .hud-d20-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(255, 213, 79, 0.85);
+        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35), 0 0 12px rgba(213, 0, 40, 0.55);
+      }
+      .hud-d20-btn.nat20 {
+        border-color: #ffd54f;
+        box-shadow: 0 0 14px rgba(255, 213, 79, 0.72), inset 0 0 10px rgba(255, 213, 79, 0.28);
+      }
+      .hud-d20-gem {
+        position: relative;
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        display: inline-grid;
+        place-items: center;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+      }
+      .hud-d20-svg {
+        width: 30px;
+        height: 30px;
+        display: block;
+      }
+      .hud-d20-num {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font-family: ui-serif, Georgia, system-ui, serif;
+        font-weight: 900;
+        font-size: 11px;
+        color: #ffffff;
+        text-shadow: 0 1px 3px rgba(20, 0, 4, 0.95), 0 0 2px rgba(0, 0, 0, 0.95);
+        pointer-events: none;
+        padding-top: 1px;
+      }
+      @keyframes hudD20Tumble {
+        0% { transform: rotate(0deg) scale(1); }
+        25% { transform: rotate(-110deg) scale(1.22); }
+        55% { transform: rotate(210deg) scale(1.16); }
+        80% { transform: rotate(340deg) scale(1.06); }
+        100% { transform: rotate(360deg) scale(1); }
+      }
+      .hud-d20-btn.rolling .hud-d20-gem {
+        animation: hudD20Tumble 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .hud-d20-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+        flex: 1;
+      }
       .hud-luck-header {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        gap: 6px;
         font-size: 10.5px;
-        color: #90a4ae;
-        font-weight: 600;
+        color: #ffcdd2;
+        font-weight: 700;
       }
       .hud-luck-track {
+        display: none;
         height: 6px;
         border-radius: 999px;
         background: rgba(0, 0, 0, 0.55);
@@ -1377,8 +1491,77 @@ export class HudListener {
         gap: 6px;
       }
 
+      /* HELP & SHORTCUTS MODAL ('h' / '?') */
+      .hud-help-card {
+        width: min(94vw, 760px);
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 18px 22px;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .hud-help-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 640px) {
+        .hud-help-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .hud-help-section {
+        background: rgba(16, 23, 38, 0.88);
+        border: 1.5px solid rgba(255, 213, 79, 0.35);
+        border-radius: 12px;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      .hud-help-section h4 {
+        margin: 0 0 4px;
+        font-size: 13px;
+        font-weight: 800;
+        color: #ffe082;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .hud-help-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        color: #e2ecf5;
+        padding: 3px 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+      }
+      .hud-help-row:last-child {
+        border-bottom: none;
+      }
+      .hud-kbd {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(0, 0, 0, 0.55);
+        border: 1px solid rgba(255, 213, 79, 0.55);
+        border-bottom-width: 2px;
+        border-radius: 6px;
+        padding: 2px 7px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+        font-weight: 800;
+        color: #ffe082;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
       /* MOBILE SIMPLIFIED UX ("Easy Adopter" mode — phones only, iPad/Desktop untouched) */
-      .hud-modal-backdrop, .hud-setup-card, .hud-matrix36-card, .hud-matrix-card {
+      .hud-modal-backdrop, .hud-setup-card, .hud-help-card, .hud-matrix36-card, .hud-matrix-card {
         touch-action: pan-y;
         -webkit-overflow-scrolling: touch;
       }
@@ -1502,7 +1685,6 @@ export class HudListener {
         width: auto;
         padding: 0 7px;
       }
-      #carchess-hud-root.mobile-simplified #hud-dock-gallery,
       #carchess-hud-root.mobile-simplified #hud-dock-videos,
       #carchess-hud-root.mobile-simplified #hud-console-btn,
       #carchess-hud-root.mobile-simplified #hud-skeletons-btn,
@@ -1579,7 +1761,7 @@ export class HudListener {
         <div id="quake-log-body" class="quake-body"></div>
         <form id="quake-form" class="quake-prompt-row">
           <span class="quake-prompt-symbol">&gt;</span>
-          <input id="quake-input" class="quake-input" type="text" placeholder="help, fen, pgn, hint, setup, reset, topbar, clear, close..." autocomplete="off" spellcheck="false">
+          <input id="quake-input" class="quake-input" type="text" placeholder="help, clarity, fen, pgn, hint, setup, reset, topbar, clear, close..." autocomplete="off" spellcheck="false">
           <button type="submit" class="quake-btn gold">Invia</button>
         </form>
       </aside>
@@ -1596,9 +1778,7 @@ export class HudListener {
 
         <div class="hud-controls-row">
           <button type="button" id="hud-top-reload-btn" class="hud-btn gold" title="Force Reload & Clear Cache (${this.appVersion})">🔄 Reload</button>
-          <button id="hud-mode1-btn" class="hud-btn active">${this.t('mode1Btn')}</button>
-          <button id="hud-mode2-btn" class="hud-btn">${this.t('mode2Btn')}</button>
-          <button id="hud-matrix-btn" class="hud-btn gold" title="6×6 Battle Matrix & Videos">${this.t('matrixBtn')}</button>
+          <a id="hud-top-gallery-link" href="./showcase/?view=pov" class="hud-btn gold-emerald" style="text-decoration:none;font-weight:800;" title="Open Heroes POV Cinema (3D + 6 Attack & 6 Defense Movies)">${this.t('galleryBtn')}</a>
 
           <label style="font-size:11px;color:#b0bac9;margin-left:4px;" id="hud-who-label">${this.t('whoPlays')}</label>
           <select id="hud-profile-select" class="hud-select" aria-label="Who plays">
@@ -1624,8 +1804,6 @@ export class HudListener {
             <option value="swamp">${this.t('setSwamp')}</option>
             <option value="stone">${this.t('setStone')}</option>
           </select>
-
-          <a id="hud-top-gallery-link" href="showcase/" class="hud-btn" style="text-decoration:none;" title="Open 3D Gallery of all 18 Pieces">${this.t('galleryBtn')}</a>
 
           <div id="hud-lang-btn" style="display:inline-flex;gap:4px;align-items:center;" role="group" aria-label="Language / Lingua">
             <button type="button" id="hud-top-flag-en" class="hud-btn ${this.lang === 'en' ? 'active' : ''}" data-set-lang="en" title="English 🇬🇧">🇬🇧 EN</button>
@@ -1669,9 +1847,15 @@ export class HudListener {
               .join('')}
           </div>
 
-          <div id="hud-ale-variant-row" style="display:flex;gap:5px;">
-            <button id="hud-ale-rigged-btn" class="hud-btn active" style="flex:1;justify-content:center;">🐉 Ale #2 (Dragon Rigged)</button>
-            <button id="hud-ale-hat-btn" class="hud-btn" style="flex:1;justify-content:center;">🎩 Ale #1 (Hat)</button>
+          <div id="hud-ale-variant-row" style="display:${this.wowChar === 'b' ? 'flex' : 'none'};gap:5px;">
+            <button id="hud-ale-hat-btn" class="hud-btn ${this.wowBishopVariant === 'hat' ? 'active' : ''}" style="flex:1;justify-content:center;">🎩 Ale #1 (Hat)</button>
+            <button id="hud-ale-astrolabe-btn" class="hud-btn ${this.wowBishopVariant === 'astrolabe' ? 'active' : ''}" style="flex:1;justify-content:center;">🟢 Ale #2 (Astrolabe)</button>
+            <button id="hud-ale-rigged-btn" class="hud-btn ${this.wowBishopVariant === 'rigged' ? 'active' : ''}" style="flex:1;justify-content:center;">🐉 Ale Rigged</button>
+          </div>
+
+          <div id="hud-kate-variant-row" style="display:${this.wowChar === 'q' ? 'flex' : 'none'};gap:5px;">
+            <button id="hud-kate-young-btn" class="hud-btn ${this.wowQueenVariant === 'young' ? 'active' : ''}" style="flex:1;justify-content:center;">👑 Kate Young</button>
+            <button id="hud-kate-wedding-btn" class="hud-btn ${this.wowQueenVariant === 'wedding' ? 'active' : ''}" style="flex:1;justify-content:center;">👰 Kate Nozze 2016</button>
           </div>
 
           <div style="display:flex;gap:5px;">
@@ -1770,6 +1954,7 @@ export class HudListener {
 
             <div style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;">
               <span class="hud-version-pill">⚡ ${this.appVersion}</span>
+              <a id="hud-setup-pov-link" href="./showcase/?view=pov" class="hud-btn gold" style="font-size:11px;padding:4px 10px;text-decoration:none;">${this.t('galleryBtn')}</a>
               <button type="button" id="hud-mobile-advanced-toggle" class="hud-btn" style="font-size:11px;padding:4px 10px;opacity:0.88;">
                 ${this.t('mobileAdvOptionsBtn')}
               </button>
@@ -1814,6 +1999,24 @@ export class HudListener {
                   ${PROFILES.map((p) => `<option value="${p.id}" ${p.id === (this.isMobilePhone ? 'ospite' : 'ale') ? 'selected' : ''}>${p.name}</option>`).join('')}
                 </select>
               </label>
+
+              <div id="hud-setup-variants-wrap" class="hud-setup-label" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+                <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                  <span id="hud-setup-queen-var-lbl">${this.t('queenVariantLabel')}</span>
+                  <select id="hud-setup-queen-variant" class="hud-select" style="min-width:140px;">
+                    <option value="young" ${this.queenVariant === 'young' ? 'selected' : ''}>${this.t('queenVariantYoung')}</option>
+                    <option value="wedding" ${this.queenVariant === 'wedding' ? 'selected' : ''}>${this.t('queenVariantWedding')}</option>
+                  </select>
+                </label>
+                <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                  <span id="hud-setup-bishop-var-lbl">${this.t('bishopVariantLabel')}</span>
+                  <select id="hud-setup-bishop-variant" class="hud-select" style="min-width:140px;">
+                    <option value="hat" ${this.bishopVariant === 'hat' ? 'selected' : ''}>${this.t('bishopVariantHat')}</option>
+                    <option value="astrolabe" ${this.bishopVariant === 'astrolabe' ? 'selected' : ''}>${this.t('bishopVariantAstrolabe')}</option>
+                    <option value="rigged" ${this.bishopVariant === 'rigged' ? 'selected' : ''}>${this.t('bishopVariantRigged')}</option>
+                  </select>
+                </label>
+              </div>
 
               <label id="hud-setup-white-ai-wrap" class="hud-setup-label" style="display:none;">
                 <span id="hud-setup-white-diff-lbl">${this.t('difficultyLabel')}</span>
@@ -1871,18 +2074,41 @@ export class HudListener {
             </div>
           </div>
 
+          <div class="hud-setup-label hud-desktop-setup-only" style="background:rgba(20,27,42,0.88);border:1.5px solid rgba(255,213,79,0.45);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:7px;">
+            <label style="display:flex;flex-direction:column;gap:4px;">
+              <span id="hud-setup-clarity-lbl" style="color:#ffe082;font-size:12px;">${this.t('clarityLabel')}</span>
+              <select id="hud-setup-clarity-select" class="hud-select" style="width:100%;">
+                <option value="s2" ${this.clarityMode === 's2' ? 'selected' : ''}>${this.t('clarityS2')}</option>
+                <option value="s1" ${this.clarityMode === 's1' ? 'selected' : ''}>${this.t('clarityS1')}</option>
+                <option value="s3" ${this.clarityMode === 's3' ? 'selected' : ''}>${this.t('clarityS3')}</option>
+                <option value="s4" ${this.clarityMode === 's4' ? 'selected' : ''}>${this.t('clarityS4')}</option>
+                <option value="s5" ${this.clarityMode === 's5' ? 'selected' : ''}>${this.t('clarityS5')}</option>
+                <option value="off" ${this.clarityMode === 'off' ? 'selected' : ''}>${this.t('clarityOff')}</option>
+              </select>
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#b9f6ca;cursor:pointer;">
+              <input id="hud-setup-letters-toggle" type="checkbox" ${this.showRoleLetters ? 'checked' : ''}>
+              <span id="hud-setup-letters-lbl">${this.t('clarityLettersLabel')}</span>
+            </label>
+          </div>
+
           <div class="hud-setup-badge hud-desktop-setup-only">
             <span>✨</span>
             <span id="hud-setup-badge-text">${this.t('defaultSetupBadge')}</span>
           </div>
 
-          <div class="hud-desktop-setup-only" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:center;margin-top:4px;">
-            <button id="hud-setup-apply-btn" class="hud-btn" style="padding:10px 18px;font-size:13px;" title="Update factions, players and AI in the current match without resetting board pieces">
-              ${this.t('applyCurrentBtn')}
-            </button>
-            <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 22px;font-size:14px;" title="Apply settings and start a brand new match (resets all 32 pieces)">
-              ${this.t('startMatchBtn')}
-            </button>
+          <div class="hud-desktop-setup-only" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-top:4px;">
+            <a id="hud-setup-desktop-pov-link" href="./showcase/?view=pov" class="hud-btn gold" style="padding:10px 16px;font-size:13px;text-decoration:none;" title="Open Heroes POV Cinema (Seby, Ale, Riccardo, Kate... with 6 Attack + 6 Defense Movies)">
+              ${this.t('galleryBtn')}
+            </a>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+              <button id="hud-setup-apply-btn" class="hud-btn" style="padding:10px 18px;font-size:13px;" title="Update factions, players and AI in the current match without resetting board pieces">
+                ${this.t('applyCurrentBtn')}
+              </button>
+              <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 22px;font-size:14px;" title="Apply settings and start a brand new match (resets all 32 pieces)">
+                ${this.t('startMatchBtn')}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1895,10 +2121,42 @@ export class HudListener {
             <span id="hud-check-badge" class="hud-check-badge">${this.t('checkAlert')}</span>
           </div>
           <div class="hud-luck-wrap">
-            <div class="hud-luck-header">
-              <span id="hud-luck-label">${this.t('luckBar')}</span>
-              <span id="hud-luck-val">0 / 12 ✨</span>
-            </div>
+            <button type="button" id="hud-d20-btn" class="hud-d20-btn nat20" title="${this.t('d20RollTooltip')}" aria-label="${this.t('luckBar')}">
+              <span class="hud-d20-gem" aria-hidden="true">
+                <svg class="hud-d20-svg" viewBox="0 0 40 40">
+                  <defs>
+                    <radialGradient id="hudRubyMarbleGrad" cx="35%" cy="30%" r="70%">
+                      <stop offset="0%" stop-color="#ff2a4b" stop-opacity="0.96"/>
+                      <stop offset="48%" stop-color="#a8001d" stop-opacity="0.94"/>
+                      <stop offset="85%" stop-color="#640010" stop-opacity="0.94"/>
+                      <stop offset="100%" stop-color="#3b0008" stop-opacity="0.96"/>
+                    </radialGradient>
+                  </defs>
+                  <!-- 20-Sided Ruby-Marble Icosahedron Silhouette & Facets -->
+                  <polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="url(#hudRubyMarbleGrad)" stroke="#ffebee" stroke-width="1.3" stroke-opacity="0.78"/>
+                  <!-- Subtle ruby marble veining -->
+                  <path d="M9,14 Q18,17 22,9 M13,29 Q22,24 32,26" fill="none" stroke="#ffcdd2" stroke-width="0.9" stroke-opacity="0.32"/>
+                  <!-- Center equilateral triangle & icosahedron facet edges -->
+                  <polygon points="20,9 30,26 10,26" fill="rgba(165, 0, 28, 0.45)" stroke="#ffffff" stroke-width="1.15" stroke-opacity="0.72"/>
+                  <line x1="20" y1="2" x2="20" y2="9" stroke="#ffcdd2" stroke-width="0.95" stroke-opacity="0.6"/>
+                  <line x1="36" y1="11" x2="20" y2="9" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                  <line x1="4" y1="11" x2="20" y2="9" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                  <line x1="36" y1="11" x2="30" y2="26" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                  <line x1="4" y1="11" x2="10" y2="26" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                  <line x1="36" y1="29" x2="30" y2="26" stroke="#ffcdd2" stroke-width="0.95" stroke-opacity="0.6"/>
+                  <line x1="4" y1="29" x2="10" y2="26" stroke="#ffcdd2" stroke-width="0.95" stroke-opacity="0.6"/>
+                  <line x1="20" y1="38" x2="30" y2="26" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                  <line x1="20" y1="38" x2="10" y2="26" stroke="#ffcdd2" stroke-width="0.85" stroke-opacity="0.5"/>
+                </svg>
+                <span id="hud-d20-num" class="hud-d20-num">20</span>
+              </span>
+              <span class="hud-d20-meta">
+                <span class="hud-luck-header">
+                  <span id="hud-luck-label">${this.t('luckBar')}</span>
+                  <span id="hud-luck-val" style="color:#ffe082;font-weight:800;">d20: 20 🌟</span>
+                </span>
+              </span>
+            </button>
             <div id="hud-luck-track" class="hud-luck-track">
               <div id="hud-luck-fill" class="hud-luck-fill"></div>
             </div>
@@ -1931,10 +2189,14 @@ export class HudListener {
 
           <span class="hud-dock-sep"></span>
 
-          <!-- Camera & Gameplay Assistance: 2D/3D Camera, Flip Board, Hint, 6x6 Battle Matrix -->
+          <!-- Camera & Gameplay Assistance: 2D/3D Camera, Piece Clarity, Flip Board, Hint, 6x6 Battle Matrix -->
           <button type="button" id="hud-top-btn" class="hud-btn hud-icon-btn with-badge ${!this.topDownCamera ? 'active' : ''}" title="${this.t('topCamBtn')}" aria-label="${this.t('topCamBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.25 7.6 12.75 4.4a1.5 1.5 0 0 0-1.5 0L5.75 7.6A1.5 1.5 0 0 0 5 8.9v6.2c0 .54.29 1.03.75 1.3l5.5 3.2c.46.27 1.04.27 1.5 0l5.5-3.2c.46-.27.75-.76.75-1.3V8.9c0-.54-.29-1.03-.75-1.3zM12 6.15l4.62 2.69L12 11.53 7.38 8.84 12 6.15zm-5 4.42 4.25 2.47v4.88L7 15.45v-4.88zm6.25 7.35v-4.88L17.5 10.57v4.88l-4.25 2.47z"/></svg>
             <span id="hud-top-badge" class="hud-icon-badge">${this.topDownCamera ? '2D' : '3D'}</span>
+          </button>
+          <button type="button" id="hud-clarity-btn" class="hud-btn hud-icon-btn with-badge ${this.clarityMode !== 'off' ? 'active' : ''}" title="${this.t('clarityBtn')}" aria-label="${this.t('clarityBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+            <span id="hud-clarity-badge" class="hud-icon-badge">${(this.clarityMode || 's2').toUpperCase()}</span>
           </button>
           <button type="button" id="hud-flip-btn" class="hud-btn hud-icon-btn" title="${this.t('flipCamBtn')}" aria-label="${this.t('flipCamBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3 5 6.99h3V14h2V6.99h3L9 3z"/></svg>
@@ -1944,9 +2206,6 @@ export class HudListener {
           </button>
           <button type="button" id="hud-hint-btn" class="hud-btn hud-icon-btn" title="${this.t('hintBtn')}" aria-label="${this.t('hintBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>
-          </button>
-          <button type="button" id="hud-matrix36-btn" class="hud-btn hud-icon-btn" title="${this.t('matrixBtn')}" aria-label="${this.t('matrixBtn')}">
-            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/></svg>
           </button>
 
           <span class="hud-dock-sep"></span>
@@ -1961,15 +2220,19 @@ export class HudListener {
 
           <span class="hud-dock-sep"></span>
 
-          <!-- Desktop Utility Icons: 3D Gallery, FEN/PGN, Quake Console, Topbar Menu -->
-          <a id="hud-dock-gallery" href="./showcase/" class="hud-btn hud-icon-btn" style="text-decoration:none;" title="${this.t('galleryBtn')}" aria-label="${this.t('galleryBtn')}">
-            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11V9L12 2 2 9v2h2v9H2v2h20v-2h-2v-9h2zm-6 9H8v-9h8v9zm-4-7-2 3h4l-2-3z"/></svg>
+          <!-- Unified Heroes POV Cinema Link (1-click to ./showcase/?view=pov) + Utility Icons -->
+          <a id="hud-dock-gallery" href="./showcase/?view=pov" class="hud-btn hud-icon-btn with-badge gold" style="text-decoration:none;" title="${this.t('galleryBtn')}" aria-label="${this.t('galleryBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            <span class="hud-icon-badge">POV</span>
           </a>
           <button type="button" id="hud-fen-btn" class="hud-btn hud-icon-btn" title="${this.t('fenBtn')}" aria-label="${this.t('fenBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.4 16.6 4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0 4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
           </button>
           <button type="button" id="hud-console-btn" class="hud-btn hud-icon-btn" title="Quake Console (~ or \\)" aria-label="Quake Console">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 14H4V8h16v10zm-2-1h-6v-2h6v2zM7.5 17l-1.41-1.41L8.67 13l-2.59-2.59L7.5 9l4 4-4 4z"/></svg>
+          </button>
+          <button type="button" id="hud-help-btn" class="hud-btn hud-icon-btn" title="${this.t('helpBtn')}" aria-label="${this.t('helpBtn')}">
+            <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
           </button>
           <button type="button" id="hud-toggle-topbar-btn" class="hud-btn hud-icon-btn" title="${this.t('toggleTopbarBtn')}" aria-label="${this.t('toggleTopbarBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
@@ -1982,14 +2245,46 @@ export class HudListener {
           </div>
 
           <!-- Hidden legacy/debug action hooks (preserved for keyboard/Quake console & URL flags) -->
-          <a id="hud-dock-videos" href="./battles.html" class="hud-btn" style="display:none;" title="${this.t('videosBtn')}"></a>
+          <a id="hud-dock-videos" href="./showcase/?view=pov" class="hud-btn" style="display:none;" title="${this.t('videosBtn')}"></a>
           <button type="button" id="hud-skeletons-btn" class="hud-btn hud-icon-btn" style="display:none;" title="${this.t('skeletonsBtn')}">🦴</button>
           <button type="button" id="hud-swamp-btn" class="hud-btn" style="display:none;" title="${this.t('swampBtn')}"></button>
           <button type="button" id="hud-zoom-in-btn" class="hud-btn" style="display:none;" title="Zoom In (+)"></button>
           <button type="button" id="hud-zoom-out-btn" class="hud-btn" style="display:none;" title="Zoom Out (-)"></button>
-          <button type="button" id="hud-trackpad-btn" class="hud-btn active" style="display:none;" title="${this.t('trackpadRotateBtn')}"></button>
+          <button type="button" id="hud-trackpad-btn" class="hud-btn" style="display:none;" title="${this.t('trackpadZoomBtn')}"></button>
         </div>
       </footer>
+
+      <!-- MODAL 0: HELP & SHORTCUTS ('h' / '?') -->
+      <div id="hud-help-modal" class="hud-modal-backdrop hud-interactive">
+        <div class="hud-help-card hud-glass">
+          <div class="hud-setup-header">
+            <div>
+              <strong id="hud-help-title" style="color:#ffe082;font-size:17px;">${this.t('helpModalTitle')}</strong>
+              <span id="hud-help-sub" style="display:block;font-size:11.5px;color:#9be7c4;margin-top:2px;">${this.t('helpModalSub')}</span>
+            </div>
+            <button type="button" id="hud-help-close" class="hud-btn">${this.t('closeBtn')}</button>
+          </div>
+          <div id="hud-help-body">
+            ${this._renderHelpModalBodyHtml()}
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 0b: CONFIRM NEW GAME ('🔄 Nuova' Safety Guard) -->
+      <div id="hud-confirm-new-modal" class="hud-modal-backdrop hud-interactive">
+        <div class="hud-modal-card hud-glass" style="max-width:440px;">
+          <h3 id="hud-confirm-new-title" style="margin:0 0 8px;color:#ffe082;font-size:18px;">${this.t('confirmNewTitle')}</h3>
+          <p id="hud-confirm-new-sub" style="margin:0 0 18px;color:#d6e4f0;font-size:13.5px;line-height:1.45;">${this.t('confirmNewSub')}</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <button type="button" id="hud-confirm-new-cancel" class="hud-btn" style="padding:9px 18px;font-size:13.5px;">
+              ${this.t('confirmNewCancelBtn')}
+            </button>
+            <button type="button" id="hud-confirm-new-yes" class="hud-btn gold" style="padding:9px 20px;font-size:13.5px;font-weight:800;">
+              ${this.t('confirmNewYesBtn')}
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- MODAL 1: CUTIE PAWN PROMOTION -->
       <div id="hud-promo-modal" class="hud-modal-backdrop hud-interactive">
@@ -2219,8 +2514,8 @@ export class HudListener {
     });
 
     q('#hud-zoom-in-btn')?.addEventListener('click', () => {
-      if (this.ctx?.controls?._dollyOut) {
-        this.ctx.controls._dollyOut(0.84);
+      if (this.ctx?.controls?._dollyIn) {
+        this.ctx.controls._dollyIn(0.84);
         this.ctx.controls.update?.();
       } else if (this.ctx?.camera) {
         this.ctx.camera.position.multiplyScalar(0.85);
@@ -2229,8 +2524,8 @@ export class HudListener {
     });
 
     q('#hud-zoom-out-btn')?.addEventListener('click', () => {
-      if (this.ctx?.controls?._dollyIn) {
-        this.ctx.controls._dollyIn(0.84);
+      if (this.ctx?.controls?._dollyOut) {
+        this.ctx.controls._dollyOut(0.84);
         this.ctx.controls.update?.();
       } else if (this.ctx?.camera) {
         this.ctx.camera.position.multiplyScalar(1.18);
@@ -2251,27 +2546,15 @@ export class HudListener {
         this.lang === 'it'
           ? next
             ? '🖐️ Mac Trackpad: 2 dita ruotano alto/basso & sx/dx (Pizzica o Cmd+scroll per Zoom!)'
-            : '🔍 Mac Trackpad: 2 dita fanno Zoom (Trascina con 1 dito per ruotare!)'
+            : '🔍 Mouse / Trackpad: Rotella fa Zoom In/Out (Trascina o Alt+rotella per ruotare!)'
           : next
             ? '🖐️ Mac Trackpad: 2 fingers rotate up/down & left/right (Pinch or Cmd+scroll to Zoom!)'
-            : '🔍 Mac Trackpad: 2 fingers Zoom (Drag with 1 finger to rotate!)',
+            : '🔍 Mouse / Trackpad: Wheel Zooms In/Out (Drag or Alt+wheel to rotate!)',
       );
     });
 
     q('#hud-flip-btn')?.addEventListener('click', () => {
-      this.cameraFlipped = !this.cameraFlipped;
-      this.topDownCamera = false;
-      if (this.ctx?.camera) {
-        if (this.cameraFlipped) {
-          this.ctx.camera.position.set(0, 7.0, -8.2);
-        } else {
-          this.ctx.camera.position.set(0, 7.2, 9.8);
-        }
-        this.ctx.controls?.target?.set?.(0, 0.3, 0);
-        this.ctx.controls?.update?.();
-      }
-      this.ctx?.bus?.emit({ type: 'CAMERA_VIEW_REQUESTED', view: 'flip' });
-      this.ctx?.bus?.flush?.();
+      this.flipCameraView();
     });
 
     q('#hud-reset-cam-btn')?.addEventListener('click', () => {
@@ -2279,29 +2562,11 @@ export class HudListener {
     });
 
     q('#hud-top-btn')?.addEventListener('click', () => {
-      if (this.isMobilePhone) {
-        this.applyMobileCameraMode(this.topDownCamera ? '3d' : 'top', { silent: false });
-        return;
-      }
-      this.topDownCamera = !this.topDownCamera;
-      const topBtn = q('#hud-top-btn');
-      const topBadge = q('#hud-top-badge');
-      if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
-      if (topBtn) topBtn.classList.toggle('active', !this.topDownCamera);
-      if (this.ctx?.camera) {
-        if (this.topDownCamera) {
-          this.ctx.camera.position.set(0, 12.8, this.cameraFlipped ? -0.01 : 0.01);
-        } else {
-          this.ctx.camera.position.set(0, this.cameraFlipped ? 7.0 : 7.2, this.cameraFlipped ? -8.2 : 9.8);
-        }
-        this.ctx.controls?.target?.set?.(0, 0.3, 0);
-        this.ctx.controls?.update?.();
-      }
-      this.ctx?.bus?.emit({
-        type: 'CAMERA_VIEW_REQUESTED',
-        view: this.topDownCamera ? 'top' : 'default',
-      });
-      this.ctx?.bus?.flush?.();
+      this.toggleTopDownView();
+    });
+
+    q('#hud-clarity-btn')?.addEventListener('click', () => {
+      this.cycleClarityMode();
     });
 
     if (this.isMobilePhone) {
@@ -2317,7 +2582,25 @@ export class HudListener {
     }
 
     q('#hud-new-btn')?.addEventListener('click', () => {
-      this.startNewGame();
+      this.requestNewGame();
+    });
+
+    q('#hud-confirm-new-yes')?.addEventListener('click', () => {
+      this.confirmNewGame();
+    });
+
+    q('#hud-confirm-new-cancel')?.addEventListener('click', () => {
+      this.cancelNewGame();
+    });
+
+    q('#hud-confirm-new-modal')?.addEventListener('click', (e) => {
+      if (e.target?.id === 'hud-confirm-new-modal') {
+        this.cancelNewGame();
+      }
+    });
+
+    q('#hud-d20-btn')?.addEventListener('click', () => {
+      this.rollRubyD20();
     });
 
     q('#hud-refresh-btn')?.addEventListener('click', () => {
@@ -2445,20 +2728,50 @@ export class HudListener {
         );
         const aleRow = q('#hud-ale-variant-row');
         if (aleRow) aleRow.style.display = this.wowChar === 'b' ? 'flex' : 'none';
+        const kateRow = q('#hud-kate-variant-row');
+        if (kateRow) kateRow.style.display = this.wowChar === 'q' ? 'flex' : 'none';
         this.ctx?.bus?.emit({
           type: 'WOW_INSPECT_CHARACTER',
           subMode: 'inspector',
           pieceType: this.wowChar,
           bishopVariant: this.wowBishopVariant,
+          queenVariant: this.wowQueenVariant,
         });
         this.ctx?.bus?.flush?.();
       });
+    });
+
+    q('#hud-ale-hat-btn')?.addEventListener('click', () => {
+      this.wowBishopVariant = 'hat';
+      q('#hud-ale-hat-btn')?.classList.add('active');
+      q('#hud-ale-astrolabe-btn')?.classList.remove('active');
+      q('#hud-ale-rigged-btn')?.classList.remove('active');
+      this.ctx?.bus?.emit({
+        type: 'WOW_INSPECT_CHARACTER',
+        pieceType: 'b',
+        bishopVariant: 'hat',
+      });
+      this.ctx?.bus?.flush?.();
+    });
+
+    q('#hud-ale-astrolabe-btn')?.addEventListener('click', () => {
+      this.wowBishopVariant = 'astrolabe';
+      q('#hud-ale-astrolabe-btn')?.classList.add('active');
+      q('#hud-ale-hat-btn')?.classList.remove('active');
+      q('#hud-ale-rigged-btn')?.classList.remove('active');
+      this.ctx?.bus?.emit({
+        type: 'WOW_INSPECT_CHARACTER',
+        pieceType: 'b',
+        bishopVariant: 'astrolabe',
+      });
+      this.ctx?.bus?.flush?.();
     });
 
     q('#hud-ale-rigged-btn')?.addEventListener('click', () => {
       this.wowBishopVariant = 'rigged';
       q('#hud-ale-rigged-btn')?.classList.add('active');
       q('#hud-ale-hat-btn')?.classList.remove('active');
+      q('#hud-ale-astrolabe-btn')?.classList.remove('active');
       this.ctx?.bus?.emit({
         type: 'WOW_INSPECT_CHARACTER',
         pieceType: 'b',
@@ -2467,14 +2780,26 @@ export class HudListener {
       this.ctx?.bus?.flush?.();
     });
 
-    q('#hud-ale-hat-btn')?.addEventListener('click', () => {
-      this.wowBishopVariant = 'hat';
-      q('#hud-ale-hat-btn')?.classList.add('active');
-      q('#hud-ale-rigged-btn')?.classList.remove('active');
+    q('#hud-kate-young-btn')?.addEventListener('click', () => {
+      this.wowQueenVariant = 'young';
+      q('#hud-kate-young-btn')?.classList.add('active');
+      q('#hud-kate-wedding-btn')?.classList.remove('active');
       this.ctx?.bus?.emit({
         type: 'WOW_INSPECT_CHARACTER',
-        pieceType: 'b',
-        bishopVariant: 'hat',
+        pieceType: 'q',
+        queenVariant: 'young',
+      });
+      this.ctx?.bus?.flush?.();
+    });
+
+    q('#hud-kate-wedding-btn')?.addEventListener('click', () => {
+      this.wowQueenVariant = 'wedding';
+      q('#hud-kate-wedding-btn')?.classList.add('active');
+      q('#hud-kate-young-btn')?.classList.remove('active');
+      this.ctx?.bus?.emit({
+        type: 'WOW_INSPECT_CHARACTER',
+        pieceType: 'q',
+        queenVariant: 'wedding',
       });
       this.ctx?.bus?.flush?.();
     });
@@ -2644,6 +2969,13 @@ export class HudListener {
     // Topbar Toggle
     q('#hud-toggle-topbar-btn')?.addEventListener('click', () => this.toggleTopbar());
 
+    // Help & Shortcuts Modal ('h' / '?')
+    q('#hud-help-btn')?.addEventListener('click', () => this.toggleHelpModal());
+    q('#hud-help-close')?.addEventListener('click', () => this.closeHelpModal());
+    q('#hud-help-modal')?.addEventListener('click', (e) => {
+      if (e.target?.id === 'hud-help-modal') this.closeHelpModal();
+    });
+
     // Setup Modal open & close
     q('#hud-setup-btn')?.addEventListener('click', () => this.openSetupModal());
     q('#hud-setup-close')?.addEventListener('click', () => this.closeSetupModal());
@@ -2681,6 +3013,11 @@ export class HudListener {
       const blackPlayerType =
         root.querySelector('input[name="black-player-type"]:checked')?.value || 'ai';
       const blackDiff = q('#hud-setup-black-diff')?.value || 'easy';
+      const clarityMode = q('#hud-setup-clarity-select')?.value || this.clarityMode || 's2';
+      const showRoleLetters = Boolean(q('#hud-setup-letters-toggle')?.checked);
+
+      const queenVariant = q('#hud-setup-queen-variant')?.value || this.queenVariant || 'young';
+      const bishopVariant = q('#hud-setup-bishop-variant')?.value || this.bishopVariant || 'hat';
 
       this.applySetup({
         whiteFamily,
@@ -2690,9 +3027,17 @@ export class HudListener {
         rivalSet,
         blackPlayerType,
         blackDiff,
+        queenVariant,
+        bishopVariant,
+        clarityMode,
+        showRoleLetters,
         resetBoard,
       });
     };
+
+    q('#hud-setup-letters-toggle')?.addEventListener('change', (e) => {
+      this.setShowRoleLetters(Boolean(e.target.checked));
+    });
 
     q('#hud-setup-apply-btn')?.addEventListener('click', () => submitSetupFromModal(false));
     q('#hud-setup-start-btn')?.addEventListener('click', () => submitSetupFromModal(true));
@@ -3001,16 +3346,12 @@ export class HudListener {
     return colHeaders + rowsHtml;
   }
 
-  openMatrix36Modal(atk = null, def = null) {
-    this.matrixModalOpen = true;
-    if (!this.rootEl) return;
-    const modal = this.rootEl.querySelector('#hud-matrix36-modal');
-    if (modal) {
-      modal.style.display = 'grid';
+  openMatrix36Modal(atk = null, _def = null) {
+    if (typeof window !== 'undefined' && window.location) {
+      const heroParam = atk ? `&hero=${encodeURIComponent(atk)}` : '';
+      window.location.href = `./showcase/?view=pov${heroParam}`;
+      return;
     }
-    const targetAtk = atk || this.matrixSelectedPair.atk || 'b';
-    const targetDef = def || this.matrixSelectedPair.def || 'n';
-    this._updateMatrixPreviewPane(targetAtk, targetDef, true);
   }
 
   closeMatrix36Modal() {
@@ -3188,14 +3529,15 @@ export class HudListener {
       ? Math.min(1.85, Math.max(1.0, (window.innerHeight / Math.max(1, window.innerWidth)) * 0.78))
       : 1.0;
 
+    this.ctx?.pieceView?.setTopDownMode?.(isTop);
     const pos = isTop
-      ? { x: 0, y: Number((12.8 * portraitScale).toFixed(2)), z: this.cameraFlipped ? -0.01 : 0.01 }
+      ? { x: 0, y: Number((12.6 * portraitScale).toFixed(2)), z: this.cameraFlipped ? -0.001 : 0.001 }
       : {
           x: 0,
           y: Number(((this.cameraFlipped ? 7.0 : 7.2) * portraitScale).toFixed(2)),
           z: Number(((this.cameraFlipped ? -8.2 : 9.8) * portraitScale).toFixed(2)),
         };
-    const target = { x: 0, y: 0.3, z: 0 };
+    const target = isTop ? { x: 0, y: 0.04, z: 0 } : { x: 0, y: 0.3, z: 0 };
 
     if (this.ctx?.camera?.position?.set) {
       this.ctx.camera.position.set(pos.x, pos.y, pos.z);
@@ -3222,8 +3564,363 @@ export class HudListener {
         pos,
         target,
       });
+      this.ctx.bus.emit({
+        type: 'CLARITY_MODE_CHANGED',
+        mode: this.clarityMode,
+        force2dIcons: this.force2dIcons,
+        topDownCamera: isTop,
+      });
       this.ctx.bus.flush?.();
     }
+  }
+
+  /**
+   * Flips the camera between White (South) and Black (North) perspective.
+   * Shortcut: Hotkey 'f' / 'F' or HUD flip button (#hud-flip-btn).
+   */
+  flipCameraView() {
+    this.cameraFlipped = !this.cameraFlipped;
+    this.topDownCamera = false;
+    this.ctx?.pieceView?.setTopDownMode?.(false);
+    if (this.rootEl) {
+      const topBtn = this.rootEl.querySelector('#hud-top-btn');
+      const topBadge = this.rootEl.querySelector('#hud-top-badge');
+      if (topBadge) topBadge.textContent = '3D';
+      if (topBtn) topBtn.classList.add('active');
+    }
+    if (this.ctx?.camera) {
+      if (this.cameraFlipped) {
+        this.ctx.camera.position.set(0, 7.0, -8.2);
+      } else {
+        this.ctx.camera.position.set(0, 7.2, 9.8);
+      }
+      this.ctx.controls?.target?.set?.(0, 0.3, 0);
+      this.ctx.controls?.update?.();
+    }
+    this.ctx?.bus?.emit({ type: 'CAMERA_VIEW_REQUESTED', view: 'flip' });
+    this.ctx?.bus?.flush?.();
+  }
+
+  /**
+   * Toggles between Top-Down 2D camera and 3D perspective camera.
+   * Shortcut: Hotkey 'v' / 'V' or HUD 2D/3D badge button (#hud-top-btn).
+   */
+  toggleTopDownView() {
+    if (this.isMobilePhone) {
+      this.applyMobileCameraMode(this.topDownCamera ? '3d' : 'top', { silent: false });
+      return;
+    }
+    this.topDownCamera = !this.topDownCamera;
+    this.ctx?.pieceView?.setTopDownMode?.(this.topDownCamera);
+    if (this.rootEl) {
+      const topBtn = this.rootEl.querySelector('#hud-top-btn');
+      const topBadge = this.rootEl.querySelector('#hud-top-badge');
+      if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
+      if (topBtn) topBtn.classList.toggle('active', !this.topDownCamera);
+    }
+    if (this.ctx?.camera) {
+      if (this.topDownCamera) {
+        this.ctx.camera.position.set(0, 12.6, this.cameraFlipped ? -0.001 : 0.001);
+        this.ctx.controls?.target?.set?.(0, 0.04, 0);
+      } else {
+        this.ctx.camera.position.set(
+          0,
+          this.cameraFlipped ? 7.0 : 7.2,
+          this.cameraFlipped ? -8.2 : 9.8,
+        );
+        this.ctx.controls?.target?.set?.(0, 0.3, 0);
+      }
+      this.ctx.controls?.update?.();
+    }
+    this.ctx?.bus?.emit({
+      type: 'CAMERA_VIEW_REQUESTED',
+      view: this.topDownCamera ? 'top' : 'default',
+    });
+    this.ctx?.bus?.emit({
+      type: 'CLARITY_MODE_CHANGED',
+      mode: this.clarityMode,
+      force2dIcons: this.force2dIcons,
+      topDownCamera: this.topDownCamera,
+      showRoleLetters: this.showRoleLetters,
+    });
+    this.ctx?.bus?.flush?.();
+  }
+
+  /**
+   * Renders the bilingual Help & Controls Cheat-Sheet HTML inside #hud-help-modal.
+   */
+  _renderHelpModalBodyHtml() {
+    const isIt = this.lang === 'it';
+    if (isIt) {
+      return `
+        <div class="hud-help-grid">
+          <div class="hud-help-section">
+            <h4>🖱️ Mouse &amp; Trackpad (Camera 3D)</h4>
+            <div class="hud-help-row">
+              <span>Zoom In / Out (avvicina / allontana)</span>
+              <span class="hud-kbd">Rotella ↕ / Pizzica</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Ruota / Orbita visuale 3D (alto/basso/sx/dx)</span>
+              <span class="hud-kbd">Click Sx + Trascina</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Sposta visuale (Pan laterale)</span>
+              <span class="hud-kbd">Click Dx / Shift + Rotella</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Orbita con la rotella (alternativa)</span>
+              <span class="hud-kbd">Alt + Rotella</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Seleziona e muovi pezzo</span>
+              <span class="hud-kbd">Click su Pezzo → Casella</span>
+            </div>
+          </div>
+
+          <div class="hud-help-section">
+            <h4>⌨️ Scorciatoie da Tastiera</h4>
+            <div class="hud-help-row">
+              <span>Apri / Chiudi questo Aiuto</span>
+              <span class="hud-kbd">H / ?</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Zoom In / Out da tastiera</span>
+              <span class="hud-kbd">+ / -</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Ruota e inclina telecamera</span>
+              <span class="hud-kbd">Frecce ← ↑ → ↓</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Reset telecamera alla pos. iniziale</span>
+              <span class="hud-kbd">R</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Toggle visuale Dall'Alto 2D / 3D</span>
+              <span class="hud-kbd">V</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Gira scacchiera (Bianco ↔ Nero)</span>
+              <span class="hud-kbd">F</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Cicla Riconoscibilità Pezzi (S5..Off)</span>
+              <span class="hud-kbd">C</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Tira il Dado d20 in Marmo Rosso Rubino sulla Scacchiera</span>
+              <span class="hud-kbd">D</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Mostra / Nascondi barra in alto</span>
+              <span class="hud-kbd">M</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Salta filmato di cattura / Chiudi finestre</span>
+              <span class="hud-kbd">Spazio / Invio / Esc</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Quake Developer Console</span>
+              <span class="hud-kbd">~ / \\ / §</span>
+            </div>
+          </div>
+
+          <div class="hud-help-section">
+            <h4>🧭 Dock Icone in Basso</h4>
+            <div class="hud-help-row">
+              <span>Imposta Fazioni, Giocatori e Difficoltà</span>
+              <span class="hud-kbd">⚙️ Setup</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Ricomincia da capo (chiede conferma di sicurezza!)</span>
+              <span class="hud-kbd">🔄 Nuova</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Matrice 6×6 di tutti i 36 Scontri</span>
+              <span class="hud-kbd">🎬 36</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Vista 2D dall'alto / 3D &amp; Corona S5</span>
+              <span class="hud-kbd">🧊 2D/3D · 👑 S5</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Suggerimento mossa dalla CPU</span>
+              <span class="hud-kbd">💡 Hint</span>
+            </div>
+          </div>
+
+          <div class="hud-help-section">
+            <h4>🏰 Regole, Dado d20 Rubino &amp; Famiglie</h4>
+            <div class="hud-help-row">
+              <span>👑 Re Papino · 👸 Regina Kate · ♗ Ale · ♘ Seby · ♖ Nonno · ♙ Pedoni</span>
+              <span class="hud-kbd">Team Bianco</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Dado d20 in Marmo Rosso Rubino (20 = Critico Dorato!)</span>
+              <span class="hud-kbd">🎲 Click o Tasto D</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Modalità 2: Ispettore 3D &amp; Arena</span>
+              <span class="hud-kbd">Bottone Arena in alto</span>
+            </div>
+            <div class="hud-help-row">
+              <span>Modalità Rotella su Trackpad Mac</span>
+              <span class="hud-kbd">?trackpad=rotate</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="hud-help-grid">
+        <div class="hud-help-section">
+          <h4>🖱️ Mouse &amp; Trackpad (3D Camera)</h4>
+          <div class="hud-help-row">
+            <span>Zoom In / Out (closer / further)</span>
+            <span class="hud-kbd">Mouse Wheel ↕ / Pinch</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Orbit / Rotate 3D camera (up/down/left/right)</span>
+            <span class="hud-kbd">Left-Click + Drag</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Pan camera target</span>
+            <span class="hud-kbd">Right-Click / Shift + Wheel</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Orbit with mouse wheel (alternative)</span>
+            <span class="hud-kbd">Alt + Wheel</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Select &amp; move chess piece</span>
+            <span class="hud-kbd">Click Piece → Square</span>
+          </div>
+        </div>
+
+        <div class="hud-help-section">
+          <h4>⌨️ Keyboard Shortcuts</h4>
+          <div class="hud-help-row">
+            <span>Open / Close this Help guide</span>
+            <span class="hud-kbd">H / ?</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Zoom In / Out via keyboard</span>
+            <span class="hud-kbd">+ / -</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Orbit &amp; tilt camera</span>
+            <span class="hud-kbd">Arrow Keys ← ↑ → ↓</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Reset camera to default framing</span>
+            <span class="hud-kbd">R</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Toggle Top-Down 2D / 3D camera</span>
+            <span class="hud-kbd">V</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Flip board side (White ↔ Black)</span>
+            <span class="hud-kbd">F</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Cycle Piece Clarity mode (S5..Off)</span>
+            <span class="hud-kbd">C</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Roll Solid Ruby-Marble d20 on 3D Board</span>
+            <span class="hud-kbd">D</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Show / Hide top bar</span>
+            <span class="hud-kbd">M</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Skip capture cutscene / Close modals</span>
+            <span class="hud-kbd">Space / Enter / Esc</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Quake Developer Console</span>
+            <span class="hud-kbd">~ / \\ / §</span>
+          </div>
+        </div>
+
+        <div class="hud-help-section">
+          <h4>🧭 Bottom Action Dock</h4>
+          <div class="hud-help-row">
+            <span>Configure Factions, Players &amp; Difficulty</span>
+            <span class="hud-kbd">⚙️ Setup</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Restart match (asks confirmation first!)</span>
+            <span class="hud-kbd">🔄 New</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Interactive 6×6 Matrix (all 36 Clashes)</span>
+            <span class="hud-kbd">🎬 36</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Top-Down 2D / 3D &amp; S5 Crown Clarity</span>
+            <span class="hud-kbd">🧊 2D/3D · 👑 S5</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Request CPU move hint</span>
+            <span class="hud-kbd">💡 Hint</span>
+          </div>
+        </div>
+
+        <div class="hud-help-section">
+          <h4>🏰 Family Lore &amp; Ruby d20</h4>
+          <div class="hud-help-row">
+            <span>👑 King Papino · 👸 Queen Kate · ♗ Ale · ♘ Seby · ♖ Nonno · ♙ Pawns</span>
+            <span class="hud-kbd">White Team</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Solid Ruby-Marble d20 Roll (20 = Golden Crit!)</span>
+            <span class="hud-kbd">🎲 Click or Key D</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Mode 2: 3D Hero Inspector &amp; Arena</span>
+            <span class="hud-kbd">Top Bar Arena Button</span>
+          </div>
+          <div class="hud-help-row">
+            <span>Legacy Mac 2-finger wheel orbit</span>
+            <span class="hud-kbd">?trackpad=rotate</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  openHelpModal() {
+    this.helpModalOpen = true;
+    if (!this.rootEl) return;
+    const body = this.rootEl.querySelector('#hud-help-body');
+    if (body) body.innerHTML = this._renderHelpModalBodyHtml();
+    const modal = this.rootEl.querySelector('#hud-help-modal');
+    if (modal) modal.style.display = 'grid';
+    const btn = this.rootEl.querySelector('#hud-help-btn');
+    if (btn) btn.classList.add('active');
+  }
+
+  closeHelpModal() {
+    this.helpModalOpen = false;
+    if (!this.rootEl) return;
+    const modal = this.rootEl.querySelector('#hud-help-modal');
+    if (modal) modal.style.display = 'none';
+    const btn = this.rootEl.querySelector('#hud-help-btn');
+    if (btn) btn.classList.remove('active');
+  }
+
+  toggleHelpModal() {
+    if (this.helpModalOpen) {
+      this.closeHelpModal();
+    } else {
+      this.openHelpModal();
+    }
+    return this.helpModalOpen;
   }
 
   /**
@@ -3243,6 +3940,7 @@ export class HudListener {
       return;
     }
     this.topDownCamera = false;
+    this.ctx?.pieceView?.setTopDownMode?.(false);
     const pos = this.cameraFlipped
       ? { x: 0, y: 7.0, z: -8.2 }
       : { x: 0, y: 5.85, z: 12.6 };
@@ -3269,6 +3967,13 @@ export class HudListener {
         view: 'reset',
         pos,
         target,
+      });
+      this.ctx.bus.emit({
+        type: 'CLARITY_MODE_CHANGED',
+        mode: this.clarityMode,
+        force2dIcons: this.force2dIcons,
+        topDownCamera: false,
+        showRoleLetters: this.showRoleLetters,
       });
       this.ctx.bus.flush?.();
     }
@@ -3327,6 +4032,17 @@ export class HudListener {
       if (bDiff) bDiff.value = this.blackDifficulty || this.opponentMode || 'easy';
       const wDiff = this.rootEl.querySelector('#hud-setup-white-diff');
       if (wDiff) wDiff.value = this.whiteDifficulty || 'easy';
+      const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+      const qVar = this.rootEl.querySelector('#hud-setup-queen-variant');
+      if (qVar) qVar.value = this.queenVariant || pm?.getQueenVariant?.() || 'young';
+      const bVar = this.rootEl.querySelector('#hud-setup-bishop-variant');
+      if (bVar) bVar.value = this.bishopVariant || pm?.getBishopVariant?.() || 'hat';
+      const varWrap = this.rootEl.querySelector('#hud-setup-variants-wrap');
+      if (varWrap && wSet) varWrap.style.display = wSet.value === 'carlesso' ? 'flex' : 'none';
+      const cSel = this.rootEl.querySelector('#hud-setup-clarity-select');
+      if (cSel) cSel.value = this.clarityMode || 's2';
+      const lChk = this.rootEl.querySelector('#hud-setup-letters-toggle');
+      if (lChk) lChk.checked = Boolean(this.showRoleLetters);
 
       const wType = this.whitePlayerType || 'human';
       this.rootEl.querySelectorAll('input[name="white-player-type"]').forEach((r) => {
@@ -3356,9 +4072,78 @@ export class HudListener {
   }
 
   /**
+   * Opens the confirmation modal before resetting the board ('🔄 Nuova' safety guard).
+   */
+  requestNewGame() {
+    this.confirmNewModalOpen = true;
+    if (this.rootEl) {
+      const modal = this.rootEl.querySelector('#hud-confirm-new-modal');
+      if (modal) modal.style.display = 'grid';
+    }
+    return true;
+  }
+
+  /**
+   * Cancels the '🔄 Nuova' confirmation modal without resetting the match.
+   */
+  cancelNewGame() {
+    this.confirmNewModalOpen = false;
+    if (this.rootEl) {
+      const modal = this.rootEl.querySelector('#hud-confirm-new-modal');
+      if (modal) modal.style.display = 'none';
+    }
+    return false;
+  }
+
+  /**
+   * Confirms the '🔄 Nuova' dialog and resets all 32 pieces to the starting position.
+   */
+  confirmNewGame() {
+    this.cancelNewGame();
+    this.startNewGame();
+    return true;
+  }
+
+  /**
+   * Rolls the Solid Ruby-Marble d20 (`1..20`) on the 3D board and in the HUD!
+   * Triggered by clicking `#hud-d20-btn` or pressing hotkey `'d'` / `'D'`.
+   */
+  rollRubyD20() {
+    const pid = this.turn || 'w';
+    let receivedEvent = false;
+    if (this.ctx?.bus) {
+      const off = this.ctx.bus.on('D20_ROLLED', () => {
+        receivedEvent = true;
+      });
+      this.ctx.bus.emit({
+        type: 'D20_ROLL_REQUESTED',
+        playerId: pid,
+        reason: 'hud_click',
+      });
+      this.ctx.bus.flush?.();
+      this.ctx.bus.flush?.();
+      off();
+    }
+    if (!receivedEvent) {
+      const roll = Math.floor(Math.random() * 20) + 1;
+      const tier = roll === 20 ? 'golden_crit' : roll >= 15 ? 'shiny' : 'normal';
+      this.onD20Rolled({
+        playerId: pid,
+        d20Roll: roll,
+        tier,
+        isNat20: roll === 20,
+        isNat1: roll === 1,
+        reason: 'hud_click',
+      });
+    }
+    return this.lastD20Roll;
+  }
+
+  /**
    * Resets all 32 pieces to the starting board position while preserving current factions & AI setup.
    */
   startNewGame() {
+    this.cancelNewGame();
     this.closeSetupModal();
     if (this.isMobilePhone) {
       this.mobileAwaitingFirstAttack3D = true;
@@ -3412,6 +4197,13 @@ export class HudListener {
     this.blackDifficulty = blackDiff;
     this.activeProfile = whiteProfile;
 
+    if (typeof settings.showRoleLetters === 'boolean') {
+      this.setShowRoleLetters(settings.showRoleLetters, { silent: true });
+    }
+    if (settings.clarityMode) {
+      this.setClarityMode(settings.clarityMode, { silent: true });
+    }
+
     // Configure CPU AI side(s)
     let cpuColor = 'none';
     if (whitePlayerType === 'ai' && blackPlayerType === 'ai') {
@@ -3450,6 +4242,14 @@ export class HudListener {
     const pm = this.ctx?.pieces || this.ctx?.pieceManager;
     if (pm?.setWhiteFamily) pm.setWhiteFamily(whiteFamily);
     if (pm?.setRivalSetMode) pm.setRivalSetMode(rivalSet);
+    if (settings.bishopVariant) {
+      this.bishopVariant = settings.bishopVariant;
+      if (pm?.setBishopVariant) pm.setBishopVariant(settings.bishopVariant);
+    }
+    if (settings.queenVariant) {
+      this.queenVariant = settings.queenVariant;
+      if (pm?.setQueenVariant) pm.setQueenVariant(settings.queenVariant);
+    }
 
     // Emit configuration changes to Bus & Piece Manager
     if (this.ctx?.bus) {
@@ -3524,6 +4324,98 @@ export class HudListener {
           : `⚙️ Match updated (no reset)! White: ${whiteFamily} [${wDesc}] vs Black: ${rivalSet} [${bDesc}]`,
       4000,
     );
+  }
+
+  _hasUrlClarityOverride() {
+    if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
+      return new URLSearchParams(window.location?.search || '').has('clarity');
+    }
+    return false;
+  }
+
+  _syncClarityUi() {
+    if (!this.rootEl) return;
+    const badge = this.rootEl.querySelector('#hud-clarity-badge');
+    if (badge) {
+      badge.textContent = (this.clarityMode || 's2').toUpperCase();
+    }
+    const btn = this.rootEl.querySelector('#hud-clarity-btn');
+    if (btn) {
+      btn.classList.toggle('active', this.clarityMode !== 'off');
+    }
+    const sel = this.rootEl.querySelector('#hud-setup-clarity-select');
+    if (sel && CLARITY_CYCLE.includes(this.clarityMode)) {
+      sel.value = this.clarityMode;
+    }
+    const chk = this.rootEl.querySelector('#hud-setup-letters-toggle');
+    if (chk) {
+      chk.checked = Boolean(this.showRoleLetters);
+    }
+  }
+
+  /**
+   * Toggles accessibility role letters & Braille on 2D medallions (`K, Q, R, B, N, P`).
+   * @param {boolean} enabled
+   * @param {{ silent?: boolean }} [opts]
+   */
+  setShowRoleLetters(enabled = false, opts = {}) {
+    this.showRoleLetters = Boolean(enabled);
+    this._syncClarityUi();
+    this.ctx?.pieceView?.setShowRoleLetters?.(this.showRoleLetters);
+    if (this.ctx?.bus && !opts.silent) {
+      this.ctx.bus.emit({
+        type: 'CLARITY_MODE_CHANGED',
+        mode: this.clarityMode,
+        force2dIcons: this.force2dIcons,
+        topDownCamera: this.topDownCamera,
+        showRoleLetters: this.showRoleLetters,
+      });
+      this.ctx.bus.flush?.();
+    }
+  }
+
+  /**
+   * Sets visual clarity / piece recognition mode ('s2', 's1', 's3', 's4', 's5', 'off').
+   * @param {string} mode
+   * @param {{ force2dIcons?: boolean, silent?: boolean }} [opts]
+   */
+  setClarityMode(mode = 's2', opts = {}) {
+    const raw = String(mode || 's2').trim().toLowerCase();
+    let normalized = raw === '2d' ? 's1' : raw;
+    if (!CLARITY_CYCLE.includes(normalized)) {
+      normalized = 's2';
+    }
+    this.clarityMode = normalized;
+    this.force2dIcons =
+      typeof opts.force2dIcons === 'boolean'
+        ? opts.force2dIcons
+        : normalized === 's1' || raw === '2d';
+    this._syncClarityUi();
+    this.ctx?.pieceView?.setClarityMode?.(this.clarityMode, this.force2dIcons);
+    if (this.ctx?.bus) {
+      this.ctx.bus.emit({
+        type: 'CLARITY_MODE_CHANGED',
+        mode: this.clarityMode,
+        force2dIcons: this.force2dIcons,
+        topDownCamera: this.topDownCamera,
+        showRoleLetters: this.showRoleLetters,
+      });
+      this.ctx.bus.flush?.();
+    }
+    if (!opts.silent) {
+      const i18nKey = CLARITY_I18N_KEYS[this.clarityMode] || 'clarityS2';
+      this.showToast(this.t(i18nKey), 3200);
+    }
+  }
+
+  /**
+   * Cycles clarity mode through ['s5', 's1', 's2', 's3', 's4', 'off'] and shows a bilingual toast.
+   */
+  cycleClarityMode() {
+    const idx = CLARITY_CYCLE.indexOf(this.clarityMode);
+    const nextMode = CLARITY_CYCLE[(idx + 1) % CLARITY_CYCLE.length];
+    this.setClarityMode(nextMode, { force2dIcons: nextMode === 's1' });
+    return this.clarityMode;
   }
 
   setTopbarVisible(visible) {
@@ -3624,24 +4516,41 @@ export class HudListener {
     if (!cmd) return;
     this.logToQuake('USER', `> ${cmd}`, 'cyan');
 
-    const [action] = cmd.toLowerCase().split(/\s+/);
+    const [action, arg1] = cmd.toLowerCase().split(/\s+/);
     switch (action) {
       case 'help':
       case '?':
         this.logToQuake('INFO', 'Available commands / Comandi disponibili:', 'gold');
         this.logToQuake('INFO', '  help             - Show this list / Mostra questo elenco');
+        this.logToQuake('INFO', '  clarity [mode]   - Piece clarity (s5, s1, s2, s3, s4, 2d, off)');
         this.logToQuake('INFO', '  setup            - Open player & faction setup');
         this.logToQuake('INFO', '  topbar           - Show/Hide top bar');
         this.logToQuake('INFO', '  fen              - Show and copy current FEN');
         this.logToQuake('INFO', '  pgn              - Show current PGN history');
         this.logToQuake('INFO', '  hint             - Request move hint');
         this.logToQuake('INFO', '  reset / new      - Reset chess board');
-        this.logToQuake('INFO', '  matrix           - Open interactive 6x6 battle matrix');
+        this.logToQuake('INFO', '  pov / cinema     - Open Heroes POV Cinema (./showcase/?view=pov)');
         this.logToQuake('INFO', '  swamp            - Splash pieces in the swamp');
         this.logToQuake('INFO', '  skeletons        - Toggle 3D skeletons');
         this.logToQuake('INFO', '  clear            - Clear console');
         this.logToQuake('INFO', '  close / exit     - Close Quake console');
         break;
+
+      case 'clarity': {
+        if (!arg1) {
+          this.cycleClarityMode();
+        } else if (arg1 === '2d') {
+          this.setClarityMode('s1', { force2dIcons: true });
+        } else {
+          this.setClarityMode(arg1);
+        }
+        this.logToQuake(
+          'CLARITY',
+          `Visual clarity mode: ${this.clarityMode.toUpperCase()} (force2dIcons=${this.force2dIcons})`,
+          'gold',
+        );
+        break;
+      }
 
       case 'setup':
         this.openSetupModal();
@@ -3678,8 +4587,13 @@ export class HudListener {
         this.logToQuake('RESET', 'Board reset to starting position.', 'green');
         break;
 
+      case 'pov':
+      case 'cinema':
+      case 'showcase':
       case 'matrix':
-        this.openMatrix36Modal();
+        if (typeof window !== 'undefined' && window.location) {
+          window.location.href = './showcase/?view=pov';
+        }
         break;
 
       case 'swamp':
@@ -3718,13 +4632,9 @@ export class HudListener {
     this.flowState = e.to;
     if (!this.rootEl) return;
 
-    const isWow = e.to === 'Mode2_WowArena';
-    this.rootEl.querySelector('#hud-mode1-btn')?.classList.toggle('active', !isWow);
-    this.rootEl.querySelector('#hud-mode2-btn')?.classList.toggle('active', isWow);
-
     const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
     if (wowPanel) {
-      wowPanel.style.display = isWow ? 'flex' : 'none';
+      wowPanel.style.display = 'none';
     }
   }
 
@@ -3922,22 +4832,75 @@ export class HudListener {
     const pid = e.playerId || 'w';
     this.luck[pid] = e.luck ?? 0;
     this.luck.max = e.maxLuck ?? 12;
+    if (typeof e.d20Roll === 'number') {
+      this.lastD20Roll = e.d20Roll;
+    }
     this.updateLuckUi(pid);
     if (this.luck[pid] >= (this.luck.max || 12)) {
       this.logToQuake(
-        'LUCK',
-        `✨ MAX LUCK for ${pid === 'w' ? '⚪ White' : '⚫ Black'}! Guaranteed Golden Crit on next capture!`,
+        'D20',
+        `🎲 Ruby d20 charged for ${pid === 'w' ? '⚪ White' : '⚫ Black'}! Guaranteed Natural 20 Golden Crit on next capture!`,
         'gold',
       );
     }
   }
 
+  onD20Rolled(e = {}) {
+    const roll = Math.max(1, Math.min(20, Math.round(Number(e.d20Roll) || 20)));
+    this.lastD20Roll = roll;
+    this._animateD20HudBadge(roll);
+    this.updateLuckUi(e.playerId || this.turn || 'w');
+
+    const isIt = this.lang === 'it';
+    const msg =
+      roll === 20
+        ? isIt
+          ? '🎲 Dado d20 Rubino: 20 NATURALE! 🌟 COLPO CRITICO DORATO!'
+          : '🎲 Ruby d20 Roll: NATURAL 20! 🌟 GOLDEN CRITICAL HIT!'
+        : roll === 1
+          ? isIt
+            ? '🎲 Dado d20 Rubino: 1 (Fumble Comico! 😂)'
+            : '🎲 Ruby d20 Roll: 1 (Comic Fumble! 😂)'
+          : roll >= 15
+            ? isIt
+              ? `🎲 Dado d20 Rubino: ${roll} ✨ (Tiro Brillante!)`
+              : `🎲 Ruby d20 Roll: ${roll} ✨ (Shiny Roll!)`
+            : isIt
+              ? `🎲 Dado d20 Rubino: hai tirato ${roll}!`
+              : `🎲 Ruby d20 Roll: you rolled ${roll}!`;
+    this.showToast(msg, 2800);
+    this.logToQuake('D20', msg, roll === 20 ? 'gold' : 'cyan');
+  }
+
+  _animateD20HudBadge(roll = this.lastD20Roll) {
+    if (!this.rootEl) return;
+    const btn = this.rootEl.querySelector('#hud-d20-btn');
+    const numEl = this.rootEl.querySelector('#hud-d20-num');
+    if (numEl) numEl.textContent = String(roll);
+    if (btn) {
+      btn.classList.remove('rolling');
+      // Trigger reflow if available
+      void btn.offsetWidth;
+      btn.classList.add('rolling');
+      btn.classList.toggle('nat20', roll === 20);
+      if (this.d20RollTimer) clearTimeout(this.d20RollTimer);
+      this.d20RollTimer = setTimeout(() => {
+        btn.classList.remove('rolling');
+      }, 600);
+    }
+  }
+
   onDropSpawned(e) {
+    if (typeof e.d20Roll === 'number') {
+      this.lastD20Roll = e.d20Roll;
+      this._animateD20HudBadge(e.d20Roll);
+      this.updateLuckUi(e.playerId || 'w');
+    }
     if (e.sticker?.id) {
       this.unlockedStickers.add(e.sticker.id);
       this.renderStickersUi();
       const stickerLabel = e.sticker.name?.[this.lang] || e.sticker.name?.en || e.sticker.name?.it || e.sticker.id;
-      const prefix = this.lang === 'it' ? '🌟 STICKER SBLOCCATO' : '🌟 STICKER UNLOCKED';
+      const prefix = this.lang === 'it' ? '🌟 CRITICO 20 · STICKER SBLOCCATO' : '🌟 NAT 20 · STICKER UNLOCKED';
       this.showToast(`${prefix}: ${stickerLabel}!`, 3600);
       this.logToQuake('STICKER', `${prefix}: ${stickerLabel}!`, 'gold');
     }
@@ -4013,10 +4976,9 @@ export class HudListener {
     if (!this.rootEl) return;
     const bannerEl = this.rootEl.querySelector('#hud-comic-banner');
     if (bannerEl) bannerEl.style.display = 'none';
-    // Restore WOW drawer if we returned to Mode2_WowArena
     const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
     if (wowPanel) {
-      wowPanel.style.display = this.flowState === 'Mode2_WowArena' ? 'flex' : 'none';
+      wowPanel.style.display = 'none';
     }
     if (!this.ctx?.scene?.userData?.vfxControlsCombatBlend) {
       this.setCombatBlend(0.0);
@@ -4116,6 +5078,34 @@ export class HudListener {
       this.luck.w = e.luck;
       this.updateLuckUi('w');
     }
+    if (typeof e?.showRoleLetters === 'boolean') {
+      this.showRoleLetters = e.showRoleLetters;
+      this.ctx?.pieceView?.setShowRoleLetters?.(this.showRoleLetters);
+    }
+    if (e?.clarityMode && !this._hasUrlClarityOverride()) {
+      const m = String(e.clarityMode).toLowerCase();
+      if (CLARITY_CYCLE.includes(m)) {
+        this.clarityMode = m;
+        this.force2dIcons = m === 's1';
+        this._syncClarityUi();
+      }
+    }
+  }
+
+  onClarityModeChanged(e) {
+    if (e?.mode) {
+      const m = String(e.mode).toLowerCase();
+      if (CLARITY_CYCLE.includes(m)) {
+        this.clarityMode = m;
+      }
+    }
+    if (typeof e?.force2dIcons === 'boolean') {
+      this.force2dIcons = e.force2dIcons;
+    }
+    if (typeof e?.showRoleLetters === 'boolean') {
+      this.showRoleLetters = e.showRoleLetters;
+    }
+    this._syncClarityUi();
   }
 
   onLyriaCaption(e) {
@@ -4168,7 +5158,15 @@ export class HudListener {
     this.combatPointerStart = null;
 
     if (!this.isCombatCutsceneActive()) return;
-    if (this.setupModalOpen || this.matrixModalOpen || this.quakeConsoleOpen) return;
+    if (
+      this.setupModalOpen ||
+      this.helpModalOpen ||
+      this.confirmNewModalOpen ||
+      this.matrixModalOpen ||
+      this.quakeConsoleOpen
+    ) {
+      return;
+    }
 
     const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
     // Guard against the initial square-tap that triggered the capture move (< 350ms ago)
@@ -4199,10 +5197,20 @@ export class HudListener {
       }
     }
 
-    if (e.code === 'Escape') {
+    if (e.code === 'Escape' || e.key === 'Escape') {
       if (this.quakeConsoleOpen) {
         e.preventDefault();
         this.closeQuakeConsole();
+        return;
+      }
+      if (this.confirmNewModalOpen) {
+        e.preventDefault();
+        this.cancelNewGame();
+        return;
+      }
+      if (this.helpModalOpen) {
+        e.preventDefault();
+        this.closeHelpModal();
         return;
       }
       if (this.setupModalOpen) {
@@ -4222,8 +5230,34 @@ export class HudListener {
       }
     }
 
+    if (this.confirmNewModalOpen && (e.code === 'Enter' || e.key === 'Enter')) {
+      e.preventDefault();
+      this.confirmNewGame();
+      return;
+    }
+
+    // Hotkey 'h' / 'H' / '?' to toggle the Help & Controls modal when not typing in an input.
+    if (
+      !isTextInput &&
+      !e.ctrlKey &&
+      !e.metaKey &&
+      !e.altKey &&
+      (e.key === 'h' || e.key === 'H' || e.key === '?')
+    ) {
+      e.preventDefault();
+      this.toggleHelpModal();
+      return;
+    }
+
+    // Hotkey 'd' / 'D' to roll the 3D Solid Ruby-Marble d20 on the board!
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'd' || e.key === 'D')) {
+      e.preventDefault();
+      this.rollRubyD20();
+      return;
+    }
+
     // Hotkey 'm' / 'M' to toggle topbar when not typing in an input
-    if (!isTextInput && (e.key === 'm' || e.key === 'M')) {
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'm' || e.key === 'M')) {
       e.preventDefault();
       this.toggleTopbar();
       return;
@@ -4234,6 +5268,27 @@ export class HudListener {
     if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'r' || e.key === 'R')) {
       e.preventDefault();
       this.resetCameraView();
+      return;
+    }
+
+    // Hotkey 'v' / 'V' to toggle Top-Down 2D / 3D camera view
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'v' || e.key === 'V')) {
+      e.preventDefault();
+      this.toggleTopDownView();
+      return;
+    }
+
+    // Hotkey 'f' / 'F' to flip board side (White <-> Black)
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'f' || e.key === 'F')) {
+      e.preventDefault();
+      this.flipCameraView();
+      return;
+    }
+
+    // Hotkey 'c' / 'C' to cycle Piece Clarity mode (S5 -> S1 -> S2 -> S3 -> S4 -> Off)
+    if (!isTextInput && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'c' || e.key === 'C')) {
+      e.preventDefault();
+      this.cycleClarityMode();
       return;
     }
 
@@ -4286,11 +5341,25 @@ export class HudListener {
     const val = this.luck[playerId] ?? this.luck.w ?? 0;
     const max = this.luck.max || 12;
     const pct = Math.min(100, Math.round((val / max) * 100));
+    const roll = this.lastD20Roll ?? 20;
 
+    const numEl = this.rootEl.querySelector('#hud-d20-num');
+    const btnEl = this.rootEl.querySelector('#hud-d20-btn');
     const valEl = this.rootEl.querySelector('#hud-luck-val');
     const fillEl = this.rootEl.querySelector('#hud-luck-fill');
     const trackEl = this.rootEl.querySelector('#hud-luck-track');
-    if (valEl) valEl.textContent = `${val} / ${max} ✨`;
+    if (numEl) numEl.textContent = String(roll);
+    if (btnEl) btnEl.classList.toggle('nat20', roll === 20);
+    if (valEl) {
+      valEl.textContent =
+        roll === 20
+          ? 'd20: 20 🌟 CRIT!'
+          : roll === 1
+            ? 'd20: 1 😂'
+            : roll >= 15
+              ? `d20: ${roll} ✨`
+              : `d20: ${roll}`;
+    }
     if (fillEl) fillEl.style.width = `${pct}%`;
     if (trackEl) trackEl.classList.toggle('hot', val >= 9);
   }
@@ -4338,6 +5407,8 @@ export class HudListener {
     setTxt('#hud-mode2-btn', 'mode2Btn');
     setTxt('#hud-matrix-btn', 'matrixBtn');
     setTxt('#hud-top-gallery-link', 'galleryBtn');
+    setTxt('#hud-setup-pov-link', 'galleryBtn');
+    setTxt('#hud-setup-desktop-pov-link', 'galleryBtn');
     setTxt('#hud-who-label', 'whoPlays');
     setTxt('#hud-opponent-select option[value="hotseat"]', 'hotseat');
     setTxt('#hud-opponent-select option[value="easy"]', 'cpuEasy');
@@ -4360,6 +5431,15 @@ export class HudListener {
       el.setAttribute('aria-label', lbl);
     };
     setTxt('#hud-luck-label', 'luckBar');
+    const d20Btn = this.rootEl.querySelector('#hud-d20-btn');
+    if (d20Btn) {
+      d20Btn.title = this.t('d20RollTooltip');
+      d20Btn.setAttribute('aria-label', this.t('luckBar'));
+    }
+    setTxt('#hud-confirm-new-title', 'confirmNewTitle');
+    setTxt('#hud-confirm-new-sub', 'confirmNewSub');
+    setTxt('#hud-confirm-new-cancel', 'confirmNewCancelBtn');
+    setTxt('#hud-confirm-new-yes', 'confirmNewYesBtn');
     setTip('#hud-dock-gallery', 'galleryBtn');
     setTip('#hud-dock-videos', 'videosBtn');
     setTip('#hud-setup-btn', 'setupBtn');
@@ -4372,11 +5452,19 @@ export class HudListener {
     setTip('#hud-top-btn', this.isMobilePhone ? (this.topDownCamera ? 'mobileCamTopBtn' : 'mobileCam3dBtn') : 'topCamBtn');
     const topBadge = this.rootEl.querySelector('#hud-top-badge');
     if (topBadge) topBadge.textContent = this.topDownCamera ? '2D' : '3D';
+    setTip('#hud-clarity-btn', 'clarityBtn');
+    this._syncClarityUi();
     setTip('#hud-new-btn', 'newGameBtn');
     setTip('#hud-fen-btn', 'fenBtn');
+    setTip('#hud-help-btn', 'helpBtn');
     setTip('#hud-music-btn', 'musicBtn');
     setTip('#hud-sfx-btn', 'sfxBtn');
     setTxt('#hud-skip-btn', 'skipBtn');
+    setTxt('#hud-help-title', 'helpModalTitle');
+    setTxt('#hud-help-sub', 'helpModalSub');
+    setTxt('#hud-help-close', 'closeBtn');
+    const helpBody = this.rootEl.querySelector('#hud-help-body');
+    if (helpBody) helpBody.innerHTML = this._renderHelpModalBodyHtml();
     const toggleBtn = this.rootEl.querySelector('#hud-toggle-topbar-btn');
     if (toggleBtn) {
       const lbl = this.topbarVisible ? this.t('toggleTopbarBtn') : this.t('showTopbarBtn');
@@ -4428,10 +5516,25 @@ export class HudListener {
     setTxt('#hud-setup-black-diff option[value="easy"]', 'cpuEasy');
     setTxt('#hud-setup-black-diff option[value="medium"]', 'cpuMed');
     setTxt('#hud-setup-black-diff option[value="hard"]', 'cpuHard');
+    setTxt('#hud-setup-clarity-lbl', 'clarityLabel');
+    setTxt('#hud-setup-clarity-select option[value="s5"]', 'clarityS5');
+    setTxt('#hud-setup-clarity-select option[value="s1"]', 'clarityS1');
+    setTxt('#hud-setup-clarity-select option[value="s2"]', 'clarityS2');
+    setTxt('#hud-setup-clarity-select option[value="s3"]', 'clarityS3');
+    setTxt('#hud-setup-clarity-select option[value="s4"]', 'clarityS4');
+    setTxt('#hud-setup-clarity-select option[value="off"]', 'clarityOff');
+    setTxt('#hud-setup-letters-lbl', 'clarityLettersLabel');
     setTxt('#hud-setup-black-human-wrap', 'hotseatDesc');
     setTxt('#hud-setup-apply-btn', 'applyCurrentBtn');
     setTxt('#hud-setup-start-btn', 'startMatchBtn');
     setTxt('#hud-setup-badge-text', 'defaultSetupBadge');
+    setTxt('#hud-setup-queen-var-lbl', 'queenVariantLabel');
+    setTxt('#hud-setup-bishop-var-lbl', 'bishopVariantLabel');
+    setTxt('#hud-setup-queen-variant option[value="young"]', 'queenVariantYoung');
+    setTxt('#hud-setup-queen-variant option[value="wedding"]', 'queenVariantWedding');
+    setTxt('#hud-setup-bishop-variant option[value="hat"]', 'bishopVariantHat');
+    setTxt('#hud-setup-bishop-variant option[value="astrolabe"]', 'bishopVariantAstrolabe');
+    setTxt('#hud-setup-bishop-variant option[value="rigged"]', 'bishopVariantRigged');
 
     // Mode 2 WOW Panel & Modals
     setTxt('#hud-promo-title', 'promoTitle');

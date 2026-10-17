@@ -9,7 +9,12 @@ import {
   AudioListener,
   CHESS_STRINGS_BG_URL,
   CHESS_STRINGS_THEME_URL,
+  CHECKMATE_AUDIO_URL,
+  CHESS_STRINGS_TRACKS,
   COMBAT_AUDIO_URL,
+  COMBAT_CUE_POINTS_S,
+  COMBAT_MUSIC_PEAK_VOLUME,
+  NORMAL_MUSIC_VOLUME,
 } from '../src/listeners/AudioListener.js';
 import { HudListener } from '../src/listeners/HudListener.js';
 import {
@@ -153,8 +158,39 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
       'Expected non-empty Lyria 3 Baroque String Chess Overture MP3',
     );
 
+    const checkmateMp3Path = path.resolve(process.cwd(), CHECKMATE_AUDIO_URL);
+    assert.ok(fs.existsSync(checkmateMp3Path), `Expected ${CHECKMATE_AUDIO_URL} to exist on disk`);
+    assert.ok(
+      fs.statSync(checkmateMp3Path).size > 100_000,
+      'Expected non-empty Lyria 3 Comic Checkmate Jingle MP3',
+    );
+
+    // Verify track 0 is the Ouverture Staccato (preferred default) and track 1 is Chamber Strings (castling)
+    assert.equal(CHESS_STRINGS_TRACKS[0], CHESS_STRINGS_THEME_URL);
+    assert.equal(CHESS_STRINGS_TRACKS[1], CHESS_STRINGS_BG_URL);
+
     assert.equal(audio.toggleThemeSong(), true);
     assert.equal(audio.musicPlaying, true);
+    assert.equal(audio.themeTrackIndex, 0);
+
+    // Verify castling switches themeTrackIndex to 1 and plays castling_theme
+    bus.emit({ type: 'CASTLING_EXECUTED', kingSquare: 'g1', rookSquare: 'f1' });
+    bus.flush();
+    assert.ok(audio.playedSfx.includes('castling_theme'));
+    assert.ok(audio.playedSfx.includes('castling_boing'));
+    assert.equal(audio.themeTrackIndex, 1);
+
+    // Verify checkmate triggers both fanfare and comic checkmate jingle
+    bus.emit({ type: 'CHECKMATE', winner: 'w', square: 'e8' });
+    bus.flush();
+    assert.ok(audio.playedSfx.includes('checkmate_fanfare'));
+    assert.ok(audio.playedSfx.includes('checkmate_jingle'));
+
+    // Verify board reset resets theme track back to track 0 (Ouverture Staccato)
+    bus.emit({ type: 'BOARD_RESET' });
+    bus.flush();
+    assert.equal(audio.themeTrackIndex, 0);
+
     assert.equal(audio.toggleThemeSong(), false);
     assert.equal(audio.musicPlaying, false);
 
@@ -162,6 +198,17 @@ describe('Living Idle Animations & Character Hover/Select Voices', () => {
     bus.flush();
     assert.equal(audio.combatMusicActive, true);
     assert.ok(audio.playedSfx.includes('combat_music_started'));
+
+    // Verify combat music volume is strictly +15% above normal music (never 100%+)
+    assert.equal(COMBAT_MUSIC_PEAK_VOLUME, Number((NORMAL_MUSIC_VOLUME * 1.15).toFixed(3)));
+    assert.ok(COMBAT_MUSIC_PEAK_VOLUME <= 0.30, 'Combat music peak volume must stay gentle (<= 0.30)');
+    // Verify every cue point leaves >= 13.5s before 29.5s so a 10s battle (+3.5s outro) never loops
+    for (const cueS of COMBAT_CUE_POINTS_S) {
+      assert.ok(
+        cueS + 13.5 <= 29.5,
+        `Cue point ${cueS}s must leave >= 13.5s before end of 30s track so it never loops during a 10s battle`,
+      );
+    }
 
     bus.emit({ type: 'BATTLE_COMPLETED', attacker: 'p', defender: 'p' });
     bus.flush();

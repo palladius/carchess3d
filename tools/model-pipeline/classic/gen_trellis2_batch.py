@@ -48,15 +48,21 @@ CLASSIC_PIECES = [
 SWAMP_PIECES = [
     ("king", "king-swamp-orco", 1.80, "assets/characters/king-swamp-orco.jpg", "assets/models/swamp/king-swamp-orco.glb"),
     ("queen", "queen-swamp-orchessa", 1.65, "assets/characters/queen-swamp-orchessa.jpg", "assets/models/swamp/queen-swamp-orchessa.glb"),
-    ("bishop", "bishop-swamp-focaccina", 1.45, "assets/characters/bishop-swamp-gatto.jpg", "assets/models/swamp/bishop-swamp-focaccina.glb"),
+    ("bishop", "bishop-swamp-focaccina", 1.45, "assets/characters/bishop-swamp-focaccina.jpg", "assets/models/swamp/bishop-swamp-focaccina.glb"),
     ("knight", "knight-swamp-asinello", 1.35, "assets/characters/knight-swamp-asinello.jpg", "assets/models/swamp/knight-swamp-asinello.glb"),
     ("rook", "rook-swamp-draghessa", 1.30, "assets/characters/rook-swamp-draghessa.jpg", "assets/models/swamp/rook-swamp-draghessa.glb"),
-    ("pawn", "pawn-swamp-tappo", 0.95, "assets/characters/pawn-swamp-zenzy.jpg", "assets/models/swamp/pawn-swamp-tappo.glb"),
+    ("pawn", "pawn-swamp-tappo", 0.95, "assets/characters/pawn-swamp-tappo.jpg", "assets/models/swamp/pawn-swamp-tappo.glb"),
 ]
 
 
 def load_hf_token() -> str | None:
-    for key in ("HF_RICC_PROVE3D_CARLESSO", "HF_TOKEN", "HUGGING_FACE_RO_TRELLIS"):
+    token_keys = (
+        "HF_RICC_PROVE3D_CARLESSO",
+        "HUGGING_FACE_RO_TRELLIS_WHEREABOUTS",
+        "HF_TOKEN",
+        "HUGGING_FACE_RO_TRELLIS",
+    )
+    for key in token_keys:
         val = os.environ.get(key)
         if val:
             return val.strip()
@@ -78,7 +84,7 @@ def load_hf_token() -> str | None:
                 k, v = line.split("=", 1)
                 k = k.strip()
                 v = v.strip().strip("\"'")
-                if k in ("HF_RICC_PROVE3D_CARLESSO", "HF_TOKEN", "HUGGING_FACE_RO_TRELLIS") and v:
+                if k in token_keys and v:
                     return v
     return None
 
@@ -137,15 +143,21 @@ def normalize_trellis_glb(raw_glb_path: Path, dest_glb_path: Path, target_height
             verts[:, 2] = (verts[:, 2] - center_z) * scale
             verts[:, 1] = (verts[:, 1] - float(min_xyz[1])) * scale
 
-            # Ensure X and Z span are at least 0.72m (for 0.70m contract requirement)
+            # Ensure X and Z span are between 0.72m and 0.86m (contract requirement: >= 0.70m, <= 0.86m)
             span_x = float(verts[:, 0].max() - verts[:, 0].min())
             span_z = float(verts[:, 2].max() - verts[:, 2].min())
             if span_x < 0.72 and span_x > 1e-5:
                 verts[:, 0] *= 0.72 / span_x
+            elif span_x > 0.86:
+                verts[:, 0] *= 0.86 / span_x
+
             if span_z < 0.72 and span_z > 1e-5:
                 verts[:, 2] *= 0.72 / span_z
+            elif span_z > 0.86:
+                verts[:, 2] *= 0.86 / span_z
 
             # Pin exact min_y = 0.0 and max_y = target_height_m
+            verts[:, 1] = np.clip(verts[:, 1], 0.0, float(target_height_m))
             idx_min_y = int(np.argmin(verts[:, 1]))
             idx_max_y = int(np.argmax(verts[:, 1]))
             verts[idx_min_y, 1] = 0.0
@@ -264,6 +276,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--family", choices=["classic", "swamp", "all"], default="all")
     parser.add_argument("--only", nargs="*", help="Optional list of slugs or piece names to filter")
+    parser.add_argument("--skip-existing", action="store_true", help="Skip models that already exist")
     args = parser.parse_args()
 
     token = load_hf_token()
@@ -281,6 +294,10 @@ def main() -> int:
         tasks = [t for t in tasks if t[0] in filters or t[1] in filters]
 
     for role, slug, height_m, src_rel, dest_rel in tasks:
+        dest_path = REPO_ROOT / dest_rel
+        if args.skip_existing and dest_path.exists():
+            print(f"⏩ [{slug}] Skipping existing {dest_rel}", flush=True)
+            continue
         for attempt in range(1, 3):
             try:
                 generate_piece_trellis2(client, slug, height_m, src_rel, dest_rel)

@@ -24,7 +24,7 @@ ap.add_argument("--steps", type=int, default=50)
 ap.add_argument("--octree", type=int, default=384, help="octree resolution (256 fast, 384 good, 512 max)")
 ap.add_argument("--guidance", type=float, default=5.0)
 ap.add_argument("--seed", type=int, default=42)
-ap.add_argument("--max-faces", type=int, default=0, help="0 = keep full resolution")
+ap.add_argument("--max-faces", type=int, default=60000, help="target face count for web engine (default 60000, 0 = keep full)")
 args = ap.parse_args()
 
 out_dir = Path(os.environ["LOCAL3D_ROOT"]) / "out"

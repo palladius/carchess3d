@@ -85,3 +85,54 @@ test('DropManager: 10,000-capture Monte-Carlo verification of soft/hard pity and
   assert.ok(counts.shiny > 1000, `Expected > 1000 shiny captures, got ${counts.shiny}`);
   assert.ok(drops.getUnlockedStickers('w').length >= 6, 'All 6 family stickers unlocked over 10k captures');
 });
+
+test('DropManager: d20Roll (1..20) is emitted on DROP_SPAWNED and D20_ROLL_REQUESTED -> D20_ROLLED', () => {
+  const bus = new GameEventBus();
+  const rng = mulberry32(12345);
+  const drops = new DropManager();
+  drops.init({ bus, rng });
+
+  let lastDrop = null;
+  let lastRolled = null;
+  bus.on('DROP_SPAWNED', (e) => { lastDrop = e; });
+  bus.on('D20_ROLLED', (e) => { lastRolled = e; });
+
+  // Capture at hard pity (L >= 12) must yield a Natural 20 (d20Roll === 20, isNat20 === true)
+  drops.setLuckForTest('w', 11);
+  bus.emit({
+    type: 'PIECE_CAPTURED',
+    color: 'w',
+    attacker: 'p',
+    defender: 'p',
+    weight: 1,
+    from: 'e4',
+    to: 'd5',
+  });
+  bus.flush();
+  bus.flush();
+
+  assert.ok(lastDrop, 'DROP_SPAWNED must fire');
+  assert.equal(lastDrop.tier, 'golden_crit');
+  assert.equal(lastDrop.d20Roll, 20, 'golden_crit must produce d20Roll === 20');
+  assert.equal(lastDrop.isNat20, true, 'golden_crit must set isNat20 === true');
+  assert.equal(drops.lastD20Roll, 20);
+
+  // Manual d20 roll request from HUD ('d' hotkey or clicking #hud-d20-btn)
+  bus.emit({
+    type: 'D20_ROLL_REQUESTED',
+    playerId: 'b',
+    reason: 'manual',
+  });
+  bus.flush();
+  bus.flush();
+
+  assert.ok(lastRolled, 'D20_ROLLED must fire on D20_ROLL_REQUESTED');
+  assert.equal(lastRolled.playerId, 'b');
+  assert.equal(lastRolled.reason, 'manual');
+  assert.ok(
+    Number.isInteger(lastRolled.d20Roll) && lastRolled.d20Roll >= 1 && lastRolled.d20Roll <= 20,
+    `Expected d20Roll in 1..20, got ${lastRolled.d20Roll}`,
+  );
+  assert.equal(drops.lastD20Roll, lastRolled.d20Roll);
+});
+

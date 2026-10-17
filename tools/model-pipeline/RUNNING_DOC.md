@@ -524,11 +524,97 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
   - Status/mount check recipe: `just turbosebux` (or `bash tools/model-pipeline/local/ensure_turbosebux.sh`).
   - Generate 3D shape recipe: `just local3d-shape <image> <label> [*args]`.
 
-### 10.12 Zurich Fairytale Diorama Panorama Generation with Nanobanana (`assets/environments/zurich_panorama.jpg`)
-- **Objective**: Replace the placeholder primitive box guild houses ("orribili rettangoloni") and crude cone mountains with an authentic, fairytale diorama panorama of Zurich, Lake Zurich, and the Swiss Alps.
-- **Tool**: Nanobanana MCP tool `generate_image`.
-- **Prompt**:
-  > "Panoramic fairy-tale view of Zurich Switzerland at twilight, showing the Limmat river flowing into Lake Zurich, historic Grossmünster twin towers, Fraumünster church, Münsterbrücke stone bridge, old town guild houses, and snow-capped Swiss Alps in the background, magical enchanted storybook aesthetic, high detail, warm window lights reflecting on the water, evening twilight sky."
-- **Output**: `assets/environments/zurich_panorama.jpg` (`1584×672`, 1.1 MB JPEG).
-- **Integration**: Mapped to a curved panoramic horizon diorama mesh (`z = -22.0m`) in `src/views/ZurichSwampView.js`, eliminating box houses and cone peaks while preserving the 3D Grossmünster twin towers and Münsterbrücke stone bridge with river lantern reflections.
+### 10.12 Classic & Swamp High-Res UV-Textured Model Reconstructions (Issue #20)
+- **Classic Family Reconstructions**:
+  - `king-classic-re.glb` (1.80m, 99.2k tris, 4.0MB): `microsoft/TRELLIS.2`
+  - `queen-classic-regina.glb` (1.65m, 99.5k tris, 3.5MB): `microsoft/TRELLIS.2`
+  - `bishop-classic-vescovo.glb` (1.45m, 97.1k tris, 4.4MB): `microsoft/TRELLIS.2`
+  - `knight-classic-cavallo.glb` (1.35m, 22.1k tris, 2.8MB): Mode A Dual-Orthographic SDF (`reconstruct_knight_3d.py`)
+  - `rook-classic-torre.glb` (1.30m, 20.2k tris, 2.7MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `pawn-classic-pedone.glb` (0.95m, 13.3k tris, 1.8MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+- **Swamp Family Reconstructions**:
+  - `king-swamp-orco.glb` (1.80m, 21.6k tris, 3.0MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `queen-swamp-orchessa.glb` (1.65m, 15.8k tris, 2.2MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `bishop-swamp-focaccina.glb` (1.45m, 12.4k tris, 1.8MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `knight-swamp-asinello.glb` (1.35m, 16.5k tris, 2.2MB): Mode A 2D-to-3D SDF + 40-Tooth Relief (`reconstruct_asinello_3d.py`)
+  - `rook-swamp-draghessa.glb` (1.30m, 16.7k tris, 2.4MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+  - `pawn-swamp-tappo.glb` (0.95m, 9.9k tris, 1.6MB): Mode A 2D-to-3D SDF (`reconstruct_mode_a_batch.py`)
+- All 12 models strictly comply with `assets/families/_contract.json` (min.y == 0.0m, canonical heights, footprint in [0.70m, 0.86m], named materials `faction_primary` + `faction_trim`). Provenance checksums added to `docs/models-provenance.yaml` (22 total models verified by `just test`).
+
+### 10.13 Local 3D Paint & Texturing Pipeline on Pupurabbux GPU (RTX 5080 + TurboSebux, Issue #5 Phase 2)
+- **C++/CUDA Kernel JIT on Blackwell**: Recompiled `custom_rasterizer_kernel` with `-gencode=arch=compute_90,code=compute_90` (`TORCH_CUDA_ARCH_LIST="9.0+PTX"` using `g++-12`), resolving `cudaErrorNoKernelImageForDevice` on Blackwell `sm_120` via runtime driver PTX JIT.
+- **Mesh Decimation**: Integrated Quadric Edge Collapse decimation (`--max-faces 60000` default in `hunyuan_shape.py` and `hunyuan_paint.py`), reducing face counts from 697k down to 60k faces (12.5 MB -> 1.1 MB) in 9.9s with zero visual degradation.
+- **Pipeline Implementation**: Created `tools/model-pipeline/local/hunyuan_paint.py` and recipe `just local3d-paint <mesh_glb> <image> <label>`.
+- **First Full Texturing Benchmark**:
+  - Command: `just local3d-paint /media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_shape_60k.glb tools/model-pipeline/ale/front.png ale1_hy2`
+  - Output: `/media/riccardo/TurboSebux/carchess3d/out/ale1_hy2_textured.glb` (60,000 faces, 3.7 MB with 2048x2048 PBR diffuse map).
+  - Multi-view diffusion + UV back-projection time: **45 seconds** (total 76s with model init).
+  - Peak VRAM: **9.7 GB** (fits easily in RTX 5080 16 GB).
+  - Contact sheet preview: `tools/model-pipeline/local/out/ale1_hy2_textured_preview.png`.
+
+### 10.14 Knight Sebastian Modular Armaments & Headless Assembly Pipeline (`tools/model-pipeline/seby/assemble_modular_seby.py`)
+- **Base Model**: `assets/models/knight-seby.glb` (grounded strictly at Z=0.0m, height 1.001m).
+- **Fist Anchor Calibration**: Calibrated raised left clenched gauntlet centroid from grounded base mesh vertices at `(X=0.195, Y=-0.025, Z=0.738)`.
+- **Modular Weapon Variants Built**:
+  1. **Alabarda Reale (`assets/models/knight-seby-halberd.glb`)**:
+     - Polished dark mahogany shaft (`radius=0.009m`) extending from pedestal ferrule (`Z=0.140m`), through clenched left fist (`Z=0.738m`), to socket (`Z=1.050m`).
+     - Grounded brass/gold pedestal ferrule resting adjacent to horse hoof.
+     - 4-faceted diamond lance spearhead (`Z=1.070..1.340m`).
+     - Ornate crescent axe blade (`X=0.295m`) and reverse armor-piercing war hook (`X=0.155m`, safe clearance from head).
+     - Sapphire core medallion and flowing royal blue silk pennant ribbon.
+  2. **Spada Laser / Beam Saber (`assets/models/knight-seby-lightsaber.glb`)**:
+     - Ergonomic ribbed chrome/black hilt through fist (`Z=0.675..0.825m`).
+     - Heroic outward tilt: `rot_y = +12°`, `rot_x = -6°` to project beam diagonally upward away from hair and helmet.
+     - Radiant cyan plasma outer beam (`Z=0.825..1.285m`, emission strength 6.0) with intense white-hot inner core (emission strength 12.0).
+  3. **Sigillo dell'Acquario (`assets/models/knight-seby-aurora.glb`)**:
+     - Grecian celestial golden amphora held firmly by foot at `Z=0.725..0.770m`.
+     - Spheroid urn belly with central Sapphire Enamel constellation band and 6 gold star medallions (`Z=0.770..0.910m`).
+     - Scalloped pouring lip (`Z=0.970..1.010m`) and twin curved winged handles.
+     - Swirling Diamond Ice Aurora stardust cascade with 6 faceted star crystals (`Z=1.010..1.210m`).
+- **Watertightness & Floor Grounding**:
+  - Standalone weapons exported to `tools/model-pipeline/seby/out/weapon_{halberd,lightsaber,aurora}.glb` (zero non-manifold/boundary edges).
+  - All assembled variants grounded at Z=0.0m with valid glTF VEC3 bounds.
+- **Visual Verification**:
+  - 4-view contact sheets rendered via Cycles: `tools/model-pipeline/critic/out/knight-seby-{halberd,lightsaber,aurora}_critic_sheet.png`.
+
+### 10.15 Re Riccardo Polish & Royal Crown Jewel Remaster (`tools/model-pipeline/king/clean_king_riccardo.py`)
+- **Pillar**: Pillar 3 from `etc/prompts/GOAL_AUTONOMOUS_DAY_OF_CODE.md`.
+- **Pipeline & Tooling**:
+  - Headless Blender automation script: `tools/model-pipeline/king/clean_king_riccardo.py` (`blender -b -P tools/model-pipeline/king/clean_king_riccardo.py`).
+  - Welded coincident UV-split vertices (`dist=0.0012`) and eliminated 855 floating faces across 42 tiny disconnected crumbs (`< 50` faces).
+- **Geometric Sculpting & Polish**:
+  - **Ermine Collar Undercut**: Inset crease under white ermine fur collar (`0.14 <= z <= 0.18, y > 0.04`) providing volume separation and natural shadow against the royal blue velvet cape.
+  - **Cascading Cape Drape Folds**: Harmonic vertical drape modulation (`drape_fold = math.cos(x * 40.0) * 0.005`) sculpted along the rear mantle.
+  - **Sharpened Royal Orb Maltese Cross**: Straightened horizontal crossbar planar faces and sharpened the vertical crest to a defined peak (`x ~ 0.091, y ~ -0.094`).
+  - **Sharpened Scepter Finial**: Refined the ceremonial scepter bulb and tapered the spearhead cross point to a sharp tip (`x ~ -0.105, y ~ -0.104`).
+  - **Selective Surface Smoothing**: Created vertex group `Smooth_Cloak_Robe` (smoothing factor 0.45, 4 iterations on cloak, collar, and robe while strictly preserving 0-weight hard mechanical edges on scepter shaft, orb cross, crown filigree, biometric face graft, and turned pedestal).
+  - **Floor Grounding**: Translated all vertices along Z so minimum Z is exactly 0.000000m (Y=0.0 in glTF 2.0).
+- **Outputs & Verification**:
+  - `assets/models/king-riccardo-remastered.glb` (4,188,420 bytes, MD5 `5f468ce3ca80b83fbfc1f086aed4fae9`).
+  - 4-view contact sheet at 512px resolution: `tools/model-pipeline/critic/out/king-riccardo-remastered_critic_sheet.png` and `tools/model-pipeline/king/out/king_riccardo_remastered_contact_sheet.png`.
+  - VLM and geometric critic report logged: `tools/model-pipeline/critic/out/king-riccardo-remastered_report.json` and scoreboard updated in `docs/qa-scores.yaml`.
+  - Checksum and provenance registered in `docs/models-provenance.yaml`.
+
+---
+
+## 29. 2026-10-14 — Universal 3D Static Role Add-Ons Baked into all 22 GLB Models (`tools/model-pipeline/bake_universal_role_addons.py`)
+
+- **Goal (Idea #2B, GHI #32)**: Ensure every `.glb` across all 3 families (`carlesso`, `classic`, `swamp`) embeds an invariant, watertight 3D static role signifier (`UniversalRoleAddon_<type>`) using the `faction_trim` PBR material (`baseColorFactor: [0.85, 0.70, 0.24, 1.0]`, `metallicFactor: 0.80`, `roughnessFactor: 0.24`), automatically tinted per faction by `PieceView.js` (Royal Gold for White, Violet-Silver for Black).
+- **Script & Command**:
+  ```bash
+  UV_INDEX_URL="https://pypi.org/simple" uv run tools/model-pipeline/bake_universal_role_addons.py
+  ```
+- **Role Signifier Geometries (100% Watertight 2-Manifold `trimesh.Trimesh`)**:
+  - **King (`k`, `+7,040 tris`)**: Single-diadem royal crown ring (`wave_cycles=4`) + 4 cardinal diadem jewel bosses + wide X/Z Cross Pattee finial at the top apex + 4 cardinal cross reliefs at the base rim.
+  - **Queen (`q`, `+8,640 tris`)**: 8-spike splayed royal coronet ring (`wave_cycles=8`) + 8 large spherical pearls crowning the top perimeter + 8-star base studs.
+  - **Rook (`r`, `+5,568 tris`)**: 6-merlon crenellated castle battlement turret crown + 6-buttress base fortress collar.
+  - **Bishop (`b`, `+3,424 tris`)**: Sacred nimbus halo + tall Episcopal Cross / Crosier finial with diagonal X-crossbars + 4 diagonal (`45°, 135°, 225°, 315°`) mitre diamond studs at the base.
+  - **Knight (`n`, `+4,160 tris`)**: Wide bilateral warhorse-crest / horseshoe-arch side wings (`±X`) that visibly widen the Knight's silhouette from `0°` and `30°` + dorsal scalloped mane crest + front/back horseshoe base emblem.
+  - **Pawn (`p`, `+2,688 tris`)**: Vertical Swiss-Guard pike spearhead + Staunton sphere finial + neck collar ring at the top + front/back pike chevron spearheads at the base.
+- **Invariants & Idempotency**:
+  - Preserves existing UV textures, materials, animations, and skeletal skins (`bishop-ale-rigged.glb`).
+  - Strictly preserves each model's existing `min_y` (`0.0m`) and `max_y` (`height_m`) and horizontal pedestal bounds.
+  - Stores pre-addon buffer/array slice offsets in `asset.extras.universal_role_addon` so repeated runs are 100% byte-for-byte deterministic and idempotent.
+  - Automatically syncs all 22 `.glb` MD5 checksums and byte sizes in `docs/models-provenance.yaml` (`python3 scripts/test_provenance.py` and `python3 scripts/check.py` pass with 0 errors).
+
 

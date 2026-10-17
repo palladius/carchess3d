@@ -1,25 +1,279 @@
 # Changelog
 
+## [0.3.83] - 2026-10-17
+
+- 🔒 **Path scrub `render_ale_comparison.py`**: rimossi i path assoluti del disco esterno; i GLB locali ora si leggono da `$LOCAL3D_ROOT/out` (stessa convenzione di `hunyuan_paint.py` e del `justfile`). Nessun cambiamento al gioco.
+
+## [0.3.82] - 2026-10-17
+
+- 🎩🐉 **Local 3D Ale Visual Audit & Comparison Showcase (`da109ff`, `article/SHOWCASE_LOCAL3D_ALE.md`, `article/assets/ale_visual_audit_color.png`, `showcase/ale_visual_audit_color.png`, `tools/model-pipeline/local/render_ale_comparison.py`)**:
+  - Added side-by-side color visual audit of the 3 Alessandro (Bishop) 3D models (`bishop-ale-1.glb`, `bishop-ale-2.glb`, `bishop-ale-rigged.glb`) and comparison renderer script `tools/model-pipeline/local/render_ale_comparison.py`.
+- 🧪🎬 **Daily UAT `20261017` (`#38`)**:
+  - Executed `just daily-uat` for `2026-10-17` and published **[GitHub Issue #38 (`Gemini UAT 20261017`)](https://github.com/palladius/carchess3d/issues/38)** with 8/8 passing checks (`180°` flip luminance `94.2/255`, `2D` top-down luminance `78.9/255`, CPU Easy avg latency `407ms`).
+
+## [0.3.81] - 2026-10-16
+
+- 🧪🎬 **Daily UAT `20261016` & `#hud-confirm-new-yes` Guard Support (`scripts/daily_uat_playtest.py`, `#37`)**:
+  - Updated Step 9 of `scripts/daily_uat_playtest.py` to confirm the `v0.3.77` `#hud-confirm-new-modal` (`#hud-confirm-new-yes` / `confirmNewGame()`) after clicking `#hud-new-btn`.
+  - Executed `just daily-uat` for `2026-10-16` and published **[GitHub Issue #37 (`Gemini UAT 20261016`)](https://github.com/palladius/carchess3d/issues/37)** with 8/8 passing checks (`180°` flip luminance `95.1/255`, `2D` top-down luminance `77.7/255`, CPU Easy avg latency `511ms`).
+
+## [0.3.80] - 2026-10-16
+
+- 🔒 **Privacy scrub `article/` (MAIN agent review del merge `write_family_3d_article`)**: redatti 43 riferimenti interni rimasti nei dossier (`article/sources/derek_chats_list.md`, `article/sources/telemetry/*_chats_index.json`, `iterations_log.md`, `ARTICLE.md`, `INVESTIGATION.md`, `list_carchess_chats.py`): short-link interni → `<internal-link>`, link a Docs/Drive privati → `<private-doc-link>`, path corp → `<corp-path>`, path assoluti del disco esterno/home → `<external-ssd>` / `<home>`. Nessun cambiamento al gioco.
+
+## [0.3.79] - 2026-10-15
+
+- ✂️🎬 **Trim Selezione Iniziale da Video & GIF UAT (`scripts/daily_uat_playtest.py`, `article/assets/gallery/daily_uat_gameplay_20261015.gif`, `docs/visual-progress/daily_uat_gameplay_20261015.gif`, GitHub Release `uat-media-20261015`)**:
+  - Tagliata la schermata modale di selezione iniziale (`#hud-setup-modal`, primi `27s`) dal video `uat_gameplay.mp4` (`74.2s` di puro gameplay 3D) e dalla GIF `daily_uat_gameplay_20261015.gif` (`26s` a `2.8x` con rotazione camera, toggle 2D/3D, mosse e scontro 3D Battle Arena `Ale vs Puffin`), aggiornando anche la release GitHub `uat-media-20261015` collegata alla **[Issue #36](https://github.com/palladius/carchess3d/issues/36)**.
+  - Aggiornato `scripts/daily_uat_playtest.py` per chiudere immediatamente il modale di setup allo startup e calcolare automaticamente `trim_start_s` (`-ss`) durante il post-processing `ffmpeg`.
+
+## [0.3.78] - 2026-10-15
+
+- 👑📐✨ **Piece Clarity Refinements (`A1`, `A2`, `A3`): Clean `S2` 3D Default, Single Head-Juxtaposed Sculpted Crowns, 100% Square-Aligned `2D` Medallions & Simplified Single-Icon Design (`#32`, `src/views/PieceClarityHelper.js`, `src/views/PieceView.js`, `src/listeners/HudListener.js`, `src/listeners/ProfileStorageListener.js`, `src/core/Registry.js`, `tools/model-pipeline/bake_universal_role_addons.py`, `docs/models-provenance.yaml`, `docs/spec/SPEC.md`)**:
+  - **A1 — Default Clean `S2` in 3D, Auto-Toggle on `📐 2D`, 100% Square Alignment (`y = 0.04m`) & Simplified Single-Icon Medallions**:
+    - **Default Mode (`S2`)**: In normal 3D play (`topDownCamera = false`), all floating 2D billboards, pedestal wreaths, and 2D discs are **disabled by default**, keeping ONLY True Matte Obsidian Black vs Warm Ivory White contrast (`useObsidianContrast: true`) and the single sleek head-mounted 3D crown (`showUniversal3dAddon: true`).
+    - **`📐 2D` Button Auto-Toggle (`#hud-top-btn`)**: Pressing `📐 2D` (`topDownCamera = true`) automatically toggles ON the 2D top-cap medallions (`showZenith2dDisc = true`) in any active clarity mode (`s1..s5`) and hides them when returning to `3D` (or pressing `R` Reset Camera).
+    - **100% Square Alignment (Zero Parallax Offset)**: Placed `Zenithal2DClassicDisc` at **board level (`y = ZENITH_DISC_BOARD_Y = 0.04m`, identical across all 6 piece types)** instead of `y = pieceHeight + 0.30m` (`1.20m..2.15m`), hides the 3D piece body/pedestal while `showZenith2dDisc` is active on board pieces, and aims the `2D` top-down camera straight down at `(0, 0.04, 0)` so all 32 medallions sit 100% dead-center inside their squares (`a1..h8`) with zero perspective parallax offset.
+    - **Simplified Single-Icon 2D Medallion + Optional Accessibility Letters/Braille Toggle**: By default (`showRoleLetters = false`), each 2D medallion renders **ONLY ONE large, crisp, dead-centered classic chess icon (`♚ ♛ ♜ ♝ ♞ ♟`)** — no `K, Q, R, B, N, P` letters and no double-stacked polygon+glyph. Added an optional accessibility checkbox in `#hud-setup-modal` (`#hud-setup-letters-toggle` / `?letters=1` / `?braille=1`, persisted per profile) for players who want role letters + Braille (`K ⠇`, `Q ⠟`, `R ⠗`, `B ⠃`, `N ⠝`, `P ⠏`).
+  - **A2 & A3 — Stripped Duplicate Baked `.glb` Nodes & Rebuilt Single Head-Juxtaposed Sculpted `S2` Crowns (`computeGroundedHeadAnchor`)**:
+    - **Eliminated Duplicate + Floating Crowns**: Stripped the duplicate baked `UniversalRoleAddon_*` meshes from all 22 `.glb` files (`tools/model-pipeline/bake_universal_role_addons.py --strip`, verified via `just provenance` across all 28 models) and added `computeGroundedHeadAnchor(THREE, holder, transform, desc.type)` in `PieceView.attachGlbToPiece` so the single runtime `S2` crown mounts inside `bodyContainer` directly on the character's actual grounded head top (`headTopY - 0.024m`, e.g. `1.16m` on King Riccardo and `1.12m` on Queen Kate instead of floating at `1.85m`/`1.65m`).
+    - **Zero-Cube Sleek Sculpted 3D Royal Geometry (All 6 Roles)**: Rebuilt `buildUniversalGlbRoleAddOn` with head-proportioned (`r ≈ 0.11m..0.148m`), high-segment royal geometry and zero `BoxGeometry` cubes:
+      - `k` (King): Imperial arched diadem with 8 cabochon jewels, 4 intersecting pearl arches, velvet cap, monde orb, and flared pyramidal Cross Pattee finial.
+      - `q` (Queen): Graceful 8-spire curved tiara coronet with 8 delicate proportionate pearls (`r = 0.015m`) and central sovereign jewel.
+      - `b` (Bishop): Sculpted liturgical mitre (`LatheGeometry` profile) + lappets + tapered pastoral cross finial.
+      - `n` (Knight): Sleek Corinthian warhorse crest with swept curved dorsal plume and aerodynamic bilateral side-crests.
+      - `r` (Rook): Curved 6-merlon cylindrical mural crown (`CylinderGeometry` radial segments) with battlement molding.
+      - `p` (Pawn): Braided circlet + Staunton finial sphere + tapered Swiss-Guard pike tip.
+
+## [0.3.77] - 2026-10-15
+
+- 🖱️🔍❓🎲 **Mouse Wheel Zoom by Default, Interactive Help Modal (`H` / `?`), `🔄 Nuova` Confirmation Guard & 3D Solid Ruby-Marble d20 (`src/core/Registry.js`, `src/main.js`, `src/listeners/HudListener.js`, `src/managers/DropManager.js`, `src/views/VFXPoolView.js`, `tests/core.test.mjs`, `tests/drop-manager.test.mjs`, `docs/spec/SPEC.md`)**:
+  - **Mouse Wheel Zoom Default (`applyWheelZoomOrOrbit`)**: Fixed the mouse wheel utilization bug where scrolling the wheel tilted the camera up/down (`alto/basso`) instead of zooming in/out. Set `controls.trackpadTwoFingerRotate = false` by default so the mouse wheel zooms in (`deltaY < 0 -> _dollyIn`) and out (`deltaY > 0 -> _dollyOut`) out of the box without requiring `Ctrl`, while Left-Click + Drag (or `Alt + Wheel`, or `?trackpad=rotate`) orbits/tilts the 3D camera and `Shift + Wheel` pans.
+  - **Fixed Keyboard `+`/`-` & HUD Zoom Dolly Direction**: Aligned `+`/`=` and `#hud-zoom-in-btn` to `_dollyIn` (zoom closer) and `-`/`_` and `#hud-zoom-out-btn` to `_dollyOut` (zoom further).
+  - **Help & Shortcuts Modal (`H` / `?` + `#hud-help-btn`)**: Added keyboard shortcuts `H`, `h`, and `?` (plus a `?` vector button in the bottom dock) that toggle a bilingual (`IT`/`EN`) 4-section Help & Controls cheat-sheet (`#hud-help-modal`), and wired single-key hotkeys `V` (2D/3D top-down toggle), `F` (flip board White ↔ Black), `C` (cycle S5..Off piece clarity), and `D` (roll the Ruby d20).
+  - **Confirmation Guard on `🔄 Nuova` (`#hud-confirm-new-modal`)**: Clicking `🔄 Nuova` (`#hud-new-btn`) now opens a safety confirmation modal (`requestNewGame()` -> `confirmNewGame()` / `cancelNewGame()`, supporting `Enter` and `Escape`) so players never accidentally wipe an ongoing 32-piece match.
+  - **Solid Ruby-Marble d20 (`🎲 Dado d20 Rubino`) Replaces `0/12` Luck Bar**: Replaced the confusing `0 / 12` luck progress bar with a 3D **20-sided icosahedron (`THREE.IcosahedronGeometry`) in solid ruby-red marble** (`opacity: 0.92` veined ruby shell over a `0.98` deep-ruby core, silver-white bevels, and crisp engraved white numerals `1..20`) that physically tumbles and bounces on the 3D chessboard (`VFXPoolView.createRubyMarbleD20Prop` + `triggerRubyD20Roll`) and spins in the HUD (`#hud-d20-btn`) on every capture or when clicking the die / pressing `D`.
+
+## [0.3.76] - 2026-10-15
+
+- 📰🧹 **Article Unification, Privacy Sanitization, Antigravity Daily UAT Section & `ricc.rocks` Sync (`article/ARTICLE.md`, `article/DEREK_TODO.md`, `article/list_carchess_chats.py`, `article/sources/chats_list.md`, `article/sources/derek_chats_list.md`)**:
+  - Fixed Python syntax error in `article/list_carchess_chats.py` and filtered out 251 unrelated personal sessions from `article/sources/chats_list.md` and `article/sources/telemetry/chats_index.json` (`-23,041` lines), keeping only the **22 true `pupurabbux` CarChess3D sessions** and exporting the **54 `derek` CarChess3D sessions** (`article/sources/derek_chats_list.md`).
+  - Unified `article/ARTICLE.md` with the 8 autonomous Antigravity loops/Swarms on `derek`, the 16:9 Hero Banner (`article_hero_banner_16x9.png`), the "Vero UAT" photo of Ale & Seby (`kids_playing_carchess3d.jpg`), the `S1..S5` Blind VLM benchmark (`clarity_comparison_0deg_30deg.png`), and a dedicated section on the **Autonomous Antigravity Daily UAT Review** via GitHub Issues ([`label:"gemini-uat"`](https://github.com/palladius/carchess3d/issues?q=state%3Aopen%20label%3A%22gemini-uat%22), Issues `#18` & `#36`).
+  - Synced the article and all assets to `ricc.rocks` (`zzo.ricc.rocks`) in unlisted `under_review` mode (`build: { list: never, render: always }`) and marked `article/DEREK_TODO.md` completed.
+
+## [0.3.75] - 2026-10-15
+
+- 🧪🎬📰 **Articolo & Post-Mortem: Sezione Dedicata al Daily UAT Playtest & GitHub Issue #36 (`article/ARTICLE.md`, `docs/ARTICLE.md`, `article/INVESTIGATION.md`, `article/assets/gallery/daily_uat_gameplay_20261015.gif`, `docs/visual-progress/daily_uat_gameplay_20261015.gif`)**:
+  - Aggiunta una sezione dedicata al cron giornaliero Playwright UAT (`scripts/daily_uat_playtest.py` / `just daily-uat`) e alla **[GitHub Issue #36 (`Gemini UAT 20261015`)](https://github.com/palladius/carchess3d/issues/36)** in `article/ARTICLE.md`, `docs/ARTICLE.md` e `article/INVESTIGATION.md`, con la tabella dei 9 gate superati (`9/9 PASS`, luminanza camera `180°` `93.4/255`, latenza media CPU `458 ms`) e la GIF animata della partita automatica (`daily_uat_gameplay_20261015.gif`).
+
+## [0.3.74] - 2026-10-15
+
+- 🚨⏱️🍷 **Post-Mortem Forense SRE `article/INVESTIGATION.md` & Diario Parallelo Colmar vs Loop Agentici (`article/INVESTIGATION.md`, `article/ARTICLE.md`, `article/DEREK_TODO.md`)**:
+  - Redatto il Post-Mortem Blameless in formato Google SRE (`article/INVESTIGATION.md`, `PoMo-20261009-CARCHESS3D`) con i timestamp al singolo secondo (`TZ=Europe/Zurich CEST`) di tutti i **10 Loop Agentici** eseguiti tra `derek` e `pupurabbux` dal `2026-10-09 15:34:37` al `2026-10-15 12:47:36`.
+  - Aggiunto in `article/INVESTIGATION.md` e `article/ARTICLE.md` il **Diario Parallelo Giorno per Giorno (Venerdì 9 → Giovedì 15 Ottobre)** che affianca la vita reale a Colmar con Kate (con segnaposto `<foto: ...>` e la foto reale del Vero UAT di Ale & Seby al tablet) alle finestre di autonomia totale dei loop (`16h 33m` Venerdì notte, `3h 12m` Sabato mattina con 4 loop simultanei, `0h 47m` Swarm 6×6 + `10h 53m` cena di anniversario, `1h 46m` Veo notturno + `2h 38m` Video Critic a colazione + `2h 09m` Face-Grafting biometrico durante il viaggio in auto Colmar → Zurigo, `11h 50m` RTX 5080 a LED spenti Martedì notte, `3h 22m` Swarm Chiarezza `S1..S5`).
+
+## [0.3.73] - 2026-10-15
+
+- 🧪🎬 **Daily UAT Adversarial Playtest & `index.html` Core Modules Sync (`scripts/daily_uat_playtest.py`, `index.html`, `#36`)**:
+  - Updated `scripts/daily_uat_playtest.py` (Steps 5–8) to work seamlessly with the `v0.3.64+` unified Heroes POV Cinema link (`#hud-dock-gallery` -> `./showcase/?view=pov`), in-DOM 6×6 Matrix modal inspection (`#hud-matrix36-modal`), `GameFlowManager` WOW Arena transitions (`flow.startWowMode()` / `flow.startChessMode()`), and hidden debug toggles (`#hud-skeletons-btn`, `#hud-swamp-btn`).
+  - Added `./src/views/PieceClarityHelper.js` to `CORE_MODULES` in `index.html` for instant network-reload cache warming.
+  - Executed `just daily-uat` for `2026-10-15` and published GitHub Issue **#36 (`Gemini UAT 20261015`)** with 60s gameplay video (`log/uat/uat_gameplay.mp4`), GIF preview, and 8/8 passing ergonomic/orientation checks.
+
+## [0.3.72] - 2026-10-15
+
+- 📰🏰 **CarChess3D Master Article, Telemetry, WOW Turntables & Autonomous Swarm Post-Mortem (`article/`)**:
+  - Authored comprehensive technical and narrative article `article/ARTICLE.md` detailing the autonomous construction of CarChess3D during Riccardo & Kate's 10th anniversary in Colmar.
+  - Rendered 360° rotating GIF turntables for the entire family: Seby (`seby_cavaliere_turntable.gif` via headless Blender EEVEE), Ale, Papino, Mamma, Ciuchino, and Puffin under `article/assets/turntables/`.
+  - Built `article/list_carchess_chats.py` tool indexing 273 Antigravity sessions on pupurabbux (`article/sources/chats_list.md`).
+  - Documented SRE telemetry (176 commits, 159 over weekend, 38m to v1), QEC decimation math (697k to 60k faces in 9.9s), RTX 5080 local GPU pivot, and the 7 major technical iterations.
+  - Added corporate work checklist `article/DEREK_TODO.md` and copy-paste all-day autonomous prompt `article/goals/GOAL_ALL_DAY_AUTONOMOUS_EXPANSION.md`.
+- 🔀 Merged branch `origin/write_family_3d_article` (originally numbered 0.3.60; renumbered above main's 0.3.71).
+
+## [0.3.71] - 2026-10-15
+
+- 🧹 **Merge `generate_swamp_classic_models` (`23db733`)**: remove the agent scratch note `RESUME_AFTER_REBOOT.md` from the repo root (it was only a WIP note after a reboot, not documentation). No functional changes.
+
+## [0.3.70] - 2026-10-14
+
+- 🔍👑♟️ **Piece Visual Recognition Engine, True Obsidian vs Ivory Contrast, Universal 3D GLB Role Add-Ons & 5-Solution Adversarial VLM Benchmark (`#32`, `src/views/PieceClarityHelper.js`, `src/views/PieceView.js`, `src/listeners/HudListener.js`, `src/listeners/ProfileStorageListener.js`, `src/core/Registry.js`, `tools/model-pipeline/bake_universal_role_addons.py`, `scripts/critic_recognizability.py`, `docs/spec/SPEC.md`, `article/SHOWCASE_VISUAL_CLARITY.md`)**:
+  - **Eliminated the 3 Root Causes of Overhead Visual Fatigue (`0°` Zenithal & `30°` Semi-High)**:
+    1. **Black Pedestal Top Face (`topCyl`)**: Replaced legacy ice-white/silver (`0xdce7f7`) on the Black pedestal top plate (`y = 0.18..0.22m`) with **Deep Matte Obsidian (`0x0d1017`, roughness `0.36`, metalness `0.12`)** and side trim rings in **Burnished Dark Steel (`0x4e5d6c`)** + **Cobalt-Violet (`0x7c4dff`)**, while White pedestals use **Warm Ivory Marble (`0xfffdf5`)** + **Gleaming Royal Gold (`0xffca28`)**. Pawns (`p`) use a `0.86×` pedestal radius for an immediately smaller footprint.
+    2. **Black `.glb` Albedo & Shader Ivory Suppressor (`applyBlackTeamGlbContrast` + `uIsBlackObsidian`)**: Darkens textured Black `.glb` models (`0x48506a`, `emissive = 0x140c2e`, `emissiveMap = null`), sets untextured `faction_primary` to `0x0d1017` and `faction_trim` to `0x7c4dff`, and injects a fragment shader clamp (`uIsBlackObsidian`) in `PieceView.injectLocomotionShader` to darken baked-in `.glb` bottom plinths (`vNormY < 0.15`) and high-luma pixels (`luma > 0.65`) — increasing White vs Black luminance separation from `ΔLuma = +18.71` (`1.22×` in legacy `off`) to **`ΔLuma = +80.88 .. +85.56` (`2.13× .. 2.55×` in Mirror Match)**.
+    3. **Persistent Role Signifiers Outside `bodyContainer`**: Universal 3D Role Add-Ons, Sculpted 3D Pedestal Role Wreaths, Floating 2D Role Billboards, and Zenithal 2D Tournament Medallion Discs are mounted directly on `pieceGroup` outside `bodyContainer` so asynchronous `.glb` loading never clears them.
+  - **Universal Static 3D Role Add-Ons Baked into All 22 `.glb` Models (`tools/model-pipeline/bake_universal_role_addons.py`)**:
+    - Baked deterministic, watertight `UniversalRoleAddon_<type>` meshes (`faction_trim` material) directly into all 22 `.glb` models across `carlesso` (10), `classic` (6), and `swamp` (6, on top of the `v0.3.63` restored Swamp procedural sculptures) while preserving exact `min_y = 0.0m` / `max_y = height_m` grounding invariants, UV textures, and armatures (`docs/models-provenance.yaml` MD5 hashes synced across all 28 models):
+      - `k` (King): Royal single-diadem crown ring + wide `0.26m` Cross Pattee finial + 4 cardinal base cross emblems.
+      - `q` (Queen): 8-point splayed royal coronet + 8 spherical pearls (`Ø 0.40m`) + 8-star base studs.
+      - `r` (Rook): 6-merlon crenellated castle turret crown (`Ø 0.42m`) + 6-buttress base collar.
+      - `b` (Bishop): Sacred nimbus halo + tall Episcopal Crosier Cross + 4 diagonal mitre base studs.
+      - `n` (Knight): Wide bilateral warhorse-crest / horseshoe side wings (`>= 0.50m` along X) + dorsal mane + horseshoe base arch.
+      - `p` (Pawn): Vertical Swiss-Guard pike spearhead + Staunton sphere finial + pike base chevron.
+  - **5 Combinable Solutions (`?clarity=s1|s2|s3|s4|s5|off`, Default `s5`) + Live HUD Selector (`#hud-clarity-btn`)**:
+    - **`s1` (Zenith 2D — `8.50/10`)**: High-contrast 2D tournament medallions (`♔K ♕Q ♖R ♗B ♘N ♙P` + vector Staunton silhouettes, anti-bloom `#e8dec8` warm parchment for White and `#090c14` obsidian for Black) at `< 35°` or when `📐 Vista dall'Alto (2D)` is active.
+    - **`s2` (3D GLB Add-Ons — `8.50/10`)**: Universal static 3D role add-ons (runtime + baked `.glb` nodes) + Obsidian contrast at all angles.
+    - **`s3` (Obsidian Contrast — `5.25/10`)**: Pure Deep Matte Obsidian vs Warm Ivory material/shader contrast.
+    - **`s4` (Pedestal Wreath + Crest — `8.50/10`)**: Sculpted 3D Pedestal Role Wreath (`y = 0.04..0.24m`) + compact camera-facing Floating 2D Role Crest (`THREE.Sprite`).
+    - **`s5` (Hybrid Champion — Default — `9.50/10` 🥇)**: Combines `s2 + s3 + s4` at 3D/semi-high angles (`>= 20°`) and automatically switches to clean `s1` 2D tournament medallions when looking nearly straight down (`< 20°` or in Top-Down mode).
+  - **Adversarial Swarm & Blind VLM Recognizer (`scripts/critic_recognizability.py`, `docs/clarity_vlm_report.md`, `docs/clarity_comparison_0deg_30deg.png`, `article/SHOWCASE_VISUAL_CLARITY.md`)**:
+    - Automated Playwright benchmark capturing 36 screenshots (`6 modes × 3 matchups × 2 angles: 0° & 30°`) + blind `gemini-flash-latest` VLM evaluation and pixel luminance contrast telemetry, also parked under `article/` for article authoring.
+  - **Tests**: Added `tests/piece_clarity.test.mjs` (6 unit test suites); all 12 Node test suites, 17 Python tests, and 28 provenance models pass 100%.
+- 🔀 Merged branch `improve_piece_visual_recognition` (originally numbered 0.3.52; renumbered above main's 0.3.69).
+
+## [0.3.69] - 2026-10-14
+
+- 🕵️‍♂️📊 **Dossier Forense Completo di Jetski su `derek` (`article/DEREK_JETSKI_FORENSICS.md`, `article/SHOWCASE_BEFORE_AFTER.md`)**:
+  - Analizzati tutti i log `.jsonl` delle sessioni Jetski eseguite sulla workstation `derek` (`~/.gemini/jetski/brain/*/transcript.jsonl`) dal `2026-10-09` al `2026-10-14` per estrarre l'intera telemetria, i `/goal`, gli Swarm multi-agente e i loop avversari VLM/audio/biometrici di CarChess3D:
+    - **41 sessioni totali** (`16` orchestratori/umani + `25` subagent/Swarm worker), **12.868 step**, **232 prompt umani**, **46,77M token di input freschi**, **713,28M token letti da cache (93,8% hit rate)** e **5,34M token di output**.
+    - Ricostruiti in dettaglio gli **8 Loop Complessi** (`/roastme` + `/goal` v1 con 4 subagent 3D + 4 round di Art Critic `6.2 -> 9.9/10`; Native Swarm 5-worker per Issue `#10`–`#16`; Pipeline 36 battaglie Nano Banana + Veo 3.1 con Video Critic `4930d699`; Swarm Multi-Modello `fable-5.1-high` + Mode A/B local SDF & Face-Grafting + `riccardo-likeness-critic`; Standing MAIN Merger & Daily Playwright UAT `83ee7dd5`; Cinema XXL `10s` + Audio `+15%` zero-loop; Simulazione Mobile Pixel 10 / Galaxy Tab S9 Ultra + SW fix; 5-Agent Blind VLM Piece Recognizer Swarm `S1..S5`).
+    - Catalogati i prompt testuali originali più belli ed emblematici di Riccardo come materiale pronto per la stesura dell'articolo.
+
+## [0.3.68] - 2026-10-14
+
+- 🎻🏰😂 **Baroque Staccato Overture as Default Theme, Warm Chamber Strings on Castling & Comic "BUAHAHAHAHAH! / Ooh No!" Checkmate Jingle (`assets/audio/checkmate-jingle.mp3`, `assets/audio/checkmate-jingle.txt`, `src/listeners/AudioListener.js`, `sw.js`, `showcase/audio.html`, `showcase/index.html`, `tests/voices_idle.test.mjs`, `VERSION`)**:
+  - **Ouverture Staccato as Primary Game Theme (`assets/audio/chess-strings-theme.mp3`)**: Restored the urgent, energetic `128 BPM` Baroque String Octet Overture (Staccato strings in E Dorian) as track 0 (`CHESS_STRINGS_TRACKS[0]`) in `AudioListener`, honoring Riccardo's musical preference for the main chessboard soundtrack.
+  - **Warm Chamber Strings Fortress Loop on Castling (`assets/audio/chess-strings-bg.mp3`)**: Seamlessly activates track 1 (`106 BPM` Chamber Strings loop) on `CASTLING_EXECUTED` (`playCastlingTheme()`) so the peaceful fortress track is put to good use when the King and Rook castle into safety ("per non buttarla via").
+  - **Hilarious Comic Checkmate Jingle (`assets/audio/checkmate-jingle.mp3`)**: Generated a 30s comic victory fanfare via Google Lyria 3 (`lyria-3-clip-preview`) featuring a deep baritone villain laughter *"BUAHAHAHAHAHAH!"*, a comically defeated tenor crying *"Ooh no!"*, and a triumphant marching band choir chanting *"SCACCO MATTO, CHECKMATE!"*, working seamlessly in both Italian and English. Wired into `AudioListener` on `CHECKMATE` (`playCheckmateJingle()`).
+  - **Showcase Player & PWA Cache**: Added the new checkmate jingle card and reordered themes in `showcase/audio.html`, linked the audio player from `showcase/index.html`, updated `sw.js` (`v37`), and expanded Node unit tests in `tests/voices_idle.test.mjs`.
+- 🔀 Merged branch `build_carchess3d_v1_worktree` (originally numbered 0.3.45; renumbered above main's 0.3.67).
+
+## [0.3.67] - 2026-10-14
+
+- 📸👨‍👦‍👦 **Articolo: Foto "Il Vero UAT" con Ale & Seby al Tablet (`docs/ARTICLE.md`, `docs/visual-progress/kids_playing_carchess3d.jpg`, `article/assets/kids_playing_carchess3d.jpg`, `article/SHOWCASE_BEFORE_AFTER.md`)**:
+  - Ritagliata la foto di Alessandro e Sebastian mentre giocano a CarChess3D sul tablet (`1522×1620`, rimossa la nonna a sinistra e la bottiglia d'olio a destra per focalizzare l'inquadratura sui bimbi e sulla scacchiera 3D con le ninfee della palude), aggiunta nella sezione TL;DR di `docs/ARTICLE.md` e parcheggiata anche sotto `article/assets/kids_playing_carchess3d.jpg`.
+
+## [0.3.66] - 2026-10-14
+
+- 🎵🔇 **Zero-Loop 10s Combat Music & Strictly `+15%` Combat Volume Calibration (`src/listeners/AudioListener.js`, `src/views/VeoCinemaView.js`, `tests/voices_idle.test.mjs`, `docs/spec/SPEC.md`, `sw.js`, `VERSION`)**:
+  - **Eliminated Mid-Battle Music Looping & Phrase Repetition (`COMBAT_CUE_POINTS_S = [0.0, 8.0, 15.5]`, `loop = false`)**:
+    - Previously, `COMBAT_CUE_POINTS_S` included `22.0s` with `combatAudioEl.loop = true` on the `30.77s` `assets/audio/combat-suspense.mp3` file, causing the music to hit the end of the file after `8.0s` (`22.0s + 8.0s = 30.0s`) and loop back to `0.0s` right in the middle of the `10.0s` combat (`+ 3.5s` outro).
+    - Set `this.combatAudioEl.loop = false` and updated `COMBAT_CUE_POINTS_S` to `Object.freeze([0.0, 8.0, 15.5])` so every cue point has **`>= 14.0 seconds`** of continuous, non-repeating forward music before `29.5s` (`15.5s + 13.5s = 29.0s < 29.5s`).
+    - Made the fallback WebAudio combat sequencer (`_stepCombatSequencer`) through-composed across `102` steps (`10.0s`) with evolving bar transpositions and halted it cleanly at `s > 102` so it never repeats a short loop.
+    - Set `this.videoEl.loop = false` in `VeoCinemaView.initCanvasAndVideo()` and deduplicated back-to-back `startBattlePresentation()` triggers within `0.6s` (`PIECE_CAPTURED` / `WOW_ARENA_CLASH` + `BATTLE_STARTED`).
+  - **Calibrated Combat Volume to Strictly `+15%` (`1.15×`) Above Normal Music (`0.276` vs `0.24`)**:
+    - Exported `NORMAL_MUSIC_VOLUME = 0.24` and `COMBAT_MUSIC_PEAK_VOLUME = Number((NORMAL_MUSIC_VOLUME * 1.15).toFixed(3))` (`0.276`, down from `0.72`–`0.78`), and softened `synthCombatEntryBraaam()` (`0.06` / `0.07`) so combat music is a refined **`+15%`** boost over normal play — never `100%+`.
+
+## [0.3.65] - 2026-10-14
+
+- 🐛🖥️📐 **Showcase Viewport Layout & Headless Screenshot Fix at 1600×900 and 1920×1080 (Fixes Issue #30, PR #35) (`showcase/index.html`, `VERSION`, `CHANGELOG.md`, `tests/test_character_pov.py`)**:
+  - **Eliminated Black Band & Top Bar Offset**:
+    - Removed window-level `card.scrollIntoView(...)` in `showcase/index.html` which previously forced the entire browser window down, leaving a ~300px black band above the sticky header in headless Chrome.
+  - **Expanded Left Panel & Fixed Text Truncation**:
+    - Increased `.pov-left-panel` and `.pov-stage-grid` column width from 280px to 330px, ensuring `🖱️ Trascina per ruotare` and weapon/counter badges fit cleanly on a single line without clipping.
+    - Updated `.sound-btn-quote` with `-webkit-line-clamp: 2` and `word-break: break-word`, allowing quotes to wrap to 2 lines instead of abruptly truncating with ellipsis.
+  - **Regression Test Added**:
+    - Added `test_showcase_viewport_layout_regression_prevention` to `tests/test_character_pov.py` to prevent regressions.
+- 🔀 Merged branch `origin/fix/issue-30` (originally numbered 0.3.49; renumbered above main's 0.3.64).
+
+## [0.3.64] - 2026-10-14
+
+- 🎬🐴✨ **Unified Backstage Entry Point: Single "Cinema Eroi POV" (`./showcase/?view=pov`) Link & Removal of Duplicate 6×6 Matrix / WOW Mode Buttons (`src/listeners/HudListener.js`, `src/core/Registry.js`, `showcase/index.html`, `nocache.html`, `sw.js`, `tools/model-pipeline/critic/critic_audio.py`, `docs/spec/SPEC.md`, `VERSION`)**:
+  - **Unified Backstage Navigation (`./showcase/?view=pov`)**:
+    - Removed the semi-duplicate backstage buttons from the HUD top bar (`#hud-mode1-btn`, `#hud-mode2-btn` "WOW Mode & Cinema", `#hud-matrix-btn` "Matrice 6×6") and bottom dock (`#hud-matrix36-btn`).
+    - Consolidated backstage navigation into the single **`🎬 Cinema Eroi POV` / `🎬 Heroes POV Cinema`** (`./showcase/?view=pov`) view — featuring the 6 Carlesso hero chips at the top (defaulting to Knight Seby `'n'`), the 3D turntable + voice soundboard on the top-left, the main 16:9 video player on the right, and the 6 Attack (Red Risiko) + 6 Defense (Blue Risiko) videos below.
+    - Exposed the unified `./showcase/?view=pov` link prominently in:
+      1. The Top Bar (`#hud-top-gallery-link`, styled as `gold-emerald`),
+      2. The Bottom Action Dock (`#hud-dock-gallery`, movie-clapper icon with `POV` badge, now visible on mobile phones too),
+      3. The Startup / Match Setup Modal (`#hud-setup-pov-link` on mobile Quick Start and `#hud-setup-desktop-pov-link` on desktop), and
+      4. The `nocache.html` top status pill (`🎬 Cinema Eroi POV`).
+    - Removed the `🎬 Scontri 6×6` (`../battles.html`) links from `showcase/index.html` header and footer so users stay inside the unified POV Cinema showcase.
+  - **Stdlib Fallback for `critic_audio.py` (`just test` Portability)**:
+    - Added Python stdlib fallbacks (`array`, `math`, `dataclasses`) in `tools/model-pipeline/critic/critic_audio.py` when `numpy` or `pydantic` are not installed in the system Python environment so `python3 -m unittest` passes cleanly everywhere.
+
+## [0.3.63] - 2026-10-14
+
+- 🐸🎭 **Human-In-The-Loop Aesthetic Critique & Swamp Restoration**:
+  - Based on user visual inspection of the Before/After showcase, reverted bulky extruded Mode A models for King (Orco), Bishop (Don Gatto), Knight (Asinello), Rook (Draghessa), and Pawn (Tappo) back to procedural watertight chibi 3D sculptures (`tools/model-pipeline/swamp/build_swamp_models.py`), restoring their true 3D proportions, chess lathe bases, and beloved details (cat rapier, 3D dragon coiled around stone tower, 40-tooth grin).
+  - Preserved Mode A UV-textured mesh for Queen Orchessa (Fiona) which achieved high aesthetic fidelity.
+  - Parked all Before/After comparisons, lineup cards, and 16:9 article hero banner under `article/assets/before_after/` and `article/SHOWCASE_BEFORE_AFTER.md`.
+  - Added AGENTS.md / GEMINI.md mandate to automatically save notable visual showcases under `article/` for future technical articles.
+- 🔀 Merged branch `generate_swamp_classic_models` (it was numbered 0.3.59; renumbered above main's 0.3.62).
+
+## [0.3.62] - 2026-10-14
+
+- 🎙️👦 **Authentic Male Boy Voice Synthesis & Soundboard Integration**:
+  - Eliminated the adult female "anime dubbing actress" trope for young boys by benchmarking Gemini TTS (`Fenrir`, `Puck`) and dedicated neural models.
+  - Mastered authentic young male child voices for:
+    - **Seby (Knight `n`)**:
+      - *"Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!"* (`voice-n-scrivilescemo.mp3`).
+      - *"Hey Google, uccidi questo mostro per me!"* (`voice-n-uccidimostro.mp3`).
+    - **Ale (Bishop `b`)**:
+      - *"Mummy... I'm still hungry!"* (`voice-b-stillhungry.mp3`, English with sweet boy pleading tone).
+      - *"Papino, tu sì che cucini bene!"* (`voice-b-cucinibene.mp3`, Italian affectionate dad cooking compliment).
+  - Wired all lines into `src/core/CharacterPovData.js` soundboards, `src/core/Registry.js` voice line variants, and the Character POV showcase.
+- 🧪🎧 **Automated Audio QA Critic Tool & Regression Test Suite**:
+  - Built `tools/model-pipeline/critic/critic_audio.py` featuring:
+    - Deterministic PCM acoustic envelope analysis (24kHz mono): peak level detection, digital clipping check (`peak >= -0.05 dBFS`), and trailing glitch/burst detector (detects anomalous energy rebounds after post-speech silence).
+    - Multimodal LLM QA critic using `gemini-3.8-flash` with structured Pydantic schema (`LlmAudioCritique`) auditing word-for-word transcript, speaker persona (boy vs female anime dubber), naturalness score (1-10), and release cleanliness.
+  - Added CLI command in `justfile`: `just audio-critic <file> [--llm] [--all]`.
+  - Added automated test suite `tests/test_audio_quality.py` (integrated into `just test`):
+    - Tests duration, volume headroom, clipping, and glitch-free envelopes for all target voice lines.
+    - Added regression fixture `tests/fixtures/buggy_pinguini_defect.mp3` asserting that the detector specifically isolates the un-mastered trailing +62.6 dB pop/spike after silence in the Pinguini clip.
+- 🎛️ **Audio Mastering & Glitch Removal**:
+  - Fixed the trailing digital burst / inhale pop in the Pinguini Tattici Nucleari clip by applying precise speech endpoint truncation, smooth 140ms cosine fade-out, and broadcast-grade peak limiting (`alimiter=limit=-1.0dB`), achieving -1.36dB peak with 0.0 clipping and zero end defects.
+
+## [0.3.61] - 2026-10-14
+
+- 🐸✨ **Swamp 3D Mesh Solid Hull Refinement & Before/After Showcase**:
+  - Refined Mode A reconstruction pipeline (`tools/model-pipeline/reconstruct_mode_a_batch.py`) with automatic aspect ratio detection (`aspect > 1.35` for 16:9 turnaround sheets vs 1:1 single portraits) and convex elliptical depth envelopes (`depth = 0.54 * width`), ensuring full solid watertight geometry without phantom gaps for all Swamp models.
+  - Re-sculpted and updated 5 Swamp GLBs (`king-swamp-orco`, `queen-swamp-orchessa`, `bishop-swamp-focaccina`, `rook-swamp-draghessa`, `pawn-swamp-tappo`) with updated MD5 checksums in `docs/models-provenance.yaml`.
+  - Generated Before/After visual comparison cards (2D concept vs procedural vs reconstructed 3D) and a 16:9 cinematic article hero banner.
+- 🔀 Merged branch `generate_swamp_classic_models` (originally numbered 0.3.58, renumbered above main's 0.3.60). Also re-synced the `nocache.html` title, which was stuck at v0.3.57.
+
+## [0.3.60] - 2026-10-14
+
+- 👑♗ **Pillar 1: In-Game 3D Piece Variant Integration & Live HUD Switching**:
+  - Registered declarative variant registries `QUEEN_GLB_VARIANTS` (`young` vs `wedding`) and `BISHOP_GLB_VARIANTS` (`hat` vs `astrolabe` vs `rigged`) in `src/core/Registry.js`.
+  - Updated `PieceManager.js` with headless `setQueenVariant` and `setBishopVariant`, event bus reactions (`PIECE_VARIANT_REQUESTED`), and synchronized emission on `PIECE_SET_CHANGED` and `PIECES_SYNCED` (strictly <= 300 LOC Niccolò contract).
+  - Wired live variant select dropdowns into the Setup Modal (`#hud-setup-queen-variant`, `#hud-setup-bishop-variant`), 360° WOW Inspector, and URL params (`?queen=` / `?bishop=`).
+  - Updated `PieceView.js` and `WowModeView.js` to render selected 3D GLB variants seamlessly onto the board altar.
+- ⚔️🛡️ **Pillar 2: Knight Sebastian Modular Weapon Armaments & Headless Assembly**:
+  - Built headless Blender pipeline `tools/model-pipeline/seby/assemble_modular_seby.py` with computer-vision calibrated fist anchor at `(X=0.195, Y=-0.025, Z=0.738)`.
+  - Assembled and floor-grounded 3 modular weapon variants with zero boundary edges and valid glTF VEC3 bounds:
+    - **Alabarda Reale** (`assets/models/knight-seby-halberd.glb`, 4.08 MB): Ceremonial dark mahogany halberd with sapphire core and royal blue pennant.
+    - **Spada Laser** (`assets/models/knight-seby-lightsaber.glb`, 4.11 MB): Dual-layer glowing plasma beam saber tilted +12° heroically away from helmet.
+    - **Sigillo dell'Acquario** (`assets/models/knight-seby-aurora.glb`, 4.07 MB): Golden amphora with Sapphire Enamel constellation band and swirling stardust cascade.
+  - Generated 4-view contact sheets (`tools/model-pipeline/critic/out/knight-seby-*_critic_sheet.png`).
+- 👑💎 **Pillar 3: King Riccardo Surface Polish & Royal Crown Jewel Remaster**:
+  - Built headless Blender polish tool `tools/model-pipeline/king/clean_king_riccardo.py`.
+  - Inset white ermine fur collar undercut (`0.14 <= z <= 0.18, y > 0.04`) for crisp shadow separation against blue velvet cape; sculpted harmonic drape folds.
+  - Sharpened Maltese cross finials on golden imperial orb and ceremonial scepter spearhead to razor-sharp points.
+  - Welded coincident UV seams, pruned 855 floating face crumbs, and grounded strictly at Z=0.0m (`assets/models/king-riccardo-remastered.glb`, 4.19 MB).
+  - Audited with Gemini VLM critic and logged contact sheet and report to `tools/model-pipeline/critic/out/king-riccardo-remastered_*`.
+- 📋🔐 **Pillar 4: Model Provenance Registry & Checksum Verification**:
+  - Updated `docs/models-provenance.yaml` with all newly added 3D models and their exact MD5 checksums.
+  - Automated verification via `python3 scripts/test_provenance.py` validating 28 models and 47 concept sources with 100% green integrity.
+- 🎙️👦 **Pillar 5: Voice Lines & Continuous Verification**:
+  - Added *"Hey Google, uccidi questo mostro per me!"* for Seby (`voice-n-uccidimostro.mp3`).
+  - Added *"Mummy... I'm still hungry!"* (`voice-b-stillhungry.mp3`) [EN] and *"Papino, tu sì che cucini bene!"* (`voice-b-cucinibene.mp3`) [IT] for Ale.
+  - Zero IP denylist infractions across all files; `just test` passes 100%.
+
+## [0.3.59] - 2026-10-14
+
+- 🎨🖌️ **Local GPU 3D Paint/Texture Pipeline Verified on RTX 5080 (Blackwell sm_120) with TurboSebux (Issue #5 Phase 2)**:
+  - Recompiled C++/CUDA `custom_rasterizer_kernel` with PTX forward-compatibility (`TORCH_CUDA_ARCH_LIST="9.0+PTX"` using `g++-12`), enabling native JIT execution on Blackwell `sm_120`.
+  - Added Quadric Edge Collapse decimation (`--max-faces 60000` by default in `hunyuan_shape.py`), reducing face count from 697k to 60k faces (12.5 MB -> 1.1 MB) in 9.9 seconds with zero visual loss.
+  - Implemented `tools/model-pipeline/local/hunyuan_paint.py` and `just local3d-paint` recipe.
+  - Successfully executed end-to-end local texture painting: `ale1_hy2_shape_60k.glb` + `tools/model-pipeline/ale/front.png` -> `ale1_hy2_textured.glb` (60k faces, 3.7 MB with 2048x2048 PBR texture map) in **45 seconds** on RTX 5080 with 9.7 GB peak VRAM.
+
+## [0.3.58] - 2026-10-14
+
+- 🎙️👦 **Knight Seby Voice Line ("Scrivile Scemo")**:
+  - Added *"Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!"* (`voice-n-scrivilescemo.mp3`) using Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`).
+  - Tuned acoustic synthesis to avoid cartoon/female dubbing artifacts, using natural prepubescent Italian boy vocal cords without artificial pitch-shift distortion.
+  - Registered soundboard clip in `src/core/CharacterPovData.js` and in `src/core/Registry.js` for in-game and showcase playback.
+- ♟️✨ **Showcase Hero Selector Navigation Polish**:
+  - Replaced cropped photo avatars with crisp 2D circular Staunton chess medallions (`getPieceMedallion`).
+  - Streamlined character chip labels to single-word names (*Sebi, Ale, Riccardo, Kate, Pupurabbu, Puffin*), removing *"Papà"* and *"Mamma"* prefixes.
+
 ## [0.3.57] - 2026-10-14
 
-- 🏛️✨ **Luxury Black & White Marble Chessboard Redesign (`src/views/ZurichSwampView.js`)**:
-  - Eliminated the tacky yellow/cream squares and golden square inlays (`inlayContainer` / `inlayFrameGeo` with `goldTrimMat`) that gave the board a cheap look.
-  - Replaced tile textures with high-resolution (512×512) procedural luxury marble:
-    - **Light Squares**: Pure *Bianco Carrara / Calacatta* marble (`#fafbfd`) with organic branching smoky-grey fractures and crystalline depth.
-    - **Dark Squares**: Deep *Nero Marquina / Black Obsidian* marble (`#111317`) with crisp white calcite lightning fissures.
-  - Micro-thin dark obsidian slate grout lines (`#141820`, roughness 0.85) between tiles give every square a solid, polished marble slab feel without any tacky yellow outlining.
-  - Updated altar rim borders and foundations to dark granite and slate with silver-platinum engraved coordinates (`A`–`H`, `1`–`8`) and Nordic runes (`#b0bec5` / `#e2e8f0`).
-  - Preserved 100% compatibility with sliding-window combat translucency (`setCombatBlend` smoothly transitioning between 100% normal opacity and 90% combat translucency).
-- 🇨🇭🌄 **Nanobanana Fairytale Zurich & Swiss Alps Panorama (`assets/environments/zurich_panorama.jpg`)**:
-  - Generated an authentic 1584×672 fairytale diorama painting with the Nanobanana MCP tool depicting the Limmat river flowing into Lake Zurich, Grossmünster twin towers, Fraumünster, Münsterbrücke stone bridge with warm lantern light, and snow-capped Alpine peaks.
-  - Removed the crude rectangular placeholder box guild houses ("orribili rettangoloni") and crude cone peaks in favor of a smooth curved panoramic backdrop (`z = -22.5m`) that seamlessly blends with the 3D diorama and automatically dissolves during combat mode.
-  - Added to offline Service Worker precache (`sw.js`, bumped cache name to `carchess3d-offline-v34`).
-- 🏛️🎖️ **Civic Monument: "Made with Gemini 4 Argon" on Münsterbrücke (`src/views/ZurichSwampView.js`)**:
-  - Added a dedicated 3D architectural bronze and stone monument (`✦ ZÜRICH · MADE WITH GEMINI 4 ARGON ✦`) mounted on the Münsterbrücke bridge parapet overlooking the Limmat river in the 3D diorama.
-- 🏢🍻 **Easter Egg: Google Zurich at Hürlimann Areal (`src/views/ZurichSwampView.js`)**:
-  - Modeled the historic Hürlimann brewery campus (Brandschenkestrasse 110) in the south-west background skyline (`x = -15.6m, z = -17.0m`), featuring the main red Backstein brick Sudhaus, modern glass innovation atrium wing, and the iconic tall Hürlimann brewery chimney tower with decorative sandstone collars and copper cap.
-  - Placed 4 subtle Google-colored lantern pods (Blue `#4285F4`, Red `#EA4335`, Yellow `#FBBC05`, Green `#34A853`) on the campus terrace and a dedicated bronze plaque (`HÜRLIMANN AREAL · Brandschenkestrasse 110`).
-- 📐 **Documentation & Spec**: Updated `docs/spec/SPEC.md` and logged the generation in `tools/model-pipeline/RUNNING_DOC.md` §10.12.
+- 🧊🏰 **Reconstruct High-Res UV-Textured 3D GLB Models for Classic & Swamp Families (Issue #20)**:
+  - **Classic Family 3D Meshes (`assets/models/classic/`)**: Reconstructed high-res UV-textured 3D models complying with `assets/families/_contract.json`. King (1.80m, 99.2k tris), Queen (1.65m, 99.5k tris), and Bishop (1.45m, 97.1k tris) generated via `microsoft/TRELLIS.2`. Knight (1.35m, 22.1k tris), Rook (1.30m, 20.2k tris), and Pawn (0.95m, 13.3k tris) sculpted via Mode A 2D-to-3D SDF visual hull and 1024x1024 diffuse UV baking.
+  - **Swamp Family 3D Meshes (`assets/models/swamp/`)**: Reconstructed high-res UV-textured 3D models complying with `assets/families/_contract.json`. King (1.80m, 21.6k tris), Queen (1.65m, 15.8k tris), Bishop (1.45m, 12.4k tris), Knight (1.35m, 16.5k tris with 40-tooth smile relief), Rook (1.30m, 16.7k tris), and Pawn (0.95m, 9.9k tris) sculpted via Mode A 2D-to-3D SDF visual hull and 1024x1024 diffuse UV baking.
+  - **Model Provenance Registry (`docs/models-provenance.yaml`)**: Added all 12 newly reconstructed models with exact MD5 checksums, target paths, sizes, and pipeline details. `scripts/check.py` validates all 22 tracked models.
+  - **Contract & Budget Alignment**: Grounding at `min.y == 0.0m`, canonical piece heights, clamped footprint spans (`0.70m <= span <= 0.86m`), named material slots `faction_primary` (diffuse 1024x1024 UV map) and `faction_trim`, aligned triangle budgets (`assets/families/classic.json`).
+  - **Tooling (`tools/model-pipeline/`)**: Added zero-GPU local Mode A batch sculpting pipeline (`reconstruct_mode_a_batch.py`) utilizing `rembg` foreground segmentation, visual hull density carving, Taubin fairing, and UV texture baking.
+
 
 ## [0.3.56] - 2026-10-13
 

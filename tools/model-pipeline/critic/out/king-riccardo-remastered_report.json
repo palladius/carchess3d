@@ -1,0 +1,33 @@
+{
+  "model": "king-riccardo-remastered.glb",
+  "concept": "king-riccardo-1.jpg",
+  "geometry": {
+    "faces": 95401,
+    "vertices": 77906,
+    "is_watertight": false,
+    "tallest_axis": "Y",
+    "height": 1.002,
+    "min_ground_coord": 0.0,
+    "is_grounded_near_zero": true,
+    "stray_island_count": 265
+  },
+  "vlm": {
+    "face_likeness_score": 4.2,
+    "face_critique": "Face loses photographic definition; features and beard appear flattened and blurry compared to concept.",
+    "secondary_fidelity_score": 4.0,
+    "secondary_critique": "Crown arches are warped and muddy, while scepter, orb, and base plaque text lack crisp definition.",
+    "back_view_score": 5.2,
+    "back_critique": "Cape and hair form a solid silhouette, though back textures and ermine spots are heavily simplified.",
+    "structural_flaws": [
+      "Warped crown struts",
+      "Flimsy, slightly distorted scepter",
+      "Missing engraved base text"
+    ],
+    "aesthetic_flaws": [
+      "Dull, non-metallic gold shader",
+      "Low-resolution facial projection",
+      "Muddy texture seams on cape and plinth"
+    ],
+    "passed": false
+  }
+}

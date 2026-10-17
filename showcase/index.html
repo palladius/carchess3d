@@ -184,10 +184,9 @@
       width: 26px;
       height: 26px;
       border-radius: 50%;
-      object-fit: cover;
-      border: 1.5px solid var(--gold);
+      object-fit: contain;
       flex-shrink: 0;
-      background: #090d15;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     }
     .hero-chip-label {
       font-weight: 800;
@@ -196,7 +195,7 @@
     /* Dual Stage Grid (3D + Soundboard on Left | Cinema Theater on Right) */
     .pov-stage-grid {
       display: grid;
-      grid-template-columns: 280px minmax(0, 1fr);
+      grid-template-columns: 330px minmax(0, 1fr);
       gap: 12px;
       align-items: start;
     }
@@ -206,12 +205,12 @@
       }
     }
 
-    /* ── LEFT PANEL: 3D Turntable & Soundboard (Ultra-Compact) ── */
+    /* ── LEFT PANEL: 3D Turntable & Soundboard ── */
     .pov-left-panel {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      width: 280px;
+      width: 330px;
       flex-shrink: 0;
     }
     @media (max-width: 960px) {
@@ -513,7 +512,12 @@
       color: var(--muted);
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-height: 1.25;
+      word-break: break-word;
+      min-height: 1.6em;
     }
 
     /* ── RIGHT PANEL: Cinema Video Theater & Shelf ── */
@@ -1138,7 +1142,6 @@
         <button type="button" data-faction="white" aria-pressed="false" title="Squadra Bianca">⚪ Bianco</button>
         <button type="button" data-faction="black" aria-pressed="false" title="Squadra Nera">⚫ Nero</button>
       </div>
-      <a href="../battles.html" class="nav-btn compact" title="Matrice Scontri 6×6">🎬 Scontri 6×6</a>
       <a href="../index.html" class="nav-btn gold compact" title="Gioca a CarChess3D">♟️ Gioca</a>
       <span id="mode-badge" style="display:none;"></span>
     </div>
@@ -1316,6 +1319,7 @@
         <p id="banner-desc">Riccardo, Kate, Ale (con drago rosso riggato a 26 ossa), Seby, Pupurabbu e la Guardia Svizzera Puffin.</p>
       </div>
       <div class="family-links">
+        <a href="audio.html">🎻 Soundtrack & Voci Player</a>
         <a href="../tools/model-pipeline/classic/classic_contact_sheet.png" target="_blank">📸 Contact Sheet Classici Vanilla (6×4)</a>
         <a href="../tools/model-pipeline/swamp/swamp_contact_sheet.png" target="_blank">📸 Contact Sheet Palude (6×4)</a>
         <a href="../docs/qa-scores.classic.yaml" target="_blank">📋 QA Scores Classic</a>
@@ -1338,6 +1342,7 @@
       HERO_SOUNDBOARDS,
       getHeroAttacks,
       getHeroDefenses,
+      getPieceMedallion,
     } from '../src/core/CharacterPovData.js';
 
     // ── DATA FOR MULTI-FAMILY 18-PIECE SHOWCASE ──
@@ -1381,11 +1386,15 @@
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
         glyph: '♔', piece: 'King (1.80m)', name: 'Re Riccardo', winner: true, defaultConfirmed: true,
         tagline: 'Re della famiglia Carlesso',
-        front: '../assets/characters/king-riccardo-1.jpg?v=0.3.31',
+        front: '../assets/characters/king-riccardo-1.jpg',
         back: '../tools/model-pipeline/king/back.png',
-        model: '../assets/models/king-riccardo.glb?v=0.3.31',
+        models: [
+          { label: 'v1 · Biometrico (Canonico 🏆)', url: '../assets/models/king-riccardo.glb',
+            note: 'v1 Canonico: TRELLIS.2 + Adversarial Biometric Likeness Loop (9.1/10) + Mode B 2048×1024 Face-Grafting.' },
+          { label: 'v2 · Mantello & Croci Remaster 🟢', url: '../assets/models/king-riccardo-remastered.glb',
+            note: 'v2 Remaster: Sottosquadro d\'ermellino sul colletto, drappeggio verticale del mantello, scettro e croce maltese affilati.' },
+        ],
         details: 'Re con corona imperiale ad archi, mantello blu con bordi d\'ermellino, globo crucigero nella mano sinistra e scettro d\'oro nella destra.',
-        modelNote: 'TRELLIS.2 + Adversarial Biometric Likeness Loop (9.1/10) + Mode B 2048×1024 Face-Grafting & Cylindrical Side Unwrapping.',
       },
       {
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
@@ -1411,9 +1420,17 @@
         tagline: 'Cavaliere della famiglia Carlesso',
         front: '../tools/model-pipeline/seby/front.png',
         back: '../tools/model-pipeline/seby/back.png',
-        model: '../assets/models/knight-seby.glb',
-        details: 'Cavaliere su destriero con armatura dorata completa, mantello blu reale, occhi azzurri vispi, pugno alzato pronto a equipaggiare armi o poteri dell\'Acquario.',
-        modelNote: 'TRELLIS.2: 100k triangoli, texture 1024x1024, destriero e cavaliere in armatura dorata.',
+        models: [
+          { label: 'v1 · Base Dorato (Canonico 🏆)', url: '../assets/models/knight-seby.glb',
+            note: 'v1 Base: Cavaliere su destriero con armatura dorata completa e pugno sinistro alzato.' },
+          { label: 'v2 · Alabarda Reale 🔱', url: '../assets/models/knight-seby-halberd.glb',
+            note: 'v2 Alabarda Reale: Asta in mogano dal piedistallo al pugno con lama a mezzaluna, gancio e pennacchio blu.' },
+          { label: 'v3 · Spada Laser ⚡', url: '../assets/models/knight-seby-lightsaber.glb',
+            note: 'v3 Spada Laser: Impugnatura cromata con lama al plasma ciano inclinata a +12°.' },
+          { label: 'v4 · Sigillo dell\'Acquario 🏺', url: '../assets/models/knight-seby-aurora.glb',
+            note: 'v4 Sigillo dell\'Acquario: Anfora greca celeste con fascia di costellazioni e cascata di polvere di stelle.' },
+        ],
+        details: 'Cavaliere su destriero con armatura dorata completa, mantello blu reale, occhi azzurri vispi, pugno alzato equipaggiato con armi modulari.',
       },
       {
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
@@ -1898,10 +1915,11 @@ if (uDragonCoilMode > 0.5) {
       heroSelectorEl.innerHTML = CARLESSO_HERO_KEYS.map((key) => {
         const hero = HERO_PROFILES[key];
         const isActive = key === currentHeroKey;
+        const medallionSrc = getPieceMedallion(key, 'white', '../');
         return `
           <button type="button" class="hero-chip-btn ${isActive ? 'active' : ''}" data-hero="${key}" aria-pressed="${isActive}" title="${hero.fullName} (${hero.role})">
-            <img src="../${hero.avatar}" alt="${hero.heroName}" class="hero-chip-avatar">
-            <span class="hero-chip-label">${hero.glyph} ${hero.heroName}</span>
+            <img src="${medallionSrc}" alt="${hero.fullName}" class="hero-chip-avatar">
+            <span class="hero-chip-label">${hero.heroName}</span>
           </button>
         `;
       }).join('');
@@ -2305,9 +2323,7 @@ if (uDragonCoilMode > 0.5) {
             existingPill.remove();
           }
 
-          if (isThisActive) {
-            card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-          }
+          // Active card state updated without scrolling the parent window (prevents header shift / black band)
         });
       };
 
@@ -2444,13 +2460,11 @@ if (uDragonCoilMode > 0.5) {
   </script>
 
   <footer style="text-align:center;padding:24px 16px 40px;color:#90a4ae;font-size:12px;border-top:1px solid rgba(255,213,79,0.2);margin-top:40px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
-    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.51</span>
+    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.64</span>
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener noreferrer" style="color:#9be7c4;text-decoration:none;font-weight:600;">🐙 GitHub Code</a>
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d/issues/22" target="_blank" rel="noopener noreferrer" style="color:#ffab91;text-decoration:none;font-weight:600;">🎭 Issue #22 Showcase POV</a>
-    <span>·</span>
-    <a href="../battles.html" style="color:#81d4fa;text-decoration:none;font-weight:600;">🎬 Matrice Scontri 6×6</a>
     <span>·</span>
     <a href="../index.html" style="color:#ffe082;text-decoration:none;font-weight:600;">🏰 Gioca a CarChess3D</a>
   </footer>

@@ -5,10 +5,10 @@
  *   on GitHub Pages (`max-age=600`) always fetch the latest version without stale cache traps.
  * - Lightweight core precache on `install` (no 35 MB `.glb`/`.mp3` install storm on mobile GPUs),
  *   while lazy-caching portraits, `.glb` models, and audio assets (`chess-strings-theme.mp3`,
- *   `chess-strings-bg.mp3`, `combat-suspense.mp3`, `voice-*.mp3`) on demand for offline play.
+ *   `chess-strings-bg.mp3`, `combat-suspense.mp3`, `checkmate-jingle.mp3`, `voice-*.mp3`) on demand for offline play.
  */
 
-const CACHE_NAME = 'carchess3d-offline-v34';
+const CACHE_NAME = 'carchess3d-offline-v44';
 
 const PRECACHE_URLS = [
   './',
@@ -39,6 +39,7 @@ const PRECACHE_URLS = [
   './src/managers/AIWorkerManager.js',
   './src/views/ZurichSwampView.js',
   './src/views/SkeletonRigHelper.js',
+  './src/views/PieceClarityHelper.js',
   './src/views/PieceView.js',
   './src/views/BoardInteractionView.js',
   './src/views/VFXPoolView.js',
@@ -49,7 +50,6 @@ const PRECACHE_URLS = [
   './src/listeners/AudioListener.js',
   './src/listeners/ProfileStorageListener.js',
   './docs/logo/logo.svg',
-  './assets/environments/zurich_panorama.jpg',
 ];
 
 self.addEventListener('install', (event) => {

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CarChess3D · Soundtrack & Voices Player</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #11141b; --card: #1a1f2b; --line: #2a3142; --text: #e8eaf0; --muted: #9aa3b5;
+      --gold: #e6b84a; --blue: #3b82f6; --green: #22c55e;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.45 system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 24px; }
+    header { max-width: 900px; margin: 0 auto 24px; border-bottom: 1px solid var(--line); padding-bottom: 16px; }
+    h1 { margin: 0 0 6px; font-size: 1.6rem; color: var(--gold); }
+    p { margin: 0; color: var(--muted); }
+    .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+    .section-title { font-size: 1.15rem; font-weight: 700; margin: 12px 0 4px; display: flex; align-items: center; gap: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; transition: border-color 0.2s; }
+    .card:hover { border-color: var(--blue); }
+    .card.active { border-color: var(--gold); background: #222938; }
+    .card h3 { margin: 0 0 6px; font-size: 1rem; color: var(--text); }
+    .meta { font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; }
+    .badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--line); color: var(--gold); margin-bottom: 6px; }
+    audio { width: 100%; height: 36px; margin-top: 8px; }
+    .nav { margin-top: 16px; font-size: 0.9rem; }
+    .nav a { color: var(--blue); text-decoration: none; }
+    .nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎻 CarChess3D Soundtrack & Voices Player</h1>
+    <p>Ascolta e confronta le tracce d'archi Lyria 3.5 e i dialoghi vocali di famiglia Gemini 3.8 TTS.</p>
+    <div class="nav"><a href="./">← Torna alla 3D Character Showcase</a> · <a href="../">Torna al Gioco</a></div>
+  </header>
+
+  <div class="container">
+    <div class="section-title">🎻 Soundtrack Loops & Jingle (Lyria 3.5)</div>
+    <div class="grid">
+      <div class="card active">
+        <span class="badge">DEFAULT · SOTTOFONDO PRINCIPALE</span>
+        <h3>🎼 Baroque String Octet Overture (Staccato)</h3>
+        <div class="meta">128 BPM · Mi Minore / Mi Dorico · Staccato teatrale (Eleanor Rigby × Chess). Scelta preferita di Riccardo per l'accompagnamento del gioco!</div>
+        <audio controls loop src="../assets/audio/chess-strings-theme.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <span class="badge">ARROCCO · FORTEZZA REALE</span>
+        <h3>🎻 Warm Chamber Strings Loop</h3>
+        <div class="meta">106 BPM · Mi Dorico · 4 Violini, 2 Viole, 2 Celli (30s Loop). Attivato durante l'Arrocco per celebrare la fortezza del Re senza buttare via la traccia!</div>
+        <audio controls loop src="../assets/audio/chess-strings-bg.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <span class="badge">COMBAT SUSPENSE</span>
+        <h3>⚔️ Taiko & Brass Suspense Climax</h3>
+        <div class="meta">152 BPM · Suonato durante le animazioni di cattura (brawl 3 atti) al posto dei vecchi oscillator arcade.</div>
+        <audio controls src="../assets/audio/combat-suspense.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <span class="badge">👑 SCACCO MATTO · CHECKMATE</span>
+        <h3>😂 BUAHAHAHAHAH! & "Ooh no!" (Jingle Comico)</h3>
+        <div class="meta">30s · Lyria 3.5 · Risata baritonale trionfale BUAHAHAHAHAH!, gemito comico "Ooh no!" e coro festoso "SCACCO MATTO, CHECKMATE!". Bilingue IT/EN.</div>
+        <audio controls src="../assets/audio/checkmate-jingle.mp3"></audio>
+      </div>
+    </div>
+
+    <div class="section-title">🎙️ Voci di Famiglia (Gemini 3.8 Flash TTS)</div>
+    <div class="grid">
+      <div class="card">
+        <span class="badge">♕ QUEEN KATE</span>
+        <h3>"Don't be FACETIOUS!"</h3>
+        <div class="meta">40yo UK Winchester accent (en-gb-csagent-4)</div>
+        <audio controls src="../assets/audio/voices/voice-q-facetious.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <span class="badge">🐴 KNIGHT SEBY</span>
+        <h3>"Mummy, can you clean my bottooooom?"</h3>
+        <div class="meta">7yo UK/IT cute accent, finale strascicato</div>
+        <audio controls src="../assets/audio/voices/voice-n-bottom.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <span class="badge">🐴 KNIGHT SEBY</span>
+        <h3>"Papino, ti manco tantissimo!"</h3>
+        <div class="meta">7yo cutie (I miss you invertito!)</div>
+        <audio controls src="../assets/audio/voices/voice-n-timanco.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <span class="badge">🐉 BISHOP ALE</span>
+        <h3>"Sei proprio un cafoNAZZO!"</h3>
+        <div class="meta">10yo punchy comedic line con accento su -NAZZO!</div>
+        <audio controls src="../assets/audio/voices/voice-b-cafonazzo.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <span class="badge">🐉 BISHOP ALE</span>
+        <h3>"Papino, ti manco tantissimo!"</h3>
+        <div class="meta">10yo affectionate teasing</div>
+        <audio controls src="../assets/audio/voices/voice-b-timanco.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <span class="badge">♕ QUEEN KATE</span>
+        <h3>"Ok, Puffin McMuffin!"</h3>
+        <div class="meta">40yo British dry-wit & affectionate teasing</div>
+        <audio controls src="../assets/audio/voices/voice-q-mcmuffin.mp3"></audio>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

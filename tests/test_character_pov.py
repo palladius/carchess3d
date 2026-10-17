@@ -32,6 +32,10 @@ class TestCharacterPovShowcase(unittest.TestCase):
         content = POV_DATA_PATH.read_text(encoding="utf-8")
         self.assertIn("I'll bear that in mind", content, "Kate's catchphrase must be present")
         self.assertIn("Catchphrase!", content, "Pupurabbu's Blue Shirt Guy catchphrase must be present")
+        self.assertIn("Scrivile Scemo", content, "Seby's Pinguini Tattici Nucleari catchphrase must be present")
+        self.assertIn("uccidi questo mostro per me", content, "Seby's monster slaying catchphrase must be present")
+        self.assertIn("I'm still hungry", content, "Ale's hungry catchphrase must be present")
+        self.assertIn("cucini bene", content, "Ale's cooking compliment catchphrase must be present")
 
     def test_showcase_html_has_pov_elements(self):
         self.assertTrue(SHOWCASE_HTML_PATH.exists(), "showcase/index.html must exist")
@@ -51,6 +55,15 @@ class TestCharacterPovShowcase(unittest.TestCase):
         self.assertTrue(BATTLES_HTML_PATH.exists(), "battles.html must exist")
         html = BATTLES_HTML_PATH.read_text(encoding="utf-8")
         self.assertIn('showcase/index.html?view=pov', html)
+
+    def test_showcase_viewport_layout_regression_prevention(self):
+        """Regression test for Issue #30: prevent unwanted window scroll and text truncation."""
+        html = SHOWCASE_HTML_PATH.read_text(encoding="utf-8")
+        # Ensure scrollIntoView is not called, which causes headless 300px header shift & black band
+        self.assertNotIn("card.scrollIntoView", html, "scrollIntoView scrolls whole window causing viewport clipping")
+        # Ensure left panel has room for quotes and icons
+        self.assertIn("width: 330px;", html, "Left panel must have sufficient width (330px)")
+        self.assertIn("-webkit-line-clamp: 2", html, "Soundboard quote must clamp cleanly to 2 lines")
 
 
 if __name__ == "__main__":

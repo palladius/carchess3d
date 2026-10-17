@@ -37,6 +37,15 @@ REPO="$LOCAL3D_ROOT/repos/Hunyuan3D-2"
   opencv-python-headless rembg onnxruntime pygltflib tqdm huggingface_hub safetensors
 "$PY" -m pip install -q -e "$REPO" --no-deps
 
+# Phase 2 (Texturing/Paint) deps & custom rasterizer CUDA extension with PTX JIT for sm_120
+"$PY" -m pip install -q xatlas
+if ! "$PY" -c "import custom_rasterizer_kernel" 2>/dev/null; then
+  (cd "$REPO/hy3dgen/texgen/custom_rasterizer" && \
+   CC=gcc-12 CXX=g++-12 CUDAHOSTCXX=g++-12 TORCH_CUDA_ARCH_LIST="9.0+PTX" \
+   "$PY" setup.py build_ext --inplace -q && \
+   "$PY" -m pip install -q -e . --no-build-isolation)
+fi
+
 "$PY" - <<'EOF'
 import torch
 cap = torch.cuda.get_device_capability()
@@ -44,5 +53,6 @@ x = torch.randn(2048, 2048, device="cuda")
 torch.cuda.synchronize(); (x @ x).sum().item()
 print(f"✅ torch {torch.__version__} cuda {torch.version.cuda} · {torch.cuda.get_device_name()} sm_{cap[0]}{cap[1]} · matmul OK")
 import hy3dgen; print("✅ hy3dgen importable")
+import custom_rasterizer; print("✅ custom_rasterizer importable (Phase 2 ready)")
 EOF
 du -sh "$LOCAL3D_ROOT"

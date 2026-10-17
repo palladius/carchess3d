@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.57';
+export const APP_VERSION = '0.3.83';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -201,6 +201,27 @@ export const VOICE_LINES = Object.freeze({
         },
       },
       {
+        id: 'b_stillhungry',
+        kind: 'signature',
+        weight: 1.6,
+        audioUrl: 'assets/audio/voices/voice-b-stillhungry.mp3',
+        speechLang: 'en-GB',
+        quote: {
+          it: "Mummy... I'm still hungry!",
+          en: "Mummy... I'm still hungry!",
+        },
+      },
+      {
+        id: 'b_cucinibene',
+        kind: 'signature',
+        weight: 1.6,
+        audioUrl: 'assets/audio/voices/voice-b-cucinibene.mp3',
+        quote: {
+          it: 'Papino, tu sì che cucini bene!',
+          en: 'Papino, tu sì che cucini bene!',
+        },
+      },
+      {
         id: 'b_timanco',
         kind: 'signature',
         weight: 1.5,
@@ -286,6 +307,26 @@ export const VOICE_LINES = Object.freeze({
         quote: {
           it: 'Dimmi papino!',
           en: 'Dimmi papino!',
+        },
+      },
+      {
+        id: 'n_scrivilescemo',
+        kind: 'signature',
+        weight: 1.8,
+        audioUrl: 'assets/audio/voices/voice-n-scrivilescemo.mp3',
+        quote: {
+          it: 'Hey Google, metti Scrivile Scemo dei Pinguini Tattici Nucleari su YouTube Music!',
+          en: 'Hey Google, play Scrivile Scemo by Pinguini Tattici Nucleari on YouTube Music!',
+        },
+      },
+      {
+        id: 'n_uccidimostro',
+        kind: 'signature',
+        weight: 1.8,
+        audioUrl: 'assets/audio/voices/voice-n-uccidimostro.mp3',
+        quote: {
+          it: 'Hey Google, uccidi questo mostro per me!',
+          en: 'Hey Google, kill this monster for me!',
         },
       },
       {
@@ -440,6 +481,17 @@ export const VOICE_LINES = Object.freeze({
   },
 });
 
+export const QUEEN_GLB_VARIANTS = Object.freeze({
+  young: 'assets/models/queen-kate.glb',
+  wedding: 'assets/models/queen-kate-wedding2016-remastered.glb',
+});
+
+export const BISHOP_GLB_VARIANTS = Object.freeze({
+  hat: 'assets/models/bishop-ale-1.glb',
+  astrolabe: 'assets/models/bishop-ale-2-remastered.glb',
+  rigged: 'assets/models/bishop-ale-rigged.glb',
+});
+
 export const CHARACTER_REGISTRY = Object.freeze({
   k: {
     type: 'k',
@@ -453,7 +505,11 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/king-riccardo-2.jpg',
     backPortrait: 'tools/model-pipeline/king/back.png',
     glbUrl: 'assets/models/king-riccardo.glb',
-    optionalGlbCandidates: ['assets/models/king-riccardo.glb'],
+    altGlbUrl: 'assets/models/king-riccardo-remastered.glb',
+    optionalGlbCandidates: [
+      'assets/models/king-riccardo.glb',
+      'assets/models/king-riccardo-remastered.glb',
+    ],
     accentColor: 0xffca28,
     signatureId: 'sceptre_lightning',
     voiceLine: VOICE_LINES.k,
@@ -471,12 +527,14 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/queen-kate-1.jpg',
     backPortrait: 'assets/characters/queen-kate-2.jpg',
     glbUrl: 'assets/models/queen-kate.glb',
-    altGlbUrl: 'assets/models/queen-kate-wedding2016.glb',
+    altGlbUrl: 'assets/models/queen-kate-wedding2016-remastered.glb',
     optionalGlbCandidates: [
       'assets/models/queen-kate.glb',
+      'assets/models/queen-kate-wedding2016-remastered.glb',
       'assets/models/queen-kate-young.glb',
       'assets/models/queen-kate-wedding2016.glb',
     ],
+    variants: QUEEN_GLB_VARIANTS,
     accentColor: 0xab47bc,
     signatureId: 'chocolate_wave',
     voiceLine: VOICE_LINES.q,
@@ -497,9 +555,11 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altGlbUrl: 'assets/models/bishop-ale-rigged.glb',
     optionalGlbCandidates: [
       'assets/models/bishop-ale-1.glb',
+      'assets/models/bishop-ale-2-remastered.glb',
       'assets/models/bishop-ale-rigged.glb',
       'assets/models/bishop-ale-2.glb',
     ],
+    variants: BISHOP_GLB_VARIANTS,
     accentColor: 0x2d6cdf,
     signatureId: 'crystal_shatter',
     voiceLine: VOICE_LINES.b,
@@ -522,7 +582,12 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/knight-seby-1.jpg',
     backPortrait: 'tools/model-pipeline/seby/back_nb_2.1.png',
     glbUrl: 'assets/models/knight-seby.glb',
-    optionalGlbCandidates: ['assets/models/knight-seby.glb'],
+    optionalGlbCandidates: [
+      'assets/models/knight-seby.glb',
+      'assets/models/knight-seby-halberd.glb',
+      'assets/models/knight-seby-lightsaber.glb',
+      'assets/models/knight-seby-aurora.glb',
+    ],
     accentColor: 0xff7043,
     signatureId: 'loop_track_cars',
     voiceLine: VOICE_LINES.n,
@@ -1090,8 +1155,8 @@ export const I18N = Object.freeze({
     mode2Btn: '🌟 WOW Mode & Cinema',
     matrixBtn: '🎬 Matrice 6×6',
     matrix36Btn: '🎬 Matrice 6×6 (36 Scontri)',
-    galleryBtn: '🎨 Galleria',
-    videosBtn: '🎬 36 Video',
+    galleryBtn: '🎬 Cinema Eroi POV',
+    videosBtn: '🎬 Cinema Eroi POV',
     skeletonsBtn: '🦴 Scheletri',
     swampBtn: '🐸 Palude',
     trackpadRotateBtn: '🖐️ 2-Dita: Ruota',
@@ -1114,7 +1179,14 @@ export const I18N = Object.freeze({
     setStone: '⚫🗿 Nero: Pietra Magica (Wizard)',
     turnWhite: 'Turno del Bianco (Avorio & Oro)',
     turnBlack: 'Turno del Nero (Ossidiana & Argento)',
-    luckBar: '🍀 Barra della Fortuna',
+    luckBar: '🎲 Dado d20 Rubino',
+    d20RollTooltip:
+      '🎲 Dado d20 in marmo rosso rubino! Si tira ad ogni cattura (20 = Critico Dorato!) oppure clicca / premi D per tirarlo sulla scacchiera 3D!',
+    confirmNewTitle: '⚠️ Ricominciare la partita da capo?',
+    confirmNewSub:
+      'Tutti i 32 pezzi torneranno alla posizione iniziale e le mosse della partita in corso andranno perse.',
+    confirmNewCancelBtn: '✕ Annulla',
+    confirmNewYesBtn: '🔄 Sì, Nuova Partita!',
     hintBtn: '💡 Suggerimento',
     flipCamBtn: '🔄 Gira Scacchiera',
     topCamBtn: '📐 Vista dall’Alto',
@@ -1194,6 +1266,26 @@ export const I18N = Object.freeze({
     mobileCam3dBtn: '🎬 Vista: 3D',
     mobile3dUnlockedToast: '🎬 1° Attacco! Modalità 3D Attivata! (Tocca 📐 Alto / 🎬 3D per cambiare vista)',
     mobileStartToast: '📐 Vista Alto-Basso attiva! Fai la prima mossa: al 1° attacco entri nel 3D! ✨',
+    queenVariantLabel: 'Variante Regina:',
+    bishopVariantLabel: 'Variante Alfiere:',
+    queenVariantYoung: '👑 Kate Young (Canonico)',
+    queenVariantWedding: '👰 Kate Nozze 2016 (Remaster)',
+    bishopVariantHat: '🎩 Ale Mitria (Canonico)',
+    bishopVariantAstrolabe: '🟢 Ale Astrolabio (Remaster)',
+    bishopVariantRigged: '🐉 Ale Rigged (Drago)',
+    clarityBtn: '🔍 Chiarezza Pezzi',
+    clarityLabel: '🔍 Chiarezza Visiva (Riconoscimento Pezzi):',
+    clarityS2: '👑 S2 (Default 3D): Corone & Stemmi 3D sulla Testa + Contrasto Ossidiana/Avorio',
+    clarityS1: '📐 S1: Medaglioni 2D Classici B/N Allineati alla Casella',
+    clarityS3: '🌑 S3: Solo Contrasto Puro Nero Ossidiana vs Bianco Avorio',
+    clarityS4: '🛡️ S4: Ghirlanda 3D Piedistallo + Stemma 2D Flottante',
+    clarityS5: '✨ S5: Ibrida Completa (Corone 3D + Ghirlanda + Ossidiana + 2D dall’Alto)',
+    clarityOff: '🎨 Off: Solo Modelli 3D Originali',
+    helpBtn: '❓ Aiuto & Comandi (H / ?)',
+    helpModalTitle: '🏰❓ Guida Rapida, Telecamera 3D & Scorciatoie',
+    helpModalSub:
+      'Tutto quello che serve per muovere la telecamera, usare la rotella per lo zoom e goderti gli Scacchi di Famiglia (Premi H, ? o Esc per chiudere)',
+    clarityLettersLabel: '🔤 Accessibilità: Mostra lettere e Braille (K, Q, R, B, N, P) sulle icone 2D',
   },
   en: {
     title: 'CarChess3D · Family Wizard Chess',
@@ -1202,8 +1294,8 @@ export const I18N = Object.freeze({
     mode2Btn: '🌟 3D WOW Mode & Cinema',
     matrixBtn: '🎬 6×6 Matrix',
     matrix36Btn: '🎬 6×6 Matrix (36 Clashes)',
-    galleryBtn: '🎨 3D Gallery',
-    videosBtn: '🎬 36 Videos',
+    galleryBtn: '🎬 Heroes POV Cinema',
+    videosBtn: '🎬 Heroes POV Cinema',
     skeletonsBtn: '🦴 Skeletons',
     swampBtn: '🐸 Swamp',
     trackpadRotateBtn: '🖐️ 2-Finger: Rotate',
@@ -1226,7 +1318,14 @@ export const I18N = Object.freeze({
     setStone: '⚫🗿 Black: Wizard Stone',
     turnWhite: 'White’s Turn (Ivory & Gold)',
     turnBlack: 'Black’s Turn (Obsidian & Silver)',
-    luckBar: '🍀 Luck Meter',
+    luckBar: '🎲 Ruby d20',
+    d20RollTooltip:
+      '🎲 Solid Ruby-Marble d20! Rolls on every capture (20 = Golden Crit!) or click / press D to roll it on the 3D board!',
+    confirmNewTitle: '⚠️ Restart match from scratch?',
+    confirmNewSub:
+      'All 32 pieces will reset to their starting squares and the current match progress will be lost.',
+    confirmNewCancelBtn: '✕ Cancel',
+    confirmNewYesBtn: '🔄 Yes, New Match!',
     hintBtn: '💡 Magic Hint',
     flipCamBtn: '🔄 Flip Board',
     topCamBtn: '📐 Top-Down View',
@@ -1306,8 +1405,84 @@ export const I18N = Object.freeze({
     mobileCam3dBtn: '🎬 View: 3D',
     mobile3dUnlockedToast: '🎬 1st Attack! 3D Mode Unlocked! (Tap 📐 Top / 🎬 3D anytime to switch)',
     mobileStartToast: '📐 Easy Top-Down View active! Make a move: 1st attack unlocks 3D Mode! ✨',
+    queenVariantLabel: 'Queen Variant:',
+    bishopVariantLabel: 'Bishop Variant:',
+    queenVariantYoung: '👑 Kate Young (Canonical)',
+    queenVariantWedding: '👰 Kate Wedding 2016 (Remaster)',
+    bishopVariantHat: '🎩 Ale Mitre (Canonical)',
+    bishopVariantAstrolabe: '🟢 Ale Astrolabe (Remaster)',
+    bishopVariantRigged: '🐉 Ale Rigged (Dragon)',
+    clarityBtn: '🔍 Piece Clarity',
+    clarityLabel: '🔍 Visual Clarity (Piece Recognition):',
+    clarityS2: '👑 S2 (Default 3D): Head-Mounted 3D Crowns/Crests + Obsidian/Ivory Contrast',
+    clarityS1: '📐 S1: Square-Aligned Classic 2D B/W Medallions',
+    clarityS3: '🌑 S3: Pure Obsidian Black vs Ivory White Contrast Only',
+    clarityS4: '🛡️ S4: 3D Pedestal Role Wreath + Floating 2D Crest',
+    clarityS5: '✨ S5: Hybrid Full (3D Crowns + Wreath + Obsidian + Auto-2D Top)',
+    clarityOff: '🎨 Off: Original 3D Models Only',
+    helpBtn: '❓ Help & Controls (H / ?)',
+    helpModalTitle: '🏰❓ Quick Guide, 3D Camera & Shortcuts',
+    helpModalSub:
+      'Everything you need to control the 3D camera, zoom with the mouse wheel, and enjoy Family Wizard Chess (Press H, ? or Esc to close)',
+    clarityLettersLabel: '🔤 Accessibility: Show role letters & Braille (K, Q, R, B, N, P) on 2D icons',
   },
 });
+
+/**
+ * Pure camera mouse-wheel / trackpad gesture handler for `OrbitControls`.
+ *
+ * - **Default (`controls.trackpadTwoFingerRotate === false`)**: Mouse wheel (and 2-finger scroll)
+ *   zooms in (`deltaY < 0` -> `_dollyIn`) and zooms out (`deltaY > 0` -> `_dollyOut`).
+ * - **`Ctrl` or `Cmd` (`metaKey`) + Wheel / Trackpad Pinch**: Always zooms in/out.
+ * - **`Shift` + Wheel**: Pans the camera target (`_pan`).
+ * - **`Alt` + Wheel** (or 2-finger scroll when `controls.trackpadTwoFingerRotate === true`):
+ *   Orbits/rotates left/right (`_rotateLeft`) and up/down (`_rotateUp`).
+ *
+ * @param {object} controls
+ * @param {{ clientX?: number, clientY?: number, deltaX?: number, deltaY?: number, ctrlKey?: boolean, metaKey?: boolean, altKey?: boolean, shiftKey?: boolean }} event
+ * @returns {'zoom'|'pan'|'rotate'}
+ */
+export function applyWheelZoomOrOrbit(controls, event = {}) {
+  if (!controls) return 'zoom';
+  controls._updateZoomParameters?.(event.clientX ?? 0, event.clientY ?? 0);
+
+  const deltaX = Number(event.deltaX ?? 0);
+  const deltaY = Number(event.deltaY ?? 0);
+  const zoomSpeed = Number(controls.zoomSpeed ?? 1.25);
+  const rotateSpeed = Number(controls.rotateSpeed ?? 0.95);
+
+  if (event.shiftKey && !event.ctrlKey && !event.metaKey) {
+    controls._pan?.(-deltaX * 0.65, -deltaY * 0.65);
+    controls.update?.();
+    return 'pan';
+  }
+
+  const shouldZoom =
+    Boolean(event.ctrlKey) ||
+    Boolean(event.metaKey) ||
+    (!event.altKey && !controls.trackpadTwoFingerRotate);
+
+  if (shouldZoom) {
+    const pinchScale = Math.pow(
+      0.95,
+      zoomSpeed * Math.min(8.0, Math.abs(deltaY) * 0.025 + 0.35),
+    );
+    if (deltaY < 0) {
+      controls._dollyIn?.(pinchScale);
+    } else if (deltaY > 0) {
+      controls._dollyOut?.(pinchScale);
+    }
+    controls.update?.();
+    return 'zoom';
+  }
+
+  const h = Math.max(1, Number(controls.domElement?.clientHeight || 800));
+  const twoPi = Math.PI * 2;
+  controls._rotateLeft?.((twoPi * deltaX * rotateSpeed * 0.85) / h);
+  controls._rotateUp?.((twoPi * deltaY * rotateSpeed * 0.85) / h);
+  controls.update?.();
+  return 'rotate';
+}
 
 /**
  * Detects whether the current viewport is a compact smartphone (e.g., Pixel 10, iPhone)

@@ -107,3 +107,26 @@ models:
   aesthetic_flaws:
   - Gold trim shader lacks metallic sharpness
   - Slightly muted fabric vibrancy compared to 2D reference
+- piece: king
+  character: riccardo
+  model_name: king-riccardo-remastered.glb
+  concept_file: king-riccardo-1.jpg
+  model_file: assets/models/king-riccardo-remastered.glb
+  evaluated_at: '2026-10-10'
+  scores:
+    face_likeness: 4.2
+    companion_fidelity: 4.0
+    back_view: 5.2
+    overall: 4.5
+  tier: FA_CAGARE 💩
+  passed: false
+  summary: Face loses photographic definition; features and beard appear flattened
+    and blurry compared to concept.
+  structural_flaws:
+  - Warped crown struts
+  - Flimsy, slightly distorted scepter
+  - Missing engraved base text
+  aesthetic_flaws:
+  - Dull, non-metallic gold shader
+  - Low-resolution facial projection
+  - Muddy texture seams on cape and plinth

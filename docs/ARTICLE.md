@@ -14,6 +14,10 @@ In **meno di 48 ore** (e più precisamente in **~4 ore di pipeline 3D** il vener
 3. **Sullo sfondo, sospeso tra le due torri del Grossmünster di Zurigo**, brilla uno **Specchio Magico 16:9** che proietta i video `.mp4`/`.webm` degli scontri tra Ale e Seby (con fallback automatico a 60fps su Canvas 2D per non dipendere mai da Human-In-The-Loop!).
 4. **Easter Egg Fraterno**: quando il Cavaliere Seby e la Torre Pupurabbu (il suo peluche del cuore) si "catturano", **non si fanno mai male** — parte un **SUPER ABBRACCIO PUFFOSO! 💜🤗** con pioggia di cuoricini 3D!
 
+![Il vero UAT (User Acceptance Testing): Alessandro (🐉) e Sebastian (🏎️) che giocano a CarChess3D sul tablet, con la scacchiera 3D e le ninfee della palude sullo schermo!](./visual-progress/kids_playing_carchess3d.jpg)
+
+> 👨‍👦‍👦 **Il Vero UAT (*User Acceptance Testing*)**: Più dei 576 step agentici e del `9.9/10` del Critic VLM, il vero test di produzione sono gli occhi di **Ale (🐉)** e **Seby (🏎️)** incollati al tablet mentre muovono i pezzi della famiglia e li vedono tuffarsi tra le ninfee della palude!
+
 ![CarChess3D v0.2.0 — Vista della Palude Incantata di Zurigo con i pezzi che sguazzano nella Palude di Shrek](./visual-progress/round4_1_swamp_party.png)
 
 ---
@@ -122,6 +126,14 @@ Durante gli ultimi 45 minuti, mentre osservavo il preview artifact crescere in t
    - **Tier 2 & 3 (Fallback Canvas 2D a 60fps)**: per qualunque altra combinazione dei 36 scontri `6×6`, lo Specchio 16:9 compone in tempo reale la sfida animata a schermo diviso con fulmini, particelle e fumetti senza mai fermare il gioco.
 
 ![Filmstrip dei 3 video 16:9 di Ale, Seby e Pupurabbu](./visual-progress/round4_6_mp4_filmstrip.png)
+
+---
+
+## 🧪🎬 Il Cron Giornaliero Playwright UAT che Gioca da Solo e Apre GitHub Issue col Film della Partita ([#36](https://github.com/palladius/carchess3d/issues/36))
+
+Oltre al Vero UAT coi bambini sul divano, ogni mattina [`scripts/daily_uat_playtest.py`](../scripts/daily_uat_playtest.py) (`just daily-uat`) avvia Google Chrome con WebGL, esegue **9 gate avversari** (orientamento opposto Bianchi/Neri, rotazione camera `180°` e top-down con analisi di luminanza/contrasto anti-black-screen, scheletri 3D, festa nella palude, matrice `6×6`, WOW Arena e una vera partita di 8 mosse contro `CPU Easy` con latenza media di `458 ms`), registra un film `.mp4` + `.gif` di 60 secondi e apre automaticamente una GitHub Issue taggata `gemini-uat` come **[GitHub Issue #36 — `Gemini UAT 20261015`](https://github.com/palladius/carchess3d/issues/36)** (e [#18 — `Gemini UAT 20261011`](https://github.com/palladius/carchess3d/issues/18)):
+
+![Registrazione reale dell'Agente UAT Giornaliero (GitHub Issue #36) mentre testa la scacchiera 3D e gioca contro la CPU](./visual-progress/daily_uat_gameplay_20261015.gif)
 
 ---
 
