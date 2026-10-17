@@ -216,58 +216,58 @@
     <line x1="750" y1="835" x2="1350" y2="835" stroke="#4cd9a2" stroke-width="2.5"/>
     <text x="750" y="855" fill="#4cd9a2" font-size="11" font-weight="700">y = 0.00m (bbox.min.y === 0.00m)</text>
 
-    <!-- 1. Pawn Puffin (0.90m -> 99px) -->
+    <!-- 1. Pawn Puffin (0.95m -> 104.5px) -->
     <g transform="translate(800, 835)">
       <rect x="-28" y="-24" width="56" height="24" rx="4" fill="#fcf6e8" stroke="#e6b84a" stroke-width="2"/>
-      <rect x="-20" y="-99" width="40" height="75" rx="10" fill="#3a6ea5" stroke="#ffe082" stroke-width="2"/>
-      <text x="0" y="-108" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♙ 0.90m</text>
+      <rect x="-20" y="-104.5" width="40" height="80.5" rx="10" fill="#3a6ea5" stroke="#ffe082" stroke-width="2"/>
+      <text x="0" y="-113" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♙ 0.95m</text>
       <text x="0" y="38" fill="#e8eaf0" font-size="11" font-weight="600" text-anchor="middle">Pawn (Puffin)</text>
       <text x="0" y="52" fill="#9aa3b5" font-size="10" text-anchor="middle">Ø 0.70m · GLB</text>
     </g>
 
-    <!-- 2. Rook Pupurabbu (1.20m -> 132px) -->
+    <!-- 2. Bishop Ale (1.55m -> 170.5px) -->
     <g transform="translate(895, 835)">
       <rect x="-30" y="-24" width="60" height="24" rx="4" fill="#fcf6e8" stroke="#e6b84a" stroke-width="2"/>
-      <rect x="-24" y="-132" width="48" height="108" rx="12" fill="#6a4c93" stroke="#ffe082" stroke-width="2"/>
-      <text x="0" y="-141" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♖ 1.20m</text>
-      <text x="0" y="38" fill="#e8eaf0" font-size="11" font-weight="600" text-anchor="middle">Rook (Pupurabbu)</text>
-      <text x="0" y="52" fill="#9aa3b5" font-size="10" text-anchor="middle">Ø 0.75m · Hybrid</text>
-    </g>
-
-    <!-- 3. Knight Seby (1.35m -> 148.5px) -->
-    <g transform="translate(990, 835)">
-      <rect x="-30" y="-24" width="60" height="24" rx="4" fill="#fcf6e8" stroke="#e6b84a" stroke-width="2"/>
-      <rect x="-23" y="-148.5" width="46" height="124.5" rx="12" fill="#d96b27" stroke="#ffe082" stroke-width="2"/>
-      <text x="0" y="-158" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♘ 1.35m</text>
-      <text x="0" y="38" fill="#e8eaf0" font-size="11" font-weight="600" text-anchor="middle">Knight (Seby)</text>
-      <text x="0" y="52" fill="#9aa3b5" font-size="10" text-anchor="middle">Ø 0.75m · Hybrid</text>
-    </g>
-
-    <!-- 4. Bishop Ale (1.45m -> 159.5px) -->
-    <g transform="translate(1085, 835)">
-      <rect x="-30" y="-24" width="60" height="24" rx="4" fill="#fcf6e8" stroke="#e6b84a" stroke-width="2"/>
-      <rect x="-24" y="-159.5" width="48" height="135.5" rx="12" fill="#2d4a8a" stroke="#ffe082" stroke-width="2"/>
-      <text x="0" y="-169" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♗ 1.45m</text>
+      <rect x="-24" y="-170.5" width="48" height="146.5" rx="12" fill="#2d4a8a" stroke="#ffe082" stroke-width="2"/>
+      <text x="0" y="-180" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♗ 1.55m</text>
       <text x="0" y="38" fill="#e8eaf0" font-size="11" font-weight="600" text-anchor="middle">Bishop (Ale 🐉)</text>
       <text x="0" y="52" fill="#9aa3b5" font-size="10" text-anchor="middle">Ø 0.75m · Rigged GLB</text>
     </g>
 
-    <!-- 5. Queen Kate (1.65m -> 181.5px) -->
-    <g transform="translate(1180, 835)">
+    <!-- 3. Queen Kate (1.68m -> 184.8px) -->
+    <g transform="translate(990, 835)">
       <rect x="-31" y="-24" width="62" height="24" rx="4" fill="#fcf6e8" stroke="#e6b84a" stroke-width="2"/>
-      <rect x="-24" y="-181.5" width="48" height="157.5" rx="14" fill="#8e3b82" stroke="#ffe082" stroke-width="2"/>
-      <text x="0" y="-191" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♕ 1.65m</text>
+      <rect x="-24" y="-184.8" width="48" height="160.8" rx="14" fill="#8e3b82" stroke="#ffe082" stroke-width="2"/>
+      <text x="0" y="-194" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♕ 1.68m</text>
       <text x="0" y="38" fill="#e8eaf0" font-size="11" font-weight="600" text-anchor="middle">Queen (Kate)</text>
       <text x="0" y="52" fill="#9aa3b5" font-size="10" text-anchor="middle">Ø 0.76m · Hybrid</text>
     </g>
 
-    <!-- 6. King Riccardo (1.85m -> 203.5px) -->
-    <g transform="translate(1280, 835)">
+    <!-- 4. King Riccardo (1.86m -> 204.6px) -->
+    <g transform="translate(1085, 835)">
       <rect x="-32" y="-24" width="64" height="24" rx="4" fill="#fcf6e8" stroke="#e6b84a" stroke-width="2"/>
-      <rect x="-26" y="-203.5" width="52" height="179.5" rx="14" fill="#b8860b" stroke="#ffe082" stroke-width="2.5"/>
-      <text x="0" y="-213" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♔ 1.85m</text>
+      <rect x="-26" y="-204.6" width="52" height="180.6" rx="14" fill="#b8860b" stroke="#ffe082" stroke-width="2.5"/>
+      <text x="0" y="-214" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♔ 1.86m</text>
       <text x="0" y="38" fill="#e8eaf0" font-size="11" font-weight="600" text-anchor="middle">King (Riccardo)</text>
       <text x="0" y="52" fill="#9aa3b5" font-size="10" text-anchor="middle">Ø 0.78m · Hybrid</text>
+    </g>
+
+    <!-- 5. Knight Seby (1.92m -> 211.2px) -->
+    <g transform="translate(1180, 835)">
+      <rect x="-30" y="-24" width="60" height="24" rx="4" fill="#fcf6e8" stroke="#e6b84a" stroke-width="2"/>
+      <rect x="-25" y="-211.2" width="50" height="187.2" rx="12" fill="#d96b27" stroke="#ffe082" stroke-width="2"/>
+      <text x="0" y="-220" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♘ 1.92m</text>
+      <text x="0" y="38" fill="#e8eaf0" font-size="11" font-weight="600" text-anchor="middle">Knight (Seby 🐴)</text>
+      <text x="0" y="52" fill="#9aa3b5" font-size="10" text-anchor="middle">Cavallo maestoso</text>
+    </g>
+
+    <!-- 6. Rook Pupurabbu (2.25m -> 247.5px) -->
+    <g transform="translate(1280, 835)">
+      <rect x="-34" y="-24" width="68" height="24" rx="4" fill="#fcf6e8" stroke="#e6b84a" stroke-width="2"/>
+      <rect x="-28" y="-247.5" width="56" height="223.5" rx="12" fill="#6a4c93" stroke="#ffe082" stroke-width="2"/>
+      <text x="0" y="-256" fill="#ffe082" font-size="12" font-weight="700" text-anchor="middle">♖ 2.25m</text>
+      <text x="0" y="38" fill="#e8eaf0" font-size="11" font-weight="600" text-anchor="middle">Rook (Pupurabbu)</text>
+      <text x="0" y="52" fill="#9aa3b5" font-size="10" text-anchor="middle">Torre Fortezza</text>
     </g>
   </g>
 </svg>

@@ -626,7 +626,6 @@ export class WowModeView {
           const targetHeight = baseHeroHeight * HERO_SCALE;
           const { holder } = groundAndNormalizeObject3D(THREE, cloned, targetHeight, {
             baseElevation: TURNTABLE_TOP_Y,
-            maxRadius: 0.85,
           });
 
           // Create and attach hero-scaled articulated 3D skeleton rig to turntable holder

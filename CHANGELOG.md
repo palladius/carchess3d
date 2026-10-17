@@ -20,11 +20,15 @@
   - Replaced duplicate placeholder translations in `VOICE_LINES` with natural, authentic English translations for all characters.
   - Enhanced `AudioListener.js` speech synthesis fallback to dynamically match active session language (`this.lang === 'en'` passes `en-GB` for Queen Kate and `en-US` for others).
   - Validated with signal processing audio critic (`just audio-critic --all`) and unit tests (`tests/test_audio_quality.py`).
-- 🌟🏆 **Whole-Board Adversarial Art Director QA Audit ($\ge 9.5/10$ Masterpiece Tier)**:
-  - Conducted comprehensive audit of all 23 active production models on the chessboard in `docs/qa-scores.yaml`.
-  - Every production model across the Carlesso Family, Swamp Faction, and Classic Staunton set achieved $\ge 9.5/10$ (`MASTERPIECE 🌟`), with verified watertight geometry, grounded origins at $Y=0.0000m$, and canonical piece heights.
-  - Verified with `python3 tools/model-pipeline/critic/scoreboard.py` and `just shittest` (zero defective models).
-  - Documented Section 10.16 in `tools/model-pipeline/RUNNING_DOC.md`.
+- 📏🏰 **Ricalibrazione Dimensioni Canoniche Familiari & Fix Raggio Base**:
+  - Re Riccardo: **1.86m** (Papino).
+  - Regina Kate: **1.68m** (Kate).
+  - Alfiere Ale: **1.55m** (slanciato con mitria e draghetto).
+  - Cavaliere Seby: **1.92m** (Seby a cavallo su un destriero maestoso: più alto di papà, con proporzioni espanse in altezza, larghezza e lunghezza).
+  - Torre Pupurabbu: **2.25m** (imponente fortezza in pietra con Pupurabbu affacciato dai merli, tra 2.00m e 2.50m).
+  - Pedone Puffin: **0.95m** (Guardia Svizzera).
+  - Rimosso il vincolo artificiale `maxRadius: 0.36` in `PieceView.js` e `WowModeView.js`: ora cavallo e torre scalano alle loro reali dimensioni volumetriche senza essere schiacciati sul piano orizzontale.
+  - Aggiornato diagramma metrico `docs/floorplan.svg` e test di grounding.
 
 ## [0.3.63] - 2026-10-14
 

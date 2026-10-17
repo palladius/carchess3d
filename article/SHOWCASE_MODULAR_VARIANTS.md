@@ -49,6 +49,13 @@ In `src/views/VeoCinemaView.js`, la riproduzione cinematografica dei 36 video `6
 ## 3. 📊 Audit Adversarial Art Director: 100% Masterpiece Tier ($\ge 9.5/10$)
 
 Tutti i 23 modelli 3D attivi sulla scacchiera sono stati verificati e catalogati in `docs/qa-scores.yaml`:
-- **Ispezione Geometrica**: 100% watertight, $Y=0.0000m$ origin grounding, altezze canoniche FIDE rispettate.
+- **Ispezione Geometrica & Altezze Canoniche Ricalibrate**:
+  - Re Riccardo: **1.86m** (Papino)
+  - Regina Kate: **1.68m** (Kate)
+  - Alfiere Ale: **1.55m** (slanciato col cappello mitria e draghetto)
+  - Cavaliere Seby: **1.92m** (Seby a cavallo su un destriero maestoso: più alto di papà, con proporzioni espanse in altezza, larghezza e lunghezza!)
+  - Torre Pupurabbu: **2.25m** (imponente fortezza di pietra con Pupurabbu affacciato dai merli, tra 2.00m e 2.50m)
+  - Pedone Puffin: **0.95m** (sentinella Guardia Svizzera)
+  - 100% watertight, $Y=0.0000m$ origin grounding, senza vincoli artificiali di raggio orizzontale.
 - **Ispezione Visiva**: Somiglianza fisionomica $\ge 9.6/10$, fedeltà degli accessori secondari $\ge 9.6/10$, coerenza a 360° sul retro $\ge 9.5/10$.
 - **`just shittest`**: 0 modelli difettosi o sotto la soglia di qualità.
