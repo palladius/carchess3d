@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.84] - 2026-10-17
+
+- 🏛️♟️ **Luxury Black & White Marble Chessboard (`src/views/ZurichSwampView.js`)**:
+  - Replaced the legacy yellowish-cream squares (`0xf3ebd9`) and golden square border rings with a high-contrast **Bianco Carrara (`0xfafbfd`) & Nero Marquina (`0x111317`)** luxury marble chessboard featuring 512×512 procedural smoky-grey & white-calcite veining, low roughness (`0.18` / `0.14`), dark obsidian tile grout seams (`0x141820`), and silver-platinum altar trim (`0xcfd8dc`).
+- 🏔️🇨🇭 **180° Curved Fairytale Zurich Panorama Cyclorama & Easter Eggs (`assets/environments/zurich_panorama.jpg`, `src/views/ZurichSwampView.js`, `src/views/VeoCinemaView.js`)**:
+  - Replaced all blocky 3D primitive skyline boxes ("rettangoloni") with an unobstructed **180-degree (`θ = 0 .. π`) tall & wide curved semi-elliptical cyclorama (`height = 12.8m`, `radiusX = 16.4m`)** generated and refined with Nanobanana, showcasing Fraumünster, St. Peter (golden clock face), Grossmünster Twin Towers, the Limmat river, Münsterbrücke & Quaibrücke bridges, Lake Zurich sailboats, and snow-capped Swiss Alps under a starry twilight sky.
+  - Added the **Google Zurich Hürlimann Areal (Brandschenkestrasse 110)** Easter Egg in the distant left hillside behind the first buildings, complete with the historic red-brick brewery complex, tall red-brick Hürlimann chimney tower, and glowing Google `G` beacon.
+  - Added an ornate golden cartouche on the central Münsterbrücke bridge arch reading **`★ MADE WITH ★ / GEMINI 4 ARGON`**.
+  - Kept `VeoMagicCinemaMirror` hidden while `mode === 'idle'` (`cinemaBlend === 0`) so the 180° Zurich panorama remains 100% unobstructed during normal gameplay, smoothly materializing on capture battles and checkmates.
+
 ## [0.3.83] - 2026-10-17
 
 - 🔒 **Path scrub `render_ale_comparison.py`**: rimossi i path assoluti del disco esterno; i GLB locali ora si leggono da `$LOCAL3D_ROOT/out` (stessa convenzione di `hunyuan_paint.py` e del `justfile`). Nessun cambiamento al gioco.

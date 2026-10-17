@@ -768,314 +768,15 @@ export class ZurichSwampView {
     skyline.name = 'ZurichSkylineAndAlps';
     this.root.add(skyline);
 
-    const sandstoneMat = new THREE.MeshStandardMaterial({
-      color: 0x5c4f42,
-      roughness: 0.72,
-      metalness: 0.12,
-      emissive: 0x1c1610,
-      emissiveIntensity: 0.24,
-    });
-    const darkRoofMat = new THREE.MeshStandardMaterial({
-      color: 0x323d52,
-      roughness: 0.58,
-      metalness: 0.24,
-    });
-    const copperDomeMat = new THREE.MeshStandardMaterial({
-      color: 0xb8432e,
-      roughness: 0.34,
-      metalness: 0.38,
-      emissive: 0x42150c,
-      emissiveIntensity: 0.32,
-    });
-    const verdigrisMat = new THREE.MeshStandardMaterial({
-      color: 0x33b596,
-      roughness: 0.34,
-      metalness: 0.38,
-      emissive: 0x114d3d,
-      emissiveIntensity: 0.36,
-    });
-    const warmWindowMat = new THREE.MeshBasicMaterial({
-      color: 0xffd54f,
-    });
-
     // -------------------------------------------------------------------------
-    // A. GROSSMÜNSTER TWIN TOWERS at x = ±5.55m, z = -10.5m (grounded y = -0.5m)
-    //    Framing the 16:9 Veo Magic Cinema Mirror with iconic Red-Copper Domes
-    // -------------------------------------------------------------------------
-    for (const side of [-1, 1]) {
-      const tx = side * 5.55;
-      const tz = -10.5;
-      const tower = new THREE.Group();
-      tower.name = side < 0 ? 'Grossmunster_West_Tower' : 'Grossmunster_East_Tower';
-      tower.position.set(tx, -0.5, tz); // grounded at y = -0.5m
-
-      // Lower & middle Romanesque square shaft (h = 5.3m -> y = -0.5m .. 4.8m)
-      const shaftGeo = new THREE.BoxGeometry(2.05, 5.3, 2.05);
-      shaftGeo.translate(0, 2.65, 0);
-      const shaft = new THREE.Mesh(shaftGeo, sandstoneMat);
-      shaft.castShadow = true;
-      shaft.receiveShadow = true;
-      tower.add(shaft);
-
-      // Golden cornice moldings at y = 2.8m and y = 5.3m
-      for (const cy of [2.8, 5.3]) {
-        const cornice = new THREE.Mesh(new THREE.BoxGeometry(2.22, 0.16, 2.22), this.goldTrimMat);
-        cornice.position.y = cy;
-        tower.add(cornice);
-      }
-
-      // Octagonal belfry drum (h = 1.25m -> y = 5.3m .. 6.55m)
-      const drumGeo = new THREE.CylinderGeometry(0.96, 1.02, 1.25, 8);
-      drumGeo.translate(0, 5.925, 0);
-      const drum = new THREE.Mesh(drumGeo, sandstoneMat);
-      tower.add(drum);
-
-      // Iconic Red-Copper Octagonal Dome + Golden Spire (y = 6.55m .. 8.65m)
-      const domeGeo = new THREE.ConeGeometry(1.06, 1.75, 8);
-      domeGeo.translate(0, 7.425, 0);
-      const dome = new THREE.Mesh(domeGeo, copperDomeMat);
-      tower.add(dome);
-
-      const finialGeo = new THREE.ConeGeometry(0.11, 0.65, 8);
-      finialGeo.translate(0, 8.6, 0);
-      const finial = new THREE.Mesh(finialGeo, this.goldTrimMat);
-      tower.add(finial);
-
-      // Warm Romanesque arched windows on the front face (+Z)
-      for (const wy of [1.8, 3.4, 4.4]) {
-        for (const wx of [-0.38, 0.38]) {
-          const win = new THREE.Mesh(new THREE.PlaneGeometry(0.28, 0.56), warmWindowMat);
-          win.position.set(wx, wy, 1.04);
-          tower.add(win);
-        }
-      }
-
-      skyline.add(tower);
-    }
-
-    // Grossmünster Romanesque Nave Bridge connecting the Twin Towers below the 16:9 Mirror
-    const naveGeo = new THREE.BoxGeometry(9.2, 2.1, 1.7);
-    naveGeo.translate(0, 0.55, 0);
-    const nave = new THREE.Mesh(naveGeo, sandstoneMat);
-    nave.position.set(0, 0, -10.65);
-    skyline.add(nave);
-
-    // -------------------------------------------------------------------------
-    // B. ST. PETER SPIRE at x = -10.2m, z = -15.5m with Giant Golden Clock Face
-    // -------------------------------------------------------------------------
-    const stPeter = new THREE.Group();
-    stPeter.name = 'StPeterClockSpire';
-    stPeter.position.set(-10.2, -0.5, -15.5);
-
-    const spShaftGeo = new THREE.BoxGeometry(2.4, 6.2, 2.4);
-    spShaftGeo.translate(0, 3.1, 0);
-    stPeter.add(new THREE.Mesh(spShaftGeo, sandstoneMat));
-
-    const spSpireGeo = new THREE.ConeGeometry(1.5, 3.5, 4);
-    spSpireGeo.rotateY(Math.PI / 4);
-    spSpireGeo.translate(0, 7.95, 0);
-    stPeter.add(new THREE.Mesh(spSpireGeo, darkRoofMat));
-
-    // Giant Golden Clock Face (Europe's largest church clock face!)
-    const clockTex = this.createClockFaceTexture();
-    const clockMat = new THREE.MeshBasicMaterial({
-      map: clockTex,
-      color: clockTex ? 0xffffff : 0xffd54f,
-    });
-    const clockDisc = new THREE.Mesh(new THREE.CircleGeometry(1.1, 32), clockMat);
-    clockDisc.position.set(0, 4.8, 1.22);
-    stPeter.add(clockDisc);
-
-    const clockRing = new THREE.Mesh(new THREE.RingGeometry(1.06, 1.18, 32), this.goldTrimMat);
-    clockRing.position.set(0, 4.8, 1.23);
-    stPeter.add(clockRing);
-    skyline.add(stPeter);
-
-    // -------------------------------------------------------------------------
-    // C. FRAUMÜNSTER SPIRE at x = +10.2m, z = -15.5m
-    // -------------------------------------------------------------------------
-    const fraumunster = new THREE.Group();
-    fraumunster.name = 'FraumunsterVerdigrisSpire';
-    fraumunster.position.set(10.2, -0.5, -15.5);
-
-    const fmShaftGeo = new THREE.BoxGeometry(2.1, 5.6, 2.1);
-    fmShaftGeo.translate(0, 2.8, 0);
-    fraumunster.add(new THREE.Mesh(fmShaftGeo, sandstoneMat));
-
-    // Slender Verdigris-Emerald Spire
-    const fmSpireGeo = new THREE.ConeGeometry(0.98, 4.2, 8);
-    fmSpireGeo.translate(0, 7.7, 0);
-    fraumunster.add(new THREE.Mesh(fmSpireGeo, verdigrisMat));
-    skyline.add(fraumunster);
-
-    // -------------------------------------------------------------------------
-    // C2. EASTER EGG: GOOGLE ZURICH AT HÜRLIMANN AREAL (Brandschenkestrasse 110)
-    //     Distant south-west brewery campus with iconic red-brick Hürlimann Tower
-    //     and subtle 4-color Google rooftop lantern pods.
-    // -------------------------------------------------------------------------
-    const campusGroup = new THREE.Group();
-    campusGroup.name = 'Hurlimann_Google_Zurich_Campus';
-    campusGroup.position.set(-15.6, -0.45, -17.0);
-
-    const brickMat = new THREE.MeshStandardMaterial({
-      color: 0x853a2b, // Historic Backstein red brick
-      roughness: 0.78,
-      metalness: 0.12,
-    });
-    const slateRoofMat = new THREE.MeshStandardMaterial({
-      color: 0x2b3340,
-      roughness: 0.65,
-      metalness: 0.20,
-    });
-    const glassAtriumMat = new THREE.MeshStandardMaterial({
-      color: 0x64b5f6,
-      roughness: 0.18,
-      metalness: 0.85,
-      transparent: true,
-      opacity: 0.75,
-      emissive: new THREE.Color(0x0d47a1),
-      emissiveIntensity: 0.35,
-    });
-
-    // 1. Main Hürlimann Heritage Brick Building (Sudhaus / Main Mill)
-    const mainBuildingGeo = new THREE.BoxGeometry(4.6, 3.8, 3.0);
-    mainBuildingGeo.translate(0, 1.9, 0);
-    const mainBuilding = new THREE.Mesh(mainBuildingGeo, brickMat);
-    campusGroup.add(mainBuilding);
-
-    const mainRoofGeo = new THREE.BoxGeometry(4.4, 1.1, 2.8);
-    mainRoofGeo.translate(0, 4.35, 0);
-    const mainRoof = new THREE.Mesh(mainRoofGeo, slateRoofMat);
-    campusGroup.add(mainRoof);
-
-    // Warm factory / office windows
-    for (const wy of [1.3, 2.5]) {
-      for (const wx of [-1.5, 0, 1.5]) {
-        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.55, 0.75), warmWindowMat);
-        win.position.set(wx, wy, 1.52);
-        campusGroup.add(win);
-      }
-    }
-
-    // 2. Modern Glass Innovation Atrium (Connecting Campus Wing)
-    const atriumGeo = new THREE.BoxGeometry(2.2, 3.2, 2.5);
-    atriumGeo.translate(-3.0, 1.6, 0.2);
-    const atrium = new THREE.Mesh(atriumGeo, glassAtriumMat);
-    campusGroup.add(atrium);
-
-    // 3. The Iconic Hürlimann Brauerei Chimney Tower
-    const towerGeo = new THREE.CylinderGeometry(0.52, 0.78, 8.2, 8);
-    towerGeo.translate(2.2, 4.1, 0.4);
-    const tower = new THREE.Mesh(towerGeo, brickMat);
-    campusGroup.add(tower);
-
-    // Decorative sandstone collars on the tower
-    for (const ty of [3.6, 6.8]) {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.66, 0.05, 6, 12), sandstoneMat);
-      ring.position.set(2.2, ty, 0.4);
-      ring.rotateX(Math.PI / 2);
-      campusGroup.add(ring);
-    }
-
-    // Copper chimney cap
-    const capGeo = new THREE.CylinderGeometry(0.62, 0.48, 0.4, 8);
-    capGeo.translate(2.2, 8.4, 0.4);
-    campusGroup.add(new THREE.Mesh(capGeo, copperDomeMat));
-
-    // 4. Rooftop Easter Egg: 4 Subtle Google-Colored Lantern Pods
-    const podColors = [0x4285f4, 0xea4335, 0xfbbc05, 0x34a853]; // Blue, Red, Yellow, Green
-    const podGeo = new THREE.SphereGeometry(0.12, 12, 8);
-    for (let i = 0; i < 4; i++) {
-      const pMat = new THREE.MeshBasicMaterial({
-        color: podColors[i],
-      });
-      const pod = new THREE.Mesh(podGeo, pMat);
-      pod.position.set(-0.9 + i * 0.6, 5.0, 1.1);
-      campusGroup.add(pod);
-    }
-
-    // 5. Campus Sign Plaque
-    const campusSignTex = this.createHurlimannCampusSignTexture();
-    const campusSignMat = new THREE.MeshStandardMaterial({
-      map: campusSignTex,
-      color: campusSignTex ? 0xffffff : 0x1e242d,
-      roughness: 0.4,
-      metalness: 0.6,
-    });
-    const campusSign = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.45, 0.05), campusSignMat);
-    campusSign.position.set(0, 0.6, 1.54);
-    campusGroup.add(campusSign);
-
-    skyline.add(campusGroup);
-
-    // -------------------------------------------------------------------------
-    // D. LIMMAT RIVER, MÜNSTERBRÜCKE ARCHED BRIDGE, GUILD HOUSES & BANNERS (z = -14m .. -18m)
-    // -------------------------------------------------------------------------
-    const bridgeGroup = new THREE.Group();
-    bridgeGroup.name = 'MunsterbruckeAndGuildHouses';
-    bridgeGroup.position.set(0, -0.35, -14.8);
-
-    const bridgeDeckGeo = new THREE.BoxGeometry(22.0, 0.65, 1.8);
-    const bridgeDeck = new THREE.Mesh(bridgeDeckGeo, sandstoneMat);
-    bridgeDeck.position.y = 0.55;
-    bridgeGroup.add(bridgeDeck);
-
-    // Bridge arches & warm river lanterns
-    for (let bx = -8; bx <= 8; bx += 4) {
-      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.2, 2.1), sandstoneMat);
-      pillar.position.set(bx, 0.1, 0);
-      bridgeGroup.add(pillar);
-
-      const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), warmWindowMat);
-      lantern.position.set(bx, 1.25, 0.85);
-      bridgeGroup.add(lantern);
-    }
-
-    // Dedicated Architectural Plaque: "✦ ZÜRICH · MADE WITH GEMINI 4 ARGON ✦"
-    const plaqueTex = this.createGeminiArgonPlaqueTexture();
-    const plaqueMat = new THREE.MeshStandardMaterial({
-      map: plaqueTex,
-      color: plaqueTex ? 0xffffff : 0x241d17,
-      roughness: 0.35,
-      metalness: 0.65,
-      emissive: new THREE.Color(0xd4af37),
-      emissiveMap: plaqueTex,
-      emissiveIntensity: 0.35,
-    });
-    const plaqueGeo = new THREE.BoxGeometry(3.6, 0.9, 0.08);
-    const plaqueMesh = new THREE.Mesh(plaqueGeo, plaqueMat);
-    plaqueMesh.position.set(0, 1.05, 0.94); // Center of Münsterbrücke balustrade overlooking Limmat
-    plaqueMesh.name = 'Plaque_GeminiArgon_Zurich';
-    bridgeGroup.add(plaqueMesh);
-
-    skyline.add(bridgeGroup);
-
-    // Blue-and-white Zurich & Red-and-white Swiss Banners flanking the Grossmünster
-    const zurichBannerTex = this.createBannerTexture('zurich');
-    const swissBannerTex = this.createBannerTexture('swiss');
-    const bannerSpecs = [
-      { x: -7.3, y: 4.2, z: -10.2, tex: zurichBannerTex, phase: 0.0 },
-      { x: 7.3, y: 4.2, z: -10.2, tex: swissBannerTex, phase: 1.6 },
-    ];
-    for (const bs of bannerSpecs) {
-      const bMat = new THREE.MeshStandardMaterial({
-        map: bs.tex,
-        color: bs.tex ? 0xffffff : 0x1e88e5,
-        roughness: 0.5,
-        side: THREE.DoubleSide,
-      });
-      const bGeo = new THREE.PlaneGeometry(0.85, 2.2, 4, 8);
-      const bMesh = new THREE.Mesh(bGeo, bMat);
-      bMesh.position.set(bs.x, bs.y, bs.z);
-      bMesh.userData.phase = bs.phase;
-      skyline.add(bMesh);
-      this.banners.push(bMesh);
-    }
-
-    // -------------------------------------------------------------------------
-    // E. NANOBANANA FAIRYTALE ZURICH & SWISS ALPS PANORAMA (z = -23.0m)
-    //    Eliminates the crude box buildings ("rettangoloni") and cone mountains
-    //    with an authentic, enchanted twilight view of Limmat, Lake Zurich & Alps.
+    // 180-DEGREE CURVED FAIRYTALE ZURICH & SWISS ALPS PANORAMA CYCLORAMA
+    // ("Pannellone alto e largo a 180 gradi")
+    // Replaces all blocky 3D primitive boxes ("rettangoloni") with an unobstructed,
+    // high-resolution 180° semi-elliptical cyclorama featuring:
+    // - Fraumünster, St. Peter (golden clock face), Grossmünster Twin Towers
+    // - Limmat river & Münsterbrücke bridge with "MADE WITH GEMINI 4 ARGON" plaque
+    // - Distant Google Zurich Hürlimann Areal & red-brick Hürlimann tower on the left hillside
+    // - Lake Zurich sailboats & snow-capped Swiss Alps under a starry twilight sky
     // -------------------------------------------------------------------------
     let zurichTex = null;
     if (typeof document !== 'undefined') {
@@ -1084,6 +785,8 @@ export class ZurichSwampView {
         zurichTex = loader.load('./assets/environments/zurich_panorama.jpg');
         if (zurichTex) {
           zurichTex.colorSpace = THREE.SRGBColorSpace;
+          zurichTex.minFilter = THREE.LinearFilter;
+          zurichTex.magFilter = THREE.LinearFilter;
         }
       } catch {
         zurichTex = null;
@@ -1092,35 +795,48 @@ export class ZurichSwampView {
 
     const panoGroup = new THREE.Group();
     panoGroup.name = 'ZurichFairytalePanoramaBackdrop';
-    panoGroup.position.set(0, 5.2, 0);
+    // Ground bottom of the 12.8m-tall panorama at y = -0.46m (flush with the y = -0.45m water surface)
+    // up to y = +12.34m so the entire 180° skyline, bridge, churches, Hürlimann tower & Alps fill the view!
+    const panoHeight = 12.8;
+    const panoBottomY = -0.46;
+    panoGroup.position.set(0, panoBottomY + panoHeight * 0.5, 0);
 
-    // Curved backdrop plane (width 58m, height 16m) curved naturally along the horizon
-    const panoWidth = 58.0;
-    const panoHeight = 16.0;
-    const panoGeo = new THREE.PlaneGeometry(panoWidth, panoHeight, 36, 1);
+    const segsX = 64;
+    const segsY = 1;
+    const panoGeo = new THREE.PlaneGeometry(1.0, panoHeight, segsX, segsY);
     const posAttr = panoGeo.attributes.position;
+    const uvAttr = panoGeo.attributes.uv;
+
+    // 180-degree semi-elliptical arc (theta = 0 .. PI) wrapping from West (-X) through North (-Z) to East (+X)
+    const radiusX = 16.4;
+    const baseZ = -11.4;
+    const depthZ = 5.4; // Center reaches z = -16.8m, flanks wrap forward to z = -11.4m
+
     for (let i = 0; i < posAttr.count; i++) {
-      const vx = posAttr.getX(i);
-      // Gentle parabolic cylindrical arc curving away at the horizon: z = -22.5m at center, -28m at edges
-      const vz = -22.5 - Math.pow(vx / (panoWidth * 0.5), 2) * 5.5;
+      const u = uvAttr.getX(i); // 0.0 (West / Left) -> 1.0 (East / Right)
+      const theta = u * Math.PI; // Full 180° arc (0 .. PI radians)
+      const vx = -Math.cos(theta) * radiusX;
+      const vz = baseZ - Math.sin(theta) * depthZ;
+      posAttr.setX(i, vx);
       posAttr.setZ(i, vz);
     }
     panoGeo.computeVertexNormals();
 
-    const panoMat = new THREE.MeshStandardMaterial({
+    const panoMat = new THREE.MeshBasicMaterial({
       map: zurichTex,
-      color: zurichTex ? 0xffffff : 0x1a2638,
-      roughness: 0.85,
-      metalness: 0.05,
-      emissive: new THREE.Color(0xffffff),
-      emissiveMap: zurichTex,
-      emissiveIntensity: 0.70,
+      color: zurichTex ? 0xd8e2f0 : 0x1a2638,
       side: THREE.DoubleSide,
+      fog: false,
       depthWrite: true,
     });
     const panoMesh = new THREE.Mesh(panoGeo, panoMat);
+    panoMesh.name = 'ZurichPanorama180Cyclorama';
     panoGroup.add(panoMesh);
+
+    // Subtle dark-gold top & water-level rim trim along the 180° cyclorama arc
     skyline.add(panoGroup);
+    this.panoMesh = panoMesh;
+    this.panoMaterial = panoMat;
   }
 
   // ===========================================================================

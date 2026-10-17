@@ -373,6 +373,17 @@ is the "victim" and is removed at the end.
   - Replaced the `0 / 12` luck progress bar in the HUD with a **Solid Ruby-Marble 20-Sided Die (`d20`)** featuring a slightly-translucent solid ruby-red marble shell (`opacity: 0.92`) over a solid deep-ruby core (`opacity: 0.98`), rose-white marble veins, silver-white bevelled edges, and crisp engraved white numerals (`1..20`).
   - Rolling on every capture (`DROP_SPAWNED`, where `golden_crit` guarantees a Natural `20` and unlocks a sticker) or on demand via clicking `#hud-d20-btn` / pressing `D` (`D20_ROLL_REQUESTED` → `D20_ROLLED`) physically tumbles and bounces the 3D 20-sided icosahedron across the chessboard (`triggerRubyD20Roll`) and animates the HUD Ruby d20 gem badge.
 
+## Luxury Marble Chessboard & 180° Curved Zurich Panorama Cyclorama (`v0.3.84`)
+
+- **Bianco Carrara & Nero Marquina Luxury Marble Chessboard (`src/views/ZurichSwampView.js`)**:
+  - The 64 chessboard squares (`1.0m × 1.0m`, `y = 0.0m`) use polished **Bianco Carrara (`0xfafbfd`, roughness `0.18`)** and **Nero Marquina (`0x111317`, roughness `0.14`)** procedural 512×512 marble textures with dark obsidian grout seams (`0x141820`) and silver-platinum altar trim (`0xcfd8dc`), eliminating the legacy yellowish-cream tiles and golden square borders.
+- **180° Tall & Wide Curved Fairytale Zurich Panorama (`assets/environments/zurich_panorama.jpg`, `src/views/ZurichSwampView.js`, `src/views/VeoCinemaView.js`)**:
+  - Replaced all blocky 3D primitive skyline boxes (`BoxGeometry`) with an unobstructed **180-degree (`θ = 0 .. π`) semi-elliptical panoramic cyclorama (`height = 12.8m`, `radiusX = 16.4m`, `fog: false`)** grounded at the water surface (`y = -0.46m .. +12.34m`).
+  - Features the Nanobanana twilight panorama of Zurich (`Fraumünster`, `St. Peter` golden clock face, `Grossmünster Twin Towers`, `Limmat River`, `Münsterbrücke`, `Lake Zurich`, and snow-capped `Swiss Alps`), plus two Easter Eggs:
+    1. **Google Zurich Hürlimann Areal (`Brandschenkestrasse 110`)**: Historic red-brick brewery & tall red-brick Hürlimann chimney tower with a glowing Google `G` beacon on the distant left hillside behind the first buildings.
+    2. **`★ MADE WITH ★ / GEMINI 4 ARGON`**: Ornate golden cartouche mounted on the central arch of the Münsterbrücke bridge over the Limmat.
+  - During normal chess play (`mode === 'idle'`, `cinemaBlend === 0`), `VeoMagicCinemaMirror` stays hidden (`visible = false`) so the 180° Zurich skyline is never obstructed, and smoothly materializes during capture battles and checkmates.
+
 ## Open Questions
 
 - ~~Implementation repo~~ → **[palladius/carchess3d](https://github.com/palladius/carchess3d)** (public), deployed live on GitHub Pages at **https://palladius.github.io/carchess3d/**.
