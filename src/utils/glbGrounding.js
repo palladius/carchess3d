@@ -9,10 +9,10 @@
  */
 
 export const CANONICAL_PIECE_HEIGHTS = Object.freeze({
-  p: 0.95,
-  pawn: 0.95,
-  r: 2.25,
-  rook: 2.25,
+  p: 0.80,
+  pawn: 0.80,
+  r: 2.50,
+  rook: 2.50,
   n: 1.92,
   knight: 1.92,
   b: 1.55,

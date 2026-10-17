@@ -47,7 +47,7 @@
       "model": "assets/models/king-riccardo.glb",
       "portrait": "assets/characters/king-riccardo-1.jpg",
       "back_view": "tools/model-pipeline/king/back.png",
-      "height_m": 1.80,
+      "height_m": 1.86,
       "attack_sig": "rune_lightning_sceptre",
       "victim_reaction": "levitate_sparkle_dissolve"
     },
@@ -63,7 +63,7 @@
       ],
       "portrait": "tools/model-pipeline/kate/queen-kate-4c.png",
       "back_view": "tools/model-pipeline/kate/back.png",
-      "height_m": 1.65,
+      "height_m": 1.68,
       "attack_sig": "milk_chocolate_lilac_wave",
       "victim_reaction": "chocolate_puddle_melt"
     },
@@ -79,7 +79,7 @@
       ],
       "portrait": "assets/characters/bishop-ale-1.jpg",
       "back_view": "tools/model-pipeline/ale/experiments_back/back_nb_2.1.png",
-      "height_m": 1.45,
+      "height_m": 1.55,
       "attack_sig": "amethyst_ruby_crystal_shatter",
       "victim_reaction": "dragon_smoke_mitre_spin"
     },
@@ -92,7 +92,7 @@
       "model": "assets/models/knight-seby.glb",
       "portrait": "tools/model-pipeline/seby/front.png",
       "back_view": "tools/model-pipeline/seby/back.png",
-      "height_m": 1.35,
+      "height_m": 1.92,
       "attack_sig": "loop_track_toy_cars",
       "victim_reaction": "wooden_horse_wheel_spin"
     },
@@ -105,7 +105,7 @@
       "model": "assets/models/rook-pupurabbu.glb",
       "portrait": "assets/characters/rook-pupurabbu.jpg",
       "back_view": "tools/model-pipeline/rook/back.png",
-      "height_m": 1.30,
+      "height_m": 2.50,
       "attack_sig": "fluffy_ground_pound",
       "victim_reaction": "plushie_indigo_poof"
     },
@@ -118,7 +118,7 @@
       "model": "assets/models/pawn-puffin.glb",
       "portrait": "assets/characters/pawn-puffin.jpg",
       "back_view": "tools/model-pipeline/nbviews/gemini-nano-banana-2.1/back.png",
-      "height_m": 0.95,
+      "height_m": 0.80,
       "attack_sig": "halberd_fish_slap",
       "victim_reaction": "morion_helmet_pop"
     }

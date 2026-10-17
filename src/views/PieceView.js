@@ -634,7 +634,10 @@ export class PieceView {
     group.rotation.set(0, homeYaw, 0);
 
     // 1. Sculpted 3D Faction Pedestal (y = 0.00m .. 0.22m, Ø 0.75m)
-    const pedestal = this.buildFactionPedestal(normColor, desc.accentColor);
+    // - Knight ('n'): elongated equestrian oval plinth (LUNGO e un po' larghetto)
+    // - Pawn ('p'): compact plinth proportional to halved minion stature
+    // - Royals/Others: canonical circular pedestal (Ø 0.75m)
+    const pedestal = this.buildFactionPedestal(normColor, desc.accentColor, pieceType);
     group.add(pedestal);
 
     // 2. Body container atop pedestal
@@ -672,7 +675,7 @@ export class PieceView {
    * - White Team: Warm Ivory Marble (`0xfcf6e8`, roughness 0.25) + Gold trim (`0xe6b84a`).
    * - Black Team: Dark Obsidian (`0x181c26`, roughness 0.22) + Silver/Violet-Steel trim (`0xc0cce0`).
    */
-  buildFactionPedestal(color, accentColor = 0xe6b84a) {
+  buildFactionPedestal(color, accentColor = 0xe6b84a, pieceType = null) {
     const isWhite = color !== 'b';
     const pedGroup = new THREE.Group();
     pedGroup.name = `FactionPedestal_${isWhite ? 'White' : 'Black'}`;
@@ -751,6 +754,14 @@ export class PieceView {
     topCyl.receiveShadow = true;
     pedGroup.add(topCyl);
 
+    // Dynamic equestrian oval plinth for Knight ('n') (LUNGO e un po' larghetto vs standard circular base)
+    // and compact halved circular plinth for Pawns ('p')
+    if (pieceType === 'n') {
+      pedGroup.scale.set(1.15, 1.0, 1.35);
+    } else if (pieceType === 'p') {
+      pedGroup.scale.set(0.85, 1.0, 0.85);
+    }
+
     return pedGroup;
   }
 
@@ -764,7 +775,7 @@ export class PieceView {
     figGroup.name = `MedallionFallback_${desc.type}`;
 
     const totalHeight = CANONICAL_PIECE_HEIGHTS[desc.type] ?? 1.35;
-    const bodySpan = Math.max(0.55, totalHeight - PEDESTAL_HEIGHT);
+    const bodySpan = Math.max(0.48, totalHeight - PEDESTAL_HEIGHT);
     const crownHeight = 0.24;
     const medallionRadius = Math.min(0.24, 0.185 + bodySpan * 0.045);
     const medallionCenterY = PEDESTAL_HEIGHT + bodySpan - crownHeight - medallionRadius * 0.85;
@@ -912,7 +923,7 @@ export class PieceView {
       fin.position.y = startY + h * 0.75;
       crownGroup.add(arch, fin);
     } else if (type === 'r') {
-      // Rook Pupurabbu: Castle Battlement Crenellations + Plush Ears reaching 2.25m
+      // Rook Pupurabbu: Castle Battlement Crenellations + Plush Ears reaching 2.50m
       const turret = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.13, h * 0.65, 12), bodyMat);
       turret.position.y = startY + h * 0.325;
       const earL = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 12), gemMat);
@@ -922,7 +933,7 @@ export class PieceView {
       earR.position.x = 0.08;
       crownGroup.add(turret, earL, earR);
     } else {
-      // Pawn Puffin: Swiss Guard Halberd Plume reaching 0.90m
+      // Pawn Puffin: Swiss Guard Halberd Plume reaching 0.80m
       const helm = new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 14), metalMat);
       helm.position.y = startY + h * 0.45;
       const plume = new THREE.Mesh(new THREE.ConeGeometry(0.045, h * 0.55, 10), gemMat);

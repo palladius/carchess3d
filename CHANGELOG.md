@@ -20,15 +20,17 @@
   - Replaced duplicate placeholder translations in `VOICE_LINES` with natural, authentic English translations for all characters.
   - Enhanced `AudioListener.js` speech synthesis fallback to dynamically match active session language (`this.lang === 'en'` passes `en-GB` for Queen Kate and `en-US` for others).
   - Validated with signal processing audio critic (`just audio-critic --all`) and unit tests (`tests/test_audio_quality.py`).
-- 📏🏰 **Ricalibrazione Dimensioni Canoniche Familiari & Fix Raggio Base**:
-  - Re Riccardo: **1.86m** (Papino).
-  - Regina Kate: **1.68m** (Kate).
-  - Alfiere Ale: **1.55m** (slanciato con mitria e draghetto).
-  - Cavaliere Seby: **1.92m** (Seby a cavallo su un destriero maestoso: più alto di papà, con proporzioni espanse in altezza, larghezza e lunghezza).
-  - Torre Pupurabbu: **2.25m** (imponente fortezza in pietra con Pupurabbu affacciato dai merli, tra 2.00m e 2.50m).
-  - Pedone Puffin: **0.95m** (Guardia Svizzera).
+- 📏🏰 **Ricalibrazione Dimensioni Canoniche Familiari & Gerarchia Visiva della Scacchiera**:
+  - **Torre ALTA**: **2.50m** (imponente bastione di pietra, pezzo dominante in altezza sugli angoli).
+  - **Cavallo LUNGO e un po' larghetto**: **1.92m**, con **plinto ovale allungato** (`1.15x` X, `1.35x` Z) che asseconda naturalmente l'anatomia del destriero rispetto alla classica base circolare dei pezzi standard.
+  - **Pedoni DIMEZZATI**: **0.80m** (~metà dell'altezza reale degli adulti 1.68m–1.86m), con plinto circolare compatto (`0.85x`), conferendo un adorabile e inconfondibile look da minion/sentinella in prima linea.
+  - **Terzetto Regale Distinguibile**:
+    - Re Riccardo: **1.86m** (Papino, con corona imperiale, scettro e globo crucigero).
+    - Regina Kate: **1.68m** (Kate, con tiara e portamento regale).
+    - Alfiere Ale: **1.55m** (Ale con mitria/cappello a punta slanciato e draghetto).
+  - **Leggibilità Istantanea di Gioco**: i pezzi speciali (Torre = alta, Cavallo = lungo/largo, Pedoni = dimezzati) si discriminano a colpo d'occhio da qualsiasi angolazione della telecamera.
   - Rimosso il vincolo artificiale `maxRadius: 0.36` in `PieceView.js` e `WowModeView.js`: ora cavallo e torre scalano alle loro reali dimensioni volumetriche senza essere schiacciati sul piano orizzontale.
-  - Aggiornato diagramma metrico `docs/floorplan.svg` e test di grounding.
+  - Aggiornato diagramma metrico `docs/floorplan.svg` (Pannello 3) e test di grounding.
 
 ## [0.3.63] - 2026-10-14
 

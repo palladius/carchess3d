@@ -77,7 +77,7 @@ export function createArticulatedSkeletonRig(THREE, pieceType = 'p', pieceHeight
   const totalHeight =
     pieceHeight > 0 ? pieceHeight : (CANONICAL_PIECE_HEIGHTS[type] ?? 1.25);
   const baseY = PEDESTAL_HEIGHT;
-  const bodySpan = Math.max(0.56, totalHeight - baseY);
+  const bodySpan = Math.max(0.48, totalHeight - baseY);
 
   const rig = new THREE.Group();
   rig.name = `ArticulatedSkeletonRig_${color}_${type}`;
