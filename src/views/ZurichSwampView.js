@@ -191,8 +191,8 @@ export class ZurichSwampView {
     altarGroup.name = 'CarvedStoneAltar';
     this.root.add(altarGroup);
 
-    // Stone Sanctuary Island (r = 6.5m, y = -0.55m .. -0.14m)
-    const islandGeo = new THREE.CylinderGeometry(6.35, 6.85, 0.42, 24);
+    // Stone Sanctuary Island tucked cleanly under the 9.6m x 9.6m foundation (y = -0.55m .. -0.14m)
+    const islandGeo = new THREE.CylinderGeometry(4.5, 4.7, 0.42, 24);
     islandGeo.translate(0, -0.35, 0);
     const islandMat = new THREE.MeshStandardMaterial({
       color: 0x2c3844,
@@ -679,6 +679,11 @@ export class ZurichSwampView {
 
       swampGroup.add(cluster);
     }
+
+    // Hide legacy flat green moat circle & brown torus arches so the full-screen
+    // J-curved Zurich & Limmat cyclorama fills the lower viewport without obstruction
+    swampGroup.visible = false;
+    this.swampGroup = swampGroup;
   }
 
   // ===========================================================================
@@ -760,7 +765,7 @@ export class ZurichSwampView {
   }
 
   // ===========================================================================
-  // 4. BACKGROUND FAIRY-TALE ZURICH SKYLINE & LIMMAT (z = -10.5m .. -26m)
+  // 4. FULL-SCREEN 180° J-CURVED ZURICH & LIMMAT INFINITY CYCLORAMA
   // ===========================================================================
 
   buildZurichSkylineAndAlps() {
@@ -768,16 +773,6 @@ export class ZurichSwampView {
     skyline.name = 'ZurichSkylineAndAlps';
     this.root.add(skyline);
 
-    // -------------------------------------------------------------------------
-    // 180-DEGREE CURVED FAIRYTALE ZURICH & SWISS ALPS PANORAMA CYCLORAMA
-    // ("Pannellone alto e largo a 180 gradi")
-    // Replaces all blocky 3D primitive boxes ("rettangoloni") with an unobstructed,
-    // high-resolution 180° semi-elliptical cyclorama featuring:
-    // - Fraumünster, St. Peter (golden clock face), Grossmünster Twin Towers
-    // - Limmat river & Münsterbrücke bridge with "MADE WITH GEMINI 4 ARGON" plaque
-    // - Distant Google Zurich Hürlimann Areal & red-brick Hürlimann tower on the left hillside
-    // - Lake Zurich sailboats & snow-capped Swiss Alps under a starry twilight sky
-    // -------------------------------------------------------------------------
     let zurichTex = null;
     if (typeof document !== 'undefined') {
       try {
@@ -795,30 +790,49 @@ export class ZurichSwampView {
 
     const panoGroup = new THREE.Group();
     panoGroup.name = 'ZurichFairytalePanoramaBackdrop';
-    // Ground bottom of the 12.8m-tall panorama at y = -0.46m (flush with the y = -0.45m water surface)
-    // up to y = +12.34m so the entire 180° skyline, bridge, churches, Hürlimann tower & Alps fill the view!
-    const panoHeight = 12.8;
-    const panoBottomY = -0.46;
-    panoGroup.position.set(0, panoBottomY + panoHeight * 0.5, 0);
+    panoGroup.position.set(0, 0, 0);
 
+    // Full-screen 180° wrap-around vertical cyclorama (64 horizontal x 16 vertical segments):
+    // Pure vertical walls (vx, vz depend ONLY on u; vy depends ONLY on v -> zero diagonal stretching!)
+    // wrapping from the front-left (z = +2.5m) around the back of the chessboard (z = -12.4m)
+    // to the front-right (z = +2.5m), extending down to y = -4.2m .. -6.8m so 100% of the viewport
+    // (top, sides, and bottom around the chessboard) is filled by the Zurich panorama!
     const segsX = 64;
-    const segsY = 1;
-    const panoGeo = new THREE.PlaneGeometry(1.0, panoHeight, segsX, segsY);
+    const segsY = 16;
+    const panoGeo = new THREE.PlaneGeometry(1.0, 1.0, segsX, segsY);
     const posAttr = panoGeo.attributes.position;
     const uvAttr = panoGeo.attributes.uv;
 
-    // 180-degree semi-elliptical arc (theta = 0 .. PI) wrapping from West (-X) through North (-Z) to East (+X)
-    const radiusX = 16.4;
-    const baseZ = -11.4;
-    const depthZ = 5.4; // Center reaches z = -16.8m, flanks wrap forward to z = -11.4m
+    const radiusX = 11.8;
+    const frontZ = 2.5;
+    const backZ = -12.4;
 
     for (let i = 0; i < posAttr.count; i++) {
       const u = uvAttr.getX(i); // 0.0 (West / Left) -> 1.0 (East / Right)
-      const theta = u * Math.PI; // Full 180° arc (0 .. PI radians)
-      const vx = -Math.cos(theta) * radiusX;
-      const vz = baseZ - Math.sin(theta) * depthZ;
-      posAttr.setX(i, vx);
-      posAttr.setZ(i, vz);
+      const v = uvAttr.getY(i); // 0.0 (Bottom river) -> 1.0 (Top sky)
+
+      // Smooth linear+cubic angular mapping across 0 .. PI: preserves natural 1:1 horizontal
+      // proportions in the center (so the Münsterbrücke 'MADE WITH GEMINI 4 ARGON' plaque is
+      // never squeezed) while wrapping the outer flanks forward to z = +2.8m around the board!
+      const centered = (u - 0.5) * 2.0; // -1.0 .. +1.0
+      const shaped = 0.80 * centered + 0.20 * centered * centered * centered;
+      const theta = (0.5 + 0.5 * shaped) * Math.PI; // 0 .. PI
+
+      const sinT = Math.sin(theta);
+      const cosT = Math.cos(theta);
+
+      const vx = -cosT * radiusX;
+      const vz = frontZ + (backZ - frontZ) * Math.pow(sinT, 0.78);
+
+      // Vertical range: at back-center (sinT = 1), y spans -2.95m .. +10.85m so the Münsterbrücke
+      // bridge (v ≈ 0.20) sits cleanly above the Black King & Queen crowns and the bottom (v = 0)
+      // tucks behind the chessboard altar; toward the front flanks (sinT -> 0), the bottom extends
+      // down to -6.8m so the bottom-left and bottom-right screen corners are 100% covered!
+      const bottomY = -2.95 - (1.0 - sinT) * 3.85;
+      const topY = 10.85 + (1.0 - sinT) * 1.15;
+      const vy = bottomY + v * (topY - bottomY);
+
+      posAttr.setXYZ(i, vx, vy, vz);
     }
     panoGeo.computeVertexNormals();
 
@@ -833,7 +847,6 @@ export class ZurichSwampView {
     panoMesh.name = 'ZurichPanorama180Cyclorama';
     panoGroup.add(panoMesh);
 
-    // Subtle dark-gold top & water-level rim trim along the 180° cyclorama arc
     skyline.add(panoGroup);
     this.panoMesh = panoMesh;
     this.panoMaterial = panoMat;
@@ -880,7 +893,8 @@ export class ZurichSwampView {
       if (
         !child.isLight &&
         child.name !== 'CarvedStoneAltar' &&
-        child.name !== 'BoardHighlights'
+        child.name !== 'BoardHighlights' &&
+        child.name !== 'EnchantedSwampMoat'
       ) {
         this._dioramaGroups.push(child);
       }

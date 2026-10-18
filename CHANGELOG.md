@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.85] - 2026-10-18
+
+- 🖥️🏔️ **Full-Screen 180° Wrap-Around Zurich Cyclorama — Zero Lower Void (`src/views/ZurichSwampView.js`, `article/assets/zurich_180_*.png`)**:
+  - Enlarged and wrapped the 180° vertical Zurich cyclorama forward around the flanks of the chessboard (`z = -12.4m` at center to `z = +2.5m` at the West/East wings, `y = -2.95m .. -6.80m` at bottom up to `+10.85m .. +12.00m` at top) and hid the legacy flat green swamp moat circle (`EnchantedSwampMoat`) so the fairytale Zurich painting fills **100% of the screen from top to bottom and edge to edge**, completely eliminating the empty dark-green void around the bottom and sides of the board with zero texture distortion.
+
 ## [0.3.84] - 2026-10-17
 
 - 🏛️♟️ **Luxury Black & White Marble Chessboard (`src/views/ZurichSwampView.js`)**:
