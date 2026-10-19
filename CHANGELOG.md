@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.90] - 2026-10-19
+
+- 📦🖼️ **Sync `v0.3.88` SFW Naming & Article Visual Refresh Assets (`AGENTS.md`, `README.md`, `package.json`, `src/main.js`, `article/ARTICLE.md`, `docs/ARTICLE.md`, `article/assets/concept/*.jpg`, `article/assets/gallery/classic_*_evolution_card_en.png`)**:
+  - Committed and deployed the remaining `v0.3.88` files left unstaged in the working tree during the `v0.3.89` multi-tier GLB LOD release (`#39`), and synced `origin/main` and `origin/gh-pages`.
+
 ## [0.3.89] - 2026-10-19
 
 - 🚀⚡ **Multi-Tier GLB LODs, Hardware Benchmark & Auto-Heuristic (fixes #39, idea by Niccolò)**:

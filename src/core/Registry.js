@@ -13,9 +13,8 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.89';
+export const APP_VERSION = '0.3.90';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
-
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
 export const FILES = Object.freeze(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);

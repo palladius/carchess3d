@@ -1,5 +1,5 @@
 /**
- * @fileoverview CarChess3D ("Carlesso al Cesso") — Main Entry Point (`src/main.js`).
+ * @fileoverview CarChess3D — Main Entry Point (`src/main.js`).
  *
  * Follows `.agents/skills/niccolo-game-design/SKILL.md`:
  * - Top-level loop is intentionally boring:
