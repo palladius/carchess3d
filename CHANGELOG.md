@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.86] - 2026-10-19
+
+- 📐⚙️ **Spec: benchmark-driven LOD tiers & Auto Quality (idea by Niccolò, `docs/spec/SPEC.md`)**: generalizes the mobile `LOD1` plan into `low / med / high / ultra` GLB tiers (≈3–10k → ≈1M tris), a ~2 s first-launch micro-benchmark that auto-picks the tier per device (cached), a ⚙️ HUD gear to force `Auto / Low / Med / High / Ultra`, and a `docs/benchmarks/lod.md` acceptance criterion (cold-start + fps per tier on ≥ 3 device classes). Spec only, no code yet.
+
 ## [0.3.85] - 2026-10-18
 
 - 🖥️🏔️ **Full-Screen 180° Wrap-Around Zurich Cyclorama — Zero Lower Void (`src/views/ZurichSwampView.js`, `article/assets/zurich_180_*.png`)**:
