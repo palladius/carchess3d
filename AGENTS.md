@@ -26,3 +26,8 @@ This is the **implementation** repo for the Carlesso family 3D chess.
 - 3D pipeline work goes in `tools/model-pipeline/` and is logged in its
   `RUNNING_DOC.md` (prompts, API/MCP calls, parameters, results).
 - **Showcase & Articoli (`article/`)**: ogni volta che generi uno showcase visivo significativo (render Prima/Dopo, banner 16:9, lineup 3D, turntable o confronti grafici), parcheggialo anche sotto `article/` (immagini sotto `article/assets/` e markdown descrittivo) come materiale pronto per la scrittura di articoli.
+- 🚽 **Naming / SFW**: il nome pubblico è **CarChess3D** (o *CarChess*). **Mai** scrivere
+  l'espansione esplicita del gioco di parole ("Carlesso al C\*sso") in UI, codice, README,
+  titoli, articoli, slide o meta description: in inglese tradotto suona NSFW. Tieni solo
+  l'icona 🚽 e lascia che chi parla italiano capisca da solo. (Gli archivi verbatim dei
+  prompt storici sotto `article/sources/` sono tollerati.)

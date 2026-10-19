@@ -60,6 +60,7 @@ export class VeoCinemaView {
 
     this.root.position.copy(this.idlePos);
     this.root.scale.setScalar(this.idleScale);
+    this.root.visible = false;
     this.scene.add(this.root);
     if (this.scene) {
       this.scene.userData = this.scene.userData || {};
@@ -98,7 +99,7 @@ export class VeoCinemaView {
       this.videoEl = document.createElement('video');
       this.videoEl.muted = true;
       this.videoEl.playsInline = true;
-      this.videoEl.loop = true;
+      this.videoEl.loop = false;
       this.videoEl.crossOrigin = 'anonymous';
       this.videoEl.preload = 'metadata';
     }
@@ -225,6 +226,7 @@ export class VeoCinemaView {
       this.bus.on('CHECKMATE', (e) => {
         this.mode = 'checkmate';
         this.winnerColor = e.winner || 'w';
+        if (this.root) this.root.visible = true;
         this.tryPlayVeoVideo('assets/battles/videos/b_x_n.mp4', false, 'checkmate');
       }),
       this.bus.on('BOARD_RESET', (e) => {
@@ -244,6 +246,18 @@ export class VeoCinemaView {
   startBattlePresentation(e = {}) {
     const atkKey = (e.attacker || e.choreo?.attacker || 'b').toLowerCase();
     const defKey = (e.defender || e.choreo?.defender || 'p').toLowerCase();
+    // Deduplicate back-to-back events (e.g. PIECE_CAPTURED / WOW_ARENA_CLASH + BATTLE_STARTED)
+    // within the same battle opening window so we never reset battleElapsed or restart the video!
+    if (
+      this.mode === 'battle' &&
+      this.activeBattle &&
+      this.activeBattle.attacker === atkKey &&
+      this.activeBattle.defender === defKey &&
+      this.battleElapsed < 0.6 &&
+      !e.forceRestart
+    ) {
+      return;
+    }
     const baseEntry = BATTLE_MATRIX[atkKey]?.[defKey] || BATTLE_MATRIX.b.p;
     const matrix36Entry =
       BATTLE_MATRIX_36?.[atkKey]?.[defKey] || getBattle36?.(atkKey, defKey) || {};
@@ -270,6 +284,7 @@ export class VeoCinemaView {
     this.outroBattle = choreo;
     this.mode = 'battle';
     this.battleElapsed = 0;
+    if (this.root) this.root.visible = true;
 
     // Only snap position when VFXPoolView is not driving the smooth 3D trajectory
     if (!this.scene?.userData?.vfxControlsCombatBlend && this.root && this.battlePos) {
@@ -415,6 +430,7 @@ export class VeoCinemaView {
     this.cinemaBlend = clamped;
     if (this.root) {
       this.root.userData.cinemaBlend = clamped;
+      this.root.visible = clamped > 0.002 || this.mode !== 'idle';
     }
 
     // Morph bezel trim color between Classic Zurich Gold (#e6b84a) and Cinema Red (#D32F2F)
@@ -1096,6 +1112,9 @@ export class VeoCinemaView {
     }
 
     const isExpanded = this.mode === 'battle' || this.mode === 'checkmate';
+    if (this.root) {
+      this.root.visible = isExpanded || this.cinemaBlend > 0.002;
+    }
     if (!this.root?.userData?.vfxControlled) {
       const targetPos = isExpanded ? this.battlePos : this.idlePos;
       const targetScale = isExpanded ? this.battleScale : this.idleScale;

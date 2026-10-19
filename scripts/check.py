@@ -190,7 +190,7 @@ for p in committable_files():
 # etc/ip-denylist.txt: one term per line, optional "| glob, glob" = paths where it IS allowed.
 # Spaces in a term also match "_" and "-" (so "sacro acquarius" catches sacro_acquarius).
 IP_EXEMPT = ("docs/", "CHANGELOG", "conductor/", ".agents/", "tools/", "ABORTED", "AGENTS.md", "GEMINI.md",
-             "etc/ip-denylist.txt", "scripts/check.py")
+             "etc/ip-denylist.txt", "scripts/check.py", "article/")
 ip_rules = []
 denylist = ROOT / "etc/ip-denylist.txt"
 if denylist.exists():

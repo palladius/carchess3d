@@ -138,6 +138,7 @@ export class VFXPoolView {
     // Active cutscene state
     this.activeClash = null;
     this.clashElapsed = 0;
+    this.activeD20Roll = null;
     this.currentComicWord = '';
     this.defenderCounterBurstFired = false;
     this.swampSplashTriggered = false;
@@ -198,6 +199,12 @@ export class VFXPoolView {
       bus.on('BATTLE_STARTED', (e) => this.onBattleStarted(e)),
       bus.on('BATTLE_COMPLETED', (e) => this.onBattleEnded(e)),
       bus.on('BATTLE_SKIPPED', (e) => this.onBattleEnded(e)),
+      bus.on('DROP_SPAWNED', (e) => {
+        this.triggerRubyD20Roll(e?.d20Roll ?? 20, e?.square || 'd4', e?.tier);
+      }),
+      bus.on('D20_ROLLED', (e) => {
+        this.triggerRubyD20Roll(e?.d20Roll ?? 20, e?.square || 'd4', e?.tier);
+      }),
       bus.on('CHECKMATE', (e) => this.onCheckmate(e)),
       bus.on('BOARD_RESET', () => this.clearAllActive()),
       bus.on('CAMERA_VIEW_REQUESTED', (e) => {
@@ -710,10 +717,221 @@ export class VFXPoolView {
     // 12. King Riccardo ("Papino" `k`) 6 Fantasy Spells 3D Stage Props
     this.createPapinoDndProps();
 
+    // 12b. Pre-allocated 3D Solid Ruby-Marble d20 with Engraved White Numerals (1..20)
+    this.rubyD20Prop = this.createRubyMarbleD20Prop();
+    this.props.rubyD20 = this.rubyD20Prop;
+    this.rootGroup.add(this.rubyD20Prop);
+
     // 13. Fallback Stage Figurines (used only in headless unit tests where PieceView is not mounted)
     this.victimProxy = this.createStageFigurine(0xd7ccc8);
     this.cuddlePartnerProxy = this.createStageFigurine(0x9575cd);
     this.rootGroup.add(this.victimProxy, this.cuddlePartnerProxy);
+  }
+
+  /**
+   * Builds a pre-allocated 3D Solid Ruby-Marble 20-Sided Die (`d20`, `IcosahedronGeometry`)
+   * with:
+   * - Custom non-indexed per-face UV mapping across all 20 triangular faces (`1..20`),
+   * - Procedural veined deep ruby-red marble texture + crisp white engraved numerals (`1..20`),
+   * - Slightly translucent yet solid ruby outer shell (`opacity: 0.92`, `roughness: 0.14`)
+   *   wrapping a dense deep-crimson ruby inner heart (`opacity: 0.98`) so light catches the
+   *   ruby facets while keeping the die weighty, solid, and readable from every angle!
+   */
+  createRubyMarbleD20Prop(radius = 0.34) {
+    const group = new THREE.Group();
+    group.name = 'RubyMarbleD20Prop';
+
+    const rawGeo = new THREE.IcosahedronGeometry(radius, 0);
+    const geo = rawGeo.index ? rawGeo.toNonIndexed() : rawGeo;
+    const posAttr = geo.getAttribute('position');
+    const vertexCount = posAttr ? posAttr.count : 60;
+    const faceCount = Math.floor(vertexCount / 3); // 20 equilateral faces on an icosahedron
+
+    // Map each of the 20 triangles to its own cell in a 5x4 atlas
+    const cols = 5;
+    const rows = 4;
+    const uvs = new Float32Array(vertexCount * 2);
+    for (let f = 0; f < faceCount; f++) {
+      const col = f % cols;
+      const row = Math.floor(f / cols);
+      const u0 = col / cols;
+      const u1 = (col + 1) / cols;
+      const v0 = 1 - (row + 1) / rows;
+      const v1 = 1 - row / rows;
+      const uMid = (u0 + u1) * 0.5;
+      const du = (u1 - u0) * 0.42;
+      const dv = (v1 - v0) * 0.40;
+      const vBot = v0 + (v1 - v0) * 0.22;
+      const vTop = vBot + dv * 1.72;
+
+      const base = f * 6;
+      uvs[base + 0] = uMid - du;
+      uvs[base + 1] = vBot;
+      uvs[base + 2] = uMid + du;
+      uvs[base + 3] = vBot;
+      uvs[base + 4] = uMid;
+      uvs[base + 5] = vTop;
+    }
+    geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+
+    let map = null;
+    if (typeof document !== 'undefined' && typeof document.createElement === 'function') {
+      const canvas = document.createElement('canvas');
+      canvas.width = 640;
+      canvas.height = 512;
+      const ctx = canvas.getContext?.('2d');
+      if (ctx) {
+        // Base deep ruby marble fill
+        ctx.fillStyle = '#7a0014';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const cw = canvas.width / cols;
+        const ch = canvas.height / rows;
+        for (let f = 0; f < 20; f++) {
+          const col = f % cols;
+          const row = Math.floor(f / cols);
+          const x0 = col * cw;
+          const y0 = row * ch;
+          const cx = x0 + cw * 0.5;
+          const cy = y0 + ch * 0.56;
+
+          // Radial ruby-marble gradient per facet
+          const grad = ctx.createRadialGradient(cx - 10, cy - 12, 4, cx, cy, cw * 0.65);
+          grad.addColorStop(0, '#d50028');
+          grad.addColorStop(0.48, '#9b001a');
+          grad.addColorStop(0.85, '#640010');
+          grad.addColorStop(1, '#3d0009');
+          ctx.fillStyle = grad;
+          ctx.fillRect(x0, y0, cw, ch);
+
+          // Subtle ruby & rose-white marble veins
+          ctx.strokeStyle = 'rgba(255, 190, 205, 0.22)';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(x0 + 10, y0 + ((f * 19) % 40) + 12);
+          ctx.bezierCurveTo(
+            cx - 18,
+            cy - 14,
+            cx + 16,
+            cy + 18,
+            x0 + cw - 10,
+            y0 + ch - ((f * 13) % 35) - 10,
+          );
+          ctx.stroke();
+
+          // Facet triangle bevel outline
+          const triW = cw * 0.42;
+          const triBot = y0 + ch * 0.78;
+          const triTop = triBot - ch * 0.68;
+          ctx.strokeStyle = 'rgba(255, 225, 230, 0.38)';
+          ctx.lineWidth = 2.0;
+          ctx.beginPath();
+          ctx.moveTo(cx - triW, triBot);
+          ctx.lineTo(cx + triW, triBot);
+          ctx.lineTo(cx, triTop);
+          ctx.closePath();
+          ctx.stroke();
+
+          // Engraved Crisp White Numeral (1..20)
+          const num = f + 1;
+          const label = num === 6 || num === 9 ? `${num}.` : `${num}`;
+          ctx.save();
+          ctx.font = num >= 10 ? '900 30px system-ui, Georgia, serif' : '900 34px system-ui, Georgia, serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.shadowColor = 'rgba(25, 0, 5, 0.92)';
+          ctx.shadowBlur = 4;
+          ctx.shadowOffsetY = 2;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(label, cx, cy + 4);
+          ctx.restore();
+        }
+        map = new THREE.CanvasTexture(canvas);
+        map.needsUpdate = true;
+      }
+    }
+
+    // Inner solid deep-ruby core so the slightly-translucent outer ruby shell feels dense & solid
+    const innerCore = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(radius * 0.80, 0),
+      new THREE.MeshStandardMaterial({
+        color: 0x52000d,
+        emissive: 0x380008,
+        emissiveIntensity: 0.35,
+        roughness: 0.28,
+        metalness: 0.12,
+      }),
+    );
+
+    // Outer veined ruby-marble shell with white numerals (slightly translucent 0.92 opacity, solid feel)
+    const outerMat = new THREE.MeshStandardMaterial({
+      color: map ? 0xffffff : 0xb71c1c,
+      map,
+      emissive: 0x6a0012,
+      emissiveIntensity: 0.32,
+      roughness: 0.14,
+      metalness: 0.10,
+      transparent: true,
+      opacity: 0.92,
+    });
+    const outerShell = new THREE.Mesh(geo, outerMat);
+
+    // Crisp silver-white icosahedron edge wireframe for unmistakable d20 facets
+    const edgeWire = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(radius * 1.003, 0)),
+      new THREE.LineBasicMaterial({
+        color: 0xffebee,
+        transparent: true,
+        opacity: 0.42,
+      }),
+    );
+
+    group.add(innerCore, outerShell, edgeWire);
+    group.userData = { innerCore, outerShell, outerMat, edgeWire, radius };
+    group.visible = false;
+    return group;
+  }
+
+  /**
+   * Launches the 3D Solid Ruby-Marble d20 across the chessboard with multi-axis tumble
+   * and 3 realistic tabletop bounces (`durationS = 2.6s`).
+   * @param {number} [d20Roll=20]
+   * @param {string} [targetSquare='d4']
+   * @param {string} [tier='normal']
+   */
+  triggerRubyD20Roll(d20Roll = 20, targetSquare = 'd4', tier = 'normal') {
+    if (!this.rubyD20Prop) return;
+    const roll = Math.max(1, Math.min(20, Math.round(Number(d20Roll) || 20)));
+    const sqPos = squareToWorld(targetSquare || 'd4');
+    // Offset slightly toward camera/center so the die rolls right in front of the action
+    const endX = Math.max(-2.8, Math.min(2.8, sqPos.x * 0.65 + 0.45));
+    const endZ = Math.max(-2.6, Math.min(2.8, sqPos.z * 0.65 + 0.85));
+    const startX = endX - 1.35;
+    const startZ = endZ + 1.15;
+
+    this.rubyD20Prop.visible = true;
+    this.rubyD20Prop.position.set(startX, 2.25, startZ);
+    this.rubyD20Prop.scale.setScalar(1.18);
+
+    // Deterministic final orientation per roll (1..20)
+    const targetRotX = (roll * 1.2566) % (Math.PI * 2);
+    const targetRotY = (roll * 0.9424) % (Math.PI * 2);
+    const targetRotZ = (roll * 0.6283) % (Math.PI * 2);
+
+    this.activeD20Roll = {
+      roll,
+      tier,
+      elapsed: 0,
+      durationS: 2.6,
+      startX,
+      startZ,
+      endX,
+      endZ,
+      targetRotX,
+      targetRotY,
+      targetRotZ,
+      sparkBurstDone: false,
+    };
   }
 
   /**
@@ -732,16 +950,8 @@ export class VFXPoolView {
       new THREE.SphereGeometry(0.38, 16, 14),
       new THREE.MeshBasicMaterial({ color: 0xff6d00, transparent: true, opacity: 0.9 }),
     );
-    const d20Mesh = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(0.18, 0),
-      new THREE.MeshStandardMaterial({
-        color: 0xffd700,
-        emissive: 0xff8f00,
-        emissiveIntensity: 0.75,
-        roughness: 0.15,
-        metalness: 0.9,
-      }),
-    );
+    const d20Mesh = this.createRubyMarbleD20Prop(0.22);
+    d20Mesh.visible = true;
     d20Mesh.position.set(0, 0.65, 0);
     fbGroup.add(fbCore, d20Mesh);
     fbGroup.userData = { fbCore, d20Mesh };
@@ -2099,6 +2309,45 @@ export class VFXPoolView {
   update(dt) {
     if (!(dt > 0)) return;
     const step = Math.min(dt, 0.1);
+
+    // 0. Update 3D Solid Ruby-Marble d20 Roll & Tabletop Bounces
+    if (this.activeD20Roll && this.rubyD20Prop) {
+      const d = this.activeD20Roll;
+      d.elapsed += step;
+      const u = Math.min(1, d.elapsed / d.durationS);
+      const travelU = Math.min(1, d.elapsed / 1.55);
+      const easeOut = 1 - Math.pow(1 - travelU, 2.4);
+
+      const x = d.startX + (d.endX - d.startX) * easeOut;
+      const z = d.startZ + (d.endZ - d.startZ) * easeOut;
+      const baseFloorY = 0.36;
+      // 3 damped tabletop bounces during the first 1.55s, then settled on the board
+      const bounceEnv = travelU < 1 ? Math.pow(1 - travelU, 1.65) : 0;
+      const bounceY = Math.abs(Math.cos(travelU * Math.PI * 3.5)) * 1.85 * bounceEnv;
+      this.rubyD20Prop.position.set(x, baseFloorY + bounceY, z);
+
+      const spinEnv = travelU < 1 ? Math.pow(1 - travelU, 1.8) : 0;
+      this.rubyD20Prop.rotation.set(
+        d.targetRotX + spinEnv * Math.PI * 6.0,
+        d.targetRotY + spinEnv * Math.PI * 8.0,
+        d.targetRotZ + spinEnv * Math.PI * 4.0,
+      );
+
+      if (travelU >= 0.45 && !d.sparkBurstDone) {
+        d.sparkBurstDone = true;
+        this.spawnFromPool(
+          d.roll === 20 ? 'golden_sparks' : 'amethyst_ruby_shards',
+          { x, y: baseFloorY, z },
+          d.roll === 20 ? 22 : 10,
+          { speedMin: 0.9, speedMax: 2.4, upMin: 1.4, upMax: 3.0, restitution: 0.6 },
+        );
+      }
+
+      if (u >= 1) {
+        this.rubyD20Prop.visible = false;
+        this.activeD20Roll = null;
+      }
+    }
 
     // 1. Update active 10.0s (`1s pre-padding + 8s Veo video + 1s post-padding`) 3D duel & stage props
     if (this.activeClash) {

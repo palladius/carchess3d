@@ -39,11 +39,12 @@ const THEME_LYRICS = Object.freeze({
 });
 
 // Baroque & Chamber String Octet Loops in E Dorian / E Minor (100% acoustic strings, zero 80s chiptune)
-export const CHESS_STRINGS_BG_URL = 'assets/audio/chess-strings-bg.mp3';
 export const CHESS_STRINGS_THEME_URL = 'assets/audio/chess-strings-theme.mp3';
+export const CHESS_STRINGS_BG_URL = 'assets/audio/chess-strings-bg.mp3';
+export const CHECKMATE_AUDIO_URL = 'assets/audio/checkmate-jingle.mp3';
 export const CHESS_STRINGS_TRACKS = Object.freeze([
-  CHESS_STRINGS_BG_URL,
   CHESS_STRINGS_THEME_URL,
+  CHESS_STRINGS_BG_URL,
 ]);
 const BAROQUE_VIOLIN_MELODY_HZ = Object.freeze([
   659.25, 739.99, 783.99, 739.99, 659.25, 587.33, 554.37, 523.25,
@@ -56,7 +57,12 @@ const BAROQUE_CELLO_STACCATO_HZ = Object.freeze([
 
 // Fiery 152 BPM D-Minor Phrygian Dominant 16th-note ostinato for combat suspense (D3, F3, G3, G#3, A3, Bb3, C#4, D4)
 export const COMBAT_AUDIO_URL = 'assets/audio/combat-suspense.mp3';
-const COMBAT_CUE_POINTS_S = Object.freeze([0.0, 7.6, 15.2, 22.0]);
+// Every cue point leaves >= 14.0s of continuous forward playback before the 30.77s track ends (29.5s full music),
+// so a 10s battle (+ 3.5s outro) NEVER reaches the end of the file or repeats any phrase!
+export const COMBAT_CUE_POINTS_S = Object.freeze([0.0, 8.0, 15.5]);
+// Calibrated music volumes: combat is strictly +15% above normal background music (1.15x, NEVER 100%+!)
+export const NORMAL_MUSIC_VOLUME = 0.24;
+export const COMBAT_MUSIC_PEAK_VOLUME = Number((NORMAL_MUSIC_VOLUME * 1.15).toFixed(3));
 const COMBAT_OSTINATO_HZ = Object.freeze([
   146.83, 146.83, 174.61, 196.00, 207.65, 220.00, 233.08, 220.00,
   146.83, 220.00, 233.08, 277.18, 293.66, 277.18, 233.08, 220.00,
@@ -81,6 +87,8 @@ export class AudioListener {
     this.audioEl = null;
     this.themeTrackIndex = 0;
     this.themeAudioFailed = false;
+    this.checkmateAudioEl = null;
+    this.castlingAudioEl = null;
     this.combatAudioEl = null;
     this.combatAudioFailed = false;
     this.combatMusicActive = false;
@@ -165,8 +173,9 @@ export class AudioListener {
           this.playSfx('move_hop', () => this.synthStoneHop());
         }
       }),
-      bus.on('CASTLING_EXECUTED', () => {
+      bus.on('CASTLING_EXECUTED', (e) => {
         this.playSfx('castling_boing', () => this.synthCastlingBoing());
+        this.playCastlingTheme();
       }),
       bus.on('PIECE_CAPTURED', (e) => {
         this.playSfx(`capture_${e.attacker}`, () => this.synthCaptureImpact());
@@ -186,12 +195,23 @@ export class AudioListener {
       }),
       bus.on('BOARD_RESET', () => {
         this.stopCombatMusic(true);
+        this.stopCheckmateJingle();
+        if (this.castlingAudioEl) {
+          try {
+            this.castlingAudioEl.pause();
+            this.castlingAudioEl.currentTime = 0;
+          } catch {}
+        }
+        if (this.themeTrackIndex !== 0) {
+          this.switchThemeTrack(0);
+        }
       }),
       bus.on('CHECK_DETECTED', () => {
         this.playSfx('check_alarm', () => this.synthCheckAlarm());
       }),
-      bus.on('CHECKMATE', () => {
+      bus.on('CHECKMATE', (e) => {
         this.playSfx('checkmate_fanfare', () => this.synthCheckmateFanfare());
+        this.playCheckmateJingle(e);
       }),
       bus.on('DROP_SPAWNED', (e) => {
         if (e.tier === 'golden_crit' || e.sticker) {
@@ -696,11 +716,11 @@ export class AudioListener {
       try {
         const trackUrl =
           CHESS_STRINGS_TRACKS[this.themeTrackIndex % CHESS_STRINGS_TRACKS.length] ||
-          CHESS_STRINGS_BG_URL;
+          CHESS_STRINGS_THEME_URL;
         const audio = new Audio(trackUrl);
         audio.preload = 'auto';
         audio.loop = true;
-        audio.volume = this.combatMusicActive ? 0.06 : 0.42;
+        audio.volume = this.combatMusicActive ? 0.06 : NORMAL_MUSIC_VOLUME;
         audio.onerror = () => {
           this.themeAudioFailed = true;
         };
@@ -771,6 +791,120 @@ export class AudioListener {
     this.ctx?.bus?.flush?.();
   }
 
+  /**
+   * Switches the active theme music track to another track in `CHESS_STRINGS_TRACKS`.
+   * @param {string|number} trackUrlOrIndex
+   */
+  switchThemeTrack(trackUrlOrIndex) {
+    if (typeof trackUrlOrIndex === 'number') {
+      this.themeTrackIndex = trackUrlOrIndex;
+    } else if (typeof trackUrlOrIndex === 'string') {
+      const idx = CHESS_STRINGS_TRACKS.indexOf(trackUrlOrIndex);
+      this.themeTrackIndex = idx >= 0 ? idx : 0;
+    }
+    const targetUrl =
+      CHESS_STRINGS_TRACKS[this.themeTrackIndex % CHESS_STRINGS_TRACKS.length] ||
+      CHESS_STRINGS_THEME_URL;
+
+    if (this.musicPlaying && typeof Audio !== 'undefined') {
+      try {
+        if (!this.audioEl) {
+          this.audioEl = new Audio(targetUrl);
+          this.audioEl.preload = 'auto';
+          this.audioEl.loop = true;
+        } else if (!this.audioEl.src.includes(targetUrl)) {
+          this.audioEl.src = targetUrl;
+          this.audioEl.currentTime = 0;
+        }
+        this.audioEl.volume = this.combatMusicActive ? 0.06 : NORMAL_MUSIC_VOLUME;
+        this.audioEl.play().catch(() => {});
+      } catch {}
+    }
+  }
+
+  /**
+   * Plays the warm chamber strings fortress loop (`chess-strings-bg.mp3`) when castling (arrocco),
+   * putting track 1 to good use ("per non buttarla via") so the king enjoys royal chamber peace.
+   */
+  playCastlingTheme() {
+    this.playedSfx.push('castling_theme');
+    if (this.playedSfx.length > 100) this.playedSfx.shift();
+
+    if (this.musicPlaying) {
+      this.switchThemeTrack(CHESS_STRINGS_BG_URL);
+    } else if (this.sfxEnabled && typeof Audio !== 'undefined') {
+      try {
+        if (!this.castlingAudioEl) {
+          this.castlingAudioEl = new Audio(CHESS_STRINGS_BG_URL);
+          this.castlingAudioEl.preload = 'auto';
+        }
+        this.castlingAudioEl.currentTime = 0;
+        this.castlingAudioEl.volume = 0.52;
+        this.castlingAudioEl.play().catch(() => {});
+      } catch {}
+    }
+  }
+
+  /**
+   * Plays the hilarious checkmate jingle (`assets/audio/checkmate-jingle.mp3`) with deep baritone
+   * "BUAHAHAHAHAH!" villain laughter, defeated "Ooh no!", and comic "Scacco Matto, Checkmate!" chorus.
+   * @param {object} [e]
+   */
+  playCheckmateJingle(e = null) {
+    this.playedSfx.push('checkmate_jingle');
+    if (this.playedSfx.length > 100) this.playedSfx.shift();
+
+    // Duck background music while comic victory jingle plays
+    if (this.audioEl && this.musicPlaying) {
+      try {
+        this.audioEl.volume = 0.05;
+      } catch {}
+    }
+
+    this.ctx?.bus?.emit?.({
+      type: 'LYRIA_CAPTION',
+      lang: this.lang,
+      text: '😂 BUAHAHAHAHAH! ... "Ooh no!" 🏆 SCACCO MATTO / CHECKMATE!',
+    });
+    this.ctx?.bus?.flush?.();
+
+    if (typeof Audio !== 'undefined') {
+      try {
+        if (!this.checkmateAudioEl) {
+          this.checkmateAudioEl = new Audio(CHECKMATE_AUDIO_URL);
+          this.checkmateAudioEl.preload = 'auto';
+          this.checkmateAudioEl.onended = () => {
+            if (this.audioEl && this.musicPlaying && !this.combatMusicActive) {
+              try {
+                this.audioEl.volume = NORMAL_MUSIC_VOLUME;
+              } catch {}
+            }
+          };
+        }
+        this.checkmateAudioEl.currentTime = 0;
+        this.checkmateAudioEl.volume = 0.88;
+        const p = this.checkmateAudioEl.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {});
+        }
+      } catch {}
+    }
+  }
+
+  stopCheckmateJingle() {
+    if (this.checkmateAudioEl) {
+      try {
+        this.checkmateAudioEl.pause();
+        this.checkmateAudioEl.currentTime = 0;
+      } catch {}
+    }
+    if (this.audioEl && this.musicPlaying && !this.combatMusicActive) {
+      try {
+        this.audioEl.volume = NORMAL_MUSIC_VOLUME;
+      } catch {}
+    }
+  }
+
   // ===========================================================================
   // 3. FIERY, FAST-PACED, SUSPENSEFUL COMBAT SOUNDTRACK (LYRIA 3 MP3)
   // ===========================================================================
@@ -808,17 +942,20 @@ export class AudioListener {
         if (!this.combatAudioEl) {
           this.combatAudioEl = new Audio(COMBAT_AUDIO_URL);
           this.combatAudioEl.preload = 'auto';
-          this.combatAudioEl.loop = true;
           this.combatAudioEl.onerror = () => {
             this.combatAudioFailed = true;
           };
         }
+        // NEVER loop combat music during a 10s battle — each cue point (0.0s, 8.0s, 15.5s) has >= 14.0s
+        // of continuous non-repeating orchestral music before the 30.77s track ends!
+        this.combatAudioEl.loop = false;
         const cueS = COMBAT_CUE_POINTS_S[this.combatCueIndex % COMBAT_CUE_POINTS_S.length];
         this.combatCueIndex++;
         try {
           this.combatAudioEl.currentTime = cueS;
         } catch {}
-        this.combatAudioEl.volume = 0.72;
+        // Combat volume is strictly +15% above normal background music (0.276 vs 0.24), never 100%+!
+        this.combatAudioEl.volume = COMBAT_MUSIC_PEAK_VOLUME;
         const p = this.combatAudioEl.play();
         if (p && typeof p.catch === 'function') {
           p.catch(() => {});
@@ -847,13 +984,14 @@ export class AudioListener {
   synthCombatEntryBraaam() {
     const ac = this.ensureAudioContext();
     if (!ac) return;
-    this.synthTone(73.42, 48.0, 0.16, 'triangle', 0.18, 0.0);
-    this.synthTone(146.83, 55.0, 0.24, 'sine', 0.2, 0.13);
+    this.synthTone(73.42, 48.0, 0.16, 'triangle', 0.06, 0.0);
+    this.synthTone(146.83, 55.0, 0.24, 'sine', 0.07, 0.13);
   }
 
   /**
    * Fallback combat sequencer — completely bypassed in browser when `combat-suspense.mp3` is loaded
    * so no 1980s pixel arcade oscillator bleeps ever play over the orchestral soundtrack.
+   * Through-composed across 102 steps (`10.0s`) and stops cleanly at `s > 102` with zero looping.
    */
   _stepCombatSequencer() {
     if (!this.sfxEnabled && !this.musicPlaying) return;
@@ -864,16 +1002,21 @@ export class AudioListener {
     const env = Math.max(0, Math.min(1, this.combatEnvelope));
     if (env <= 0.01) return;
 
-    const mix = env;
+    // Gentle +15% gain calibration for fallback procedural voices
+    const mix = env * 0.22;
 
     const s = this.combatStep++;
+    // Never repeat/loop after the 10-second battle window (`102 * 98ms ≈ 10.0s`)
+    if (s > 102) return;
     const step16 = s % 16;
-    const isAct2Brawl = s >= 14 && s < 46 && !this.combatFadingOut;
-    const isAct3Climax = s >= 46 && s < 62 && !this.combatFadingOut;
+    const barIndex = Math.floor(s / 16);
+    const isAct2Brawl = s >= 10 && s < 78 && !this.combatFadingOut;
+    const isAct3Climax = s >= 78 && s <= 102 && !this.combatFadingOut;
 
-    // A. Driving 16th-note D-Minor Phrygian Ostinato (`D3 - F3 - G3 - G#3 - A3 - Bb3 - C#4 - D4`)
-    const ostFreq = COMBAT_OSTINATO_HZ[step16];
-    const accent = step16 % 4 === 0 ? 1.35 : step16 % 2 === 0 ? 1.1 : 0.85;
+    // A. Evolving 16th-note D-Minor Phrygian Ostinato (transposes across bars so it never repeats a short loop)
+    const barTranspose = [1.0, 1.05946, 1.12246, 1.18921, 1.25992, 1.33484, 1.49831][barIndex % 7];
+    const ostFreq = COMBAT_OSTINATO_HZ[step16] * barTranspose;
+    const accent = step16 % 4 === 0 ? 1.25 : step16 % 2 === 0 ? 1.05 : 0.85;
     this.synthTone(
       ostFreq,
       ostFreq * 1.004,
@@ -907,13 +1050,14 @@ export class AudioListener {
       this.synthTone(1680, 640, 0.04, 'square', 0.04 * mix, 0.01);
     }
 
-    // C. Suspenseful Rising Phrygian Brass & Tremolo Lead (`A4 - Bb4 - C#5 - D5 - E5 - F5 - G#5 - A5`)
+    // C. Suspenseful Continuous Rising Phrygian Brass & Tremolo Lead across the full 10s duel
     if (isAct2Brawl && step16 % 2 === 0) {
+      const leadProgress = Math.min(1, Math.max(0, (s - 10) / 68));
       const leadIdx = Math.min(
         COMBAT_SUSPENSE_LEAD_HZ.length - 1,
-        Math.floor(((s - 14) / 4) % COMBAT_SUSPENSE_LEAD_HZ.length),
+        Math.floor(leadProgress * COMBAT_SUSPENSE_LEAD_HZ.length),
       );
-      const leadFreq = COMBAT_SUSPENSE_LEAD_HZ[leadIdx];
+      const leadFreq = COMBAT_SUSPENSE_LEAD_HZ[leadIdx] * (1 + leadProgress * 0.12);
       this.synthTone(leadFreq, leadFreq * 1.01, 0.13, 'sawtooth', 0.068 * mix, 0);
       // Minor-second / tritone suspense harmony on every bar boundary
       if (step16 === 0 || step16 === 8) {
@@ -921,8 +1065,8 @@ export class AudioListener {
       }
     }
 
-    // D. Act 3 K.O. Climax Chord Hit (`s === 46`, ~4.5s into duel when victim is launched into the swamp!)
-    if (s === 46 && !this.combatFadingOut) {
+    // D. Act 3 K.O. Climax Chord Hit (`s === 80`, ~7.8s into the 10s duel when victim is launched into the swamp!)
+    if (s === 80 && !this.combatFadingOut) {
       [293.66, 349.23, 440.0, 587.33, 698.46, 880.0].forEach((f, idx) => {
         this.synthTone(f, f * 1.015, 0.45, 'sawtooth', 0.08 * mix, idx * 0.03);
       });
@@ -979,12 +1123,12 @@ export class AudioListener {
 
       if (this.combatAudioEl) {
         try {
-          this.combatAudioEl.volume = Math.max(0, 0.78 * this.combatEnvelope);
+          this.combatAudioEl.volume = Math.max(0, COMBAT_MUSIC_PEAK_VOLUME * this.combatEnvelope);
         } catch {}
       }
       if (this.audioEl && this.musicPlaying) {
         try {
-          this.audioEl.volume = 0.06 + 0.39 * (1.0 - this.combatEnvelope);
+          this.audioEl.volume = 0.06 + (NORMAL_MUSIC_VOLUME - 0.06) * (1.0 - this.combatEnvelope);
         } catch {}
       }
 
@@ -1018,7 +1162,7 @@ export class AudioListener {
     }
     if (this.audioEl && this.musicPlaying) {
       try {
-        this.audioEl.volume = 0.45;
+        this.audioEl.volume = NORMAL_MUSIC_VOLUME;
       } catch {}
     }
   }
@@ -1026,6 +1170,13 @@ export class AudioListener {
   dispose() {
     this._haltCombatMusicNow();
     this.stopThemeSong();
+    this.stopCheckmateJingle();
+    if (this.castlingAudioEl) {
+      try {
+        this.castlingAudioEl.pause();
+      } catch {}
+      this.castlingAudioEl = null;
+    }
     for (const off of this.offs) off();
     this.offs = [];
   }

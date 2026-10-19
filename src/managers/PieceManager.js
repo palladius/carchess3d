@@ -5,26 +5,18 @@
  * and Bishop Ale GLB variant (`'rigged'|'hat'`). Zero DOM or Three.js imports (`<= 300` LOC).
  */
 
-import {
-  CHARACTER_REGISTRY,
-  FAMILY_REGISTRIES,
-  squareToWorld,
-  BISHOP_GLB_VARIANTS,
-  QUEEN_GLB_VARIANTS,
-  KNIGHT_GLB_VARIANTS,
-} from '../core/Registry.js';
+import { CHARACTER_REGISTRY, FAMILY_REGISTRIES, squareToWorld, BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS, KNIGHT_GLB_VARIANTS } from '../core/Registry.js';
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
 export { BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS, KNIGHT_GLB_VARIANTS };
 
 export const CLIP_ALIASES = Object.freeze({
-  Idle: 'Idle_Track',
-  Idle_Track: 'Idle_Track',
-  Click_Fire_Breath: 'FireBreath_Track',
-  FireBreath_Track: 'FireBreath_Track',
+  Idle: 'Idle_Track', Idle_Track: 'Idle_Track',
+  Click_Fire_Breath: 'FireBreath_Track', FireBreath_Track: 'FireBreath_Track',
 });
 
 export class PieceManager {
+
   constructor() {
     this.ctx = null;
     /** @type {'carlesso'|'swamp'|'classic'} */
@@ -37,6 +29,10 @@ export class PieceManager {
     this.queenVariant = 'young';
     /** @type {'classic'|'lightsaber'|'halberd'|'aurora'} */
     this.knightVariant = 'classic';
+    /** @type {'auto'|'low'|'medium'|'high'} */
+    this.qualityTier = 'auto';
+    /** @type {'low'|'medium'|'high'} */
+    this.effectiveLod = 'high';
     /** @type {Map<string, object>} */
     this.livingBySquare = new Map();
     /** @type {{ w: Array<object>, b: Array<object> }} */
@@ -64,8 +60,14 @@ export class PieceManager {
         if (e.queenVariant) this.setQueenVariant(e.queenVariant);
         if (e.knightVariant) this.setKnightVariant(e.knightVariant);
       }),
+      ctx.bus.on('QUALITY_TIER_CHANGED', (e) => {
+        this.qualityTier = e.tier || 'auto';
+        this.effectiveLod = e.effectiveLod || (this.qualityTier === 'auto' ? 'high' : this.qualityTier);
+        this.emitPiecesSynced('quality_tier_changed');
+      }),
     );
   }
+
 
   resolveDescriptor(raw) {
     const type = String(raw.type || 'p').toLowerCase();
@@ -213,35 +215,24 @@ export class PieceManager {
   }
 
   setRivalSetMode(mode) {
-    const valid = ['family', 'swamp', 'classic', 'stone'];
-    const normalized = mode === 'carlesso' ? 'family' : (valid.includes(mode) ? mode : 'family');
-    if (this.rivalSetMode === normalized) return;
-    this.rivalSetMode = normalized;
+    const norm = mode === 'carlesso' ? 'family' : (['family', 'swamp', 'classic', 'stone'].includes(mode) ? mode : 'family');
+    if (this.rivalSetMode === norm) return;
+    this.rivalSetMode = norm;
     this._applySetChange('rival_set_changed');
   }
 
-  setBishopVariant(variant) {
-    const valid = ['hat', 'astrolabe', 'rigged'];
-    const normalized = valid.includes(variant) ? variant : 'hat';
-    if (this.bishopVariant === normalized) return;
-    this.bishopVariant = normalized;
-    this._applySetChange('bishop_variant_changed');
-  }
 
-  setQueenVariant(variant) {
-    const valid = ['young', 'wedding'];
-    const normalized = valid.includes(variant) ? variant : 'young';
-    if (this.queenVariant === normalized) return;
-    this.queenVariant = normalized;
-    this._applySetChange('queen_variant_changed');
+  setBishopVariant(v) {
+    const norm = ['hat', 'astrolabe', 'rigged'].includes(v) ? v : 'hat';
+    if (this.bishopVariant !== norm) { this.bishopVariant = norm; this._applySetChange('bishop_variant_changed'); }
   }
-
-  setKnightVariant(variant) {
-    const valid = ['classic', 'lightsaber', 'halberd', 'aurora'];
-    const normalized = valid.includes(variant) ? variant : 'classic';
-    if (this.knightVariant === normalized) return;
-    this.knightVariant = normalized;
-    this._applySetChange('knight_variant_changed');
+  setQueenVariant(v) {
+    const norm = ['young', 'wedding'].includes(v) ? v : 'young';
+    if (this.queenVariant !== norm) { this.queenVariant = norm; this._applySetChange('queen_variant_changed'); }
+  }
+  setKnightVariant(v) {
+    const norm = ['classic', 'lightsaber', 'halberd', 'aurora'].includes(v) ? v : 'classic';
+    if (this.knightVariant !== norm) { this.knightVariant = norm; this._applySetChange('knight_variant_changed'); }
   }
 
   reResolveAll() {
@@ -277,8 +268,15 @@ export class PieceManager {
       type: 'PIECES_SYNCED', reason, move,
       whiteFamily: this.whiteFamily, rivalSetMode: this.rivalSetMode,
       bishopVariant: this.bishopVariant, queenVariant: this.queenVariant, knightVariant: this.knightVariant,
+      qualityTier: this.qualityTier, effectiveLod: this.effectiveLod,
       pieces: this.getLivingPieces(), captured: this.getCapturedTrays(),
     });
+  }
+
+  setQualityTier(tier, effectiveLod = null) {
+    this.qualityTier = tier || 'auto';
+    this.effectiveLod = effectiveLod || (this.qualityTier === 'auto' ? 'high' : this.qualityTier);
+    this.emitPiecesSynced('quality_tier_changed');
   }
 
   getLivingPieces() { return Array.from(this.livingBySquare.values()); }
@@ -289,6 +287,8 @@ export class PieceManager {
   getBishopVariant() { return this.bishopVariant; }
   getQueenVariant() { return this.queenVariant; }
   getKnightVariant() { return this.knightVariant; }
+  getQualityTier() { return this.qualityTier; }
+  getEffectiveLod() { return this.effectiveLod; }
   update(_dt) {}
   dispose() {
     for (const off of this.offs) off();

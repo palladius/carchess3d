@@ -20,6 +20,8 @@ function createDefaultProfileEntry(profileId) {
     fen: null,
     pgn: '',
     luck: 0,
+    clarityMode: 's2',
+    showRoleLetters: false,
     stickers: [],
     stats: {
       wins: 0,
@@ -96,6 +98,16 @@ export class ProfileStorageListener {
       }),
       bus.on('PROFILE_CHANGED', (e) => {
         this.switchProfile(e.profileId || 'ale', e.restoreBoard !== false);
+      }),
+      bus.on('CLARITY_MODE_CHANGED', (e) => {
+        const entry = this.getProfile(this.activeProfile);
+        if (e?.mode) {
+          entry.clarityMode = String(e.mode).toLowerCase();
+        }
+        if (typeof e?.showRoleLetters === 'boolean') {
+          entry.showRoleLetters = e.showRoleLetters;
+        }
+        this.saveStore();
       }),
     );
   }
@@ -186,15 +198,34 @@ export class ProfileStorageListener {
       } catch {}
     }
 
+    let urlClarityOverride = null;
+    if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
+      const p = new URLSearchParams(window.location?.search || '');
+      if (p.get('clarity')) {
+        urlClarityOverride = p.get('clarity').toLowerCase();
+      }
+    }
+    const effectiveClarityMode = urlClarityOverride || entry.clarityMode || 's2';
+
     this.ctx?.bus?.emit({
       type: 'PROFILE_RESTORED',
       profileId: id,
       fen: entry.fen,
       pgn: entry.pgn,
       luck: entry.luck,
+      clarityMode: effectiveClarityMode,
+      showRoleLetters: Boolean(entry.showRoleLetters),
       stickers: [...entry.stickers],
       stats: { ...entry.stats },
     });
+    if (!urlClarityOverride && entry.clarityMode) {
+      this.ctx?.bus?.emit({
+        type: 'CLARITY_MODE_CHANGED',
+        mode: entry.clarityMode,
+        force2dIcons: entry.clarityMode === 's1',
+        showRoleLetters: Boolean(entry.showRoleLetters),
+      });
+    }
     return entry;
   }
 

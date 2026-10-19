@@ -288,6 +288,9 @@ is the "victim" and is removed at the end.
     - The 16:9 Veo video is rendered at **`78%` alpha** (`?videoAlpha=0.78`) with a soft lower-center radial contrast cushion while the two 3D fighting pieces remain **100% solid** at **`1.52×` scale** in the foreground.
   - **Non-Linear Spatial Board & Neighbor Piece Transformation (`_applyArenaNonLinearWarp`)**: Non-fighting neighboring pieces are radially dilated outward from the duel center (`+1.52m` clearing) and scaled down non-linearly to `56%..70%`, giving the two `1.52×` protagonists a wide, readable foreground stage while keeping neighboring pieces visible around the perimeter.
   - **Measured Unbroken Video + Audio Exit on `Space` or `Click / Tap` (`BATTLE_SKIPPED`)**: Pressing `Space` (or `Enter`/`Escape`) or clicking/tapping anywhere on screen during combat triggers a smooth `2.5s` sliding-window exit where the `<video>` keeps playing while fading out in alpha and volume, the combat music cross-fades out over `2.5s`, the victorious piece glides onto `toSquare`, and the HUD chrome smoothly returns.
+  - **Non-Looping Combat Music & Strictly `+15%` Volume Calibration (`AudioListener.js` — `v0.3.66`)**:
+    - `combatAudioEl.loop` is set to `false` and `COMBAT_CUE_POINTS_S = [0.0, 8.0, 15.5]` guarantees at least `14.0s` of continuous forward orchestral music before the `30.77s` `assets/audio/combat-suspense.mp3` track ends (`cueS + 13.5 <= 29.5s`), eliminating mid-battle wrap-arounds or phrase repeats during the `10.0s` battle (`+ 3.5s` outro).
+    - `COMBAT_MUSIC_PEAK_VOLUME` is calibrated to **strictly `+15%` (`1.15×`)** above `NORMAL_MUSIC_VOLUME` (`0.276` vs `0.24`), and the fallback procedural sequencer (`_stepCombatSequencer`) is through-composed over 102 steps (`10.0s`) without looping.
 - **Bespoke Signature Choreography Highlights**:
   - **King Riccardo ("Papino" `k`) — 6 Distinct Dungeons & Dragons (D&D) Spells (`k_x_*`)**:
     - `k_x_p` (vs Pawn Puffin): **D&D Fireball (`fireball`, 8d6 + Natural 20 d20)** 🔥🎲
@@ -301,6 +304,9 @@ is the "victim" and is removed at the end.
   - **Bishop Ale vs Queen Kate (`b_x_q`) — Saint Seiya "Teca Sacra di Tanzanite Blu-Viola"**:
     - Inspired by Saint Seiya's Amethyst Coffin and using Queen Kate's favourite gemstone (**Tanzanite** — pleochroic blue-violet with electric azure-blue reflections): Ale (`b`) casts a swirling blue-violet and azure Tanzanite beam (`b_x_q_start.png`) that crystallizes a towering translucent hexagonal Tanzanite Crystal Case (`Teca di Tanzanite`) around Mamma Kate (`q`), holding her safely petrified inside for two seconds before gently sliding the intact Tanzanite Teca into the emerald swamp moat (`b_x_q_end.png`, `ale_tanzanite_coffin_for_mom`) without ever shattering his mom.
   - **Knight Seby ↔ Rook Pupurabbu (`n_x_r`, `r_x_n`) — Best-Friends Cuddle (`mega_cuddle_bounce`)**: Non-lethal joyful cuddle storm with 3D purple hearts.
+- **Unified Heroes POV Cinema (`./showcase/?view=pov` — `v0.3.64`)**:
+  - All backstage character & battle movie browsing is unified into a **single entry point (`🎬 Cinema Eroi POV` / `🎬 Heroes POV Cinema` -> `./showcase/?view=pov`)** accessible from the top bar (`#hud-top-gallery-link`), the bottom dock (`#hud-dock-gallery` with `POV` badge), and the startup match setup modal (`#hud-setup-pov-link` / `#hud-setup-desktop-pov-link`).
+  - Redundant in-app 6×6 matrix buttons (`#hud-matrix-btn`, `#hud-matrix36-btn`) and the legacy Mode 2 WOW inspector toggle (`#hud-mode1-btn`, `#hud-mode2-btn`) are removed from the HUD so players always land directly in the POV Cinema view (hero selector at the top defaulting to Knight Seby `'n'`, 3D turntable + voice soundboard on the top-left, main 16:9 cinema player on the top-right, and the 6 Attack [Red Risiko] + 6 Defense [Blue Risiko] movies at the bottom).
 
 ## Mobile Simplified UX ("Easy Adopter" Mode — v0.3.22)
 
@@ -328,6 +334,60 @@ is the "victim" and is removed at the end.
 - **Action Item — Mobile `LOD1` `.glb` Downsampling (`10×–20×` Polygon & Texture Reduction)**:
   - **Problem**: Desktop `.glb` characters (`assets/models/*.glb`) weigh `2–5 MB` each with `50k–97k` triangles and `2048×1024` / `2048×2048` uncompressed RGBA textures (`~850,000` triangles and `~180 MB` VRAM across all 32 pieces on the board), whereas on a `6.3"` smartphone screen each chess piece occupies only `~60×90` physical pixels (causing `15–20` sub-pixel triangles per screen pixel).
   - **Planned Solution (`assets/models/mobile/*.glb`)**: Generate a dedicated mobile `LOD1` asset set downsampled by **`10×–20×`** in triangle count (`~3,000–5,000` tris for heroes, `~1,500` tris for pawns via Quadric Error Metric decimation) and **`4×–16×`** in texture area (`512×512` WebP/JPEG baked atlas, `~150–300 KB` per `.glb`), and have `PieceView` load `assets/models/mobile/<piece>.glb` automatically on `isMobilePhone` so smartphones render the full 3D sculpted characters at `60 fps` with `< 5 MB` total download and `< 15 MB` VRAM.
+- **Benchmark-driven LOD tiers & Auto Quality (idea by Niccolò)** — generalizes the `LOD1` item above:
+  - Each piece ships as N GLBs: `assets/models/<tier>/<piece>.glb`, tiers `low` (≈3–10k tris, = `LOD1`), `med` (≈50k), `high` (≈100k, today's desktop set), `ultra` (≈1M, source mesh where available); produced by QEM decimation + texture downscale in `tools/model-pipeline/`.
+  - On first launch a ~2 s micro-benchmark (WebGL renderer/GPU string, `navigator.deviceMemory`, `hardwareConcurrency`, load + 60-frame render of a test GLB) picks the tier; expected defaults: phone → `low`, tablet/iPad → `med`, laptop → `high`, strong desktop → `ultra`. Result cached in `localStorage` per device.
+  - A ⚙️ gear in the HUD shows the chosen tier and lets the user force `Auto / Low / Med / High / Ultra` (supersedes the `?glb=1` / `?lite3d=1` URL overrides, which stay as debug aliases).
+  - **Acceptance**: `docs/benchmarks/lod.md` reports cold-start time and steady fps per tier on ≥ 3 device classes (cheap phone, iPad, strong desktop) and justifies the auto defaults.
+
+## Visual Piece Recognition, True Obsidian vs Ivory Contrast & 5-Mode Clarity Engine (`v0.3.52` → `v0.3.74` — GHI #32)
+
+- **Root Causes Addressed (`src/views/PieceClarityHelper.js`, `src/views/PieceView.js`)**:
+  1. **Black Pedestal Top Plate (`topCyl`)**: Replaced legacy ice-white/silver (`0xdce7f7`) on the Black pedestal top face (`y = 0.18..0.22m`) with **Deep Matte Obsidian (`0x0d1017`, roughness `0.36`, metalness `0.12`)** and side trim rings in **Burnished Dark Steel (`0x4e5d6c`)** + **Cobalt-Violet (`0x7c4dff`)**, while White pedestals use **Warm Ivory Marble (`0xfffdf5`)** + **Gleaming Royal Gold (`0xffca28`)**. Pawns (`p`) use a `0.86×` pedestal radius for immediate footprint differentiation.
+  2. **Black `.glb` Albedo & Shader Ivory Clamp (`applyBlackTeamGlbContrast` + `uIsBlackObsidian`)**: Darkens textured Black `.glb` models (`0x48506a`, `emissive = 0x140c2e`, `emissiveMap = null`), maps untextured `faction_primary` to `0x0d1017` and `faction_trim` to `0x7c4dff`, and clamps baked-in `.glb` bottom plinths (`vNormY < 0.15`) and high-luminance texels (`luma > 0.65`) in `injectLocomotionShader`.
+  3. **Single Head-Juxtaposed Sculpted 3D Role Crowns (`S2` Default in 3D, `computeGroundedHeadAnchor`)**:
+     - All 22 `.glb` models are kept free of duplicate baked add-on geometry (`tools/model-pipeline/bake_universal_role_addons.py --strip`), and `PieceView.attachGlbToPiece` computes the exact grounded 3D head apex (`computeGroundedHeadAnchor`) of each loaded `.glb` so the single `S2` 3D Role Crown is mounted inside `bodyContainer` directly on the character's head (`headTopY - 0.024m`) with zero mid-air gap and zero `BoxGeometry` cubes:
+       - `k` (King): Imperial arched diadem + 8 cabochon jewels + 4 pearl arches + monde orb + flared pyramidal Cross Pattee finial.
+       - `q` (Queen): Graceful 8-spire curved tiara coronet + 8 delicate proportionate pearls (`r = 0.015m`) + central sovereign jewel.
+       - `b` (Bishop): Sculpted liturgical mitre (`LatheGeometry`) + lappets + tapered pastoral cross finial.
+       - `n` (Knight): Corinthian warhorse crest with swept curved dorsal plume + aerodynamic bilateral side-crests.
+       - `r` (Rook): Curved 6-merlon cylindrical mural crown + battlement molding.
+       - `p` (Pawn): Braided circlet + Staunton finial sphere + tapered Swiss-Guard pike tip.
+  4. **100% Square-Aligned `2D` Top-Cap Medallions (`y = 0.04m`) & Simplified Single-Icon Design (`A1`)**:
+     - Pressing **`📐 2D`** (`#hud-top-btn`, `topDownCamera = true`) automatically toggles ON the 2D top-cap medallions (`showZenith2dDisc = true`) in any active clarity mode (`s1..s5`) and hides them when returning to `3D`.
+     - Each `Zenithal2DClassicDisc` sits at **board level (`y = ZENITH_DISC_BOARD_Y = 0.04m`, identical across all 6 piece types)** while the 3D piece body/pedestal is hidden in 2D mode, eliminating height-dependent perspective parallax so every medallion sits 100% dead-center inside its square (`a1..h8`).
+     - By default (`showRoleLetters = false`), each 2D medallion renders **ONLY ONE large, dead-centered classic chess icon (`♚ ♛ ♜ ♝ ♞ ♟`)** with no letters; an optional accessibility toggle (`#hud-setup-letters-toggle` / `?letters=1` / `?braille=1`) adds role letters + Braille (`K ⠇`, `Q ⠟`, `R ⠗`, `B ⠃`, `N ⠝`, `P ⠏`).
+- **5 Combinable Clarity Modes (`?clarity=s2|s1|s3|s4|s5|off`, Default `s2`) & HUD Selector (`#hud-clarity-btn`)**:
+  - **`s2` (Default 3D — Head-Mounted 3D Crowns/Crests + Obsidian Contrast)**: In 3D, keeps ONLY True Matte Obsidian vs Warm Ivory contrast + the single head-juxtaposed 3D role crown (`k, q, b, n, r, p`), with zero floating 2D badges; pressing `📐 2D` toggles the square-aligned 2D medallions.
+  - **`s1` (Zenith 2D)**: Auto-switches to square-aligned 2D tournament medallions (`♚ ♛ ♜ ♝ ♞ ♟`) when camera polar angle `< 35°` or when `📐 2D` is active.
+  - **`s3` (Obsidian Contrast)**: Pure Deep Matte Obsidian vs Warm Ivory material/shader contrast without 3D crowns or 2D overlays in 3D view.
+  - **`s4` (Pedestal Wreath + Crest)**: Sculpted 3D Pedestal Role Wreath (`y = 0.04..0.24m`) + compact camera-facing Floating 2D Role Crest (`THREE.Sprite`).
+  - **`s5` (Hybrid Full)**: Combines `s2 + s3 + s4` at 3D/semi-high angles (`>= 20°`) and automatically switches to `s1` 2D tournament medallions when looking nearly straight down (`< 20°` or in `📐 2D` mode). Evaluated by the Blind VLM Recognizer (`scripts/critic_recognizability.py`, [`docs/clarity_vlm_report.md`](../clarity_vlm_report.md)) at **9.50 / 10**.
+
+## 3D Camera Controls, Mouse Wheel Zoom Default, Help Modal, New-Game Guard & Solid Ruby-Marble d20 (`v0.3.74`)
+
+- **Mouse Wheel Zoom by Default (`src/core/Registry.js` `applyWheelZoomOrOrbit`, `src/main.js`)**:
+  - Scrolling the mouse wheel (`deltaY < 0` / `deltaY > 0`) **zooms in/out by default** (`trackpadTwoFingerRotate = false`), matching standard 3D camera ergonomics since left-click + drag already orbits/tilts the camera.
+  - Modifier keys: `Ctrl` / `Cmd` + wheel always zooms in/out; `Shift` + wheel pans the camera target; `Alt` + wheel (or `?trackpad=rotate` / `?wheel=rotate`) orbits/tilts the camera.
+  - Keyboard `+` / `=` zooms in (`_dollyIn`), `-` / `_` zooms out (`_dollyOut`), and Arrow keys orbit/tilt the camera.
+- **Interactive Help & Shortcuts Guide (`H` / `?`, `#hud-help-btn`, `#hud-help-modal`)**:
+  - Pressing `H`, `h`, or `?` (or clicking the `?` icon in the bottom dock) toggles a bilingual (`IT` / `EN`) 4-quadrant Help & Controls cheat-sheet covering **Mouse & Trackpad 3D Camera**, **Keyboard Shortcuts (`H/?`, `+/-`, `Arrows`, `R`, `V`, `F`, `C`, `D`, `M`, `Space/Enter/Esc`, `~`)**, **Bottom Action Dock Icons**, and **Carlesso Family Lore & Tips**.
+- **New Game Confirmation Modal (`🔄 Nuova`, `#hud-new-btn` → `#hud-confirm-new-modal`)**:
+  - Clicking `🔄 Nuova` (`#hud-new-btn`) no longer wipes an active game immediately; instead it opens `#hud-confirm-new-modal` (`requestNewGame()`) asking for confirmation (`🔄 Sì, ricomincia da capo` / `Enter` vs `↩️ Annulla (continua partita)` / `Escape`) before calling `startNewGame()`.
+- **Solid Ruby-Marble d20 (`🎲 Dado d20 Rubino`, `#hud-d20-btn`, `VFXPoolView.createRubyMarbleD20Prop`, `DropManager`)**:
+  - Replaced the `0 / 12` luck progress bar in the HUD with a **Solid Ruby-Marble 20-Sided Die (`d20`)** featuring a slightly-translucent solid ruby-red marble shell (`opacity: 0.92`) over a solid deep-ruby core (`opacity: 0.98`), rose-white marble veins, silver-white bevelled edges, and crisp engraved white numerals (`1..20`).
+  - Rolling on every capture (`DROP_SPAWNED`, where `golden_crit` guarantees a Natural `20` and unlocks a sticker) or on demand via clicking `#hud-d20-btn` / pressing `D` (`D20_ROLL_REQUESTED` → `D20_ROLLED`) physically tumbles and bounces the 3D 20-sided icosahedron across the chessboard (`triggerRubyD20Roll`) and animates the HUD Ruby d20 gem badge.
+
+## Luxury Marble Chessboard & Full-Screen 180° Curved Zurich Panorama Cyclorama (`v0.3.84` → `v0.3.85`)
+
+- **Bianco Carrara & Nero Marquina Luxury Marble Chessboard (`src/views/ZurichSwampView.js`)**:
+  - The 64 chessboard squares (`1.0m × 1.0m`, `y = 0.0m`) use polished **Bianco Carrara (`0xfafbfd`, roughness `0.18`)** and **Nero Marquina (`0x111317`, roughness `0.14`)** procedural 512×512 marble textures with dark obsidian grout seams (`0x141820`) and silver-platinum altar trim (`0xcfd8dc`), eliminating the legacy yellowish-cream tiles and golden square borders.
+- **Full-Screen 180° Wrap-Around Fairytale Zurich Panorama (`assets/environments/zurich_panorama.jpg`, `src/views/ZurichSwampView.js`, `src/views/VeoCinemaView.js`)**:
+  - Replaced all blocky 3D primitive skyline boxes (`BoxGeometry`) and hid the legacy flat green moat circle (`EnchantedSwampMoat`) in favor of an unobstructed **full-screen 180-degree (`θ = 0 .. π`) wrap-around vertical cyclorama (`radiusX = 11.8m`, `z = -12.4m .. +2.5m`, `y = -2.95m .. -6.80m` at bottom up to `+10.85m .. +12.00m` at top, `fog: false`)** that fills **100% of the screen from top to bottom and left to right** with zero empty lower void and zero floor stretching.
+  - Features the Nanobanana twilight panorama of Zurich (`Fraumünster`, `St. Peter` golden clock face, `Grossmünster Twin Towers`, `Limmat River`, `Münsterbrücke`, `Lake Zurich`, and snow-capped `Swiss Alps`), plus two Easter Eggs:
+    1. **Google Zurich Hürlimann Areal (`Brandschenkestrasse 110`)**: Historic red-brick brewery & tall red-brick Hürlimann chimney tower with a glowing Google `G` beacon on the distant left hillside behind the first buildings.
+    2. **`✦ MADE WITH ✦ / GEMINI 4 ARGON`**: Ornate golden cartouche mounted on the central arch of the Münsterbrücke bridge over the Limmat, positioned cleanly above the Black King & Queen crowns.
+  - During normal chess play (`mode === 'idle'`, `cinemaBlend === 0`), `VeoMagicCinemaMirror` stays hidden (`visible = false`) so the 180° Zurich skyline is never obstructed, and smoothly materializes during capture battles and checkmates.
 
 ## Open Questions
 

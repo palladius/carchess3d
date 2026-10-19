@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.64';
+export const APP_VERSION = '0.3.91';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -503,7 +503,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
     role: 'king',
     glyph: '♔',
     name: 'Riccardo',
-    title: { it: 'Re Riccardo (Carlesso al Cesso)', en: 'King Riccardo (Royal Throne)' },
+    title: { it: 'Re Riccardo (Trono Reale 🚽)', en: 'King Riccardo (Royal Throne)' },
     height: CANONICAL_PIECE_HEIGHTS.k,
     weight: 10,
     frontPortrait: 'assets/characters/king-riccardo-1.jpg',
@@ -842,7 +842,7 @@ function buildBattleMatrix() {
     };
   }
 
-  // Easter Egg #2: Riccardo (k) <-> Kate (q) Golden Toilet-Throne ("Carlesso al Cesso") clash
+  // Easter Egg #2: Riccardo (k) <-> Kate (q) Golden Toilet-Throne clash
   for (const [a, d] of [['k', 'q'], ['q', 'k']]) {
     matrix[a][d] = {
       ...matrix[a][d],
@@ -857,6 +857,7 @@ function buildBattleMatrix() {
       },
     };
   }
+
 
   // Easter Egg #3: Seby (n) <-> Ale (b) Brother Rivalry
   matrix.n.b = {
@@ -1161,8 +1162,8 @@ export const I18N = Object.freeze({
     mode2Btn: '🌟 WOW Mode & Cinema',
     matrixBtn: '🎬 Matrice 6×6',
     matrix36Btn: '🎬 Matrice 6×6 (36 Scontri)',
-    galleryBtn: '🎨 Galleria',
-    videosBtn: '🎬 36 Video',
+    galleryBtn: '🎬 Cinema Eroi POV',
+    videosBtn: '🎬 Cinema Eroi POV',
     skeletonsBtn: '🦴 Scheletri',
     swampBtn: '🐸 Palude',
     trackpadRotateBtn: '🖐️ 2-Dita: Ruota',
@@ -1185,7 +1186,14 @@ export const I18N = Object.freeze({
     setStone: '⚫🗿 Nero: Pietra Magica (Wizard)',
     turnWhite: 'Turno del Bianco (Avorio & Oro)',
     turnBlack: 'Turno del Nero (Ossidiana & Argento)',
-    luckBar: '🍀 Barra della Fortuna',
+    luckBar: '🎲 Dado d20 Rubino',
+    d20RollTooltip:
+      '🎲 Dado d20 in marmo rosso rubino! Si tira ad ogni cattura (20 = Critico Dorato!) oppure clicca / premi D per tirarlo sulla scacchiera 3D!',
+    confirmNewTitle: '⚠️ Ricominciare la partita da capo?',
+    confirmNewSub:
+      'Tutti i 32 pezzi torneranno alla posizione iniziale e le mosse della partita in corso andranno perse.',
+    confirmNewCancelBtn: '✕ Annulla',
+    confirmNewYesBtn: '🔄 Sì, Nuova Partita!',
     hintBtn: '💡 Suggerimento',
     flipCamBtn: '🔄 Gira Scacchiera',
     topCamBtn: '📐 Vista dall’Alto',
@@ -1213,8 +1221,13 @@ export const I18N = Object.freeze({
     wowCritLabel: '🌟 Forza Colpo Critico Dorato (Golden Crit!)',
     triggerBattleBtn: '⚔️ Lancia Sfida 3D + Cinema!',
     setupBtn: '⚙️ Modifica Partita',
-    setupTitle: '🏰🚽 Setup & Modifica Partita · Fazioni & AI',
-    setupSub: 'Scegli chi gioca al Bianco, chi al Nero, se Giocatore Umano o Computer AI!',
+    setupTitle: '🏰 CarChess3D · Sfida di Famiglia',
+    setupSub: 'Scegli il tuo Eroe, la difficoltà e scendi sulla scacchiera 3D!',
+    quickHeroTitle: 'Scegli il tuo Eroe:',
+    quickDiffTitle: 'Avversario:',
+    playNowBtn: 'GIOCA SUBITO! ✨',
+    advancedSetupToggle: '⚙️ Opzioni Avanzate (Fazioni, Varianti 3D, Chiarezza) ▼',
+    hideAdvancedSetupToggle: '▲ Chiudi Opzioni Avanzate',
     applyCurrentBtn: '💾 Modifica Partita in Corso (Senza Reset)',
     startMatchBtn: '🔄 Nuova Partita (Reset Pezzi) ✨',
     whiteSide: '⚪ Squadra Bianca (Avorio & Oro / Sud)',
@@ -1277,16 +1290,35 @@ export const I18N = Object.freeze({
     knightVariantLightsaber: '⚡ Seby Spada Laser (Lama Plasma)',
     knightVariantHalberd: '🔱 Seby Alabarda (Guardia Reale)',
     knightVariantAurora: '🏺 Seby Sigillo Acquario (Sfera Aurora)',
+    clarityBtn: '🔍 Chiarezza Pezzi',
+    clarityLabel: '🔍 Chiarezza Visiva (Riconoscimento Pezzi):',
+    clarityS2: '👑 S2 (Default 3D): Corone & Stemmi 3D sulla Testa + Contrasto Ossidiana/Avorio',
+    clarityS1: '📐 S1: Medaglioni 2D Classici B/N Allineati alla Casella',
+    clarityS3: '🌑 S3: Solo Contrasto Puro Nero Ossidiana vs Bianco Avorio',
+    clarityS4: '🛡️ S4: Ghirlanda 3D Piedistallo + Stemma 2D Flottante',
+    clarityS5: '✨ S5: Ibrida Completa (Corone 3D + Ghirlanda + Ossidiana + 2D dall’Alto)',
+    clarityOff: '🎨 Off: Solo Modelli 3D Originali',
+    helpBtn: '❓ Aiuto & Comandi (H / ?)',
+    helpModalTitle: '🏰❓ Guida Rapida, Telecamera 3D & Scorciatoie',
+    helpModalSub:
+      'Tutto quello che serve per muovere la telecamera, usare la rotella per lo zoom e goderti gli Scacchi di Famiglia (Premi H, ? o Esc per chiudere)',
+    clarityLettersLabel: '🔤 Accessibilità: Mostra lettere e Braille (K, Q, R, B, N, P) sulle icone 2D',
+    qualityLabel: '⚡ Qualità Grafica 3D (LOD):',
+    qualityAuto: '🤖 Auto (Consigliata per il tuo dispositivo)',
+    qualityHigh: '💻 Alta (~1000k poly / PC potente)',
+    qualityMedium: '📱 Media (~50k poly / iPad & tablet)',
+    qualityLow: '🔋 Bassa (~10k poly / smartphone o risparmio batteria)',
   },
   en: {
+
     title: 'CarChess3D · Family Wizard Chess',
     subtitle: 'Magical 3D Chess in the Enchanted Swamp of Zurich',
     mode1Btn: '♟️ 3D Chess Match',
     mode2Btn: '🌟 3D WOW Mode & Cinema',
     matrixBtn: '🎬 6×6 Matrix',
     matrix36Btn: '🎬 6×6 Matrix (36 Clashes)',
-    galleryBtn: '🎨 3D Gallery',
-    videosBtn: '🎬 36 Videos',
+    galleryBtn: '🎬 Heroes POV Cinema',
+    videosBtn: '🎬 Heroes POV Cinema',
     skeletonsBtn: '🦴 Skeletons',
     swampBtn: '🐸 Swamp',
     trackpadRotateBtn: '🖐️ 2-Finger: Rotate',
@@ -1309,7 +1341,14 @@ export const I18N = Object.freeze({
     setStone: '⚫🗿 Black: Wizard Stone',
     turnWhite: 'White’s Turn (Ivory & Gold)',
     turnBlack: 'Black’s Turn (Obsidian & Silver)',
-    luckBar: '🍀 Luck Meter',
+    luckBar: '🎲 Ruby d20',
+    d20RollTooltip:
+      '🎲 Solid Ruby-Marble d20! Rolls on every capture (20 = Golden Crit!) or click / press D to roll it on the 3D board!',
+    confirmNewTitle: '⚠️ Restart match from scratch?',
+    confirmNewSub:
+      'All 32 pieces will reset to their starting squares and the current match progress will be lost.',
+    confirmNewCancelBtn: '✕ Cancel',
+    confirmNewYesBtn: '🔄 Yes, New Match!',
     hintBtn: '💡 Magic Hint',
     flipCamBtn: '🔄 Flip Board',
     topCamBtn: '📐 Top-Down View',
@@ -1337,8 +1376,13 @@ export const I18N = Object.freeze({
     wowCritLabel: '🌟 Force Golden Critical Hit (Golden Crit!)',
     triggerBattleBtn: '⚔️ Launch 3D Clash + Veo Cinema!',
     setupBtn: '⚙️ Edit Match',
-    setupTitle: '🏰🚽 Match Setup & Edit · Factions & AI',
-    setupSub: 'Choose who plays White, who plays Black, Human Player or AI Opponent!',
+    setupTitle: '🏰 CarChess3D · Family Wizard Chess',
+    setupSub: 'Pick your Hero, difficulty and jump onto the 3D chessboard!',
+    quickHeroTitle: 'Choose your Hero:',
+    quickDiffTitle: 'Opponent Mode:',
+    playNowBtn: 'PLAY NOW! ✨',
+    advancedSetupToggle: '⚙️ Advanced Options (Factions, 3D Variants, Clarity) ▼',
+    hideAdvancedSetupToggle: '▲ Hide Advanced Options',
     applyCurrentBtn: '💾 Update Current Match (No Reset)',
     startMatchBtn: '🔄 New Match (Reset Board) ✨',
     whiteSide: '⚪ White Team (Ivory & Gold / South)',
@@ -1401,8 +1445,83 @@ export const I18N = Object.freeze({
     knightVariantLightsaber: '⚡ Seby Lightsaber (Plasma Saber)',
     knightVariantHalberd: '🔱 Seby Halberd (Royal Guard)',
     knightVariantAurora: '🏺 Seby Seal of Aquarius (Aurora Sphere)',
+    clarityBtn: '🔍 Piece Clarity',
+    clarityLabel: '🔍 Visual Clarity (Piece Recognition):',
+    clarityS2: '👑 S2 (Default 3D): Head-Mounted 3D Crowns/Crests + Obsidian/Ivory Contrast',
+    clarityS1: '📐 S1: Square-Aligned Classic 2D B/W Medallions',
+    clarityS3: '🌑 S3: Pure Obsidian Black vs Ivory White Contrast Only',
+    clarityS4: '🛡️ S4: 3D Pedestal Role Wreath + Floating 2D Crest',
+    clarityS5: '✨ S5: Hybrid Full (3D Crowns + Wreath + Obsidian + Auto-2D Top)',
+    clarityOff: '🎨 Off: Original 3D Models Only',
+    helpBtn: '❓ Help & Controls (H / ?)',
+    helpModalTitle: '🏰❓ Quick Guide, 3D Camera & Shortcuts',
+    helpModalSub:
+      'Everything you need to control the 3D camera, zoom with the mouse wheel, and enjoy Family Wizard Chess (Press H, ? or Esc to close)',
+    clarityLettersLabel: '🔤 Accessibility: Show role letters & Braille (K, Q, R, B, N, P) on 2D icons',
+    qualityLabel: '⚡ 3D Graphics Quality (LOD):',
+    qualityAuto: '🤖 Auto (Recommended for your hardware)',
+    qualityHigh: '💻 High (~1000k poly / powerful desktop)',
+    qualityMedium: '📱 Medium (~50k poly / iPad & tablet)',
+    qualityLow: '🔋 Low (~10k poly / phone or battery saver)',
   },
 });
+
+
+/**
+ * Pure camera mouse-wheel / trackpad gesture handler for `OrbitControls`.
+ *
+ * - **Default (`controls.trackpadTwoFingerRotate === false`)**: Mouse wheel (and 2-finger scroll)
+ *   zooms in (`deltaY < 0` -> `_dollyIn`) and zooms out (`deltaY > 0` -> `_dollyOut`).
+ * - **`Ctrl` or `Cmd` (`metaKey`) + Wheel / Trackpad Pinch**: Always zooms in/out.
+ * - **`Shift` + Wheel**: Pans the camera target (`_pan`).
+ * - **`Alt` + Wheel** (or 2-finger scroll when `controls.trackpadTwoFingerRotate === true`):
+ *   Orbits/rotates left/right (`_rotateLeft`) and up/down (`_rotateUp`).
+ *
+ * @param {object} controls
+ * @param {{ clientX?: number, clientY?: number, deltaX?: number, deltaY?: number, ctrlKey?: boolean, metaKey?: boolean, altKey?: boolean, shiftKey?: boolean }} event
+ * @returns {'zoom'|'pan'|'rotate'}
+ */
+export function applyWheelZoomOrOrbit(controls, event = {}) {
+  if (!controls) return 'zoom';
+  controls._updateZoomParameters?.(event.clientX ?? 0, event.clientY ?? 0);
+
+  const deltaX = Number(event.deltaX ?? 0);
+  const deltaY = Number(event.deltaY ?? 0);
+  const zoomSpeed = Number(controls.zoomSpeed ?? 1.25);
+  const rotateSpeed = Number(controls.rotateSpeed ?? 0.95);
+
+  if (event.shiftKey && !event.ctrlKey && !event.metaKey) {
+    controls._pan?.(-deltaX * 0.65, -deltaY * 0.65);
+    controls.update?.();
+    return 'pan';
+  }
+
+  const shouldZoom =
+    Boolean(event.ctrlKey) ||
+    Boolean(event.metaKey) ||
+    (!event.altKey && !controls.trackpadTwoFingerRotate);
+
+  if (shouldZoom) {
+    const pinchScale = Math.pow(
+      0.95,
+      zoomSpeed * Math.min(8.0, Math.abs(deltaY) * 0.025 + 0.35),
+    );
+    if (deltaY < 0) {
+      controls._dollyIn?.(pinchScale);
+    } else if (deltaY > 0) {
+      controls._dollyOut?.(pinchScale);
+    }
+    controls.update?.();
+    return 'zoom';
+  }
+
+  const h = Math.max(1, Number(controls.domElement?.clientHeight || 800));
+  const twoPi = Math.PI * 2;
+  controls._rotateLeft?.((twoPi * deltaX * rotateSpeed * 0.85) / h);
+  controls._rotateUp?.((twoPi * deltaY * rotateSpeed * 0.85) / h);
+  controls.update?.();
+  return 'rotate';
+}
 
 /**
  * Detects whether the current viewport is a compact smartphone (e.g., Pixel 10, iPhone)
@@ -1543,4 +1662,39 @@ export function shouldUseMobileLite3D(env = {}) {
   return false;
 }
 
+/**
+ * Resolves GLB path for a piece role, considering family, variants, and LOD tier ('low'|'medium'|'high').
+ *
+ * @param {string} pieceKey 'k'|'q'|'b'|'n'|'r'|'p'
+ * @param {'low'|'medium'|'high'|string} [lodTier='high']
+ * @param {{ family?: string, bishopVariant?: string, queenVariant?: string }} [opts]
+ * @returns {string} Relative GLB model path
+ */
+export function resolvePieceGlbForLod(pieceKey, lodTier = 'high', opts = {}) {
+  const familyId = opts.family || 'carlesso';
+  const reg = FAMILY_REGISTRIES[familyId] || CHARACTER_REGISTRY;
+  const def = reg[pieceKey] || CHARACTER_REGISTRY[pieceKey];
+  if (!def) return '';
+
+  let canonicalPath = def.glbUrl;
+
+  if (pieceKey === 'b') {
+    const bVar = opts.bishopVariant || 'hat';
+    if (bVar && BISHOP_GLB_VARIANTS[bVar]) {
+      canonicalPath = BISHOP_GLB_VARIANTS[bVar];
+    }
+  } else if (pieceKey === 'q') {
+    const qVar = opts.queenVariant || 'young';
+    if (qVar && QUEEN_GLB_VARIANTS[qVar]) {
+      canonicalPath = QUEEN_GLB_VARIANTS[qVar];
+    }
+  }
+
+  // If def provides explicit lodGlbUrls dictionary, use it:
+  if (def.lodGlbUrls && def.lodGlbUrls[lodTier]) {
+    return def.lodGlbUrls[lodTier];
+  }
+
+  return canonicalPath;
+}
 

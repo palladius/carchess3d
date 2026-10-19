@@ -1,5 +1,5 @@
 /**
- * @fileoverview CarChess3D ("Carlesso al Cesso") — Main Entry Point (`src/main.js`).
+ * @fileoverview CarChess3D — Main Entry Point (`src/main.js`).
  *
  * Follows `.agents/skills/niccolo-game-design/SKILL.md`:
  * - Top-level loop is intentionally boring:
@@ -21,7 +21,11 @@ import { OutputPass } from '../vendor/three/addons/postprocessing/OutputPass.js'
 import { GameEventBus } from './core/EventBus.js';
 import { mulberry32 } from './core/Rng.js';
 import { GameLoop } from './core/GameLoop.js';
-import { isMobilePhoneViewport, isMobileOrTabletDevice } from './core/Registry.js';
+import {
+  isMobilePhoneViewport,
+  isMobileOrTabletDevice,
+  applyWheelZoomOrOrbit,
+} from './core/Registry.js';
 
 import { GameFlowManager, FLOW_STATES } from './managers/GameFlowManager.js';
 import { BoardMapManager } from './managers/BoardMapManager.js';
@@ -104,35 +108,18 @@ function bootstrapCarChess3D() {
   controls.minPolarAngle = 0.06;
   controls.maxPolarAngle = Math.PI * 0.485; // Keep camera above the swamp water plane
   controls.target.set(0.0, 2.15, -2.2);
-  controls.trackpadTwoFingerRotate = true;
+  // Default: Mouse wheel zooms in/out (`trackpadTwoFingerRotate = false`).
+  // Optional `?trackpad=rotate` or `?wheel=rotate` switches 2-finger scroll to orbit.
+  controls.trackpadTwoFingerRotate =
+    urlParams.get('trackpad') === 'rotate' || urlParams.get('wheel') === 'rotate';
 
-  // Mac Trackpad 2-Finger Gesture Upgrade:
-  // - 2-finger swipe (deltaX, deltaY without ctrl/meta/alt) -> Rotates Left/Right & Up/Down!
-  // - 2-finger pinch (event.ctrlKey === true) or Cmd/Option/Ctrl + 2-finger scroll -> Zooms In/Out!
-  // - Shift + 2-finger swipe -> Pans camera target!
+  // Mouse Wheel & Trackpad Gesture Handler:
+  // - Default (`trackpadTwoFingerRotate === false`): Mouse wheel / 2-finger scroll -> Zooms In/Out!
+  // - Ctrl / Cmd (metaKey) + Wheel or 2-finger pinch (`event.ctrlKey === true`) -> Always Zooms In/Out!
+  // - Shift + Wheel / 2-finger swipe -> Pans camera target!
+  // - Alt + Wheel (or 2-finger swipe when `trackpadTwoFingerRotate === true`) -> Rotates Left/Right & Up/Down!
   controls._handleMouseWheel = function (event) {
-    this._updateZoomParameters(event.clientX, event.clientY);
-    const isPinchOrZoomMod =
-      event.ctrlKey || event.metaKey || event.altKey || !this.trackpadTwoFingerRotate;
-    if (isPinchOrZoomMod) {
-      const pinchScale = Math.pow(
-        0.95,
-        this.zoomSpeed * Math.min(8.0, Math.abs(event.deltaY) * 0.025 + 0.35),
-      );
-      if (event.deltaY < 0) {
-        this._dollyIn(pinchScale);
-      } else if (event.deltaY > 0) {
-        this._dollyOut(pinchScale);
-      }
-    } else if (event.shiftKey) {
-      this._pan(-event.deltaX * 0.65, -event.deltaY * 0.65);
-    } else {
-      const h = Math.max(1, this.domElement.clientHeight || window.innerHeight || 800);
-      const twoPi = Math.PI * 2;
-      this._rotateLeft((twoPi * event.deltaX * this.rotateSpeed * 0.85) / h);
-      this._rotateUp((twoPi * event.deltaY * this.rotateSpeed * 0.85) / h);
-    }
-    this.update();
+    applyWheelZoomOrOrbit(this, event);
   };
 
   // Safari macOS native 2-finger trackpad pinch gesture support (`gesturestart` / `gesturechange`)
@@ -168,10 +155,10 @@ function bootstrapCarChess3D() {
       return;
     }
     if (e.key === '+' || e.key === '=') {
-      controls._dollyOut(0.88);
+      controls._dollyIn(0.88);
       controls.update();
     } else if (e.key === '-' || e.key === '_') {
-      controls._dollyIn(0.88);
+      controls._dollyOut(0.88);
       controls.update();
     } else if (e.key === 'ArrowLeft') {
       controls._rotateLeft(0.08);

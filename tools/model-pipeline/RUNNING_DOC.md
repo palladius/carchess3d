@@ -609,4 +609,26 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
   - `python3 tools/model-pipeline/critic/scoreboard.py` verified: 0 defective models, 100% Masterpiece tier.
   - `just shittest` clean report: zero models below 6.0 bar.
 
+---
+
+## 29. 2026-10-14 — Universal 3D Static Role Add-Ons Baked into all 22 GLB Models (`tools/model-pipeline/bake_universal_role_addons.py`)
+
+- **Goal (Idea #2B, GHI #32)**: Ensure every `.glb` across all 3 families (`carlesso`, `classic`, `swamp`) embeds an invariant, watertight 3D static role signifier (`UniversalRoleAddon_<type>`) using the `faction_trim` PBR material (`baseColorFactor: [0.85, 0.70, 0.24, 1.0]`, `metallicFactor: 0.80`, `roughnessFactor: 0.24`), automatically tinted per faction by `PieceView.js` (Royal Gold for White, Violet-Silver for Black).
+- **Script & Command**:
+  ```bash
+  UV_INDEX_URL="https://pypi.org/simple" uv run tools/model-pipeline/bake_universal_role_addons.py
+  ```
+- **Role Signifier Geometries (100% Watertight 2-Manifold `trimesh.Trimesh`)**:
+  - **King (`k`, `+7,040 tris`)**: Single-diadem royal crown ring (`wave_cycles=4`) + 4 cardinal diadem jewel bosses + wide X/Z Cross Pattee finial at the top apex + 4 cardinal cross reliefs at the base rim.
+  - **Queen (`q`, `+8,640 tris`)**: 8-spike splayed royal coronet ring (`wave_cycles=8`) + 8 large spherical pearls crowning the top perimeter + 8-star base studs.
+  - **Rook (`r`, `+5,568 tris`)**: 6-merlon crenellated castle battlement turret crown + 6-buttress base fortress collar.
+  - **Bishop (`b`, `+3,424 tris`)**: Sacred nimbus halo + tall Episcopal Cross / Crosier finial with diagonal X-crossbars + 4 diagonal (`45°, 135°, 225°, 315°`) mitre diamond studs at the base.
+  - **Knight (`n`, `+4,160 tris`)**: Wide bilateral warhorse-crest / horseshoe-arch side wings (`±X`) that visibly widen the Knight's silhouette from `0°` and `30°` + dorsal scalloped mane crest + front/back horseshoe base emblem.
+  - **Pawn (`p`, `+2,688 tris`)**: Vertical Swiss-Guard pike spearhead + Staunton sphere finial + neck collar ring at the top + front/back pike chevron spearheads at the base.
+- **Invariants & Idempotency**:
+  - Preserves existing UV textures, materials, animations, and skeletal skins (`bishop-ale-rigged.glb`).
+  - Strictly preserves each model's existing `min_y` (`0.0m`) and `max_y` (`height_m`) and horizontal pedestal bounds.
+  - Stores pre-addon buffer/array slice offsets in `asset.extras.universal_role_addon` so repeated runs are 100% byte-for-byte deterministic and idempotent.
+  - Automatically syncs all 22 `.glb` MD5 checksums and byte sizes in `docs/models-provenance.yaml` (`python3 scripts/test_provenance.py` and `python3 scripts/check.py` pass with 0 errors).
+
 

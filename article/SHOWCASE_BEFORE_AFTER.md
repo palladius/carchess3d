@@ -15,6 +15,16 @@ Uno screenshot ad alta risoluzione (1920×1080) ambientato sulla scacchiera con 
 
 ---
 
+## 👨‍👦‍👦 Il Vero UAT (*User Acceptance Testing*): Ale & Seby al Tablet
+
+Foto ritagliata (`1522×1620`, focalizzata sui bimbi e sul gioco) di Alessandro (🐉) e Sebastian (🏎️) mentre giocano a **CarChess3D** sul tablet, con la scacchiera 3D e le ninfee della palude ben visibili sullo schermo.
+
+![Alessandro e Sebastian giocano a CarChess3D sul tablet](assets/kids_playing_carchess3d.jpg)
+
+> 🕵️‍♂️ **Dossier Forensico Completo di `derek`**: Vedi [`article/DEREK_JETSKI_FORENSICS.md`](DEREK_JETSKI_FORENSICS.md) per la telemetria completa delle **sessioni Antigravity (`12.868+ step`, `760M token`)**, gli **8 Loop Complessi / Swarm** e i **`/goal`** eseguiti su `derek`.
+
+---
+
 ## ⚔️ Confronto d'Insieme: Famiglia Classic
 
 Tutti i 6 pezzi della fazione **Classic**: Re, Regina, Alfiere, Cavallo, Torre e Pedone.
