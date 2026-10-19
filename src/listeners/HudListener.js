@@ -136,6 +136,20 @@ export class HudListener {
     this.opponentMode = 'easy';
     this.whiteFamily = 'carlesso';
     this.rivalSet = 'classic';
+    this.environmentMode = 'zurich';
+    if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const rawEnv = (sp.get('env') || sp.get('bg') || sp.get('map') || '').toLowerCase();
+      if (rawEnv === 'swamp' || rawEnv === 'palude' || rawEnv === 'orchi') {
+        this.environmentMode = 'swamp';
+      } else if (rawEnv === 'positano' || rawEnv === 'amalfi' || rawEnv === 'italy' || rawEnv === 'italia') {
+        this.environmentMode = 'positano';
+      } else if (sp.get('white') === 'swamp' || sp.get('black') === 'swamp' || sp.get('rival') === 'swamp') {
+        this.environmentMode = 'swamp';
+      } else if (sp.get('white') === 'classic') {
+        this.environmentMode = 'positano';
+      }
+    }
     this.whitePlayerType = 'human';
     this.blackPlayerType = 'ai';
     this.whiteDifficulty = 'easy';
@@ -288,6 +302,7 @@ export class HudListener {
         bus.on('LYRIA_CAPTION', (e) => this.onLyriaCaption(e)),
         bus.on('TOGGLE_SKELETONS', (e) => this.onSkeletonsToggled(e)),
         bus.on('PIECE_SET_CHANGED', (e) => this.onPieceSetChanged(e)),
+        bus.on('ENVIRONMENT_CHANGED', (e) => this.onEnvironmentChanged(e)),
         bus.on('CLARITY_MODE_CHANGED', (e) => this.onClarityModeChanged(e)),
         bus.on('AI_THINKING', (e) => this.onAiThinking(e)),
         bus.on('AI_MOVE_READY', (e) => this.onAiMoveReady(e)),
@@ -1974,6 +1989,12 @@ export class HudListener {
             <option value="stone">${this.t('setStone')}</option>
           </select>
 
+          <select id="hud-env-select" class="hud-select" aria-label="Environment Panorama" title="180° Panorama Backdrop">
+            <option value="zurich" ${this.environmentMode === 'zurich' ? 'selected' : ''}>${this.t('envShortZurich')}</option>
+            <option value="swamp" ${this.environmentMode === 'swamp' ? 'selected' : ''}>${this.t('envShortSwamp')}</option>
+            <option value="positano" ${this.environmentMode === 'positano' ? 'selected' : ''}>${this.t('envShortPositano')}</option>
+          </select>
+
           <div id="hud-lang-btn" style="display:inline-flex;gap:4px;align-items:center;" role="group" aria-label="Language / Lingua">
             <button type="button" id="hud-top-flag-en" class="hud-btn ${this.lang === 'en' ? 'active' : ''}" data-set-lang="en" title="English 🇬🇧">🇬🇧 EN</button>
             <button type="button" id="hud-top-flag-it" class="hud-btn ${this.lang === 'it' ? 'active' : ''}" data-set-lang="it" title="Italiano 🇮🇹">🇮🇹 IT</button>
@@ -2308,6 +2329,14 @@ export class HudListener {
             <!-- VISUAL CLARITY & ACCESSIBILITY -->
             <div class="hud-setup-label" style="background:rgba(20,27,42,0.88);border:1.5px solid rgba(255,213,79,0.45);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:7px;">
               <label style="display:flex;flex-direction:column;gap:4px;">
+                <span id="hud-setup-env-lbl" style="color:#ffe082;font-size:12px;">${this.t('envLabel')}</span>
+                <select id="hud-setup-env-select" class="hud-select" style="width:100%;">
+                  <option value="zurich" ${this.environmentMode === 'zurich' ? 'selected' : ''}>${this.t('envZurich')}</option>
+                  <option value="swamp" ${this.environmentMode === 'swamp' ? 'selected' : ''}>${this.t('envSwamp')}</option>
+                  <option value="positano" ${this.environmentMode === 'positano' ? 'selected' : ''}>${this.t('envPositano')}</option>
+                </select>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:4px;">
                 <span id="hud-setup-clarity-lbl" style="color:#ffe082;font-size:12px;">${this.t('clarityLabel')}</span>
                 <select id="hud-setup-clarity-select" class="hud-select" style="width:100%;">
                   <option value="s2" ${this.clarityMode === 's2' ? 'selected' : ''}>${this.t('clarityS2')}</option>
@@ -2332,7 +2361,6 @@ export class HudListener {
                 <span id="hud-setup-letters-lbl">${this.t('clarityLettersLabel')}</span>
               </label>
             </div>
-
 
             <!-- ADVANCED ACTIONS ROW -->
             <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:4px;">
@@ -2706,6 +2734,13 @@ export class HudListener {
       this.whiteFamily = e.target.value;
       const pm = this.ctx?.pieces || this.ctx?.pieceManager;
       pm?.setWhiteFamily?.(this.whiteFamily);
+      const nextEnv =
+        this.whiteFamily === 'swamp' || this.rivalSet === 'swamp'
+          ? 'swamp'
+          : this.whiteFamily === 'classic'
+            ? 'positano'
+            : 'zurich';
+      this.setEnvironment(nextEnv);
       this.ctx?.bus?.flush?.();
     });
 
@@ -2714,7 +2749,19 @@ export class HudListener {
       this.rivalSet = e.target.value;
       const pm = this.ctx?.pieces || this.ctx?.pieceManager;
       pm?.setRivalSetMode?.(this.rivalSet);
+      const nextEnv =
+        this.whiteFamily === 'swamp' || this.rivalSet === 'swamp'
+          ? 'swamp'
+          : this.rivalSet === 'classic' && this.whiteFamily === 'classic'
+            ? 'positano'
+            : 'zurich';
+      this.setEnvironment(nextEnv);
       this.ctx?.bus?.flush?.();
+    });
+
+    // 180° Panorama Environment selector (Zurich vs Ogre Swamp vs Positano)
+    q('#hud-env-select')?.addEventListener('change', (e) => {
+      this.setEnvironment(e.target.value);
     });
 
     // Direct language flag buttons (🇬🇧 EN / 🇮🇹 IT) across Topbar, Setup Modal, and Bottom Dock
@@ -3232,6 +3279,25 @@ export class HudListener {
     q('#hud-setup-btn')?.addEventListener('click', () => this.openSetupModal());
     q('#hud-setup-close')?.addEventListener('click', () => this.closeSetupModal());
 
+    // Auto-sync 180° Panorama Backdrop dropdown in Setup Modal when choosing a Faction
+    const syncSetupEnvFromFactions = (changedSelect) => {
+      const wVal = q('#hud-setup-white-set')?.value || 'carlesso';
+      const bVal = q('#hud-setup-black-set')?.value || 'classic';
+      const varWrap = q('#hud-setup-variants-wrap');
+      if (varWrap) varWrap.style.display = wVal === 'carlesso' ? 'flex' : 'none';
+      const envSel = q('#hud-setup-env-select');
+      if (!envSel) return;
+      if (wVal === 'swamp' || bVal === 'swamp') {
+        envSel.value = 'swamp';
+      } else if (changedSelect?.value === 'classic' || wVal === 'classic') {
+        envSel.value = 'positano';
+      } else {
+        envSel.value = 'zurich';
+      }
+    };
+    q('#hud-setup-white-set')?.addEventListener('change', (e) => syncSetupEnvFromFactions(e.target));
+    q('#hud-setup-black-set')?.addEventListener('change', (e) => syncSetupEnvFromFactions(e.target));
+
     // Setup radio changes (White and Black player types)
     root.querySelectorAll('input[name="white-player-type"]').forEach((radio) => {
       radio.addEventListener('change', (e) => {
@@ -3265,6 +3331,7 @@ export class HudListener {
       const blackPlayerType =
         root.querySelector('input[name="black-player-type"]:checked')?.value || 'ai';
       const blackDiff = q('#hud-setup-black-diff')?.value || 'easy';
+      const environment = q('#hud-setup-env-select')?.value || this.environmentMode || 'zurich';
       const clarityMode = q('#hud-setup-clarity-select')?.value || this.clarityMode || 's2';
       const qualityTier = q('#hud-setup-quality-select')?.value || this.qualityTier || 'auto';
       const showRoleLetters = Boolean(q('#hud-setup-letters-toggle')?.checked);
@@ -3281,6 +3348,7 @@ export class HudListener {
         rivalSet,
         blackPlayerType,
         blackDiff,
+        environment,
         queenVariant,
         bishopVariant,
         knightVariant,
@@ -4342,6 +4410,8 @@ export class HudListener {
       if (nVar) nVar.value = this.knightVariant || pm?.getKnightVariant?.() || 'classic';
       const varWrap = this.rootEl.querySelector('#hud-setup-variants-wrap');
       if (varWrap && wSet) varWrap.style.display = wSet.value === 'carlesso' ? 'flex' : 'none';
+      const envSel = this.rootEl.querySelector('#hud-setup-env-select');
+      if (envSel) envSel.value = this.environmentMode || 'zurich';
       const cSel = this.rootEl.querySelector('#hud-setup-clarity-select');
       if (cSel) cSel.value = this.clarityMode || 's2';
       const qSel = this.rootEl.querySelector('#hud-setup-quality-select');
@@ -4388,6 +4458,55 @@ export class HudListener {
     if (!this.rootEl) return;
     const modal = this.rootEl.querySelector('#hud-setup-modal');
     if (modal) modal.style.display = 'none';
+  }
+
+  /**
+   * Switches the active 180° Panorama Backdrop (`'zurich'|'swamp'|'positano'`) and notifies `ZurichSwampView`.
+   * @param {'zurich'|'swamp'|'positano'} mode
+   * @param {{ silent?: boolean }} [opts]
+   */
+  setEnvironment(mode = 'zurich', opts = {}) {
+    const raw = String(mode || '').trim().toLowerCase();
+    const normalized =
+      raw === 'swamp' || raw === 'palude' || raw === 'orchi'
+        ? 'swamp'
+        : raw === 'positano' || raw === 'amalfi' || raw === 'italy' || raw === 'italia'
+          ? 'positano'
+          : 'zurich';
+    this.environmentMode = normalized;
+    if (this.rootEl) {
+      const topEnv = this.rootEl.querySelector('#hud-env-select');
+      if (topEnv) topEnv.value = normalized;
+      const setupEnv = this.rootEl.querySelector('#hud-setup-env-select');
+      if (setupEnv) setupEnv.value = normalized;
+    }
+    if (!opts.silent && this.ctx?.bus) {
+      this.ctx.bus.emit({
+        type: 'ENVIRONMENT_CHANGED',
+        environment: normalized,
+        mode: normalized,
+      });
+      this.ctx.bus.flush?.();
+    }
+    return normalized;
+  }
+
+  onEnvironmentChanged(e) {
+    const raw = String(e?.environment || e?.mode || '').trim().toLowerCase();
+    if (!raw) return;
+    const normalized =
+      raw === 'swamp' || raw === 'palude' || raw === 'orchi'
+        ? 'swamp'
+        : raw === 'positano' || raw === 'amalfi' || raw === 'italy' || raw === 'italia'
+          ? 'positano'
+          : 'zurich';
+    this.environmentMode = normalized;
+    if (this.rootEl) {
+      const topEnv = this.rootEl.querySelector('#hud-env-select');
+      if (topEnv) topEnv.value = normalized;
+      const setupEnv = this.rootEl.querySelector('#hud-setup-env-select');
+      if (setupEnv) setupEnv.value = normalized;
+    }
   }
 
   /**
@@ -4508,6 +4627,14 @@ export class HudListener {
     const whiteProfile = settings.whiteProfile || this.activeProfile || 'ale';
     const resetBoard = settings.resetBoard !== false;
 
+    const targetEnv =
+      settings.environment ||
+      (whiteFamily === 'swamp' || rivalSet === 'swamp'
+        ? 'swamp'
+        : whiteFamily === 'classic'
+          ? 'positano'
+          : this.environmentMode || 'zurich');
+
     this.whiteFamily = whiteFamily;
     this.rivalSet = rivalSet;
     this.whitePlayerType = whitePlayerType;
@@ -4577,6 +4704,8 @@ export class HudListener {
       this.setQualityTier(settings.qualityTier, { silent: true });
     }
 
+    this.setEnvironment(targetEnv, { silent: true });
+
     // Emit configuration changes to Bus & Piece Manager
     if (this.ctx?.bus) {
       if (!pm?.setWhiteFamily && !pm?.setRivalSetMode) {
@@ -4584,8 +4713,15 @@ export class HudListener {
           type: 'PIECE_SET_CHANGED',
           whiteFamily,
           rivalSetMode: rivalSet,
+          environment: this.environmentMode,
         });
       }
+
+      this.ctx.bus.emit({
+        type: 'ENVIRONMENT_CHANGED',
+        environment: this.environmentMode,
+        mode: this.environmentMode,
+      });
 
       if (whitePlayerType === 'human') {
         this.ctx.bus.emit({
@@ -5787,6 +5923,9 @@ export class HudListener {
     setTxt('#hud-rival-select option[value="swamp"]', 'setSwamp');
     setTxt('#hud-rival-select option[value="classic"]', 'setClassic');
     setTxt('#hud-rival-select option[value="stone"]', 'setStone');
+    setTxt('#hud-env-select option[value="zurich"]', 'envShortZurich');
+    setTxt('#hud-env-select option[value="swamp"]', 'envShortSwamp');
+    setTxt('#hud-env-select option[value="positano"]', 'envShortPositano');
 
     // Bottom Status & Material Icon Action Dock (preserve <svg> icons, update title/aria-label)
     const setTip = (sel, key) => {
@@ -5891,6 +6030,10 @@ export class HudListener {
     setTxt('#hud-setup-black-diff option[value="easy"]', 'cpuEasy');
     setTxt('#hud-setup-black-diff option[value="medium"]', 'cpuMed');
     setTxt('#hud-setup-black-diff option[value="hard"]', 'cpuHard');
+    setTxt('#hud-setup-env-lbl', 'envLabel');
+    setTxt('#hud-setup-env-select option[value="zurich"]', 'envZurich');
+    setTxt('#hud-setup-env-select option[value="swamp"]', 'envSwamp');
+    setTxt('#hud-setup-env-select option[value="positano"]', 'envPositano');
     setTxt('#hud-setup-clarity-lbl', 'clarityLabel');
     setTxt('#hud-setup-clarity-select option[value="s5"]', 'clarityS5');
     setTxt('#hud-setup-clarity-select option[value="s1"]', 'clarityS1');

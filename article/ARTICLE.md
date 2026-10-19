@@ -152,6 +152,9 @@ Advance pawns `b`–`g` two squares, put the camera at board level in front of t
 
 ![The Carlesso family portrait: the white back rank seen from the board](assets/gallery/family_portrait_back_rank.png)
 
+And here is the **12-second cinematic demo sweep** (`scripts/family_orbit_video.py`, rendered on the RTX 5080): starting from a wide aerial establishing view over the Zurich board, swooping down to eye level, holding at the front portrait, and orbiting `-150° → +150°` around the whole family:
+
+![12s cinematic camera orbit around the Carlesso family back rank](assets/gallery/family_orbit.gif)
 
 ---
 

@@ -15,18 +15,20 @@ socketserver.TCPServer.allow_reuse_address = True
 srv = socketserver.TCPServer(("127.0.0.1", PORT), Handler)
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 
-# camera presets to try: (pos, target)
+# camera presets to try: (pos, target, fov)
 SHOTS = {
-    "t_fov70_front": ((0.3, 1.6, 1.2), (0.3, 0.6, 3.5), 70),
-    "u_fov80_front": ((0.3, 1.5, 1.3), (0.3, 0.65, 3.5), 80),
-    "v_fov70_right": ((1.4, 1.6, 1.1), (0.2, 0.6, 3.5), 70),
-    "w_back_fov60": ((0.3, 2.0, -0.3), (0.3, 0.55, 3.5), 60),
+    "t_fov70_front": ((0.3, 1.75, 0.7), (0.3, 0.85, 3.5), 65),
+    "u_fov80_front": ((0.3, 1.7, 0.9), (0.3, 0.88, 3.5), 75),
+    "v_fov70_right": ((1.5, 1.8, 0.8), (0.2, 0.85, 3.5), 65),
+    "w_back_fov60": ((0.3, 2.05, -0.7), (0.3, 0.88, 3.5), 58),
 }
 
 MOVES = [("d2","d4"),("a7","a6"),("e2","e4"),("h7","h6"),("f2","f4"),("a6","a5"),("g2","g4"),("h6","h5"),("b2","b4"),("a8","a7"),("c2","c4"),("h8","h7")]
 
 with sync_playwright() as p:
-    browser = p.chromium.launch(args=["--use-gl=angle", "--use-angle=swiftshader", "--enable-webgl", "--ignore-gpu-blocklist"])
+    chrome_bin = "/usr/bin/google-chrome" if os.path.exists("/usr/bin/google-chrome") else None
+    gl_args = ["--use-gl=angle", "--use-angle=gl", "--enable-gpu-rasterization", "--enable-webgl", "--ignore-gpu-blocklist"] if chrome_bin else ["--use-gl=angle", "--use-angle=swiftshader", "--enable-webgl", "--ignore-gpu-blocklist"]
+    browser = p.chromium.launch(executable_path=chrome_bin, args=gl_args)
     page = browser.new_page(viewport={"width": 1600, "height": 1000}, device_scale_factor=1)
     page.goto(f"http://127.0.0.1:{PORT}/index.html?lang=en", wait_until="networkidle")
     page.wait_for_selector("#game-canvas", timeout=15000)
