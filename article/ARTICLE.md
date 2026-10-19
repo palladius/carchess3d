@@ -146,6 +146,13 @@ No automated test suite can beat the final sign-off from the actual customers: h
 
 ![Alessandro and Sebastian playing CarChess3D on the tablet](assets/kids_playing_carchess3d.jpg)
 
+### 👨‍👩‍👦‍👦 The Family Portrait
+
+Advance pawns `b`–`g` two squares, put the camera at board level in front of the white back rank, hide the HUD, and you get the real reason this project exists: Seby, Ale, Dad, Mum, Ale again and Seby again — with Pupurabbu's purple tower on the flank and the Puffin Swiss Guard helmets peeking in from the front row (`scripts/family_portrait_shot.py`):
+
+![The Carlesso family portrait: the white back rank seen from the board](assets/gallery/family_portrait_back_rank.png)
+
+
 ---
 
 ## 🎠 4. WOW Gallery: The Carlesso Family Figurines
