@@ -610,7 +610,11 @@ export class AudioListener {
     const variant = this.selectVoiceVariant(type, opts);
     const quoteText = variant.quote?.[this.lang] || variant.quote?.it || spec.quote?.[this.lang] || spec.quote?.it || '';
     const audioUrl = variant.audioUrl || spec.audioUrl;
-    const speechLang = variant.speechLang || spec.speechLang;
+    const speechLang =
+      variant.speechLang ||
+      (this.lang === 'en'
+        ? (type === 'q' ? 'en-GB' : 'en-US')
+        : (spec.speechLang || 'it-IT'));
 
     const voiceRecord = {
       pieceType: type,
@@ -678,7 +682,7 @@ export class AudioListener {
     try {
       window.speechSynthesis.cancel();
       const u = new window.SpeechSynthesisUtterance(quoteText);
-      u.lang = spec.speechLang || 'it-IT';
+      u.lang = spec.speechLang || (this.lang === 'en' ? 'en-US' : 'it-IT');
       u.pitch = spec.pitch ?? 1.0;
       u.rate = spec.rate ?? 1.0;
       window.speechSynthesis.speak(u);

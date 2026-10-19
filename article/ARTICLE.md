@@ -1,4 +1,4 @@
-# 🏰🚽 "Carlesso al Cesso": How a Fleet of Autonomous Agents Built a 3D Chess Game Starring My Family While I Celebrated My 10th Wedding Anniversary in Colmar
+# 🏰🚽 CarChess3D: How a Fleet of Autonomous Agents Built a 3D Chess Game Starring My Family While I Celebrated My 10th Wedding Anniversary in Colmar
 
 *By **Riccardo "Palladius" Carlesso** (`RiccardinoCM26 🦖`) — Developer Advocate, SRE at heart, dad to Alessandro (🐉) and Sebastian (🏎️)*  
 *Powered by **Gemini 4 Argon (Antigravity)**, the **Niccolò Game Design** architecture, and a ruthless orchestra of adversarial critics.*  
@@ -31,7 +31,7 @@ Orchestrated by **Gemini 4 Argon** inside **Antigravity**, that adversarial swar
 3. Subjecting every single mesh, texture, and video frame to a merciless multimodal **Adversarial Art Director Critic**.
 4. Writing over **121,000 lines of code**, headless unit tests, and Three.js WebGL shaders.
 
-The result of that weekend? A complete, offline-first (PWA), zero-build-step 3D Battle Chess game set in the **Enchanted Swamp of Zurich (*Swamp-on-the-Limmat*)**: **[CarChess3D ("Carlesso al Cesso" / "Family Chess")](../index.html)**.
+The result of that weekend? A complete, offline-first (PWA), zero-build-step 3D Battle Chess game set in the **Enchanted Swamp of Zurich (*Swamp-on-the-Limmat*)**: **[CarChess3D (🏰🚽 "Family Chess")](../index.html)**.
 
 ---
 
@@ -125,7 +125,7 @@ Instead of anonymous wooden horses and pawns, every piece in CarChess3D is an af
 
 | Chess Role | Character | Canonical 3D Model | Signature Detail & Catchphrase |
 | :--- | :--- | :--- | :--- |
-| **King 👑** | **King Riccardo (Dad)** | `king-riccardo.glb` | Royal crown, ermine-trimmed blue velvet cloak, scepter, and the unmistakable golden Toilet-Throne (*"Carlesso al Cesso"*). |
+| **King 👑** | **King Riccardo (Dad)** | `king-riccardo.glb` | Royal crown, ermine-trimmed blue velvet cloak, scepter, and the unmistakable golden Toilet-Throne (the 🚽 pun that gives *CarChess* its name). |
 | **Queen 👸** | **Queen Kate (Mum)** | `queen-kate.glb` | Navy eyeglasses, emerald eyes, gold-damask purple gown, amethyst ring, and her iconic line: *"Don't be FACETIOUS!"* |
 | **Bishop 🐉** | **Bishop Ale (Alessandro)** | `bishop-ale-1.glb` / `bishop-ale-rigged.glb` | Blue-and-gold papal mitre with flowing *infulae*, cheeky grin, crosier staff, and an animated red baby dragon on his shoulder flapping its wings and yelling: *"Sei proprio un cafoNAZZO!"* |
 | **Knight 🏎️** | **Knight Sebastian (Seby)** | `knight-seby.glb` | Gleaming gold plate armor atop his racehorse steed, raised fist with modular weapon socket (Blue Plasma Saber, Halberd, or Aquarium Orb), asking: *"Mummy, can you clean my bottooooom?"* |
@@ -146,27 +146,33 @@ No automated test suite can beat the final sign-off from the actual customers: h
 
 ![Alessandro and Sebastian playing CarChess3D on the tablet](assets/kids_playing_carchess3d.jpg)
 
+### 👨‍👩‍👦‍👦 The Family Portrait
+
+Advance pawns `b`–`g` two squares, put the camera at board level in front of the white back rank, hide the HUD, and you get the real reason this project exists: Seby, Ale, Dad, Mum, Ale again and Seby again — with Pupurabbu's purple tower on the flank and the Puffin Swiss Guard helmets peeking in from the front row (`scripts/family_portrait_shot.py`):
+
+![The Carlesso family portrait: the white back rank seen from the board](assets/gallery/family_portrait_back_rank.png)
+
+
 ---
 
-## 🎠 4. WOW Gallery: 360° Rotating Family Figurines
+## 🎠 4. WOW Gallery: The Carlesso Family Figurines
 
-Rendered headlessly through our Blender EEVEE pipeline, here are the official `.glb` figurines exported as 360° turntables:
+These are the 2D concept turnarounds (front + 3/4 view) generated with **Nano Banana 2.1** from real family photos. They are the "ground truth" every 3D engine had to chase:
 
 | Dad (King Riccardo 🚽👑) | Mum (Queen Kate 👸💜) |
 | :---: | :---: |
-| ![King Riccardo 360](assets/turntables/papino_re_riccardo_turntable.gif) | ![Queen Kate 360](assets/turntables/mamma_regina_kate_turntable.gif) |
-| *Mode B texture with real biometric Face-Grafting* | *Purple damask gown, gold ring, and navy glasses* |
+| ![King Riccardo concept turnaround](assets/concept/king_riccardo_turnaround.jpg) | ![Queen Kate concept turnaround](assets/concept/queen_kate_turnaround.jpg) |
+| *Royal crown, ermine-trimmed cloak, scepter and golden "Riccardo" plaque* | *Purple damask gown, gold ring, and navy glasses* |
 
 | Bishop Ale & His Dragon (🐉💎) | Knight Seby on His Steed (🏎️✨) |
 | :---: | :---: |
-| ![Bishop Ale 360](assets/turntables/ale_alfiere_turntable.gif) | ![Knight Seby 360](assets/turntables/seby_cavaliere_turntable.gif) |
-| *Episcopal mitre and modular shoulder dragon* | *Golden armor on warhorse with modular weapon fist* |
+| ![Bishop Ale concept turnaround](assets/concept/bishop_ale_turnaround.jpg) | ![Knight Seby concept turnaround](assets/concept/knight_seby_turnaround.jpg) |
+| *Episcopal mitre, crozier and shoulder dragon* | *Silver armor, blue cape and wooden lance on his warhorse* |
 
-| Ale's Animated Dragon (`Idle` Wing Flap) | Talking Swamp Donkey (40-Tooth Grin) |
+| Pawn Puffin (Swiss Guard 🐧🛡️) | Rook Pupurabbu (Purple Fluffy Tower 🏰💜) |
 | :---: | :---: |
-| ![Ale Dragon Idle](assets/turntables/ale_dragon_idle_animation.gif) | ![Swamp Donkey 360](assets/turntables/ciuchino_asinello_turntable.gif) |
-| *26-bone skeletal rig with continuous wing flap* | *Mode A SDF sculpture with golden onion medallion* |
-
+| ![Pawn Puffin concept turnaround](assets/concept/pawn_puffin_turnaround.jpg) | ![Rook Pupurabbu concept turnaround](assets/concept/rook_pupurabbu_turnaround.jpg) |
+| *Morion helmet with red plume and halberd* | *A fluffy purple monster peeking out of a stone keep* |
 ---
 
 ## 🔬 5. Technical Deep Dive: Sculpting 3D Pieces from Family Photos
@@ -226,13 +232,13 @@ My initial King mesh looked like a generic, clean-shaven doll. When I complained
 
 Here is the actual inspection card comparing the 2D turnaround, the legacy procedural placeholder, and the reconstructed 3D mesh:
 
-![Classic King Evolution: 2D Concept -> Low-Poly Procedural -> Reconstructed 3D](assets/gallery/classic_king_evolution_card.png)
+![Classic King Evolution: 2D Concept -> Low-Poly Procedural -> Reconstructed 3D](assets/gallery/classic_king_evolution_card_en.png)
 
-And here are the complete **Before (Procedural) vs. After (Reconstructed 3D)** lineups for both the **Classic** and **Swamp** factions (full breakdown in [`article/SHOWCASE_BEFORE_AFTER.md`](SHOWCASE_BEFORE_AFTER.md)):
+And here are my two favourite reconstructions, the **Classic Rook** (*Matilda's Tower*, Mode A Dual-Orthographic SDF) and the **Classic Bishop** (*Don Spadaccino*, TRELLIS.2 multi-view), each shown as **Concept Art → Procedural placeholder → Reconstructed 3D** (full Before/After lineups of both factions in [`article/SHOWCASE_BEFORE_AFTER.md`](https://github.com/palladius/carchess3d/blob/main/article/SHOWCASE_BEFORE_AFTER.md)):
 
-![Classic Family Lineup: Before vs After](assets/before_after/lineup_classic_before_after.png)
+![Classic Rook Evolution: 2D Concept -> Low-Poly Procedural -> Reconstructed 3D](assets/gallery/classic_rook_evolution_card_en.png)
 
-![Swamp Family Lineup: Before vs After](assets/before_after/lineup_swamp_before_after.png)
+![Classic Bishop Evolution: 2D Concept -> Low-Poly Procedural -> Reconstructed 3D](assets/gallery/classic_bishop_evolution_card_en.png)
 
 ---
 

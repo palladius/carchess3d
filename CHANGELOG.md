@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.86] - 2026-10-19
+## [0.3.92] - 2026-10-19
 
 - 🐸🇮🇹🇨🇭 **Three Full-Screen 180° Panorama Cycloramas: Zurich on the Limmat, Ogre Swamp & Positano from the Sea (`assets/environments/{swamp,positano}_panorama.jpg`, `src/views/ZurichSwampView.js`, `src/listeners/HudListener.js`, `src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`)**:
   - **🐸 Palude degli Orchi (`swamp` — `assets/environments/swamp_panorama.jpg`)**: 100% IP-safe fairytale ogre swamp 21:9 panorama where the chessboard sits surrounded by **180° of glowing emerald-green swamp lake** (giant lily pads, lotus blossoms, frogs, cattails, and fireflies), with the **cozy rustic ogre hut nestled under giant mossy tree roots centered directly in front** of the player, a crooked wooden `'ATTENZIONE ORCHI'` sign, braided onions, a hollowed-log canoe, gourd lanterns, and a bubbling soup cauldron on the dock (no outhouse/toilet).
@@ -9,6 +9,64 @@
     - Selecting the **Palude degli Orchi (`swamp`)** faction on White or Black automatically switches the 180° cyclorama to `🐸 Palude degli Orchi` (`swamp`).
     - Selecting **Classici / San Gennaro (`classic`)** on White automatically switches the 180° cyclorama to `🇮🇹 Positano dal Mare` (`positano`).
     - Added `#hud-setup-env-select` in the Setup Modal, `#hud-env-select` in the Topbar, and `?env=zurich|swamp|positano` URL parameter support so players can switch between all three 180° panoramas live during any match.
+
+## [0.3.91] - 2026-10-19
+
+- 📏🏰 **Visual Hierarchy Calibration & Canonical Family Heights**:
+  - **Torre Pupurabbu Dominant Height (2.50m)**: Imposing stone bastion anchoring the corners with true architectural stature.
+  - **Cavaliere Seby Elongated Equestrian Plinth (1.92m)**: Dedicated oval base (`1.15x` X, `1.35x` Z) respecting the golden steed's natural equine volume, eliminating artificial horizontal squash.
+  - **Pedoni Puffin Compact Minions (0.80m)**: Halved front-line sentinels with compact plinths (`0.85x`), creating instant distinction from royal officers.
+  - **Royal Officers Distinctive Proportions**: Re Riccardo (1.86m), Regina Kate (1.68m), and Alfiere Ale (1.55m).
+  - Unsquashed horizontal bounding volume: removed artificial `maxRadius: 0.36` clamp in `PieceView.js` and `WowModeView.js`.
+- 🎭⚔️ **Complete 3D Modular Skin Variant System in HUD & WOW Inspector**:
+  - Knight Seby 4-Weapon Modular Switcher (`classic`, `lightsaber`, `halberd`, `aurora`) with live selection in Game Setup and WOW Mode.
+  - Bishop Ale 3-variant and Queen Kate 2-variant support integrated into HUD selector.
+  - Bilingual localization (`it`/`en`) and full state management in `PieceManager.js` ($\le 300$ LOC limit strictly preserved).
+- 🎬💥 **Expansion of 36 Cinematic Combat Animations (Veo/Canvas 16:9 3-Act Structure)**:
+  - 3-Act narrative overlay in `VeoCinemaView.js`: Act 1 attacker weapon card, Act 2 dynamic defender counter-attack with comic SFX pills, Act 3 swamp K.O. finisher verdict card.
+  - Synchronized `battles.html` with responsive 3D clash launchers.
+- 🎙️🎵 **Bilingual Voice Triggers & Acoustic Quality**:
+  - Polished natural English voice lines and dynamic speech synthesis fallback (`en-GB` for Queen Kate, `en-US` for family heroes).
+  - Audio critic test suite passing 100%.
+
+## [0.3.90] - 2026-10-19
+
+- 📦🖼️ **Sync `v0.3.88` SFW Naming & Article Visual Refresh Assets (`AGENTS.md`, `README.md`, `package.json`, `src/main.js`, `article/ARTICLE.md`, `docs/ARTICLE.md`, `article/assets/concept/*.jpg`, `article/assets/gallery/classic_*_evolution_card_en.png`)**:
+  - Committed and deployed the remaining `v0.3.88` files left unstaged in the working tree during the `v0.3.89` multi-tier GLB LOD release (`#39`), and synced `origin/main` and `origin/gh-pages`.
+
+## [0.3.89] - 2026-10-19
+
+- 🚀⚡ **Multi-Tier GLB LODs, Hardware Benchmark & Auto-Heuristic (fixes #39, idea by Niccolò)**:
+  - **Headless `DeviceCapabilityHelper` (`src/core/DeviceCapabilityHelper.js`, `tests/device_capability.test.mjs`)**: Classifies device hardware into `low` (~10k poly, mobile phones), `medium` (~50k poly, iPads/tablets, low-RAM laptops), and `high` (~1000k poly/full resolution, desktop workstations) with zero DOM/WebGL imports.
+  - **Dynamic Multi-Tier GLB Resolution in Registry & PieceManager (`src/core/Registry.js`, `src/managers/PieceManager.js`, `src/views/PieceView.js`)**: Added `resolvePieceGlbForLod` and `QUALITY_TIER_CHANGED` event bus integration, resolving tiered models seamlessly while preserving variants and factions.
+  - **Gear Override (Rotella ⚙️) Quality Controls in Settings (`src/listeners/HudListener.js`, `tests/hud_settings.test.mjs`)**: Added interactive 3D Quality selector in Settings modal with bilingual Italian/English labels, `localStorage` persistence, and `?quality=low|medium|high|auto` URL query parameter support.
+  - **LOD Decimation & Benchmark CLI Tooling (`tools/model-pipeline/lod/benchmark_lod.py`, `tools/model-pipeline/lod/decimate_lod.py`, `docs/LOD_BENCHMARK.md`, `tests/test_lod_benchmark.py`)**: Added benchmark measuring file sizes, gzip compression, vertex/triangle counts, and binary parsing timings.
+
+## [0.3.88] - 2026-10-19
+
+- 🚽🧼 **SFW Naming & Article Visual Refresh (`AGENTS.md`, `README.md`, `package.json`, `src/core/Registry.js`, `src/core/BattleMatrix36.js`, `src/main.js`, `article/`)**:
+  - New `AGENTS.md` rule: the public name is **CarChess3D** only; the explicit Italian pun expansion is never spelled out in UI, code, README, titles or articles (NSFW once machine-translated). Keep the 🚽 icon. Purged it from README, `package.json`, battle banners, Registry titles and both articles.
+  - `article/ARTICLE.md`: replaced the low-score rotating `.glb` turntables (Section 4) with the Nano Banana 2.1 concept turnarounds (`article/assets/concept/*.jpg`: King Riccardo, Queen Kate, Bishop Ale, Knight Seby, Pawn Puffin, Rook Pupurabbu); replaced the Italian-labelled Before/After lineups with English 3-stage evolution cards for the Classic Rook and Bishop (`article/assets/gallery/classic_{rook,bishop,king}_evolution_card_en.png`).
+  - Added the "family portrait" screenshot (pawns d/e/f/g advanced two squares, camera facing the white back rank) under `article/assets/gallery/family_portrait_*.png`.
+
+## [0.3.87] - 2026-10-19
+
+- 🦸🎮 **Arcade Hero Select & 1-Click Quick Play (`#hud-setup-modal`, `src/listeners/HudListener.js`, `src/core/Registry.js`)**:
+  - Replaced the daunting, cluttered 13-input match setup form with a clean, welcoming, kid-friendly **Arcade Hero Picker & 1-Click Quick Play** screen:
+    - **Visual Hero Cards**: 1-tap character selection for the Carlesso family heroes (Ale 🐉, Seby 🏎️, Riccardo 👑, Kate 💜, Ospite 🌟) with portraits and role badges.
+    - **Quick Opponent Mode**: 3 large pills (🤖 Easy, 🧠 Medium, 👥 2 Players Hotseat).
+    - **Giant CTA**: Glowing, animated **`▶️ PLAY NOW! ✨` / `▶️ GIOCA SUBITO! ✨`** button to jump straight onto the 3D board.
+    - **Collapsible Advanced Options Drawer (`#hud-advanced-setup-drawer`)**: Clean accordion button (`⚙️ Opzioni Avanzate ▼`) keeps detailed factions, 3D queen/bishop variants, Visual Clarity (S1..S5), and Braille accessibility neatly tucked away by default without breaking power-user customization.
+- 📐🎥 **Top-Down 2D Camera Up-Vector Bugfix (`src/listeners/HudListener.js`)**:
+  - Fixed inverted rank and file orientation in Top-Down view (`#hud-top-btn`): sets `camera.up.set(0, 0, this.cameraFlipped ? 1 : -1)` so White (Rank 1) remains at the bottom, Black (Rank 8) at the top, and files `A..H` go left-to-right with pieces right side up.
+- 🎨✨ **Vector SVG Favicon & 0 Console Errors (`docs/logo/logo.svg`)**:
+  - Created vector SVG icon matching `<link rel="icon" href="./docs/logo/logo.svg">`, eliminating HTTP 404 console errors.
+- 🖼️📸 **Showcase Renders Archived (`article/assets/arcade_hero_select_setup_modal*.png`)**:
+  - Archived before/after renders comparing the daunting legacy form against the clean arcade hero select and expanded drawer.
+
+## [0.3.86] - 2026-10-19
+
+- 📐⚙️ **Spec: benchmark-driven LOD tiers & Auto Quality (idea by Niccolò, `docs/spec/SPEC.md`)**: generalizes the mobile `LOD1` plan into `low / med / high / ultra` GLB tiers (≈3–10k → ≈1M tris), a ~2 s first-launch micro-benchmark that auto-picks the tier per device (cached), a ⚙️ HUD gear to force `Auto / Low / Med / High / Ultra`, and a `docs/benchmarks/lod.md` acceptance criterion (cold-start + fps per tier on ≥ 3 device classes). Spec only, no code yet.
 
 ## [0.3.85] - 2026-10-18
 

@@ -1,4 +1,4 @@
-# 🏰🚽 "Carlesso al Cesso": Come ho generato da zero un videogioco di Scacchi 3D per i miei figli in 2 giorni con Gemini 4 (Argon), TRELLIS e un Critic VLM senza pietà
+# 🏰🚽 CarChess3D: Come ho generato da zero un videogioco di Scacchi 3D per i miei figli in 2 giorni con Gemini 4 (Argon), TRELLIS e un Critic VLM senza pietà
 
 *Di **Riccardo "Palladius" Carlesso** (`RiccardinoCM26 🦖`) — Developer Advocate, SRE nel cuore, papà di Alessandro (🐉) e Sebastian (🏎️)*  
 *Zurigo, 9–10 Ottobre 2026 · Versione `v0.2.0`*
