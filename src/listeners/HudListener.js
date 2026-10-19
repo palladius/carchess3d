@@ -1408,7 +1408,7 @@ export class HudListener {
         text-align: left;
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 12px;
       }
       .hud-setup-header {
         display: flex;
@@ -1416,6 +1416,154 @@ export class HudListener {
         align-items: flex-start;
         border-bottom: 1.5px solid rgba(255, 213, 79, 0.35);
         padding-bottom: 10px;
+      }
+      .hud-quick-setup-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .hud-quick-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .hud-quick-section-title {
+        font-size: 13px;
+        font-weight: 800;
+        color: #ffe082;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .hud-hero-picker {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+      @media (max-width: 580px) {
+        .hud-hero-picker {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      .hud-hero-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        background: rgba(16, 23, 38, 0.85);
+        border: 2px solid rgba(255, 213, 79, 0.25);
+        border-radius: 12px;
+        padding: 8px 6px;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        user-select: none;
+      }
+      .hud-hero-card:hover {
+        border-color: rgba(255, 213, 79, 0.7);
+        background: rgba(24, 34, 56, 0.95);
+        transform: translateY(-2px);
+      }
+      .hud-hero-card.active {
+        border-color: #00e676;
+        background: rgba(0, 230, 118, 0.15);
+        box-shadow: 0 0 14px rgba(0, 230, 118, 0.35);
+        transform: scale(1.03);
+      }
+      .hud-hero-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(255, 213, 79, 0.6);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      }
+      .hud-hero-card.active .hud-hero-avatar {
+        border-color: #00e676;
+      }
+      .hud-hero-name {
+        font-size: 11.5px;
+        font-weight: 800;
+        color: #ffffff;
+        text-align: center;
+        white-space: nowrap;
+      }
+      .hud-hero-role {
+        font-size: 10px;
+        color: #90caf9;
+        text-align: center;
+        white-space: nowrap;
+      }
+      .hud-quick-diff-pills {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .hud-quick-diff-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 8px;
+        font-size: 13px;
+        border-radius: 10px;
+        background: rgba(16, 23, 38, 0.85);
+        border: 1.5px solid rgba(255, 213, 79, 0.3);
+        color: #cfd8dc;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .hud-quick-diff-btn:hover {
+        border-color: #ffe082;
+        color: #ffffff;
+      }
+      .hud-quick-diff-btn.active {
+        background: rgba(255, 213, 79, 0.2);
+        border-color: #ffd54f;
+        color: #ffe082;
+        font-weight: 800;
+        box-shadow: 0 0 10px rgba(255, 213, 79, 0.25);
+      }
+      .hud-play-now-cta {
+        width: 100%;
+        padding: 13px 20px;
+        font-size: 15px;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        animation: hudPulse 1.8s infinite alternate;
+        cursor: pointer;
+      }
+      .hud-advanced-toggle-btn {
+        font-size: 11.5px;
+        padding: 5px 12px;
+        color: #ffe082;
+        opacity: 0.88;
+        background: transparent;
+        border: 1px dashed rgba(255, 213, 79, 0.4);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .hud-advanced-toggle-btn:hover {
+        opacity: 1;
+        border-color: #ffe082;
+        background: rgba(255, 213, 79, 0.12);
+      }
+      .hud-advanced-drawer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 4px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 213, 79, 0.2);
+      }
+      .hud-advanced-drawer.hud-collapsed {
+        display: none !important;
       }
       .hud-setup-sides {
         display: grid;
@@ -1915,10 +2063,10 @@ export class HudListener {
             <div>
               <div style="font-size:18px;font-weight:900;color:#ffe082;display:flex;align-items:center;gap:8px;">
                 <span>🏰🚽</span>
-                <span id="hud-setup-title">${this.t(this.isMobilePhone ? 'mobileQuickTitle' : 'setupTitle')}</span>
+                <span id="hud-setup-title">${this.t('setupTitle')}</span>
               </div>
               <span id="hud-setup-sub" style="font-size:11.5px;color:#9be7c4;display:block;margin-top:2px;">
-                ${this.t(this.isMobilePhone ? 'mobileQuickSub' : 'setupSub')}
+                ${this.t('setupSub')}
               </span>
             </div>
             <div style="display:flex;align-items:center;gap:6px;">
@@ -1928,185 +2076,221 @@ export class HudListener {
             </div>
           </div>
 
-          <!-- MOBILE SIMPLIFIED 1-TAP QUICK START ("Easy Adopter" Mode) -->
-          <div id="hud-mobile-quick-setup" class="hud-mobile-quick-setup">
-            <div class="hud-mobile-matchup-pill">
-              <div class="hud-mobile-team-col">
-                <strong id="hud-mobile-you-lbl" style="color:#ffe082;">${this.t('mobileQuickYou')}</strong>
-                <span id="hud-mobile-papino-team" style="color:#b9f6ca;font-size:11px;">${this.t('mobileQuickPapinoTeam')}</span>
+          <!-- UNIVERSAL ARCADE HERO & QUICK START (Clean, Visual, Kid-Friendly) -->
+          <div class="hud-quick-setup-wrap">
+            <div class="hud-quick-section">
+              <div class="hud-quick-section-title">
+                <span>🦸</span>
+                <span id="hud-setup-hero-pick-title">${this.t('quickHeroTitle')}</span>
               </div>
-              <span style="font-size:18px;font-weight:900;color:#ffd54f;">⚡ VS ⚡</span>
-              <div class="hud-mobile-team-col" style="text-align:right;">
-                <strong id="hud-mobile-cpu-lbl" style="color:#90caf9;">${this.t('mobileQuickCpu')}</strong>
-                <span id="hud-mobile-cpu-team" style="color:#cfd8dc;font-size:11px;">${this.t('mobileQuickCpuTeam')}</span>
+              <div class="hud-hero-picker" role="radiogroup" aria-label="Choose Hero">
+                <div class="hud-hero-card ${this.activeProfile === 'ale' || (!this.activeProfile && !this.isMobilePhone) ? 'active' : ''}" data-hero-id="ale">
+                  <img src="assets/characters/bishop-ale-1.jpg" alt="Ale" class="hud-hero-avatar">
+                  <span class="hud-hero-name">Ale 🐉</span>
+                  <span class="hud-hero-role">Alfiere ♗</span>
+                </div>
+                <div class="hud-hero-card ${this.activeProfile === 'seby' ? 'active' : ''}" data-hero-id="seby">
+                  <img src="assets/characters/knight-seby-4.jpg" alt="Seby" class="hud-hero-avatar">
+                  <span class="hud-hero-name">Seby 🏎️</span>
+                  <span class="hud-hero-role">Cavallo ♘</span>
+                </div>
+                <div class="hud-hero-card ${this.activeProfile === 'riccardo' ? 'active' : ''}" data-hero-id="riccardo">
+                  <img src="assets/characters/king-riccardo-1.jpg" alt="Riccardo" class="hud-hero-avatar">
+                  <span class="hud-hero-name">Riccardo 👑</span>
+                  <span class="hud-hero-role">Re ♔</span>
+                </div>
+                <div class="hud-hero-card ${this.activeProfile === 'kate' ? 'active' : ''}" data-hero-id="kate">
+                  <img src="assets/characters/queen-kate-4.jpg" alt="Kate" class="hud-hero-avatar">
+                  <span class="hud-hero-name">Kate 💜</span>
+                  <span class="hud-hero-role">Regina ♕</span>
+                </div>
+                <div class="hud-hero-card ${this.activeProfile === 'ospite' || (this.isMobilePhone && !this.activeProfile) ? 'active' : ''}" data-hero-id="ospite">
+                  <img src="assets/characters/pawn-puffin.jpg" alt="Ospite" class="hud-hero-avatar">
+                  <span class="hud-hero-name">Ospite 🌟</span>
+                  <span class="hud-hero-role">Guest ♟</span>
+                </div>
               </div>
             </div>
 
-            <div class="hud-mobile-diff-pills" role="group" aria-label="Quick Mode">
-              <button type="button" id="hud-mobile-diff-easy" class="hud-btn hud-mobile-diff-btn active" data-mobile-mode="easy">${this.t('mobileDiffEasy')}</button>
-              <button type="button" id="hud-mobile-diff-medium" class="hud-btn hud-mobile-diff-btn" data-mobile-mode="medium">${this.t('mobileDiffMed')}</button>
-              <button type="button" id="hud-mobile-diff-hotseat" class="hud-btn hud-mobile-diff-btn" data-mobile-mode="hotseat">${this.t('mobileDiff2P')}</button>
+            <div class="hud-quick-section" style="margin-top:2px;">
+              <div class="hud-quick-section-title">
+                <span>🎯</span>
+                <span id="hud-setup-opponent-pick-title">${this.t('quickDiffTitle')}</span>
+              </div>
+              <div class="hud-quick-diff-pills" role="group" aria-label="Quick Mode">
+                <button type="button" id="hud-mobile-diff-easy" class="hud-btn hud-quick-diff-btn active" data-quick-mode="easy" data-mobile-mode="easy">
+                  <span style="font-size:15px;">🤖</span>
+                  <strong id="hud-mobile-diff-easy-lbl">${this.t('mobileDiffEasy')}</strong>
+                </button>
+                <button type="button" id="hud-mobile-diff-medium" class="hud-btn hud-quick-diff-btn" data-quick-mode="medium" data-mobile-mode="medium">
+                  <span style="font-size:15px;">🧠</span>
+                  <strong id="hud-mobile-diff-medium-lbl">${this.t('mobileDiffMed')}</strong>
+                </button>
+                <button type="button" id="hud-mobile-diff-hotseat" class="hud-btn hud-quick-diff-btn" data-quick-mode="hotseat" data-mobile-mode="hotseat">
+                  <span style="font-size:15px;">👥</span>
+                  <strong id="hud-mobile-diff-hotseat-lbl">${this.t('mobileDiff2P')}</strong>
+                </button>
+              </div>
             </div>
 
-            <button type="button" id="hud-mobile-quick-play-btn" class="hud-btn gold-emerald hud-mobile-play-cta">
-              ${this.t('mobilePlayNowBtn')}
+            <!-- PRIMARY 1-CLICK ACTION CTA -->
+            <button type="button" id="hud-setup-start-btn" class="hud-btn gold-emerald hud-play-now-cta" title="Apply settings and start match">
+              <span style="font-size:22px;">▶️</span>
+              <span id="hud-setup-play-now-text">${this.t('playNowBtn')}</span>
             </button>
+            <button type="button" id="hud-mobile-quick-play-btn" style="display:none;" aria-hidden="true"></button>
 
-            <div style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;">
-              <span class="hud-version-pill">⚡ ${this.appVersion}</span>
-              <a id="hud-setup-pov-link" href="./showcase/?view=pov" class="hud-btn gold" style="font-size:11px;padding:4px 10px;text-decoration:none;">${this.t('galleryBtn')}</a>
-              <button type="button" id="hud-mobile-advanced-toggle" class="hud-btn" style="font-size:11px;padding:4px 10px;opacity:0.88;">
-                ${this.t('mobileAdvOptionsBtn')}
+            <!-- SECONDARY QUICK BAR -->
+            <div style="display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-top:2px;">
+              <button type="button" id="hud-toggle-advanced-btn" class="hud-btn hud-advanced-toggle-btn">
+                <span id="hud-advanced-toggle-text">${this.t('advancedSetupToggle')}</span>
               </button>
+              <button type="button" id="hud-mobile-advanced-toggle" style="display:none;" aria-hidden="true"></button>
+              <a id="hud-setup-desktop-pov-link" href="./showcase/?view=pov" class="hud-btn gold" style="font-size:11px;padding:4px 10px;text-decoration:none;" title="Heroes POV Cinema">
+                ${this.t('galleryBtn')}
+              </a>
               <a href="./nocache.html" class="hud-btn" style="font-size:11px;padding:4px 10px;text-decoration:none;color:#ffd54f;">🧹 No-Cache</a>
+              <span class="hud-version-pill" style="font-size:10.5px;">⚡ ${this.appVersion}</span>
             </div>
           </div>
 
-          <div class="hud-setup-sides hud-desktop-setup-only">
-            <!-- WHITE SIDE -->
-            <div class="hud-side-box white-side">
-              <div class="hud-side-title">
-                <span>⚪</span>
-                <span id="hud-setup-white-title">${this.t('whiteSide')}</span>
-              </div>
-
-              <label class="hud-setup-label">
-                <span id="hud-setup-white-faction-lbl">${this.t('factionLabel')}</span>
-                <select id="hud-setup-white-set" class="hud-select" style="width:100%;">
-                  <option value="carlesso" selected>${this.t('setupWhiteCarlesso')}</option>
-                  <option value="swamp">${this.t('setupWhiteSwamp')}</option>
-                  <option value="classic">${this.t('setupWhiteClassic')}</option>
-                </select>
-              </label>
-
-              <div class="hud-setup-label">
-                <span id="hud-setup-white-ctrl-lbl">${this.t('controlLabel')}</span>
-                <div class="hud-setup-radio-group">
-                  <label class="hud-setup-radio-label">
-                    <input type="radio" name="white-player-type" value="human" checked>
-                    <span id="hud-setup-white-human-lbl">${this.t('playerHuman')}</span>
-                  </label>
-                  <label class="hud-setup-radio-label">
-                    <input type="radio" name="white-player-type" value="ai">
-                    <span id="hud-setup-white-ai-lbl">${this.t('playerAi')}</span>
-                  </label>
+          <!-- COLLAPSIBLE ADVANCED SETUP (Detailed Factions, 3D Variants & Visual Clarity) -->
+          <div id="hud-advanced-setup-drawer" class="hud-advanced-drawer hud-collapsed">
+            <div class="hud-setup-sides">
+              <!-- WHITE SIDE -->
+              <div class="hud-side-box white-side">
+                <div class="hud-side-title">
+                  <span>⚪</span>
+                  <span id="hud-setup-white-title">${this.t('whiteSide')}</span>
                 </div>
-              </div>
 
-              <label id="hud-setup-white-profile-wrap" class="hud-setup-label">
-                <span id="hud-setup-profile-lbl">${this.t('profileLabel')}</span>
-                <select id="hud-setup-white-profile" class="hud-select" style="width:100%;">
-                  ${PROFILES.map((p) => `<option value="${p.id}" ${p.id === (this.isMobilePhone ? 'ospite' : 'ale') ? 'selected' : ''}>${p.name}</option>`).join('')}
-                </select>
-              </label>
-
-              <div id="hud-setup-variants-wrap" class="hud-setup-label" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
-                <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
-                  <span id="hud-setup-queen-var-lbl">${this.t('queenVariantLabel')}</span>
-                  <select id="hud-setup-queen-variant" class="hud-select" style="min-width:140px;">
-                    <option value="young" ${this.queenVariant === 'young' ? 'selected' : ''}>${this.t('queenVariantYoung')}</option>
-                    <option value="wedding" ${this.queenVariant === 'wedding' ? 'selected' : ''}>${this.t('queenVariantWedding')}</option>
+                <label class="hud-setup-label">
+                  <span id="hud-setup-white-faction-lbl">${this.t('factionLabel')}</span>
+                  <select id="hud-setup-white-set" class="hud-select" style="width:100%;">
+                    <option value="carlesso" selected>${this.t('setupWhiteCarlesso')}</option>
+                    <option value="swamp">${this.t('setupWhiteSwamp')}</option>
+                    <option value="classic">${this.t('setupWhiteClassic')}</option>
                   </select>
                 </label>
-                <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
-                  <span id="hud-setup-bishop-var-lbl">${this.t('bishopVariantLabel')}</span>
-                  <select id="hud-setup-bishop-variant" class="hud-select" style="min-width:140px;">
-                    <option value="hat" ${this.bishopVariant === 'hat' ? 'selected' : ''}>${this.t('bishopVariantHat')}</option>
-                    <option value="astrolabe" ${this.bishopVariant === 'astrolabe' ? 'selected' : ''}>${this.t('bishopVariantAstrolabe')}</option>
-                    <option value="rigged" ${this.bishopVariant === 'rigged' ? 'selected' : ''}>${this.t('bishopVariantRigged')}</option>
+
+                <div class="hud-setup-label">
+                  <span id="hud-setup-white-ctrl-lbl">${this.t('controlLabel')}</span>
+                  <div class="hud-setup-radio-group">
+                    <label class="hud-setup-radio-label">
+                      <input type="radio" name="white-player-type" value="human" checked>
+                      <span id="hud-setup-white-human-lbl">${this.t('playerHuman')}</span>
+                    </label>
+                    <label class="hud-setup-radio-label">
+                      <input type="radio" name="white-player-type" value="ai">
+                      <span id="hud-setup-white-ai-lbl">${this.t('playerAi')}</span>
+                    </label>
+                  </div>
+                </div>
+
+                <label id="hud-setup-white-profile-wrap" class="hud-setup-label">
+                  <span id="hud-setup-profile-lbl">${this.t('profileLabel')}</span>
+                  <select id="hud-setup-white-profile" class="hud-select" style="width:100%;">
+                    ${PROFILES.map((p) => `<option value="${p.id}" ${p.id === (this.isMobilePhone ? 'ospite' : 'ale') ? 'selected' : ''}>${p.name}</option>`).join('')}
+                  </select>
+                </label>
+
+                <div id="hud-setup-variants-wrap" class="hud-setup-label" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+                  <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                    <span id="hud-setup-queen-var-lbl">${this.t('queenVariantLabel')}</span>
+                    <select id="hud-setup-queen-variant" class="hud-select" style="min-width:140px;">
+                      <option value="young" ${this.queenVariant === 'young' ? 'selected' : ''}>${this.t('queenVariantYoung')}</option>
+                      <option value="wedding" ${this.queenVariant === 'wedding' ? 'selected' : ''}>${this.t('queenVariantWedding')}</option>
+                    </select>
+                  </label>
+                  <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                    <span id="hud-setup-bishop-var-lbl">${this.t('bishopVariantLabel')}</span>
+                    <select id="hud-setup-bishop-variant" class="hud-select" style="min-width:140px;">
+                      <option value="hat" ${this.bishopVariant === 'hat' ? 'selected' : ''}>${this.t('bishopVariantHat')}</option>
+                      <option value="astrolabe" ${this.bishopVariant === 'astrolabe' ? 'selected' : ''}>${this.t('bishopVariantAstrolabe')}</option>
+                      <option value="rigged" ${this.bishopVariant === 'rigged' ? 'selected' : ''}>${this.t('bishopVariantRigged')}</option>
+                    </select>
+                  </label>
+                </div>
+
+                <label id="hud-setup-white-ai-wrap" class="hud-setup-label" style="display:none;">
+                  <span id="hud-setup-white-diff-lbl">${this.t('difficultyLabel')}</span>
+                  <select id="hud-setup-white-diff" class="hud-select" style="width:100%;">
+                    <option value="easy" selected>${this.t('cpuEasy')}</option>
+                    <option value="medium">${this.t('cpuMed')}</option>
+                    <option value="hard">${this.t('cpuHard')}</option>
                   </select>
                 </label>
               </div>
 
-              <label id="hud-setup-white-ai-wrap" class="hud-setup-label" style="display:none;">
-                <span id="hud-setup-white-diff-lbl">${this.t('difficultyLabel')}</span>
-                <select id="hud-setup-white-diff" class="hud-select" style="width:100%;">
-                  <option value="easy" selected>${this.t('cpuEasy')}</option>
-                  <option value="medium">${this.t('cpuMed')}</option>
-                  <option value="hard">${this.t('cpuHard')}</option>
-                </select>
-              </label>
-            </div>
+              <!-- BLACK SIDE -->
+              <div class="hud-side-box black-side">
+                <div class="hud-side-title">
+                  <span>⚫</span>
+                  <span id="hud-setup-black-title">${this.t('blackSide')}</span>
+                </div>
 
-            <!-- BLACK SIDE -->
-            <div class="hud-side-box black-side">
-              <div class="hud-side-title">
-                <span>⚫</span>
-                <span id="hud-setup-black-title">${this.t('blackSide')}</span>
-              </div>
+                <label class="hud-setup-label">
+                  <span id="hud-setup-black-faction-lbl">${this.t('factionLabel')}</span>
+                  <select id="hud-setup-black-set" class="hud-select" style="width:100%;">
+                    <option value="classic" selected>${this.t('setupBlackClassic')}</option>
+                    <option value="swamp">${this.t('setupBlackSwamp')}</option>
+                    <option value="family">${this.t('setupBlackFamily')}</option>
+                    <option value="stone">${this.t('setupBlackStone')}</option>
+                  </select>
+                </label>
 
-              <label class="hud-setup-label">
-                <span id="hud-setup-black-faction-lbl">${this.t('factionLabel')}</span>
-                <select id="hud-setup-black-set" class="hud-select" style="width:100%;">
-                  <option value="classic" selected>${this.t('setupBlackClassic')}</option>
-                  <option value="swamp">${this.t('setupBlackSwamp')}</option>
-                  <option value="family">${this.t('setupBlackFamily')}</option>
-                  <option value="stone">${this.t('setupBlackStone')}</option>
-                </select>
-              </label>
+                <div class="hud-setup-label">
+                  <span id="hud-setup-black-ctrl-lbl">${this.t('controlLabel')}</span>
+                  <div class="hud-setup-radio-group">
+                    <label class="hud-setup-radio-label">
+                      <input type="radio" name="black-player-type" value="ai" checked>
+                      <span id="hud-setup-black-ai-lbl">${this.t('playerAi')}</span>
+                    </label>
+                    <label class="hud-setup-radio-label">
+                      <input type="radio" name="black-player-type" value="human">
+                      <span id="hud-setup-black-human-lbl">${this.t('playerHumanHotseat')}</span>
+                    </label>
+                  </div>
+                </div>
 
-              <div class="hud-setup-label">
-                <span id="hud-setup-black-ctrl-lbl">${this.t('controlLabel')}</span>
-                <div class="hud-setup-radio-group">
-                  <label class="hud-setup-radio-label">
-                    <input type="radio" name="black-player-type" value="ai" checked>
-                    <span id="hud-setup-black-ai-lbl">${this.t('playerAi')}</span>
-                  </label>
-                  <label class="hud-setup-radio-label">
-                    <input type="radio" name="black-player-type" value="human">
-                    <span id="hud-setup-black-human-lbl">${this.t('playerHumanHotseat')}</span>
-                  </label>
+                <label id="hud-setup-black-ai-wrap" class="hud-setup-label">
+                  <span id="hud-setup-black-diff-lbl">${this.t('difficultyLabel')}</span>
+                  <select id="hud-setup-black-diff" class="hud-select" style="width:100%;">
+                    <option value="easy" selected>${this.t('cpuEasy')}</option>
+                    <option value="medium">${this.t('cpuMed')}</option>
+                    <option value="hard">${this.t('cpuHard')}</option>
+                  </select>
+                </label>
+
+                <div id="hud-setup-black-human-wrap" class="hud-setup-label" style="display:none;color:#90caf9;font-size:11.5px;padding-top:4px;">
+                  ${this.t('hotseatDesc')}
                 </div>
               </div>
+            </div>
 
-              <label id="hud-setup-black-ai-wrap" class="hud-setup-label">
-                <span id="hud-setup-black-diff-lbl">${this.t('difficultyLabel')}</span>
-                <select id="hud-setup-black-diff" class="hud-select" style="width:100%;">
-                  <option value="easy" selected>${this.t('cpuEasy')}</option>
-                  <option value="medium">${this.t('cpuMed')}</option>
-                  <option value="hard">${this.t('cpuHard')}</option>
+            <!-- VISUAL CLARITY & ACCESSIBILITY -->
+            <div class="hud-setup-label" style="background:rgba(20,27,42,0.88);border:1.5px solid rgba(255,213,79,0.45);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:7px;">
+              <label style="display:flex;flex-direction:column;gap:4px;">
+                <span id="hud-setup-clarity-lbl" style="color:#ffe082;font-size:12px;">${this.t('clarityLabel')}</span>
+                <select id="hud-setup-clarity-select" class="hud-select" style="width:100%;">
+                  <option value="s2" ${this.clarityMode === 's2' ? 'selected' : ''}>${this.t('clarityS2')}</option>
+                  <option value="s1" ${this.clarityMode === 's1' ? 'selected' : ''}>${this.t('clarityS1')}</option>
+                  <option value="s3" ${this.clarityMode === 's3' ? 'selected' : ''}>${this.t('clarityS3')}</option>
+                  <option value="s4" ${this.clarityMode === 's4' ? 'selected' : ''}>${this.t('clarityS4')}</option>
+                  <option value="s5" ${this.clarityMode === 's5' ? 'selected' : ''}>${this.t('clarityS5')}</option>
+                  <option value="off" ${this.clarityMode === 'off' ? 'selected' : ''}>${this.t('clarityOff')}</option>
                 </select>
               </label>
-
-              <div id="hud-setup-black-human-wrap" class="hud-setup-label" style="display:none;color:#90caf9;font-size:11.5px;padding-top:4px;">
-                ${this.t('hotseatDesc')}
-              </div>
+              <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#b9f6ca;cursor:pointer;">
+                <input id="hud-setup-letters-toggle" type="checkbox" ${this.showRoleLetters ? 'checked' : ''}>
+                <span id="hud-setup-letters-lbl">${this.t('clarityLettersLabel')}</span>
+              </label>
             </div>
-          </div>
 
-          <div class="hud-setup-label hud-desktop-setup-only" style="background:rgba(20,27,42,0.88);border:1.5px solid rgba(255,213,79,0.45);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:7px;">
-            <label style="display:flex;flex-direction:column;gap:4px;">
-              <span id="hud-setup-clarity-lbl" style="color:#ffe082;font-size:12px;">${this.t('clarityLabel')}</span>
-              <select id="hud-setup-clarity-select" class="hud-select" style="width:100%;">
-                <option value="s2" ${this.clarityMode === 's2' ? 'selected' : ''}>${this.t('clarityS2')}</option>
-                <option value="s1" ${this.clarityMode === 's1' ? 'selected' : ''}>${this.t('clarityS1')}</option>
-                <option value="s3" ${this.clarityMode === 's3' ? 'selected' : ''}>${this.t('clarityS3')}</option>
-                <option value="s4" ${this.clarityMode === 's4' ? 'selected' : ''}>${this.t('clarityS4')}</option>
-                <option value="s5" ${this.clarityMode === 's5' ? 'selected' : ''}>${this.t('clarityS5')}</option>
-                <option value="off" ${this.clarityMode === 'off' ? 'selected' : ''}>${this.t('clarityOff')}</option>
-              </select>
-            </label>
-            <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#b9f6ca;cursor:pointer;">
-              <input id="hud-setup-letters-toggle" type="checkbox" ${this.showRoleLetters ? 'checked' : ''}>
-              <span id="hud-setup-letters-lbl">${this.t('clarityLettersLabel')}</span>
-            </label>
-          </div>
-
-          <div class="hud-setup-badge hud-desktop-setup-only">
-            <span>✨</span>
-            <span id="hud-setup-badge-text">${this.t('defaultSetupBadge')}</span>
-          </div>
-
-          <div class="hud-desktop-setup-only" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-top:4px;">
-            <a id="hud-setup-desktop-pov-link" href="./showcase/?view=pov" class="hud-btn gold" style="padding:10px 16px;font-size:13px;text-decoration:none;" title="Open Heroes POV Cinema (Seby, Ale, Riccardo, Kate... with 6 Attack + 6 Defense Movies)">
-              ${this.t('galleryBtn')}
-            </a>
-            <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
-              <button id="hud-setup-apply-btn" class="hud-btn" style="padding:10px 18px;font-size:13px;" title="Update factions, players and AI in the current match without resetting board pieces">
+            <!-- ADVANCED ACTIONS ROW -->
+            <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:4px;">
+              <button id="hud-setup-apply-btn" class="hud-btn" style="padding:9px 16px;font-size:12.5px;" title="Update factions, players and AI in the current match without resetting board pieces">
                 ${this.t('applyCurrentBtn')}
-              </button>
-              <button id="hud-setup-start-btn" class="hud-btn gold-emerald" style="padding:10px 22px;font-size:14px;" title="Apply settings and start a brand new match (resets all 32 pieces)">
-                ${this.t('startMatchBtn')}
               </button>
             </div>
           </div>
@@ -3041,35 +3225,71 @@ export class HudListener {
 
     q('#hud-setup-apply-btn')?.addEventListener('click', () => submitSetupFromModal(false));
     q('#hud-setup-start-btn')?.addEventListener('click', () => submitSetupFromModal(true));
+    q('#hud-mobile-quick-play-btn')?.addEventListener('click', () => submitSetupFromModal(true));
 
-    // Mobile Simplified UX bindings ("Easy Adopter" 1-tap start & Portrait -> Landscape prompt)
-    q('#hud-rotate-dismiss-btn')?.addEventListener('click', () => {
-      this.portraitDismissed = true;
-      this.syncMobileOrientationUi();
-    });
-
-    root.querySelectorAll('button[data-mobile-mode]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        this.mobileQuickMode = btn.dataset.mobileMode || 'easy';
-        root.querySelectorAll('button[data-mobile-mode]').forEach((b) =>
-          b.classList.toggle('active', b === btn),
-        );
+    // Arcade Hero Picker bindings
+    root.querySelectorAll('.hud-hero-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        const heroId = card.dataset.heroId;
+        if (!heroId) return;
+        this.activeProfile = heroId;
+        root.querySelectorAll('.hud-hero-card').forEach((c) => c.classList.toggle('active', c === card));
+        const wProf = q('#hud-setup-white-profile');
+        if (wProf) wProf.value = heroId;
+        const topProf = q('#hud-profile-select');
+        if (topProf) topProf.value = heroId;
+        this.ctx?.bus?.emit({
+          type: 'PROFILE_SELECTED',
+          profileId: heroId,
+        });
       });
     });
 
-    q('#hud-mobile-quick-play-btn')?.addEventListener('click', () => {
-      this.startMobileQuickMatch();
+    // Arcade Quick Difficulty & Mode Pills
+    root.querySelectorAll('button[data-quick-mode]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.quickMode || 'easy';
+        this.mobileQuickMode = mode;
+        root.querySelectorAll('button[data-quick-mode]').forEach((b) =>
+          b.classList.toggle('active', b === btn),
+        );
+        if (mode === 'hotseat') {
+          const rHuman = root.querySelector('input[name="black-player-type"][value="human"]');
+          if (rHuman) rHuman.checked = true;
+          const bHumanWrap = q('#hud-setup-black-human-wrap');
+          const bAiWrap = q('#hud-setup-black-ai-wrap');
+          if (bHumanWrap) bHumanWrap.style.display = 'block';
+          if (bAiWrap) bAiWrap.style.display = 'none';
+        } else {
+          const rAi = root.querySelector('input[name="black-player-type"][value="ai"]');
+          if (rAi) rAi.checked = true;
+          const bDiff = q('#hud-setup-black-diff');
+          if (bDiff) bDiff.value = mode;
+          const bHumanWrap = q('#hud-setup-black-human-wrap');
+          const bAiWrap = q('#hud-setup-black-ai-wrap');
+          if (bHumanWrap) bHumanWrap.style.display = 'none';
+          if (bAiWrap) bAiWrap.style.display = 'block';
+        }
+      });
     });
 
-    q('#hud-mobile-advanced-toggle')?.addEventListener('click', () => {
-      this.mobileAdvancedOpen = !this.mobileAdvancedOpen;
-      root.classList.toggle('mobile-advanced-open', this.mobileAdvancedOpen);
-      const advBtn = q('#hud-mobile-advanced-toggle');
-      if (advBtn) {
-        advBtn.textContent = this.t(
-          this.mobileAdvancedOpen ? 'mobileHideAdvBtn' : 'mobileAdvOptionsBtn',
-        );
+    // Collapsible Advanced Setup Drawer Toggle
+    q('#hud-toggle-advanced-btn')?.addEventListener('click', () => {
+      const drawer = q('#hud-advanced-setup-drawer');
+      if (drawer) {
+        drawer.classList.toggle('hud-collapsed');
+        const isCollapsed = drawer.classList.contains('hud-collapsed');
+        const txtEl = q('#hud-advanced-toggle-text');
+        if (txtEl) {
+          txtEl.textContent = this.t(isCollapsed ? 'advancedSetupToggle' : 'hideAdvancedSetupToggle');
+        }
       }
+    });
+
+    // Mobile orientation dismiss
+    q('#hud-rotate-dismiss-btn')?.addEventListener('click', () => {
+      this.portraitDismissed = true;
+      this.syncMobileOrientationUi();
     });
 
     // Quake Console bindings
@@ -3531,7 +3751,7 @@ export class HudListener {
 
     this.ctx?.pieceView?.setTopDownMode?.(isTop);
     const pos = isTop
-      ? { x: 0, y: Number((12.6 * portraitScale).toFixed(2)), z: this.cameraFlipped ? -0.001 : 0.001 }
+      ? { x: 0, y: Number((12.6 * portraitScale).toFixed(2)), z: this.cameraFlipped ? 0.001 : -0.001 }
       : {
           x: 0,
           y: Number(((this.cameraFlipped ? 7.0 : 7.2) * portraitScale).toFixed(2)),
@@ -3540,6 +3760,11 @@ export class HudListener {
     const target = isTop ? { x: 0, y: 0.04, z: 0 } : { x: 0, y: 0.3, z: 0 };
 
     if (this.ctx?.camera?.position?.set) {
+      if (isTop) {
+        this.ctx.camera.up?.set?.(0, 0, this.cameraFlipped ? 1 : -1);
+      } else {
+        this.ctx.camera.up?.set?.(0, 1, 0);
+      }
       this.ctx.camera.position.set(pos.x, pos.y, pos.z);
       this.ctx.controls?.target?.set?.(target.x, target.y, target.z);
       this.ctx.controls?.update?.();
@@ -3620,9 +3845,11 @@ export class HudListener {
     }
     if (this.ctx?.camera) {
       if (this.topDownCamera) {
-        this.ctx.camera.position.set(0, 12.6, this.cameraFlipped ? -0.001 : 0.001);
+        this.ctx.camera.up.set(0, 0, this.cameraFlipped ? 1 : -1);
+        this.ctx.camera.position.set(0, 12.6, this.cameraFlipped ? 0.001 : -0.001);
         this.ctx.controls?.target?.set?.(0, 0.04, 0);
       } else {
+        this.ctx.camera.up.set(0, 1, 0);
         this.ctx.camera.position.set(
           0,
           this.cameraFlipped ? 7.0 : 7.2,
@@ -3949,6 +4176,7 @@ export class HudListener {
       : { x: 0, y: 2.15, z: -2.2 };
 
     if (this.ctx?.camera?.position?.set) {
+      this.ctx.camera.up?.set?.(0, 1, 0);
       this.ctx.camera.position.set(pos.x, pos.y, pos.z);
       this.ctx.controls?.target?.set?.(target.x, target.y, target.z);
       this.ctx.controls?.update?.();
@@ -4061,6 +4289,19 @@ export class HudListener {
       const bHumanWrap = this.rootEl.querySelector('#hud-setup-black-human-wrap');
       if (bAiWrap) bAiWrap.style.display = bType === 'ai' ? 'block' : 'none';
       if (bHumanWrap) bHumanWrap.style.display = bType === 'ai' ? 'none' : 'block';
+
+      // Sync arcade hero cards
+      const currProf = this.activeProfile || (this.isMobilePhone ? 'ospite' : 'ale');
+      this.rootEl.querySelectorAll('.hud-hero-card').forEach((card) => {
+        card.classList.toggle('active', card.dataset.heroId === currProf);
+      });
+
+      // Sync arcade quick diff pills
+      const isHotseat = bType === 'human';
+      const quickDiff = isHotseat ? 'hotseat' : (this.blackDifficulty || this.opponentMode || 'easy');
+      this.rootEl.querySelectorAll('button[data-quick-mode]').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.quickMode === quickDiff);
+      });
     }
   }
 
@@ -5472,9 +5713,18 @@ export class HudListener {
       toggleBtn.setAttribute('aria-label', lbl);
     }
 
-    // Startup & Match Setup Modal
-    setTxt('#hud-setup-title', this.isMobilePhone ? 'mobileQuickTitle' : 'setupTitle');
-    setTxt('#hud-setup-sub', this.isMobilePhone ? 'mobileQuickSub' : 'setupSub');
+    // Startup & Match Setup Modal (Arcade Hero Picker & Quick Start)
+    setTxt('#hud-setup-title', 'setupTitle');
+    setTxt('#hud-setup-sub', 'setupSub');
+    setTxt('#hud-setup-hero-pick-title', 'quickHeroTitle');
+    setTxt('#hud-setup-opponent-pick-title', 'quickDiffTitle');
+    setTxt('#hud-setup-play-now-text', 'playNowBtn');
+    setTxt('#hud-mobile-diff-easy-lbl', 'mobileDiffEasy');
+    setTxt('#hud-mobile-diff-medium-lbl', 'mobileDiffMed');
+    setTxt('#hud-mobile-diff-hotseat-lbl', 'mobileDiff2P');
+    const drawerEl = this.rootEl.querySelector('#hud-advanced-setup-drawer');
+    const isAdvOpen = drawerEl && !drawerEl.classList.contains('hud-collapsed');
+    setTxt('#hud-advanced-toggle-text', isAdvOpen ? 'hideAdvancedSetupToggle' : 'advancedSetupToggle');
     setTxt('#hud-rotate-title', 'rotateTitle');
     setTxt('#hud-rotate-sub', 'rotateSub');
     setTxt('#hud-rotate-dismiss-btn', 'rotateDismissBtn');

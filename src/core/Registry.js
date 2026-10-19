@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.86';
+export const APP_VERSION = '0.3.87';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -1214,8 +1214,13 @@ export const I18N = Object.freeze({
     wowCritLabel: '🌟 Forza Colpo Critico Dorato (Golden Crit!)',
     triggerBattleBtn: '⚔️ Lancia Sfida 3D + Cinema!',
     setupBtn: '⚙️ Modifica Partita',
-    setupTitle: '🏰🚽 Setup & Modifica Partita · Fazioni & AI',
-    setupSub: 'Scegli chi gioca al Bianco, chi al Nero, se Giocatore Umano o Computer AI!',
+    setupTitle: '🏰 CarChess3D · Sfida di Famiglia',
+    setupSub: 'Scegli il tuo Eroe, la difficoltà e scendi sulla scacchiera 3D!',
+    quickHeroTitle: 'Scegli il tuo Eroe:',
+    quickDiffTitle: 'Avversario:',
+    playNowBtn: 'GIOCA SUBITO! ✨',
+    advancedSetupToggle: '⚙️ Opzioni Avanzate (Fazioni, Varianti 3D, Chiarezza) ▼',
+    hideAdvancedSetupToggle: '▲ Chiudi Opzioni Avanzate',
     applyCurrentBtn: '💾 Modifica Partita in Corso (Senza Reset)',
     startMatchBtn: '🔄 Nuova Partita (Reset Pezzi) ✨',
     whiteSide: '⚪ Squadra Bianca (Avorio & Oro / Sud)',
@@ -1353,8 +1358,13 @@ export const I18N = Object.freeze({
     wowCritLabel: '🌟 Force Golden Critical Hit (Golden Crit!)',
     triggerBattleBtn: '⚔️ Launch 3D Clash + Veo Cinema!',
     setupBtn: '⚙️ Edit Match',
-    setupTitle: '🏰🚽 Match Setup & Edit · Factions & AI',
-    setupSub: 'Choose who plays White, who plays Black, Human Player or AI Opponent!',
+    setupTitle: '🏰 CarChess3D · Family Wizard Chess',
+    setupSub: 'Pick your Hero, difficulty and jump onto the 3D chessboard!',
+    quickHeroTitle: 'Choose your Hero:',
+    quickDiffTitle: 'Opponent Mode:',
+    playNowBtn: 'PLAY NOW! ✨',
+    advancedSetupToggle: '⚙️ Advanced Options (Factions, 3D Variants, Clarity) ▼',
+    hideAdvancedSetupToggle: '▲ Hide Advanced Options',
     applyCurrentBtn: '💾 Update Current Match (No Reset)',
     startMatchBtn: '🔄 New Match (Reset Board) ✨',
     whiteSide: '⚪ White Team (Ivory & Gold / South)',

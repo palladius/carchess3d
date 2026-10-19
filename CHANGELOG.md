@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.87] - 2026-10-19
+
+- 🦸🎮 **Arcade Hero Select & 1-Click Quick Play (`#hud-setup-modal`, `src/listeners/HudListener.js`, `src/core/Registry.js`)**:
+  - Replaced the daunting, cluttered 13-input match setup form with a clean, welcoming, kid-friendly **Arcade Hero Picker & 1-Click Quick Play** screen:
+    - **Visual Hero Cards**: 1-tap character selection for the Carlesso family heroes (Ale 🐉, Seby 🏎️, Riccardo 👑, Kate 💜, Ospite 🌟) with portraits and role badges.
+    - **Quick Opponent Mode**: 3 large pills (🤖 Easy, 🧠 Medium, 👥 2 Players Hotseat).
+    - **Giant CTA**: Glowing, animated **`▶️ PLAY NOW! ✨` / `▶️ GIOCA SUBITO! ✨`** button to jump straight onto the 3D board.
+    - **Collapsible Advanced Options Drawer (`#hud-advanced-setup-drawer`)**: Clean accordion button (`⚙️ Opzioni Avanzate ▼`) keeps detailed factions, 3D queen/bishop variants, Visual Clarity (S1..S5), and Braille accessibility neatly tucked away by default without breaking power-user customization.
+- 📐🎥 **Top-Down 2D Camera Up-Vector Bugfix (`src/listeners/HudListener.js`)**:
+  - Fixed inverted rank and file orientation in Top-Down view (`#hud-top-btn`): sets `camera.up.set(0, 0, this.cameraFlipped ? 1 : -1)` so White (Rank 1) remains at the bottom, Black (Rank 8) at the top, and files `A..H` go left-to-right with pieces right side up.
+- 🎨✨ **Vector SVG Favicon & 0 Console Errors (`docs/logo/logo.svg`)**:
+  - Created vector SVG icon matching `<link rel="icon" href="./docs/logo/logo.svg">`, eliminating HTTP 404 console errors.
+- 🖼️📸 **Showcase Renders Archived (`article/assets/arcade_hero_select_setup_modal*.png`)**:
+  - Archived before/after renders comparing the daunting legacy form against the clean arcade hero select and expanded drawer.
+
 ## [0.3.86] - 2026-10-19
 
 - 📐⚙️ **Spec: benchmark-driven LOD tiers & Auto Quality (idea by Niccolò, `docs/spec/SPEC.md`)**: generalizes the mobile `LOD1` plan into `low / med / high / ultra` GLB tiers (≈3–10k → ≈1M tris), a ~2 s first-launch micro-benchmark that auto-picks the tier per device (cached), a ⚙️ HUD gear to force `Auto / Low / Med / High / Ultra`, and a `docs/benchmarks/lod.md` acceptance criterion (cold-start + fps per tier on ≥ 3 device classes). Spec only, no code yet.
