@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.87';
+export const APP_VERSION = '0.3.88';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -498,7 +498,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
     role: 'king',
     glyph: '♔',
     name: 'Riccardo',
-    title: { it: 'Re Riccardo (Carlesso al Cesso)', en: 'King Riccardo (Royal Throne)' },
+    title: { it: 'Re Riccardo (Trono Reale 🚽)', en: 'King Riccardo (Royal Throne)' },
     height: CANONICAL_PIECE_HEIGHTS.k,
     weight: 10,
     frontPortrait: 'assets/characters/king-riccardo-1.jpg',
@@ -836,7 +836,7 @@ function buildBattleMatrix() {
     };
   }
 
-  // Easter Egg #2: Riccardo (k) <-> Kate (q) Golden Toilet-Throne ("Carlesso al Cesso") clash
+  // Easter Egg #2: Riccardo (k) <-> Kate (q) Golden Toilet-Throne clash
   for (const [a, d] of [['k', 'q'], ['q', 'k']]) {
     matrix[a][d] = {
       ...matrix[a][d],
@@ -846,7 +846,7 @@ function buildBattleMatrix() {
       easterEgg: 'carlesso_al_cesso_throne',
       anim3dDesc: ANIM_3D_DESCRIPTIONS.golden_toilet_throne,
       banner: {
-        it: 'CARLESSO AL CESSO! TRONO D’ORO! 🚽👑',
+        it: 'CARCHESS! TRONO D’ORO! 🚽👑',
         en: 'ROYAL GOLDEN THRONE STRIKE! 🚽👑',
       },
     };
@@ -1633,4 +1633,39 @@ export function shouldUseMobileLite3D(env = {}) {
   return false;
 }
 
+/**
+ * Resolves GLB path for a piece role, considering family, variants, and LOD tier ('low'|'medium'|'high').
+ *
+ * @param {string} pieceKey 'k'|'q'|'b'|'n'|'r'|'p'
+ * @param {'low'|'medium'|'high'|string} [lodTier='high']
+ * @param {{ family?: string, bishopVariant?: string, queenVariant?: string }} [opts]
+ * @returns {string} Relative GLB model path
+ */
+export function resolvePieceGlbForLod(pieceKey, lodTier = 'high', opts = {}) {
+  const familyId = opts.family || 'carlesso';
+  const reg = FAMILY_REGISTRIES[familyId] || CHARACTER_REGISTRY;
+  const def = reg[pieceKey] || CHARACTER_REGISTRY[pieceKey];
+  if (!def) return '';
+
+  let canonicalPath = def.glbUrl;
+
+  if (pieceKey === 'b') {
+    const bVar = opts.bishopVariant || 'hat';
+    if (bVar && BISHOP_GLB_VARIANTS[bVar]) {
+      canonicalPath = BISHOP_GLB_VARIANTS[bVar];
+    }
+  } else if (pieceKey === 'q') {
+    const qVar = opts.queenVariant || 'young';
+    if (qVar && QUEEN_GLB_VARIANTS[qVar]) {
+      canonicalPath = QUEEN_GLB_VARIANTS[qVar];
+    }
+  }
+
+  // If def provides explicit lodGlbUrls dictionary, use it:
+  if (def.lodGlbUrls && def.lodGlbUrls[lodTier]) {
+    return def.lodGlbUrls[lodTier];
+  }
+
+  return canonicalPath;
+}
 
