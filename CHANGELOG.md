@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.86] - 2026-10-19
+
+- 🐸🇮🇹🇨🇭 **Three Full-Screen 180° Panorama Cycloramas: Zurich on the Limmat, Ogre Swamp & Positano from the Sea (`assets/environments/{swamp,positano}_panorama.jpg`, `src/views/ZurichSwampView.js`, `src/listeners/HudListener.js`, `src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`)**:
+  - **🐸 Palude degli Orchi (`swamp` — `assets/environments/swamp_panorama.jpg`)**: 100% IP-safe fairytale ogre swamp 21:9 panorama where the chessboard sits surrounded by **180° of glowing emerald-green swamp lake** (giant lily pads, lotus blossoms, frogs, cattails, and fireflies), with the **cozy rustic ogre hut nestled under giant mossy tree roots centered directly in front** of the player, a crooked wooden `'ATTENZIONE ORCHI'` sign, braided onions, a hollowed-log canoe, gourd lanterns, and a bubbling soup cauldron on the dock (no outhouse/toilet).
+  - **🇮🇹 Positano dal Mare (`positano` — `assets/environments/positano_panorama.jpg`)**: Viewed from out on the open Mediterranean sea so the lower half and left/right flanks are **180° of crystal-clear turquoise water** with wooden gozzo rowboats, while directly in front rises the vertical pastel cliffside pyramid of **Positano** and the majolica dome of **Santa Maria Assunta** at golden sunset.
+  - **Automatic Faction-Linked + Manual Panorama Switching**:
+    - Selecting the **Palude degli Orchi (`swamp`)** faction on White or Black automatically switches the 180° cyclorama to `🐸 Palude degli Orchi` (`swamp`).
+    - Selecting **Classici / San Gennaro (`classic`)** on White automatically switches the 180° cyclorama to `🇮🇹 Positano dal Mare` (`positano`).
+    - Added `#hud-setup-env-select` in the Setup Modal, `#hud-env-select` in the Topbar, and `?env=zurich|swamp|positano` URL parameter support so players can switch between all three 180° panoramas live during any match.
+
 ## [0.3.85] - 2026-10-18
 
 - 🖥️🏔️ **Full-Screen 180° Wrap-Around Zurich Cyclorama — Zero Lower Void (`src/views/ZurichSwampView.js`, `article/assets/zurich_180_*.png`)**:
