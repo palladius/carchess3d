@@ -22,7 +22,9 @@ import {
   squareToWorld,
   isMobileOrTabletDevice,
   shouldUseMobileLite3D,
+  resolvePieceGlbForLod,
 } from '../core/Registry.js';
+
 import {
   groundAndNormalizeObject3D,
   CANONICAL_PIECE_HEIGHTS,
@@ -1288,9 +1290,19 @@ export class PieceView {
    * and sets up `THREE.AnimationMixer` (`Idle_Track` / `FireBreath_Track`).
    */
   attachGlbToPiece(pieceGroup, bodyContainer, desc) {
-    this.loadGltfCached(desc.glbUrl)
+    const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+    const effectiveLod = pm?.getEffectiveLod?.() || 'high';
+    const resolvedUrl =
+      resolvePieceGlbForLod(desc.type, effectiveLod, {
+        family: desc.family,
+        bishopVariant: pm?.getBishopVariant?.(),
+        queenVariant: pm?.getQueenVariant?.(),
+      }) || desc.glbUrl;
+
+    this.loadGltfCached(resolvedUrl)
       .then((gltf) => {
         if (!gltf || !gltf.scene || !pieceGroup.parent) return;
+
 
         let clonedScene;
         try {
