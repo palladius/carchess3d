@@ -30,8 +30,14 @@ import {
   isPortraitOrientation,
 } from '../core/Registry.js';
 import { BATTLE_MATRIX_36 } from '../core/BattleMatrix36.js';
+import {
+  detectHardwareTier,
+  resolveModelLod,
+  QUALITY_TIERS,
+} from '../core/DeviceCapabilityHelper.js';
 
 const PIECE_ORDER = ['k', 'q', 'b', 'n', 'r', 'p'];
+
 const CLARITY_CYCLE = ['s2', 's1', 's3', 's4', 's5', 'off'];
 const CLARITY_I18N_KEYS = {
   s2: 'clarityS2',
@@ -175,7 +181,20 @@ export class HudListener {
     this.matrixMarathonIndex = 0;
     this.battleMatrix36 = BATTLE_MATRIX_36 || null;
 
+    this.detectedHardwareTier = detectHardwareTier();
+    const urlQuality =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('quality')
+        : null;
+    const storedQuality =
+      typeof localStorage !== 'undefined'
+        ? localStorage.getItem('carchess_quality')
+        : null;
+    this.qualityTier = urlQuality || storedQuality || 'auto';
+    this.effectiveLod = resolveModelLod(this.qualityTier, this.detectedHardwareTier);
+
     this.appVersion = APP_VERSION.startsWith('v') ? APP_VERSION : `v${APP_VERSION}`;
+
 
     this.rootEl = null;
     this.els = {};
@@ -2281,11 +2300,21 @@ export class HudListener {
                   <option value="off" ${this.clarityMode === 'off' ? 'selected' : ''}>${this.t('clarityOff')}</option>
                 </select>
               </label>
+              <label style="display:flex;flex-direction:column;gap:4px;margin-top:2px;">
+                <span id="hud-setup-quality-lbl" style="color:#80d8ff;font-size:12px;">${this.t('qualityLabel')}</span>
+                <select id="hud-setup-quality-select" class="hud-select" style="width:100%;">
+                  <option value="auto" ${this.qualityTier === 'auto' ? 'selected' : ''}>${this.t('qualityAuto')}</option>
+                  <option value="high" ${this.qualityTier === 'high' ? 'selected' : ''}>${this.t('qualityHigh')}</option>
+                  <option value="medium" ${this.qualityTier === 'medium' ? 'selected' : ''}>${this.t('qualityMedium')}</option>
+                  <option value="low" ${this.qualityTier === 'low' ? 'selected' : ''}>${this.t('qualityLow')}</option>
+                </select>
+              </label>
               <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#b9f6ca;cursor:pointer;">
                 <input id="hud-setup-letters-toggle" type="checkbox" ${this.showRoleLetters ? 'checked' : ''}>
                 <span id="hud-setup-letters-lbl">${this.t('clarityLettersLabel')}</span>
               </label>
             </div>
+
 
             <!-- ADVANCED ACTIONS ROW -->
             <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:4px;">
@@ -3198,6 +3227,7 @@ export class HudListener {
         root.querySelector('input[name="black-player-type"]:checked')?.value || 'ai';
       const blackDiff = q('#hud-setup-black-diff')?.value || 'easy';
       const clarityMode = q('#hud-setup-clarity-select')?.value || this.clarityMode || 's2';
+      const qualityTier = q('#hud-setup-quality-select')?.value || this.qualityTier || 'auto';
       const showRoleLetters = Boolean(q('#hud-setup-letters-toggle')?.checked);
 
       const queenVariant = q('#hud-setup-queen-variant')?.value || this.queenVariant || 'young';
@@ -3214,10 +3244,12 @@ export class HudListener {
         queenVariant,
         bishopVariant,
         clarityMode,
+        qualityTier,
         showRoleLetters,
         resetBoard,
       });
     };
+
 
     q('#hud-setup-letters-toggle')?.addEventListener('change', (e) => {
       this.setShowRoleLetters(Boolean(e.target.checked));
@@ -4269,8 +4301,11 @@ export class HudListener {
       if (varWrap && wSet) varWrap.style.display = wSet.value === 'carlesso' ? 'flex' : 'none';
       const cSel = this.rootEl.querySelector('#hud-setup-clarity-select');
       if (cSel) cSel.value = this.clarityMode || 's2';
+      const qSel = this.rootEl.querySelector('#hud-setup-quality-select');
+      if (qSel) qSel.value = this.qualityTier || 'auto';
       const lChk = this.rootEl.querySelector('#hud-setup-letters-toggle');
       if (lChk) lChk.checked = Boolean(this.showRoleLetters);
+
 
       const wType = this.whitePlayerType || 'human';
       this.rootEl.querySelectorAll('input[name="white-player-type"]').forEach((r) => {
@@ -4491,6 +4526,10 @@ export class HudListener {
       this.queenVariant = settings.queenVariant;
       if (pm?.setQueenVariant) pm.setQueenVariant(settings.queenVariant);
     }
+    if (settings.qualityTier) {
+      this.setQualityTier(settings.qualityTier, { silent: true });
+    }
+
 
     // Emit configuration changes to Bus & Piece Manager
     if (this.ctx?.bus) {
@@ -4658,6 +4697,46 @@ export class HudListener {
     this.setClarityMode(nextMode, { force2dIcons: nextMode === 's1' });
     return this.clarityMode;
   }
+
+  /**
+   * Sets model graphics quality tier ('auto', 'high', 'medium', 'low').
+   * @param {'auto'|'high'|'medium'|'low'|string} tier
+   * @param {{ silent?: boolean }} [opts]
+   */
+  setQualityTier(tier = 'auto', opts = {}) {
+    const norm = QUALITY_TIERS.includes(tier) ? tier : 'auto';
+    this.qualityTier = norm;
+    this.effectiveLod = resolveModelLod(norm, this.detectedHardwareTier);
+
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('carchess_quality', norm);
+      } catch {}
+    }
+
+    if (this.rootEl) {
+      const qSel = this.rootEl.querySelector('#hud-setup-quality-select');
+      if (qSel) qSel.value = norm;
+    }
+
+    const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+    if (pm?.setQualityTier) {
+      pm.setQualityTier(norm, this.effectiveLod);
+    }
+
+    if (this.ctx?.bus) {
+      this.ctx.bus.emit({
+        type: 'QUALITY_TIER_CHANGED',
+        tier: this.qualityTier,
+        effectiveLod: this.effectiveLod,
+      });
+      if (!opts.silent) {
+        this.ctx.bus.flush?.();
+      }
+    }
+    return this.qualityTier;
+  }
+
 
   setTopbarVisible(visible) {
     this.topbarVisible = Boolean(visible);

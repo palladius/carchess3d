@@ -1291,8 +1291,14 @@ export const I18N = Object.freeze({
     helpModalSub:
       'Tutto quello che serve per muovere la telecamera, usare la rotella per lo zoom e goderti gli Scacchi di Famiglia (Premi H, ? o Esc per chiudere)',
     clarityLettersLabel: '🔤 Accessibilità: Mostra lettere e Braille (K, Q, R, B, N, P) sulle icone 2D',
+    qualityLabel: '⚡ Qualità Grafica 3D (LOD):',
+    qualityAuto: '🤖 Auto (Consigliata per il tuo dispositivo)',
+    qualityHigh: '💻 Alta (~1000k poly / PC potente)',
+    qualityMedium: '📱 Media (~50k poly / iPad & tablet)',
+    qualityLow: '🔋 Bassa (~10k poly / smartphone o risparmio batteria)',
   },
   en: {
+
     title: 'CarChess3D · Family Wizard Chess',
     subtitle: 'Magical 3D Chess in the Enchanted Swamp of Zurich',
     mode1Btn: '♟️ 3D Chess Match',
@@ -1435,8 +1441,14 @@ export const I18N = Object.freeze({
     helpModalSub:
       'Everything you need to control the 3D camera, zoom with the mouse wheel, and enjoy Family Wizard Chess (Press H, ? or Esc to close)',
     clarityLettersLabel: '🔤 Accessibility: Show role letters & Braille (K, Q, R, B, N, P) on 2D icons',
+    qualityLabel: '⚡ 3D Graphics Quality (LOD):',
+    qualityAuto: '🤖 Auto (Recommended for your hardware)',
+    qualityHigh: '💻 High (~1000k poly / powerful desktop)',
+    qualityMedium: '📱 Medium (~50k poly / iPad & tablet)',
+    qualityLow: '🔋 Low (~10k poly / phone or battery saver)',
   },
 });
+
 
 /**
  * Pure camera mouse-wheel / trackpad gesture handler for `OrbitControls`.
