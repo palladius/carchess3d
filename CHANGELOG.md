@@ -1,11 +1,21 @@
 # Changelog
 
-## [0.3.92] - 2026-10-19
+## [0.3.93] - 2026-10-19
 
 - 🎥👨‍👩‍👦‍👦 **12s Cinematic Family Demo Orbit on RTX 5080 GPU & Updated Family Portraits (fixes #42)**:
   - **Demo-Style Swoop + Orbit (`scripts/family_orbit_video.py`, `scripts/family_portrait_shot.py`)**: Upgraded camera choreography to start from a wide aerial establishing view over the Zurich board, swoop down to eye level, hold for ~1s at the front family portrait (`theta ≈ 0°`), and sweep `-150° → +150°` around the newly calibrated `v0.3.91` back rank (Knight Seby `1.92m` on his equestrian plinth, Bishop Ale `1.55m`, King Riccardo `1.86m`, Queen Kate `1.68m`, Rook Pupurabbu `2.50m`, and compact `0.80m` Puffin pawns).
   - **Hardware GPU Acceleration on `pupurabbux`**: Configured Playwright Chromium to use `/usr/bin/google-chrome` with `--use-gl=angle --use-angle=gl` on the NVIDIA GeForce RTX 5080 (`~0.5s/frame` instead of `~10s/frame` on SwiftShader).
   - **Published Showcase & Blog Assets (`article/ARTICLE.md`, `article/assets/gallery/family_orbit.{mp4,gif}`, `article/assets/gallery/family_portrait_*.png`)**: Embedded the new 12s GIF right under *"👨‍👩‍👦‍👦 The Family Portrait"* in `article/ARTICLE.md` and synced it to the Hugo blog post on `ricc.rocks`.
+
+## [0.3.92] - 2026-10-19
+
+- 🐸🇮🇹🇨🇭 **Three Full-Screen 180° Panorama Cycloramas: Zurich on the Limmat, Ogre Swamp & Positano from the Sea (`assets/environments/{swamp,positano}_panorama.jpg`, `src/views/ZurichSwampView.js`, `src/listeners/HudListener.js`, `src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`)**:
+  - **🐸 Palude degli Orchi (`swamp` — `assets/environments/swamp_panorama.jpg`)**: 100% IP-safe fairytale ogre swamp 21:9 panorama where the chessboard sits surrounded by **180° of glowing emerald-green swamp lake** (giant lily pads, lotus blossoms, frogs, cattails, and fireflies), with the **cozy rustic ogre hut nestled under giant mossy tree roots centered directly in front** of the player, a crooked wooden `'ATTENZIONE ORCHI'` sign, braided onions, a hollowed-log canoe, gourd lanterns, and a bubbling soup cauldron on the dock (no outhouse/toilet).
+  - **🇮🇹 Positano dal Mare (`positano` — `assets/environments/positano_panorama.jpg`)**: Viewed from out on the open Mediterranean sea so the lower half and left/right flanks are **180° of crystal-clear turquoise water** with wooden gozzo rowboats, while directly in front rises the vertical pastel cliffside pyramid of **Positano** and the majolica dome of **Santa Maria Assunta** at golden sunset.
+  - **Automatic Faction-Linked + Manual Panorama Switching**:
+    - Selecting the **Palude degli Orchi (`swamp`)** faction on White or Black automatically switches the 180° cyclorama to `🐸 Palude degli Orchi` (`swamp`).
+    - Selecting **Classici / San Gennaro (`classic`)** on White automatically switches the 180° cyclorama to `🇮🇹 Positano dal Mare` (`positano`).
+    - Added `#hud-setup-env-select` in the Setup Modal, `#hud-env-select` in the Topbar, and `?env=zurich|swamp|positano` URL parameter support so players can switch between all three 180° panoramas live during any match.
 
 ## [0.3.91] - 2026-10-19
 
@@ -25,6 +35,7 @@
 - 🎙️🎵 **Bilingual Voice Triggers & Acoustic Quality**:
   - Polished natural English voice lines and dynamic speech synthesis fallback (`en-GB` for Queen Kate, `en-US` for family heroes).
   - Audio critic test suite passing 100%.
+
 ## [0.3.90] - 2026-10-19
 
 - 📦🖼️ **Sync `v0.3.88` SFW Naming & Article Visual Refresh Assets (`AGENTS.md`, `README.md`, `package.json`, `src/main.js`, `article/ARTICLE.md`, `docs/ARTICLE.md`, `article/assets/concept/*.jpg`, `article/assets/gallery/classic_*_evolution_card_en.png`)**:
@@ -35,7 +46,7 @@
 - 🚀⚡ **Multi-Tier GLB LODs, Hardware Benchmark & Auto-Heuristic (fixes #39, idea by Niccolò)**:
   - **Headless `DeviceCapabilityHelper` (`src/core/DeviceCapabilityHelper.js`, `tests/device_capability.test.mjs`)**: Classifies device hardware into `low` (~10k poly, mobile phones), `medium` (~50k poly, iPads/tablets, low-RAM laptops), and `high` (~1000k poly/full resolution, desktop workstations) with zero DOM/WebGL imports.
   - **Dynamic Multi-Tier GLB Resolution in Registry & PieceManager (`src/core/Registry.js`, `src/managers/PieceManager.js`, `src/views/PieceView.js`)**: Added `resolvePieceGlbForLod` and `QUALITY_TIER_CHANGED` event bus integration, resolving tiered models seamlessly while preserving variants and factions.
-  - **Gear Override (Rotella ⚙️) Quality Controls in Settings (`src/listeners/HudListener.js`, `tests/hud_settings.test.mjs`)**: Added interactive 3D Quality selector in Setup modal with bilingual Italian/English labels, `localStorage` persistence, and `?quality=low|medium|high|auto` URL query parameter support.
+  - **Gear Override (Rotella ⚙️) Quality Controls in Settings (`src/listeners/HudListener.js`, `tests/hud_settings.test.mjs`)**: Added interactive 3D Quality selector in Settings modal with bilingual Italian/English labels, `localStorage` persistence, and `?quality=low|medium|high|auto` URL query parameter support.
   - **LOD Decimation & Benchmark CLI Tooling (`tools/model-pipeline/lod/benchmark_lod.py`, `tools/model-pipeline/lod/decimate_lod.py`, `docs/LOD_BENCHMARK.md`, `tests/test_lod_benchmark.py`)**: Added benchmark measuring file sizes, gzip compression, vertex/triangle counts, and binary parsing timings.
 
 ## [0.3.88] - 2026-10-19

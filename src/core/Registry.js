@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.92';
+export const APP_VERSION = '0.3.93';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -1241,12 +1241,19 @@ export const I18N = Object.freeze({
     profileLabel: 'Profilo Giocatore:',
     hotseatDesc: '👥 Modalità 2 Giocatori Locale sullo stesso schermo.',
     setupWhiteCarlesso: '🏰 Famiglia Carlesso (Ale, Seby, Riccardo, Kate...)',
-    setupWhiteSwamp: '🐸 Palude di Zurigo (Orco & Focaccina)',
+    setupWhiteSwamp: '🐸 Palude degli Orchi (Orco & Focaccina)',
     setupWhiteClassic: '♔ Scacchi Classici (San Gennaro & Matildea)',
     setupBlackClassic: '♔ Scacchi Classici (San Gennaro & Matildea)',
-    setupBlackSwamp: '🐸 Palude di Zurigo (Orco & Focaccina)',
+    setupBlackSwamp: '🐸 Palude degli Orchi (Orco & Focaccina)',
     setupBlackFamily: '🏰 Famiglia Carlesso (Specchio)',
     setupBlackStone: '🗿 Pietra Magica (Wizard)',
+    envLabel: '🌅 Scenario / Panorama 180°:',
+    envZurich: '🇨🇭 Zurigo sulla Limmat (Google Zurich & Alpi)',
+    envSwamp: '🐸 Palude degli Orchi (Capanna, Ninfee & Lucciole)',
+    envPositano: '🇮🇹 Positano dal Mare (Costiera Amalfitana & Barchette)',
+    envShortZurich: '🇨🇭 Sfondo: Zurigo',
+    envShortSwamp: '🐸 Sfondo: Palude Orchi',
+    envShortPositano: '🇮🇹 Sfondo: Positano',
     fenModalTitle: '📋 FEN & PGN Scacchiera',
     loadFenBtn: '📥 Carica FEN',
     loadPgnBtn: '📥 Carica PGN',
@@ -1396,12 +1403,19 @@ export const I18N = Object.freeze({
     profileLabel: 'Player Profile:',
     hotseatDesc: '👥 Local 2-Player mode on the same screen.',
     setupWhiteCarlesso: '🏰 Carlesso Family (Ale, Seby, Riccardo, Kate...)',
-    setupWhiteSwamp: '🐸 Zurich Swamp (Ogre & Focaccina)',
+    setupWhiteSwamp: '🐸 Enchanted Ogre Swamp (Ogre & Focaccina)',
     setupWhiteClassic: '♔ Classic Chess (San Gennaro & Matildea)',
     setupBlackClassic: '♔ Classic Chess (San Gennaro & Matildea)',
-    setupBlackSwamp: '🐸 Zurich Swamp (Ogre & Focaccina)',
+    setupBlackSwamp: '🐸 Enchanted Ogre Swamp (Ogre & Focaccina)',
     setupBlackFamily: '🏰 Carlesso Family (Mirror)',
     setupBlackStone: '🗿 Wizard Stone',
+    envLabel: '🌅 180° Panorama Backdrop:',
+    envZurich: '🇨🇭 Zurich on the Limmat (Google Zurich & Alps)',
+    envSwamp: '🐸 Enchanted Ogre Swamp (Tree Hut, Lily Pads & Fireflies)',
+    envPositano: '🇮🇹 Positano from the Sea (Amalfi Coast & Boats)',
+    envShortZurich: '🇨🇭 Map: Zurich',
+    envShortSwamp: '🐸 Map: Ogre Swamp',
+    envShortPositano: '🇮🇹 Map: Positano',
     fenModalTitle: '📋 Board FEN & PGN',
     loadFenBtn: '📥 Load FEN',
     loadPgnBtn: '📥 Load PGN',
