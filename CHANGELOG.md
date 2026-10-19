@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.92] - 2026-10-19
+
+- 🎥👨‍👩‍👦‍👦 **12s Cinematic Family Demo Orbit on RTX 5080 GPU & Updated Family Portraits (fixes #42)**:
+  - **Demo-Style Swoop + Orbit (`scripts/family_orbit_video.py`, `scripts/family_portrait_shot.py`)**: Upgraded camera choreography to start from a wide aerial establishing view over the Zurich board, swoop down to eye level, hold for ~1s at the front family portrait (`theta ≈ 0°`), and sweep `-150° → +150°` around the newly calibrated `v0.3.91` back rank (Knight Seby `1.92m` on his equestrian plinth, Bishop Ale `1.55m`, King Riccardo `1.86m`, Queen Kate `1.68m`, Rook Pupurabbu `2.50m`, and compact `0.80m` Puffin pawns).
+  - **Hardware GPU Acceleration on `pupurabbux`**: Configured Playwright Chromium to use `/usr/bin/google-chrome` with `--use-gl=angle --use-angle=gl` on the NVIDIA GeForce RTX 5080 (`~0.5s/frame` instead of `~10s/frame` on SwiftShader).
+  - **Published Showcase & Blog Assets (`article/ARTICLE.md`, `article/assets/gallery/family_orbit.{mp4,gif}`, `article/assets/gallery/family_portrait_*.png`)**: Embedded the new 12s GIF right under *"👨‍👩‍👦‍👦 The Family Portrait"* in `article/ARTICLE.md` and synced it to the Hugo blog post on `ricc.rocks`.
+
 ## [0.3.91] - 2026-10-19
 
 - 📏🏰 **Visual Hierarchy Calibration & Canonical Family Heights**:
