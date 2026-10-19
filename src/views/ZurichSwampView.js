@@ -41,6 +41,41 @@ const LEGAL_MOVE_HEX = 0x4cd9a2;
 const CAPTURE_MOVE_HEX = 0xff5252;
 const CHECK_ALERT_HEX = 0xff1744;
 
+export const ENVIRONMENT_PANORAMAS = Object.freeze({
+  zurich: {
+    id: 'zurich',
+    url: './assets/environments/zurich_panorama.jpg',
+    tint: 0xd8e2f0,
+    bgColor: 0x0b1528,
+  },
+  swamp: {
+    id: 'swamp',
+    url: './assets/environments/swamp_panorama.jpg',
+    tint: 0xd8ece0,
+    bgColor: 0x071a14,
+  },
+  positano: {
+    id: 'positano',
+    url: './assets/environments/positano_panorama.jpg',
+    tint: 0xf0e4d8,
+    bgColor: 0x0d1b2e,
+  },
+});
+
+export function normalizeEnvironmentMode(raw) {
+  const s = String(raw || '').trim().toLowerCase();
+  if (s === 'swamp' || s === 'palude' || s === 'orchi' || s === 'ogre') return 'swamp';
+  if (s === 'positano' || s === 'amalfi' || s === 'italy' || s === 'italia') return 'positano';
+  if (s === 'zurich' || s === 'zurigo' || s === 'zuerich') return 'zurich';
+  return null;
+}
+
+export function resolveEnvironmentForFactions(whiteFamily = 'carlesso', rivalSetMode = 'classic') {
+  if (whiteFamily === 'swamp' || rivalSetMode === 'swamp') return 'swamp';
+  if (whiteFamily === 'classic') return 'positano';
+  return 'zurich';
+}
+
 export class ZurichSwampView {
   /**
    * @param {THREE.Scene} scene
@@ -82,9 +117,27 @@ export class ZurichSwampView {
       waterRoughness: 0.16,
     };
 
+    let initialEnv = 'zurich';
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const sp = new URLSearchParams(window.location.search);
+      const explicitEnv = normalizeEnvironmentMode(sp.get('env') || sp.get('bg') || sp.get('map'));
+      if (explicitEnv) {
+        initialEnv = explicitEnv;
+      } else {
+        const wFam = sp.get('white') || sp.get('family') || 'carlesso';
+        const bFam = sp.get('black') || sp.get('rival') || 'classic';
+        initialEnv = resolveEnvironmentForFactions(wFam, bFam);
+      }
+    }
+    /** @type {'zurich'|'swamp'|'positano'} */
+    this.environmentMode = initialEnv;
+    /** @type {Map<string, THREE.Texture>} */
+    this._panoTextures = new Map();
+
+    const initialSpec = ENVIRONMENT_PANORAMAS[this.environmentMode] || ENVIRONMENT_PANORAMAS.zurich;
     this.combatBlend = 0.0;
     this.inCombatCinemaMode = false;
-    this._zurichBgColor = new THREE.Color(0x0b1528);
+    this._zurichBgColor = new THREE.Color(initialSpec.bgColor);
     this._combatBgColor = new THREE.Color(0x05070e);
     this._dioramaFadeReady = false;
     this._dioramaGroups = [];
@@ -768,25 +821,63 @@ export class ZurichSwampView {
   // 4. FULL-SCREEN 180° J-CURVED ZURICH & LIMMAT INFINITY CYCLORAMA
   // ===========================================================================
 
+  _loadPanoramaTexture(envId = 'zurich') {
+    const key = normalizeEnvironmentMode(envId) || 'zurich';
+    if (this._panoTextures.has(key)) {
+      return this._panoTextures.get(key);
+    }
+    if (typeof document === 'undefined') return null;
+    const spec = ENVIRONMENT_PANORAMAS[key] || ENVIRONMENT_PANORAMAS.zurich;
+    try {
+      const loader = new THREE.TextureLoader();
+      const tex = loader.load(spec.url);
+      if (tex) {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        this._panoTextures.set(key, tex);
+      }
+      return tex;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Switches the 180° full-screen cyclorama backdrop between:
+   * - `'zurich'`: Fairy-tale Zurich on the Limmat (with Google Zurich Hürlimann & Gemini 4 Argon bridge plaque)
+   * - `'swamp'`: Enchanted Ogre Swamp (tree-root hut, 'ATTENZIONE ORCHI' sign, lily pads & fireflies)
+   * - `'positano'`: Positano & Amalfi Coast viewed from the sea (pastel cliffside pyramid, majolica dome & boats)
+   * @param {'zurich'|'swamp'|'positano'} mode
+   */
+  setEnvironmentMode(mode = 'zurich') {
+    const normalized = normalizeEnvironmentMode(mode) || 'zurich';
+    this.environmentMode = normalized;
+    const spec = ENVIRONMENT_PANORAMAS[normalized] || ENVIRONMENT_PANORAMAS.zurich;
+    this._zurichBgColor.setHex(spec.bgColor);
+    if (this.scene && !this.inCombatCinemaMode) {
+      if (!this.scene.background || !this.scene.background.isColor) {
+        this.scene.background = new THREE.Color(spec.bgColor);
+      } else {
+        this.scene.background.setHex(spec.bgColor);
+      }
+    }
+    if (this.panoMaterial) {
+      const tex = this._loadPanoramaTexture(normalized);
+      this.panoMaterial.map = tex;
+      this.panoMaterial.color.setHex(tex ? spec.tint : 0x1a2638);
+      this.panoMaterial.needsUpdate = true;
+    }
+    return normalized;
+  }
+
   buildZurichSkylineAndAlps() {
     const skyline = new THREE.Group();
     skyline.name = 'ZurichSkylineAndAlps';
     this.root.add(skyline);
 
-    let zurichTex = null;
-    if (typeof document !== 'undefined') {
-      try {
-        const loader = new THREE.TextureLoader();
-        zurichTex = loader.load('./assets/environments/zurich_panorama.jpg');
-        if (zurichTex) {
-          zurichTex.colorSpace = THREE.SRGBColorSpace;
-          zurichTex.minFilter = THREE.LinearFilter;
-          zurichTex.magFilter = THREE.LinearFilter;
-        }
-      } catch {
-        zurichTex = null;
-      }
-    }
+    const activeSpec = ENVIRONMENT_PANORAMAS[this.environmentMode] || ENVIRONMENT_PANORAMAS.zurich;
+    const activeTex = this._loadPanoramaTexture(this.environmentMode);
 
     const panoGroup = new THREE.Group();
     panoGroup.name = 'ZurichFairytalePanoramaBackdrop';
@@ -796,7 +887,7 @@ export class ZurichSwampView {
     // Pure vertical walls (vx, vz depend ONLY on u; vy depends ONLY on v -> zero diagonal stretching!)
     // wrapping from the front-left (z = +2.5m) around the back of the chessboard (z = -12.4m)
     // to the front-right (z = +2.5m), extending down to y = -4.2m .. -6.8m so 100% of the viewport
-    // (top, sides, and bottom around the chessboard) is filled by the Zurich panorama!
+    // (top, sides, and bottom around the chessboard) is filled by the active 180° panorama!
     const segsX = 64;
     const segsY = 16;
     const panoGeo = new THREE.PlaneGeometry(1.0, 1.0, segsX, segsY);
@@ -809,7 +900,7 @@ export class ZurichSwampView {
 
     for (let i = 0; i < posAttr.count; i++) {
       const u = uvAttr.getX(i); // 0.0 (West / Left) -> 1.0 (East / Right)
-      const v = uvAttr.getY(i); // 0.0 (Bottom river) -> 1.0 (Top sky)
+      const v = uvAttr.getY(i); // 0.0 (Bottom water) -> 1.0 (Top sky)
 
       // Smooth linear+cubic angular mapping across 0 .. PI: preserves natural 1:1 horizontal
       // proportions in the center (so the Münsterbrücke 'MADE WITH GEMINI 4 ARGON' plaque is
@@ -837,8 +928,8 @@ export class ZurichSwampView {
     panoGeo.computeVertexNormals();
 
     const panoMat = new THREE.MeshBasicMaterial({
-      map: zurichTex,
-      color: zurichTex ? 0xd8e2f0 : 0x1a2638,
+      map: activeTex,
+      color: activeTex ? activeSpec.tint : 0x1a2638,
       side: THREE.DoubleSide,
       fog: false,
       depthWrite: true,
@@ -853,7 +944,7 @@ export class ZurichSwampView {
   }
 
   // ===========================================================================
-  // 5. EVENT BUS BINDINGS FOR BOARD HIGHLIGHTS
+  // 5. EVENT BUS BINDINGS FOR BOARD HIGHLIGHTS & ENVIRONMENT SWITCHING
   // ===========================================================================
 
   bindEvents() {
@@ -869,6 +960,20 @@ export class ZurichSwampView {
       }),
       this.bus.on('FLOW_STATE_CHANGED', (e) => {
         if (e.to === 'Mode2_WowArena') this.clearHighlights();
+      }),
+      this.bus.on('ENVIRONMENT_CHANGED', (e) => {
+        const nextEnv = normalizeEnvironmentMode(e?.environment || e?.mode);
+        if (nextEnv) this.setEnvironmentMode(nextEnv);
+      }),
+      this.bus.on('PIECE_SET_CHANGED', (e) => {
+        const explicitEnv = normalizeEnvironmentMode(e?.environment);
+        if (explicitEnv) {
+          this.setEnvironmentMode(explicitEnv);
+        } else if (e?.whiteFamily || e?.rivalSetMode) {
+          this.setEnvironmentMode(
+            resolveEnvironmentForFactions(e.whiteFamily || 'carlesso', e.rivalSetMode || 'classic'),
+          );
+        }
       }),
       this.bus.on('BATTLE_STARTED', () => this.setCombatCinemaMode(true)),
       this.bus.on('WOW_ARENA_CLASH', () => this.setCombatCinemaMode(true)),

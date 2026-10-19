@@ -46,7 +46,11 @@ plane).
   no password) each with their own autosaved game in browser storage;
   optional FEN/PGN export/import to move a game across devices.
 - **Wow factor**: soft shadows, warm lighting, bloom/glow, ambient particles,
-  camera fly-in intro, squash-and-stretch piece moves, fireworks on checkmate.
+  camera fly-in intro, squash-and-stretch piece moves, fireworks on checkmate,
+  and **three full-screen 180° curved panorama cycloramas** (`🇨🇭 Zurich on the Limmat`,
+  `🐸 Ogre Swamp` surrounded by an emerald-green lake with the cozy ogre tree-root hut in front,
+  and `🇮🇹 Positano from the Sea` surrounded by 180° of open turquoise sea with the cliffside village in front)
+  that automatically adapt when selecting factions or can be switched at any time via the HUD / `?env=zurich|swamp|positano`.
 
 ## Non-Goals
 
