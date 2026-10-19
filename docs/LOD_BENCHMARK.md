@@ -25,7 +25,17 @@ A client-side hardware heuristic auto-selects the optimal tier on boot, with an 
 
 ---
 
-## 3. Hardware Heuristic Decision Matrix
+## 3. Hardware Heuristic & User Preference (Gear Rotella ⚙️)
+
+Players can override graphics fidelity at any time from the setup modal via the **Rotella Gear ⚙️**:
+- **User-Facing UI Labels**:
+  - `Auto` (Automated hardware heuristic based on device memory and screen dimensions)
+  - `Alta` / `High Quality` (Targeting desktop gaming rigs / full polygon fidelity)
+  - `Media` / `Medium Quality` (Targeting iPads, Android tablets, mid-range laptops)
+  - `Bassa` / `Low Quality` (Targeting mobile smartphones / battery saving)
+
+> [!NOTE]
+> The internal polygon targets (e.g. `10k`, `50k`, `100k`) are deliberately decoupled from the player UI strings. This allows engineering to adjust LOD decimation ratios freely without altering user preferences or translations.
 
 ```mermaid
 flowchart TD
@@ -34,9 +44,9 @@ flowchart TD
     ReadOverride -- Auto / Unset --> Detect[Run DeviceCapabilityHelper]
 
     Detect --> DevType{Device Type & Capabilities}
-    DevType -- Mobile Phone (maxDim < 900) --> TierLow[Low Tier: ~10k Poly / Fast Load]
-    DevType -- Tablet / iPad / <=4GB RAM --> TierMed[Medium Tier: ~50k Poly]
-    DevType -- Desktop / Workstation --> TierHigh[High Tier: Full Quality]
+    DevType -- Mobile Phone (maxDim < 900) --> TierLow["Low Quality Tier (~10k Poly / Fast Load)"]
+    DevType -- Tablet / iPad / <=4GB RAM --> TierMed["Medium Quality Tier (~50k Poly)"]
+    DevType -- Desktop / Workstation --> TierHigh["High Quality Tier (Full Fidelity)"]
 
     ApplyTier --> Event[Emit QUALITY_TIER_CHANGED]
     TierLow --> Event

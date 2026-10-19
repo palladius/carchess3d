@@ -21,10 +21,25 @@ describe('Registry LOD Support', () => {
 
   it('honors family and variants when resolving LOD', () => {
     const classicKing = resolvePieceGlbForLod('k', 'low', { family: 'classic' });
-    assert.ok(classicKing.includes('classic'), 'should resolve classic family model');
+    assert.equal(classicKing, 'assets/models/classic/king-classic-re-10k.glb');
 
-    const bishopAstrolabe = resolvePieceGlbForLod('b', 'high', { family: 'carlesso', bishopVariant: 'astrolabe' });
-    assert.ok(bishopAstrolabe.includes('bishop-ale-2'), 'should resolve astrolabe variant');
+    const swampQueen = resolvePieceGlbForLod('q', 'low', { family: 'swamp' });
+    assert.equal(swampQueen, 'assets/models/swamp/queen-swamp-orchessa-10k.glb');
+
+    const carlessoKingLow = resolvePieceGlbForLod('k', 'low');
+    assert.equal(carlessoKingLow, 'assets/models/king-riccardo-10k.glb');
+
+    const carlessoKingMed = resolvePieceGlbForLod('k', 'medium');
+    assert.equal(carlessoKingMed, 'assets/models/king-riccardo-50k.glb');
+
+    const bishopAstrolabeHigh = resolvePieceGlbForLod('b', 'high', { family: 'carlesso', bishopVariant: 'astrolabe' });
+    assert.equal(bishopAstrolabeHigh, 'assets/models/bishop-ale-2-remastered.glb');
+
+    const bishopAstrolabeLow = resolvePieceGlbForLod('b', 'low', { family: 'carlesso', bishopVariant: 'astrolabe' });
+    assert.equal(bishopAstrolabeLow, 'assets/models/bishop-ale-2-remastered-10k.glb');
+
+    const bishopHy2Low = resolvePieceGlbForLod('b', 'low', { family: 'carlesso', bishopVariant: 'hy2' });
+    assert.equal(bishopHy2Low, 'assets/models/bishop-ale-hy2-10k.glb');
   });
 
   it('falls back to canonical glbUrl if specific lod is missing', () => {

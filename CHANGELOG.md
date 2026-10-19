@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.92] - 2026-10-19
+
+- 📱⚡ **Complete Decimated 10k/50k Multi-Tier LOD Production Suite (closes #39, fixes #5)**:
+  - Generated full suite of 30 decimated GLB models via headless Blender 4.0 QEC decimation across all 3 families (Carlesso, Classic, Swamp), preserving 100% of PBR textures, UV mappings, materials, vertex colors, and $y=0.0m$ grounding.
+  - Huge mobile & tablet bandwidth savings: 75% to 82% file size reduction across models (King Riccardo: 4.2 MB -> 1.0 MB, Queen Kate: 3.7 MB -> 771 KB, Rook Pupurabbu: 3.8 MB -> 774 KB).
+  - Registered `lodGlbUrls: { low, medium, high }` in `CHARACTER_REGISTRY`, `SWAMP_REGISTRY`, and `CLASSIC_REGISTRY` in `src/core/Registry.js`.
+  - Upgraded `resolvePieceGlbForLod` to seamlessly resolve low/med/high tiers while preserving modular variants (Bishop `hat` vs `astrolabe` vs `hy2`, Queen `young` vs `wedding`).
+- 🤖🎨 **Local GPU Blackwell RTX 5080 3D Generation**:
+  - Generated fresh watertight 3D models with Hunyuan3D-2 for **Re Riccardo** (`assets/models/king-riccardo-hy2.glb` + 10k LOD) and **Ale** (`assets/models/bishop-ale-hy2.glb` + 10k LOD).
+  - Registered both models as selectable candidate models in `CHARACTER_REGISTRY`.
+- ⚙️🕹️ **Decoupled User Preference & Quality Controls**:
+  - Documented Rotella Gear (⚙️) preference in `docs/LOD_BENCHMARK.md`: user-facing `Auto` / `Alta` / `Media` / `Bassa` decoupled from internal polygon targets (`10k`, `50k`, `100k`).
+- 🧪✅ **Automated Test Suite**:
+  - Comprehensive unit test coverage in `tests/registry_lod.test.mjs` verifying exact resolution for all roles, tiers, families, and variants.
+  - 93/93 GLB models verified valid with VEC3 bounds min/max via `scripts/check.py`.
+
 ## [0.3.91] - 2026-10-19
 
 - 📏🏰 **Visual Hierarchy Calibration & Canonical Family Heights**:

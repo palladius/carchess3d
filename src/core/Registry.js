@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.91';
+export const APP_VERSION = '0.3.92';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -495,6 +495,7 @@ export const BISHOP_GLB_VARIANTS = Object.freeze({
   hat: 'assets/models/bishop-ale-1.glb',
   astrolabe: 'assets/models/bishop-ale-2-remastered.glb',
   rigged: 'assets/models/bishop-ale-rigged.glb',
+  hy2: 'assets/models/bishop-ale-hy2.glb',
 });
 
 export const CHARACTER_REGISTRY = Object.freeze({
@@ -511,9 +512,19 @@ export const CHARACTER_REGISTRY = Object.freeze({
     backPortrait: 'tools/model-pipeline/king/back.png',
     glbUrl: 'assets/models/king-riccardo.glb',
     altGlbUrl: 'assets/models/king-riccardo-remastered.glb',
+    lodGlbUrls: {
+      low: 'assets/models/king-riccardo-10k.glb',
+      medium: 'assets/models/king-riccardo-50k.glb',
+      high: 'assets/models/king-riccardo.glb',
+    },
     optionalGlbCandidates: [
       'assets/models/king-riccardo.glb',
       'assets/models/king-riccardo-remastered.glb',
+      'assets/models/king-riccardo-hy2.glb',
+      'assets/models/king-riccardo-10k.glb',
+      'assets/models/king-riccardo-50k.glb',
+      'assets/models/king-riccardo-remastered-10k.glb',
+      'assets/models/king-riccardo-remastered-50k.glb',
     ],
     accentColor: 0xffca28,
     signatureId: 'sceptre_lightning',
@@ -533,11 +544,18 @@ export const CHARACTER_REGISTRY = Object.freeze({
     backPortrait: 'assets/characters/queen-kate-2.jpg',
     glbUrl: 'assets/models/queen-kate.glb',
     altGlbUrl: 'assets/models/queen-kate-wedding2016-remastered.glb',
+    lodGlbUrls: {
+      low: 'assets/models/queen-kate-10k.glb',
+      medium: 'assets/models/queen-kate-50k.glb',
+      high: 'assets/models/queen-kate.glb',
+    },
     optionalGlbCandidates: [
       'assets/models/queen-kate.glb',
       'assets/models/queen-kate-wedding2016-remastered.glb',
       'assets/models/queen-kate-young.glb',
       'assets/models/queen-kate-wedding2016.glb',
+      'assets/models/queen-kate-10k.glb',
+      'assets/models/queen-kate-50k.glb',
     ],
     variants: QUEEN_GLB_VARIANTS,
     accentColor: 0xab47bc,
@@ -558,11 +576,19 @@ export const CHARACTER_REGISTRY = Object.freeze({
     backPortrait: 'tools/model-pipeline/ale/experiments_back/back_nb_2.1.png',
     glbUrl: 'assets/models/bishop-ale-1.glb',
     altGlbUrl: 'assets/models/bishop-ale-rigged.glb',
+    lodGlbUrls: {
+      low: 'assets/models/bishop-ale-1-10k.glb',
+      medium: 'assets/models/bishop-ale-1.glb',
+      high: 'assets/models/bishop-ale-1.glb',
+    },
     optionalGlbCandidates: [
       'assets/models/bishop-ale-1.glb',
       'assets/models/bishop-ale-2-remastered.glb',
       'assets/models/bishop-ale-rigged.glb',
       'assets/models/bishop-ale-2.glb',
+      'assets/models/bishop-ale-hy2.glb',
+      'assets/models/bishop-ale-1-10k.glb',
+      'assets/models/bishop-ale-2-remastered-10k.glb',
     ],
     variants: BISHOP_GLB_VARIANTS,
     accentColor: 0x2d6cdf,
@@ -587,11 +613,18 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/knight-seby-1.jpg',
     backPortrait: 'tools/model-pipeline/seby/back_nb_2.1.png',
     glbUrl: 'assets/models/knight-seby.glb',
+    lodGlbUrls: {
+      low: 'assets/models/knight-seby-10k.glb',
+      medium: 'assets/models/knight-seby-50k.glb',
+      high: 'assets/models/knight-seby.glb',
+    },
     optionalGlbCandidates: [
       'assets/models/knight-seby.glb',
       'assets/models/knight-seby-halberd.glb',
       'assets/models/knight-seby-lightsaber.glb',
       'assets/models/knight-seby-aurora.glb',
+      'assets/models/knight-seby-10k.glb',
+      'assets/models/knight-seby-50k.glb',
     ],
     variants: KNIGHT_GLB_VARIANTS,
     accentColor: 0xff7043,
@@ -611,7 +644,16 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/rook-pupurabbu.jpg',
     backPortrait: 'tools/model-pipeline/rook/back.png',
     glbUrl: 'assets/models/rook-pupurabbu.glb',
-    optionalGlbCandidates: ['assets/models/rook-pupurabbu.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/rook-pupurabbu-10k.glb',
+      medium: 'assets/models/rook-pupurabbu-50k.glb',
+      high: 'assets/models/rook-pupurabbu.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/rook-pupurabbu.glb',
+      'assets/models/rook-pupurabbu-10k.glb',
+      'assets/models/rook-pupurabbu-50k.glb',
+    ],
     accentColor: 0x7e57c2,
     signatureId: 'plush_ground_pound',
     voiceLine: VOICE_LINES.r,
@@ -629,7 +671,15 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/pawn-puffin.jpg',
     backPortrait: 'tools/model-pipeline/nbviews/gemini-nano-banana-2.1/back.png',
     glbUrl: 'assets/models/pawn-puffin.glb',
-    optionalGlbCandidates: ['assets/models/pawn-puffin.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/pawn-puffin-10k.glb',
+      medium: 'assets/models/pawn-puffin.glb',
+      high: 'assets/models/pawn-puffin.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/pawn-puffin.glb',
+      'assets/models/pawn-puffin-10k.glb',
+    ],
     accentColor: 0x26a69a,
     signatureId: 'halberd_fish_slap',
     voiceLine: VOICE_LINES.p,
@@ -1011,7 +1061,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/king-swamp-orco.jpg',
     backPortrait: 'assets/characters/king-swamp-orco.jpg',
     glbUrl: 'assets/models/swamp/king-swamp-orco.glb',
-    optionalGlbCandidates: ['assets/models/swamp/king-swamp-orco.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/king-swamp-orco-10k.glb',
+      medium: 'assets/models/swamp/king-swamp-orco.glb',
+      high: 'assets/models/swamp/king-swamp-orco.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/king-swamp-orco.glb',
+      'assets/models/swamp/king-swamp-orco-10k.glb',
+    ],
     accentColor: 0x6ba32d,
   },
   q: {
@@ -1022,7 +1080,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/queen-swamp-orchessa.jpg',
     backPortrait: 'assets/characters/queen-swamp-orchessa.jpg',
     glbUrl: 'assets/models/swamp/queen-swamp-orchessa.glb',
-    optionalGlbCandidates: ['assets/models/swamp/queen-swamp-orchessa.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/queen-swamp-orchessa-10k.glb',
+      medium: 'assets/models/swamp/queen-swamp-orchessa.glb',
+      high: 'assets/models/swamp/queen-swamp-orchessa.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/queen-swamp-orchessa.glb',
+      'assets/models/swamp/queen-swamp-orchessa-10k.glb',
+    ],
     accentColor: 0x2e7d32,
   },
   b: {
@@ -1033,7 +1099,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/bishop-swamp-gatto.jpg',
     backPortrait: 'assets/characters/bishop-swamp-gatto.jpg',
     glbUrl: 'assets/models/swamp/bishop-swamp-focaccina.glb',
-    optionalGlbCandidates: ['assets/models/swamp/bishop-swamp-focaccina.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/bishop-swamp-focaccina-10k.glb',
+      medium: 'assets/models/swamp/bishop-swamp-focaccina.glb',
+      high: 'assets/models/swamp/bishop-swamp-focaccina.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/bishop-swamp-focaccina.glb',
+      'assets/models/swamp/bishop-swamp-focaccina-10k.glb',
+    ],
     accentColor: 0xd84315,
   },
   n: {
@@ -1044,7 +1118,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/knight-swamp-asinello-2.jpg',
     backPortrait: 'assets/characters/knight-swamp-asinello-2.jpg',
     glbUrl: 'assets/models/swamp/knight-swamp-asinello.glb',
-    optionalGlbCandidates: ['assets/models/swamp/knight-swamp-asinello.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/knight-swamp-asinello-10k.glb',
+      medium: 'assets/models/swamp/knight-swamp-asinello.glb',
+      high: 'assets/models/swamp/knight-swamp-asinello.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/knight-swamp-asinello.glb',
+      'assets/models/swamp/knight-swamp-asinello-10k.glb',
+    ],
     accentColor: 0x8d6e63,
   },
   r: {
@@ -1055,7 +1137,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/rook-swamp-draghessa.jpg',
     backPortrait: 'assets/characters/rook-swamp-draghessa.jpg',
     glbUrl: 'assets/models/swamp/rook-swamp-draghessa.glb',
-    optionalGlbCandidates: ['assets/models/swamp/rook-swamp-draghessa.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/rook-swamp-draghessa-10k.glb',
+      medium: 'assets/models/swamp/rook-swamp-draghessa.glb',
+      high: 'assets/models/swamp/rook-swamp-draghessa.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/rook-swamp-draghessa.glb',
+      'assets/models/swamp/rook-swamp-draghessa-10k.glb',
+    ],
     accentColor: 0xc2185b,
   },
   p: {
@@ -1066,7 +1156,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/pawn-swamp-focaccina.jpg',
     backPortrait: 'assets/characters/pawn-swamp-porcellini.jpg',
     glbUrl: 'assets/models/swamp/pawn-swamp-tappo.glb',
-    optionalGlbCandidates: ['assets/models/swamp/pawn-swamp-tappo.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/pawn-swamp-tappo-10k.glb',
+      medium: 'assets/models/swamp/pawn-swamp-tappo.glb',
+      high: 'assets/models/swamp/pawn-swamp-tappo.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/pawn-swamp-tappo.glb',
+      'assets/models/swamp/pawn-swamp-tappo-10k.glb',
+    ],
     accentColor: 0xd49b4b,
   },
 });
@@ -1080,7 +1178,16 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/king-classic-re.jpg',
     backPortrait: 'assets/characters/king-classic-re.jpg',
     glbUrl: 'assets/models/classic/king-classic-re.glb',
-    optionalGlbCandidates: ['assets/models/classic/king-classic-re.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/king-classic-re-10k.glb',
+      medium: 'assets/models/classic/king-classic-re-50k.glb',
+      high: 'assets/models/classic/king-classic-re.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/king-classic-re.glb',
+      'assets/models/classic/king-classic-re-10k.glb',
+      'assets/models/classic/king-classic-re-50k.glb',
+    ],
     accentColor: 0xd4af37,
   },
   q: {
@@ -1091,7 +1198,16 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/queen-classic-regina.jpg',
     backPortrait: 'assets/characters/queen-classic-regina.jpg',
     glbUrl: 'assets/models/classic/queen-classic-regina.glb',
-    optionalGlbCandidates: ['assets/models/classic/queen-classic-regina.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/queen-classic-regina-10k.glb',
+      medium: 'assets/models/classic/queen-classic-regina-50k.glb',
+      high: 'assets/models/classic/queen-classic-regina.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/queen-classic-regina.glb',
+      'assets/models/classic/queen-classic-regina-10k.glb',
+      'assets/models/classic/queen-classic-regina-50k.glb',
+    ],
     accentColor: 0xffe082,
   },
   b: {
@@ -1102,7 +1218,16 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/bishop-classic-vescovo.jpg',
     backPortrait: 'assets/characters/bishop-classic-vescovo.jpg',
     glbUrl: 'assets/models/classic/bishop-classic-vescovo.glb',
-    optionalGlbCandidates: ['assets/models/classic/bishop-classic-vescovo.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/bishop-classic-vescovo-10k.glb',
+      medium: 'assets/models/classic/bishop-classic-vescovo-50k.glb',
+      high: 'assets/models/classic/bishop-classic-vescovo.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/bishop-classic-vescovo.glb',
+      'assets/models/classic/bishop-classic-vescovo-10k.glb',
+      'assets/models/classic/bishop-classic-vescovo-50k.glb',
+    ],
     accentColor: 0xc62828,
     signatureId: 'san_gennaro_miracle',
     animations: {
@@ -1120,7 +1245,15 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/knight-classic-cavallo.jpg',
     backPortrait: 'assets/characters/knight-classic-cavallo.jpg',
     glbUrl: 'assets/models/classic/knight-classic-cavallo.glb',
-    optionalGlbCandidates: ['assets/models/classic/knight-classic-cavallo.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/knight-classic-cavallo-10k.glb',
+      medium: 'assets/models/classic/knight-classic-cavallo.glb',
+      high: 'assets/models/classic/knight-classic-cavallo.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/knight-classic-cavallo.glb',
+      'assets/models/classic/knight-classic-cavallo-10k.glb',
+    ],
     accentColor: 0xd4af37,
   },
   r: {
@@ -1131,7 +1264,15 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/rook-classic-torre.jpg',
     backPortrait: 'assets/characters/rook-classic-torre.jpg',
     glbUrl: 'assets/models/classic/rook-classic-torre.glb',
-    optionalGlbCandidates: ['assets/models/classic/rook-classic-torre.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/rook-classic-torre-10k.glb',
+      medium: 'assets/models/classic/rook-classic-torre.glb',
+      high: 'assets/models/classic/rook-classic-torre.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/rook-classic-torre.glb',
+      'assets/models/classic/rook-classic-torre-10k.glb',
+    ],
     accentColor: 0xb84a2c,
   },
   p: {
@@ -1142,7 +1283,15 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/pawn-classic-pedone.jpg',
     backPortrait: 'assets/characters/pawn-classic-pedone.jpg',
     glbUrl: 'assets/models/classic/pawn-classic-pedone.glb',
-    optionalGlbCandidates: ['assets/models/classic/pawn-classic-pedone.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/pawn-classic-pedone-10k.glb',
+      medium: 'assets/models/classic/pawn-classic-pedone.glb',
+      high: 'assets/models/classic/pawn-classic-pedone.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/pawn-classic-pedone.glb',
+      'assets/models/classic/pawn-classic-pedone-10k.glb',
+    ],
     accentColor: 0xd4af37,
   },
 });
@@ -1678,15 +1827,25 @@ export function resolvePieceGlbForLod(pieceKey, lodTier = 'high', opts = {}) {
 
   let canonicalPath = def.glbUrl;
 
-  if (pieceKey === 'b') {
+  if (familyId === 'carlesso' && pieceKey === 'b') {
     const bVar = opts.bishopVariant || 'hat';
+    if (bVar === 'astrolabe') {
+      if (lodTier === 'low') return 'assets/models/bishop-ale-2-remastered-10k.glb';
+      return 'assets/models/bishop-ale-2-remastered.glb';
+    }
+    if (bVar === 'hy2') {
+      if (lodTier === 'low') return 'assets/models/bishop-ale-hy2-10k.glb';
+      return 'assets/models/bishop-ale-hy2.glb';
+    }
     if (bVar && BISHOP_GLB_VARIANTS[bVar]) {
       canonicalPath = BISHOP_GLB_VARIANTS[bVar];
+      if (bVar !== 'hat') return canonicalPath;
     }
-  } else if (pieceKey === 'q') {
+  } else if (familyId === 'carlesso' && pieceKey === 'q') {
     const qVar = opts.queenVariant || 'young';
     if (qVar && QUEEN_GLB_VARIANTS[qVar]) {
       canonicalPath = QUEEN_GLB_VARIANTS[qVar];
+      if (qVar !== 'young') return canonicalPath;
     }
   }
 
