@@ -9,18 +9,18 @@
  */
 
 export const CANONICAL_PIECE_HEIGHTS = Object.freeze({
-  p: 0.90,
-  pawn: 0.90,
-  r: 1.20,
-  rook: 1.20,
-  n: 1.35,
-  knight: 1.35,
-  b: 1.45,
-  bishop: 1.45,
-  q: 1.65,
-  queen: 1.65,
-  k: 1.85,
-  king: 1.85,
+  p: 0.80,
+  pawn: 0.80,
+  r: 2.50,
+  rook: 2.50,
+  n: 1.92,
+  knight: 1.92,
+  b: 1.55,
+  bishop: 1.55,
+  q: 1.68,
+  queen: 1.68,
+  k: 1.86,
+  king: 1.86,
 });
 
 export const PEDESTAL_DIAMETER = 0.75;

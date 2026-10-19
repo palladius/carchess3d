@@ -160,9 +160,11 @@ export class HudListener {
     this.wowSubMode = 'inspector';
     this.bishopVariant = 'hat';
     this.queenVariant = 'young';
+    this.knightVariant = 'classic';
     this.wowChar = 'b';
     this.wowBishopVariant = 'hat';
     this.wowQueenVariant = 'young';
+    this.wowKnightVariant = 'classic';
     this.wowCardSide = 'front';
     this.wowAutoRotate = true;
     this.wowAttacker = 'b';
@@ -2025,6 +2027,13 @@ export class HudListener {
             <button id="hud-kate-wedding-btn" class="hud-btn ${this.wowQueenVariant === 'wedding' ? 'active' : ''}" style="flex:1;justify-content:center;">👰 Kate Nozze 2016</button>
           </div>
 
+          <div id="hud-seby-variant-row" style="display:${this.wowChar === 'n' ? 'flex' : 'none'};gap:5px;flex-wrap:wrap;">
+            <button id="hud-seby-classic-btn" class="hud-btn ${this.wowKnightVariant === 'classic' ? 'active' : ''}" style="flex:1;min-width:120px;justify-content:center;">🐴 Destriero</button>
+            <button id="hud-seby-lightsaber-btn" class="hud-btn ${this.wowKnightVariant === 'lightsaber' ? 'active' : ''}" style="flex:1;min-width:120px;justify-content:center;">⚡ Spada Laser</button>
+            <button id="hud-seby-halberd-btn" class="hud-btn ${this.wowKnightVariant === 'halberd' ? 'active' : ''}" style="flex:1;min-width:120px;justify-content:center;">🔱 Alabarda</button>
+            <button id="hud-seby-aurora-btn" class="hud-btn ${this.wowKnightVariant === 'aurora' ? 'active' : ''}" style="flex:1;min-width:120px;justify-content:center;">🏺 Sfera Acquario</button>
+          </div>
+
           <div style="display:flex;gap:5px;">
             <button id="hud-card-flip-btn" class="hud-btn" style="flex:1;justify-content:center;">${this.t('wowCardFlipBtn')}</button>
             <button id="hud-autorotate-btn" class="hud-btn active" style="flex:1;justify-content:center;">${this.t('wowAutoRotateBtn')}</button>
@@ -2237,6 +2246,15 @@ export class HudListener {
                     <option value="easy" selected>${this.t('cpuEasy')}</option>
                     <option value="medium">${this.t('cpuMed')}</option>
                     <option value="hard">${this.t('cpuHard')}</option>
+                  </select>
+                </label>
+                <label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                  <span id="hud-setup-knight-var-lbl">${this.t('knightVariantLabel')}</span>
+                  <select id="hud-setup-knight-variant" class="hud-select" style="min-width:140px;">
+                    <option value="classic" ${this.knightVariant === 'classic' ? 'selected' : ''}>${this.t('knightVariantClassic')}</option>
+                    <option value="lightsaber" ${this.knightVariant === 'lightsaber' ? 'selected' : ''}>${this.t('knightVariantLightsaber')}</option>
+                    <option value="halberd" ${this.knightVariant === 'halberd' ? 'selected' : ''}>${this.t('knightVariantHalberd')}</option>
+                    <option value="aurora" ${this.knightVariant === 'aurora' ? 'selected' : ''}>${this.t('knightVariantAurora')}</option>
                   </select>
                 </label>
               </div>
@@ -2943,12 +2961,15 @@ export class HudListener {
         if (aleRow) aleRow.style.display = this.wowChar === 'b' ? 'flex' : 'none';
         const kateRow = q('#hud-kate-variant-row');
         if (kateRow) kateRow.style.display = this.wowChar === 'q' ? 'flex' : 'none';
+        const sebyRow = q('#hud-seby-variant-row');
+        if (sebyRow) sebyRow.style.display = this.wowChar === 'n' ? 'flex' : 'none';
         this.ctx?.bus?.emit({
           type: 'WOW_INSPECT_CHARACTER',
           subMode: 'inspector',
           pieceType: this.wowChar,
           bishopVariant: this.wowBishopVariant,
           queenVariant: this.wowQueenVariant,
+          knightVariant: this.wowKnightVariant,
         });
         this.ctx?.bus?.flush?.();
       });
@@ -3016,6 +3037,24 @@ export class HudListener {
       });
       this.ctx?.bus?.flush?.();
     });
+
+    const setSebyActive = (variant) => {
+      this.wowKnightVariant = variant;
+      ['classic', 'lightsaber', 'halberd', 'aurora'].forEach((v) => {
+        q(`#hud-seby-${v}-btn`)?.classList.toggle('active', v === variant);
+      });
+      this.ctx?.bus?.emit({
+        type: 'WOW_INSPECT_CHARACTER',
+        pieceType: 'n',
+        knightVariant: variant,
+      });
+      this.ctx?.bus?.flush?.();
+    };
+
+    q('#hud-seby-classic-btn')?.addEventListener('click', () => setSebyActive('classic'));
+    q('#hud-seby-lightsaber-btn')?.addEventListener('click', () => setSebyActive('lightsaber'));
+    q('#hud-seby-halberd-btn')?.addEventListener('click', () => setSebyActive('halberd'));
+    q('#hud-seby-aurora-btn')?.addEventListener('click', () => setSebyActive('aurora'));
 
     q('#hud-card-flip-btn')?.addEventListener('click', () => {
       this.wowCardSide = this.wowCardSide === 'front' ? 'back' : 'front';
@@ -3232,6 +3271,7 @@ export class HudListener {
 
       const queenVariant = q('#hud-setup-queen-variant')?.value || this.queenVariant || 'young';
       const bishopVariant = q('#hud-setup-bishop-variant')?.value || this.bishopVariant || 'hat';
+      const knightVariant = q('#hud-setup-knight-variant')?.value || this.knightVariant || 'classic';
 
       this.applySetup({
         whiteFamily,
@@ -3243,6 +3283,7 @@ export class HudListener {
         blackDiff,
         queenVariant,
         bishopVariant,
+        knightVariant,
         clarityMode,
         qualityTier,
         showRoleLetters,
@@ -4297,6 +4338,8 @@ export class HudListener {
       if (qVar) qVar.value = this.queenVariant || pm?.getQueenVariant?.() || 'young';
       const bVar = this.rootEl.querySelector('#hud-setup-bishop-variant');
       if (bVar) bVar.value = this.bishopVariant || pm?.getBishopVariant?.() || 'hat';
+      const nVar = this.rootEl.querySelector('#hud-setup-knight-variant');
+      if (nVar) nVar.value = this.knightVariant || pm?.getKnightVariant?.() || 'classic';
       const varWrap = this.rootEl.querySelector('#hud-setup-variants-wrap');
       if (varWrap && wSet) varWrap.style.display = wSet.value === 'carlesso' ? 'flex' : 'none';
       const cSel = this.rootEl.querySelector('#hud-setup-clarity-select');
@@ -4526,10 +4569,13 @@ export class HudListener {
       this.queenVariant = settings.queenVariant;
       if (pm?.setQueenVariant) pm.setQueenVariant(settings.queenVariant);
     }
+    if (settings.knightVariant) {
+      this.knightVariant = settings.knightVariant;
+      if (pm?.setKnightVariant) pm.setKnightVariant(settings.knightVariant);
+    }
     if (settings.qualityTier) {
       this.setQualityTier(settings.qualityTier, { silent: true });
     }
-
 
     // Emit configuration changes to Bus & Piece Manager
     if (this.ctx?.bus) {
@@ -5859,11 +5905,16 @@ export class HudListener {
     setTxt('#hud-setup-badge-text', 'defaultSetupBadge');
     setTxt('#hud-setup-queen-var-lbl', 'queenVariantLabel');
     setTxt('#hud-setup-bishop-var-lbl', 'bishopVariantLabel');
+    setTxt('#hud-setup-knight-var-lbl', 'knightVariantLabel');
     setTxt('#hud-setup-queen-variant option[value="young"]', 'queenVariantYoung');
     setTxt('#hud-setup-queen-variant option[value="wedding"]', 'queenVariantWedding');
     setTxt('#hud-setup-bishop-variant option[value="hat"]', 'bishopVariantHat');
     setTxt('#hud-setup-bishop-variant option[value="astrolabe"]', 'bishopVariantAstrolabe');
     setTxt('#hud-setup-bishop-variant option[value="rigged"]', 'bishopVariantRigged');
+    setTxt('#hud-setup-knight-variant option[value="classic"]', 'knightVariantClassic');
+    setTxt('#hud-setup-knight-variant option[value="lightsaber"]', 'knightVariantLightsaber');
+    setTxt('#hud-setup-knight-variant option[value="halberd"]', 'knightVariantHalberd');
+    setTxt('#hud-setup-knight-variant option[value="aurora"]', 'knightVariantAurora');
 
     // Mode 2 WOW Panel & Modals
     setTxt('#hud-promo-title', 'promoTitle');

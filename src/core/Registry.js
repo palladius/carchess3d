@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.90';
+export const APP_VERSION = '0.3.91';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -79,7 +79,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-k.mp3',
         quote: {
           it: 'Avanti tutta! Re Carlesso al comando!',
-          en: 'Avanti tutta! Re Carlesso al comando!',
+          en: 'Full steam ahead! King Carlesso in command!',
         },
       },
       {
@@ -187,9 +187,7 @@ export const VOICE_LINES = Object.freeze({
     },
     audioUrl: 'assets/audio/voices/voice-b.mp3',
     speechLang: 'it-IT',
-    pitch: 1.18,
-    rate: 1.06,
-    variants: Object.freeze([
+        variants: Object.freeze([
       {
         id: 'b_ordini',
         kind: 'signature',
@@ -197,7 +195,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b.mp3',
         quote: {
           it: 'Agli ordini, Signore!',
-          en: 'Agli ordini, Signore!',
+          en: 'At your command, Sire!',
         },
       },
       {
@@ -218,7 +216,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-cucinibene.mp3',
         quote: {
           it: 'Papino, tu sì che cucini bene!',
-          en: 'Papino, tu sì che cucini bene!',
+          en: 'Daddy, you really cook so well!',
         },
       },
       {
@@ -228,7 +226,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-timanco.mp3',
         quote: {
           it: 'Papino, ti manco tantissimo!',
-          en: 'Papino, ti manco tantissimo!',
+          en: 'Daddy, do you miss me so much?',
         },
       },
       {
@@ -238,7 +236,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-piuforte.mp3',
         quote: {
           it: 'Papino, qual è il più forte?',
-          en: 'Papino, qual è il più forte?',
+          en: 'Daddy, which one is the strongest?',
         },
       },
       {
@@ -248,7 +246,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-regalo.mp3',
         quote: {
           it: 'Papino, quando mi compri un regalo?',
-          en: 'Papino, quando mi compri un regalo?',
+          en: 'Daddy, when will you buy me a present?',
         },
       },
       {
@@ -258,7 +256,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-cafonazzo.mp3',
         quote: {
           it: 'Sei proprio un cafoNAZZO!',
-          en: 'Sei proprio un cafoNAZZO!',
+          en: 'You are such a big CLODHOPPER!',
         },
       },
       {
@@ -268,7 +266,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-hmm.mp3',
         quote: {
           it: 'Mmh-hmm... vediamo!',
-          en: 'Mmh-hmm... vediamo!',
+          en: "Mmh-hmm... let's see!",
         },
       },
       {
@@ -278,7 +276,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-sbuffo.mp3',
         quote: {
           it: 'Pff... ma dai!',
-          en: 'Pff... ma dai!',
+          en: 'Pff... come on!',
         },
       },
     ]),
@@ -288,7 +286,7 @@ export const VOICE_LINES = Object.freeze({
     name: 'Seby',
     quote: {
       it: 'Dimmi papino!',
-      en: 'Dimmi papino!',
+      en: 'Tell me, daddy!',
     },
     hoverSound: {
       id: 'horse_snort',
@@ -306,7 +304,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-n.mp3',
         quote: {
           it: 'Dimmi papino!',
-          en: 'Dimmi papino!',
+          en: 'Tell me, daddy!',
         },
       },
       {
@@ -336,7 +334,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-n-papinooo.mp3',
         quote: {
           it: 'Papinoooooo!!!',
-          en: 'Papinoooooo!!!',
+          en: 'Dadddyyyyyyy!!!',
         },
       },
       {
@@ -346,7 +344,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-n-timanco.mp3',
         quote: {
           it: 'Papino, ti manco tantissimo!',
-          en: 'Papino, ti manco tantissimo!',
+          en: 'Daddy, do you miss me so much?',
         },
       },
       {
@@ -367,7 +365,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-n-cacca.mp3',
         quote: {
           it: 'Mi scappa la cacca!',
-          en: 'Mi scappa la cacca!',
+          en: 'I need to go potty!',
         },
       },
       {
@@ -398,7 +396,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-n-sbuffo.mp3',
         quote: {
           it: 'Pff... uffaaa!',
-          en: 'Pff... uffaaa!',
+          en: 'Pff... come on, ugh!',
         },
       },
     ]),
@@ -408,7 +406,7 @@ export const VOICE_LINES = Object.freeze({
     name: 'Pupurabbu',
     quote: {
       it: 'Boing boing! Super abbraccio Pupurabbu!',
-      en: 'Boing boing! Super abbraccio Pupurabbu!',
+      en: 'Boing boing! Super Pupurabbu hug!',
     },
     hoverSound: {
       id: 'plush_boing',
@@ -426,7 +424,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-r.mp3',
         quote: {
           it: 'Boing boing! Super abbraccio Pupurabbu!',
-          en: 'Boing boing! Super abbraccio Pupurabbu!',
+          en: 'Boing boing! Super Pupurabbu hug!',
         },
       },
       {
@@ -446,7 +444,7 @@ export const VOICE_LINES = Object.freeze({
     name: 'Puffin',
     quote: {
       it: 'Piu piu! Eccomi, pronta guardia Puffin!',
-      en: 'Piu piu! Eccomi, pronta guardia Puffin!',
+      en: 'Peep peep! Here I am, ready Puffin guard!',
     },
     hoverSound: {
       id: 'puffin_peep',
@@ -464,7 +462,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-p.mp3',
         quote: {
           it: 'Piu piu! Eccomi, pronta guardia Puffin!',
-          en: 'Piu piu! Eccomi, pronta guardia Puffin!',
+          en: 'Peep peep! Here I am, ready Puffin guard!',
         },
       },
       {
@@ -474,11 +472,18 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-p-hmm.mp3',
         quote: {
           it: 'Mmh... piu!',
-          en: 'Mmh... piu!',
+          en: 'Mmh... peep!',
         },
       },
     ]),
   },
+});
+
+export const KNIGHT_GLB_VARIANTS = Object.freeze({
+  classic: 'assets/models/knight-seby.glb',
+  lightsaber: 'assets/models/knight-seby-lightsaber.glb',
+  halberd: 'assets/models/knight-seby-halberd.glb',
+  aurora: 'assets/models/knight-seby-aurora.glb',
 });
 
 export const QUEEN_GLB_VARIANTS = Object.freeze({
@@ -588,6 +593,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
       'assets/models/knight-seby-lightsaber.glb',
       'assets/models/knight-seby-aurora.glb',
     ],
+    variants: KNIGHT_GLB_VARIANTS,
     accentColor: 0xff7043,
     signatureId: 'loop_track_cars',
     voiceLine: VOICE_LINES.n,
@@ -1274,11 +1280,16 @@ export const I18N = Object.freeze({
     mobileStartToast: '📐 Vista Alto-Basso attiva! Fai la prima mossa: al 1° attacco entri nel 3D! ✨',
     queenVariantLabel: 'Variante Regina:',
     bishopVariantLabel: 'Variante Alfiere:',
+    knightVariantLabel: 'Variante Cavaliere (Seby):',
     queenVariantYoung: '👑 Kate Young (Canonico)',
     queenVariantWedding: '👰 Kate Nozze 2016 (Remaster)',
     bishopVariantHat: '🎩 Ale Mitria (Canonico)',
     bishopVariantAstrolabe: '🟢 Ale Astrolabio (Remaster)',
     bishopVariantRigged: '🐉 Ale Rigged (Drago)',
+    knightVariantClassic: '🐴 Seby Classico (Destriero Turbo)',
+    knightVariantLightsaber: '⚡ Seby Spada Laser (Lama Plasma)',
+    knightVariantHalberd: '🔱 Seby Alabarda (Guardia Reale)',
+    knightVariantAurora: '🏺 Seby Sigillo Acquario (Sfera Aurora)',
     clarityBtn: '🔍 Chiarezza Pezzi',
     clarityLabel: '🔍 Chiarezza Visiva (Riconoscimento Pezzi):',
     clarityS2: '👑 S2 (Default 3D): Corone & Stemmi 3D sulla Testa + Contrasto Ossidiana/Avorio',
@@ -1424,11 +1435,16 @@ export const I18N = Object.freeze({
     mobileStartToast: '📐 Easy Top-Down View active! Make a move: 1st attack unlocks 3D Mode! ✨',
     queenVariantLabel: 'Queen Variant:',
     bishopVariantLabel: 'Bishop Variant:',
+    knightVariantLabel: 'Knight Variant (Seby):',
     queenVariantYoung: '👑 Kate Young (Canonical)',
     queenVariantWedding: '👰 Kate Wedding 2016 (Remaster)',
     bishopVariantHat: '🎩 Ale Mitre (Canonical)',
     bishopVariantAstrolabe: '🟢 Ale Astrolabe (Remaster)',
     bishopVariantRigged: '🐉 Ale Rigged (Dragon)',
+    knightVariantClassic: '🐴 Seby Classic (Turbo Steed)',
+    knightVariantLightsaber: '⚡ Seby Lightsaber (Plasma Saber)',
+    knightVariantHalberd: '🔱 Seby Halberd (Royal Guard)',
+    knightVariantAurora: '🏺 Seby Seal of Aquarius (Aurora Sphere)',
     clarityBtn: '🔍 Piece Clarity',
     clarityLabel: '🔍 Visual Clarity (Piece Recognition):',
     clarityS2: '👑 S2 (Default 3D): Head-Mounted 3D Crowns/Crests + Obsidian/Ivory Contrast',

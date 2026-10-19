@@ -1005,7 +1005,7 @@ export class PieceView {
     figGroup.name = `MedallionFallback_${desc.type}`;
 
     const totalHeight = CANONICAL_PIECE_HEIGHTS[desc.type] ?? 1.35;
-    const bodySpan = Math.max(0.55, totalHeight - PEDESTAL_HEIGHT);
+    const bodySpan = Math.max(0.48, totalHeight - PEDESTAL_HEIGHT);
     const crownHeight = 0.24;
     const medallionRadius = Math.min(0.24, 0.185 + bodySpan * 0.045);
     const medallionCenterY = PEDESTAL_HEIGHT + bodySpan - crownHeight - medallionRadius * 0.85;
@@ -1121,7 +1121,7 @@ export class PieceView {
     });
 
     if (type === 'k') {
-      // King Riccardo: Royal Golden Toilet-Throne Crown + Cross Orb reaching 1.85m
+      // King Riccardo: Royal Golden Toilet-Throne Crown + Cross Orb reaching 1.86m
       const band = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.12, h * 0.55, 16), metalMat);
       band.position.y = startY + h * 0.275;
       const orb = new THREE.Mesh(new THREE.SphereGeometry(0.065, 16, 16), gemMat);
@@ -1132,28 +1132,28 @@ export class PieceView {
       crossH.position.y = startY + h * 0.86;
       crownGroup.add(band, orb, crossV, crossH);
     } else if (type === 'q') {
-      // Queen Kate: Tiara Coronet + Lilac Choco Pearl Spire reaching 1.65m
+      // Queen Kate: Tiara Coronet + Lilac Choco Pearl Spire reaching 1.68m
       const tiara = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.10, h * 0.55, 12), metalMat);
       tiara.position.y = startY + h * 0.28;
       const pearl = new THREE.Mesh(new THREE.OctahedronGeometry(0.075, 1), gemMat);
       pearl.position.y = startY + h * 0.78;
       crownGroup.add(tiara, pearl);
     } else if (type === 'b') {
-      // Bishop Ale: Pointed Mitre + Dragon Ruby Gem reaching 1.45m
+      // Bishop Ale: Pointed Mitre + Dragon Ruby Gem reaching 1.55m
       const mitre = new THREE.Mesh(new THREE.ConeGeometry(0.13, h * 0.82, 16), bodyMat);
       mitre.position.y = startY + h * 0.41;
       const tip = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 12), gemMat);
       tip.position.y = startY + h * 0.88;
       crownGroup.add(mitre, tip);
     } else if (type === 'n') {
-      // Knight Seby: Orange Loop-Track Arch + Turbo Crest reaching 1.35m
+      // Knight Seby: Orange Loop-Track Arch + Turbo Crest reaching 1.92m
       const arch = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.028, 12, 24), gemMat);
       arch.position.y = startY + h * 0.52;
       const fin = new THREE.Mesh(new THREE.ConeGeometry(0.06, h * 0.5, 8), metalMat);
       fin.position.y = startY + h * 0.75;
       crownGroup.add(arch, fin);
     } else if (type === 'r') {
-      // Rook Pupurabbu: Castle Battlement Crenellations + Plush Ears reaching 1.20m
+      // Rook Pupurabbu: Castle Battlement Crenellations + Plush Ears reaching 2.50m
       const turret = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.13, h * 0.65, 12), bodyMat);
       turret.position.y = startY + h * 0.325;
       const earL = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 12), gemMat);
@@ -1163,7 +1163,7 @@ export class PieceView {
       earR.position.x = 0.08;
       crownGroup.add(turret, earL, earR);
     } else {
-      // Pawn Puffin: Swiss Guard Halberd Plume reaching 0.90m
+      // Pawn Puffin: Swiss Guard Halberd Plume reaching 0.80m
       const helm = new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 14), metalMat);
       helm.position.y = startY + h * 0.45;
       const plume = new THREE.Mesh(new THREE.ConeGeometry(0.045, h * 0.55, 10), gemMat);
@@ -1375,11 +1375,12 @@ export class PieceView {
         pieceGroup.userData.bakedGlbAddons = bakedGlbAddons;
 
         // Ground & normalize character atop its pedestal (y = PEDESTAL_HEIGHT = 0.22m)
+        // Scaled to canonical rank height without artificial horizontal radius clamping
         const { holder, transform } = groundAndNormalizeObject3D(
           THREE,
           clonedScene,
           desc.type,
-          { baseElevation: PEDESTAL_HEIGHT, maxRadius: 0.36 },
+          { baseElevation: PEDESTAL_HEIGHT },
         );
         // Face straight along pieceGroup's forward axis (White=Math.PI North, Black=0 South)
         holder.rotation.y = 0;
@@ -2125,7 +2126,7 @@ if (uIsBlackObsidian > 0.5) {
    * Creates a standalone 3D piece Group for Mode 2 WOW 360° Turntable Inspector & 3D Scazzottata Stage.
    * @param {string} type - 'k'|'q'|'b'|'n'|'r'|'p'
    * @param {'w'|'b'} [color='w']
-   * @param {{ isStoneSet?: boolean, bishopVariant?: 'hat'|'astrolabe'|'rigged', queenVariant?: 'young'|'wedding' }} [opts]
+   * @param {{ isStoneSet?: boolean, bishopVariant?: 'hat'|'astrolabe'|'rigged', queenVariant?: 'young'|'wedding', knightVariant?: 'classic'|'lightsaber'|'halberd'|'aurora' }} [opts]
    * @returns {THREE.Group}
    */
   createStandalonePiece(type = 'b', color = 'w', opts = {}) {
@@ -2144,6 +2145,15 @@ if (uIsBlackObsidian > 0.5) {
       desc.glbUrl = opts.queenVariant === 'wedding'
         ? 'assets/models/queen-kate-wedding2016-remastered.glb'
         : 'assets/models/queen-kate.glb';
+    }
+    if (type === 'n' && opts.knightVariant) {
+      desc.glbUrl = opts.knightVariant === 'lightsaber'
+        ? 'assets/models/knight-seby-lightsaber.glb'
+        : (opts.knightVariant === 'halberd'
+          ? 'assets/models/knight-seby-halberd.glb'
+          : (opts.knightVariant === 'aurora'
+            ? 'assets/models/knight-seby-aurora.glb'
+            : 'assets/models/knight-seby.glb'));
     }
     const group = this.buildPieceGroup(desc);
     group.position.set(0, 0, 0);

@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.91] - 2026-10-19
+
+- 📏🏰 **Visual Hierarchy Calibration & Canonical Family Heights**:
+  - **Torre Pupurabbu Dominant Height (2.50m)**: Imposing stone bastion anchoring the corners with true architectural stature.
+  - **Cavaliere Seby Elongated Equestrian Plinth (1.92m)**: Dedicated oval base (`1.15x` X, `1.35x` Z) respecting the golden steed's natural equine volume, eliminating artificial horizontal squash.
+  - **Pedoni Puffin Compact Minions (0.80m)**: Halved front-line sentinels with compact plinths (`0.85x`), creating instant distinction from royal officers.
+  - **Royal Officers Distinctive Proportions**: Re Riccardo (1.86m), Regina Kate (1.68m), and Alfiere Ale (1.55m).
+  - Unsquashed horizontal bounding volume: removed artificial `maxRadius: 0.36` clamp in `PieceView.js` and `WowModeView.js`.
+- 🎭⚔️ **Complete 3D Modular Skin Variant System in HUD & WOW Inspector**:
+  - Knight Seby 4-Weapon Modular Switcher (`classic`, `lightsaber`, `halberd`, `aurora`) with live selection in Game Setup and WOW Mode.
+  - Bishop Ale 3-variant and Queen Kate 2-variant support integrated into HUD selector.
+  - Bilingual localization (`it`/`en`) and full state management in `PieceManager.js` ($\le 300$ LOC limit strictly preserved).
+- 🎬💥 **Expansion of 36 Cinematic Combat Animations (Veo/Canvas 16:9 3-Act Structure)**:
+  - 3-Act narrative overlay in `VeoCinemaView.js`: Act 1 attacker weapon card, Act 2 dynamic defender counter-attack with comic SFX pills, Act 3 swamp K.O. finisher verdict card.
+  - Synchronized `battles.html` with responsive 3D clash launchers.
+- 🎙️🎵 **Bilingual Voice Triggers & Acoustic Quality**:
+  - Polished natural English voice lines and dynamic speech synthesis fallback (`en-GB` for Queen Kate, `en-US` for family heroes).
+  - Audio critic test suite passing 100%.
 ## [0.3.90] - 2026-10-19
 
 - 📦🖼️ **Sync `v0.3.88` SFW Naming & Article Visual Refresh Assets (`AGENTS.md`, `README.md`, `package.json`, `src/main.js`, `article/ARTICLE.md`, `docs/ARTICLE.md`, `article/assets/concept/*.jpg`, `article/assets/gallery/classic_*_evolution_card_en.png`)**:

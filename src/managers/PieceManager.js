@@ -5,16 +5,10 @@
  * and Bishop Ale GLB variant (`'rigged'|'hat'`). Zero DOM or Three.js imports (`<= 300` LOC).
  */
 
-import {
-  CHARACTER_REGISTRY,
-  FAMILY_REGISTRIES,
-  squareToWorld,
-  BISHOP_GLB_VARIANTS,
-  QUEEN_GLB_VARIANTS,
-} from '../core/Registry.js';
+import { CHARACTER_REGISTRY, FAMILY_REGISTRIES, squareToWorld, BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS, KNIGHT_GLB_VARIANTS } from '../core/Registry.js';
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export { BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS };
+export { BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS, KNIGHT_GLB_VARIANTS };
 
 export const CLIP_ALIASES = Object.freeze({
   Idle: 'Idle_Track', Idle_Track: 'Idle_Track',
@@ -33,6 +27,8 @@ export class PieceManager {
     this.bishopVariant = 'hat';
     /** @type {'young'|'wedding'} */
     this.queenVariant = 'young';
+    /** @type {'classic'|'lightsaber'|'halberd'|'aurora'} */
+    this.knightVariant = 'classic';
     /** @type {'auto'|'low'|'medium'|'high'} */
     this.qualityTier = 'auto';
     /** @type {'low'|'medium'|'high'} */
@@ -62,6 +58,7 @@ export class PieceManager {
       ctx.bus.on('PIECE_VARIANT_REQUESTED', (e) => {
         if (e.bishopVariant) this.setBishopVariant(e.bishopVariant);
         if (e.queenVariant) this.setQueenVariant(e.queenVariant);
+        if (e.knightVariant) this.setKnightVariant(e.knightVariant);
       }),
       ctx.bus.on('QUALITY_TIER_CHANGED', (e) => {
         this.qualityTier = e.tier || 'auto';
@@ -89,6 +86,8 @@ export class PieceManager {
         glbUrl = BISHOP_GLB_VARIANTS[this.bishopVariant] || meta.glbUrl;
       } else if (activeFamily === 'carlesso' && type === 'q') {
         glbUrl = QUEEN_GLB_VARIANTS[this.queenVariant] || meta.glbUrl;
+      } else if (activeFamily === 'carlesso' && type === 'n') {
+        glbUrl = KNIGHT_GLB_VARIANTS[this.knightVariant] || meta.glbUrl;
       } else {
         glbUrl = meta.glbUrl || null;
       }
@@ -203,7 +202,7 @@ export class PieceManager {
     this.reResolveAll();
     this.ctx?.bus?.emit({
       type: 'PIECE_SET_CHANGED', whiteFamily: this.whiteFamily, rivalSetMode: this.rivalSetMode,
-      bishopVariant: this.bishopVariant, queenVariant: this.queenVariant,
+      bishopVariant: this.bishopVariant, queenVariant: this.queenVariant, knightVariant: this.knightVariant,
     });
     this.emitPiecesSynced(reason);
   }
@@ -223,20 +222,18 @@ export class PieceManager {
   }
 
 
-  setBishopVariant(variant) {
-    const norm = ['hat', 'astrolabe', 'rigged'].includes(variant) ? variant : 'hat';
-    if (this.bishopVariant === norm) return;
-    this.bishopVariant = norm;
-    this._applySetChange('bishop_variant_changed');
+  setBishopVariant(v) {
+    const norm = ['hat', 'astrolabe', 'rigged'].includes(v) ? v : 'hat';
+    if (this.bishopVariant !== norm) { this.bishopVariant = norm; this._applySetChange('bishop_variant_changed'); }
   }
-
-  setQueenVariant(variant) {
-    const norm = ['young', 'wedding'].includes(variant) ? variant : 'young';
-    if (this.queenVariant === norm) return;
-    this.queenVariant = norm;
-    this._applySetChange('queen_variant_changed');
+  setQueenVariant(v) {
+    const norm = ['young', 'wedding'].includes(v) ? v : 'young';
+    if (this.queenVariant !== norm) { this.queenVariant = norm; this._applySetChange('queen_variant_changed'); }
   }
-
+  setKnightVariant(v) {
+    const norm = ['classic', 'lightsaber', 'halberd', 'aurora'].includes(v) ? v : 'classic';
+    if (this.knightVariant !== norm) { this.knightVariant = norm; this._applySetChange('knight_variant_changed'); }
+  }
 
   reResolveAll() {
     for (const [sq, desc] of this.livingBySquare.entries()) {
@@ -270,7 +267,7 @@ export class PieceManager {
     this.ctx?.bus?.emit({
       type: 'PIECES_SYNCED', reason, move,
       whiteFamily: this.whiteFamily, rivalSetMode: this.rivalSetMode,
-      bishopVariant: this.bishopVariant, queenVariant: this.queenVariant,
+      bishopVariant: this.bishopVariant, queenVariant: this.queenVariant, knightVariant: this.knightVariant,
       qualityTier: this.qualityTier, effectiveLod: this.effectiveLod,
       pieces: this.getLivingPieces(), captured: this.getCapturedTrays(),
     });
@@ -289,6 +286,7 @@ export class PieceManager {
   getRivalSetMode() { return this.rivalSetMode; }
   getBishopVariant() { return this.bishopVariant; }
   getQueenVariant() { return this.queenVariant; }
+  getKnightVariant() { return this.knightVariant; }
   getQualityTier() { return this.qualityTier; }
   getEffectiveLod() { return this.effectiveLod; }
   update(_dt) {}
@@ -297,4 +295,3 @@ export class PieceManager {
     this.offs = [];
   }
 }
-

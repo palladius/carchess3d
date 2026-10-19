@@ -375,6 +375,11 @@ export function buildObsidianOrIvoryPedestal(
     topCyl,
   };
 
+  // Dynamic equestrian oval plinth for Knight ('n') (LUNGO e un po' larghetto vs standard circular base)
+  if (type === 'n') {
+    pedGroup.scale.set(1.15, 1.0, 1.35);
+  }
+
   return pedGroup;
 }
 
