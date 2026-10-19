@@ -121,6 +121,7 @@ const RAW_PAIRS_36 = {
       it: "CARLESSO AL CESSO & KISS OF DEATH! AVVIZZITA SUL TRONO D'ORO! 💋🥀💀",
       en: 'CARLESSO AL CESSO & KISS OF DEATH! WITHERED ON THE GOLDEN THRONE! 💋🥀💀',
     },
+
     dndSpell: 'kiss_of_death_blight',
     attackerWeapon: 'toilet_throne',
     defenderCounter: {
@@ -227,8 +228,9 @@ const RAW_PAIRS_36 = {
     },
     banner: {
       it: "CARLESSO AL CESSO! ONDA LILLA SUL TRONO D'ORO! 🍫🚽",
-      en: 'CARLESSO AL CESSO! LILAC CHOCO OVER GOLDEN THRONE! 🍫🚽',
+      en: "CARLESSO AL CESSO! LILAC CHOCO OVER GOLDEN THRONE! 🍫🚽",
     },
+
     attackerWeapon: 'toilet_throne',
     defenderCounter: {
       move: 'plunger_sceptre_zap',

@@ -13,8 +13,9 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.88';
+export const APP_VERSION = '0.3.89';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
+
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
 export const FILES = Object.freeze(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
@@ -846,11 +847,12 @@ function buildBattleMatrix() {
       easterEgg: 'carlesso_al_cesso_throne',
       anim3dDesc: ANIM_3D_DESCRIPTIONS.golden_toilet_throne,
       banner: {
-        it: 'CARCHESS! TRONO D’ORO! 🚽👑',
+        it: 'CARLESSO AL CESSO! TRONO D’ORO! 🚽👑',
         en: 'ROYAL GOLDEN THRONE STRIKE! 🚽👑',
       },
     };
   }
+
 
   // Easter Egg #3: Seby (n) <-> Ale (b) Brother Rivalry
   matrix.n.b = {

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.89] - 2026-10-19
+
+- 🚀⚡ **Multi-Tier GLB LODs, Hardware Benchmark & Auto-Heuristic (fixes #39, idea by Niccolò)**:
+  - **Headless `DeviceCapabilityHelper` (`src/core/DeviceCapabilityHelper.js`, `tests/device_capability.test.mjs`)**: Classifies device hardware into `low` (~10k poly, mobile phones), `medium` (~50k poly, iPads/tablets, low-RAM laptops), and `high` (~1000k poly/full resolution, desktop workstations) with zero DOM/WebGL imports.
+  - **Dynamic Multi-Tier GLB Resolution in Registry & PieceManager (`src/core/Registry.js`, `src/managers/PieceManager.js`, `src/views/PieceView.js`)**: Added `resolvePieceGlbForLod` and `QUALITY_TIER_CHANGED` event bus integration, resolving tiered models seamlessly while preserving variants and factions.
+  - **Gear Override (Rotella ⚙️) Quality Controls in Settings (`src/listeners/HudListener.js`, `tests/hud_settings.test.mjs`)**: Added interactive 3D Quality selector in Setup modal with bilingual Italian/English labels, `localStorage` persistence, and `?quality=low|medium|high|auto` URL query parameter support.
+  - **LOD Decimation & Benchmark CLI Tooling (`tools/model-pipeline/lod/benchmark_lod.py`, `tools/model-pipeline/lod/decimate_lod.py`, `docs/LOD_BENCHMARK.md`, `tests/test_lod_benchmark.py`)**: Added benchmark measuring file sizes, gzip compression, vertex/triangle counts, and binary parsing timings.
+
+## [0.3.88] - 2026-10-19
+
+- 🚽🧼 **SFW Naming & Article Visual Refresh (`AGENTS.md`, `README.md`, `package.json`, `src/core/Registry.js`, `src/core/BattleMatrix36.js`, `src/main.js`, `article/`)**:
+  - New `AGENTS.md` rule: the public name is **CarChess3D** only; the explicit Italian pun expansion is never spelled out in UI, code, README, titles or articles (NSFW once machine-translated). Keep the 🚽 icon. Purged it from README, `package.json`, battle banners, Registry titles and both articles.
+  - `article/ARTICLE.md`: replaced the low-score rotating `.glb` turntables (Section 4) with the Nano Banana 2.1 concept turnarounds (`article/assets/concept/*.jpg`: King Riccardo, Queen Kate, Bishop Ale, Knight Seby, Pawn Puffin, Rook Pupurabbu); replaced the Italian-labelled Before/After lineups with English 3-stage evolution cards for the Classic Rook and Bishop (`article/assets/gallery/classic_{rook,bishop,king}_evolution_card_en.png`).
+  - Added the "family portrait" screenshot (pawns d/e/f/g advanced two squares, camera facing the white back rank) under `article/assets/gallery/family_portrait_*.png`.
+
 ## [0.3.87] - 2026-10-19
 
 - 🦸🎮 **Arcade Hero Select & 1-Click Quick Play (`#hud-setup-modal`, `src/listeners/HudListener.js`, `src/core/Registry.js`)**:
