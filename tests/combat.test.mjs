@@ -408,3 +408,194 @@ test('ZurichSwampView: switches 64 chessboard tiles to 50% translucency during c
     assert.equal(sq.material.depthWrite, true);
   }
 });
+
+test('Integration: 4-angle camera rotation (0°, 90°, 180°, 270°) keeps chessboard 100% playable and unoccluded by Zurich skyline & Veo screen, with living pond frogs & fish', async () => {
+  const THREE = await import('three');
+  const { ZurichSwampView } = await import('../src/views/ZurichSwampView.js');
+  const { VeoCinemaView } = await import('../src/views/VeoCinemaView.js');
+  const { PieceView } = await import('../src/views/PieceView.js');
+  const { PieceManager } = await import('../src/managers/PieceManager.js');
+  const { BoardInteractionView } = await import('../src/views/BoardInteractionView.js');
+  const { squareToWorld } = await import('../src/core/Registry.js');
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(46, 16 / 9, 0.1, 120);
+  camera.position.set(0.0, 5.85, 12.6);
+  const controls = {
+    target: new THREE.Vector3(0.0, 2.15, -2.2),
+    update() {
+      camera.lookAt(this.target);
+      camera.updateMatrixWorld(true);
+    },
+  };
+  controls.update();
+
+  const bus = new GameEventBus();
+  const flow = new GameFlowManager();
+  const board = new BoardMapManager();
+  const pieces = new PieceManager();
+  const ctx = { bus, flow, board, pieces, pieceManager: pieces, scene, camera, controls };
+  flow.init(ctx);
+  board.init(ctx);
+  pieces.init(ctx);
+  flow.startChessMode();
+  board.reset();
+  bus.flush();
+  bus.flush();
+
+  const swampView = new ZurichSwampView(scene, bus);
+  const cinemaView = new VeoCinemaView(scene, bus);
+  const pieceView = new PieceView(scene, ctx);
+  pieceView.init(scene, ctx);
+
+  const domElement = {
+    getBoundingClientRect: () => ({ left: 0, top: 0, width: 1280, height: 720 }),
+    addEventListener() {},
+  };
+  const boardInteraction = new BoardInteractionView({
+    scene,
+    camera,
+    domElement,
+    swampView,
+    pieceView,
+    ctx,
+  });
+  boardInteraction.init(ctx);
+
+  // Collect all backdrop meshes (Zurich Skyline & Alps + Veo Cinema Mirror) that could occlude the board
+  const backdropRoots = [
+    scene.getObjectByName('ZurichSkylineAndAlps'),
+    scene.getObjectByName('VeoMagicCinemaMirror'),
+  ].filter(Boolean);
+  assert.equal(backdropRoots.length, 2, 'Both ZurichSkylineAndAlps and VeoMagicCinemaMirror exist in scene');
+
+  // Helper: project a 3D world point to screen pixel coordinates (1280x720)
+  const worldToClient = (wx, wy, wz) => {
+    const v = new THREE.Vector3(wx, wy, wz).project(camera);
+    return {
+      clientX: ((v.x + 1) * 0.5) * 1280,
+      clientY: ((-v.y + 1) * 0.5) * 720,
+    };
+  };
+
+  // Test 4 canonical camera orbit viewpoints: 0° (South), 90° (East), 180° (North/Black POV), 270° (West)
+  const orbitAnglesDeg = [0, 90, 180, 270];
+  const radius = 12.6;
+  const camY = 5.85;
+  const keySquares = ['e1', 'd1', 'e2', 'd2', 'e4', 'd5', 'e7', 'd7', 'e8', 'd8', 'a1', 'h1', 'a8', 'h8'];
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.camera = camera;
+
+  for (const deg of orbitAnglesDeg) {
+    const rad = (deg * Math.PI) / 180;
+    // Rotate camera around board origin (0, 0, 0) at 0°, 90°, 180° (z = -12.6!), 270°
+    camera.position.set(Math.sin(rad) * radius, camY, Math.cos(rad) * radius);
+    controls.target.set(0, 0.3, 0);
+    controls.update();
+
+    // Advance views with current camera so infinite/horizon parallax updates
+    swampView.update(1 / 30, camera, controls.target);
+    cinemaView.update(1 / 30, camera, controls.target);
+    scene.updateMatrixWorld(true);
+
+    // 1. Raycast from camera to key squares & pieces: verify ZERO occlusion by Zurich skyline or Veo screen
+    const boardAndPieceTargets = [
+      ...pieceView.getAllPieceObjects(),
+      ...swampView.squareMeshes,
+    ];
+    for (const sq of keySquares) {
+      const sqWorld = squareToWorld(sq);
+      const targetPt = new THREE.Vector3(sqWorld.x, 0.35, sqWorld.z);
+      const dir = targetPt.clone().sub(camera.position).normalize();
+      raycaster.set(camera.position, dir);
+
+      const backdropHits = raycaster.intersectObjects(backdropRoots, true);
+      const boardHits = raycaster.intersectObjects(boardAndPieceTargets, true);
+      assert.ok(boardHits.length > 0, `At ${deg}°, ray to square ${sq} must hit board or piece`);
+
+      if (backdropHits.length > 0) {
+        assert.ok(
+          backdropHits[0].distance > boardHits[0].distance,
+          `At ${deg}°, ${backdropHits[0].object.name || 'Zurich/Veo backdrop'} OCCLUDES square ${sq} (backdrop hit at ${backdropHits[0].distance.toFixed(2)}m < piece/square at ${boardHits[0].distance.toFixed(2)}m)!`,
+        );
+      }
+
+      // Also verify BoardInteractionView.pickSquareFromPointerEvent resolves the square from this angle
+      const screenPt = worldToClient(sqWorld.x, 0.02, sqWorld.z);
+      const picked = boardInteraction.pickSquareFromPointerEvent(screenPt);
+      assert.ok(picked, `At ${deg}°, pointer click on ${sq} must resolve a valid board square`);
+    }
+  }
+
+  for (const deg of orbitAnglesDeg) {
+    const rad = (deg * Math.PI) / 180;
+    camera.position.set(Math.sin(rad) * radius, camY, Math.cos(rad) * radius);
+    controls.target.set(0, 0.3, 0);
+    controls.update();
+    swampView.update(1 / 30, camera, controls.target);
+    cinemaView.update(1 / 30, camera, controls.target);
+    scene.updateMatrixWorld(true);
+
+    // 2. Verify the observer (camera) is strictly BETWEEN the Zurich/Veo backdrop and the chessboard!
+    const camToBoard = new THREE.Vector3(0, 0, 0).sub(camera.position).normalize();
+    const distToBoardCenter = camera.position.distanceTo(new THREE.Vector3(0, 0, 0));
+    for (const bRoot of backdropRoots) {
+      const box = new THREE.Box3().setFromObject(bRoot);
+      const bCenter = new THREE.Vector3();
+      box.getCenter(bCenter);
+      const camToBackdrop = bCenter.sub(camera.position);
+      const distAlongView = camToBackdrop.dot(camToBoard);
+      assert.ok(
+        distAlongView > distToBoardCenter + 4.0,
+        `At ${deg}° camera rotation, ${bRoot.name} must remain behind the board (observer between Zurich and board), got distAlongView=${distAlongView.toFixed(2)}m vs boardDist=${distToBoardCenter.toFixed(2)}m`,
+      );
+    }
+  }
+
+  // 3. Verify a real chess move can be played via pointer tap when rotated 180° (Black perspective)
+  const rad180 = Math.PI;
+  camera.position.set(Math.sin(rad180) * radius, camY, Math.cos(rad180) * radius);
+  controls.target.set(0, 0.3, 0);
+  controls.update();
+  swampView.update(1 / 30, camera, controls.target);
+  cinemaView.update(1 / 30, camera, controls.target);
+  scene.updateMatrixWorld(true);
+
+  boardInteraction.handleSquareTap('e2');
+  assert.equal(board.selectedSquare, 'e2', 'Selecting e2 works at 180° rotation');
+  boardInteraction.handleSquareTap('e4');
+  assert.equal(board.pieceAt('e4')?.type, 'p', 'Moving e2->e4 works at 180° rotation');
+
+  // 4. Verify the Enchanted Swamp Moat stays anchored around the board and features animated frogs & fish!
+  const moatGroup = scene.getObjectByName('EnchantedSwampMoat');
+  assert.ok(moatGroup, 'EnchantedSwampMoat remains in scene');
+  assert.equal(moatGroup.position.x, 0, 'Swamp moat stays centered on X=0');
+  assert.equal(moatGroup.position.z, 0, 'Swamp moat stays centered on Z=0');
+  assert.ok(
+    Array.isArray(swampView.jumpingFrogs) && swampView.jumpingFrogs.length >= 4,
+    'Swamp pond includes animated jumping frogs',
+  );
+  assert.ok(
+    Array.isArray(swampView.swimmingFish) && swampView.swimmingFish.length >= 6,
+    'Swamp pond includes animated swimming/leaping fish',
+  );
+
+  // 5. Verify semi-transparent 3D liquid water volume, visible seabed & animated 3D surface waves!
+  assert.ok(swampView.waterMaterial?.transparent === true, 'Swamp water material must be semi-transparent');
+  assert.ok(
+    swampView.waterMaterial?.opacity >= 0.45 && swampView.waterMaterial?.opacity <= 0.85,
+    `Swamp water opacity must be semi-transparent (0.45..0.85), got ${swampView.waterMaterial?.opacity}`,
+  );
+  assert.ok(swampView.seabedMesh, 'Swamp pond must have a 3D underwater seabed mesh beneath the translucent liquid');
+  assert.ok(
+    swampView.waterBodyMesh,
+    'Swamp pond must have a volumetric 3D liquid body cylinder/ring',
+  );
+  const wavePosAttr = swampView.waterMesh.geometry.getAttribute('position');
+  const yBefore = wavePosAttr.getY(10);
+  swampView.update(0.35, camera, controls.target);
+  const yAfter = wavePosAttr.getY(10);
+  assert.notEqual(yBefore, yAfter, '3D water surface vertices must animate with 3D liquid waves over time');
+});
+

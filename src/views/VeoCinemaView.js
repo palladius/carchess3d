@@ -51,12 +51,17 @@ export class VeoCinemaView {
     this.root.name = 'VeoMagicCinemaMirror';
     // In idle mode, keep the mirror discreet ("in disparte") between the Grossmünster towers;
     // during combat/checkmate it frames 100% of the 16:9 video cleanly behind the 5x5 board view!
-    this.idlePos = new THREE.Vector3(0, 3.65, -10.8);
+    this.horizonYaw = 0;
+    this.baseIdleDist = 10.8;
+    this.baseBattleDist = 5.3;
+    this.idlePos = new THREE.Vector3(0, 3.65, -this.baseIdleDist);
     this.idleScale = 0.65;
-    this.battlePos = new THREE.Vector3(0, 2.15, -5.3);
+    this.battlePos = new THREE.Vector3(0, 2.15, -this.baseBattleDist);
     this.battleScale = 0.75;
+    this.idleQuat = new THREE.Quaternion();
     this.root.userData.idlePos = this.idlePos.clone();
     this.root.userData.idleScale = this.idleScale;
+    this.root.userData.idleQuat = this.idleQuat.clone();
 
     this.root.position.copy(this.idlePos);
     this.root.scale.setScalar(this.idleScale);
@@ -866,16 +871,64 @@ export class VeoCinemaView {
   }
 
   // ===========================================================================
-  // 6. FRAME UPDATE & CLEANUP
+  // 6. INFINITE HORIZON PARALLAX & FRAME UPDATE
   // ===========================================================================
+
+  /**
+   * Keeps the idle Veo Magic Cinema Mirror locked to the infinite Zurich horizon
+   * behind the chessboard relative to the camera's horizontal azimuth (0°, 90°, 180°, 270°)
+   * so rotating the camera never places the screen in front of the camera or occludes pieces!
+   * @param {THREE.Camera} camera
+   * @param {THREE.Vector3} [target]
+   */
+  updateHorizonParallax(camera, target = null) {
+    if (!camera || !camera.position) return;
+    const pivotX = target?.x ?? 0;
+    const pivotZ = target?.z ?? 0;
+    const dx = camera.position.x - pivotX;
+    const dz = camera.position.z - pivotZ;
+    const hDist = Math.hypot(dx, dz);
+
+    if (hDist > 0.25) {
+      this.horizonYaw = Math.atan2(dx, dz);
+    }
+
+    const extraPull = Math.max(0, (hDist - 12.6) * 0.45);
+    const idleDist = this.baseIdleDist + extraPull;
+    const battleDist = this.baseBattleDist + extraPull * 0.5;
+
+    const sinY = Math.sin(this.horizonYaw);
+    const cosY = Math.cos(this.horizonYaw);
+
+    this.idlePos.set(-sinY * idleDist, 3.65, -cosY * idleDist);
+    this.battlePos.set(-sinY * battleDist, 2.15, -cosY * battleDist);
+    this.idleQuat.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.horizonYaw);
+
+    if (this.root) {
+      this.root.userData.idlePos = this.idlePos.clone();
+      this.root.userData.idleQuat = this.idleQuat.clone();
+
+      const isExpanded = this.mode === 'battle' || this.mode === 'checkmate';
+      if (!this.root.userData.vfxControlled) {
+        this.root.position.copy(isExpanded ? this.battlePos : this.idlePos);
+        this.root.quaternion.copy(this.idleQuat);
+        this.root.updateMatrixWorld?.(true);
+      }
+    }
+  }
 
   /**
    * Animates the 16:9 screen canvas texture / video texture and smoothly transitions
    * between discreet idle pose ("in disparte") and full-screen backdrop behind the board!
    * @param {number} dt
+   * @param {THREE.Camera} [camera]
+   * @param {THREE.Vector3} [target]
    */
-  update(dt = 0.016) {
+  update(dt = 0.016, camera = null, target = null) {
     this.time += dt;
+    if (camera) {
+      this.updateHorizonParallax(camera, target);
+    }
     if (this.mode === 'battle' || this.outroBattle) {
       this.battleElapsed += dt;
       const prePadS = this.getPrePaddingS();

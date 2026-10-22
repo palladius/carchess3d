@@ -480,8 +480,8 @@ function bootstrapCarChess3D() {
     ai,
     {
       update(dt) {
-        swampView.update?.(dt);
-        cinemaView.update?.(dt);
+        swampView.update?.(dt, camera, controls.target);
+        cinemaView.update?.(dt, camera, controls.target);
         pieceView.update?.(dt);
         boardInteraction.update?.(dt);
         vfxView.update?.(dt);
@@ -489,6 +489,8 @@ function bootstrapCarChess3D() {
       },
       lateUpdate(frameDt) {
         controls.update();
+        swampView.updateHorizonParallax?.(camera, controls.target);
+        cinemaView.updateHorizonParallax?.(camera, controls.target);
         vfxView.lateUpdate?.(frameDt);
       },
     },

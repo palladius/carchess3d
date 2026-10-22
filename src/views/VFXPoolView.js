@@ -3279,6 +3279,7 @@ export class VFXPoolView {
     if (mirrorRoot) {
       const idlePos = mirrorRoot.userData?.idlePos || new THREE.Vector3(0, 3.65, -10.8);
       const idleScale = mirrorRoot.userData?.idleScale || 0.65;
+      const idleQuat = mirrorRoot.userData?.idleQuat || this._idleMirrorQuat;
 
       if (b >= 0.999 && this.camera) {
         this.camera.updateMatrixWorld?.();
@@ -3289,13 +3290,13 @@ export class VFXPoolView {
       } else if (b <= 0.001) {
         mirrorRoot.position.copy(idlePos);
         mirrorRoot.scale.setScalar(idleScale);
-        mirrorRoot.rotation.set(0, 0, 0);
+        mirrorRoot.quaternion.copy(idleQuat);
         mirrorRoot.userData.vfxControlled = false;
       } else {
         mirrorRoot.position.lerpVectors(idlePos, this.lastCinemaMirrorPos, b);
         mirrorRoot.scale.setScalar(idleScale + (this.lastCinemaMirrorScale - idleScale) * b);
         mirrorRoot.quaternion.slerpQuaternions(
-          this._idleMirrorQuat,
+          idleQuat,
           this.lastCinemaMirrorQuat,
           b,
         );

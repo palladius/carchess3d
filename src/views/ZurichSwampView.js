@@ -89,6 +89,10 @@ export class ZurichSwampView {
     this._dioramaFadeReady = false;
     this._dioramaGroups = [];
     this._dioramaMaterials = [];
+    this.horizonYaw = 0.0;
+    this.jumpingFrogs = [];
+    this.swimmingFish = [];
+    this.pondRipples = [];
 
     if (this.scene) {
       this.scene.userData = this.scene.userData || {};
@@ -164,6 +168,7 @@ export class ZurichSwampView {
 
     // Glowing Alpine Full/Crescent Moon at (-14.5, 11.2, -26.0) framed in overview
     const moonGroup = new THREE.Group();
+    moonGroup.name = 'AlpineMoonGroup';
     moonGroup.position.set(-14.5, 11.2, -26.0);
     const moonMat = new THREE.MeshBasicMaterial({ color: 0xfff6d6 });
     const moonMesh = new THREE.Mesh(new THREE.CircleGeometry(1.75, 32), moonMat);
@@ -179,6 +184,7 @@ export class ZurichSwampView {
     const haloMesh = new THREE.Mesh(new THREE.CircleGeometry(3.8, 32), haloMat);
     haloMesh.position.z = -0.05;
     moonGroup.add(haloMesh);
+    this.moonGroup = moonGroup;
     this.root.add(moonGroup);
   }
 
@@ -531,104 +537,244 @@ export class ZurichSwampView {
     const swampGroup = new THREE.Group();
     swampGroup.name = 'EnchantedSwampMoat';
     this.root.add(swampGroup);
+    this.swampGroup = swampGroup;
 
-    // Emerald water plane at y = -0.45m (outer radius 24m)
-    const waterTex = this.createSwampWaterTexture();
-    this.waterTexture = waterTex;
-    this.waterMaterial = new THREE.MeshStandardMaterial({
-      color: 0x156b52,
-      map: waterTex,
-      roughness: 0.26,
-      metalness: 0.22,
-      emissive: new THREE.Color(0x0f4d3a),
-      emissiveMap: waterTex,
+    // 1. Deep Underwater Seabed Basin at y = -1.15m (visible through the translucent emerald water!)
+    const seabedTex = this.createSwampSeabedTexture();
+    const seabedMat = new THREE.MeshStandardMaterial({
+      color: 0x0a2e26,
+      map: seabedTex,
+      roughness: 0.85,
+      metalness: 0.08,
+      emissive: new THREE.Color(0x073b32),
+      emissiveMap: seabedTex,
       emissiveIntensity: 0.72,
     });
-    const waterGeo = new THREE.CircleGeometry(25.0, 64);
+    const seabedGeo = new THREE.CircleGeometry(25.2, 64);
+    seabedGeo.rotateX(-Math.PI / 2);
+    this.seabedMesh = new THREE.Mesh(seabedGeo, seabedMat);
+    this.seabedMesh.name = 'SwampUnderwaterSeabed';
+    this.seabedMesh.position.y = -1.15;
+    this.seabedMesh.receiveShadow = true;
+    swampGroup.add(this.seabedMesh);
+
+    // Underwater pebbles, glowing aquamarine crystals & swaying kelp fronds on the seabed (y = -1.15m .. -0.55m)
+    const pebbleMat = new THREE.MeshStandardMaterial({
+      color: 0x1e4d42,
+      roughness: 0.75,
+      metalness: 0.12,
+    });
+    const aquaCrystalMat = new THREE.MeshStandardMaterial({
+      color: 0x00ffc8,
+      roughness: 0.18,
+      metalness: 0.35,
+      emissive: 0x00e5ff,
+      emissiveIntensity: 1.15,
+    });
+    const kelpMat = new THREE.MeshStandardMaterial({
+      color: 0x1de9b6,
+      roughness: 0.55,
+      emissive: 0x00bfa5,
+      emissiveIntensity: 0.45,
+    });
+    this.underwaterKelp = [];
+    for (let k = 0; k < 28; k++) {
+      const ang = (k / 28) * Math.PI * 2 + (k % 3) * 0.11;
+      const rad = 6.9 + ((k * 43) % 100) * 0.075;
+      const kx = Math.cos(ang) * rad;
+      const kz = Math.sin(ang) * rad;
+
+      const pebble = new THREE.Mesh(new THREE.DodecahedronGeometry(0.22 + (k % 3) * 0.08, 1), pebbleMat);
+      pebble.scale.set(1.3, 0.55, 1.1);
+      pebble.position.set(kx, -1.10, kz);
+      swampGroup.add(pebble);
+
+      if (k % 2 === 0) {
+        const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(0.16 + (k % 3) * 0.05, 0), aquaCrystalMat);
+        crystal.scale.set(0.75, 1.65, 0.75);
+        crystal.position.set(kx + 0.12, -0.96, kz - 0.08);
+        crystal.rotation.set(0.2, ang, -0.18);
+        swampGroup.add(crystal);
+      }
+
+      const frondH = 0.52 + (k % 3) * 0.12;
+      const frond = new THREE.Mesh(new THREE.ConeGeometry(0.065, frondH, 5), kelpMat);
+      frond.position.set(kx - 0.1, -1.12 + frondH * 0.5, kz + 0.1);
+      swampGroup.add(frond);
+      this.underwaterKelp.push({ mesh: frond, baseRotZ: (k % 2 === 0 ? 1 : -1) * 0.12, phase: k * 0.7 });
+    }
+
+    // 2. Volumetric 3D Liquid Body Layer (y = -1.14m .. -0.45m) giving true 3D water thickness & refraction feel
+    const waterTex = this.createSwampWaterTexture();
+    this.waterTexture = waterTex;
+    this.waterBodyMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x0d7a5f,
+      transparent: true,
+      opacity: 0.36,
+      roughness: 0.22,
+      metalness: 0.08,
+      emissive: new THREE.Color(0x064e3e),
+      emissiveIntensity: 0.45,
+      depthWrite: false,
+    });
+    const waterBodyGeo = new THREE.CylinderGeometry(24.9, 24.9, 0.68, 64, 1, false);
+    this.waterBodyMesh = new THREE.Mesh(waterBodyGeo, this.waterBodyMaterial);
+    this.waterBodyMesh.name = 'SwampVolumetric3DWaterBody';
+    this.waterBodyMesh.position.y = -0.80;
+    swampGroup.add(this.waterBodyMesh);
+
+    // 3. Semi-Transparent 3D Wave-Animated Emerald Water Surface at y = -0.45m
+    this.waterMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x18b88a,
+      map: waterTex,
+      transparent: true,
+      opacity: 0.64,
+      roughness: 0.10,
+      metalness: 0.15,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.06,
+      emissive: new THREE.Color(0x0c5944),
+      emissiveMap: waterTex,
+      emissiveIntensity: 0.68,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    // Subdivided radial grid (28 rings x 64 segments) so vertex Y displaces with real 3D liquid waves!
+    const waterGeo = new THREE.RingGeometry(5.6, 25.0, 64, 24);
     waterGeo.rotateX(-Math.PI / 2);
+    const wPos = waterGeo.getAttribute('position');
+    this.waterBaseXZ = new Float32Array(wPos.count * 2);
+    for (let idx = 0; idx < wPos.count; idx++) {
+      this.waterBaseXZ[idx * 2] = wPos.getX(idx);
+      this.waterBaseXZ[idx * 2 + 1] = wPos.getZ(idx);
+    }
     this.waterMesh = new THREE.Mesh(waterGeo, this.waterMaterial);
+    this.waterMesh.name = 'SwampTranslucent3DWaterSurface';
     this.waterMesh.position.y = -0.45;
     this.waterMesh.receiveShadow = true;
     swampGroup.add(this.waterMesh);
 
-    // Glowing Sunken Magic Rune Ring beneath the water surface (y = -0.445m, r = 7.1m .. 7.9m)
+    // Glowing Sunken Magic Rune Rings on the seabed (y = -0.88m) & mid-water (y = -0.56m)
     const sunkenRingGeo = new THREE.RingGeometry(7.0, 7.85, 48);
     sunkenRingGeo.rotateX(-Math.PI / 2);
     this.sunkenRuneMat = new THREE.MeshBasicMaterial({
       color: 0x52ebb0,
       transparent: true,
-      opacity: 0.34,
+      opacity: 0.42,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
     const sunkenRing = new THREE.Mesh(sunkenRingGeo, this.sunkenRuneMat);
-    sunkenRing.position.y = -0.442;
+    sunkenRing.position.y = -0.82;
     swampGroup.add(sunkenRing);
 
-    // 20 Sculpted 3D Lily Pads + Pink/Lilac Lotus Blossoms (r = 6.5m .. 15.5m)
+    const outerShimmerGeo = new THREE.RingGeometry(10.6, 11.1, 48);
+    outerShimmerGeo.rotateX(-Math.PI / 2);
+    const outerShimmer = new THREE.Mesh(outerShimmerGeo, this.sunkenRuneMat);
+    outerShimmer.position.y = -0.78;
+    swampGroup.add(outerShimmer);
+
+    // 24 Sculpted 3D Lily Pads + Pink/Lilac/Golden Lotus Blossoms (r = 6.6m .. 15.5m)
     const padMat = new THREE.MeshStandardMaterial({
-      color: 0x268c55,
-      roughness: 0.56,
+      color: 0x2a9d5c,
+      roughness: 0.48,
       metalness: 0.08,
-      emissive: 0x0b3820,
-      emissiveIntensity: 0.25,
+      emissive: 0x0c3d22,
+      emissiveIntensity: 0.28,
+    });
+    const padRimMat = new THREE.MeshStandardMaterial({
+      color: 0x4cd9a2,
+      roughness: 0.4,
+      emissive: 0x1b5e3a,
+      emissiveIntensity: 0.35,
     });
     const petalPinkMat = new THREE.MeshStandardMaterial({
       color: 0xf48fb1,
-      roughness: 0.35,
+      roughness: 0.30,
       emissive: 0x880e4f,
-      emissiveIntensity: 0.35,
+      emissiveIntensity: 0.42,
     });
     const petalLilacMat = new THREE.MeshStandardMaterial({
       color: 0xce93d8,
-      roughness: 0.35,
+      roughness: 0.30,
       emissive: 0x4a148c,
-      emissiveIntensity: 0.35,
+      emissiveIntensity: 0.42,
     });
-    const lotusCoreMat = new THREE.MeshBasicMaterial({ color: 0xffeb3b });
+    const lotusCoreMat = new THREE.MeshBasicMaterial({ color: 0xffee58 });
 
     this.lilyPads = [];
-    for (let i = 0; i < 20; i++) {
-      const angle = (i / 20) * Math.PI * 2 + (i % 3) * 0.14;
-      const radius = 6.8 + ((i * 37) % 100) * 0.082; // 6.8m .. 15.0m
+    for (let i = 0; i < 24; i++) {
+      const angle = (i / 24) * Math.PI * 2 + (i % 3) * 0.14;
+      const radius = 6.75 + ((i * 37) % 100) * 0.082; // 6.75m .. 14.9m
       const lx = Math.cos(angle) * radius;
       const lz = Math.sin(angle) * radius;
-      const padRadius = 0.44 + (i % 4) * 0.12;
+      const padRadius = 0.46 + (i % 4) * 0.12;
 
       const padGroup = new THREE.Group();
-      padGroup.position.set(lx, -0.435, lz);
+      padGroup.position.set(lx, -0.432, lz);
       padGroup.rotation.y = angle * 1.7;
 
       // Notched lily pad cylinder (pacman slice 0 .. 1.88*PI)
-      const padGeo = new THREE.CylinderGeometry(padRadius, padRadius * 0.95, 0.03, 18, 1, false, 0, Math.PI * 1.86);
+      const padGeo = new THREE.CylinderGeometry(
+        padRadius,
+        padRadius * 0.95,
+        0.032,
+        18,
+        1,
+        false,
+        0,
+        Math.PI * 1.86,
+      );
       const padMesh = new THREE.Mesh(padGeo, padMat);
       padMesh.receiveShadow = true;
       padGroup.add(padMesh);
 
-      // Add sculpted lotus flower on every second or third pad
+      // Subtle glowing rim vein on lily pad
+      const rimRing = new THREE.Mesh(
+        new THREE.RingGeometry(padRadius * 0.85, padRadius * 0.96, 16, 1, 0, Math.PI * 1.84),
+        padRimMat,
+      );
+      rimRing.rotation.x = -Math.PI / 2;
+      rimRing.position.y = 0.017;
+      padGroup.add(rimRing);
+
+      // Add sculpted double-layered lotus flower on every second pad
       if (i % 2 === 0) {
         const lotus = new THREE.Group();
-        lotus.position.y = 0.02;
+        lotus.position.y = 0.022;
         const pMat = i % 4 === 0 ? petalPinkMat : petalLilacMat;
-        const petalGeo = new THREE.ConeGeometry(0.085, 0.24, 5);
-        petalGeo.translate(0, 0.09, 0);
-        for (let p = 0; p < 6; p++) {
+        const petalGeo = new THREE.ConeGeometry(0.09, 0.25, 5);
+        petalGeo.translate(0, 0.095, 0);
+        for (let p = 0; p < 8; p++) {
           const petal = new THREE.Mesh(petalGeo, pMat);
-          petal.rotation.y = (p / 6) * Math.PI * 2;
-          petal.rotation.z = 0.42;
+          petal.rotation.y = (p / 8) * Math.PI * 2;
+          petal.rotation.z = 0.46;
           lotus.add(petal);
         }
-        const center = new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 8), lotusCoreMat);
-        center.position.y = 0.05;
+        for (let p = 0; p < 5; p++) {
+          const innerPetal = new THREE.Mesh(petalGeo, pMat);
+          innerPetal.scale.setScalar(0.75);
+          innerPetal.rotation.y = ((p + 0.5) / 5) * Math.PI * 2;
+          innerPetal.rotation.z = 0.24;
+          lotus.add(innerPetal);
+        }
+        const center = new THREE.Mesh(new THREE.SphereGeometry(0.072, 10, 10), lotusCoreMat);
+        center.position.y = 0.055;
         lotus.add(center);
         padGroup.add(lotus);
       }
 
       swampGroup.add(padGroup);
-      this.lilyPads.push({ group: padGroup, baseY: -0.435, phase: i * 0.85 });
+      this.lilyPads.push({
+        group: padGroup,
+        x: lx,
+        z: lz,
+        baseY: -0.432,
+        phase: i * 0.85,
+      });
     }
 
-    // Cattails / Swamp Reeds clusters + Twisted Mossy Swamp Tree Roots (x = ±7.5m .. ±11.5m)
+    // Cattails / Swamp Reeds clusters + Twisted Mossy Swamp Tree Roots + Bioluminescent Mushrooms
     const reedStemMat = new THREE.MeshStandardMaterial({ color: 0x357a46, roughness: 0.72 });
     const reedHeadMat = new THREE.MeshStandardMaterial({ color: 0x5c3d33, roughness: 0.82 });
     const rootWoodMat = new THREE.MeshStandardMaterial({
@@ -636,6 +782,29 @@ export class ZurichSwampView {
       roughness: 0.82,
       emissive: 0x142416,
       emissiveIntensity: 0.22,
+    });
+    const mushroomStemMat = new THREE.MeshStandardMaterial({
+      color: 0xe0f2f1,
+      roughness: 0.5,
+      emissive: 0x26a69a,
+      emissiveIntensity: 0.35,
+    });
+    const mushroomCapCyanMat = new THREE.MeshStandardMaterial({
+      color: 0x00e5ff,
+      roughness: 0.25,
+      emissive: 0x00b8d4,
+      emissiveIntensity: 0.85,
+    });
+    const mushroomCapGoldMat = new THREE.MeshStandardMaterial({
+      color: 0xffea00,
+      roughness: 0.25,
+      emissive: 0xffab00,
+      emissiveIntensity: 0.85,
+    });
+    const mossBoulderMat = new THREE.MeshStandardMaterial({
+      color: 0x284b3a,
+      roughness: 0.78,
+      metalness: 0.08,
     });
 
     const rootClusters = [
@@ -645,18 +814,47 @@ export class ZurichSwampView {
       { x: 9.6, z: -2.5, rot: -0.9 },
       { x: -7.8, z: -6.8, rot: 1.2 },
       { x: 7.8, z: -6.8, rot: -1.2 },
+      { x: -6.8, z: 7.4, rot: 0.65 },
+      { x: 6.8, z: 7.4, rot: -0.65 },
     ];
 
-    for (const rc of rootClusters) {
+    for (let cIdx = 0; cIdx < rootClusters.length; cIdx++) {
+      const rc = rootClusters[cIdx];
       const cluster = new THREE.Group();
       cluster.position.set(rc.x, -0.45, rc.z);
       cluster.rotation.y = rc.rot;
+
+      // Mossy shoreline boulder base
+      const boulder = new THREE.Mesh(new THREE.DodecahedronGeometry(0.48, 1), mossBoulderMat);
+      boulder.scale.set(1.3, 0.65, 1.1);
+      boulder.position.set(0, 0.12, 0);
+      cluster.add(boulder);
 
       // Twisted gnarled swamp root arch
       const archGeo = new THREE.TorusGeometry(0.95, 0.16, 8, 18, Math.PI);
       const arch = new THREE.Mesh(archGeo, rootWoodMat);
       arch.castShadow = true;
       cluster.add(arch);
+
+      // Bioluminescent fairy mushrooms growing on the mossy roots
+      for (let m = 0; m < 3; m++) {
+        const mGroup = new THREE.Group();
+        const mx = (m - 1) * 0.32;
+        const mz = 0.24 + (m % 2) * 0.14;
+        const mScale = 0.75 + (m % 2) * 0.35;
+        mGroup.position.set(mx, 0.18, mz);
+        mGroup.scale.setScalar(mScale);
+
+        const mStem = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.04, 0.18, 8), mushroomStemMat);
+        mStem.position.y = 0.09;
+        const mCap = new THREE.Mesh(
+          new THREE.SphereGeometry(0.11, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.58),
+          (cIdx + m) % 2 === 0 ? mushroomCapCyanMat : mushroomCapGoldMat,
+        );
+        mCap.position.y = 0.16;
+        mGroup.add(mStem, mCap);
+        cluster.add(mGroup);
+      }
 
       // Cattail reeds around the root base
       for (let r = 0; r < 5; r++) {
@@ -674,6 +872,219 @@ export class ZurichSwampView {
       }
 
       swampGroup.add(cluster);
+    }
+
+    // -------------------------------------------------------------------------
+    // 3C. LIVING SWAMP FAUNA: JUMPING FROGS, KOI/GOLDEN FISH & WATER RIPPLES!
+    // -------------------------------------------------------------------------
+    this.buildPondFrogsAndFish(swampGroup);
+  }
+
+  /**
+   * Populates the Enchanted Swamp Moat with:
+   * - 6 sculpted 3D Emerald Tree Frogs (`this.jumpingFrogs`) that leap in parabolic arcs
+   *   between lily pads and out of the water with animated hind legs and vocal throat sacs!
+   * - 8 sculpted 3D Golden-Orange & Silver-Blue Koi/Trout Fish (`this.swimmingFish`) that
+   *   swim in graceful orbits around the island and periodically breach/jump above the surface!
+   * - Animated expanding turquoise water splash ripple rings (`this.pondRipples`) at jump spots!
+   * @param {THREE.Group} swampGroup
+   */
+  buildPondFrogsAndFish(swampGroup) {
+    this.jumpingFrogs = [];
+    this.swimmingFish = [];
+    this.pondRipples = [];
+
+    const frogBodyMat = new THREE.MeshStandardMaterial({
+      color: 0x43e97b,
+      roughness: 0.32,
+      metalness: 0.08,
+      emissive: 0x0f5228,
+      emissiveIntensity: 0.35,
+    });
+    const frogBellyMat = new THREE.MeshStandardMaterial({
+      color: 0xfff59d,
+      roughness: 0.45,
+      emissive: 0xfbc02d,
+      emissiveIntensity: 0.25,
+    });
+    const frogEyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const frogPupilMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+    const frogCrownMat = new THREE.MeshStandardMaterial({
+      color: 0xffd54f,
+      roughness: 0.22,
+      metalness: 0.85,
+      emissive: 0xff8f00,
+      emissiveIntensity: 0.45,
+    });
+
+    const rippleGeo = new THREE.RingGeometry(0.18, 0.26, 24);
+    rippleGeo.rotateX(-Math.PI / 2);
+
+    // 1. Create 6 Jumping Enchanted Swamp Frogs hopping across lily-pad arcs
+    const frogCount = 6;
+    for (let i = 0; i < frogCount; i++) {
+      const padA = this.lilyPads[(i * 3) % this.lilyPads.length];
+      const padB = this.lilyPads[(i * 3 + 2) % this.lilyPads.length];
+
+      const frogGroup = new THREE.Group();
+      frogGroup.name = `SwampJumpingFrog_${i}`;
+
+      // Sculpted chubby frog body
+      const body = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 10), frogBodyMat);
+      body.scale.set(1.0, 0.78, 1.32);
+      body.position.y = 0.11;
+      frogGroup.add(body);
+
+      // Puffy yellow vocal throat sac (inflates between jumps!)
+      const throatSac = new THREE.Mesh(new THREE.SphereGeometry(0.095, 10, 8), frogBellyMat);
+      throatSac.position.set(0, 0.09, 0.16);
+      frogGroup.add(throatSac);
+
+      // Big cute bulging eyes on top of head
+      for (const side of [-1, 1]) {
+        const eyeDome = new THREE.Mesh(new THREE.SphereGeometry(0.052, 8, 8), frogEyeWhiteMat);
+        eyeDome.position.set(side * 0.085, 0.21, 0.12);
+        const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.026, 6, 6), frogPupilMat);
+        pupil.position.set(side * 0.088, 0.215, 0.162);
+        frogGroup.add(eyeDome, pupil);
+      }
+
+      // Articulated hind legs that stretch out mid-jump
+      const hindLegs = new THREE.Group();
+      hindLegs.position.set(0, 0.08, -0.12);
+      for (const side of [-1, 1]) {
+        const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.028, 0.22, 8), frogBodyMat);
+        thigh.position.set(side * 0.13, -0.02, -0.06);
+        thigh.rotation.x = Math.PI * 0.35;
+        hindLegs.add(thigh);
+      }
+      frogGroup.add(hindLegs);
+
+      // Fairy-tale mini golden crown on the first two Prince Frogs!
+      if (i % 2 === 0) {
+        const crown = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.085, 5), frogCrownMat);
+        crown.position.set(0, 0.26, 0.04);
+        frogGroup.add(crown);
+      }
+
+      // Dedicated water splash ripple ring under each frog
+      const rippleMat = new THREE.MeshBasicMaterial({
+        color: 0x69f0ae,
+        transparent: true,
+        opacity: 0.0,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      });
+      const rippleMesh = new THREE.Mesh(rippleGeo, rippleMat);
+      rippleMesh.position.set(padA.x, -0.438, padA.z);
+      swampGroup.add(rippleMesh);
+      this.pondRipples.push(rippleMesh);
+
+      frogGroup.position.set(padA.x, -0.41, padA.z);
+      swampGroup.add(frogGroup);
+
+      this.jumpingFrogs.push({
+        group: frogGroup,
+        throatSac,
+        hindLegs,
+        rippleMesh,
+        rippleMat,
+        startX: padA.x,
+        startZ: padA.z,
+        endX: padB.x,
+        endZ: padB.z,
+        baseY: -0.41,
+        jumpHeight: 0.95 + (i % 3) * 0.28,
+        cycleDuration: 3.2 + (i % 3) * 0.55,
+        phaseOffset: i * 1.15,
+      });
+    }
+
+    // 2. Create 8 Swimming & Leaping Koi / Magic Trout Fish in the Emerald Moat
+    const fishGoldMat = new THREE.MeshStandardMaterial({
+      color: 0xff7043,
+      roughness: 0.22,
+      metalness: 0.35,
+      emissive: 0xd84315,
+      emissiveIntensity: 0.45,
+    });
+    const fishSilverMat = new THREE.MeshStandardMaterial({
+      color: 0x4fc3f7,
+      roughness: 0.18,
+      metalness: 0.55,
+      emissive: 0x0288d1,
+      emissiveIntensity: 0.45,
+    });
+    const fishFinMat = new THREE.MeshStandardMaterial({
+      color: 0xfff176,
+      roughness: 0.3,
+      transparent: true,
+      opacity: 0.9,
+      side: THREE.DoubleSide,
+    });
+
+    const fishCount = 8;
+    for (let i = 0; i < fishCount; i++) {
+      const fishGroup = new THREE.Group();
+      fishGroup.name = `SwampPondFish_${i}`;
+      const isGold = i % 2 === 0;
+      const bodyMat = isGold ? fishGoldMat : fishSilverMat;
+
+      // Streamlined fish body
+      const body = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 10), bodyMat);
+      body.scale.set(0.72, 0.85, 2.25);
+      fishGroup.add(body);
+
+      // Dorsal fin
+      const dorsal = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.18, 4), fishFinMat);
+      dorsal.position.set(0, 0.12, -0.04);
+      dorsal.rotation.x = -0.35;
+      fishGroup.add(dorsal);
+
+      // Animated swishing tail fin
+      const tailPivot = new THREE.Group();
+      tailPivot.position.set(0, 0, -0.28);
+      const tailFin = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.24, 3), fishFinMat);
+      tailFin.rotation.x = Math.PI * 0.5;
+      tailFin.scale.set(0.45, 1.0, 1.2);
+      tailFin.position.set(0, 0, -0.10);
+      tailPivot.add(tailFin);
+      fishGroup.add(tailPivot);
+
+      // Dedicated splash ripple ring when the fish leaps out of the water
+      const rippleMat = new THREE.MeshBasicMaterial({
+        color: 0x80deea,
+        transparent: true,
+        opacity: 0.0,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      });
+      const rippleMesh = new THREE.Mesh(rippleGeo, rippleMat);
+      rippleMesh.position.y = -0.438;
+      swampGroup.add(rippleMesh);
+      this.pondRipples.push(rippleMesh);
+
+      const orbitRadius = 7.4 + (i % 4) * 1.45;
+      const startAngle = (i / fishCount) * Math.PI * 2;
+      fishGroup.position.set(
+        Math.cos(startAngle) * orbitRadius,
+        -0.46,
+        Math.sin(startAngle) * orbitRadius,
+      );
+      swampGroup.add(fishGroup);
+
+      this.swimmingFish.push({
+        group: fishGroup,
+        tailPivot,
+        rippleMesh,
+        rippleMat,
+        orbitRadius,
+        orbitSpeed: (i % 2 === 0 ? 1 : -1) * (0.28 + (i % 3) * 0.07),
+        startAngle,
+        leapCycle: 4.0 + (i % 4) * 0.75,
+        leapPhase: i * 0.95,
+        leapHeight: 0.72 + (i % 3) * 0.22,
+      });
     }
   }
 
@@ -762,6 +1173,7 @@ export class ZurichSwampView {
   buildZurichSkylineAndAlps() {
     const skyline = new THREE.Group();
     skyline.name = 'ZurichSkylineAndAlps';
+    this.skylineGroup = skyline;
     this.root.add(skyline);
 
     const sandstoneMat = new THREE.MeshStandardMaterial({
@@ -1345,12 +1757,69 @@ export class ZurichSwampView {
   }
 
   /**
-   * Animates brazier flames/light flicker, fireflies, water shimmer, banners, and rune glow pulse.
-   * @param {number} dt
+   * Infinite Horizon Parallax ("Zurigo all'infinito"):
+   * Ensures the observer (`camera`) is ALWAYS strictly between the chessboard and the external
+   * Zurich Skyline / Swiss Alps / Alpine Moon backdrop, regardless of camera orbit (0°, 90°, 180°, 270°).
+   * Meanwhile, the Enchanted Swamp Moat (`this.swampGroup`) stays anchored at the board origin `(0, 0, 0)`.
+   * @param {THREE.Camera} [camera]
+   * @param {THREE.Vector3|{x:number,y:number,z:number}} [target]
    */
-  update(dt = 0.016) {
+  updateHorizonParallax(camera, target = null) {
+    if (!camera || !camera.position) return;
+    const tx = target && Number.isFinite(target.x) ? target.x : 0;
+    const tz = target && Number.isFinite(target.z) ? target.z : 0;
+    const dx = camera.position.x - tx;
+    const dz = camera.position.z - tz;
+    const hDist = Math.hypot(dx, dz);
+
+    // Only update azimuth when camera is not strictly vertical (top-down zenith view has hDist ~ 0.001)
+    if (hDist > 0.25) {
+      this.horizonYaw = Math.atan2(dx, dz);
+    }
+
+    if (this.skylineGroup) {
+      this.skylineGroup.rotation.y = this.horizonYaw;
+      // Subtle horizon distance push when camera orbits far out so the observer is NEVER behind Grossmünster
+      const extraPull = Math.max(0, hDist - 12.6) * 0.45;
+      const forwardX = -Math.sin(this.horizonYaw);
+      const forwardZ = -Math.cos(this.horizonYaw);
+      this.skylineGroup.position.set(forwardX * extraPull, 0, forwardZ * extraPull);
+    }
+
+    if (this.moonGroup) {
+      const baseMoonX = -14.5;
+      const baseMoonY = 11.2;
+      const baseMoonZ = -26.0;
+      const cosA = Math.cos(this.horizonYaw);
+      const sinA = Math.sin(this.horizonYaw);
+      this.moonGroup.position.set(
+        baseMoonX * cosA + baseMoonZ * sinA,
+        baseMoonY,
+        -baseMoonX * sinA + baseMoonZ * cosA,
+      );
+      this.moonGroup.rotation.y = this.horizonYaw;
+    }
+
+    if (this.skyDome) {
+      // Subtle skybox starfield parallax (rotates at 85% of camera azimuth for deep celestial depth)
+      this.skyDome.rotation.y = this.horizonYaw * 0.85;
+    }
+  }
+
+  /**
+   * Animates brazier flames/light flicker, fireflies, water shimmer, jumping frogs, swimming koi/trout fish,
+   * banners, rune glow pulse, and infinite Zurich horizon parallax.
+   * @param {number} dt
+   * @param {THREE.Camera} [camera]
+   * @param {THREE.Vector3|{x:number,y:number,z:number}} [target]
+   */
+  update(dt = 0.016, camera = null, target = null) {
     this.time += dt;
     const t = this.time;
+
+    if (camera) {
+      this.updateHorizonParallax(camera, target);
+    }
 
     // 1. Animate 4 Corner Braziers (flame cones, embers, warm PointLight flicker)
     const baseBrazierInt = this.debugConfig.brazierIntensity;
@@ -1390,18 +1859,143 @@ export class ZurichSwampView {
       posAttr.needsUpdate = true;
     }
 
-    // 3. Animate Lily Pads gentle bobbing & Sunken Rune shimmer
+    // 3. Animate 3D Liquid Water Surface Waves, Underwater Kelp, Lily Pads & Sunken Rune Shimmer
+    if (this.waterMesh && this.waterBaseXZ) {
+      const wPos = this.waterMesh.geometry.getAttribute('position');
+      for (let idx = 0; idx < wPos.count; idx++) {
+        const wx = this.waterBaseXZ[idx * 2];
+        const wz = this.waterBaseXZ[idx * 2 + 1];
+        const radial = Math.hypot(wx, wz);
+        const waveY =
+          Math.sin(radial * 1.45 - t * 2.6) * 0.032 +
+          Math.cos(wx * 0.85 + wz * 0.75 + t * 1.9) * 0.022;
+        wPos.setY(idx, waveY);
+      }
+      wPos.needsUpdate = true;
+      this.waterMesh.geometry.computeVertexNormals();
+    }
+    if (this.underwaterKelp) {
+      for (const klp of this.underwaterKelp) {
+        klp.mesh.rotation.z = klp.baseRotZ + Math.sin(t * 2.1 + klp.phase) * 0.18;
+      }
+    }
     if (this.lilyPads) {
       for (const lp of this.lilyPads) {
-        lp.group.position.y = lp.baseY + Math.sin(t * 1.4 + lp.phase) * 0.012;
+        const radial = Math.hypot(lp.x, lp.z);
+        const waveHeight =
+          Math.sin(radial * 1.45 - t * 2.6) * 0.028 +
+          Math.cos(lp.x * 0.85 + lp.z * 0.75 + t * 1.9) * 0.018;
+        lp.group.position.y = lp.baseY + waveHeight;
       }
     }
     if (this.sunkenRuneMat) {
-      this.sunkenRuneMat.opacity = 0.22 + Math.sin(t * 1.8) * 0.08;
+      this.sunkenRuneMat.opacity = 0.28 + Math.sin(t * 1.8) * 0.10;
     }
     if (this.waterTexture) {
       this.waterTexture.offset.x = Math.sin(t * 0.18) * 0.03;
       this.waterTexture.offset.y = Math.cos(t * 0.14) * 0.03;
+    }
+
+    // 3B. Animate Jumping Frogs & Splash Ripples
+    if (this.jumpingFrogs) {
+      for (const f of this.jumpingFrogs) {
+        const cyclePos = ((t + f.phaseOffset) % f.cycleDuration) / f.cycleDuration;
+        // Frogs spend 0.0..0.42 hopping A->B, 0.42..0.50 resting on B, 0.50..0.92 hopping B->A, 0.92..1.0 resting on A
+        let jumpU = 0;
+        let fromX = f.startX;
+        let fromZ = f.startZ;
+        let toX = f.endX;
+        let toZ = f.endZ;
+        let isJumping = false;
+
+        if (cyclePos < 0.42) {
+          jumpU = cyclePos / 0.42;
+          isJumping = true;
+        } else if (cyclePos < 0.50) {
+          jumpU = 1.0;
+        } else if (cyclePos < 0.92) {
+          jumpU = (cyclePos - 0.50) / 0.42;
+          fromX = f.endX;
+          fromZ = f.endZ;
+          toX = f.startX;
+          toZ = f.startZ;
+          isJumping = true;
+        } else {
+          jumpU = 1.0;
+          fromX = f.endX;
+          fromZ = f.endZ;
+          toX = f.startX;
+          toZ = f.startZ;
+        }
+
+        const curX = fromX + (toX - fromX) * jumpU;
+        const curZ = fromZ + (toZ - fromZ) * jumpU;
+        const arcY = isJumping ? Math.sin(jumpU * Math.PI) * f.jumpHeight : 0;
+        f.group.position.set(curX, f.baseY + arcY, curZ);
+
+        // Face travel direction and pitch nose up/down along parabolic arc
+        const headingYaw = Math.atan2(toX - fromX, toZ - fromZ);
+        const pitch = isJumping ? Math.cos(jumpU * Math.PI) * -0.52 : 0;
+        f.group.rotation.set(pitch, headingYaw, 0);
+
+        if (f.hindLegs) {
+          f.hindLegs.rotation.x = isJumping ? Math.sin(jumpU * Math.PI) * 0.85 : 0;
+        }
+        if (f.throatSac) {
+          const ribbitScale = !isJumping ? 1.0 + Math.abs(Math.sin(t * 12.0 + f.phaseOffset)) * 0.45 : 0.85;
+          f.throatSac.scale.setScalar(ribbitScale);
+        }
+        if (f.rippleMesh && f.rippleMat) {
+          if (isJumping && (jumpU < 0.25 || jumpU > 0.75)) {
+            const rProgress = jumpU < 0.25 ? jumpU / 0.25 : (jumpU - 0.75) / 0.25;
+            const rx = jumpU < 0.25 ? fromX : toX;
+            const rz = jumpU < 0.25 ? fromZ : toZ;
+            f.rippleMesh.position.set(rx, -0.438, rz);
+            f.rippleMesh.scale.setScalar(0.7 + rProgress * 2.2);
+            f.rippleMat.opacity = Math.max(0, (1.0 - rProgress) * 0.65);
+          } else {
+            f.rippleMat.opacity = 0;
+          }
+        }
+      }
+    }
+
+    // 3C. Animate Swimming & Leaping Koi / Trout Fish
+    if (this.swimmingFish) {
+      for (const fish of this.swimmingFish) {
+        const ang = fish.startAngle + t * fish.orbitSpeed;
+        const fx = Math.cos(ang) * fish.orbitRadius;
+        const fz = Math.sin(ang) * fish.orbitRadius;
+
+        // Tangent heading along circular orbit
+        const dirSign = fish.orbitSpeed >= 0 ? 1 : -1;
+        const tangentX = -Math.sin(ang) * dirSign;
+        const tangentZ = Math.cos(ang) * dirSign;
+        const yaw = Math.atan2(tangentX, tangentZ);
+
+        // Periodic dolphin-style breach out of the translucent emerald water (cruises visibly at y = -0.64m underwater!)
+        const leapCyclePos = ((t + fish.leapPhase) % fish.leapCycle) / fish.leapCycle;
+        let fy = -0.62 + Math.sin(t * 2.4 + fish.leapPhase) * 0.05;
+        let pitch = 0;
+        if (leapCyclePos < 0.28) {
+          const lu = leapCyclePos / 0.28;
+          fy = -0.62 + Math.sin(lu * Math.PI) * (fish.leapHeight + 0.18);
+          pitch = Math.cos(lu * Math.PI) * -0.68;
+          if (fish.rippleMesh && fish.rippleMat) {
+            fish.rippleMesh.position.set(fx, -0.425, fz);
+            fish.rippleMesh.scale.setScalar(0.6 + lu * 2.4);
+            fish.rippleMat.opacity = Math.sin(lu * Math.PI) * 0.72;
+          }
+        } else if (fish.rippleMat) {
+          fish.rippleMat.opacity = 0;
+        }
+
+        fish.group.position.set(fx, fy, fz);
+        fish.group.rotation.set(pitch, yaw, 0);
+        if (fish.tailPivot) {
+          fish.tailPivot.rotation.y = Math.sin(t * 14.0 + fish.leapPhase) * 0.42;
+        }
+      }
     }
 
     // 4. Pulse Altar Golden Runes & Wave Zurich/Swiss Banners
@@ -1535,19 +2129,65 @@ export class ZurichSwampView {
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
-    const grad = ctx.createRadialGradient(256, 256, 30, 256, 256, 256);
-    grad.addColorStop(0, '#16694e');
-    grad.addColorStop(0.55, '#0d4232');
-    grad.addColorStop(1, '#062119');
+    const grad = ctx.createRadialGradient(256, 256, 24, 256, 256, 256);
+    grad.addColorStop(0, '#125c4b');
+    grad.addColorStop(0.45, '#0c3f34');
+    grad.addColorStop(0.8, '#082c25');
+    grad.addColorStop(1, '#051a16');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 512, 512);
 
-    // Shimmering bioluminescent ripple rings
-    ctx.strokeStyle = 'rgba(105, 240, 174, 0.24)';
+    // Subtle organic caustic network & bioluminescent ripple rings
+    ctx.strokeStyle = 'rgba(77, 208, 225, 0.18)';
+    ctx.lineWidth = 1.6;
+    for (let i = 0; i < 18; i++) {
+      const cx = 64 + ((i * 97) % 384);
+      const cy = 64 + ((i * 151) % 384);
+      const r = 18 + (i % 5) * 14;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = 'rgba(105, 240, 174, 0.22)';
     ctx.lineWidth = 2;
-    for (let r = 45; r < 250; r += 28) {
+    for (let r = 45; r < 250; r += 32) {
       ctx.beginPath();
       ctx.arc(256, 256, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  createSwampSeabedTexture() {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const grad = ctx.createRadialGradient(256, 256, 30, 256, 256, 256);
+    grad.addColorStop(0, '#0a382e');
+    grad.addColorStop(0.55, '#062620');
+    grad.addColorStop(1, '#031411');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Underwater luminous caustic web on the sandy/mossy pond floor
+    ctx.strokeStyle = 'rgba(100, 255, 218, 0.28)';
+    ctx.lineWidth = 2.2;
+    for (let i = 0; i < 28; i++) {
+      const x1 = (i * 73) % 512;
+      const y1 = (i * 137) % 512;
+      const r = 22 + (i % 6) * 16;
+      ctx.beginPath();
+      ctx.arc(x1, y1, r, 0, Math.PI * 2);
       ctx.stroke();
     }
 
