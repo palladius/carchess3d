@@ -470,6 +470,142 @@ function bootstrapCarChess3D() {
     hud.rootEl.style.display = 'none';
   }
 
+  let turntableActive = false;
+  let turntableManualAngle = null;
+  let turntableElapsed = 0;
+  const turntableRoster = [
+    { sq: 'e1', label: 'Riccardo' },
+    { sq: 'd1', label: 'Kate' },
+    { sq: 'c1', label: 'Ale' },
+    { sq: 'b1', label: 'Seby' },
+    { sq: 'a1', label: 'Pupurabbu' },
+    { sq: 'e2', label: 'Puffin' },
+  ];
+  const turntableKeepSquares = new Set(turntableRoster.map((r) => r.sq));
+  const turntableLabelEls = [];
+
+  if (urlParams.get('turntable') === '1') {
+    turntableActive = true;
+    ai.configure({ enabled: false, cpuColor: 'b', difficulty: 'easy' });
+    if (hud.rootEl) {
+      hud.rootEl.style.display = 'none';
+    }
+    boardInteraction.rootGroup.visible = false;
+    cinemaView.root.visible = false;
+    controls.enabled = false;
+
+    const rowZ = 2.4;
+    const spacing = 1.3;
+
+    const labelLayer = document.createElement('div');
+    labelLayer.id = 'turntable-6up-labels';
+    labelLayer.style.cssText =
+      'position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden;';
+    document.body.appendChild(labelLayer);
+
+    turntableRoster.forEach((item, idx) => {
+      const x = (idx - 2.5) * spacing;
+      const badge = document.createElement('div');
+      badge.textContent = item.label;
+      badge.style.cssText = [
+        'position:absolute',
+        'transform:translate(-50%, -50%)',
+        'padding:5px 16px',
+        'border-radius:999px',
+        'background:linear-gradient(180deg, rgba(20,26,44,0.94) 0%, rgba(10,14,24,0.97) 100%)',
+        'border:1.5px solid rgba(255,208,96,0.92)',
+        'box-shadow:0 3px 10px rgba(0,0,0,0.7), 0 0 12px rgba(255,196,46,0.25)',
+        'color:#ffe082',
+        'font:700 18px/1.15 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        'letter-spacing:0.03em',
+        'text-shadow:0 1px 3px rgba(0,0,0,0.95)',
+        'white-space:nowrap',
+      ].join(';');
+      labelLayer.appendChild(badge);
+      turntableLabelEls.push({ sq: item.sq, badge, x, z: rowZ });
+    });
+  }
+
+  function updateTurntable6Up(dt) {
+    if (!turntableActive) return;
+    turntableElapsed += dt;
+    const rowZ = 2.4;
+    camera.fov = 38;
+    camera.position.set(0.0, 1.55, 8.95);
+    controls.target.set(0.0, 1.18, rowZ);
+    camera.updateProjectionMatrix();
+    camera.lookAt(0.0, 1.18, rowZ);
+
+    boardInteraction.rootGroup.visible = false;
+    cinemaView.root.visible = false;
+    pieceView.trayGroup.visible = false;
+    pieceView.footstepGroup.visible = false;
+    for (const b of swampView.braziers || []) {
+      if (b.unit) {
+        for (const ch of b.unit.children) {
+          if (!ch.isLight) ch.visible = false;
+        }
+      }
+    }
+    for (const f of swampView.jumpingFrogs || []) {
+      if (f.group) f.group.visible = false;
+    }
+    for (const s of swampView.swimmingFish || []) {
+      if (s.group) s.group.visible = false;
+    }
+    for (const w of swampView.waterInsects || []) {
+      if (w.group) w.group.visible = false;
+    }
+    if (swampView.fireflyPoints) {
+      swampView.fireflyPoints.visible = false;
+    }
+
+    const angle =
+      turntableManualAngle !== null
+        ? turntableManualAngle
+        : (turntableElapsed / 8.0) * Math.PI * 2;
+
+    for (const [sq, grp] of pieceView.pieceBySquare.entries()) {
+      if (!turntableKeepSquares.has(sq)) {
+        grp.visible = false;
+      }
+    }
+
+    for (const item of turntableLabelEls) {
+      const grp = pieceView.pieceBySquare.get(item.sq);
+      if (grp) {
+        grp.visible = true;
+        grp.userData.turntableStatic = true;
+        grp.userData.homeYaw = 0;
+        grp.position.set(item.x, 0, item.z);
+        grp.rotation.set(0, angle, 0);
+        if (grp.userData.locomotionUniforms?.uIdleAmp) {
+          grp.userData.locomotionUniforms.uIdleAmp.value = 0;
+        }
+        if (grp.userData.bodyContainer) {
+          grp.userData.bodyContainer.position.set(0, 0, 0);
+          grp.userData.bodyContainer.rotation.set(0, 0, 0);
+          grp.userData.bodyContainer.scale.set(1, 1, 1);
+        }
+        if (!urlParams.has('clarity')) {
+          if (grp.userData.universalRoleAddOn) {
+            grp.userData.universalRoleAddOn.visible = false;
+          }
+          if (Array.isArray(grp.userData.bakedGlbAddons)) {
+            for (const addon of grp.userData.bakedGlbAddons) addon.visible = false;
+          }
+        }
+      }
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const proj = new THREE.Vector3(item.x, -0.09, item.z + 0.42).project(camera);
+      const sx = (proj.x * 0.5 + 0.5) * w;
+      const sy = (-proj.y * 0.5 + 0.5) * h;
+      item.badge.style.left = `${sx.toFixed(1)}px`;
+      item.badge.style.top = `${sy.toFixed(1)}px`;
+    }
+  }
+
   // 8. Ordered Manager & View Lifecycle List for the Fixed-Timestep Loop
   const orderedUnits = [
     flow,
@@ -488,7 +624,10 @@ function bootstrapCarChess3D() {
         wowView.update?.(dt);
       },
       lateUpdate(frameDt) {
-        controls.update();
+        if (!turntableActive) {
+          controls.update();
+        }
+        updateTurntable6Up(frameDt);
         swampView.updateHorizonParallax?.(camera, controls.target);
         cinemaView.updateHorizonParallax?.(camera, controls.target);
         vfxView.lateUpdate?.(frameDt);
@@ -534,6 +673,10 @@ function bootstrapCarChess3D() {
     audio,
     profileStorage,
     gameLoop,
+    setTurntableAngle(rad) {
+      turntableManualAngle = typeof rad === 'number' ? rad : null;
+      updateTurntable6Up(0);
+    },
   };
 
   let lastTime = performance.now();

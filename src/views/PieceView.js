@@ -2234,6 +2234,7 @@ if (uIsBlackObsidian > 0.5) {
     //    (Knight horse stepping in place, Puffin fluid body sway & tail wag,
     //     Ale dragon wing-flap, Pupurabbu squishy bounce, Riccardo & Kate royal breathing)
     for (const group of this.pieceBySquare.values()) {
+      if (group.userData?.turntableStatic) continue;
       const isTweening = this.activeTweens.some(
         (tw) => tw.group === group || tw.kingGroup === group || tw.rookGroup === group,
       );

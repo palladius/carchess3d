@@ -105,7 +105,9 @@ Instead of anonymous wooden horses and pawns, every piece in CarChess3D is an af
 | **Rook 🏰** | **Pupurabbu** | Seby's imaginary purple fluffy friend, peeking out of a stone tower. 💜 |
 | **Pawn 🐧** | **Puffin** (×16) | My wife calls me *Puffin*; the insider joke was irresistible. Swiss Guard uniform included. |
 
-*(A side-by-side turntable of all six 3D figurines is coming — see the family orbit above in the meantime.)*
+Here are all six reconstructed `.glb` family figurines (**Riccardo · Kate · Ale · Seby · Pupurabbu · Puffin**, each scored `9.7/10` in `docs/qa-scores.yaml`) rotating 360° side by side at their true relative metric heights (`0.80m` → `2.50m`, rendered via [`scripts/family_turntable_6up.py`](../scripts/family_turntable_6up.py) · [1600×900 MP4](assets/gallery/family_turntable_6up.mp4)):
+
+![6-piece Carlesso family 360° turntable: Riccardo, Kate, Ale, Seby, Pupurabbu, and Puffin rotating side by side](assets/gallery/family_turntable_6up.gif)
 
 ### 💜 The Brotherly Easter Egg: The "Mega Fluffy Cuddle"
 Inside the combat rules engine (`src/managers/CombatAnimationManager.js`), one hard-coded law is sacred: **Sebastian and his plushie Pupurabbu can never hurt each other**.

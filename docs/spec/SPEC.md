@@ -395,6 +395,8 @@ is the "victim" and is removed at the end.
     1. **Google Zurich Hürlimann Areal (`Brandschenkestrasse 110`)**: Historic red-brick brewery & tall red-brick Hürlimann chimney tower with a glowing Google `G` beacon on the distant left hillside behind the first buildings.
     2. **`✦ MADE WITH ✦ / GEMINI 4 ARGON`**: Ornate golden cartouche mounted on the central arch of the Münsterbrücke bridge over the Limmat, positioned cleanly above the Black King & Queen crowns.
   - During normal chess play (`mode === 'idle'`, `cinemaBlend === 0`), `VeoMagicCinemaMirror` stays hidden (`visible = false`) so the 180° Zurich skyline is never obstructed, and smoothly materializes during capture battles and checkmates.
+- **6-Piece Family 360° Turntable Showcase Mode (`?turntable=1`, `src/main.js`, `src/views/PieceView.js`, `scripts/family_turntable_6up.py`, `v0.3.97`)**:
+  - Passing `?turntable=1` places the 6 highest-scoring Carlesso family figurines (`king-riccardo.glb`, `queen-kate.glb`, `bishop-ale-1.glb`, `knight-seby.glb`, `rook-pupurabbu.glb`, `pawn-puffin.glb`, each `9.7/10` in `docs/qa-scores.yaml`) in a side-by-side line along `z = 1.6m` (`x = -2.75m .. +2.75m`) at their true relative metric heights (`0.80m` → `2.50m`) with gold English name plaques (`Riccardo · Kate · Ale · Seby · Pupurabbu · Puffin`), hides the other 26 pieces and HUD chrome, and exposes `window.__CARCHESS__.setTurntableAngle(rad)` for deterministic 360° turntable rendering (`article/assets/gallery/family_turntable_6up.mp4` and `.gif`).
 
 ## Open Questions
 

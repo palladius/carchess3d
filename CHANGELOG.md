@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.97] - 2026-10-23
+
+- 🎞️👑👸🐉🏎️🏰🐧 **6-Piece Family 360° Turntable Showcase (`?turntable=1`, `scripts/family_turntable_6up.py`, `src/main.js`, `src/views/PieceView.js`, `article/ARTICLE.md`, `docs/spec/SPEC.md` — closes #48)**:
+  - Added `?turntable=1` showcase mode in `src/main.js` and `turntableStatic` support in `src/views/PieceView.js`, lining up the 6 highest-scoring Carlesso family `.glb` figurines (`docs/qa-scores.yaml` = `9.7/10`): **Riccardo** (`king-riccardo.glb`, `1.86m`), **Kate** (`queen-kate.glb`, `1.68m`), **Ale** (`bishop-ale-1.glb`, `1.55m`), **Seby** (`knight-seby.glb`, `1.92m`), **Pupurabbu** (`rook-pupurabbu.glb`, `2.50m`), and **Puffin** (`pawn-puffin.glb`, `0.80m`) side by side at `z = 1.6m` (`x = -2.75m .. +2.75m`) at their true relative metric heights with gold name plaques (`Riccardo · Kate · Ale · Seby · Pupurabbu · Puffin`), HUD hidden, and `window.__CARCHESS__.setTurntableAngle(rad)` exposed for deterministic frame-by-frame capture.
+  - Created `scripts/family_turntable_6up.py` and rendered an 8-second (`192` frames at `24 FPS`) seamless 360° turntable on the local RTX 5080 WebGL pipeline:
+    - `article/assets/gallery/family_turntable_6up.mp4` (`1600×900`, `24 FPS`, `crf 20`, `4.16 MB`)
+    - `article/assets/gallery/family_turntable_6up.gif` (`800×450`, `12 FPS`, `128` colors + bayer dither, `6.82 MB` ≤ `8 MB`)
+  - Embedded `family_turntable_6up.gif` (and linked `.mp4` + script) in Section 3 of `article/ARTICLE.md`.
+
 ## [0.3.96] - 2026-10-23
 
 - 📝✍️ **Article Review Round 2 (`article/ARTICLE.md`, ricc.rocks post, `article/assets/`)**: applied Riccardo's inline review:
