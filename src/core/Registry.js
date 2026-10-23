@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.82';
+export const APP_VERSION = '0.3.95';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -79,7 +79,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-k.mp3',
         quote: {
           it: 'Avanti tutta! Re Carlesso al comando!',
-          en: 'Avanti tutta! Re Carlesso al comando!',
+          en: 'Full steam ahead! King Carlesso in command!',
         },
       },
       {
@@ -187,9 +187,7 @@ export const VOICE_LINES = Object.freeze({
     },
     audioUrl: 'assets/audio/voices/voice-b.mp3',
     speechLang: 'it-IT',
-    pitch: 1.18,
-    rate: 1.06,
-    variants: Object.freeze([
+        variants: Object.freeze([
       {
         id: 'b_ordini',
         kind: 'signature',
@@ -197,7 +195,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b.mp3',
         quote: {
           it: 'Agli ordini, Signore!',
-          en: 'Agli ordini, Signore!',
+          en: 'At your command, Sire!',
         },
       },
       {
@@ -218,7 +216,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-cucinibene.mp3',
         quote: {
           it: 'Papino, tu sì che cucini bene!',
-          en: 'Papino, tu sì che cucini bene!',
+          en: 'Daddy, you really cook so well!',
         },
       },
       {
@@ -228,7 +226,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-timanco.mp3',
         quote: {
           it: 'Papino, ti manco tantissimo!',
-          en: 'Papino, ti manco tantissimo!',
+          en: 'Daddy, do you miss me so much?',
         },
       },
       {
@@ -238,7 +236,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-piuforte.mp3',
         quote: {
           it: 'Papino, qual è il più forte?',
-          en: 'Papino, qual è il più forte?',
+          en: 'Daddy, which one is the strongest?',
         },
       },
       {
@@ -248,7 +246,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-regalo.mp3',
         quote: {
           it: 'Papino, quando mi compri un regalo?',
-          en: 'Papino, quando mi compri un regalo?',
+          en: 'Daddy, when will you buy me a present?',
         },
       },
       {
@@ -258,7 +256,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-cafonazzo.mp3',
         quote: {
           it: 'Sei proprio un cafoNAZZO!',
-          en: 'Sei proprio un cafoNAZZO!',
+          en: 'You are such a big CLODHOPPER!',
         },
       },
       {
@@ -268,7 +266,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-hmm.mp3',
         quote: {
           it: 'Mmh-hmm... vediamo!',
-          en: 'Mmh-hmm... vediamo!',
+          en: "Mmh-hmm... let's see!",
         },
       },
       {
@@ -278,7 +276,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-b-sbuffo.mp3',
         quote: {
           it: 'Pff... ma dai!',
-          en: 'Pff... ma dai!',
+          en: 'Pff... come on!',
         },
       },
     ]),
@@ -288,7 +286,7 @@ export const VOICE_LINES = Object.freeze({
     name: 'Seby',
     quote: {
       it: 'Dimmi papino!',
-      en: 'Dimmi papino!',
+      en: 'Tell me, daddy!',
     },
     hoverSound: {
       id: 'horse_snort',
@@ -306,7 +304,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-n.mp3',
         quote: {
           it: 'Dimmi papino!',
-          en: 'Dimmi papino!',
+          en: 'Tell me, daddy!',
         },
       },
       {
@@ -336,7 +334,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-n-papinooo.mp3',
         quote: {
           it: 'Papinoooooo!!!',
-          en: 'Papinoooooo!!!',
+          en: 'Dadddyyyyyyy!!!',
         },
       },
       {
@@ -346,7 +344,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-n-timanco.mp3',
         quote: {
           it: 'Papino, ti manco tantissimo!',
-          en: 'Papino, ti manco tantissimo!',
+          en: 'Daddy, do you miss me so much?',
         },
       },
       {
@@ -367,7 +365,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-n-cacca.mp3',
         quote: {
           it: 'Mi scappa la cacca!',
-          en: 'Mi scappa la cacca!',
+          en: 'I need to go potty!',
         },
       },
       {
@@ -398,7 +396,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-n-sbuffo.mp3',
         quote: {
           it: 'Pff... uffaaa!',
-          en: 'Pff... uffaaa!',
+          en: 'Pff... come on, ugh!',
         },
       },
     ]),
@@ -408,7 +406,7 @@ export const VOICE_LINES = Object.freeze({
     name: 'Pupurabbu',
     quote: {
       it: 'Boing boing! Super abbraccio Pupurabbu!',
-      en: 'Boing boing! Super abbraccio Pupurabbu!',
+      en: 'Boing boing! Super Pupurabbu hug!',
     },
     hoverSound: {
       id: 'plush_boing',
@@ -426,7 +424,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-r.mp3',
         quote: {
           it: 'Boing boing! Super abbraccio Pupurabbu!',
-          en: 'Boing boing! Super abbraccio Pupurabbu!',
+          en: 'Boing boing! Super Pupurabbu hug!',
         },
       },
       {
@@ -446,7 +444,7 @@ export const VOICE_LINES = Object.freeze({
     name: 'Puffin',
     quote: {
       it: 'Piu piu! Eccomi, pronta guardia Puffin!',
-      en: 'Piu piu! Eccomi, pronta guardia Puffin!',
+      en: 'Peep peep! Here I am, ready Puffin guard!',
     },
     hoverSound: {
       id: 'puffin_peep',
@@ -464,7 +462,7 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-p.mp3',
         quote: {
           it: 'Piu piu! Eccomi, pronta guardia Puffin!',
-          en: 'Piu piu! Eccomi, pronta guardia Puffin!',
+          en: 'Peep peep! Here I am, ready Puffin guard!',
         },
       },
       {
@@ -474,11 +472,18 @@ export const VOICE_LINES = Object.freeze({
         audioUrl: 'assets/audio/voices/voice-p-hmm.mp3',
         quote: {
           it: 'Mmh... piu!',
-          en: 'Mmh... piu!',
+          en: 'Mmh... peep!',
         },
       },
     ]),
   },
+});
+
+export const KNIGHT_GLB_VARIANTS = Object.freeze({
+  classic: 'assets/models/knight-seby.glb',
+  lightsaber: 'assets/models/knight-seby-lightsaber.glb',
+  halberd: 'assets/models/knight-seby-halberd.glb',
+  aurora: 'assets/models/knight-seby-aurora.glb',
 });
 
 export const QUEEN_GLB_VARIANTS = Object.freeze({
@@ -490,6 +495,7 @@ export const BISHOP_GLB_VARIANTS = Object.freeze({
   hat: 'assets/models/bishop-ale-1.glb',
   astrolabe: 'assets/models/bishop-ale-2-remastered.glb',
   rigged: 'assets/models/bishop-ale-rigged.glb',
+  hy2: 'assets/models/bishop-ale-hy2.glb',
 });
 
 export const CHARACTER_REGISTRY = Object.freeze({
@@ -498,7 +504,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
     role: 'king',
     glyph: '♔',
     name: 'Riccardo',
-    title: { it: 'Re Riccardo (Carlesso al Cesso)', en: 'King Riccardo (Royal Throne)' },
+    title: { it: 'Re Riccardo (Trono Reale 🚽)', en: 'King Riccardo (Royal Throne)' },
     height: CANONICAL_PIECE_HEIGHTS.k,
     weight: 10,
     frontPortrait: 'assets/characters/king-riccardo-1.jpg',
@@ -506,9 +512,19 @@ export const CHARACTER_REGISTRY = Object.freeze({
     backPortrait: 'tools/model-pipeline/king/back.png',
     glbUrl: 'assets/models/king-riccardo.glb',
     altGlbUrl: 'assets/models/king-riccardo-remastered.glb',
+    lodGlbUrls: {
+      low: 'assets/models/king-riccardo-10k.glb',
+      medium: 'assets/models/king-riccardo-50k.glb',
+      high: 'assets/models/king-riccardo.glb',
+    },
     optionalGlbCandidates: [
       'assets/models/king-riccardo.glb',
       'assets/models/king-riccardo-remastered.glb',
+      'assets/models/king-riccardo-hy2.glb',
+      'assets/models/king-riccardo-10k.glb',
+      'assets/models/king-riccardo-50k.glb',
+      'assets/models/king-riccardo-remastered-10k.glb',
+      'assets/models/king-riccardo-remastered-50k.glb',
     ],
     accentColor: 0xffca28,
     signatureId: 'sceptre_lightning',
@@ -528,11 +544,18 @@ export const CHARACTER_REGISTRY = Object.freeze({
     backPortrait: 'assets/characters/queen-kate-2.jpg',
     glbUrl: 'assets/models/queen-kate.glb',
     altGlbUrl: 'assets/models/queen-kate-wedding2016-remastered.glb',
+    lodGlbUrls: {
+      low: 'assets/models/queen-kate-10k.glb',
+      medium: 'assets/models/queen-kate-50k.glb',
+      high: 'assets/models/queen-kate.glb',
+    },
     optionalGlbCandidates: [
       'assets/models/queen-kate.glb',
       'assets/models/queen-kate-wedding2016-remastered.glb',
       'assets/models/queen-kate-young.glb',
       'assets/models/queen-kate-wedding2016.glb',
+      'assets/models/queen-kate-10k.glb',
+      'assets/models/queen-kate-50k.glb',
     ],
     variants: QUEEN_GLB_VARIANTS,
     accentColor: 0xab47bc,
@@ -553,11 +576,19 @@ export const CHARACTER_REGISTRY = Object.freeze({
     backPortrait: 'tools/model-pipeline/ale/experiments_back/back_nb_2.1.png',
     glbUrl: 'assets/models/bishop-ale-1.glb',
     altGlbUrl: 'assets/models/bishop-ale-rigged.glb',
+    lodGlbUrls: {
+      low: 'assets/models/bishop-ale-1-10k.glb',
+      medium: 'assets/models/bishop-ale-1.glb',
+      high: 'assets/models/bishop-ale-1.glb',
+    },
     optionalGlbCandidates: [
       'assets/models/bishop-ale-1.glb',
       'assets/models/bishop-ale-2-remastered.glb',
       'assets/models/bishop-ale-rigged.glb',
       'assets/models/bishop-ale-2.glb',
+      'assets/models/bishop-ale-hy2.glb',
+      'assets/models/bishop-ale-1-10k.glb',
+      'assets/models/bishop-ale-2-remastered-10k.glb',
     ],
     variants: BISHOP_GLB_VARIANTS,
     accentColor: 0x2d6cdf,
@@ -582,12 +613,20 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/knight-seby-1.jpg',
     backPortrait: 'tools/model-pipeline/seby/back_nb_2.1.png',
     glbUrl: 'assets/models/knight-seby.glb',
+    lodGlbUrls: {
+      low: 'assets/models/knight-seby-10k.glb',
+      medium: 'assets/models/knight-seby-50k.glb',
+      high: 'assets/models/knight-seby.glb',
+    },
     optionalGlbCandidates: [
       'assets/models/knight-seby.glb',
       'assets/models/knight-seby-halberd.glb',
       'assets/models/knight-seby-lightsaber.glb',
       'assets/models/knight-seby-aurora.glb',
+      'assets/models/knight-seby-10k.glb',
+      'assets/models/knight-seby-50k.glb',
     ],
+    variants: KNIGHT_GLB_VARIANTS,
     accentColor: 0xff7043,
     signatureId: 'loop_track_cars',
     voiceLine: VOICE_LINES.n,
@@ -605,7 +644,16 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/rook-pupurabbu.jpg',
     backPortrait: 'tools/model-pipeline/rook/back.png',
     glbUrl: 'assets/models/rook-pupurabbu.glb',
-    optionalGlbCandidates: ['assets/models/rook-pupurabbu.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/rook-pupurabbu-10k.glb',
+      medium: 'assets/models/rook-pupurabbu-50k.glb',
+      high: 'assets/models/rook-pupurabbu.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/rook-pupurabbu.glb',
+      'assets/models/rook-pupurabbu-10k.glb',
+      'assets/models/rook-pupurabbu-50k.glb',
+    ],
     accentColor: 0x7e57c2,
     signatureId: 'plush_ground_pound',
     voiceLine: VOICE_LINES.r,
@@ -623,7 +671,15 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/pawn-puffin.jpg',
     backPortrait: 'tools/model-pipeline/nbviews/gemini-nano-banana-2.1/back.png',
     glbUrl: 'assets/models/pawn-puffin.glb',
-    optionalGlbCandidates: ['assets/models/pawn-puffin.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/pawn-puffin-10k.glb',
+      medium: 'assets/models/pawn-puffin.glb',
+      high: 'assets/models/pawn-puffin.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/pawn-puffin.glb',
+      'assets/models/pawn-puffin-10k.glb',
+    ],
     accentColor: 0x26a69a,
     signatureId: 'halberd_fish_slap',
     voiceLine: VOICE_LINES.p,
@@ -836,7 +892,7 @@ function buildBattleMatrix() {
     };
   }
 
-  // Easter Egg #2: Riccardo (k) <-> Kate (q) Golden Toilet-Throne ("Carlesso al Cesso") clash
+  // Easter Egg #2: Riccardo (k) <-> Kate (q) Golden Toilet-Throne clash
   for (const [a, d] of [['k', 'q'], ['q', 'k']]) {
     matrix[a][d] = {
       ...matrix[a][d],
@@ -851,6 +907,7 @@ function buildBattleMatrix() {
       },
     };
   }
+
 
   // Easter Egg #3: Seby (n) <-> Ale (b) Brother Rivalry
   matrix.n.b = {
@@ -1004,7 +1061,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/king-swamp-orco.jpg',
     backPortrait: 'assets/characters/king-swamp-orco.jpg',
     glbUrl: 'assets/models/swamp/king-swamp-orco.glb',
-    optionalGlbCandidates: ['assets/models/swamp/king-swamp-orco.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/king-swamp-orco-10k.glb',
+      medium: 'assets/models/swamp/king-swamp-orco.glb',
+      high: 'assets/models/swamp/king-swamp-orco.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/king-swamp-orco.glb',
+      'assets/models/swamp/king-swamp-orco-10k.glb',
+    ],
     accentColor: 0x6ba32d,
   },
   q: {
@@ -1015,7 +1080,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/queen-swamp-orchessa.jpg',
     backPortrait: 'assets/characters/queen-swamp-orchessa.jpg',
     glbUrl: 'assets/models/swamp/queen-swamp-orchessa.glb',
-    optionalGlbCandidates: ['assets/models/swamp/queen-swamp-orchessa.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/queen-swamp-orchessa-10k.glb',
+      medium: 'assets/models/swamp/queen-swamp-orchessa.glb',
+      high: 'assets/models/swamp/queen-swamp-orchessa.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/queen-swamp-orchessa.glb',
+      'assets/models/swamp/queen-swamp-orchessa-10k.glb',
+    ],
     accentColor: 0x2e7d32,
   },
   b: {
@@ -1026,7 +1099,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/bishop-swamp-gatto.jpg',
     backPortrait: 'assets/characters/bishop-swamp-gatto.jpg',
     glbUrl: 'assets/models/swamp/bishop-swamp-focaccina.glb',
-    optionalGlbCandidates: ['assets/models/swamp/bishop-swamp-focaccina.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/bishop-swamp-focaccina-10k.glb',
+      medium: 'assets/models/swamp/bishop-swamp-focaccina.glb',
+      high: 'assets/models/swamp/bishop-swamp-focaccina.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/bishop-swamp-focaccina.glb',
+      'assets/models/swamp/bishop-swamp-focaccina-10k.glb',
+    ],
     accentColor: 0xd84315,
   },
   n: {
@@ -1037,7 +1118,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/knight-swamp-asinello-2.jpg',
     backPortrait: 'assets/characters/knight-swamp-asinello-2.jpg',
     glbUrl: 'assets/models/swamp/knight-swamp-asinello.glb',
-    optionalGlbCandidates: ['assets/models/swamp/knight-swamp-asinello.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/knight-swamp-asinello-10k.glb',
+      medium: 'assets/models/swamp/knight-swamp-asinello.glb',
+      high: 'assets/models/swamp/knight-swamp-asinello.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/knight-swamp-asinello.glb',
+      'assets/models/swamp/knight-swamp-asinello-10k.glb',
+    ],
     accentColor: 0x8d6e63,
   },
   r: {
@@ -1048,7 +1137,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/rook-swamp-draghessa.jpg',
     backPortrait: 'assets/characters/rook-swamp-draghessa.jpg',
     glbUrl: 'assets/models/swamp/rook-swamp-draghessa.glb',
-    optionalGlbCandidates: ['assets/models/swamp/rook-swamp-draghessa.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/rook-swamp-draghessa-10k.glb',
+      medium: 'assets/models/swamp/rook-swamp-draghessa.glb',
+      high: 'assets/models/swamp/rook-swamp-draghessa.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/rook-swamp-draghessa.glb',
+      'assets/models/swamp/rook-swamp-draghessa-10k.glb',
+    ],
     accentColor: 0xc2185b,
   },
   p: {
@@ -1059,7 +1156,15 @@ export const SWAMP_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/pawn-swamp-focaccina.jpg',
     backPortrait: 'assets/characters/pawn-swamp-porcellini.jpg',
     glbUrl: 'assets/models/swamp/pawn-swamp-tappo.glb',
-    optionalGlbCandidates: ['assets/models/swamp/pawn-swamp-tappo.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/swamp/pawn-swamp-tappo-10k.glb',
+      medium: 'assets/models/swamp/pawn-swamp-tappo.glb',
+      high: 'assets/models/swamp/pawn-swamp-tappo.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/swamp/pawn-swamp-tappo.glb',
+      'assets/models/swamp/pawn-swamp-tappo-10k.glb',
+    ],
     accentColor: 0xd49b4b,
   },
 });
@@ -1073,7 +1178,16 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/king-classic-re.jpg',
     backPortrait: 'assets/characters/king-classic-re.jpg',
     glbUrl: 'assets/models/classic/king-classic-re.glb',
-    optionalGlbCandidates: ['assets/models/classic/king-classic-re.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/king-classic-re-10k.glb',
+      medium: 'assets/models/classic/king-classic-re-50k.glb',
+      high: 'assets/models/classic/king-classic-re.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/king-classic-re.glb',
+      'assets/models/classic/king-classic-re-10k.glb',
+      'assets/models/classic/king-classic-re-50k.glb',
+    ],
     accentColor: 0xd4af37,
   },
   q: {
@@ -1084,7 +1198,16 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/queen-classic-regina.jpg',
     backPortrait: 'assets/characters/queen-classic-regina.jpg',
     glbUrl: 'assets/models/classic/queen-classic-regina.glb',
-    optionalGlbCandidates: ['assets/models/classic/queen-classic-regina.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/queen-classic-regina-10k.glb',
+      medium: 'assets/models/classic/queen-classic-regina-50k.glb',
+      high: 'assets/models/classic/queen-classic-regina.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/queen-classic-regina.glb',
+      'assets/models/classic/queen-classic-regina-10k.glb',
+      'assets/models/classic/queen-classic-regina-50k.glb',
+    ],
     accentColor: 0xffe082,
   },
   b: {
@@ -1095,7 +1218,16 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/bishop-classic-vescovo.jpg',
     backPortrait: 'assets/characters/bishop-classic-vescovo.jpg',
     glbUrl: 'assets/models/classic/bishop-classic-vescovo.glb',
-    optionalGlbCandidates: ['assets/models/classic/bishop-classic-vescovo.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/bishop-classic-vescovo-10k.glb',
+      medium: 'assets/models/classic/bishop-classic-vescovo-50k.glb',
+      high: 'assets/models/classic/bishop-classic-vescovo.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/bishop-classic-vescovo.glb',
+      'assets/models/classic/bishop-classic-vescovo-10k.glb',
+      'assets/models/classic/bishop-classic-vescovo-50k.glb',
+    ],
     accentColor: 0xc62828,
     signatureId: 'san_gennaro_miracle',
     animations: {
@@ -1113,7 +1245,15 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/knight-classic-cavallo.jpg',
     backPortrait: 'assets/characters/knight-classic-cavallo.jpg',
     glbUrl: 'assets/models/classic/knight-classic-cavallo.glb',
-    optionalGlbCandidates: ['assets/models/classic/knight-classic-cavallo.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/knight-classic-cavallo-10k.glb',
+      medium: 'assets/models/classic/knight-classic-cavallo.glb',
+      high: 'assets/models/classic/knight-classic-cavallo.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/knight-classic-cavallo.glb',
+      'assets/models/classic/knight-classic-cavallo-10k.glb',
+    ],
     accentColor: 0xd4af37,
   },
   r: {
@@ -1124,7 +1264,15 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/rook-classic-torre.jpg',
     backPortrait: 'assets/characters/rook-classic-torre.jpg',
     glbUrl: 'assets/models/classic/rook-classic-torre.glb',
-    optionalGlbCandidates: ['assets/models/classic/rook-classic-torre.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/rook-classic-torre-10k.glb',
+      medium: 'assets/models/classic/rook-classic-torre.glb',
+      high: 'assets/models/classic/rook-classic-torre.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/rook-classic-torre.glb',
+      'assets/models/classic/rook-classic-torre-10k.glb',
+    ],
     accentColor: 0xb84a2c,
   },
   p: {
@@ -1135,7 +1283,15 @@ export const CLASSIC_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/pawn-classic-pedone.jpg',
     backPortrait: 'assets/characters/pawn-classic-pedone.jpg',
     glbUrl: 'assets/models/classic/pawn-classic-pedone.glb',
-    optionalGlbCandidates: ['assets/models/classic/pawn-classic-pedone.glb'],
+    lodGlbUrls: {
+      low: 'assets/models/classic/pawn-classic-pedone-10k.glb',
+      medium: 'assets/models/classic/pawn-classic-pedone.glb',
+      high: 'assets/models/classic/pawn-classic-pedone.glb',
+    },
+    optionalGlbCandidates: [
+      'assets/models/classic/pawn-classic-pedone.glb',
+      'assets/models/classic/pawn-classic-pedone-10k.glb',
+    ],
     accentColor: 0xd4af37,
   },
 });
@@ -1214,8 +1370,13 @@ export const I18N = Object.freeze({
     wowCritLabel: '🌟 Forza Colpo Critico Dorato (Golden Crit!)',
     triggerBattleBtn: '⚔️ Lancia Sfida 3D + Cinema!',
     setupBtn: '⚙️ Modifica Partita',
-    setupTitle: '🏰🚽 Setup & Modifica Partita · Fazioni & AI',
-    setupSub: 'Scegli chi gioca al Bianco, chi al Nero, se Giocatore Umano o Computer AI!',
+    setupTitle: '🏰 CarChess3D · Sfida di Famiglia',
+    setupSub: 'Scegli il tuo Eroe, la difficoltà e scendi sulla scacchiera 3D!',
+    quickHeroTitle: 'Scegli il tuo Eroe:',
+    quickDiffTitle: 'Avversario:',
+    playNowBtn: 'GIOCA SUBITO! ✨',
+    advancedSetupToggle: '⚙️ Opzioni Avanzate (Fazioni, Varianti 3D, Chiarezza) ▼',
+    hideAdvancedSetupToggle: '▲ Chiudi Opzioni Avanzate',
     applyCurrentBtn: '💾 Modifica Partita in Corso (Senza Reset)',
     startMatchBtn: '🔄 Nuova Partita (Reset Pezzi) ✨',
     whiteSide: '⚪ Squadra Bianca (Avorio & Oro / Sud)',
@@ -1229,12 +1390,19 @@ export const I18N = Object.freeze({
     profileLabel: 'Profilo Giocatore:',
     hotseatDesc: '👥 Modalità 2 Giocatori Locale sullo stesso schermo.',
     setupWhiteCarlesso: '🏰 Famiglia Carlesso (Ale, Seby, Riccardo, Kate...)',
-    setupWhiteSwamp: '🐸 Palude di Zurigo (Orco & Focaccina)',
+    setupWhiteSwamp: '🐸 Palude degli Orchi (Orco & Focaccina)',
     setupWhiteClassic: '♔ Scacchi Classici (San Gennaro & Matildea)',
     setupBlackClassic: '♔ Scacchi Classici (San Gennaro & Matildea)',
-    setupBlackSwamp: '🐸 Palude di Zurigo (Orco & Focaccina)',
+    setupBlackSwamp: '🐸 Palude degli Orchi (Orco & Focaccina)',
     setupBlackFamily: '🏰 Famiglia Carlesso (Specchio)',
     setupBlackStone: '🗿 Pietra Magica (Wizard)',
+    envLabel: '🌅 Scenario / Panorama 180°:',
+    envZurich: '🇨🇭 Zurigo sulla Limmat (Google Zurich & Alpi)',
+    envSwamp: '🐸 Palude degli Orchi (Capanna, Ninfee & Lucciole)',
+    envPositano: '🇮🇹 Positano dal Mare (Costiera Amalfitana & Barchette)',
+    envShortZurich: '🇨🇭 Sfondo: Zurigo',
+    envShortSwamp: '🐸 Sfondo: Palude Orchi',
+    envShortPositano: '🇮🇹 Sfondo: Positano',
     fenModalTitle: '📋 FEN & PGN Scacchiera',
     loadFenBtn: '📥 Carica FEN',
     loadPgnBtn: '📥 Carica PGN',
@@ -1268,11 +1436,16 @@ export const I18N = Object.freeze({
     mobileStartToast: '📐 Vista Alto-Basso attiva! Fai la prima mossa: al 1° attacco entri nel 3D! ✨',
     queenVariantLabel: 'Variante Regina:',
     bishopVariantLabel: 'Variante Alfiere:',
+    knightVariantLabel: 'Variante Cavaliere (Seby):',
     queenVariantYoung: '👑 Kate Young (Canonico)',
     queenVariantWedding: '👰 Kate Nozze 2016 (Remaster)',
     bishopVariantHat: '🎩 Ale Mitria (Canonico)',
     bishopVariantAstrolabe: '🟢 Ale Astrolabio (Remaster)',
     bishopVariantRigged: '🐉 Ale Rigged (Drago)',
+    knightVariantClassic: '🐴 Seby Classico (Destriero Turbo)',
+    knightVariantLightsaber: '⚡ Seby Spada Laser (Lama Plasma)',
+    knightVariantHalberd: '🔱 Seby Alabarda (Guardia Reale)',
+    knightVariantAurora: '🏺 Seby Sigillo Acquario (Sfera Aurora)',
     clarityBtn: '🔍 Chiarezza Pezzi',
     clarityLabel: '🔍 Chiarezza Visiva (Riconoscimento Pezzi):',
     clarityS2: '👑 S2 (Default 3D): Corone & Stemmi 3D sulla Testa + Contrasto Ossidiana/Avorio',
@@ -1286,8 +1459,14 @@ export const I18N = Object.freeze({
     helpModalSub:
       'Tutto quello che serve per muovere la telecamera, usare la rotella per lo zoom e goderti gli Scacchi di Famiglia (Premi H, ? o Esc per chiudere)',
     clarityLettersLabel: '🔤 Accessibilità: Mostra lettere e Braille (K, Q, R, B, N, P) sulle icone 2D',
+    qualityLabel: '⚡ Qualità Grafica 3D (LOD):',
+    qualityAuto: '🤖 Auto (Consigliata per il tuo dispositivo)',
+    qualityHigh: '💻 Alta (~1000k poly / PC potente)',
+    qualityMedium: '📱 Media (~50k poly / iPad & tablet)',
+    qualityLow: '🔋 Bassa (~10k poly / smartphone o risparmio batteria)',
   },
   en: {
+
     title: 'CarChess3D · Family Wizard Chess',
     subtitle: 'Magical 3D Chess in the Enchanted Swamp of Zurich',
     mode1Btn: '♟️ 3D Chess Match',
@@ -1353,8 +1532,13 @@ export const I18N = Object.freeze({
     wowCritLabel: '🌟 Force Golden Critical Hit (Golden Crit!)',
     triggerBattleBtn: '⚔️ Launch 3D Clash + Veo Cinema!',
     setupBtn: '⚙️ Edit Match',
-    setupTitle: '🏰🚽 Match Setup & Edit · Factions & AI',
-    setupSub: 'Choose who plays White, who plays Black, Human Player or AI Opponent!',
+    setupTitle: '🏰 CarChess3D · Family Wizard Chess',
+    setupSub: 'Pick your Hero, difficulty and jump onto the 3D chessboard!',
+    quickHeroTitle: 'Choose your Hero:',
+    quickDiffTitle: 'Opponent Mode:',
+    playNowBtn: 'PLAY NOW! ✨',
+    advancedSetupToggle: '⚙️ Advanced Options (Factions, 3D Variants, Clarity) ▼',
+    hideAdvancedSetupToggle: '▲ Hide Advanced Options',
     applyCurrentBtn: '💾 Update Current Match (No Reset)',
     startMatchBtn: '🔄 New Match (Reset Board) ✨',
     whiteSide: '⚪ White Team (Ivory & Gold / South)',
@@ -1368,12 +1552,19 @@ export const I18N = Object.freeze({
     profileLabel: 'Player Profile:',
     hotseatDesc: '👥 Local 2-Player mode on the same screen.',
     setupWhiteCarlesso: '🏰 Carlesso Family (Ale, Seby, Riccardo, Kate...)',
-    setupWhiteSwamp: '🐸 Zurich Swamp (Ogre & Focaccina)',
+    setupWhiteSwamp: '🐸 Enchanted Ogre Swamp (Ogre & Focaccina)',
     setupWhiteClassic: '♔ Classic Chess (San Gennaro & Matildea)',
     setupBlackClassic: '♔ Classic Chess (San Gennaro & Matildea)',
-    setupBlackSwamp: '🐸 Zurich Swamp (Ogre & Focaccina)',
+    setupBlackSwamp: '🐸 Enchanted Ogre Swamp (Ogre & Focaccina)',
     setupBlackFamily: '🏰 Carlesso Family (Mirror)',
     setupBlackStone: '🗿 Wizard Stone',
+    envLabel: '🌅 180° Panorama Backdrop:',
+    envZurich: '🇨🇭 Zurich on the Limmat (Google Zurich & Alps)',
+    envSwamp: '🐸 Enchanted Ogre Swamp (Tree Hut, Lily Pads & Fireflies)',
+    envPositano: '🇮🇹 Positano from the Sea (Amalfi Coast & Boats)',
+    envShortZurich: '🇨🇭 Map: Zurich',
+    envShortSwamp: '🐸 Map: Ogre Swamp',
+    envShortPositano: '🇮🇹 Map: Positano',
     fenModalTitle: '📋 Board FEN & PGN',
     loadFenBtn: '📥 Load FEN',
     loadPgnBtn: '📥 Load PGN',
@@ -1407,11 +1598,16 @@ export const I18N = Object.freeze({
     mobileStartToast: '📐 Easy Top-Down View active! Make a move: 1st attack unlocks 3D Mode! ✨',
     queenVariantLabel: 'Queen Variant:',
     bishopVariantLabel: 'Bishop Variant:',
+    knightVariantLabel: 'Knight Variant (Seby):',
     queenVariantYoung: '👑 Kate Young (Canonical)',
     queenVariantWedding: '👰 Kate Wedding 2016 (Remaster)',
     bishopVariantHat: '🎩 Ale Mitre (Canonical)',
     bishopVariantAstrolabe: '🟢 Ale Astrolabe (Remaster)',
     bishopVariantRigged: '🐉 Ale Rigged (Dragon)',
+    knightVariantClassic: '🐴 Seby Classic (Turbo Steed)',
+    knightVariantLightsaber: '⚡ Seby Lightsaber (Plasma Saber)',
+    knightVariantHalberd: '🔱 Seby Halberd (Royal Guard)',
+    knightVariantAurora: '🏺 Seby Seal of Aquarius (Aurora Sphere)',
     clarityBtn: '🔍 Piece Clarity',
     clarityLabel: '🔍 Visual Clarity (Piece Recognition):',
     clarityS2: '👑 S2 (Default 3D): Head-Mounted 3D Crowns/Crests + Obsidian/Ivory Contrast',
@@ -1425,8 +1621,14 @@ export const I18N = Object.freeze({
     helpModalSub:
       'Everything you need to control the 3D camera, zoom with the mouse wheel, and enjoy Family Wizard Chess (Press H, ? or Esc to close)',
     clarityLettersLabel: '🔤 Accessibility: Show role letters & Braille (K, Q, R, B, N, P) on 2D icons',
+    qualityLabel: '⚡ 3D Graphics Quality (LOD):',
+    qualityAuto: '🤖 Auto (Recommended for your hardware)',
+    qualityHigh: '💻 High (~1000k poly / powerful desktop)',
+    qualityMedium: '📱 Medium (~50k poly / iPad & tablet)',
+    qualityLow: '🔋 Low (~10k poly / phone or battery saver)',
   },
 });
+
 
 /**
  * Pure camera mouse-wheel / trackpad gesture handler for `OrbitControls`.
@@ -1623,4 +1825,49 @@ export function shouldUseMobileLite3D(env = {}) {
   return false;
 }
 
+/**
+ * Resolves GLB path for a piece role, considering family, variants, and LOD tier ('low'|'medium'|'high').
+ *
+ * @param {string} pieceKey 'k'|'q'|'b'|'n'|'r'|'p'
+ * @param {'low'|'medium'|'high'|string} [lodTier='high']
+ * @param {{ family?: string, bishopVariant?: string, queenVariant?: string }} [opts]
+ * @returns {string} Relative GLB model path
+ */
+export function resolvePieceGlbForLod(pieceKey, lodTier = 'high', opts = {}) {
+  const familyId = opts.family || 'carlesso';
+  const reg = FAMILY_REGISTRIES[familyId] || CHARACTER_REGISTRY;
+  const def = reg[pieceKey] || CHARACTER_REGISTRY[pieceKey];
+  if (!def) return '';
+
+  let canonicalPath = def.glbUrl;
+
+  if (familyId === 'carlesso' && pieceKey === 'b') {
+    const bVar = opts.bishopVariant || 'hat';
+    if (bVar === 'astrolabe') {
+      if (lodTier === 'low') return 'assets/models/bishop-ale-2-remastered-10k.glb';
+      return 'assets/models/bishop-ale-2-remastered.glb';
+    }
+    if (bVar === 'hy2') {
+      if (lodTier === 'low') return 'assets/models/bishop-ale-hy2-10k.glb';
+      return 'assets/models/bishop-ale-hy2.glb';
+    }
+    if (bVar && BISHOP_GLB_VARIANTS[bVar]) {
+      canonicalPath = BISHOP_GLB_VARIANTS[bVar];
+      if (bVar !== 'hat') return canonicalPath;
+    }
+  } else if (familyId === 'carlesso' && pieceKey === 'q') {
+    const qVar = opts.queenVariant || 'young';
+    if (qVar && QUEEN_GLB_VARIANTS[qVar]) {
+      canonicalPath = QUEEN_GLB_VARIANTS[qVar];
+      if (qVar !== 'young') return canonicalPath;
+    }
+  }
+
+  // If def provides explicit lodGlbUrls dictionary, use it:
+  if (def.lodGlbUrls && def.lodGlbUrls[lodTier]) {
+    return def.lodGlbUrls[lodTier];
+  }
+
+  return canonicalPath;
+}
 

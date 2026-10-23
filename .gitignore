@@ -15,3 +15,7 @@ private/
 # Runtime logs, test videos, and UAT captures
 log/
 
+# Local model generation output scratch
+tools/model-pipeline/local/out/
+showcase/_tmp_*/
+

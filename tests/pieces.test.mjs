@@ -195,3 +195,19 @@ test('PieceManager: seedSwampParty and synthetic handlePieceCaptured are strictl
   assert.equal(pieces.getLivingPieces().length, 32);
 });
 
+test('PieceManager: handles QUALITY_TIER_CHANGED and updates qualityTier & effectiveLod', () => {
+  const { bus, pieces } = createPieceSetup();
+  assert.equal(pieces.getQualityTier(), 'auto');
+
+  bus.emit({ type: 'QUALITY_TIER_CHANGED', tier: 'low', effectiveLod: 'low' });
+  bus.flush();
+
+  assert.equal(pieces.getQualityTier(), 'low');
+  assert.equal(pieces.getEffectiveLod(), 'low');
+
+  pieces.setQualityTier('high');
+  bus.flush();
+  assert.equal(pieces.getQualityTier(), 'high');
+  assert.equal(pieces.getEffectiveLod(), 'high');
+});
+

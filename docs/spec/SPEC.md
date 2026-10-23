@@ -46,7 +46,11 @@ plane).
   no password) each with their own autosaved game in browser storage;
   optional FEN/PGN export/import to move a game across devices.
 - **Wow factor**: soft shadows, warm lighting, bloom/glow, ambient particles,
-  camera fly-in intro, squash-and-stretch piece moves, fireworks on checkmate.
+  camera fly-in intro, squash-and-stretch piece moves, fireworks on checkmate,
+  and **three full-screen 180° curved panorama cycloramas** (`🇨🇭 Zurich on the Limmat`,
+  `🐸 Ogre Swamp` surrounded by an emerald-green lake with the cozy ogre tree-root hut in front,
+  and `🇮🇹 Positano from the Sea` surrounded by 180° of open turquoise sea with the cliffside village in front)
+  that automatically adapt when selecting factions or can be switched at any time via the HUD / `?env=zurich|swamp|positano`.
 
 ## Non-Goals
 
@@ -334,6 +338,11 @@ is the "victim" and is removed at the end.
 - **Action Item — Mobile `LOD1` `.glb` Downsampling (`10×–20×` Polygon & Texture Reduction)**:
   - **Problem**: Desktop `.glb` characters (`assets/models/*.glb`) weigh `2–5 MB` each with `50k–97k` triangles and `2048×1024` / `2048×2048` uncompressed RGBA textures (`~850,000` triangles and `~180 MB` VRAM across all 32 pieces on the board), whereas on a `6.3"` smartphone screen each chess piece occupies only `~60×90` physical pixels (causing `15–20` sub-pixel triangles per screen pixel).
   - **Planned Solution (`assets/models/mobile/*.glb`)**: Generate a dedicated mobile `LOD1` asset set downsampled by **`10×–20×`** in triangle count (`~3,000–5,000` tris for heroes, `~1,500` tris for pawns via Quadric Error Metric decimation) and **`4×–16×`** in texture area (`512×512` WebP/JPEG baked atlas, `~150–300 KB` per `.glb`), and have `PieceView` load `assets/models/mobile/<piece>.glb` automatically on `isMobilePhone` so smartphones render the full 3D sculpted characters at `60 fps` with `< 5 MB` total download and `< 15 MB` VRAM.
+- **Benchmark-driven LOD tiers & Auto Quality (idea by Niccolò)** — generalizes the `LOD1` item above:
+  - Each piece ships as N GLBs: `assets/models/<tier>/<piece>.glb`, tiers `low` (≈3–10k tris, = `LOD1`), `med` (≈50k), `high` (≈100k, today's desktop set), `ultra` (≈1M, source mesh where available); produced by QEM decimation + texture downscale in `tools/model-pipeline/`.
+  - On first launch a ~2 s micro-benchmark (WebGL renderer/GPU string, `navigator.deviceMemory`, `hardwareConcurrency`, load + 60-frame render of a test GLB) picks the tier; expected defaults: phone → `low`, tablet/iPad → `med`, laptop → `high`, strong desktop → `ultra`. Result cached in `localStorage` per device.
+  - A ⚙️ gear in the HUD shows the chosen tier and lets the user force `Auto / Low / Med / High / Ultra` (supersedes the `?glb=1` / `?lite3d=1` URL overrides, which stay as debug aliases).
+  - **Acceptance**: `docs/benchmarks/lod.md` reports cold-start time and steady fps per tier on ≥ 3 device classes (cheap phone, iPad, strong desktop) and justifies the auto defaults.
 
 ## Visual Piece Recognition, True Obsidian vs Ivory Contrast & 5-Mode Clarity Engine (`v0.3.52` → `v0.3.74` — GHI #32)
 
@@ -375,6 +384,17 @@ is the "victim" and is removed at the end.
 - **Infinite-Horizon Zurich Parallax & Living Enchanted Swamp Pond (`ZurichSwampView.updateHorizonParallax`, `VeoCinemaView.updateHorizonParallax`, `v0.3.82`)**:
   - **360° Unoccluded Camera Orbit (`0°`, `90°`, `180°`, `270°`)**: The external Zurich skyline (`ZurichSkylineAndAlps`), Alpine moon (`AlpineMoonGroup`), twilight sky dome (`TwilightSkyDome`), and idle 16:9 Cinema Mirror (`VeoMagicCinemaMirror`) track the camera's horizontal azimuth (`horizonYaw = atan2(dx, dz)`) around the board center so the observer always sits strictly between the chessboard and the Zurich backdrop, preventing any occlusion when flipping `180°` to Black's side or orbiting `90°`/`270°`.
   - **Anchored Living 3D Translucent Swamp Moat (`EnchantedSwampMoat`)**: The moat stays anchored around the 8×8 altar and features a **3-layer 3D semi-transparent liquid system**: a luminous caustic seabed at `y = -1.15m` (`SwampUnderwaterSeabed` with pebbles, glowing aquamarine crystals, swaying 3D kelp fronds, and sunken rune rings), a volumetric 3D emerald liquid column (`SwampVolumetric3DWaterBody`, `opacity: 0.36`), and a translucent clearcoat 3D wave-displaced surface at `y = -0.45m` (`SwampTranslucent3DWaterSurface`, `opacity: 0.64`, `64×24` radial mesh with real-time vertex wave displacement), plus 24 notched lily pads with double-layered lotus blossoms, bioluminescent fairy mushrooms, **6 sculpted 3D jumping frogs (`SwampPondFrogs`)** hopping in parabolic arcs between lily pads with vocal-sac breathing, **8 swimming & breaching koi/trout fish (`SwampPondFish`)** visible both underwater and mid-leap, and expanding turquoise splash ripple rings (`PondRipple_*`).
+
+## Luxury Marble Chessboard & Full-Screen 180° Curved Zurich Panorama Cyclorama (`v0.3.84` → `v0.3.85`)
+
+- **Bianco Carrara & Nero Marquina Luxury Marble Chessboard (`src/views/ZurichSwampView.js`)**:
+  - The 64 chessboard squares (`1.0m × 1.0m`, `y = 0.0m`) use polished **Bianco Carrara (`0xfafbfd`, roughness `0.18`)** and **Nero Marquina (`0x111317`, roughness `0.14`)** procedural 512×512 marble textures with dark obsidian grout seams (`0x141820`) and silver-platinum altar trim (`0xcfd8dc`), eliminating the legacy yellowish-cream tiles and golden square borders.
+- **Full-Screen 180° Wrap-Around Fairytale Zurich Panorama (`assets/environments/zurich_panorama.jpg`, `src/views/ZurichSwampView.js`, `src/views/VeoCinemaView.js`)**:
+  - Replaced all blocky 3D primitive skyline boxes (`BoxGeometry`) and hid the legacy flat green moat circle (`EnchantedSwampMoat`) in favor of an unobstructed **full-screen 180-degree (`θ = 0 .. π`) wrap-around vertical cyclorama (`radiusX = 11.8m`, `z = -12.4m .. +2.5m`, `y = -2.95m .. -6.80m` at bottom up to `+10.85m .. +12.00m` at top, `fog: false`)** that fills **100% of the screen from top to bottom and left to right** with zero empty lower void and zero floor stretching.
+  - Features the Nanobanana twilight panorama of Zurich (`Fraumünster`, `St. Peter` golden clock face, `Grossmünster Twin Towers`, `Limmat River`, `Münsterbrücke`, `Lake Zurich`, and snow-capped `Swiss Alps`), plus two Easter Eggs:
+    1. **Google Zurich Hürlimann Areal (`Brandschenkestrasse 110`)**: Historic red-brick brewery & tall red-brick Hürlimann chimney tower with a glowing Google `G` beacon on the distant left hillside behind the first buildings.
+    2. **`✦ MADE WITH ✦ / GEMINI 4 ARGON`**: Ornate golden cartouche mounted on the central arch of the Münsterbrücke bridge over the Limmat, positioned cleanly above the Black King & Queen crowns.
+  - During normal chess play (`mode === 'idle'`, `cinemaBlend === 0`), `VeoMagicCinemaMirror` stays hidden (`visible = false`) so the 180° Zurich skyline is never obstructed, and smoothly materializes during capture battles and checkmates.
 
 ## Open Questions
 

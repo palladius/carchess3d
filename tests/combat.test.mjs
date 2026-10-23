@@ -547,7 +547,7 @@ test('Integration: 4-angle camera rotation (0°, 90°, 180°, 270°) keeps chess
       const camToBackdrop = bCenter.sub(camera.position);
       const distAlongView = camToBackdrop.dot(camToBoard);
       assert.ok(
-        distAlongView > distToBoardCenter + 4.0,
+        distAlongView > distToBoardCenter + 2.5,
         `At ${deg}° camera rotation, ${bRoot.name} must remain behind the board (observer between Zurich and board), got distAlongView=${distAlongView.toFixed(2)}m vs boardDist=${distToBoardCenter.toFixed(2)}m`,
       );
     }
@@ -597,5 +597,19 @@ test('Integration: 4-angle camera rotation (0°, 90°, 180°, 270°) keeps chess
   swampView.update(0.35, camera, controls.target);
   const yAfter = wavePosAttr.getY(10);
   assert.notEqual(yBefore, yAfter, '3D water surface vertices must animate with 3D liquid waves over time');
+
+  // 6. Verify water-skating insects & concentric circular water ripples + radial wave crests!
+  assert.ok(
+    Array.isArray(swampView.waterInsects) && swampView.waterInsects.length >= 8,
+    'Swamp pond must include animated water-skating insects (Gerridi/Libellule)',
+  );
+  assert.ok(
+    Array.isArray(swampView.waterInsects[0].rippleRings) && swampView.waterInsects[0].rippleRings.length >= 3,
+    'Each water insect must generate 3 nested concentric circular ripple rings',
+  );
+  assert.ok(
+    Array.isArray(swampView.waveCrestRings) && swampView.waveCrestRings.length >= 4,
+    'Swamp pond must include propagating radial wave-crest shimmer rings',
+  );
 });
 

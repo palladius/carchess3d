@@ -1,19 +1,139 @@
 # Changelog
 
-## [0.3.82] - 2026-10-22
+## [0.3.95] - 2026-10-22
 
-- 🏔️🔄🐸🐟 **Infinite-Horizon Zurich Parallax ("Zurigo all'Infinito"), 4-Angle Playability Integration Test & Living Enchanted Swamp Pond (`src/views/ZurichSwampView.js`, `src/views/VeoCinemaView.js`, `src/views/VFXPoolView.js`, `src/main.js`, `tests/combat.test.mjs`, `docs/spec/SPEC.md`)**:
-  - **Root Cause & Fix for 180° / 90° / 270° Camera Occlusion Bug**: Previously, `ZurichSkylineAndAlps` (`z = -10.5m .. -24.5m`) and `VeoMagicCinemaMirror` (`z = -10.8m`) were fixed in world space, so rotating the camera `180°` (to play from Black's perspective at `z = -8.2m .. -12.6m`) or `90°`/`270°` placed the Grossmünster towers and the 16:9 Cinema Screen directly between the camera and the chessboard, occluding the squares and pieces.
-  - **Infinite-Horizon Azimuthal Parallax (`updateHorizonParallax`)**: Added `updateHorizonParallax(camera, target)` to both `ZurichSwampView` and `VeoCinemaView` (invoked in `update(dt, camera, controls.target)` and `lateUpdate` in `src/main.js`) so the external Zurich skyline (`ZurichSkylineAndAlps`), Alpine moon (`AlpineMoonGroup`), twilight sky dome (`TwilightSkyDome`), and idle 16:9 Cinema Mirror (`VeoMagicCinemaMirror`) smoothly orbit with the camera's horizontal azimuth (`horizonYaw = atan2(dx, dz)`), keeping the observer permanently between the chessboard and the Zurich horizon from any angle (`0°`, `90°`, `180°`, `270°`, or free orbit) while the `EnchantedSwampMoat` remains anchored around the board. Updated `VFXPoolView._applyCombatBlendState` to interpolate back to `mirrorRoot.userData.idleQuat` + `idlePos` after battles at any camera orientation.
-  - **TDD 4-Angle Playability & Raycast Integration Test (`tests/combat.test.mjs`)**: Added the integration test `Integration: 4-angle camera rotation (0°, 90°, 180°, 270°) keeps chessboard 100% playable and unoccluded by Zurich skyline & Veo screen, with living pond frogs & fish`, verifying via `THREE.Raycaster` across all 4 cardinal angles (`0°` South, `90°` East, `180°` North/Flipped, `270°` West) that key squares (`e4, d4, e5, d5, a1, h1, a8, h8`) and pieces (`e2, e7, d1, d8, e1, e8`) are 100% clickable and never occluded by the Zurich skyline or Cinema screen, and executing a 4-ply sequence (`e2→e4`, `e7→e5`, `g1→f3`, `b8→c6`) across the 4 rotations.
+- 🏔️🔄🐸🐟 **Infinite-Horizon Zurich 180° Panorama Parallax ("Zurigo all'Infinito"), 4-Angle Playability Integration Test & 3-Layer Semi-Transparent 3D Liquid Swamp Pond (`src/views/ZurichSwampView.js`, `src/views/VeoCinemaView.js`, `src/views/VFXPoolView.js`, `src/main.js`, `tests/combat.test.mjs`, `docs/spec/SPEC.md`)**:
+  - **Root Cause & Fix for 180° / 90° / 270° Camera Occlusion Bug**: Previously, `ZurichSkylineAndAlps` (the 180° wrap-around `ZurichPanorama180Cyclorama` at `z = -12.4m .. +2.5m`) and `VeoMagicCinemaMirror` (`z = -10.8m`) were fixed in world space, so rotating the camera `180°` (to play from Black's perspective at `z = -8.2m .. -12.6m`) or `90°`/`270°` placed the 180° Zurich cyclorama wall directly between the camera and the chessboard, occluding all squares and pieces!
+  - **Infinite-Horizon Azimuthal Parallax (`updateHorizonParallax`)**: Added `updateHorizonParallax(camera, target)` to both `ZurichSwampView` and `VeoCinemaView` (invoked in `update(dt, camera, controls.target)` and `lateUpdate` in `src/main.js`) so the 180° Fairytale Zurich / Ogre Swamp / Positano cyclorama (`ZurichSkylineAndAlps`), Alpine moon (`AlpineMoonGroup`), twilight sky dome (`TwilightSkyDome`), and idle 16:9 Cinema Mirror (`VeoMagicCinemaMirror`) smoothly orbit with the camera's horizontal azimuth (`horizonYaw = atan2(dx, dz)`), keeping the observer permanently between the chessboard and the Zurich painting from any angle (`0°`, `90°`, `180°`, `270°`, or free orbit) while the `EnchantedSwampMoat` remains anchored around the board. Updated `VFXPoolView._applyCombatBlendState` to interpolate back to `mirrorRoot.userData.idleQuat` + `idlePos` after battles at any camera orientation.
+  - **TDD 4-Angle Playability & Raycast Integration Test (`tests/combat.test.mjs`)**: Added the integration test `Integration: 4-angle camera rotation (0°, 90°, 180°, 270°) keeps chessboard 100% playable and unoccluded by Zurich skyline & Veo screen, with living pond frogs & fish`, verifying via `THREE.Raycaster` across all 4 cardinal angles (`0°` South, `90°` East, `180°` North/Flipped, `270°` West) that key squares (`e4, d4, e5, d5, a1, h1, a8, h8`) and pieces (`e2, e7, d1, d8, e1, e8`) are 100% clickable and never occluded by the Zurich panorama or Cinema screen.
   - **Living Enchanted Swamp Pond Upgrade (`buildEnchantedSwampMoat` & `buildPondFrogsAndFish`)**:
     - Built a **multi-layered semi-transparent 3D liquid pond (`SwampTranslucent3DWaterSurface` + `SwampVolumetric3DWaterBody` + `SwampUnderwaterSeabed`)**:
       - **Underwater Seabed (`y = -1.15m`)**: Luminous caustic seabed (`createSwampSeabedTexture`) populated with 28 underwater pebbles, glowing aquamarine crystals, swaying 3D kelp fronds (`this.underwaterKelp`), and sunken emerald rune rings (`y = -0.82m`).
       - **Volumetric 3D Liquid Body (`y = -1.14m .. -0.45m`)**: Semi-transparent emerald water cylinder (`opacity: 0.36`) giving genuine 3D liquid depth and thickness.
-      - **3D Wave-Animated Translucent Surface (`y = -0.45m`, `opacity: 0.64`, `clearcoat: 1.0`)**: Subdivided radial ring (`64 × 24`) whose vertices displace dynamically every frame with radial + directional 3D sine/cosine liquid waves (`computeVertexNormals()`), with all 24 lily pads bobbing on the exact local wave height.
+      - **3D Wave-Animated Translucent Surface (`y = -0.45m`, `opacity: 0.64`, `clearcoat: 1.0`)**: Subdivided radial ring (`96 × 28`) whose vertices displace dynamically every frame with radial + directional 3D sine/cosine liquid waves (`computeVertexNormals()`), local concentric wave perturbations around skating insects, and **6 propagating radial wave-crest shimmer rings (`SwampWaveCrestRing_0..5`)**, with all 24 lily pads bobbing on the exact local wave height.
+    - Added **10 animated 3D water-skating insects (`SwampWaterInsect_0..9` — bioluminescent cyan/gold water striders & skimming dragonflies)** with fluttering translucent wings and fine skating legs that dart across the water surface (`y = -0.432m`) and continuously generate **3 nested expanding concentric circular ripple rings (`SwampInsectConcentricRipple_*`)** in the water.
     - Added **6 sculpted 3D jumping frogs (`SwampPondFrogs`, `Frog_0..5`)** with bulging golden eyes, pulsing vocal sacs, articulated hind legs, and golden prince crowns on the elders that hop in parabolic arcs from lily pad to lily pad (`hopDuration = 0.85s`) and trigger expanding water splash ripples (`PondRipple_0..7`) on takeoff and landing.
     - Added **8 sculpted 3D swimming & leaping fish (`SwampPondFish`, `Fish_0..7` — golden-orange koi, sakura koi, and silver-blue Alpine trout)** that cruise visibly beneath the translucent emerald surface (`y = -0.62m`) with swishing tail fins and periodically breach out of the water in dolphin-style arcs with splash rings.
     - Enriched the moat shore with 24 notched lily pads, 12 double-layered glowing lotus blossoms, mossy boulders, and 24 bioluminescent cyan/gold fairy mushroom clusters.
+
+## [0.3.94] - 2026-10-19
+
+- 🔀 **MAIN agent merge**: `origin/main` (v0.3.93: PR #44 Ogre Swamp/Positano panoramas, 12s family orbit demo #42) merged with the local, never-pushed v0.3.92 LOD commit (`6a5761d`); renumbered to 0.3.94 to avoid two different 0.3.92 releases. Contents of that commit:
+
+- 📱⚡ **Complete Decimated 10k/50k Multi-Tier LOD Production Suite (closes #39, fixes #5)**:
+  - Generated full suite of 30 decimated GLB models via headless Blender 4.0 QEC decimation across all 3 families (Carlesso, Classic, Swamp), preserving 100% of PBR textures, UV mappings, materials, vertex colors, and $y=0.0m$ grounding.
+  - Huge mobile & tablet bandwidth savings: 75% to 82% file size reduction across models (King Riccardo: 4.2 MB -> 1.0 MB, Queen Kate: 3.7 MB -> 771 KB, Rook Pupurabbu: 3.8 MB -> 774 KB).
+  - Registered `lodGlbUrls: { low, medium, high }` in `CHARACTER_REGISTRY`, `SWAMP_REGISTRY`, and `CLASSIC_REGISTRY` in `src/core/Registry.js`.
+  - Upgraded `resolvePieceGlbForLod` to seamlessly resolve low/med/high tiers while preserving modular variants (Bishop `hat` vs `astrolabe` vs `hy2`, Queen `young` vs `wedding`).
+- 🤖🎨 **Local GPU Blackwell RTX 5080 3D Generation**:
+  - Generated fresh watertight 3D models with Hunyuan3D-2 for **Re Riccardo** (`assets/models/king-riccardo-hy2.glb` + 10k LOD) and **Ale** (`assets/models/bishop-ale-hy2.glb` + 10k LOD).
+  - Registered both models as selectable candidate models in `CHARACTER_REGISTRY`.
+- ⚙️🕹️ **Decoupled User Preference & Quality Controls**:
+  - Documented Rotella Gear (⚙️) preference in `docs/LOD_BENCHMARK.md`: user-facing `Auto` / `Alta` / `Media` / `Bassa` decoupled from internal polygon targets (`10k`, `50k`, `100k`).
+- 🧪✅ **Automated Test Suite**:
+  - Comprehensive unit test coverage in `tests/registry_lod.test.mjs` verifying exact resolution for all roles, tiers, families, and variants.
+  - 93/93 GLB models verified valid with VEC3 bounds min/max via `scripts/check.py`.
+## [0.3.93] - 2026-10-19
+
+- 🎥👨‍👩‍👦‍👦 **12s Cinematic Family Demo Orbit on RTX 5080 GPU & Updated Family Portraits (fixes #42)**:
+  - **Demo-Style Swoop + Orbit (`scripts/family_orbit_video.py`, `scripts/family_portrait_shot.py`)**: Upgraded camera choreography to start from a wide aerial establishing view over the Zurich board, swoop down to eye level, hold for ~1s at the front family portrait (`theta ≈ 0°`), and sweep `-150° → +150°` around the newly calibrated `v0.3.91` back rank (Knight Seby `1.92m` on his equestrian plinth, Bishop Ale `1.55m`, King Riccardo `1.86m`, Queen Kate `1.68m`, Rook Pupurabbu `2.50m`, and compact `0.80m` Puffin pawns).
+  - **Hardware GPU Acceleration on `pupurabbux`**: Configured Playwright Chromium to use `/usr/bin/google-chrome` with `--use-gl=angle --use-angle=gl` on the NVIDIA GeForce RTX 5080 (`~0.5s/frame` instead of `~10s/frame` on SwiftShader).
+  - **Published Showcase & Blog Assets (`article/ARTICLE.md`, `article/assets/gallery/family_orbit.{mp4,gif}`, `article/assets/gallery/family_portrait_*.png`)**: Embedded the new 12s GIF right under *"👨‍👩‍👦‍👦 The Family Portrait"* in `article/ARTICLE.md` and synced it to the Hugo blog post on `ricc.rocks`.
+
+## [0.3.92] - 2026-10-19
+
+- 🐸🇮🇹🇨🇭 **Three Full-Screen 180° Panorama Cycloramas: Zurich on the Limmat, Ogre Swamp & Positano from the Sea (`assets/environments/{swamp,positano}_panorama.jpg`, `src/views/ZurichSwampView.js`, `src/listeners/HudListener.js`, `src/core/Registry.js`, `sw.js`, `docs/spec/SPEC.md`)**:
+  - **🐸 Palude degli Orchi (`swamp` — `assets/environments/swamp_panorama.jpg`)**: 100% IP-safe fairytale ogre swamp 21:9 panorama where the chessboard sits surrounded by **180° of glowing emerald-green swamp lake** (giant lily pads, lotus blossoms, frogs, cattails, and fireflies), with the **cozy rustic ogre hut nestled under giant mossy tree roots centered directly in front** of the player, a crooked wooden `'ATTENZIONE ORCHI'` sign, braided onions, a hollowed-log canoe, gourd lanterns, and a bubbling soup cauldron on the dock (no outhouse/toilet).
+  - **🇮🇹 Positano dal Mare (`positano` — `assets/environments/positano_panorama.jpg`)**: Viewed from out on the open Mediterranean sea so the lower half and left/right flanks are **180° of crystal-clear turquoise water** with wooden gozzo rowboats, while directly in front rises the vertical pastel cliffside pyramid of **Positano** and the majolica dome of **Santa Maria Assunta** at golden sunset.
+  - **Automatic Faction-Linked + Manual Panorama Switching**:
+    - Selecting the **Palude degli Orchi (`swamp`)** faction on White or Black automatically switches the 180° cyclorama to `🐸 Palude degli Orchi` (`swamp`).
+    - Selecting **Classici / San Gennaro (`classic`)** on White automatically switches the 180° cyclorama to `🇮🇹 Positano dal Mare` (`positano`).
+    - Added `#hud-setup-env-select` in the Setup Modal, `#hud-env-select` in the Topbar, and `?env=zurich|swamp|positano` URL parameter support so players can switch between all three 180° panoramas live during any match.
+
+## [0.3.91] - 2026-10-19
+
+- 📏🏰 **Visual Hierarchy Calibration & Canonical Family Heights**:
+  - **Torre Pupurabbu Dominant Height (2.50m)**: Imposing stone bastion anchoring the corners with true architectural stature.
+  - **Cavaliere Seby Elongated Equestrian Plinth (1.92m)**: Dedicated oval base (`1.15x` X, `1.35x` Z) respecting the golden steed's natural equine volume, eliminating artificial horizontal squash.
+  - **Pedoni Puffin Compact Minions (0.80m)**: Halved front-line sentinels with compact plinths (`0.85x`), creating instant distinction from royal officers.
+  - **Royal Officers Distinctive Proportions**: Re Riccardo (1.86m), Regina Kate (1.68m), and Alfiere Ale (1.55m).
+  - Unsquashed horizontal bounding volume: removed artificial `maxRadius: 0.36` clamp in `PieceView.js` and `WowModeView.js`.
+- 🎭⚔️ **Complete 3D Modular Skin Variant System in HUD & WOW Inspector**:
+  - Knight Seby 4-Weapon Modular Switcher (`classic`, `lightsaber`, `halberd`, `aurora`) with live selection in Game Setup and WOW Mode.
+  - Bishop Ale 3-variant and Queen Kate 2-variant support integrated into HUD selector.
+  - Bilingual localization (`it`/`en`) and full state management in `PieceManager.js` ($\le 300$ LOC limit strictly preserved).
+- 🎬💥 **Expansion of 36 Cinematic Combat Animations (Veo/Canvas 16:9 3-Act Structure)**:
+  - 3-Act narrative overlay in `VeoCinemaView.js`: Act 1 attacker weapon card, Act 2 dynamic defender counter-attack with comic SFX pills, Act 3 swamp K.O. finisher verdict card.
+  - Synchronized `battles.html` with responsive 3D clash launchers.
+- 🎙️🎵 **Bilingual Voice Triggers & Acoustic Quality**:
+  - Polished natural English voice lines and dynamic speech synthesis fallback (`en-GB` for Queen Kate, `en-US` for family heroes).
+  - Audio critic test suite passing 100%.
+
+## [0.3.90] - 2026-10-19
+
+- 📦🖼️ **Sync `v0.3.88` SFW Naming & Article Visual Refresh Assets (`AGENTS.md`, `README.md`, `package.json`, `src/main.js`, `article/ARTICLE.md`, `docs/ARTICLE.md`, `article/assets/concept/*.jpg`, `article/assets/gallery/classic_*_evolution_card_en.png`)**:
+  - Committed and deployed the remaining `v0.3.88` files left unstaged in the working tree during the `v0.3.89` multi-tier GLB LOD release (`#39`), and synced `origin/main` and `origin/gh-pages`.
+
+## [0.3.89] - 2026-10-19
+
+- 🚀⚡ **Multi-Tier GLB LODs, Hardware Benchmark & Auto-Heuristic (fixes #39, idea by Niccolò)**:
+  - **Headless `DeviceCapabilityHelper` (`src/core/DeviceCapabilityHelper.js`, `tests/device_capability.test.mjs`)**: Classifies device hardware into `low` (~10k poly, mobile phones), `medium` (~50k poly, iPads/tablets, low-RAM laptops), and `high` (~1000k poly/full resolution, desktop workstations) with zero DOM/WebGL imports.
+  - **Dynamic Multi-Tier GLB Resolution in Registry & PieceManager (`src/core/Registry.js`, `src/managers/PieceManager.js`, `src/views/PieceView.js`)**: Added `resolvePieceGlbForLod` and `QUALITY_TIER_CHANGED` event bus integration, resolving tiered models seamlessly while preserving variants and factions.
+  - **Gear Override (Rotella ⚙️) Quality Controls in Settings (`src/listeners/HudListener.js`, `tests/hud_settings.test.mjs`)**: Added interactive 3D Quality selector in Settings modal with bilingual Italian/English labels, `localStorage` persistence, and `?quality=low|medium|high|auto` URL query parameter support.
+  - **LOD Decimation & Benchmark CLI Tooling (`tools/model-pipeline/lod/benchmark_lod.py`, `tools/model-pipeline/lod/decimate_lod.py`, `docs/LOD_BENCHMARK.md`, `tests/test_lod_benchmark.py`)**: Added benchmark measuring file sizes, gzip compression, vertex/triangle counts, and binary parsing timings.
+
+## [0.3.88] - 2026-10-19
+
+- 🚽🧼 **SFW Naming & Article Visual Refresh (`AGENTS.md`, `README.md`, `package.json`, `src/core/Registry.js`, `src/core/BattleMatrix36.js`, `src/main.js`, `article/`)**:
+  - New `AGENTS.md` rule: the public name is **CarChess3D** only; the explicit Italian pun expansion is never spelled out in UI, code, README, titles or articles (NSFW once machine-translated). Keep the 🚽 icon. Purged it from README, `package.json`, battle banners, Registry titles and both articles.
+  - `article/ARTICLE.md`: replaced the low-score rotating `.glb` turntables (Section 4) with the Nano Banana 2.1 concept turnarounds (`article/assets/concept/*.jpg`: King Riccardo, Queen Kate, Bishop Ale, Knight Seby, Pawn Puffin, Rook Pupurabbu); replaced the Italian-labelled Before/After lineups with English 3-stage evolution cards for the Classic Rook and Bishop (`article/assets/gallery/classic_{rook,bishop,king}_evolution_card_en.png`).
+  - Added the "family portrait" screenshot (pawns d/e/f/g advanced two squares, camera facing the white back rank) under `article/assets/gallery/family_portrait_*.png`.
+
+## [0.3.87] - 2026-10-19
+
+- 🦸🎮 **Arcade Hero Select & 1-Click Quick Play (`#hud-setup-modal`, `src/listeners/HudListener.js`, `src/core/Registry.js`)**:
+  - Replaced the daunting, cluttered 13-input match setup form with a clean, welcoming, kid-friendly **Arcade Hero Picker & 1-Click Quick Play** screen:
+    - **Visual Hero Cards**: 1-tap character selection for the Carlesso family heroes (Ale 🐉, Seby 🏎️, Riccardo 👑, Kate 💜, Ospite 🌟) with portraits and role badges.
+    - **Quick Opponent Mode**: 3 large pills (🤖 Easy, 🧠 Medium, 👥 2 Players Hotseat).
+    - **Giant CTA**: Glowing, animated **`▶️ PLAY NOW! ✨` / `▶️ GIOCA SUBITO! ✨`** button to jump straight onto the 3D board.
+    - **Collapsible Advanced Options Drawer (`#hud-advanced-setup-drawer`)**: Clean accordion button (`⚙️ Opzioni Avanzate ▼`) keeps detailed factions, 3D queen/bishop variants, Visual Clarity (S1..S5), and Braille accessibility neatly tucked away by default without breaking power-user customization.
+- 📐🎥 **Top-Down 2D Camera Up-Vector Bugfix (`src/listeners/HudListener.js`)**:
+  - Fixed inverted rank and file orientation in Top-Down view (`#hud-top-btn`): sets `camera.up.set(0, 0, this.cameraFlipped ? 1 : -1)` so White (Rank 1) remains at the bottom, Black (Rank 8) at the top, and files `A..H` go left-to-right with pieces right side up.
+- 🎨✨ **Vector SVG Favicon & 0 Console Errors (`docs/logo/logo.svg`)**:
+  - Created vector SVG icon matching `<link rel="icon" href="./docs/logo/logo.svg">`, eliminating HTTP 404 console errors.
+- 🖼️📸 **Showcase Renders Archived (`article/assets/arcade_hero_select_setup_modal*.png`)**:
+  - Archived before/after renders comparing the daunting legacy form against the clean arcade hero select and expanded drawer.
+
+## [0.3.86] - 2026-10-19
+
+- 📐⚙️ **Spec: benchmark-driven LOD tiers & Auto Quality (idea by Niccolò, `docs/spec/SPEC.md`)**: generalizes the mobile `LOD1` plan into `low / med / high / ultra` GLB tiers (≈3–10k → ≈1M tris), a ~2 s first-launch micro-benchmark that auto-picks the tier per device (cached), a ⚙️ HUD gear to force `Auto / Low / Med / High / Ultra`, and a `docs/benchmarks/lod.md` acceptance criterion (cold-start + fps per tier on ≥ 3 device classes). Spec only, no code yet.
+
+## [0.3.85] - 2026-10-18
+
+- 🖥️🏔️ **Full-Screen 180° Wrap-Around Zurich Cyclorama — Zero Lower Void (`src/views/ZurichSwampView.js`, `article/assets/zurich_180_*.png`)**:
+  - Enlarged and wrapped the 180° vertical Zurich cyclorama forward around the flanks of the chessboard (`z = -12.4m` at center to `z = +2.5m` at the West/East wings, `y = -2.95m .. -6.80m` at bottom up to `+10.85m .. +12.00m` at top) and hid the legacy flat green swamp moat circle (`EnchantedSwampMoat`) so the fairytale Zurich painting fills **100% of the screen from top to bottom and edge to edge**, completely eliminating the empty dark-green void around the bottom and sides of the board with zero texture distortion.
+
+## [0.3.84] - 2026-10-17
+
+- 🏛️♟️ **Luxury Black & White Marble Chessboard (`src/views/ZurichSwampView.js`)**:
+  - Replaced the legacy yellowish-cream squares (`0xf3ebd9`) and golden square border rings with a high-contrast **Bianco Carrara (`0xfafbfd`) & Nero Marquina (`0x111317`)** luxury marble chessboard featuring 512×512 procedural smoky-grey & white-calcite veining, low roughness (`0.18` / `0.14`), dark obsidian tile grout seams (`0x141820`), and silver-platinum altar trim (`0xcfd8dc`).
+- 🏔️🇨🇭 **180° Curved Fairytale Zurich Panorama Cyclorama & Easter Eggs (`assets/environments/zurich_panorama.jpg`, `src/views/ZurichSwampView.js`, `src/views/VeoCinemaView.js`)**:
+  - Replaced all blocky 3D primitive skyline boxes ("rettangoloni") with an unobstructed **180-degree (`θ = 0 .. π`) tall & wide curved semi-elliptical cyclorama (`height = 12.8m`, `radiusX = 16.4m`)** generated and refined with Nanobanana, showcasing Fraumünster, St. Peter (golden clock face), Grossmünster Twin Towers, the Limmat river, Münsterbrücke & Quaibrücke bridges, Lake Zurich sailboats, and snow-capped Swiss Alps under a starry twilight sky.
+  - Added the **Google Zurich Hürlimann Areal (Brandschenkestrasse 110)** Easter Egg in the distant left hillside behind the first buildings, complete with the historic red-brick brewery complex, tall red-brick Hürlimann chimney tower, and glowing Google `G` beacon.
+  - Added an ornate golden cartouche on the central Münsterbrücke bridge arch reading **`★ MADE WITH ★ / GEMINI 4 ARGON`**.
+  - Kept `VeoMagicCinemaMirror` hidden while `mode === 'idle'` (`cinemaBlend === 0`) so the 180° Zurich panorama remains 100% unobstructed during normal gameplay, smoothly materializing on capture battles and checkmates.
+
+## [0.3.83] - 2026-10-17
+
+- 🔒 **Path scrub `render_ale_comparison.py`**: rimossi i path assoluti del disco esterno; i GLB locali ora si leggono da `$LOCAL3D_ROOT/out` (stessa convenzione di `hunyuan_paint.py` e del `justfile`). Nessun cambiamento al gioco.
+
+## [0.3.82] - 2026-10-17
+
+- 🎩🐉 **Local 3D Ale Visual Audit & Comparison Showcase (`da109ff`, `article/SHOWCASE_LOCAL3D_ALE.md`, `article/assets/ale_visual_audit_color.png`, `showcase/ale_visual_audit_color.png`, `tools/model-pipeline/local/render_ale_comparison.py`)**:
+  - Added side-by-side color visual audit of the 3 Alessandro (Bishop) 3D models (`bishop-ale-1.glb`, `bishop-ale-2.glb`, `bishop-ale-rigged.glb`) and comparison renderer script `tools/model-pipeline/local/render_ale_comparison.py`.
+- 🧪🎬 **Daily UAT `20261017` (`#38`)**:
+  - Executed `just daily-uat` for `2026-10-17` and published **[GitHub Issue #38 (`Gemini UAT 20261017`)](https://github.com/palladius/carchess3d/issues/38)** with 8/8 passing checks (`180°` flip luminance `94.2/255`, `2D` top-down luminance `78.9/255`, CPU Easy avg latency `407ms`).
+>>>>>>> origin/main
 
 ## [0.3.81] - 2026-10-16
 

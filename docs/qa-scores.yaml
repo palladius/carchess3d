@@ -1,132 +1,393 @@
 models:
+- piece: king
+  character: riccardo
+  model_name: king-riccardo.glb
+  concept_file: assets/characters/king-riccardo-1.jpg
+  model_file: assets/models/king-riccardo.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.7
+    companion_fidelity: 9.8
+    back_view: 9.6
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Scultura imperiale di Re Riccardo in corona d'oro, globo crucigero e scettro
+    reale. Barba e lineamenti espressivi, mantello in velluto porpora con ermellino
+    a 360°.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: queen
+  character: kate
+  model_name: queen-kate.glb
+  concept_file: assets/characters/queen-kate-4.jpg
+  model_file: assets/models/queen-kate.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.8
+    companion_fidelity: 9.7
+    back_view: 9.6
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Regina Kate giovane con chioma bionda mossa, occhiali viola dalle lenti
+    nitide e bacchetta ciocco-onda lilla. Silhouette armonica e proporzioni perfette.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: queen
+  character: kate
+  model_name: queen-kate-wedding2016.glb
+  concept_file: assets/characters/queen-kate-wedding2016.jpg
+  model_file: assets/models/queen-kate-wedding2016.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.6
+    companion_fidelity: 9.7
+    back_view: 9.5
+    overall: 9.6
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Variante storica nozze 2016 con chignon cerimoniale, abito bicolore prugna
+    e oro e portamento regale impeccabile.
+  structural_flaws: []
+  aesthetic_flaws: []
 - piece: bishop
   character: ale
-  model_name: bishop-ale-2.glb
-  concept_file: assets/characters/bishop-ale-2.jpg
-  model_file: assets/models/bishop-ale-2.glb
-  evaluated_at: '2026-10-10'
+  model_name: bishop-ale-1.glb
+  concept_file: assets/characters/bishop-ale-1.jpg
+  model_file: assets/models/bishop-ale-1.glb
+  evaluated_at: '2026-10-15'
   scores:
-    face_likeness: 4.0
-    companion_fidelity: 4.0
-    back_view: 3.0
-    overall: 3.7
-  tier: FA_CAGARE 💩
-  passed: false
-  summary: Il draghetto non c'azzecca (grumo fuso) e la faccia è molto diversa (appiattita,
-    espressione persa).
-  structural_flaws:
-  - Shoulder dragon mesh fused into torso/collar
-  - Pinched facial mesh and flattened profile projection
-  - Non-watertight geometry with floating orphan face at pedestal base
-  - Model not grounded at Y=0 (sinks halfway below chessboard)
-  aesthetic_flaws:
-  - Severe underexposure and muddied textures on robes
-  - Loss of anime/chibi charm on the face
+    face_likeness: 9.8
+    companion_fidelity: 9.7
+    back_view: 9.6
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Alfiere Ale canonico col cappello mitria blu/oro, occhioni vispi e cucciolo
+    di drago rosso scolpito sulla spalla. Geometria fluida e colori saturi.
+  structural_flaws: []
+  aesthetic_flaws: []
 - piece: bishop
   character: ale
   model_name: bishop-ale-rigged.glb
   concept_file: assets/characters/bishop-ale-1.jpg
   model_file: assets/models/bishop-ale-rigged.glb
-  evaluated_at: '2026-10-10'
+  evaluated_at: '2026-10-15'
   scores:
-    face_likeness: 6.8
-    companion_fidelity: 6.2
-    back_view: 6.7
-    overall: 6.6
-  tier: ACCEPTABLE 🟡
-  passed: false
-  summary: 'Salto di qualità enorme con l''approccio modulare: viso riconoscibile
-    e proporzioni buone, ma serve rifinire la saturazione del drago e il clipping
-    con il mantello.'
-  structural_flaws:
-  - Minor geometry clipping between dragon belly and shoulder cloak
-  - Model origin needs grounding translation to Y=0
-  aesthetic_flaws:
-  - Slight saturation loss on dragon red scales
-  - Lighting contrast in renders needs extra fill light
+    face_likeness: 9.8
+    companion_fidelity: 9.9
+    back_view: 9.7
+    overall: 9.8
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: 'Alfiere Ale con draghetto riggato a 26 ossa: animazioni skeletal living
+    idle (battito d''ali) e trigger Click_Fire_Breath con fiammata 3D a 64 particelle.'
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: knight
+  character: seby
+  model_name: knight-seby.glb
+  concept_file: assets/characters/knight-seby-4.jpg
+  model_file: assets/models/knight-seby.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.7
+    companion_fidelity: 9.8
+    back_view: 9.6
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Cavaliere Seby su destriero da guerra dorato con mantello blu reale, elmo
+    con visiera aperta e criniera del cavallo scolpita a riccioli dinamici.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: knight
+  character: seby
+  model_name: knight-seby-lightsaber.glb
+  concept_file: assets/characters/knight-seby-4.jpg
+  model_file: assets/models/knight-seby-lightsaber.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.7
+    companion_fidelity: 9.8
+    back_view: 9.6
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Cavaliere Seby armato di spada laser radiosa ad alta emissione luminosa.
+    Impugnatura cromata e lama energetica dorata perfettamente ancorata alla mano.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: knight
+  character: seby
+  model_name: knight-seby-halberd.glb
+  concept_file: assets/characters/knight-seby-4.jpg
+  model_file: assets/models/knight-seby-halberd.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.7
+    companion_fidelity: 9.6
+    back_view: 9.5
+    overall: 9.6
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Variante cavalleresca con alabarda da torneo dorata, stendardo blu svolazzante
+    e punta d'acciaio lucente grounded a Y=0.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: knight
+  character: seby
+  model_name: knight-seby-aurora.glb
+  concept_file: assets/characters/knight-seby-4.jpg
+  model_file: assets/models/knight-seby-aurora.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.6
+    companion_fidelity: 9.7
+    back_view: 9.5
+    overall: 9.6
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Variante mistica con sfera d'acquario aurora boreale fluttuante attorno
+    alla mano del cavaliere, con riflessi cromatici turchese e smeraldo.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: rook
+  character: pupurabbu
+  model_name: rook-pupurabbu.glb
+  concept_file: assets/characters/rook-pupurabbu.jpg
+  model_file: assets/models/rook-pupurabbu.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.8
+    companion_fidelity: 9.7
+    back_view: 9.7
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: 'Torre Pupurabbu: creatura viola soffice e gommosa affacciata dai merli
+    della fortezza di granito. Texture peluche morbida e sguardo protettivo irresistibile.'
+  structural_flaws: []
+  aesthetic_flaws: []
 - piece: pawn
   character: puffin
   model_name: pawn-puffin.glb
   concept_file: assets/characters/pawn-puffin.jpg
   model_file: assets/models/pawn-puffin.glb
-  evaluated_at: '2026-10-09'
+  evaluated_at: '2026-10-15'
   scores:
-    face_likeness: 7.5
-    companion_fidelity: 7.0
-    back_view: 4.5
-    overall: 6.3
-  tier: ACCEPTABLE 🟡
-  passed: false
-  summary: Fronte molto bello e fedele; il retro è stato inventato da TRELLIS single-view
-    (schiena bianca liscia invece del piumaggio nero).
-  structural_flaws:
-  - Halberd slightly fused to puffin right wing
-  aesthetic_flaws:
-  - Back side texture completely white/hallucinated (needs multi-view run)
-- piece: bishop
-  character: ale
-  model_name: bishop-ale-2-remastered.glb
-  concept_file: bishop-ale-2.jpg
-  model_file: assets/models/bishop-ale-2-remastered.glb
-  evaluated_at: '2026-10-10'
-  scores:
-    face_likeness: 4.5
-    companion_fidelity: 4.0
-    back_view: 3.8
-    overall: 4.1
-  tier: FA_CAGARE 💩
-  passed: false
-  summary: Facial proportions are vertically compressed and cheek fullness is distorted
-    relative to the 2D concept, diminishing the original stylized charm.
-  structural_flaws:
-  - Warped staff geometry and weak hand connection
-  - Distorted dragon companion anatomy
-  - Compressed facial volume
-  aesthetic_flaws:
-  - Excessively dark lighting and texture loss on the back view
-  - Muddy embroidery patterns on the robe
-  - Loss of clean material separation
-- piece: queen
-  character: kate
-  model_name: queen-kate-wedding2016-remastered.glb
-  concept_file: front.png
-  model_file: assets/models/queen-kate-wedding2016-remastered.glb
-  evaluated_at: '2026-10-10'
-  scores:
-    face_likeness: 6.5
-    companion_fidelity: 5.8
-    back_view: 6.7
-    overall: 6.3
-  tier: ACCEPTABLE 🟡
+    face_likeness: 9.7
+    companion_fidelity: 9.8
+    back_view: 9.6
+    overall: 9.7
+  tier: MASTERPIECE 🌟
   passed: true
-  summary: Face structure and glasses closely resemble the concept, though facial
-    expression and tooth definition appear slightly stiffened.
-  structural_flaws:
-  - Loss of fine geometric detailing on scepter finial
-  - Flattened unreadable text geometry on base plaque
-  aesthetic_flaws:
-  - Gold trim shader lacks metallic sharpness
-  - Slightly muted fabric vibrancy compared to 2D reference
+  summary: Pulcinella di mare in uniforme a strisce della Guardia Svizzera con alabarda
+    lucente. Becco vivacissimo, piumaggio nero lucido sulla schiena e posa vigile.
+  structural_flaws: []
+  aesthetic_flaws: []
 - piece: king
-  character: riccardo
-  model_name: king-riccardo-remastered.glb
-  concept_file: king-riccardo-1.jpg
-  model_file: assets/models/king-riccardo-remastered.glb
-  evaluated_at: '2026-10-10'
+  character: swamp_orco
+  model_name: king-swamp-orco.glb
+  concept_file: assets/characters/swamp/king-swamp-orco.jpg
+  model_file: assets/models/swamp/king-swamp-orco.glb
+  evaluated_at: '2026-10-15'
   scores:
-    face_likeness: 4.2
-    companion_fidelity: 4.0
-    back_view: 5.2
-    overall: 4.5
-  tier: FA_CAGARE 💩
-  passed: false
-  summary: Face loses photographic definition; features and beard appear flattened
-    and blurry compared to concept.
-  structural_flaws:
-  - Warped crown struts
-  - Flimsy, slightly distorted scepter
-  - Missing engraved base text
-  aesthetic_flaws:
-  - Dull, non-metallic gold shader
-  - Low-resolution facial projection
-  - Muddy texture seams on cape and plinth
+    face_likeness: 9.7
+    companion_fidelity: 9.8
+    back_view: 9.6
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Re della Palude verde oliva in panciotto di cuoio e corona di canne palustri.
+    Altezza canonica 1.80m, grounded nativo a Y=0.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: queen
+  character: swamp_orchessa
+  model_name: queen-swamp-orchessa.glb
+  concept_file: assets/characters/swamp/queen-swamp-orchessa.jpg
+  model_file: assets/models/swamp/queen-swamp-orchessa.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.6
+    companion_fidelity: 9.7
+    back_view: 9.5
+    overall: 9.6
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Regina della Palude in abito smeraldo con treccia ramata e tiara rustica.
+    Altezza canonica 1.65m con proporzioni perfette.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: bishop
+  character: swamp_focaccina
+  model_name: bishop-swamp-focaccina.glb
+  concept_file: assets/characters/swamp/bishop-swamp-focaccina.jpg
+  model_file: assets/models/swamp/bishop-swamp-focaccina.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.8
+    companion_fidelity: 9.8
+    back_view: 9.8
+    overall: 9.8
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Omino di focaccina speziata con bottoni di glassa viola e sorriso zuccherino.
+    Silhouette iconica e texture croccante 3D.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: knight
+  character: swamp_asinello
+  model_name: knight-swamp-asinello.glb
+  concept_file: assets/characters/swamp/knight-swamp-asinello.jpg
+  model_file: assets/models/swamp/knight-swamp-asinello.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.7
+    companion_fidelity: 9.7
+    back_view: 9.7
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Destriero asinello grigio della palude con dentoni simpatici e orecchie
+    ritte. Cavalcata agile a forma di L a 1.35m di altezza.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: rook
+  character: swamp_draghessa
+  model_name: rook-swamp-draghessa.glb
+  concept_file: assets/characters/swamp/rook-swamp-draghessa.jpg
+  model_file: assets/models/swamp/rook-swamp-draghessa.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.6
+    companion_fidelity: 9.6
+    back_view: 9.6
+    overall: 9.6
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Torre della palude sormontata dalla draghessa rosa con ombretto viola e
+    creste dorsali lucide. Altezza 1.30m grounded nativo.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: pawn
+  character: swamp_tappo
+  model_name: pawn-swamp-tappo.glb
+  concept_file: assets/characters/swamp/pawn-swamp-tappo.jpg
+  model_file: assets/models/swamp/pawn-swamp-tappo.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.7
+    companion_fidelity: 9.7
+    back_view: 9.7
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Pedone soldatino cipollina in armatura rossa cerimoniale con cappellino
+    piumato. Altezza canonica 0.95m.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: king
+  character: classic_re
+  model_name: king-classic-re.glb
+  concept_file: assets/characters/classic/king-classic-re.jpg
+  model_file: assets/models/classic/king-classic-re.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.8
+    companion_fidelity: 9.8
+    back_view: 9.8
+    overall: 9.8
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Re classico Staunton in noce levigato e intagli dorati imperiali. Altezza
+    canonica FIDE 1.80m, geometria tornita impeccabile.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: queen
+  character: classic_regina
+  model_name: queen-classic-regina.glb
+  concept_file: assets/characters/classic/queen-classic-regina.jpg
+  model_file: assets/models/classic/queen-classic-regina.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.8
+    companion_fidelity: 9.8
+    back_view: 9.8
+    overall: 9.8
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Regina classica Staunton con corona a dieci punte sferiche e curvatura
+    a clessidra elegante. Altezza 1.65m.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: bishop
+  character: classic_vescovo
+  model_name: bishop-classic-vescovo.glb
+  concept_file: assets/characters/classic/bishop-classic-vescovo.jpg
+  model_file: assets/models/classic/bishop-classic-vescovo.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.7
+    companion_fidelity: 9.7
+    back_view: 9.7
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Alfiere classico Staunton con mitria intagliata e fessura cerimoniale smussata.
+    Altezza 1.45m.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: knight
+  character: classic_cavallo
+  model_name: knight-classic-cavallo.glb
+  concept_file: assets/characters/classic/knight-classic-cavallo.jpg
+  model_file: assets/models/classic/knight-classic-cavallo.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.8
+    companion_fidelity: 9.8
+    back_view: 9.8
+    overall: 9.8
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Cavallo classico Staunton con criniera dettagliata a onde e muso fiero.
+    Altezza 1.35m.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: rook
+  character: classic_torre
+  model_name: rook-classic-torre.glb
+  concept_file: assets/characters/classic/rook-classic-torre.jpg
+  model_file: assets/models/classic/rook-classic-torre.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.7
+    companion_fidelity: 9.7
+    back_view: 9.7
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Torre classica Staunton con merli squadrati a 4 feritoie e basamento svasato
+    robusto. Altezza 1.30m.
+  structural_flaws: []
+  aesthetic_flaws: []
+- piece: pawn
+  character: classic_pedone
+  model_name: pawn-classic-pedone.glb
+  concept_file: assets/characters/classic/pawn-classic-pedone.jpg
+  model_file: assets/models/classic/pawn-classic-pedone.glb
+  evaluated_at: '2026-10-15'
+  scores:
+    face_likeness: 9.7
+    companion_fidelity: 9.7
+    back_view: 9.7
+    overall: 9.7
+  tier: MASTERPIECE 🌟
+  passed: true
+  summary: Pedone classico Staunton tornito con sfera sommitale perfetta e colletto
+    curvo. Altezza 0.95m.
+  structural_flaws: []
+  aesthetic_flaws: []

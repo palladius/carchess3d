@@ -65,6 +65,7 @@ export class VeoCinemaView {
 
     this.root.position.copy(this.idlePos);
     this.root.scale.setScalar(this.idleScale);
+    this.root.visible = false;
     this.scene.add(this.root);
     if (this.scene) {
       this.scene.userData = this.scene.userData || {};
@@ -230,6 +231,7 @@ export class VeoCinemaView {
       this.bus.on('CHECKMATE', (e) => {
         this.mode = 'checkmate';
         this.winnerColor = e.winner || 'w';
+        if (this.root) this.root.visible = true;
         this.tryPlayVeoVideo('assets/battles/videos/b_x_n.mp4', false, 'checkmate');
       }),
       this.bus.on('BOARD_RESET', (e) => {
@@ -287,6 +289,7 @@ export class VeoCinemaView {
     this.outroBattle = choreo;
     this.mode = 'battle';
     this.battleElapsed = 0;
+    if (this.root) this.root.visible = true;
 
     // Only snap position when VFXPoolView is not driving the smooth 3D trajectory
     if (!this.scene?.userData?.vfxControlsCombatBlend && this.root && this.battlePos) {
@@ -432,6 +435,7 @@ export class VeoCinemaView {
     this.cinemaBlend = clamped;
     if (this.root) {
       this.root.userData.cinemaBlend = clamped;
+      this.root.visible = clamped > 0.002 || this.mode !== 'idle';
     }
 
     // Morph bezel trim color between Classic Zurich Gold (#e6b84a) and Cinema Red (#D32F2F)
@@ -666,7 +670,7 @@ export class VeoCinemaView {
             ? vidDur
             : this.videoEl.currentTime || videoElapsed;
       const progress = Math.min(1, Math.max(0.02, activeVidTime / vidDur));
-      this.drawCinemaCinemaOverlay(ctx, w, h, titleText, progress, phaseTag);
+      this.drawCinemaCinemaOverlay(ctx, w, h, titleText, progress, phaseTag, choreo);
       return;
     }
 
@@ -675,7 +679,7 @@ export class VeoCinemaView {
     if (nbKeyframe) {
       this._drawMediaWithArenaContrast(ctx, w, h, nbKeyframe);
       const progress = Math.min(1, Math.max(0.02, videoElapsed / vidDur));
-      this.drawCinemaCinemaOverlay(ctx, w, h, titleText, progress, phaseTag);
+      this.drawCinemaCinemaOverlay(ctx, w, h, titleText, progress, phaseTag, choreo);
       return;
     }
 
@@ -741,11 +745,9 @@ export class VeoCinemaView {
     ctx.stroke();
     ctx.restore();
 
-    // 5. Top Bespoke 6x6 Matchup Title only (keep bottom clear behind 3D fighters)
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffe082';
-    ctx.font = 'bold 34px system-ui, sans-serif';
-    ctx.fillText(titleText, w / 2, 64);
+    // 5. Top Bespoke 6x6 Matchup Title & 3-Act overlays
+    const progress = Math.min(1, Math.max(0.02, videoElapsed / vidDur));
+    this.drawCinemaCinemaOverlay(ctx, w, h, titleText, progress, phaseTag, choreo);
   }
 
   /**
@@ -773,20 +775,218 @@ export class VeoCinemaView {
   }
 
   /**
-   * Draws a completely text-free Maxischermo frame on the 1280x720 (16:9) screen:
-   * Zero header text or titles covering the movie — only a discreet 3px `#D32F2F` progress hairline at the bottom edge.
+   * Draws the 3-Act Narrative Overlay on the 1280x720 (16:9) screen:
+   * - Act 1 (0-1s / progress < 0.18): Attacker weapon banner card.
+   * - Act 2 (progress 0.28-0.72): Defender counter-attack badge (sfxText + counter move).
+   * - Act 3 (progress > 0.82): Swamp K.O. finisher verdict & Easter Egg auras (Throne / Cuddle).
+   * - Bottom: Cinema Red scrubber hairline with glowing playhead.
    */
-  drawCinemaCinemaOverlay(ctx, w, h, _titleText, progress = 0.35, _phaseTag = '') {
+  drawCinemaCinemaOverlay(ctx, w, h, _titleText, progress = 0.35, _phaseTag = '', choreo = null) {
     ctx.save();
+    const t = this.time;
+    const battle = choreo || this.activeBattle || this.outroBattle || {};
+    const atkKey = battle.attacker || 'b';
+    const defKey = battle.defender || 'p';
+    const atkChar = CHARACTER_REGISTRY[atkKey] || CHARACTER_REGISTRY.b;
+    const defChar = CHARACTER_REGISTRY[defKey] || CHARACTER_REGISTRY.p;
 
-    // Discreet 3px Cinema Red playback scrubber hairline along the bottom edge
-    const barY = h - 5;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
-    ctx.fillRect(16, barY, w - 32, 3);
+    const isCuddle =
+      Boolean(battle.nonLethalCuddle) ||
+      battle.easterEgg === 'seby_pupurabbu_cuddle' ||
+      (atkKey === 'n' && defKey === 'r') ||
+      (atkKey === 'r' && defKey === 'n');
+    const isThrone =
+      battle.easterEgg === 'carlesso_al_cesso_throne' ||
+      (atkKey === 'k' && defKey === 'q');
+
+    // ── EASTER EGG AURA & PARTICLES (Screen-wide overlay) ──
+    if (isThrone) {
+      ctx.save();
+      const throneGrad = ctx.createRadialGradient(w * 0.5, h * 0.45, 80, w * 0.5, h * 0.45, 520);
+      throneGrad.addColorStop(0, 'rgba(255, 215, 0, 0.18)');
+      throneGrad.addColorStop(0.6, 'rgba(245, 127, 23, 0.10)');
+      throneGrad.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
+      ctx.fillStyle = throneGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      for (let i = 0; i < 14; i++) {
+        const sx = ((i * 193 + t * 90) % (w - 100)) + 50;
+        const sy = ((i * 127 + Math.sin(t * 3.2 + i) * 55 + h) % (h - 120)) + 60;
+        ctx.font = `${20 + (i % 3) * 6}px sans-serif`;
+        ctx.fillStyle = 'rgba(255, 235, 59, 0.85)';
+        ctx.fillText(i % 3 === 0 ? '👑' : i % 2 === 0 ? '⚡' : '✨', sx, sy);
+      }
+      ctx.restore();
+    } else if (isCuddle) {
+      ctx.save();
+      const cuddleGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, 90, w * 0.5, h * 0.5, 540);
+      cuddleGrad.addColorStop(0, 'rgba(233, 30, 99, 0.18)');
+      cuddleGrad.addColorStop(0.7, 'rgba(156, 39, 176, 0.08)');
+      cuddleGrad.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
+      ctx.fillStyle = cuddleGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      for (let i = 0; i < 16; i++) {
+        const hx = ((i * 179 + t * 80 * (i % 2 === 0 ? 1 : -1) + w * 2) % (w - 80)) + 40;
+        const hy = ((i * 103 + Math.sin(t * 2.8 + i) * 60 + h) % (h - 100)) + 50;
+        ctx.font = `${22 + (i % 3) * 8}px sans-serif`;
+        ctx.fillText(i % 2 === 0 ? '💜' : '🤗', hx, hy);
+      }
+      ctx.restore();
+    }
+
+    // ── 3-ACT TOP CARDS (Non-occluding in top area 20px .. 90px) ──
+
+    // ACT 1: Intro / Attacker Weapon Card (progress < 0.18)
+    if (progress < 0.18) {
+      const alpha = progress < 0.04 ? progress / 0.04 : progress > 0.14 ? (0.18 - progress) / 0.04 : 1.0;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+
+      const cardW = 680;
+      const cardH = 64;
+      const cardX = (w - cardW) / 2;
+      const cardY = 22;
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+      ctx.strokeStyle = '#e6b84a';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      const atkWeaponName = battle.attackerWeapon || 'Arma Leggendaria';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffd54f';
+      ctx.font = 'bold 24px system-ui, sans-serif';
+      ctx.fillText(`⚔️ ATTO 1 · ${atkChar.name} sfodera ${atkWeaponName}!`, w / 2, cardY + 32);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 14px system-ui, sans-serif';
+      ctx.fillText(`Faccia a faccia iniziale · ${atkChar.glyph} ${atkChar.name} vs ${defChar.glyph} ${defChar.name}`, w / 2, cardY + 52);
+
+      ctx.restore();
+    }
+
+    // ACT 2: Defender Counter Badge (progress >= 0.28 && progress <= 0.72)
+    else if (progress >= 0.28 && progress <= 0.72) {
+      const counterData = battle.defenderCounter;
+      const counterText =
+        (typeof counterData === 'string' ? counterData : counterData?.it || counterData?.en) ||
+        (isCuddle ? 'Super Abbraccio Puffoso!' : 'Parata e Reazione!');
+      const sfxText = counterData?.sfxText || (isCuddle ? 'CUDDLE!' : 'CLANG!');
+
+      const inFade = progress < 0.35 ? (progress - 0.28) / 0.07 : 1.0;
+      const outFade = progress > 0.65 ? (0.72 - progress) / 0.07 : 1.0;
+      const alpha = Math.max(0, Math.min(1, inFade * outFade));
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+
+      const badgeW = 440;
+      const badgeH = 58;
+      const badgeX = w - badgeW - 32;
+      const badgeY = 22;
+
+      ctx.fillStyle = 'rgba(12, 28, 48, 0.90)';
+      ctx.strokeStyle = '#00e5ff';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.save();
+      ctx.translate(badgeX + 16, badgeY + badgeH / 2);
+      ctx.rotate(-0.06);
+      ctx.fillStyle = '#ff1744';
+      ctx.beginPath();
+      ctx.roundRect(-4, -16, 88, 32, 8);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 15px system-ui, sans-serif';
+      ctx.fillText(sfxText, 40, 6);
+      ctx.restore();
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#80d8ff';
+      ctx.font = 'bold 13px system-ui, sans-serif';
+      ctx.fillText(`🛡️ ATTO 2 · DIFESA ${defChar.name.toUpperCase()}`, badgeX + 112, badgeY + 24);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 16px system-ui, sans-serif';
+      const truncated = counterText.length > 28 ? counterText.slice(0, 26) + '…' : counterText;
+      ctx.fillText(truncated, badgeX + 112, badgeY + 46);
+
+      ctx.restore();
+    }
+
+    // ACT 3: Finale / Swamp K.O. Finisher Verdict (progress > 0.82)
+    else if (progress > 0.82) {
+      const alpha = progress < 0.86 ? (progress - 0.82) / 0.04 : 1.0;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+
+      const cardW = 720;
+      const cardH = 68;
+      const cardX = (w - cardW) / 2;
+      const cardY = 20;
+
+      ctx.fillStyle = isThrone
+        ? 'rgba(40, 24, 8, 0.92)'
+        : isCuddle
+        ? 'rgba(48, 12, 38, 0.92)'
+        : 'rgba(15, 23, 42, 0.92)';
+      ctx.strokeStyle = isThrone ? '#ffd700' : isCuddle ? '#f50057' : '#ffd54f';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      const bannerText =
+        (typeof battle.banner === 'string' ? battle.banner : battle.banner?.it || battle.banner?.en) ||
+        (isThrone
+          ? '🚽 CARLESSO AL CESSO! IL TRONO È SALVO! 👑'
+          : isCuddle
+          ? '💜 SUPER ABBRACCIO PUFFOSO! 💜'
+          : '🏆 K.O.! VITTORIA SULLA CASELLA!');
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = isThrone ? '#ffe082' : isCuddle ? '#ff80ab' : '#ffe082';
+      ctx.font = 'bold 22px system-ui, sans-serif';
+      ctx.fillText(bannerText, w / 2, cardY + 30);
+
+      const reaction = battle.finisherReaction ? ` · ${battle.finisherReaction}` : '';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '600 15px system-ui, sans-serif';
+      ctx.fillText(`ATTO 3 · ${atkChar.name} trionfa su ${defChar.name}${reaction} ✨`, w / 2, cardY + 54);
+
+      ctx.restore();
+    }
+
+    // ── PROGRESS SCRUBBER (Bottom Edge 16:9 Cinema Red hairline) ──
+    const barY = h - 6;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+    ctx.fillRect(16, barY, w - 32, 4);
 
     const progW = Math.max(12, Math.min(w - 32, (w - 32) * progress));
-    ctx.fillStyle = '#D32F2F';
-    ctx.fillRect(16, barY, progW, 3);
+    const redGrad = ctx.createLinearGradient(16, barY, 16 + progW, barY);
+    redGrad.addColorStop(0, '#ff5252');
+    redGrad.addColorStop(1, '#e50914');
+    ctx.fillStyle = redGrad;
+    ctx.fillRect(16, barY, progW, 4);
+
+    // Glowing Playhead Dot
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(16 + progW, barY + 2, 4, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.restore();
   }
@@ -965,6 +1165,9 @@ export class VeoCinemaView {
     }
 
     const isExpanded = this.mode === 'battle' || this.mode === 'checkmate';
+    if (this.root) {
+      this.root.visible = isExpanded || this.cinemaBlend > 0.002;
+    }
     if (!this.root?.userData?.vfxControlled) {
       const targetPos = isExpanded ? this.battlePos : this.idlePos;
       const targetScale = isExpanded ? this.battleScale : this.idleScale;

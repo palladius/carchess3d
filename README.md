@@ -1,4 +1,4 @@
-# 🏰🚽 CarChess3D: *Carlesso al Cesso* ♟️
+# 🏰🚽 CarChess3D ♟️
 
 > ### 🌐🚀 **[GIOCA SUBITO LIVE SU GITHUB PAGES → `https://palladius.github.io/carchess3d/`](https://palladius.github.io/carchess3d/)**
 > - 🎮 **Partita 3D & Scazzottata**: [https://palladius.github.io/carchess3d/](https://palladius.github.io/carchess3d/)
@@ -11,7 +11,7 @@
 > - ✍️ **Articolo ("Come ho generato CarChess3D in 2 giorni")**: [`docs/ARTICLE.md`](docs/ARTICLE.md)
 
 <p align="center">
-  <img src="docs/logo/logo.png" alt="Carlesso al Cesso: a cartoon chess king on a golden toilet-throne" width="320">
+  <img src="docs/logo/logo.png" alt="CarChess3D: a cartoon chess king on a golden toilet-throne" width="320">
 </p>
 
 A **3D chess game for the Carlesso family**, playable offline. The pieces are the
@@ -86,7 +86,7 @@ tests/, scripts/     Node + Python test suites, UAT playtest, generators (`just 
 | Official | Alt A | Alt B |
 |---|---|---|
 | <img src="docs/logo/logo.png" width="200"> | <img src="docs/logo/alt-daily-checkmate.png" width="200"> | <img src="docs/logo/alt-plunger-sceptre.png" width="200"> |
-| *Carlesso al Cesso* | *Daily Checkmate* | *Plunger sceptre* |
+| *CarChess3D* | *Daily Checkmate* | *Plunger sceptre* |
 
 Generated with Nano Banana Pro; the prompt is in [`docs/logo/gen_logo.py`](docs/logo/gen_logo.py).
 

@@ -29,7 +29,7 @@ import {
   CANONICAL_PIECE_HEIGHTS,
   PEDESTAL_HEIGHT,
 } from '../utils/glbGrounding.js';
-import { BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS } from '../managers/PieceManager.js';
+import { BISHOP_GLB_VARIANTS, QUEEN_GLB_VARIANTS, KNIGHT_GLB_VARIANTS } from '../managers/PieceManager.js';
 import {
   createArticulatedSkeletonRig,
   updateSkeletonRigPose,
@@ -70,6 +70,8 @@ export class WowModeView {
     this.bishopVariant = 'hat';
     /** @type {'young'|'wedding'} */
     this.queenVariant = 'young';
+    /** @type {'classic'|'lightsaber'|'halberd'|'aurora'} */
+    this.knightVariant = 'classic';
     /** @type {'front'|'back'} */
     this.cardSide = 'front';
     this.autoRotate = true;
@@ -201,6 +203,12 @@ export class WowModeView {
           if (e.queenVariant && e.queenVariant !== this.queenVariant) {
             this.queenVariant = e.queenVariant;
             if (this.active && this.selectedKey === 'q') {
+              this.loadSelectedHero();
+            }
+          }
+          if (e.knightVariant && e.knightVariant !== this.knightVariant) {
+            this.knightVariant = e.knightVariant;
+            if (this.active && this.selectedKey === 'n') {
               this.loadSelectedHero();
             }
           }
@@ -435,6 +443,7 @@ export class WowModeView {
     const prevKey = this.selectedKey;
     const prevVariant = this.bishopVariant;
     const prevQueenVariant = this.queenVariant;
+    const prevKnightVariant = this.knightVariant;
 
     if (e.subMode) {
       this.setSubMode(e.subMode);
@@ -465,6 +474,17 @@ export class WowModeView {
       pm?.setQueenVariant?.(this.queenVariant);
     }
 
+    if (
+      e.knightVariant === 'classic' ||
+      e.knightVariant === 'lightsaber' ||
+      e.knightVariant === 'halberd' ||
+      e.knightVariant === 'aurora'
+    ) {
+      this.knightVariant = e.knightVariant;
+      const pm = this.ctx?.pieces || this.ctx?.pieceManager;
+      pm?.setKnightVariant?.(this.knightVariant);
+    }
+
     const rawKey = String(e.pieceType || e.character || this.selectedKey).toLowerCase();
     this.selectedKey = ROLE_OR_NAME_TO_KEY[rawKey] || 'b';
 
@@ -472,6 +492,7 @@ export class WowModeView {
       this.selectedKey !== prevKey ||
       this.bishopVariant !== prevVariant ||
       this.queenVariant !== prevQueenVariant ||
+      this.knightVariant !== prevKnightVariant ||
       !this.currentHeroObject;
 
     if (this.active && heroChanged) {
@@ -506,12 +527,14 @@ export class WowModeView {
       this.skeletonsVisible = this.pieceView.skeletonsVisible;
     }
 
-    // Determine GLB URL (supporting Ale variants & Kate variants)
+    // Determine GLB URL (supporting Ale variants, Kate variants & Seby variants)
     let glbUrl = meta.glbUrl;
     if (this.selectedKey === 'b') {
       glbUrl = BISHOP_GLB_VARIANTS[this.bishopVariant] || meta.glbUrl;
     } else if (this.selectedKey === 'q') {
       glbUrl = QUEEN_GLB_VARIANTS[this.queenVariant] || meta.glbUrl;
+    } else if (this.selectedKey === 'n') {
+      glbUrl = KNIGHT_GLB_VARIANTS[this.knightVariant] || meta.glbUrl;
     }
 
     const baseHeroHeight = CANONICAL_PIECE_HEIGHTS[this.selectedKey] ?? 1.45;
@@ -603,7 +626,6 @@ export class WowModeView {
           const targetHeight = baseHeroHeight * HERO_SCALE;
           const { holder } = groundAndNormalizeObject3D(THREE, cloned, targetHeight, {
             baseElevation: TURNTABLE_TOP_Y,
-            maxRadius: 0.85,
           });
 
           // Create and attach hero-scaled articulated 3D skeleton rig to turntable holder
