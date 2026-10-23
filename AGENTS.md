@@ -22,6 +22,10 @@ This is the **implementation** repo for the Carlesso family 3D chess.
   them. Exception: "Pixar-style" is allowed in generation prompts only (image quality),
   never in UI. `just test` fails on `etc/ip-denylist.txt` hits; extend that list,
   don't bypass it.
+  - **Visual Props IP-Safety**: Avoid unmistakable copyrighted visual props in generated images even if unnamed (e.g., never include an ogre outhouse/wooden toilet in swamp scenes; use original props like a hollowed-log canoe, gourd lanterns, and a soup cauldron).
+- **180° Panorama Cycloramas (`assets/environments/*_panorama.jpg`)**:
+  - Prefer full-screen 180° curved 21:9 NanoBanana cycloramas over blocky 3D primitive background boxes, wrapping around the board flanks and extending below `y = 0` so there is zero empty lower void.
+  - **180° Spatial Composition Rule**: Prompt 21:9 panoramas so the **lower half and left/right edges are 180° of open water/ground** surrounding the board (no foreground cliffs or balconies on the left/right edges), and the **hero landmark** (Zurich, Ogre tree-root hut, Positano) is **centered directly in front** on the horizon.
 - Git: only move forward (no `reset --hard`, no `clean`, no force push).
 - 3D pipeline work goes in `tools/model-pipeline/` and is logged in its
   `RUNNING_DOC.md` (prompts, API/MCP calls, parameters, results).
