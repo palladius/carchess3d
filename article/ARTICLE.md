@@ -1,22 +1,20 @@
 # 🏰🚽 CarChess3D: How a Fleet of Autonomous Agents Built a 3D Chess Game Starring My Family While I Celebrated My 10th Wedding Anniversary in Colmar
 
-*By **Riccardo "Palladius" Carlesso** (`RiccardinoCM26 🦖`) — Developer Advocate, SRE at heart, dad to Alessandro (🐉) and Sebastian (🏎️)*  
-*Powered by **Gemini 4 Argon (Antigravity)**, the **Niccolò Game Design** architecture, and a ruthless orchestra of adversarial critics.*  
-*Zurich & Colmar, October 9–15, 2026 · Version `v0.3.74`*
+*By **Riccardo "Palladius" Carlesso** — proud dad to Ale & Seby and improvised 3D game designer. Built hands-off with [**Gemini 4**](https://blog.google/technology/google-deepmind/gemini-4/) inside [**Antigravity**](https://antigravity.google/) and the [**Niccolò Game Design** skill](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md). Zurich & Colmar, October 2026.*
 
-![CarChess3D 16:9 Cinematic Banner: Classic Family vs Swamp Faction](assets/before_after/article_hero_banner_16x9.png)
+![CarChess3D: a 12-second camera orbit around the Carlesso family — Seby, Ale, Dad, Mum — on the 3D board](assets/gallery/family_orbit_hero.gif)
 
 ---
 
-## 🍕🌹 1. From a *Bufalina* in Naples to a 10th Anniversary in Colmar
+## 🍕🌹 1. From a *Bufalina* in Naples to My 10th Anniversary in Colmar
 
 I was in **Naples** on a Friday a few weeks ago to follow the adventures of [**Fabio Biondi's Gemini Day**](https://gdg.community.dev/events/details/google-gdg-napoli-presents-agentic-apps-con-google-gemini-sdk-e-typescript/) at Università Federico II when I bumped into a group of super-smart engineers. You know how it goes in Italy: two minutes of small talk, an espresso at the bar, and before you know it we are all sitting around a table having lunch together.
 
-Over a steaming *pizza bufalina*, **Niccolò and his friends** let me in on their obsession: 3D games, real-time rendering, clean game architecture, and using **Tripo** and similar generative pipelines to turn flat 2D images into textured 3D objects. Since I had just built [**Pupurabbu 3D**](https://pupurabbu-3d-272932496670.europe-west6.run.app) ([source on GitLab](https://gitlab.com/palladius/pupurabbu-3d)) — a kid-friendly, Quake-style 3D explorer for my two boys — I was all ears.
+Over a steaming *pizza bufalina*, **Niccolò and his friends** let me in on their obsession: 3D games, real-time rendering, clean game architecture, and using [**Tripo**](https://www.tripo3d.ai/) and similar generative pipelines to turn flat 2D images into textured 3D objects. Since I had just built [**Pupurabbu 3D**](https://pupurabbu-3d-272932496670.europe-west6.run.app) ([source on GitLab](https://gitlab.com/palladius/pupurabbu-3d)) — a kid-friendly, Quake-style 3D explorer for my two boys — I was all ears.
 
 Little did I know back at that pizzeria table that, just a few weeks later, I would:
-1. **Package Niccolò's game-design wisdom into an agent skill** ([`niccolo-game-design`](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md), mirrored in this repo at [`.agents/skills/niccolo-game-design/SKILL.md`](../.agents/skills/niccolo-game-design/SKILL.md)), and
-2. **Use Gemini 4 to generate a next-generation 3D Battle Chess game completely HANDS-OFF!**
+1. **Distill Niccolò's game-design wisdom into an agent skill** ([`niccolo-game-design`](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md)), and
+2. **Use [Gemini 4](https://blog.google/technology/google-deepmind/gemini-4/) to generate a next-generation 3D Battle Chess game completely HANDS-OFF!**
 
 How? **... keep reading! :)**
 
@@ -29,7 +27,7 @@ Orchestrated by **Gemini 4 Argon** inside **Antigravity**, that adversarial swar
 1. Sculpting, rigging, and assembling **50 high-resolution `.glb` 3D models** of our family and rival factions.
 2. Compiling custom CUDA PTX kernels on the fly for the brand-new Blackwell `sm_120` GPU architecture.
 3. Subjecting every single mesh, texture, and video frame to a merciless multimodal **Adversarial Art Director Critic**.
-4. Writing over **121,000 lines of code**, headless unit tests, and Three.js WebGL shaders.
+4. Writing over **121,000 lines of code**, headless unit tests, and Three.js WebGL shaders. (For the record: I write Bash and Ruby. I did not type a single line of JavaScript.)
 
 The result of that weekend? A complete, offline-first (PWA), zero-build-step 3D Battle Chess game set in the **Enchanted Swamp of Zurich (*Swamp-on-the-Limmat*)**: **[CarChess3D (🏰🚽 "Family Chess")](../index.html)**.
 
@@ -43,15 +41,11 @@ Here is the exact telemetry extracted from `git log` and the **76 CarChess3D Ant
 ```json
 {
   "total_commits": 202,
-  "kickoff_commit": "2026-10-09 15:34:37 +0200 (ff67ff8)",
-  "latest_release": "v0.3.74 (69 incremental releases with 100% green `just test`)",
+  "kickoff_commit": { "ts": "2026-10-09T15:34:37+02:00", "sha": "ff67ff8" },
+  "latest_release": "v0.3.74",
+  "incremental_releases": 69,
   "weekend_commits_oct9_11": 159,
-  "commits_breakdown": {
-    "Friday Oct 9 (Kickoff & 3D Pipeline)": 5,
-    "Saturday Oct 10 (Autonomous /goal Sprint & Family Models)": 58,
-    "Sunday Oct 11 (36 Battle Videos 16:9, Voices & Polish)": 96,
-    "Monday–Thursday (Local RTX 5080 GPU, S1..S5 Clarity & Daily UAT)": 43
-  },
+  "commits_by_day": { "fri_oct9": 5, "sat_oct10": 58, "sun_oct11": 96, "mon_thu_oct12_15": 43 },
   "antigravity_telemetry_derek": {
     "carchess_sessions": 54,
     "trajectory_steps": 16118,
@@ -59,19 +53,19 @@ Here is the exact telemetry extracted from `git log` and the **76 CarChess3D Ant
     "avg_autonomous_steps_per_prompt": 55.4,
     "fresh_input_tokens": 46771223,
     "cache_read_tokens": 713281606,
-    "context_cache_hit_ratio": "93.8%",
+    "context_cache_hit_ratio": 0.938,
     "total_context_tokens": 760052829,
-    "output_tokens_generated": 5341032
+    "output_tokens": 5341032
   },
   "verified_glb_models": 50,
-  "node_unit_tests": "46 passed, 0 failed (duration: 6.85s)",
-  "python_test_suites": "17 passed, 0 failed (duration: 0.38s)",
-  "total_codebase_loc": "121,331 lines analyzed",
+  "node_unit_tests": { "passed": 46, "failed": 0, "duration_s": 6.85 },
+  "python_tests": { "passed": 17, "failed": 0, "duration_s": 0.38 },
+  "total_loc": 121331,
   "ip_safety_violations": 0
 }
 ```
 
-### ⚡ The `/goal` Sprint Stopwatch (Saturday, October 10)
+### ⚡ 38 Minutes from `/goal` to a Working Game (Saturday, October 10)
 At **10:31:42 CEST** on Saturday morning, right before heading out into the cobbled streets of Colmar, I launched a single `/goal` command inside an isolated git worktree (`etc/prompts/GOAL_BUILD_CARCHESS3D.md`). Here is the exact timeline recorded in the transcript:
 
 | Phase | Time Window (CEST) | Duration | Deliverables Produced |
@@ -89,33 +83,12 @@ The million-dollar question with AI coding agents is always: *"How long can they
 
 Looking at the raw Antigravity logs across both machines, here are the longest unattended autonomous runs:
 
-| Session / Mission | Start Time (UTC) | Log Steps | Tool Calls | Subagents Spawned | Compute Span | Autonomous Outcome |
-| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Kickoff & 3D Factory** (`940b9eac`) | Oct 09, 15:43 | **2,366** | **1,080** | **107 subagents** | 110h (session span) | Scaffold, multi-view generation, 26-bone Blender rigging, pipeline orchestration. |
-| **MAIN Merger & Daily UAT Sentinel** (`83ee7dd5`) | Oct 10, 07:37 | **2,399** | **1,120** | — | 5 days continuous | Multi-machine git sync (`derek` ⇄ `pupurabbux`), English UI default, automated Playwright video UAT on GitHub Issues. |
-| **Autonomous v1 `/goal` + 6×6 Swarm** (`31759f77`) | Oct 10, 08:31 | **2,667** | **1,240** | **15 workers** | 4 days | Complete v1 game in 38m, 5-worker 6×6 Swarm, 36 Veo 3.1 videos, family TTS voices & Lyria 3 strings. |
-| **Issue #20: 12 GLB Reconstruction** (`18347678`) | Oct 13, 18:12 | **686** | **375** | — | **12h 12m non-stop** | High-resolution local GPU reconstruction of all 12 Classic and Swamp pieces on the RTX 5080. |
-
-### 🍷🤖 Diario Parallelo Giorno per Giorno: Mentre Ero in Giro con Mia Moglie per Colmar (`<foto>`), Cosa Facevano i Loop Agentici (`XXh YYm`)?
-
-Per dare il senso concreto di cosa significhi delegare un intero videogioco 3D a una flotta di agenti autonomi su due macchine (**`derek`** in ufficio e **`pupurabbux`** a casa con la RTX 5080), ecco il confronto minuto per minuto tra la nostra vita reale e i **10 Loop Agentici** (documentati al singolo secondo nel Post-Mortem SRE [`INVESTIGATION.md`](INVESTIGATION.md) e nel dossier [`DEREK_JETSKI_FORENSICS.md`](DEREK_JETSKI_FORENSICS.md)):
-
-* **📅 Venerdì 9 Ottobre (Sera della Vigilia — `16h 33m` di Fabbrica 3D Notturna)**:
-  Alle `19:43` chiudo il portatile per preparare le valigie per l'Alsazia `<foto: valigie_partenza_zurigo.jpg>`. Nel frattempo, per **16h 33m** (`17:41` → `10:17` del mattino dopo), `pupurabbux` scopre da solo il bug nascosto `/lambda_1` di TRELLIS, costruisce il Critic VLM automatico (`critic.py`), boccia da solo la prima versione dell'Alfiere Ale con `FA_CAGARE 💩` (*"ha due mezze teste di drago fuse nel busto!"*) e riassembla il personaggio con un'armatura scheletrica Blender a **26 ossa** ([`47c6c04`](https://github.com/palladius/carchess3d/commit/47c6c0467ba3cf9c4c8ef97021ca37c554b3a680)).
-* **📅 Sabato 10 Ottobre Mattina (Passeggiata nella *Petite Venise* — `3h 12m` di Autonomia, 4 Loop Simultanei)**:
-  Alle `10:31:42` lancio `/goal` e usciamo a camminare mano nella mano tra i canali e le case a graticcio di Colmar `<foto: colmar_petite_venise_con_kate.jpg>`. Mentre siamo in giro per **3h 12m** (`10:31` → `13:44`), i due computer eseguono 4 loop in parallelo:
-  1. **Loop 1A (`0h 38m 06s`)**: 4 subagenti 3D paralleli scrivono **`+10.081` righe di codice** Three.js da zero al primo gioco 3D giocabile ([`d257880`](https://github.com/palladius/carchess3d/commit/d2578805cce92c153ad414c2de9bfa766f0728ed)).
-  2. **Loop 1B (`1h 08m 37s`)**: L'*Adversarial Art Director* (`265ff1ca`) boccia il primo render (`6.2/10`), ripara il bug `metallicFactor = 1.0`, aggiunge la palude con ninfee e porta la scena a **`9.9/10`** ([`4c338a4`](https://github.com/palladius/carchess3d/commit/4c338a46cef710738eea383f6124c22c7fadfcfd)).
-  3. **Loop 3 (`1h 54m 59s`)**: Uno Swarm cross-model con Claude `fable-5.1-high` (`@fable-reviewer`, `@art-critic`) + `@classic-builder` e `@swamp-builder` scolpisce due intere famiglie rivali (inclusi San Gennaro e la Torre Matildea, [`8ae3b86`](https://github.com/palladius/carchess3d/commit/8ae3b8626e71d4a3dfe8d98e189ea7fec985f37e)).
-  4. **Loop 2 (`0h 56m 54s`)**: Tre agenti paralleli su `pupurabbux` restaurano in 3D la statuetta di **Regina Kate Nozze 2016** — proprio l'abito del matrimonio che stavamo festeggiando! ([`70f52da`](https://github.com/palladius/carchess3d/commit/70f52da0d5cbf6328fc3e65fadc3da40cbbe6749)).
-* **📅 Sabato 10 Ottobre Pomeriggio & Sera (Brindisi col Riesling & Cena dei 10 Anni — `0h 47m` di Swarm + `10h 53m` di Cena)**:
-  Mentre brindiamo con un calice di Riesling alsaziano `<foto: colmar_brindisi_riesling.jpg>`, mando dal telefono un solo messaggio: *"NON TAGLIARE angoli -> fai tutte le 36 combinazioni!"*. Uno Swarm nativo di **5 agenti** si divide le Issue `#10`–`#16` e in **0h 46m 46s** (`14:40` → `15:26`) consegna tutte le 36 coreografie 3D e gli scheletri a 23 giunti (`v0.3.0`), lasciandomi libero per **10h 53m** (`16:02` → `02:55`) per la cena romantica di anniversario `<foto: colmar_cena_anniversario.jpg>`.
-* **📅 Domenica 11 Ottobre (Colazione con Kate & Rientro in Auto Colmar → Zurigo — `1h 46m` + `2h 38m` + `2h 09m`)**:
-  Di notte, mentre dormiamo in hotel, il subagent `6b6faa1f` genera da solo tutti i **36/36 film 16:9** con Veo 3.1 in **1h 45m 51s** (`03:10` → `04:56`). A colazione `<foto: colmar_colazione_kate.jpg>` mostro i video a Kate, che nota subito alcune allucinazioni (*"qui la torre sparisce e riappare!"*): lancio il subagent `4930d699` (*Adversarial Video Critic*) che in **2h 38m 23s** (`08:28` → `11:06`) smonta tutti i 36 MP4 in strisce da 6 fotogrammi e li rigenera finché non superano tutti **`>= 8.0/10`**. Poi alle `14:19`, mettendomi al volante per tornare a Zurigo, scrivo: *"sono in viaggio -> crea un critic biometrico finché Re Riccardo non mi somiglia!"*. Mentre guido per **2h 09m** (`14:18` → `16:27`), il subagent `riccardo-likeness-critic` innesta la mia foto del Sudafrica sulla mesh 3D raggiungendo **`92/100`** di somiglianza biometrica ([`0597eaa`](https://github.com/palladius/carchess3d/commit/0597eaa5461e3228fc3dcfa501f53ead94850b99)).
-* **📅 Martedì 13 – Mercoledì 14 Ottobre (La Notte della RTX 5080 a Luci Spente & Il Vero UAT coi Bimbi — `11h 50m` + `3h 22m`)**:
-  Martedì sera alle `20:12` lancio sulla RTX 5080 di casa la ricostruzione ad alta risoluzione dei 12 modelli Classici e della Palude (`#20`). Alle `20:32`, vedendo la camera da letto illuminata dai LED della scheda video mentre Kate dorme, scrivo *"puoi spegnere le luci della nvidia?"*: l'agente spegne i LED e scolpisce mesh da 697k poligoni nel buio totale per **11h 50m 30s** fino alle `08:02` del mattino. Mercoledì pomeriggio arriva infine il **Vero UAT sul divano di casa** con Alessandro e Sebastian al tablet, mentre uno Swarm di 4 agenti lavora per **3h 21m 51s** (`0h 23m` di burst Swarm + benchmark VLM alla cieca) per aggiungere gli aiuti visivi `S1..S5`:
-
-![Il Vero UAT: Alessandro e Sebastian giocano a CarChess3D sul tablet in salotto](assets/kids_playing_carchess3d.jpg)
+| 🖥️ Machine | Session / Mission | Start (UTC) | 📜 Steps · 🔧 Tool Calls · 🐝 Agents | ⏱️ Span | Autonomous Outcome |
+| :---: | :--- | :---: | :---: | :---: | :--- |
+| `pupurabbux` | **Kickoff & 3D Factory** (`940b9eac`) | Oct 09, 15:43 | 2,366 · 1,080 · 107 | 110h | Scaffold, multi-view generation, 26-bone Blender rigging, pipeline orchestration. |
+| `derek` | **MAIN Merger & Daily UAT Sentinel** (`83ee7dd5`) | Oct 10, 07:37 | 2,399 · 1,120 · — | 5 days | Multi-machine git sync (`derek` ⇄ `pupurabbux`), English UI default, automated Playwright video UAT on GitHub Issues. |
+| `derek` | **Autonomous v1 `/goal` + 6×6 Swarm** (`31759f77`) | Oct 10, 08:31 | 2,667 · 1,240 · 15 | 4 days | Complete v1 game in 38m, 5-worker 6×6 Swarm, 36 Veo 3.1 videos, family TTS voices & Lyria 3 strings. |
+| `pupurabbux` | **Issue #20: 12 GLB Reconstruction** (`18347678`) | Oct 13, 18:12 | 686 · 375 · — | **12h 12m non-stop** | High-resolution local GPU reconstruction of all 12 Classic and Swamp pieces on the RTX 5080. |
 
 ---
 
@@ -123,23 +96,25 @@ Per dare il senso concreto di cosa significhi delegare un intero videogioco 3D a
 
 Instead of anonymous wooden horses and pawns, every piece in CarChess3D is an affectionate, slightly ridiculous caricature of our family:
 
-| Chess Role | Character | Canonical 3D Model | Signature Detail & Catchphrase |
-| :--- | :--- | :--- | :--- |
-| **King 👑** | **King Riccardo (Dad)** | `king-riccardo.glb` | Royal crown, ermine-trimmed blue velvet cloak, scepter, and the unmistakable golden Toilet-Throne (the 🚽 pun that gives *CarChess* its name). |
-| **Queen 👸** | **Queen Kate (Mum)** | `queen-kate.glb` | Navy eyeglasses, emerald eyes, gold-damask purple gown, amethyst ring, and her iconic line: *"Don't be FACETIOUS!"* |
-| **Bishop 🐉** | **Bishop Ale (Alessandro)** | `bishop-ale-1.glb` / `bishop-ale-rigged.glb` | Blue-and-gold papal mitre with flowing *infulae*, cheeky grin, crosier staff, and an animated red baby dragon on his shoulder flapping its wings and yelling: *"Sei proprio un cafoNAZZO!"* |
-| **Knight 🏎️** | **Knight Sebastian (Seby)** | `knight-seby.glb` | Gleaming gold plate armor atop his racehorse steed, raised fist with modular weapon socket (Blue Plasma Saber, Halberd, or Aquarium Orb), asking: *"Mummy, can you clean my bottooooom?"* |
-| **Rook 🏰** | **Rook Pupurabbu** | `rook-pupurabbu.glb` | Seby's beloved fuzzy purple plushie peeking out with a huge smile from the battlements of a purple stone tower. |
-| **Pawns 🐧** | **16 Swiss Guard Puffins** | `pawn-puffin.glb` | Atlantic puffins in striped papal Swiss Guard uniforms, steel morion helmets, red plumes, halberds, and a signature finisher: a **giant wet fish slap to the face** 🐟! |
+| Piece | Who | Why |
+| :--- | :--- | :--- |
+| **King 👑** | **Riccardo** (Dad) | Inspired by a fantasy mage: six spells for six different fights — and yes, a golden throne 🚽. |
+| **Queen 👸** | **Kate** (my wife) | She works in chocolate, so every one of her attacks is chocolate-based. 🍫 |
+| **Bishop 🐉** | **Ale** (Alessandro) | Ale loves wizard stories and dragons, so the bishop is a young wizard with a tiny dragon familiar. |
+| **Knight 🏎️** | **Seby** (Sebastian) | He rides horses, so the choice was obvious. |
+| **Rook 🏰** | **Pupurabbu** | Seby's imaginary purple fluffy friend, peeking out of a stone tower. 💜 |
+| **Pawn 🐧** | **Puffin** (×16) | My wife calls me *Puffin*; the insider joke was irresistible. Swiss Guard uniform included. |
+
+*(A side-by-side turntable of all six 3D figurines is coming — see the family orbit above in the meantime.)*
 
 ### 💜 The Brotherly Easter Egg: The "Mega Fluffy Cuddle"
 Inside the combat rules engine (`src/managers/CombatAnimationManager.js`), one hard-coded law is sacred: **Sebastian and his plushie Pupurabbu can never hurt each other**.
 Whenever Knight Seby captures Rook Pupurabbu (or vice versa), there is no explosion and no knock-out: the two rush together into a **SUPER FLUFFY HUG! 💜🤗** while a shower of 3D pink hearts rains down over the board!
 
 ### 🐸 The Ogre's Swamp Party
-Captured pieces don't vanish into a boring sidebar graveyard. They fly along a parabolic arc, splash into the **Enchanted Swamp** beneath the Grossmünster towers, and **bob happily on floating lily pads** amid glowing ripples and swamp fireflies!
+Captured pieces don't vanish into a boring sidebar graveyard. They fly along a parabolic arc, splash into the **Enchanted Swamp** — a stylized 3D Zurich, with the Grossmünster towers, the Limmat and the lake as backdrop —, and **bob happily on floating lily pads** amid glowing ripples and swamp fireflies!
 
-![Swamp Party with captured pieces floating on lily pads](assets/gallery/swamp_party.png)
+![Swamp Party: captured pieces bobbing on lily pads in a stylized 3D Zurich](assets/gallery/swamp_party.png)
 
 ### 👨‍👦‍👦 The Real UAT (*User Acceptance Testing*): Ale & Seby on the Tablet
 No automated test suite can beat the final sign-off from the actual customers: here are **Alessandro (🐉)** and **Sebastian (🏎️)** heads-down on the tablet playing CarChess3D, with the 3D pieces on the board and the swamp lily pads glowing in the background!
@@ -180,26 +155,19 @@ These are the 2D concept turnarounds (front + 3/4 view) generated with **Nano Ba
 
 ## 🔬 5. Technical Deep Dive: Sculpting 3D Pieces from Family Photos
 
-Turning a casual smartphone photo into a watertight, UV-textured, metrically grounded `.glb` ready for 60 FPS WebGL on mobile required a four-engine assembly line:
+Turning a casual smartphone photo into a textured, metrically grounded `.glb` that runs at 60 FPS on a tablet boils down to four steps — generate, reconstruct, slim down, judge:
 
 ```mermaid
-graph TD
-    A["Real Family Photo"] -->|Nano Banana 2.1 Prompting| B["4-View Orthographic Turnaround (Front, Side, Back, 3/4)"]
-    B -->|Strategic Routing| C{"3D Engine Selection"}
-    C -->|Cloud ZeroGPU| D["TRELLIS.2 Multi-Image (/lambda_1 fix)"]
-    C -->|Local GPU pupurabbux RTX 5080| E["Hunyuan3D-2 Shape DiT (32s)"]
-    C -->|Parody / Classic Pieces| F["Mode A: Dual-Orthographic SDF + Taubin"]
-    E --> G["Quadric Edge Collapse Decimation (697k -> 60k faces)"]
-    D --> H["VLM & Geometric Critic Audit"]
-    G --> H
-    F --> H
-    H -->|Defects or Generic Face?| I{"Critic Verdict"}
-    I -->|Top Quality >= 8.0| J["Approved in assets/models/*.glb"]
-    I -->|Rejected 'FA_CAGARE'| K["Mode B: Planar Face-Grafting 2048x1024"]
-    I -->|Props Fused into Torso| L["Mode C: Blender Modular Remaster & Rigging"]
-    K --> J
-    L --> J
+flowchart LR
+    A["📸 Family photo"] --> B["🍌 Nano Banana<br/>4-view turnaround"]
+    B --> C["🧊 3D engine<br/>TRELLIS · Hunyuan3D-2 · SDF"]
+    C --> D["📐 Decimate<br/>700k → 60k faces"]
+    D --> E{"🤖 Critic<br/>≥ 8/10?"}
+    E -->|yes| F["✅ assets/models/*.glb"]
+    E -->|no| G["🩹 Face-graft / Blender remaster"] --> C
 ```
+
+![Infographic: the four-step photo-to-GLB pipeline](assets/gallery/pipeline_infographic.png)
 
 ### Step 1: From Smartphone Photo to 4-View Orthographic Turnaround with Nano Banana 2.1
 3D diffusion models hate wide-angle perspective distortion. Using **Nano Banana 2.1 (`gemini-nano-banana-2.1`)** and **Nano Banana Pro (`gemini-3-pro-image-preview`)**, we generated strict orthographic sheets:
@@ -220,12 +188,8 @@ When Hugging Face ZeroGPU hit quota limits (*"Exceeded ZeroGPU quota"*), the age
 - **Hunyuan3D-2 Shape**: generated complete meshes locally in **32 seconds** using just **5.6 GB of VRAM** on the RTX 5080.
 - **Blackwell `sm_120` CUDA PTX JIT Fix**: Because prebuilt PyTorch/rasterizer wheels didn't yet include native binaries for NVIDIA's new Blackwell `sm_120` architecture (`cudaErrorNoKernelImageForDevice`), the agent recompiled `custom_rasterizer_kernel` with `TORCH_CUDA_ARCH_LIST="9.0+PTX"`, leveraging the NVIDIA driver's PTX JIT compiler.
 
-#### Engine 3: What on Earth Is "Quadric Edge Collapse" (10× Decimation)? 📐
-A raw Marching Cubes mesh out of Hunyuan3D-2 has **697,264 triangles (12.5 MB)** per piece. Multiply that by 32 pieces on the board (**22+ million polygons**) and any mobile browser crashes instantly.
-We integrated **Quadric Edge Collapse (QEC)** (Garland & Heckbert, 1997):
-- Every vertex $v$ gets a $4 \times 4$ symmetric error matrix $Q$ representing the sum of squared distances to all incident triangle planes: $E(v) = v^T Q v$.
-- Contracting an edge $(v_1, v_2) \to \bar{v}$ simply adds their matrices ($\bar{Q} = Q_1 + Q_2$) and places $\bar{v}$ at the point minimizing $\bar{v}^T \bar{Q} \bar{v}$.
-- **Result**: from **697,264 faces down to 60,000 faces** (12.5 MB → 1.0 MB) in **9.9 seconds**, preserving 100% of facial contours and crown ridges while stripping 91.4% of redundant flat-surface triangles!
+#### Engine 3: Slimming Down 10× with Quadric Edge Collapse 📐
+A raw mesh out of Hunyuan3D-2 has **~700,000 triangles (12.5 MB)** per piece: with 32 pieces on the board that is 22 million polygons, and any tablet browser gives up. [Quadric Edge Collapse](https://en.wikipedia.org/wiki/Mesh_simplification) (Garland & Heckbert, 1997) merges the edges that matter least first, so we went from **697k to 60k faces (12.5 MB → 1.0 MB) in under 10 seconds** while keeping faces, crowns and noses intact.
 
 #### Engine 4: Mode B Biometric Face-Grafting ($2048 \times 1024$ Dual-Chart WebP Atlas)
 My initial King mesh looked like a generic, clean-shaven doll. When I complained (*"Better, but it still doesn't look like me! Build an adversarial likeness critic using my 5 reference photos!"*), the agent built a **Biometric Likeness Critic (`riccardo-likeness-critic`)** scoring **8 facial landmarks** (hooded smiling brown eyes, vertical glabellar crease, white tuft on the left eyebrow, rounded nose tip, wide grin, 2-day salt-and-pepper stubble, silver temples, no glasses) and implemented **Mode B Planar Face-Grafting**:
@@ -313,13 +277,12 @@ When I told the agent *"Do NOT cut corners — open an issue for every gap and r
 Whenever a piece is captured, the surrounding 3D world dims, the chessboard fades to `90%` transparency (`alpha = 0.10`), the HUD disappears, and a giant **16:9 Cinema XXL screen (`videoBoost = 1.75`)** rises behind the two fighters with a **`10.0s` timeline (`1s pre-roll + 8s Veo video + 1s post-roll`)** and **`+15%` zero-loop combat music**.
 When I showed the first batch of 36 Veo videos to my wife Kate, she immediately spotted hallucinations: towers vanishing mid-clip or a second Puffin materializing out of thin air. So we spawned an **Adversarial Video Critic** subagent (`4930d699`) that extracted a **6-frame contact strip (`t = 0.0s..7.5s`)** for all 36 `.mp4` videos, checked for 4 forbidden defects, logged every score in `docs/battles/video_audit.yaml`, and regenerated every rejected clip until all 36 scored `>= 8.0/10`!
 
-![16:9 Battle Filmstrip generated with Nano Banana 2.1 + Veo 3.1](assets/gallery/mp4_filmstrip.png)
 
 ### 3. 👁️ The 5-Agent Visual Clarity Swarm (`S1..S5`) & Blind VLM Recognizer (`Issue #32`)
 Playing with the kids on the tablet revealed a real UX issue: from overhead (`0°` zenithal and `30°` semi-high), the figurines were so richly detailed that telling White from Black — especially in a *Carlesso vs. Carlesso* mirror match — caused visual fatigue.
-A 5-agent Swarm built **5 combinable visual clarity modes (`S1..S5`)** in `PieceClarityHelper.js` (Deep Matte Obsidian vs. Warm Ivory pedestals, universal 3D role add-ons baked into all 22 `.glb` files, pedestal role wreaths, and zenithal 2D tournament medallions) and tested them with a **Blind VLM Recognizer** (`gemini-flash-latest` asked *blindly* to identify piece roles and colors across 36 renders). Recognition jumped from **`5.00/10` (`Off`) to `9.50/10` (`S5 Hybrid All-In`)** with a `2.13×` luminance contrast ratio (full report in [`article/SHOWCASE_VISUAL_CLARITY.md`](SHOWCASE_VISUAL_CLARITY.md)):
+To make sure the board is actually *readable* — not just pretty — I had the agents build a **self-testing benchmark**: a *blind* Gemini model is shown 36 renders and asked to name each piece's role and color, with no hints. A 5-agent Swarm then designed **5 combinable clarity modes (`S1..S5`)** — matte obsidian vs. warm ivory pedestals, 3D role crowns baked into the `.glb` files, pedestal wreaths and top-down 2D medallions — and re-ran the benchmark after each one. Recognition climbed from **`5.0/10` (off) to `9.5/10` (`S5`)** (full report in [`article/SHOWCASE_VISUAL_CLARITY.md`](https://github.com/palladius/carchess3d/blob/main/article/SHOWCASE_VISUAL_CLARITY.md)):
 
-![0° vs 30° Visual Clarity Benchmark: Off vs S1..S5 evaluated by the Blind VLM Recognizer](assets/clarity_comparison_0deg_30deg.png)
+![0° vs 30° readability benchmark: Off vs S1..S5, scored by a blind Gemini recognizer](assets/clarity_comparison_0deg_30deg.png)
 
 ### 4. 🧪🤖 Autonomous "Daily UAT Review" with Antigravity on GitHub Issues ([`label:"gemini-uat"`](https://github.com/palladius/carchess3d/issues?q=state%3Aopen%20label%3A%22gemini-uat%22))
 One of my absolute favorite engineering workflows in this project is the **fully autonomous Daily UAT Review** powered by **Antigravity**:
@@ -335,7 +298,7 @@ One of my absolute favorite engineering workflows in this project is the **fully
 
 ## 💛 8. Niccolò's Game Architecture (`niccolo-game-design`)
 
-To avoid the dreaded "AI Spaghetti Monster" (a monolithic 5,000-line `game.js` tangled in `if/else` chains), CarChess3D strictly enforces the 7 laws of the **Niccolò Game Design** skill:
+To avoid the dreaded "AI Spaghetti Monster" (a monolithic 5,000-line `game.js` tangled in `if/else` chains), CarChess3D strictly enforces the rules of the [**Niccolò Game Design** skill](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md) — Managers + Event Bus, a well-known approach Niccolò pointed me to and that is beautifully laid out in Robert Nystrom's [*Game Programming Patterns*](https://gameprogrammingpatterns.com/):
 
 1. **One Manager = One Responsibility ($\le 300$ LOC per file)**:
    - `BoardMapManager.js`: owns all chess rules (check, checkmate, stalemate, castling, en passant, promotion).
@@ -372,7 +335,9 @@ Or play directly online on GitHub Pages:
 
 Two years ago, building a custom 3D video game starring your own family — complete with watertight textured meshes, skeletal rigging, event-driven architecture, a Web Worker chess AI, 36 AI battle cutscenes, baroque string music, and bilingual voice acting — would have taken an indie studio four months and tens of thousands of euros.
 
-Today, combining frontier models like **Gemini 4 Argon**, **Antigravity**'s multi-agent orchestration, solid SRE guardrails, and ruthless adversarial critics, the entire universe came together over **a single anniversary weekend** while the human was clinking Riesling glasses in Colmar.
+Today, combining frontier models like [**Gemini 4**](https://blog.google/technology/google-deepmind/gemini-4/), [**Antigravity**](https://antigravity.google/)'s multi-agent orchestration, solid SRE guardrails, and ruthless adversarial critics, the entire universe came together over **a single anniversary weekend** while the human was clinking Riesling glasses in Colmar.
+
+![Riccardo and Kate toasting with Alsatian Riesling in a Colmar wine bar](assets/colmar_riesling_toast.jpg)
 
 The best technology isn't the one that chains you to a screen — it's the one that works quietly in the background, leaving you free to live your life with the people you love.
 

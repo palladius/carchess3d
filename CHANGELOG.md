@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.96] - 2026-10-23
+
+- 📝✍️ **Article Review Round 2 (`article/ARTICLE.md`, ricc.rocks post, `article/assets/`)**: applied Riccardo's inline review:
+  - Shorter intro byline with links to Gemini 4, Antigravity and the public `niccolo-game-design` skill permalink; "I write Bash and Ruby, not a single line of JS" disclaimer; Tripo link; "to *My* 10th Anniversary".
+  - Hero image is now the rotating family orbit (`family_orbit_hero.gif`, 8 MB, 640px) instead of the 16:9 banner; `family_orbit_poster.jpg` as social card.
+  - Machine-readable telemetry JSON (ints, nested objects); new H3 **"38 Minutes from `/goal` to a Working Game"**; long-run sessions table gets a 🖥️ Machine column and merged 📜·🔧·🐝 metrics.
+  - Family table rewritten as one-liners (*why* each piece is who it is), GLB filenames dropped; swamp caption explains the stylized 3D Zurich; Knight Seby concept image cropped.
+  - Pipeline section simplified: short `flowchart LR` + Nano Banana Pro infographic (`pipeline_infographic.png`, 3 attempts kept as `_alt1/_alt2`); QEC paragraph reduced to one sentence + Wikipedia link; Veo filmstrip removed; clarity benchmark reworded as a self-testing readability benchmark; architecture section cites Nystrom's *Game Programming Patterns*.
+  - Riesling toast photo (`colmar_riesling_toast.jpg`) in the conclusion, with links.
+
 ## [0.3.95] - 2026-10-22
 
 - 🏔️🔄🐸🐟 **Infinite-Horizon Zurich 180° Panorama Parallax ("Zurigo all'Infinito"), 4-Angle Playability Integration Test & 3-Layer Semi-Transparent 3D Liquid Swamp Pond (`src/views/ZurichSwampView.js`, `src/views/VeoCinemaView.js`, `src/views/VFXPoolView.js`, `src/main.js`, `tests/combat.test.mjs`, `docs/spec/SPEC.md`)**:
