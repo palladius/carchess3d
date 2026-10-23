@@ -21,44 +21,37 @@ threading.Thread(target=srv.serve_forever, daemon=True).start()
 
 MOVES = [("d2","d4"),("a7","a6"),("e2","e4"),("h7","h6"),("f2","f4"),("a6","a5"),("g2","g4"),("h6","h5"),("b2","b4"),("a8","a7"),("c2","c4"),("h8","h7")]
 
-# Demo-style camera choreography:
-#   Phase 1 (t in [0, 0.22]): Start from a high, wide establishing view overlooking the Zurich
-#     chessboard and Grossmünster skyline, then swoop down and dolly in toward the White back rank.
-#   Phase 2 (t in [0.22, 1.00]): Smooth orbital sweep (-150° -> +150°) around the Carlesso family
-#     (Seby 1.92m, Ale 1.55m, Dad 1.86m, Mum 1.68m, Ale 1.55m, Seby 1.92m + Pupurabbu 2.50m tower),
-#     with a 1s hold right at the front portrait view (theta ≈ 0°) so all faces shine at eye level.
+# Camera choreography v3 (Riccardo's review, 2026-10-23):
+#   Phase 1 (t in [0, 0.18]):  START FROM THE FRONT, CLOSE-UP at eye level on the four faces
+#     (Ale · Dad · Mum · Ale), hold ~2s so the family is the first thing you see.
+#   Phase 2 (t in [0.18, 1.0]): one slow continuous orbit (0° -> 360°) while zooming out and rising,
+#     so the board appears to rotate and the stylized Zurich skyline comes into view; ends wide.
+#   No swoop-in, no hops: pieces are idle (tweens cleared before the first frame).
 def smoothstep(a, b, x):
     u = max(0.0, min(1.0, (x - a) / (b - a)))
     return u * u * (3.0 - 2.0 * u)
 
-def cam_at(t):  # t in [0, 1]
-    if t < 0.22:
-        # Phase 1: Wide aerial establishing shot -> swoop into right flank start of orbit (-150°)
-        s = smoothstep(0.0, 0.22, t)
-        theta_deg = -25.0 + (-150.0 - (-25.0)) * s
-        theta = math.radians(theta_deg)
-        r = 9.2 + (5.2 - 9.2) * s
-        y = 5.4 + (2.45 - 5.4) * s
-        cx = 0.0 + (0.3 - 0.0) * s
-        cy = 0.55 + (0.95 - 0.55) * s
-        cz = 0.8 + (3.5 - 0.8) * s
-    else:
-        # Phase 2: Full -150° .. +150° family orbit with front hold & eye-level dolly
-        w = (t - 0.22) / 0.78
-        e = 0.5 - 0.5 * math.cos(math.pi * w)          # ease in-out in [0, 1]
-        u = 2.0 * e - 1.0                              # u in [-1, 1], 0 at front
-        # Gentle plateau around u=0 so the camera lingers at the front family portrait (~1s hold)
-        u_linger = 0.35 * u + 0.65 * (u ** 3)
-        e_theta = 0.5 + 0.5 * u_linger
-        theta = math.radians(-150.0 + 300.0 * e_theta) # -150° .. +150° around the back rank
-        frontness = math.cos(0.5 * math.pi * u_linger) # 1.0 at the front, 0.0 at flanks
-        r = 5.2 - 0.95 * frontness                     # r=4.25m at front -> frames all 6 family members + Pupurabbu!
-        y = 2.45 - 0.55 * frontness                    # y=1.90m at front -> eye-level with 1.55m–1.92m pieces
-        cx, cy, cz = 0.3, 0.95, 3.5
+CX, CY, CZ = 0.3, 0.95, 3.5            # look-at: the King/Queen pair on the back rank
+R_CLOSE, Y_CLOSE = 2.6, 1.45           # front portrait: faces fill the frame
+R_WIDE, Y_WIDE = 8.5, 4.6              # final wide: whole board + Zurich
 
+def cam_at(t):  # t in [0, 1]
+    if t < 0.18:
+        theta = 0.0
+        r, y = R_CLOSE, Y_CLOSE
+        cx, cy, cz = CX, 1.05, CZ
+    else:
+        w = (t - 0.18) / 0.82
+        e_rot = w * w * (3.0 - 2.0 * w)                       # ease in-out rotation
+        theta = math.radians(360.0 * e_rot)                   # full turn, ends back at the front
+        z = smoothstep(0.0, 0.85, w)                          # zoom-out progress
+        r = R_CLOSE + (R_WIDE - R_CLOSE) * z
+        y = Y_CLOSE + (Y_WIDE - Y_CLOSE) * z
+        cx, cy = CX, 1.05 - 0.6 * z
+        cz = CZ - 2.2 * z                                     # drift the look-at toward board centre
     x = cx + r * math.sin(theta)
-    z = cz - r * math.cos(theta)
-    return (x, y, z, cx, cy, cz)
+    zc = cz - r * math.cos(theta)
+    return (x, y, zc, cx, cy, cz)
 
 with sync_playwright() as p:
     chrome_bin = "/usr/bin/google-chrome" if os.path.exists("/usr/bin/google-chrome") else None
@@ -90,7 +83,8 @@ with sync_playwright() as p:
         for (const el of document.body.querySelectorAll('div, nav, aside, footer, header')) {
             if (el.id && el.id.startsWith('hud') && !el.id.includes('canvas')) el.style.visibility = 'hidden';
         }
-        c.controls.enabled = false; c.camera.fov = 58; c.camera.updateProjectionMatrix();
+        if (c.pieceView && c.pieceView.activeTweens) c.pieceView.activeTweens.length = 0;
+        c.controls.enabled = false; c.camera.fov = 50; c.camera.updateProjectionMatrix();
     }""")
     t0 = time.time()
     for i in range(N):
