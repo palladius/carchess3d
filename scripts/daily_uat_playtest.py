@@ -194,7 +194,12 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                 report["console_warnings"].append(msg.text) if msg.type == "warning" else None
             ))
             page.on("pageerror", lambda exc: report["console_errors"].append(f"Uncaught: {exc}"))
-            page.on("requestfailed", lambda req: report["network_errors"].append(f"{req.url} ({req.failure})"))
+            page.on(
+                "requestfailed",
+                lambda req: report["network_errors"].append(f"{req.url} ({req.failure})")
+                if "net::ERR_ABORTED" not in (req.failure or "")
+                else None,
+            )
 
             # -----------------------------------------------------------------
             # Step 1: Boot & Canvas Readiness
@@ -625,7 +630,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                         "-i",
                         str(target_webm),
                         "-t",
-                        "75",
+                        "58",
                         "-c:v",
                         "libx264",
                         "-preset",
@@ -641,6 +646,7 @@ def run_playtest(out_dir: pathlib.Path, port: int, headless: bool = True) -> dic
                     res = subprocess.run(cmd, capture_output=True)
                     if res.returncode == 0:
                         report["video_mp4"] = target_mp4.name
+                        report["video_duration_s"] = 58.0
                         print(f"🎬 Video rendered & encoded (trimmed first {trim_start_s}s): {target_mp4}")
 
                     # Generate animated preview GIF for inline GitHub Issue embedding

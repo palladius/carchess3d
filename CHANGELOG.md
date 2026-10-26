@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.98] - 2026-10-26
+
+- 🎬🧪🛡️ **Daily UAT Automation & Video Duration Enforcer (`scripts/daily_uat_playtest.py`, `log/uat/`, Issue #52)**:
+  - Enforced strict `< 1 min` video duration budget (`-t 58`) in `scripts/daily_uat_playtest.py` for headless Chrome UAT recordings, aligning actual media output with the specification and report headers.
+  - Filtered out normal intentional `net::ERR_ABORTED` network events triggered when users/tests skip cutscene video playback (`#hud-skip-btn`).
+  - Executed daily UAT suite and created GitHub Issue #52 (`Gemini UAT 20261026`) with tag `gemini-uat` and re-encoded 58s gameplay MP4 + animated GIF assets.
+
 ## [0.3.97] - 2026-10-23
 
 - 🎞️👑👸🐉🏎️🏰🐧 **6-Piece Family 360° Turntable Showcase (`?turntable=1`, `scripts/family_turntable_6up.py`, `src/main.js`, `src/views/PieceView.js`, `article/ARTICLE.md`, `docs/spec/SPEC.md` — closes #48)**:
