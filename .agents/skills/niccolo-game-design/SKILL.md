@@ -109,6 +109,10 @@ Combat → Pickups → Drops → Map (rules) → GameFlow.
   cap (hard pity), **reset to 0 on an important find**. Seeded RNG + Monte-Carlo tests.
 - **2D-to-3D Local GLB Reconstruction & Portrait Face-Grafting (Zero-GPU)** → see [references/2d-to-3d-sdf-uv-baking.md](references/2d-to-3d-sdf-uv-baking.md).
   Covers **Mode A** (full 2D→3D Signed Distance Field visual-hull + luminance relief carving + Taubin fairing + edge-matched `1024×1024` UV texture baking when replacing untextured primitive meshes without cloud GPU quota) and **Mode B** (projecting/grafting a true 2D portrait face onto an existing `TRELLIS.2` / `Hunyuan3D` `.glb` mesh whose 3D face was distorted).
+- **3D Horizon Parallax & Natural Liquid Water Aesthetics**:
+  1. **Infinite Horizon Parallax (360° Orbit Non-Occlusion)**: Any 180°/270° cyclorama backdrop or floating cinema screen behind a 360°-orbitable board/arena MUST rotate with the camera's horizontal azimuth (`horizonYaw = Math.atan2(cam.x - target.x, cam.z - target.z)`) so the observer always stays strictly between the playfield and the backdrop at `0°`, `90°`, `180°`, and `270°` (enforced by a 4-angle `THREE.Raycaster` test).
+  2. **Natural 3D Liquid Pools (No Giant Bullseye Rings)**: Never place large concentric rings (`RingGeometry` or canvas `arc` bullseyes) centered on the playfield origin `(0, 0, 0)` — it creates an artificial "giant vinyl record" look. Instead, animate the 3D water surface with gentle non-radial swells (`sin(x) + cos(z)`) and break the equilibrium every 2–3 seconds with **small, localized concentric ripples (`r < 0.45m`)** originating at random localized coordinates $(x_0, z_0)$ where an insect, frog, or fish touches the water.
+  3. **Headless WebGL Render Scripts**: In one-off Playwright + SwiftShader (`--use-gl=angle --use-angle=swiftshader`) capture scripts on macOS, exit with `os._exit(0)` after encoding PNG/GIF/MP4 outputs so `browser.close()` / `server.shutdown()` never hang on GPU context teardown.
 
 ## Refactor recipe (strangler fig — never big-bang)
 

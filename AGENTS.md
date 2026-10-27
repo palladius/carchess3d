@@ -27,6 +27,7 @@ This is the **implementation** repo for the Carlesso family 3D chess.
   - Prefer full-screen 180° curved 21:9 NanoBanana cycloramas over blocky 3D primitive background boxes, wrapping around the board flanks and extending below `y = 0` so there is zero empty lower void.
   - **180° Spatial Composition Rule**: Prompt 21:9 panoramas so the **lower half and left/right edges are 180° of open water/ground** surrounding the board (no foreground cliffs or balconies on the left/right edges), and the **hero landmark** (Zurich, Ogre tree-root hut, Positano) is **centered directly in front** on the horizon.
 - Git: only move forward (no `reset --hard`, no `clean`, no force push).
+  When starting in a Git worktree, always run `git fetch origin` and ensure `origin/main` is merged into the worktree branch (in case local `main` was behind `origin/main` when the worktree was created).
 - 3D pipeline work goes in `tools/model-pipeline/` and is logged in its
   `RUNNING_DOC.md` (prompts, API/MCP calls, parameters, results).
 - **Showcase & Articoli (`article/`)**: ogni volta che generi uno showcase visivo significativo (render Prima/Dopo, banner 16:9, lineup 3D, turntable o confronti grafici), parcheggialo anche sotto `article/` (immagini sotto `article/assets/` e markdown descrittivo) come materiale pronto per la scrittura di articoli.
