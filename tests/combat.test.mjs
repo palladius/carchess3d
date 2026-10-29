@@ -613,3 +613,122 @@ test('Integration: 4-angle camera rotation (0°, 90°, 180°, 270°) keeps chess
   );
 });
 
+test('Regression: VeoCinemaView video playback lifecycle (no premature play/pause abort, no per-frame currentTime seek storm) & EnchantedSwampMoat fade during combat', async () => {
+  const THREE = await import('three');
+  const { ZurichSwampView } = await import('../src/views/ZurichSwampView.js');
+  const { VeoCinemaView } = await import('../src/views/VeoCinemaView.js');
+
+  const scene = new THREE.Scene();
+  const bus = new GameEventBus();
+  const swampView = new ZurichSwampView(scene, bus);
+  const cinemaView = new VeoCinemaView(scene, bus);
+
+  // Mock a DOM <video> element on cinemaView to verify exact load/play/seek calls
+  let loadCalls = 0;
+  let playCalls = 0;
+  let pauseCalls = 0;
+  let currentTimeWrites = 0;
+  let internalCurrentTime = 0;
+
+  cinemaView.videoEl = {
+    preload: 'auto',
+    src: '',
+    paused: true,
+    readyState: 4,
+    videoWidth: 1280,
+    videoHeight: 720,
+    duration: 8.0,
+    get currentTime() {
+      return internalCurrentTime;
+    },
+    set currentTime(val) {
+      currentTimeWrites += 1;
+      internalCurrentTime = val;
+    },
+    load() {
+      loadCalls += 1;
+      this.paused = true;
+    },
+    play() {
+      playCalls += 1;
+      this.paused = false;
+      return Promise.resolve();
+    },
+    pause() {
+      pauseCalls += 1;
+      this.paused = true;
+    },
+  };
+
+  const initialWaterOpacity = swampView.waterMaterial.opacity;
+
+  // 1. Emit PIECE_CAPTURED followed 0.8s later by BATTLE_STARTED (simulating heavy GLB load frame gap)
+  bus.emit({
+    type: 'PIECE_CAPTURED',
+    attacker: { type: 'b', color: 'w' },
+    captured: { type: 'n', color: 'b' },
+    from: 'd4',
+    to: 'e5',
+  });
+  bus.flush();
+
+  assert.equal(cinemaView.mode, 'battle');
+  assert.equal(cinemaView.videoWaitingPrePadding, true, 'Waits in 1.0s pre-padding before calling play()');
+  assert.equal(loadCalls, 1, 'Calls videoEl.load() once during pre-padding');
+  assert.equal(playCalls, 0, 'Does NOT call videoEl.play() prematurely during [0, 1.0s) pre-padding');
+
+  cinemaView.update(0.8);
+  const elapsedBeforeSecondEvent = cinemaView.battleElapsed;
+  assert.ok(elapsedBeforeSecondEvent >= 0.79, 'battleElapsed advanced to 0.8s');
+
+  // Emit BATTLE_STARTED 0.8s later with rich metadata: must deduplicate and merge metadata without resetting battleElapsed or reloading video
+  bus.emit({
+    type: 'BATTLE_STARTED',
+    attacker: 'b',
+    defender: 'n',
+    from: 'd4',
+    to: 'e5',
+    title: { it: 'Alfiere Ale vs Cavaliere Seby' },
+    banner: { it: 'ALE vs SEBY!' },
+  });
+  bus.flush();
+
+  assert.equal(cinemaView.battleElapsed, elapsedBeforeSecondEvent, 'battleElapsed is NOT reset by follow-up BATTLE_STARTED');
+  assert.equal(loadCalls, 1, 'videoEl.load() is NOT called a second time');
+  assert.equal(cinemaView.activeBattle?.title?.it, 'Alfiere Ale vs Cavaliere Seby', 'Rich metadata is merged into activeBattle');
+
+  // 2. Advance past 1.0s pre-padding (total 1.1s): play() must be called once, and subsequent frames must NOT overwrite currentTime!
+  cinemaView.update(0.3);
+  await Promise.resolve();
+  assert.equal(cinemaView.videoWaitingPrePadding, false, 'Pre-padding finishes at t >= 1.0s');
+  assert.equal(playCalls, 1, 'videoEl.play() called exactly once at t = 1.0s');
+  assert.equal(cinemaView.usingVideoTexture, true);
+  assert.equal(cinemaView.videoEl.paused, false);
+
+  const writesAtPlayStart = currentTimeWrites;
+  // Simulate 30 frames of active playback where videoCurrentTime lags slightly behind battleElapsed - 1.0s
+  for (let i = 0; i < 30; i++) {
+    internalCurrentTime += 0.025;
+    cinemaView.update(1 / 30);
+  }
+  assert.equal(
+    currentTimeWrites,
+    writesAtPlayStart,
+    'VeoCinemaView.update() must NEVER force-seek videoEl.currentTime every frame during playback (prevents net::ERR_ABORTED seek storms)',
+  );
+
+  // 3. Verify EnchantedSwampMoat (swampView.swampGroup) hides during full combat (combatBlend = 1.0)
+  //    so it never cuts across the 16:9 Veo Cinema screen, and restores cleanly after combat (combatBlend = 0.0)
+  assert.equal(swampView.swampGroup.visible, false, 'EnchantedSwampMoat must be hidden at combatBlend = 1.0 so it never occludes the 16:9 Veo video');
+  swampView.setCombatBlend(0.5);
+  assert.equal(swampView.swampGroup.visible, true, 'EnchantedSwampMoat rematerializes during sliding-window exit');
+  swampView.setCombatBlend(0.0);
+  assert.equal(swampView.swampGroup.visible, true, 'EnchantedSwampMoat is visible after combat ends');
+  assert.equal(swampView.waterMaterial.transparent, true, 'Swamp water remains semi-transparent after combat restoration');
+  assert.ok(
+    Math.abs(swampView.waterMaterial.opacity - initialWaterOpacity) < 0.01,
+    `Swamp water opacity restores to ${initialWaterOpacity} after combat, got ${swampView.waterMaterial.opacity}`,
+  );
+});
+
+

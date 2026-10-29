@@ -106,7 +106,7 @@ export class VeoCinemaView {
       this.videoEl.playsInline = true;
       this.videoEl.loop = false;
       this.videoEl.crossOrigin = 'anonymous';
-      this.videoEl.preload = 'metadata';
+      this.videoEl.preload = 'auto';
     }
   }
 
@@ -249,8 +249,10 @@ export class VeoCinemaView {
   // ===========================================================================
 
   startBattlePresentation(e = {}) {
-    const atkKey = (e.attacker || e.choreo?.attacker || 'b').toLowerCase();
-    const defKey = (e.defender || e.choreo?.defender || 'p').toLowerCase();
+    const rawAtk = e.attacker?.type || e.attacker || e.choreo?.attacker || 'b';
+    const rawDef = e.defender?.type || e.defender || e.captured?.type || e.captured || e.choreo?.defender || 'p';
+    const atkKey = String(rawAtk).toLowerCase();
+    const defKey = String(rawDef).toLowerCase();
     // Deduplicate back-to-back events (e.g. PIECE_CAPTURED / WOW_ARENA_CLASH + BATTLE_STARTED)
     // within the same battle opening window so we never reset battleElapsed or restart the video!
     if (
@@ -258,9 +260,13 @@ export class VeoCinemaView {
       this.activeBattle &&
       this.activeBattle.attacker === atkKey &&
       this.activeBattle.defender === defKey &&
-      this.battleElapsed < 0.6 &&
+      this.battleElapsed < 2.5 &&
       !e.forceRestart
     ) {
+      if (e.title) this.activeBattle.title = e.title;
+      if (e.banner) this.activeBattle.banner = e.banner;
+      if (e.defenderCounter) this.activeBattle.defenderCounter = e.defenderCounter;
+      if (e.choreo) Object.assign(this.activeBattle, e.choreo);
       return;
     }
     const baseEntry = BATTLE_MATRIX[atkKey]?.[defKey] || BATTLE_MATRIX.b.p;
@@ -346,13 +352,39 @@ export class VeoCinemaView {
     if (!videoUrl || !this.videoEl) return;
     if (!/[kqbnrp]_x_[kqbnrp]\.(mp4|webm)$/i.test(videoUrl)) return;
 
+    const handleVideoFailure = () => {
+      if (this.activeVideoUrl !== videoUrl) return;
+      if (!triedWebm && /\.mp4$/i.test(videoUrl)) {
+        this.tryPlayVeoVideo(
+          videoUrl.replace(/\.mp4$/i, '.webm'),
+          true,
+          expectedMode,
+          deferForPrePadding,
+        );
+        return;
+      }
+      this.usingVideoTexture = false;
+      this.activeVideoUrl = null;
+      this.videoWaitingPrePadding = false;
+    };
+
     try {
+      this.videoEl.onerror = handleVideoFailure;
       this.videoEl.loop = expectedMode === 'checkmate';
-      this.videoEl.src = videoUrl;
-      this.videoEl.currentTime = 0;
       this.videoEl.playbackRate = 1.0;
+      this.videoEl.src = videoUrl;
+
       const prePadS = deferForPrePadding ? this.getPrePaddingS() : 0;
       this.videoWaitingPrePadding = prePadS > 0 && this.battleElapsed < prePadS;
+      this.usingVideoTexture = true;
+      this.activeVideoUrl = videoUrl;
+
+      if (this.videoWaitingPrePadding) {
+        // Buffer Frame 0 during the 1.0s pre-padding zoom-in without starting playback yet;
+        // avoids play()->pause()->currentTime=0 seek race & HTTP Range net::ERR_ABORTED!
+        this.videoEl.load?.();
+        return;
+      }
 
       const playPromise = this.videoEl.play();
       if (playPromise && typeof playPromise.then === 'function') {
@@ -365,41 +397,12 @@ export class VeoCinemaView {
               !this.outroBattle
             ) {
               this.videoEl.pause();
-              return;
-            }
-            this.usingVideoTexture = true;
-            this.activeVideoUrl = videoUrl;
-            // If still inside the 1.0s pre-padding intro window, hold at Frame 0 until battleElapsed >= 1.0s!
-            if (this.videoWaitingPrePadding && this.battleElapsed < prePadS) {
-              try {
-                this.videoEl.pause();
-                this.videoEl.currentTime = 0;
-              } catch {
-                // Ignore seek/pause errors
-              }
-            } else {
-              this.videoWaitingPrePadding = false;
             }
           })
-          .catch(() => {
-            if (!triedWebm && /\.mp4$/i.test(videoUrl)) {
-              this.tryPlayVeoVideo(
-                videoUrl.replace(/\.mp4$/i, '.webm'),
-                true,
-                expectedMode,
-                deferForPrePadding,
-              );
-              return;
-            }
-            this.usingVideoTexture = false;
-            this.activeVideoUrl = null;
-            this.videoWaitingPrePadding = false;
-          });
+          .catch(handleVideoFailure);
       }
     } catch {
-      this.usingVideoTexture = false;
-      this.activeVideoUrl = null;
-      this.videoWaitingPrePadding = false;
+      handleVideoFailure();
     }
   }
 
@@ -408,6 +411,7 @@ export class VeoCinemaView {
     this.activeVideoUrl = null;
     this.videoWaitingPrePadding = false;
     if (this.videoEl) {
+      this.videoEl.onerror = null;
       try {
         this.videoEl.pause();
       } catch {
@@ -1083,6 +1087,17 @@ export class VeoCinemaView {
    */
   updateHorizonParallax(camera, target = null) {
     if (!camera || !camera.position) return;
+    // Freeze horizon yaw & idle target while Maxi Cinema combat or exit transition is active
+    // so entry/exit slerp interpolates relative to the true pre-combat horizon!
+    if (
+      this.mode === 'battle' ||
+      this.mode === 'checkmate' ||
+      this.outroBattle ||
+      this.root?.userData?.vfxControlled ||
+      this.cinemaBlend > 0.002
+    ) {
+      return;
+    }
     const pivotX = target?.x ?? 0;
     const pivotZ = target?.z ?? 0;
     const dx = camera.position.x - pivotX;
@@ -1138,14 +1153,17 @@ export class VeoCinemaView {
         if (this.videoEl && this.videoEl.paused) {
           try {
             const p = this.videoEl.play();
-            if (p && typeof p.catch === 'function') p.catch(() => {});
+            if (p && typeof p.catch === 'function') {
+              p.catch(() => {
+                if (this.videoEl?.onerror) this.videoEl.onerror();
+              });
+            }
           } catch {
             // Ignore play errors in headless environments
           }
         }
       } else if (!this.videoWaitingPrePadding && this.usingVideoTexture && this.videoEl) {
         const vidDur = this.videoEl.duration > 0 ? this.videoEl.duration : 8.0;
-        const targetVideoTime = Math.max(0, Math.min(vidDur - 0.04, this.battleElapsed - prePadS));
         if (this.battleElapsed >= prePadS + vidDur) {
           if (!this.videoEl.paused) {
             try {
@@ -1153,12 +1171,6 @@ export class VeoCinemaView {
             } catch {
               // Ignore pause errors
             }
-          }
-        } else if (Math.abs((this.videoEl.currentTime || 0) - targetVideoTime) > 0.45) {
-          try {
-            this.videoEl.currentTime = targetVideoTime;
-          } catch {
-            // Ignore seek errors
           }
         }
       }

@@ -1676,8 +1676,7 @@ export class ZurichSwampView {
       if (
         !child.isLight &&
         child.name !== 'CarvedStoneAltar' &&
-        child.name !== 'BoardHighlights' &&
-        child.name !== 'EnchantedSwampMoat'
+        child.name !== 'BoardHighlights'
       ) {
         this._dioramaGroups.push(child);
       }
@@ -1950,6 +1949,9 @@ export class ZurichSwampView {
    */
   updateHorizonParallax(camera, target = null) {
     if (!camera || !camera.position) return;
+    if (this.inCombatCinemaMode || this.combatBlend > 0.002) {
+      return;
+    }
     const tx = target && Number.isFinite(target.x) ? target.x : 0;
     const tz = target && Number.isFinite(target.z) ? target.z : 0;
     const dx = camera.position.x - tx;

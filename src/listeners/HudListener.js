@@ -152,6 +152,14 @@ export class HudListener {
     }
     this.whitePlayerType = 'human';
     this.blackPlayerType = 'ai';
+    if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const aiParam = (sp.get('ai') || sp.get('cpu') || '').toLowerCase();
+      if (aiParam === '0' || aiParam === 'none' || aiParam === 'false' || aiParam === 'hotseat') {
+        this.blackPlayerType = 'human';
+        this.opponentMode = 'hotseat';
+      }
+    }
     this.whiteDifficulty = 'easy';
     this.blackDifficulty = 'easy';
     this.topbarVisible = !this.isMobilePhone;
@@ -311,10 +319,25 @@ export class HudListener {
 
     if (typeof window !== 'undefined' && typeof URLSearchParams !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      const skipSetup = params.has('nosetup') || params.has('skipsetup') || params.get('mode') === 'wow';
+      const aiParam = (params.get('ai') || params.get('cpu') || '').toLowerCase();
+      const skipSetup =
+        params.has('nosetup') ||
+        params.has('skipsetup') ||
+        params.has('clash') ||
+        params.has('turntable') ||
+        params.has('demo_moves') ||
+        params.has('swamp_party') ||
+        aiParam === '0' ||
+        aiParam === 'none' ||
+        aiParam === 'false' ||
+        params.get('mode') === 'wow';
       if (!skipSetup && !this._hasAutoOpenedSetup) {
         this._hasAutoOpenedSetup = true;
-        setTimeout(() => this.openSetupModal(), 350);
+        setTimeout(() => {
+          if (!this.activeBanner && !(this.combatBlend > 0.01) && this.flowState !== 'CaptureCutscene') {
+            this.openSetupModal();
+          }
+        }, 350);
       }
     }
   }
@@ -2621,7 +2644,7 @@ export class HudListener {
                 <strong id="hud-matrix36-preview-title" style="color:#ffe082;font-size:13.5px;">♗ Ale vs ♘ Seby (B×N)</strong>
                 <span id="hud-matrix36-preview-code" class="hud-matrix-paircode">B×N</span>
               </div>
-              <video id="hud-matrix36-video" controls playsinline preload="metadata" src="assets/battles/videos/b_x_n.mp4"></video>
+              <video id="hud-matrix36-video" controls playsinline preload="none" src="assets/battles/videos/b_x_n.mp4"></video>
               <div id="hud-matrix36-preview-banner" style="font-size:12px;font-weight:800;color:#ffca28;background:rgba(255,193,7,0.12);border:1px solid rgba(255,213,79,0.4);padding:5px 8px;border-radius:7px;">
                 ALE vs SEBY: CRISTALLO SUL CAVALLINO! 💎🐴
               </div>
@@ -5443,8 +5466,10 @@ export class HudListener {
     }
 
     if (!this.rootEl) return;
-    // Hide the left WOW drawer, center toast, karaoke caption, and comic banner during combat
-    // so the Maxischermo + 3D fight is 100% pure and free of any header/footer clutter!
+    // Hide any open setup/help/matrix modals plus the left WOW drawer, center toast, karaoke caption,
+    // and comic banner during combat so the Maxischermo + 3D fight is 100% pure and unobstructed!
+    this.closeSetupModal();
+    this.closeHelpModal?.();
     const wowPanel = this.rootEl.querySelector('#hud-wow-panel');
     if (wowPanel) wowPanel.style.display = 'none';
     const toastEl = this.rootEl.querySelector('#hud-toast');
@@ -5520,6 +5545,7 @@ export class HudListener {
       });
     }
     if (b > 0.02) {
+      if (this.setupModalOpen) this.closeSetupModal();
       if (bannerEl) bannerEl.style.display = 'none';
       if (toastEl) toastEl.style.display = 'none';
       if (lyriaCap) lyriaCap.style.display = 'none';

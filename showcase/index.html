@@ -1239,10 +1239,7 @@
 
           <!-- Central Video Screen with Aspect Ratio Toggle & Target Screen Badge -->
           <div class="cinema-screen-wrap compact-screen" id="cinema-screen-wrap">
-            <video id="cinema-video" controls playsinline preload="auto">
-              <source id="cinema-video-mp4" src="" type="video/mp4">
-              <source id="cinema-video-webm" src="" type="video/webm">
-            </video>
+            <video id="cinema-video" controls playsinline preload="metadata" poster="../assets/battles/keyframes/n_x_k.png"></video>
             <!-- TARGET CHESS PIECE SCREEN BADGE (Visible during video playback) -->
             <div id="cinema-screen-target-badge" class="cinema-screen-target-badge badge-attack">
               <img id="cinema-screen-target-icon" src="../assets/icons/chess/black/queen.svg" class="screen-target-icon" alt="Target Piece">
@@ -2289,8 +2286,14 @@ if (uDragonCoilMode > 0.5) {
 
         if (cinemaVideo) {
           cinemaVideo.poster = b.poster;
-          cinemaVideo.src = b.videoMp4;
-          cinemaVideo.load();
+          if (cinemaVideo.getAttribute('src') !== b.videoMp4) {
+            cinemaVideo.onerror = () => {
+              if (b.videoWebm && cinemaVideo.getAttribute('src') !== b.videoWebm) {
+                cinemaVideo.src = b.videoWebm;
+              }
+            };
+            cinemaVideo.src = b.videoMp4;
+          }
           if (autoPlay) {
             const playPromise = cinemaVideo.play();
             if (playPromise !== undefined) {

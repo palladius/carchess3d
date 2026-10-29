@@ -2107,6 +2107,11 @@ export class VFXPoolView {
         fov: this.camera.fov || 46,
       };
     }
+    const dx = this.camSaved.pos.x - this.camSaved.target.x;
+    const dz = this.camSaved.pos.z - this.camSaved.target.z;
+    if (Math.hypot(dx, dz) > 0.25) {
+      this.combatAngleOffset = Math.atan2(dx, dz);
+    }
     this.camOrbitCenter = new THREE.Vector3(targetPos.x, 0.75, targetPos.z);
     this._orbitPoseInitialized = false;
     this.camRestoreTimer = 0;
@@ -2485,6 +2490,9 @@ export class VFXPoolView {
     if (this.props.lightningBolts?.visible) {
       this.props.lightningBolts.rotation.y = elapsedS * 6.0;
       this.props.lightningBolts.visible = t > 0.58 && t < 0.88;
+    }
+    if (this.props.skyBeam && clash.tier === 'golden_crit') {
+      this.props.skyBeam.visible = t > 0.58 && t < 0.88;
     }
     if (this.props.goldenThrone?.visible) {
       if (clash.dndSpell === 'kiss_of_death_blight') {

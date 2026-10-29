@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.99] - 2026-10-29
+
+- 🎬⚔️🛠️ **Fix Veo Battle Videos & 3D Cinema Combat Regression (`src/views/VeoCinemaView.js`, `src/views/ZurichSwampView.js`, `src/views/VFXPoolView.js`, `src/listeners/HudListener.js`, `battles.html`, `showcase/index.html`, `sw.js`, `tests/combat.test.mjs`)**:
+  - **Root Cause #1 — Premature `play() -> pause() -> currentTime = 0` & Per-Frame `currentTime` Seek Storm (`net::ERR_ABORTED`)**:
+    - In `VeoCinemaView.tryPlayVeoVideo()`, calling `this.videoEl.play()` during the `1.0s` pre-padding window (`[0, 1.0s)`) and then calling `this.videoEl.pause(); this.videoEl.currentTime = 0;` inside `playPromise.then()` caused Chrome to abort the initial MP4 download (`net::ERR_ABORTED`) and issue an HTTP `Range` request that failed on simple HTTP servers (`python3 -m http.server`). Furthermore, when the main thread took `> 1.0s` loading 3D `.glb` models on capture, `playPromise.then()` resolved *after* `battleElapsed >= 1.0s` and immediately paused the video that had just started playing.
+    - In `VeoCinemaView.update()`, the `else if (Math.abs((this.videoEl.currentTime || 0) - targetVideoTime) > 0.45) { this.videoEl.currentTime = targetVideoTime; }` branch executed on every 33ms tick whenever network buffering lagged by `> 0.45s`, continuously aborting in-flight seeks and locking `this.videoEl.readyState` at `1` (`HAVE_METADATA < 2`), preventing `drawBattleFrame()` from rendering Tier 1 video frames.
+    - **Fix**: Changed `this.videoEl.preload` to `'auto'`, called `this.videoEl.load()` during the `1.0s` pre-padding window (`videoWaitingPrePadding = true`) without premature `play()/pause()` cycling, triggered `this.videoEl.play()` cleanly once `battleElapsed >= 1.0s`, removed the destructive per-frame `currentTime` seek loop during playback, and widened the `PIECE_CAPTURED` + `BATTLE_STARTED` deduplication window from `0.6s` to `2.5s` while merging `title`, `banner`, `defenderCounter`, and `choreo`.
+  - **Root Cause #2 — `EnchantedSwampMoat` Occluding the 16:9 Veo Cinema Screen (`src/views/ZurichSwampView.js`)**:
+    - Commit `ee8b20f` / `67f9d25` re-enabled the 3D `EnchantedSwampMoat` (`this.swampGroup.visible = true`), but `_ensureDioramaFadeTargets()` still excluded `child.name !== 'EnchantedSwampMoat'`, leaving the 3D swamp moat 100% opaque right across the middle of the 16:9 Veo Cinema screen during combat (`combatBlend = 1.0`).
+    - **Fix**: Included `EnchantedSwampMoat` in `_ensureDioramaFadeTargets()` so the moat dissolves and hides during full Cinema Combat (`combatBlend = 1.0`) and restores cleanly with semi-transparent water (`waterMaterial.opacity = 0.68`) after combat (`combatBlend = 0.0`).
+  - **Root Cause #3 — Horizon Parallax & Combat Camera Azimuth Alignment (`src/views/VeoCinemaView.js`, `src/views/ZurichSwampView.js`, `src/views/VFXPoolView.js`)**:
+    - Frozen `updateHorizonParallax()` in both `VeoCinemaView` and `ZurichSwampView` while a battle/checkmate cutscene is active so `idlePos` and `idleQuat` are never overwritten by the moving combat camera, and aligned `VFXPoolView.combatAngleOffset` with the player's camera azimuth (`0°`, `90°`, `180°` Black POV, `270°`). Also gated `this.props.skyBeam` to the Act 3 Finisher window (`t > 0.58 && t < 0.88`) so `golden_crit` clashes keep the center of the 16:9 Veo video unobstructed during Acts 1 and 2.
+  - **Root Cause #4 — Competing Hidden `<video>` Preloads & Auto-Opening Setup Modal (`src/listeners/HudListener.js`, `battles.html`, `showcase/index.html`)**:
+    - Changed `#hud-matrix36-video` and the 36 card `<video>` tags in `battles.html` from `preload="metadata"` to `preload="none"`, removed empty `<source src="">` tags from `#cinema-video` in `showcase/index.html`, prevented `#hud-setup-modal` from auto-opening over `?clash=...` / `?ai=0` URLs or active battles, and bumped `sw.js` `CACHE_NAME` to `carchess3d-offline-v48`.
+  - **Regression Test Suite (`tests/combat.test.mjs`)**: Added unit & integration regression tests verifying `VeoCinemaView` pre-padding/play lifecycle, event deduplication, zero per-frame `currentTime` overwrites, and `EnchantedSwampMoat` fade/restore during combat.
+
 ## [0.3.98] - 2026-10-26
 
 - 🎬🧪🛡️ **Daily UAT Automation & Video Duration Enforcer (`scripts/daily_uat_playtest.py`, `log/uat/`, Issue #52)**:
