@@ -31,6 +31,7 @@ This is the **implementation** repo for the Carlesso family 3D chess.
 - 3D pipeline work goes in `tools/model-pipeline/` and is logged in its
   `RUNNING_DOC.md` (prompts, API/MCP calls, parameters, results).
 - **Showcase & Articoli (`article/`)**: ogni volta che generi uno showcase visivo significativo (render Prima/Dopo, banner 16:9, lineup 3D, turntable o confronti grafici), parcheggialo anche sotto `article/` (immagini sotto `article/assets/` e markdown descrittivo) come materiale pronto per la scrittura di articoli.
+  - **Video Demo 3D (`scripts/family_orbit_video.py`)**: coreografia **v3** (#49): parti **frontale in close-up ad altezza occhi** sulle facce della famiglia (hold ~2s), poi **un solo giro a 360°** allontanandoti e salendo fino a un wide con lo skyline di Zurigo. Niente swoop aereo, niente pezzi che saltano (`activeTweens` azzerati); HUD sempre nascosto. Lancia con `env SECONDS=12` (in bash `SECONDS` è speciale), controlla i frame t=0/6/12s e tieni la hero GIF ≤8MB. Prima fai `git fetch origin` / `git worktree list` per includere modifiche ai modelli mergiate da altri worktree.
 - 🚽 **Naming / SFW**: il nome pubblico è **CarChess3D** (o *CarChess*). **Mai** scrivere
   l'espansione esplicita del gioco di parole ("Carlesso al C\*sso") in UI, codice, README,
   titoli, articoli, slide o meta description: in inglese tradotto suona NSFW. Tieni solo

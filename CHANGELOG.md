@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.101] - 2026-11-02
+
+- 📝 **AGENTS.md: Video Demo 3D rule updated to the v3 choreography (#49)**: front eye-level close-up on the faces → single 360° orbit zooming out to the Zurich skyline (replaces the stale swoop-in + `-150° → +150°` rule from an uncommitted /learn). Notes `env SECONDS=12` (bash special var) and the ≤8 MB hero GIF budget.
+
 ## [0.3.100] - 2026-11-02
 
 - 🎥👨‍👩‍👦‍👦 **Family orbit v3 re-render (#49)** (`article/assets/gallery/family_orbit.{mp4,gif}`, `family_orbit_hero.gif`, `family_orbit_poster.jpg`): re-rendered on the RTX 5080 with the v3 choreography from `scripts/family_orbit_video.py` — starts **front, close-up at eye level** on the four faces (~2s hold), then one smooth **360° orbit** zooming out and rising to a wide shot with the Zurich skyline. No aerial swoop-in, no piece hops (`activeTweens` cleared). Hero GIF re-tuned to `fps=8, 560px, 80 colors` (6.6 MB, under the 8 MB budget); poster = frame at t=1s (front portrait). Same 4 files copied to the ricc.rocks blog post.
