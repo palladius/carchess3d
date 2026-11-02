@@ -70,7 +70,12 @@ Here is the exact telemetry extracted from `git log` and the **76 CarChess3D Ant
 ```
 
 ### ⚡ 38 Minutes from `/goal` to a Playable Game (Saturday, October 10)
-At **10:31** on Saturday morning, right before heading out into the cobbled streets of Colmar, I fired a single `/goal` command in an isolated git worktree. My humongous `/goal` prompt is **[here — steal it!](https://github.com/palladius/carchess3d/blob/main/etc/prompts/GOAL_BUILD_CARCHESS3D.md)** (I had Gemini 4 *High* write it for me, with a good dose of inspiration from [Geneviève Huskens](https://www.linkedin.com/in/ghuskens/)' 3D agent workflows). Here is the timeline recorded in the transcript:
+At **10:31** on Saturday morning, right before heading out into the cobbled streets of Colmar, I fired a single `/goal` command in an isolated git worktree. My humongous `/goal` prompt is **[here — steal it!](https://github.com/palladius/carchess3d/blob/main/etc/prompts/GOAL_BUILD_CARCHESS3D.md)** (I had Gemini 4 *High* write it for me, with a good dose of inspiration from [Geneviève Huskens](https://www.linkedin.com/in/ghuskens/)' 3D agent workflows — see the two tips below). 
+> 💡 **Two tips I stole from [Geneviève Huskens](https://lnkd.in/p/e_Vk3W64)** (watch her "Desk Racer" demo — she builds a 3D go-kart game on top of her own desk):
+> 1. **Start with `/grill-me`**: *"ask me questions, then when you're done give me a plan that I can review"*. Let the agent interview you until the plan is solid, instead of dumping a vague wish on it.
+> 2. **Ask for the `/goal` as a deliverable**: *"...and a `/goal` I can set to keep you running for a long time"*. The agent writes its own long-running meta-prompt — milestones, checkpoints, how to self-verify — and you fire it and walk away. That is exactly how my humongous `/goal` was born, and why I could spend the weekend in Colmar.
+
+Here is the timeline recorded in the transcript:
 
 * `10:31` **Phase 1 — 2D blueprint & spatial metric** (9m 17s): a metric [floor plan](assets/gallery/floorplan.svg) of the board (`y = 0.00 m`) and an automatic bounding-box grounding utility, so every future 3D piece would stand exactly on its square.
 * `10:41` **Phase 2 — headless core, test-first** (7m 03s): event bus, seeded random generator, chess-rules manager and the kid-friendly luck meter, each with unit tests (including a 10,000-capture Monte Carlo run).
