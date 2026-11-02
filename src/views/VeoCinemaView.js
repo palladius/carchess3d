@@ -334,7 +334,7 @@ export class VeoCinemaView {
         return Math.max(0.25, Math.min(1.0, Number(q)));
       }
     }
-    return Number.isFinite(this.combatVideoAlpha) ? this.combatVideoAlpha : 0.78;
+    return Number.isFinite(this.combatVideoAlpha) ? this.combatVideoAlpha : 1.0;
   }
 
   /**
@@ -440,6 +440,14 @@ export class VeoCinemaView {
     if (this.root) {
       this.root.userData.cinemaBlend = clamped;
       this.root.visible = clamped > 0.002 || this.mode !== 'idle';
+    }
+
+    // In full combat mode, hide outer theater casing and thick red border so the movie fills the screen edge-to-edge
+    if (this.frameGroup) {
+      this.frameGroup.visible = clamped < 0.85;
+    }
+    if (this.haloMesh) {
+      this.haloMesh.visible = clamped < 0.85;
     }
 
     // Morph bezel trim color between Classic Zurich Gold (#e6b84a) and Cinema Red (#D32F2F)
@@ -767,14 +775,6 @@ export class VeoCinemaView {
     ctx.globalAlpha = this.getCombatVideoAlpha();
     ctx.drawImage(mediaSource, 0, 0, w, h);
     ctx.globalAlpha = 1.0;
-
-    // Soft radial contrast cushion in the lower-center foreground zone where the 2 3D fighters clash
-    const arenaGrad = ctx.createRadialGradient(w * 0.5, h * 0.69, 40, w * 0.5, h * 0.69, 390);
-    arenaGrad.addColorStop(0, 'rgba(6, 9, 20, 0.34)');
-    arenaGrad.addColorStop(0.65, 'rgba(6, 9, 20, 0.14)');
-    arenaGrad.addColorStop(1, 'rgba(6, 9, 20, 0.0)');
-    ctx.fillStyle = arenaGrad;
-    ctx.fillRect(0, 0, w, h);
     ctx.restore();
   }
 

@@ -1852,6 +1852,10 @@ export class VFXPoolView {
 
       this.brawlStageGroup.add(this.attackerFighter, this.defenderFighter);
 
+      // Apply initial combat styling & translucency so fighters float elegantly in front of the movie
+      this._applyFighterCombatStyling(this.attackerFighter);
+      this._applyFighterCombatStyling(this.defenderFighter);
+
       if (atkType === 'b' || defType === 'b') {
         if (atkType === 'b') this.pieceView?.playClip?.(this.attackerFighter, 'FireBreath_Track');
         if (defType === 'b') this.pieceView?.playClip?.(this.defenderFighter, 'FireBreath_Track');
@@ -2237,10 +2241,102 @@ export class VFXPoolView {
     if (typeof window !== 'undefined' && window.location?.search) {
       const q = new URLSearchParams(window.location.search).get('heroScale');
       if (q !== null && Number.isFinite(Number(q))) {
-        return Math.max(1.0, Math.min(2.4, Number(q)));
+        return Math.max(0.30, Math.min(2.4, Number(q)));
       }
     }
     return Number.isFinite(this.combatHeroScale) ? this.combatHeroScale : 1.52;
+  }
+
+  getFighterCombatAlpha() {
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const q = new URLSearchParams(window.location.search).get('fighterAlpha');
+      if (q !== null && Number.isFinite(Number(q))) {
+        return Math.max(0.05, Math.min(1.0, Number(q)));
+      }
+    }
+    return Number.isFinite(this.combatFighterAlpha) ? this.combatFighterAlpha : 0.28;
+  }
+
+  getCombatHidePedestal() {
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const q = new URLSearchParams(window.location.search).get('hidePedestal');
+      if (q !== null) {
+        return q === '1' || q === 'true';
+      }
+    }
+    return true; // Default: hide bulky pedestals during movie so characters float cleanly!
+  }
+
+  _applyFighterCombatStyling(fighter, alpha = null) {
+    if (!fighter) return;
+    const targetAlpha = Number.isFinite(alpha) ? alpha : this.getFighterCombatAlpha();
+    const hidePedestal = this.getCombatHidePedestal();
+
+    // 1. Pedestal and extra UI accessories
+    if (fighter.userData?.pedestal) {
+      fighter.userData.pedestal.visible = !hidePedestal;
+      if (!hidePedestal) {
+        this._setMeshTranslucency(fighter.userData.pedestal, targetAlpha * 0.4);
+      }
+    }
+    if (fighter.userData?.pedestalWreath) fighter.userData.pedestalWreath.visible = false;
+    if (fighter.userData?.floatingBillboard) fighter.userData.floatingBillboard.visible = false;
+    if (fighter.userData?.zenithal2dDisc) fighter.userData.zenithal2dDisc.visible = false;
+
+    // 2. Character body, GLB meshes, weapon props
+    this._setMeshTranslucency(fighter.userData?.bodyContainer || fighter, targetAlpha);
+    if (fighter.userData?.weaponProp) {
+      this._setMeshTranslucency(fighter.userData.weaponProp, targetAlpha);
+    }
+  }
+
+  _setMeshTranslucency(root, opacity) {
+    if (!root) return;
+    root.traverse((child) => {
+      if (child.isMesh && child.material) {
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        for (const m of mats) {
+          if (!m.userData) m.userData = {};
+          if (m.userData.origCombatTransparent === undefined) {
+            m.userData.origCombatTransparent = m.transparent;
+            m.userData.origCombatOpacity = m.opacity;
+            m.userData.origCombatDepthWrite = m.depthWrite;
+          }
+          if (m.transparent !== true || m.depthWrite !== false || Math.abs(m.opacity - opacity) > 0.01) {
+            m.transparent = true;
+            m.opacity = opacity;
+            m.depthWrite = false;
+            m.needsUpdate = true;
+          }
+          if (m.emissive && m.emissiveIntensity !== undefined) {
+            if (m.userData.origEmissiveIntensity === undefined) {
+              m.userData.origEmissiveIntensity = m.emissiveIntensity;
+            }
+            m.emissiveIntensity = Math.max(0.35, m.userData.origEmissiveIntensity);
+          }
+        }
+      }
+    });
+  }
+
+  _restoreMeshMaterials(root) {
+    if (!root) return;
+    root.traverse((child) => {
+      if (child.isMesh && child.material) {
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        for (const m of mats) {
+          if (m.userData && m.userData.origCombatTransparent !== undefined) {
+            m.transparent = m.userData.origCombatTransparent;
+            m.opacity = m.userData.origCombatOpacity;
+            m.depthWrite = m.userData.origCombatDepthWrite;
+            if (m.userData.origEmissiveIntensity !== undefined) {
+              m.emissiveIntensity = m.userData.origEmissiveIntensity;
+            }
+            m.needsUpdate = true;
+          }
+        }
+      }
+    });
   }
 
   /**
@@ -2481,6 +2577,10 @@ export class VFXPoolView {
     const defYaw = Math.atan2(-dirX, -dirZ) + 0.26;
     const defType = String(clash.defender || 'p').toLowerCase();
     const defSpec = FIGHTER_COMBAT_SPECS[defType] || FIGHTER_COMBAT_SPECS.p;
+
+    // Ensure translucent combat styling persists across dynamic LOD / GLB loading swaps
+    if (this.attackerFighter) this._applyFighterCombatStyling(this.attackerFighter);
+    if (this.defenderFighter) this._applyFighterCombatStyling(this.defenderFighter);
 
     // 1. Animate Signature Stage Props
     if (this.props.runeCircle?.visible) {
@@ -3153,33 +3253,48 @@ export class VFXPoolView {
       camTgt.z * actualDirZ;
     const backdropDist = Math.max(5.8, maxAltarCornerDist + 0.85);
 
-    let defaultBoost = 2.38; // Full-Viewport Immersive Cinema IMAX (~93% of viewport width & height!)
-    if (typeof window !== 'undefined' && window.location?.search) {
-      const qb = new URLSearchParams(window.location.search).get('videoBoost');
-      if (qb !== null && Number.isFinite(Number(qb))) {
-        defaultBoost = Math.max(0.8, Math.min(3.5, Number(qb)));
-      }
-    }
-    const videoBoost = Number.isFinite(this.combatVideoBoost)
-      ? this.combatVideoBoost
-      : defaultBoost;
-
     const dMirror = actualHorizDist + backdropDist;
     const halfTan = Math.tan((fov * 0.5 * Math.PI) / 180);
     const hHalf = dMirror * halfTan;
 
     const camFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(this.lastCinemaMirrorQuat).normalize();
-    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(this.lastCinemaMirrorQuat).normalize();
 
-    const frameSpanH = 0.78 * hHalf * videoBoost;
-    const mirrorScale = Math.max(0.52, Math.min(3.60, frameSpanH / 4.60));
-    // Center the immersive 16:9 screen vertically in the camera frustum so top/bottom/sides are balanced
-    const centerOffset = 0.015 * hHalf;
+    const isLegacy =
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('legacyScreen') === '1';
+
+    let mirrorScale;
+    if (isLegacy) {
+      const defaultBoost = 2.38;
+      const frameSpanH = 0.78 * hHalf * defaultBoost;
+      mirrorScale = Math.max(0.52, Math.min(3.60, frameSpanH / 4.60));
+    } else {
+      // Full Viewport 16:9 Aspect-Fit Maximization: fills 100% of the viewport with exact 16:9 geometry
+      const aspect =
+        this.camera?.aspect ||
+        (typeof window !== 'undefined'
+          ? window.innerWidth / Math.max(1, window.innerHeight)
+          : 16 / 9);
+      const targetAspect = 16 / 9;
+      if (aspect >= targetAspect) {
+        // Widescreen (>= 16:9): fill 100% of vertical frustum height
+        mirrorScale = (2.0 * hHalf) / 4.50;
+      } else {
+        // Taller/narrower screen (< 16:9): fill 100% of horizontal frustum width
+        mirrorScale = (aspect * 2.0 * hHalf) / 8.00;
+      }
+    }
+
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const qb = new URLSearchParams(window.location.search).get('videoBoost');
+      if (qb !== null && Number.isFinite(Number(qb))) {
+        mirrorScale *= Math.max(0.5, Math.min(2.5, Number(qb)));
+      }
+    }
 
     this.lastCinemaMirrorPos
       .copy(camPos)
-      .addScaledVector(camFwd, dMirror)
-      .addScaledVector(camUp, centerOffset);
+      .addScaledVector(camFwd, dMirror);
     this.lastCinemaMirrorScale = mirrorScale;
   }
 
@@ -3201,12 +3316,27 @@ export class VFXPoolView {
     const baseScale = this.pieceView?.globalPieceScale || 1.0;
 
     for (const [sqKey, node] of boardMap.entries()) {
-      if (!node || !node.visible) continue;
+      if (!node) continue;
       const sq = String(node.userData?.square || sqKey || '').toLowerCase();
       if (!sq) continue;
       const basePos = squareToWorld(sq);
 
+      const isClashSquare =
+        this.hiddenBoardNodes?.includes?.(node) ||
+        (this.activeClash &&
+          [
+            this.activeClash.from,
+            this.activeClash.to,
+            this.activeClash.square,
+            this.activeClash.capturedSquare,
+          ]
+            .filter(Boolean)
+            .map((s) => String(s).toLowerCase())
+            .includes(sq));
+
       if (b <= 0.001) {
+        node.visible = true;
+        this._restoreMeshMaterials(node);
         node.position.x = basePos.x;
         node.position.y = 0;
         node.position.z = basePos.z;
@@ -3214,7 +3344,13 @@ export class VFXPoolView {
         if (node.userData?.combatExitOffset) {
           delete node.userData.combatExitOffset;
         }
+      } else if (isClashSquare) {
+        node.visible = false;
       } else {
+        node.visible = true;
+        // Make non-fighting neighboring pieces faint & translucent (alpha ~0.18..0.22) so the 16:9 movie is visible behind them
+        const fadeAlpha = Math.max(0.06, 0.22 * (1.0 - b * 0.7));
+        this._setMeshTranslucency(node, fadeAlpha);
         const dx = basePos.x - center.x;
         const dz = basePos.z - center.z;
         const r = Math.hypot(dx, dz);
@@ -3223,12 +3359,12 @@ export class VFXPoolView {
           const radialPush = b * (1.52 * Math.exp(-r / 2.5) + 0.36);
           node.position.x = basePos.x + (dx / r) * radialPush;
           node.position.z = basePos.z + (dz / r) * radialPush;
-          // Non-linear scale falloff: neighboring pieces shrink to 56%..70% while protagonists are 152%
+          // Non-linear scale falloff: neighboring pieces shrink to 56%..70% while protagonists are dueling
           const targetScaleRatio = 0.56 + 0.04 * Math.min(3.5, r);
           const s = baseScale * (1.0 - b * (1.0 - targetScaleRatio));
           node.scale.setScalar(s);
         } else if (node.userData?.combatExitOffset) {
-          // Smoothly glide the victorious piece from its combat offset & 1.52x scale back to `toSquare`!
+          // Smoothly glide the victorious piece from its combat offset & hero scale back to `toSquare`!
           const off = node.userData.combatExitOffset;
           node.position.x = basePos.x + off.dx * b;
           node.position.y = off.dy * b;

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.102] - 2026-11-02
+
+- 🎬⚔️✨ **Holographic Combat Cinema & Viewport Maximization (`src/views/VeoCinemaView.js`, `src/views/VFXPoolView.js`, `src/views/ZurichSwampView.js`, `scripts/critic_combat_transparency.py`)**:
+  - **Screen Maximization**: Dynamic 16:9 aspect-fit geometry calibrated directly to the camera viewport (`camera.aspect` & vertical FOV); removed artificial dark radial gradient in `VeoCinemaView` and hid theater casing (`frameGroup`) and halo mesh during combat cutscenes so videos fill the viewport edge-to-edge.
+  - **Translucent 3D Holographic Clashes**: 3D fighters now render in front of the video with ethereal translucency (`opacity = 0.28`, `depthWrite = false`, rim emissive glow), allowing 100% of the cinematic battle film behind them to be clearly visible without obstruction.
+  - **Pedestal & Lower-Half De-cluttering**: Automatically hides solid piece pedestals, floating billboards, and wreaths during cutscenes; non-fighting neighboring pieces fade to gentle translucency (`opacity ~ 0.15`), and chess altar tiles support complete translucency (`opacity = 0.0` / invisible tiles).
+  - **Adversarial Judge Agent (`scripts/critic_combat_transparency.py`)**: Benchmarked 4 transparency & scale configurations via headless hardware-accelerated Chrome (RTX 5080); Candidate C (Balanced Hologram, $\alpha=0.28$, no pedestals) selected as the optimal visual balance, and generated Before/After showcase comparison assets (`article/assets/before_after/combat_transparency_before_after.png`, `transparency_matrix_4way.png`).
+
 ## [0.3.101] - 2026-11-02
 
 - 📝 **AGENTS.md: Video Demo 3D rule updated to the v3 choreography (#49)**: front eye-level close-up on the faces → single 360° orbit zooming out to the Zurich skyline (replaces the stale swoop-in + `-150° → +150°` rule from an uncommitted /learn). Notes `env SECONDS=12` (bash special var) and the ≤8 MB hero GIF budget.
