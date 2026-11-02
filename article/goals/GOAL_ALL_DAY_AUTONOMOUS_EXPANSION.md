@@ -9,7 +9,7 @@
 
 REGOLE FERREE & GUARDRAILS:
 - Lavora ESCLUSIVAMENTE in questo git worktree. Non toccare MAI file fuori dal repo, non toccare .env o .riccardo/.
-- Ogni commit DEVE usare GIT_AUTHOR_EMAIL="132802+palladius@users.noreply.github.com" e includere il trailer "Co-authored-by: Gemini 4 Argon (Antigravity) <176961590+gemini-code-assist[bot]@users.noreply.github.com>".
+- Ogni commit DEVE usare GIT_AUTHOR_EMAIL="132802+Riccardousers.noreply.github.com" e includere il trailer "Co-authored-by: Gemini 4 Argon (Antigravity) <176961590+gemini-code-assist[bot]@users.noreply.github.com>".
 - Zero build step, 100% Vanilla Three.js r170 ES Modules offline-first (PWA).
 - Rispetta rigidamente l'architettura di Niccolò (.agents/skills/niccolo-game-design/SKILL.md):
   1. Un Manager = Una Sola Responsabilità (<= 300 LOC per file).

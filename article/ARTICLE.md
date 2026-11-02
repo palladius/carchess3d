@@ -22,7 +22,7 @@ And all of it while I was away in **Colmar**, Alsace, celebrating my **10th wedd
 
 ![Riccardo and Kate celebrating their 10th wedding anniversary along the Petite Venise canal in Colmar, Alsace](assets/colmar_riccardo_kate_10th_anniversary.jpg)
 
-While Kate and I were strolling along the half-timbered houses of *Petite Venise* — no laptop open at the dinner table, no frantic SSH debugging from a phone — 150 kilometers south, my home Linux rig **`pupurabbux`** (equipped with a 16 GB **NVIDIA GeForce RTX 5080**) and my office workstation **`derek`** were humming day and night.
+While Kate and I were strolling along the half-timbered houses of *Petite Venise* — no laptop open at the dinner table, no frantic SSH debugging from a phone — 150 kilometers south, my home Linux rig **`pupurabbux`** (equipped with a 16 GB **NVIDIA GeForce RTX 5080**) and a second, GPU-less but beefier Linux box (**`cpu-box`**) were humming day and night.
 Orchestrated by **Gemini 4 Argon** inside **Antigravity**, that adversarial swarm of subagents and multimodal critics was busy:
 1. Sculpting, rigging, and assembling **50 high-resolution `.glb` 3D models** of our family and rival factions.
 2. Compiling custom CUDA PTX kernels on the fly for the brand-new Blackwell `sm_120` GPU architecture.
@@ -36,7 +36,7 @@ The result of that weekend? A complete, offline-first (PWA), zero-build-step 3D 
 ## ⏱️ 2. SRE Telemetry: Proving "Built in a Weekend" Down to the Second
 
 As an old-school Site Reliability Engineer (SRE), marketing fairy tales don't impress me. I only trust hard numbers, immutable timestamps, and cryptographic git commit hashes.
-Here is the exact telemetry extracted from `git log` and the **76 CarChess3D Antigravity sessions** across **`pupurabbux`** (`article/sources/chats_list.md`, 22 3D/GPU sessions) and **`derek`** (`article/sources/derek_chats_list.md` and [`article/DEREK_JETSKI_FORENSICS.md`](DEREK_JETSKI_FORENSICS.md), 54 orchestration, Swarm, and VLM Critic sessions):
+Here is the exact telemetry extracted from `git log` and the **76 CarChess3D Antigravity sessions** across **`pupurabbux`** (`article/sources/chats_list.md`, 22 3D/GPU sessions) and **`cpu-box`** (`article/sources/chats_list.md` and [`article/ANTIGRAVITY_FORENSICS.md`](ANTIGRAVITY_FORENSICS.md), 54 orchestration, Swarm, and VLM Critic sessions):
 
 ```json
 {
@@ -46,7 +46,7 @@ Here is the exact telemetry extracted from `git log` and the **76 CarChess3D Ant
   "incremental_releases": 69,
   "weekend_commits_oct9_11": 159,
   "commits_by_day": { "fri_oct9": 5, "sat_oct10": 58, "sun_oct11": 96, "mon_thu_oct12_15": 43 },
-  "antigravity_telemetry_derek": {
+  "antigravity_telemetry_cpu_box": {
     "carchess_sessions": 54,
     "trajectory_steps": 16118,
     "human_prompts": 263,
@@ -65,17 +65,16 @@ Here is the exact telemetry extracted from `git log` and the **76 CarChess3D Ant
 }
 ```
 
-### ⚡ 38 Minutes from `/goal` to a Working Game (Saturday, October 10)
-At **10:31:42 CEST** on Saturday morning, right before heading out into the cobbled streets of Colmar, I launched a single `/goal` command inside an isolated git worktree (`etc/prompts/GOAL_BUILD_CARCHESS3D.md`). Here is the exact timeline recorded in the transcript:
+### ⚡ 38 Minutes from `/goal` to a Playable Game (Saturday, October 10)
+At **10:31** on Saturday morning, right before heading out into the cobbled streets of Colmar, I fired a single `/goal` command in an isolated git worktree. My humongous `/goal` prompt is **[here — steal it!](https://github.com/palladius/carchess3d/blob/main/etc/prompts/GOAL_BUILD_CARCHESS3D.md)** (I had Gemini 4 *High* write it for me, with a good dose of inspiration from Geneviève's 3D agent workflows). Here is the timeline recorded in the transcript:
 
-| Phase | Time Window (CEST) | Duration | Deliverables Produced |
-| :--- | :---: | :---: | :--- |
-| **Phase 1: 2D Blueprint & Spatial Metric** | `10:31:42` → `10:40:59` | **9m 17s** | Metric [`docs/floorplan.svg`](assets/gallery/floorplan.svg) (`y=0.00m`), automatic `THREE.Box3` grounding utility. |
-| **Phase 2: Headless Core & TDD** | `10:41:00` → `10:48:03` | **7m 03s** | `GameEventBus`, `Rng` (`mulberry32`), `BoardMapManager`, `DropManager` with a 10,000-capture Monte Carlo test. |
-| **Phase 3 & 4: 4 Parallel Subagents** | `10:50:13` → `11:09:48` | **19m 35s** | **+10,081 lines of code written in 19 minutes** across 60 files (`ZurichSwampView`, `PieceView`, `VFXPoolView`, `HudListener`, PWA `sw.js`). |
-| **Phase 5: Adversarial Critic Loop** | `11:13:00` → `12:18:33` | **65m 33s** | The Critic scores Round 1 at `6.2/10`, catches 5 defects (including the glTF `metallicFactor` trap), and iterates up to **9.9/10**! |
+* `10:31` **Phase 1 — 2D blueprint & spatial metric** (9m 17s): a metric [floor plan](assets/gallery/floorplan.svg) of the board (`y = 0.00 m`) and an automatic bounding-box grounding utility, so every future 3D piece would stand exactly on its square.
+* `10:41` **Phase 2 — headless core, test-first** (7m 03s): event bus, seeded random generator, chess-rules manager and the kid-friendly luck meter, each with unit tests (including a 10,000-capture Monte Carlo run).
+* `10:50` **Phases 3 & 4 — four subagents in parallel** (19m 35s): **+10,081 lines across 60 files in 19 minutes** — the 3D Zurich swamp scene, piece rendering, particle effects, the HUD and the offline-first service worker.
+* `11:09` ✅ **A playable, unit-tested 3D chess game in the browser** — **38 minutes and 6 seconds** after `/goal`.
+* `11:13` **Phase 5 — adversarial critic loop** (65m 33s): the critic scores round 1 at `6.2/10`, catches 5 defects (including a glTF `metallicFactor` trap that made everything look like chrome), and iterates until **`9.9/10`** at `12:18`.
 
-> 💡 **SRE Verdict**: From firing `/goal` (`10:31:42`) to a fully playable, unit-tested 3D WebGL chess game, **exactly 38 minutes and 6 seconds** elapsed.
+> 💡 **SRE Verdict**: **38 minutes** to a working game, **1 hour 47 minutes** to one the critic was happy with — with zero human input in between.
 
 ### ⏳ How Long Can Gemini Actually Run Unattended?
 
@@ -86,8 +85,8 @@ Looking at the raw Antigravity logs across both machines, here are the longest u
 | 🖥️ Machine | Session / Mission | Start (UTC) | 📜 Steps · 🔧 Tool Calls · 🐝 Agents | ⏱️ Span | Autonomous Outcome |
 | :---: | :--- | :---: | :---: | :---: | :--- |
 | `pupurabbux` | **Kickoff & 3D Factory** (`940b9eac`) | Oct 09, 15:43 | 2,366 · 1,080 · 107 | 110h | Scaffold, multi-view generation, 26-bone Blender rigging, pipeline orchestration. |
-| `derek` | **MAIN Merger & Daily UAT Sentinel** (`83ee7dd5`) | Oct 10, 07:37 | 2,399 · 1,120 · — | 5 days | Multi-machine git sync (`derek` ⇄ `pupurabbux`), English UI default, automated Playwright video UAT on GitHub Issues. |
-| `derek` | **Autonomous v1 `/goal` + 6×6 Swarm** (`31759f77`) | Oct 10, 08:31 | 2,667 · 1,240 · 15 | 4 days | Complete v1 game in 38m, 5-worker 6×6 Swarm, 36 Veo 3.1 videos, family TTS voices & Lyria 3 strings. |
+| `cpu-box` | **MAIN Merger & Daily UAT Sentinel** (`83ee7dd5`) | Oct 10, 07:37 | 2,399 · 1,120 · — | 5 days | Multi-machine git sync (`cpu-box` ⇄ `pupurabbux`), English UI default, automated Playwright video UAT on GitHub Issues. |
+| `cpu-box` | **Autonomous v1 `/goal` + 6×6 Swarm** (`31759f77`) | Oct 10, 08:31 | 2,667 · 1,240 · 15 | 4 days | Complete v1 game in 38m, 5-worker 6×6 Swarm, 36 Veo 3.1 videos, family TTS voices & Lyria 3 strings. |
 | `pupurabbux` | **Issue #20: 12 GLB Reconstruction** (`18347678`) | Oct 13, 18:12 | 686 · 375 · — | **12h 12m non-stop** | High-resolution local GPU reconstruction of all 12 Classic and Swamp pieces on the RTX 5080. |
 
 ---
@@ -253,15 +252,15 @@ Ecco i **9 gate automatici (`9 / 9 PASS`)** eseguiti e certificati nell'Issue [#
 
 ## 🐝🎬👁️ 7. Inside the 8 Autonomous Antigravity Loops, Multi-Agent Swarms & Daily UAT
 
-Beyond the 3D asset factory on `pupurabbux`, **Antigravity** on **`derek`** ran **8 major autonomous loops** (full forensic dossier in [`article/DEREK_JETSKI_FORENSICS.md`](DEREK_JETSKI_FORENSICS.md)):
+Beyond the 3D asset factory on `pupurabbux`, **Antigravity** on the **`cpu-box`** ran **8 major autonomous loops** (full forensic dossier in [`article/ANTIGRAVITY_FORENSICS.md`](ANTIGRAVITY_FORENSICS.md)):
 
 ```mermaid
 flowchart TD
-    U["🦖 RiccardinoCM26 on derek"] --> L1["🚀 Loop 1: /goal Full Autonomous Build v1 (31759f77)\n4 Parallel 3D Subagents + 4-Round VLM Critic (6.2 -> 9.9/10)"]
+    U["🦖 RiccardinoCM26 on cpu-box"] --> L1["🚀 Loop 1: /goal Full Autonomous Build v1 (31759f77)\n4 Parallel 3D Subagents + 4-Round VLM Critic (6.2 -> 9.9/10)"]
     U --> L2["🐝 Loop 2: 5-Worker Native Swarm 6x6 (Issues #10-#16)\n4 File-Isolated Builders + 1 Read-Only Adversarial Swarm Critic"]
     U --> L3["🎬 Loop 3: 36-Battle Nano Banana + Veo 3.1 + Video Critic\nSubagent 6b6faa1f (Gen) + Subagent 4930d699 (Audit >= 8/10)"]
     U --> L4["🗿 Loop 4: Multi-Model Swarm (Fable 5.1 + Argon) + Mode A/B 3D\nClassic & Swamp + Biometric Likeness Critic (8 facial traits)"]
-    U --> L5["⏱️ Loop 5: Standing MAIN Merger & Cron Sentinel (83ee7dd5)\n5m/60m Sync derek ⇄ pupurabbux + Daily Playwright UAT Video"]
+    U --> L5["⏱️ Loop 5: Standing MAIN Merger & Cron Sentinel (83ee7dd5)\n5m/60m Sync cpu-box ⇄ pupurabbux + Daily Playwright UAT Video"]
     U --> L6["🍿 Loop 6: Cinema XXL 16:9 + 10s Pacing (1s+8s+1s) + Audio +15%\nPlaywright Multi-Angle Camera Sim + Zero-Loop Sequencer"]
     U --> L7["📱 Loop 7: Pixel 10 & Tab S9 Ultra WebGL + SW Self-Healing\nDe-Poisoning nocache.html + Lazy GLB Cache + Portrait Scale"]
     U --> L8["👁️ Loop 8: 5-Agent Piece Clarity & Blind VLM Recognizer Swarm\nS1..S5 Visual Aids + Blind VLM Role/Color Accuracy Benchmark"]

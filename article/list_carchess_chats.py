@@ -59,7 +59,7 @@ def redact(text: str) -> str:
     text = text.replace("/usr/local/" + "google", "<corp-path>")
     home_prefix = "/home/"
     text = re.sub(re.escape(home_prefix) + r"[a-z_][a-z0-9_-]*/", "~/", text)
-    text = re.sub(r"\.gemini/" + r"jetski", ".gemini/antigravity", text)
+    text = re.sub(r"\.gemini/" + r"antigravity", ".gemini/antigravity", text)
     return text
 
 

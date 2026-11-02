@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.102] - 2026-11-02
+
+- 🔒📝 **Public-repo privacy scrub & article timeline fix (`article/`, `CHANGELOG.md`, ricc.rocks post)**:
+  - Renamed `article/DEREK_JETSKI_FORENSICS.md` → `article/ANTIGRAVITY_FORENSICS.md`; replaced every "Jetski" with "Antigravity" and the work-machine hostname with a neutral `cpu-box` ("a second, GPU-less but beefier Linux box"); removed `article/DEREK_TODO.md`, `article/sources/derek_chats_list.md` and `article/sources/telemetry/derek_chats_index.json` (verbatim prompt dumps with personal/internal references).
+  - `/goal` sprint section rewritten as a bullet timeline with corrected totals: **38 min to a playable game (10:31 → 11:09)**, **1 h 47 min to a critic-approved 9.9/10 (→ 12:18)**; links the full `/goal` prompt (`etc/prompts/GOAL_BUILD_CARCHESS3D.md`).
+
 ## [0.3.101] - 2026-11-02
 
 - 📝 **AGENTS.md: Video Demo 3D rule updated to the v3 choreography (#49)**: front eye-level close-up on the faces → single 360° orbit zooming out to the Zurich skyline (replaces the stale swoop-in + `-150° → +150°` rule from an uncommitted /learn). Notes `env SECONDS=12` (bash special var) and the ≤8 MB hero GIF budget.
@@ -127,7 +133,7 @@
 ## [0.3.89] - 2026-10-19
 
 - 🚀⚡ **Multi-Tier GLB LODs, Hardware Benchmark & Auto-Heuristic (fixes #39, idea by Niccolò)**:
-  - **Headless `DeviceCapabilityHelper` (`src/core/DeviceCapabilityHelper.js`, `tests/device_capability.test.mjs`)**: Classifies device hardware into `low` (~10k poly, mobile phones), `medium` (~50k poly, iPads/tablets, low-RAM laptops), and `high` (~1000k poly/full resolution, desktop workstations) with zero DOM/WebGL imports.
+  - **Headless `DeviceCapabilityHelper` (`src/core/DeviceCapabilityHelper.js`, `tests/device_capability.test.mjs`)**: Classifies device hardware into `low` (~10k poly, mobile phones), `medium` (~50k poly, iPads/tablets, low-RAM laptops), and `high` (~1000k poly/full resolution, desktop machines) with zero DOM/WebGL imports.
   - **Dynamic Multi-Tier GLB Resolution in Registry & PieceManager (`src/core/Registry.js`, `src/managers/PieceManager.js`, `src/views/PieceView.js`)**: Added `resolvePieceGlbForLod` and `QUALITY_TIER_CHANGED` event bus integration, resolving tiered models seamlessly while preserving variants and factions.
   - **Gear Override (Rotella ⚙️) Quality Controls in Settings (`src/listeners/HudListener.js`, `tests/hud_settings.test.mjs`)**: Added interactive 3D Quality selector in Settings modal with bilingual Italian/English labels, `localStorage` persistence, and `?quality=low|medium|high|auto` URL query parameter support.
   - **LOD Decimation & Benchmark CLI Tooling (`tools/model-pipeline/lod/benchmark_lod.py`, `tools/model-pipeline/lod/decimate_lod.py`, `docs/LOD_BENCHMARK.md`, `tests/test_lod_benchmark.py`)**: Added benchmark measuring file sizes, gzip compression, vertex/triangle counts, and binary parsing timings.
@@ -193,7 +199,7 @@
 
 ## [0.3.80] - 2026-10-16
 
-- 🔒 **Privacy scrub `article/` (MAIN agent review del merge `write_family_3d_article`)**: redatti 43 riferimenti interni rimasti nei dossier (`article/sources/derek_chats_list.md`, `article/sources/telemetry/*_chats_index.json`, `iterations_log.md`, `ARTICLE.md`, `INVESTIGATION.md`, `list_carchess_chats.py`): short-link interni → `<internal-link>`, link a Docs/Drive privati → `<private-doc-link>`, path corp → `<corp-path>`, path assoluti del disco esterno/home → `<external-ssd>` / `<home>`. Nessun cambiamento al gioco.
+- 🔒 **Privacy scrub `article/` (MAIN agent review del merge `write_family_3d_article`)**: redatti 43 riferimenti interni rimasti nei dossier (`article/sources/chats_list.md`, `article/sources/telemetry/*_chats_index.json`, `iterations_log.md`, `ARTICLE.md`, `INVESTIGATION.md`, `list_carchess_chats.py`): short-link interni → `<internal-link>`, link a Docs/Drive privati → `<private-doc-link>`, path corp → `<corp-path>`, path assoluti del disco esterno/home → `<external-ssd>` / `<home>`. Nessun cambiamento al gioco.
 
 ## [0.3.79] - 2026-10-15
 
@@ -230,9 +236,9 @@
 
 ## [0.3.76] - 2026-10-15
 
-- 📰🧹 **Article Unification, Privacy Sanitization, Antigravity Daily UAT Section & `ricc.rocks` Sync (`article/ARTICLE.md`, `article/DEREK_TODO.md`, `article/list_carchess_chats.py`, `article/sources/chats_list.md`, `article/sources/derek_chats_list.md`)**:
-  - Fixed Python syntax error in `article/list_carchess_chats.py` and filtered out 251 unrelated personal sessions from `article/sources/chats_list.md` and `article/sources/telemetry/chats_index.json` (`-23,041` lines), keeping only the **22 true `pupurabbux` CarChess3D sessions** and exporting the **54 `derek` CarChess3D sessions** (`article/sources/derek_chats_list.md`).
-  - Unified `article/ARTICLE.md` with the 8 autonomous Antigravity loops/Swarms on `derek`, the 16:9 Hero Banner (`article_hero_banner_16x9.png`), the "Vero UAT" photo of Ale & Seby (`kids_playing_carchess3d.jpg`), the `S1..S5` Blind VLM benchmark (`clarity_comparison_0deg_30deg.png`), and a dedicated section on the **Autonomous Antigravity Daily UAT Review** via GitHub Issues ([`label:"gemini-uat"`](https://github.com/palladius/carchess3d/issues?q=state%3Aopen%20label%3A%22gemini-uat%22), Issues `#18` & `#36`).
+- 📰🧹 **Article Unification, Privacy Sanitization, Antigravity Daily UAT Section & `ricc.rocks` Sync (`article/ARTICLE.md`, `article/DEREK_TODO.md`, `article/list_carchess_chats.py`, `article/sources/chats_list.md`, `article/sources/chats_list.md`)**:
+  - Fixed Python syntax error in `article/list_carchess_chats.py` and filtered out 251 unrelated personal sessions from `article/sources/chats_list.md` and `article/sources/telemetry/chats_index.json` (`-23,041` lines), keeping only the **22 true `pupurabbux` CarChess3D sessions** and exporting the **54 `cpu-box` CarChess3D sessions** (`article/sources/chats_list.md`).
+  - Unified `article/ARTICLE.md` with the 8 autonomous Antigravity loops/Swarms on `cpu-box`, the 16:9 Hero Banner (`article_hero_banner_16x9.png`), the "Vero UAT" photo of Ale & Seby (`kids_playing_carchess3d.jpg`), the `S1..S5` Blind VLM benchmark (`clarity_comparison_0deg_30deg.png`), and a dedicated section on the **Autonomous Antigravity Daily UAT Review** via GitHub Issues ([`label:"gemini-uat"`](https://github.com/palladius/carchess3d/issues?q=state%3Aopen%20label%3A%22gemini-uat%22), Issues `#18` & `#36`).
   - Synced the article and all assets to `ricc.rocks` (`zzo.ricc.rocks`) in unlisted `under_review` mode (`build: { list: never, render: always }`) and marked `article/DEREK_TODO.md` completed.
 
 ## [0.3.75] - 2026-10-15
@@ -243,7 +249,7 @@
 ## [0.3.74] - 2026-10-15
 
 - 🚨⏱️🍷 **Post-Mortem Forense SRE `article/INVESTIGATION.md` & Diario Parallelo Colmar vs Loop Agentici (`article/INVESTIGATION.md`, `article/ARTICLE.md`, `article/DEREK_TODO.md`)**:
-  - Redatto il Post-Mortem Blameless in formato Google SRE (`article/INVESTIGATION.md`, `PoMo-20261009-CARCHESS3D`) con i timestamp al singolo secondo (`TZ=Europe/Zurich CEST`) di tutti i **10 Loop Agentici** eseguiti tra `derek` e `pupurabbux` dal `2026-10-09 15:34:37` al `2026-10-15 12:47:36`.
+  - Redatto il Post-Mortem Blameless in formato Google SRE (`article/INVESTIGATION.md`, `PoMo-20261009-CARCHESS3D`) con i timestamp al singolo secondo (`TZ=Europe/Zurich CEST`) di tutti i **10 Loop Agentici** eseguiti tra `cpu-box` e `pupurabbux` dal `2026-10-09 15:34:37` al `2026-10-15 12:47:36`.
   - Aggiunto in `article/INVESTIGATION.md` e `article/ARTICLE.md` il **Diario Parallelo Giorno per Giorno (Venerdì 9 → Giovedì 15 Ottobre)** che affianca la vita reale a Colmar con Kate (con segnaposto `<foto: ...>` e la foto reale del Vero UAT di Ale & Seby al tablet) alle finestre di autonomia totale dei loop (`16h 33m` Venerdì notte, `3h 12m` Sabato mattina con 4 loop simultanei, `0h 47m` Swarm 6×6 + `10h 53m` cena di anniversario, `1h 46m` Veo notturno + `2h 38m` Video Critic a colazione + `2h 09m` Face-Grafting biometrico durante il viaggio in auto Colmar → Zurigo, `11h 50m` RTX 5080 a LED spenti Martedì notte, `3h 22m` Swarm Chiarezza `S1..S5`).
 
 ## [0.3.73] - 2026-10-15
@@ -295,8 +301,8 @@
 
 ## [0.3.69] - 2026-10-14
 
-- 🕵️‍♂️📊 **Dossier Forense Completo di Jetski su `derek` (`article/DEREK_JETSKI_FORENSICS.md`, `article/SHOWCASE_BEFORE_AFTER.md`)**:
-  - Analizzati tutti i log `.jsonl` delle sessioni Jetski eseguite sulla workstation `derek` (`~/.gemini/jetski/brain/*/transcript.jsonl`) dal `2026-10-09` al `2026-10-14` per estrarre l'intera telemetria, i `/goal`, gli Swarm multi-agente e i loop avversari VLM/audio/biometrici di CarChess3D:
+- 🕵️‍♂️📊 **Dossier Forense Completo di Antigravity su `cpu-box` (`article/ANTIGRAVITY_FORENSICS.md`, `article/SHOWCASE_BEFORE_AFTER.md`)**:
+  - Analizzati tutti i log `.jsonl` delle sessioni Antigravity eseguite sulla machine `cpu-box` (`~/.gemini/antigravity/brain/*/transcript.jsonl`) dal `2026-10-09` al `2026-10-14` per estrarre l'intera telemetria, i `/goal`, gli Swarm multi-agente e i loop avversari VLM/audio/biometrici di CarChess3D:
     - **41 sessioni totali** (`16` orchestratori/umani + `25` subagent/Swarm worker), **12.868 step**, **232 prompt umani**, **46,77M token di input freschi**, **713,28M token letti da cache (93,8% hit rate)** e **5,34M token di output**.
     - Ricostruiti in dettaglio gli **8 Loop Complessi** (`/roastme` + `/goal` v1 con 4 subagent 3D + 4 round di Art Critic `6.2 -> 9.9/10`; Native Swarm 5-worker per Issue `#10`–`#16`; Pipeline 36 battaglie Nano Banana + Veo 3.1 con Video Critic `4930d699`; Swarm Multi-Modello `fable-5.1-high` + Mode A/B local SDF & Face-Grafting + `riccardo-likeness-critic`; Standing MAIN Merger & Daily Playwright UAT `83ee7dd5`; Cinema XXL `10s` + Audio `+15%` zero-loop; Simulazione Mobile Pixel 10 / Galaxy Tab S9 Ultra + SW fix; 5-Agent Blind VLM Piece Recognizer Swarm `S1..S5`).
     - Catalogati i prompt testuali originali più belli ed emblematici di Riccardo come materiale pronto per la stesura dell'articolo.
@@ -1211,7 +1217,7 @@
 
 ## [0.1.14] - 2026-10-10
 
-- 🔀 Merged `origin/vlm-critic` into `main` with `conductor/` SDD setup (Forged with Argon ✨), reconciling version history, adding `UV_INDEX_URL=https://pypi.org/simple` to `just critic` for Derek compatibility, and removing the superseded root `tools/model-pipeline/critic_vlm.py` draft in favor of `tools/model-pipeline/critic/critic_vlm.py`.
+- 🔀 Merged `origin/vlm-critic` into `main` with `conductor/` SDD setup (Forged with Argon ✨), reconciling version history, adding `UV_INDEX_URL=https://pypi.org/simple` to `just critic` for cpu-box compatibility, and removing the superseded root `tools/model-pipeline/critic_vlm.py` draft in favor of `tools/model-pipeline/critic/critic_vlm.py`.
 - 🎼 **Conductor SDD Setup (Forged with Argon ✨)**: initialized `conductor/` (`index.md`, `product.md`, `product-guidelines.md`, `tech-stack.md`, `workflow.md`, and `code_styleguides/`), incorporating `ABORTED_CONDUCTOR_SPECS.md` (Mode 1 Playable Chessboard + Mode 2 3D WOW Mode & Turntable Inspector, rigged Bishop Ale `bishop-ale-rigged.glb`, and `niccolo-game-design` Managers + Typed Event Bus architecture).
 - 🇨🇭🐸 **Zurich Enchanted Swamp & 16:9 Veo 3D Cinema**: defined the v1 scope (*Carlesso Family* vs *Classic Stone Wizard Chess* set, max 6×6 combinations), the special **Seby ↔ Pupurabbu** best-friends cuddle bond, the Lyria 3 bilingual (IT/EN) theme song for Ale & Seby, and the 16:9 background 3D Cinema screen projecting Veo battle clips tracked via `assets/battles/manifest.yaml` MD5 hashes.
 
