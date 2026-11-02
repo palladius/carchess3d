@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.100] - 2026-11-02
+
+- 🎥👨‍👩‍👦‍👦 **Family orbit v3 re-render (#49)** (`article/assets/gallery/family_orbit.{mp4,gif}`, `family_orbit_hero.gif`, `family_orbit_poster.jpg`): re-rendered on the RTX 5080 with the v3 choreography from `scripts/family_orbit_video.py` — starts **front, close-up at eye level** on the four faces (~2s hold), then one smooth **360° orbit** zooming out and rising to a wide shot with the Zurich skyline. No aerial swoop-in, no piece hops (`activeTweens` cleared). Hero GIF re-tuned to `fps=8, 560px, 80 colors` (6.6 MB, under the 8 MB budget); poster = frame at t=1s (front portrait). Same 4 files copied to the ricc.rocks blog post.
+
 ## [0.3.99] - 2026-10-29
 
 - 🎬⚔️🛠️ **Fix Veo Battle Videos & 3D Cinema Combat Regression (`src/views/VeoCinemaView.js`, `src/views/ZurichSwampView.js`, `src/views/VFXPoolView.js`, `src/listeners/HudListener.js`, `battles.html`, `showcase/index.html`, `sw.js`, `tests/combat.test.mjs`)**:
