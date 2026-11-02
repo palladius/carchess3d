@@ -1,14 +1,14 @@
-# 🕵️‍♂️🦖 Analisi Forensica su `derek`: Tutti i `/goal`, gli Swarm Multi-Agente e i Loop Complessi di Antigravity per CarChess3D (`9–15 Ottobre 2026`)
+# 🕵️‍♂️🦖 Analisi Forensica su `cpu-box`: Tutti i `/goal`, gli Swarm Multi-Agente e i Loop Complessi di Antigravity per CarChess3D (`9–15 Ottobre 2026`)
 
-> **Scopo di questo documento (`article/DEREK_JETSKI_FORENSICS.md`)**: Raccogliere in un unico dossier forensico — estratto direttamente dai log `transcript.jsonl` di `~/.gemini/antigravity/brain/` sulla workstation Linux **`derek`** — **tutti i numeri reali, i prompt esatti, i `/goal`, gli Swarm paralleli, i Critic VLM avversariali e i loop autonomi** eseguiti su questo computer tra il **9 e il 15 Ottobre 2026**, pronto come materiale per l'articolo tecnico.
+> **Scopo di questo documento (`article/ANTIGRAVITY_FORENSICS.md`)**: Raccogliere in un unico dossier forensico — estratto direttamente dai log `transcript.jsonl` di `~/.gemini/antigravity/brain/` sulla machine Linux **`cpu-box`** — **tutti i numeri reali, i prompt esatti, i `/goal`, gli Swarm paralleli, i Critic VLM avversariali e i loop autonomi** eseguiti su questo computer tra il **9 e il 15 Ottobre 2026**, pronto come materiale per l'articolo tecnico.
 
 ---
 
-## 📊 1. Telemetria Globale su `derek` (Dai Log `transcript.jsonl`)
+## 📊 1. Telemetria Globale su `cpu-box` (Dai Log `transcript.jsonl`)
 
-Filtrando le sole sessioni dedicate a **CarChess3D / Plastilina** (escludendo i thread di altri progetti), sulla macchina **`derek`** hanno girato **41 conversazioni agentiche** complessive:
+Filtrando le sole sessioni dedicate a **CarChess3D / Plastilina** (escludendo i thread di altri progetti), sulla macchina **`cpu-box`** hanno girato **41 conversazioni agentiche** complessive:
 
-| Metrica Forensica (`derek`, `9–14 Ott 2026`) | Valore Esatto | Dettaglio |
+| Metrica Forensica (`cpu-box`, `9–14 Ott 2026`) | Valore Esatto | Dettaglio |
 | :--- | :---: | :--- |
 | **Conversazioni Totali (`carchess3d`)** | **`41`** | **`13`** sessioni orchestratrici umane + **`15`** subagenti/worker (`invoke_subagent`) + **`13`** worker Native Swarm (`swarm`) |
 | **Step Totali di Traiettoria (`step_index`)** | **`12.868`** | Azioni, tool call, ragionamenti e verifiche registrati nei `transcript.jsonl` |
@@ -22,15 +22,15 @@ Filtrando le sole sessioni dedicate a **CarChess3D / Plastilina** (escludendo i 
 
 ---
 
-## 🔄 2. Gli 8 Grandi Loop Agentici & `/goal` Eseguiti su `derek`
+## 🔄 2. Gli 8 Grandi Loop Agentici & `/goal` Eseguiti su `cpu-box`
 
 ```mermaid
 flowchart TD
-    U["🦖 RiccardinoCM26 su derek"] --> L1["🚀 Loop 1: /goal Full Autonomous Build v1 (31759f77)\n4 Subagenti 3D in Parallelo + 4 Round VLM Critic (6.2 -> 9.9/10)"]
+    U["🦖 RiccardinoCM26 su cpu-box"] --> L1["🚀 Loop 1: /goal Full Autonomous Build v1 (31759f77)\n4 Subagenti 3D in Parallelo + 4 Round VLM Critic (6.2 -> 9.9/10)"]
     U --> L2["🐝 Loop 2: 5-Worker Native Swarm 6x6 (Issues #10-#16)\n4 Builder Isolati per File + 1 Adversarial Swarm Critic"]
     U --> L3["🎬 Loop 3: 36-Battle Nano Banana + Veo 3.1 + Video Critic\nSubagent 6b6faa1f (Gen) + Subagent 4930d699 (Audit >= 8/10)"]
     U --> L4["🗿 Loop 4: Multi-Model Swarm (Fable 5.1 + Argon) + Mode A/B 3D\nClassic & Swamp + Biometric Likeness Critic (8 tratti facciali)"]
-    U --> L5["⏱️ Loop 5: Standing MAIN Merger & Cron Sentinel (83ee7dd5)\nSync 5m/60m derek ⇄ pupurabbux + Daily Playwright UAT Video"]
+    U --> L5["⏱️ Loop 5: Standing MAIN Merger & Cron Sentinel (83ee7dd5)\nSync 5m/60m cpu-box ⇄ pupurabbux + Daily Playwright UAT Video"]
     U --> L6["🍿 Loop 6: Cinema XXL 16:9 + Pacing 10s (1s+8s+1s) + Audio +15%\nPlaywright Multi-Angle Camera Sim + Zero-Loop Sequencer"]
     U --> L7["📱 Loop 7: Pixel 10 & Tab S9 Ultra WebGL + SW Self-Healing\nDe-Poisoning nocache.html + Lazy GLB Cache + Portrait Scale"]
     U --> L8["👁️ Loop 8: 5-Agent Piece Clarity & Blind VLM Recognizer Swarm\nS1..S5 Visual Aids + Blind VLM Role/Color Accuracy Test"]
@@ -106,7 +106,7 @@ flowchart TD
     - **`@swamp-builder`** (`7279a12f`, `140 step`): Creatore della famiglia **Palude dell'Orco** (*Orco*, *Orchessa*, *Don Gatto Spadaccino-Vescovo*, *Asinello Chiacchierone a 40 denti*, *Draghessa* e *Focaccina*).
     - **`@art-critic`** (`e254ea04`, `100 step`, modello `fable-5.1-high`): Giudice estetico e geometrico in `docs/qa-scores.classic.yaml` e `docs/qa-scores.swamp.yaml`.
 - **Fase 4B — Invenzione di Mode A (SDF Dual-Ortho) & Mode B (Dual-Chart Face-Grafting)**:
-  - Quando la quota GPU remota di Hugging Face ZeroGPU si è esaurita, l'agente su `derek` ha inventato **due algoritmi locali CPU-only** (poi distillati nella skill di Niccolò sotto [`.agents/skills/niccolo-game-design/references/local_2d_to_3d_reconstruction.md`](../.agents/skills/niccolo-game-design/references/local_2d_to_3d_reconstruction.md)):
+  - Quando la quota GPU remota di Hugging Face ZeroGPU si è esaurita, l'agente su `cpu-box` ha inventato **due algoritmi locali CPU-only** (poi distillati nella skill di Niccolò sotto [`.agents/skills/niccolo-game-design/references/local_2d_to_3d_reconstruction.md`](../.agents/skills/niccolo-game-design/references/local_2d_to_3d_reconstruction.md)):
     1. **Mode A (2D-to-3D Signed Distance Field + Marching Cubes + Taubin Smoothing)**: usato per trasformare il turnaround 2D del *Destriero Classico* e dell'*Asinello* in veri `.glb` 3D (`22k` triangoli) con rilievo dei 40 denti!
     2. **Mode B (Dual-Chart `2048×1024` 3D Face-Grafting + Laplacian Multi-Band Blending)**: innesta il ritratto frontale 2D ad alta risoluzione sulla mesh 3D generata da TRELLIS senza cuciture visibili.
 - **Fase 4C — Il Loop Biometrico Avversariale per la Somiglianza di Re Riccardo (`riccardo-likeness-critic`, `a8114d2d`)**:
@@ -123,7 +123,7 @@ flowchart TD
 - **Il Secondo Prompt sul Cron UAT (`83ee7dd5`, Step `1238` & `1407`)**:
   > *"Fai un cron GIORNALIERO che fa unit test, dà un'occhiata al codice overall (se ci sono state commit) e magari prova a fare una partita lui (integration test) e registra un video del suo UAT (max 1 minuto) facendo cose normali e cose pazze tipo cliccare 10 volte un bottone per vedere se si rompe... Idealmente questo task genererà un GHI chiamato 'Gemini UAT $YYYYMMDD' con un tag unico che registri anche un piccolo film della partita e lo attacchi al GHI."*
 - **Cosa ha fatto questo Loop in autonomia**:
-  1. Ha gestito il **traffico multi-macchina e multi-worktree** (`derek` ⇄ `pupurabbux` + 9 worktree locali su `derek`), facendo `git fetch --all --prune`, eseguendo `just test` su ogni branch in arrivo, risolvendo i conflitti su `VERSION` / `CHANGELOG.md` / `Registry.js` e mantenendo sincronizzato `origin/gh-pages`.
+  1. Ha gestito il **traffico multi-macchina e multi-worktree** (`cpu-box` ⇄ `pupurabbux` + 9 worktree locali su `cpu-box`), facendo `git fetch --all --prune`, eseguendo `just test` su ogni branch in arrivo, risolvendo i conflitti su `VERSION` / `CHANGELOG.md` / `Registry.js` e mantenendo sincronizzato `origin/gh-pages`.
   2. Ha costruito [`scripts/daily_uat_playtest.py`](../scripts/daily_uat_playtest.py) e [`etc/prompts/daily_uat_prompt.md`](../etc/prompts/daily_uat_prompt.md) (`just daily-uat`): lancia Chromium headless con Playwright, gioca una vera partita di scacchi 3D contro CPU Easy fino a cattura + Cinema 16:9 + **monkey-test di 10 click rapidi sul bottone `🐸 Palude`** (verificando che i pezzi in palude restino esattamente 6 senza duplicarsi e che ci siano `0` errori console/WebGL), codifica il video `< 1 min` e aggiorna automaticamente la GitHub Issue **#18 (`Gemini UAT 20261011`)** con l'asset video caricato sul tag release `uat-media-20261011`!
 
 ---
@@ -171,7 +171,7 @@ flowchart TD
 
 ---
 
-## 🗂️ 3. Registro Completo delle Conversazioni Antigravity su `derek` (`9–15 Ottobre 2026`)
+## 🗂️ 3. Registro Completo delle Conversazioni Antigravity su `cpu-box` (`9–15 Ottobre 2026`)
 
 ### A. Le 13 Sessioni Orchestratrici (Guidate da `RiccardinoCM26 🦖`)
 
@@ -179,9 +179,9 @@ flowchart TD
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | `2026-10-09 16:33` | `33941bd3` | `4` | `1` | `51.104` | `40.888` | `172` | Lookup iniziale del path `~/git/carchess3d`. |
 | `2026-10-09 16:33` | `ee9f741a` | `178` | `22` | `1.726.557` | `5.199.762` | `43.891` | **Conductor SDD Setup (`conductor/tracks/v1_carchess3d/`)**, analisi video *Wizard Chess*, integrazione workflow 3D di Geneviève e doppio **`/roastme`** pre-flight. |
-| `2026-10-10 07:37` | `83ee7dd5` | `2.137` | `17` | `5.845.087` | `131.538.272` | `531.710` | **MAIN Merger & Cron Sentinel (5 giorni)**: sync continuo `derek` ⇄ `pupurabbux` + worktree locali, default UI in Inglese per Nonna Susan, e pipeline **`just daily-uat`** con video Playwright su GHI `#18`. |
+| `2026-10-10 07:37` | `83ee7dd5` | `2.137` | `17` | `5.845.087` | `131.538.272` | `531.710` | **MAIN Merger & Cron Sentinel (5 giorni)**: sync continuo `cpu-box` ⇄ `pupurabbux` + worktree locali, default UI in Inglese per Nonna Susan, e pipeline **`just daily-uat`** con video Playwright su GHI `#18`. |
 | `2026-10-10 07:38` | `88f1e5f2` | `138` | `11` | `854.970` | `5.592.656` | `49.002` | Creazione del mega-prompt [`etc/prompts/GOAL_BUILD_CARCHESS3D.md`](../etc/prompts/GOAL_BUILD_CARCHESS3D.md) e configurazione co-author GitHub per `Gemini 4 Argon`. |
-| `2026-10-10 07:44` | `42b53d50` | `154` | `10` | `1.340.328` | `6.699.584` | `97.118` | Fix e architettura di `gprism` per sincronizzare file privati (`private/argon-tricks.md`) tra `derek` e `pupurabbux`. |
+| `2026-10-10 07:44` | `42b53d50` | `154` | `10` | `1.340.328` | `6.699.584` | `97.118` | Fix e architettura di `gprism` per sincronizzare file privati (`private/argon-tricks.md`) tra `cpu-box` e `pupurabbux`. |
 | `2026-10-10 08:29` | `6d9ce58c` | `1.728` | `38` | `5.778.875` | `102.319.331` | `862.434` | **Track Famiglie Classic & Swamp + Mode A/B 2D-to-3D + Critic Biometrico di Re Riccardo (`riccardo-likeness-critic`)**. |
 | `2026-10-10 08:31` | `31759f77` | `2.667` | `49` | `8.510.132` | `149.635.602` | `1.148.991` | **Lo Sprint `/goal` v1 (`38m` per il primo gioco 3D completo!) + Swarm 6×6 (36 scontri) + 36 Video Veo 3.1 + Voci TTS Famiglia (skill `audio-for-riccardos-kids`) + Colonna Sonora d'Archi Lyria 3**. |
 | `2026-10-10 12:26` | `20906023` | `256` | `7` | `1.292.560` | `19.803.990` | `72.462` | Fix TDD del turno CPU (`AIWorkerManager`), rimozione dipendenza esterna da `palladius/respec` e setup di `.riccardo/vatranquel/git-push-any-branch`. |
@@ -192,11 +192,11 @@ flowchart TD
 | `2026-10-13 08:05` | `a3907ba3` | `131` | `6` | `465.580` | `5.477.578` | `57.903` | **Self-Healing Service Worker De-Poisoning (`v0.3.52`)** + Pull-to-Refresh Android + Portrait Camera Framing (`portraitScale`). |
 | `2026-10-13 08:12` | `2b03779c` | `127` | `1` | `830.998` | `4.620.551` | `39.934` | **Orchestratore Swarm `S1..S5` per la Riconoscibilità Visiva dei Pezzi (Issue `#32`)**. |
 | `2026-10-13 16:39` | `11d4feea` | `267` | `6` | `1.022.744` | `12.198.794` | `32.427` | **Unificazione Backstage in `🎬 Cinema Eroi POV` (`./showcase/?view=pov`, `v0.3.64`)** + nascita della skill globale **`chumbia`**. |
-| `2026-10-14 10:47` | `59f8e80d` | `157` | `3` | `526.308` | `6.065.694` | `25.796` | *(Questa sessione)* Ritaglio foto "Il Vero UAT" di Ale & Seby sul tablet + indagine forensica completa di `derek` sotto `article/`. |
+| `2026-10-14 10:47` | `59f8e80d` | `157` | `3` | `526.308` | `6.065.694` | `25.796` | *(Questa sessione)* Ritaglio foto "Il Vero UAT" di Ale & Seby sul tablet + indagine forensica completa di `cpu-box` sotto `article/`. |
 
 ---
 
-### B. I 25 Subagenti & Swarm Workers Lanciati in Parallelo su `derek`
+### B. I 25 Subagenti & Swarm Workers Lanciati in Parallelo su `cpu-box`
 
 | Gruppo / Loop | Worker ID (`8 char`) | Tipo | Step | Input Tokens | Cache Read Tokens | Output Tokens | Compito Specifico |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
@@ -229,7 +229,7 @@ flowchart TD
 
 ---
 
-## 💬 4. Antologia dei Prompt "Carlessiani" Più Belli Dati su `derek` (Pronti da Citare nell'Articolo)
+## 💬 4. Antologia dei Prompt "Carlessiani" Più Belli Dati su `cpu-box` (Pronti da Citare nell'Articolo)
 
 1. **L'Idea dello Specchio 16:9 Veo + Scazzottata 3D (`ee9f741a`, 10 Ott `08:34 CEST`)**:
    > *"Dato che fare un'animazione 3D complessa per 36 combinazioni è costoso, pensavo: nella vista 3D i due personaggi si avvicinano e fanno una scazzottata fumettosa, ma sullo sfondo c'è uno schermo 16:9 dove proiettiamo un video generato con Veo! Prendiamo la foto 1 a sinistra, la foto 2 a destra, Nano Banana crea il frame iniziale e Veo genera gli 8 secondi di battaglia!"*
@@ -255,7 +255,7 @@ flowchart TD
 ## 📁 5. Indice dei Prompt e Script di Loop nel Repository
 
 - **Prompt `/goal` & Loop salvati in [`etc/prompts/`](../etc/prompts/)**:
-  - [`etc/prompts/GOAL_BUILD_CARCHESS3D.md`](../etc/prompts/GOAL_BUILD_CARCHESS3D.md) — Il `/goal` completo in 5 fasi lanciato su `derek` il 10 Ottobre.
+  - [`etc/prompts/GOAL_BUILD_CARCHESS3D.md`](../etc/prompts/GOAL_BUILD_CARCHESS3D.md) — Il `/goal` completo in 5 fasi lanciato su `cpu-box` il 10 Ottobre.
   - [`etc/prompts/GOAL_AUTONOMOUS_DAY_OF_CODE.md`](../etc/prompts/GOAL_AUTONOMOUS_DAY_OF_CODE.md) — Il `/goal` in 5 pilastri per le varianti modulari dei pezzi, le 3 armi di Seby e il remaster di Re Riccardo.
   - [`etc/prompts/PROMPT_OPTION_A_AUTONOMOUS_LOOP.md`](../etc/prompts/PROMPT_OPTION_A_AUTONOMOUS_LOOP.md) — Loop autonomo di auto-correzione VLM (`tools/model-pipeline/critic/refine_loop.py`).
   - [`etc/prompts/PROMPT_OPTION_B_FACE_DECAL_PROJECTION.md`](../etc/prompts/PROMPT_OPTION_B_FACE_DECAL_PROJECTION.md) — Proiezione Decal / UV Face-Grafting in Blender.
