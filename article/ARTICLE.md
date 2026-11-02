@@ -99,6 +99,10 @@ Looking at the raw Antigravity logs across both machines, here are the longest u
 
 Instead of anonymous wooden horses and pawns, every piece in CarChess3D is an affectionate, slightly ridiculous caricature of our family:
 
+![Concept art: Puffin pawn and Bishop Ale with his dragon facing a black-team Knight Seby and Queen Kate on the swamp board](assets/concept/family_mirror_match_concept.jpg)
+
+*Early concept art, retouched with Nano Banana: the white Puffin and Bishop Ale face a black-team Seby and Kate — a Carlesso vs. Carlesso mirror match.*
+
 | Piece | Who | Why |
 | :--- | :--- | :--- |
 | **King 👑** | **Riccardo** (Dad) | Inspired by a fantasy mage: six spells for six different fights — and yes, a golden throne 🚽. |
