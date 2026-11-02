@@ -31,23 +31,29 @@ def smoothstep(a, b, x):
     u = max(0.0, min(1.0, (x - a) / (b - a)))
     return u * u * (3.0 - 2.0 * u)
 
-CX, CY, CZ = 0.3, 0.95, 3.5            # look-at: the King/Queen pair on the back rank
-R_CLOSE, Y_CLOSE = 2.6, 1.45           # front portrait: faces fill the frame
+CX, CY, CZ = 0.3, 0.95, 3.5            # orbit centre: the King/Queen pair on the back rank
+# Opening portrait is deliberately ASYMMETRIC (v3.1): centred between the King (e1) and the kingside
+# Knight (g1) so the frame reads Kate · Riccardo · Ale · Seby — one of each family member, no duplicates.
+CX_OPEN = 1.1                          # look-at x between e1 (+0.5) and g1 (+2.5)
+THETA_OPEN = math.radians(-14.0)       # shoot slightly from the queen side so Seby is not edge-on
+R_CLOSE, Y_CLOSE = 2.8, 1.45           # front portrait: faces fill the frame
 R_WIDE, Y_WIDE = 8.5, 4.6              # final wide: whole board + Zurich
 
 def cam_at(t):  # t in [0, 1]
     if t < 0.18:
-        theta = 0.0
+        theta = THETA_OPEN
         r, y = R_CLOSE, Y_CLOSE
-        cx, cy, cz = CX, 1.05, CZ
+        cx, cy, cz = CX_OPEN, 1.05, CZ
     else:
         w = (t - 0.18) / 0.82
         e_rot = w * w * (3.0 - 2.0 * w)                       # ease in-out rotation
-        theta = math.radians(360.0 * e_rot)                   # full turn, ends back at the front
+        theta = THETA_OPEN + math.radians(360.0 * e_rot)      # full turn, ends back at the opening angle
         z = smoothstep(0.0, 0.85, w)                          # zoom-out progress
+        blend = smoothstep(0.0, 0.35, w)                      # ease the look-at from the asymmetric portrait to the board centre
         r = R_CLOSE + (R_WIDE - R_CLOSE) * z
         y = Y_CLOSE + (Y_WIDE - Y_CLOSE) * z
-        cx, cy = CX, 1.05 - 0.6 * z
+        cx = CX_OPEN + (CX - CX_OPEN) * blend
+        cy = 1.05 - 0.6 * z
         cz = CZ - 2.2 * z                                     # drift the look-at toward board centre
     x = cx + r * math.sin(theta)
     zc = cz - r * math.cos(theta)
