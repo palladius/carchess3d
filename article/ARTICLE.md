@@ -31,6 +31,10 @@ Orchestrated by **Gemini 4 Argon** inside **Antigravity**, that adversarial swar
 
 The result of that weekend? A complete, offline-first (PWA), zero-build-step 3D Battle Chess game set in the **Enchanted Swamp of Zurich (*Swamp-on-the-Limmat*)**: **[CarChess3D (🏰🚽 "Family Chess")](../index.html)**.
 
+![Day-one concept art: the Enchanted Swamp chessboard in front of the Grossmünster, torches, lily pads and the floating 16:9 battle screen](assets/concept/zurich_swamp_board_concept.jpg)
+
+*One of the very first images Nano Banana produced on day one, from a single paragraph of prompt. Everything that followed — the swamp, the torches, the lily pads, the floating 16:9 battle screen — was the agents trying to live up to this picture.*
+
 ---
 
 ## ⏱️ 2. SRE Telemetry: Proving "Built in a Weekend" Down to the Second
@@ -111,6 +115,10 @@ Here are all six reconstructed `.glb` family figurines (**Riccardo · Kate · Al
 ### 💜 The Brotherly Easter Egg: The "Mega Fluffy Cuddle"
 Inside the combat rules engine (`src/managers/CombatAnimationManager.js`), one hard-coded law is sacred: **Sebastian and his plushie Pupurabbu can never hurt each other**.
 Whenever Knight Seby captures Rook Pupurabbu (or vice versa), there is no explosion and no knock-out: the two rush together into a **SUPER FLUFFY HUG! 💜🤗** while a shower of 3D pink hearts rains down over the board!
+
+![Seby ♥ Pupurabbu: the Super Fluffy Hug — the only "capture" in the game where nobody gets hurt](assets/gallery/seby_pupurabbu_hug.gif)
+
+*Seby and his imaginary friend cannot fight — they can only hug. (Veo 3.1 clip, [MP4](assets/gallery/seby_pupurabbu_hug.mp4).)*
 
 ### 🐸 The Ogre's Swamp Party
 Captured pieces don't vanish into a boring sidebar graveyard. They fly along a parabolic arc, splash into the **Enchanted Swamp** — a stylized 3D Zurich, with the Grossmünster towers, the Limmat and the lake as backdrop —, and **bob happily on floating lily pads** amid glowing ripples and swamp fireflies!
