@@ -1715,11 +1715,11 @@ export class ZurichSwampView {
   }
 
   _resolveTargetCombatAlpha() {
-    let defaultAlpha = 0.10; // 90% transparent ("che si veda appena")
+    let defaultAlpha = 0.10; // 90% transparent ("che si veda appena", or 0.0 via ?boardAlpha=0.0)
     if (typeof window !== 'undefined' && window.location?.search) {
       const q = new URLSearchParams(window.location.search).get('boardAlpha');
       if (q !== null && Number.isFinite(Number(q))) {
-        defaultAlpha = Math.max(0.02, Math.min(1.0, Number(q)));
+        return Math.max(0.0, Math.min(1.0, Number(q)));
       }
     }
     return Number.isFinite(this.combatBoardAlpha) ? this.combatBoardAlpha : defaultAlpha;
@@ -1811,7 +1811,13 @@ export class ZurichSwampView {
 
   _applyAltarTranslucency(translucent, opacity, blend = translucent ? 1.0 : 0.0) {
     const scaleY = translucent ? 1.0 + (0.02 - 1.0) * blend : 1.0;
+    const hideSquares = translucent && opacity <= 0.005;
     for (const sqMesh of this.squareMeshes) {
+      if (hideSquares) {
+        sqMesh.visible = false;
+        continue;
+      }
+      sqMesh.visible = true;
       sqMesh.scale.y = scaleY;
       const mat = sqMesh.material;
       if (!mat) continue;
@@ -1826,16 +1832,20 @@ export class ZurichSwampView {
       mat.roughness = translucent ? (isLight ? 0.18 : 0.14) + 0.60 * blend : isLight ? 0.18 : 0.14;
     }
     if (this.squareInlayMat) {
-      const nextDepthWrite = !translucent;
-      if (
-        this.squareInlayMat.transparent !== translucent ||
-        this.squareInlayMat.depthWrite !== nextDepthWrite
-      ) {
-        this.squareInlayMat.transparent = translucent;
-        this.squareInlayMat.depthWrite = nextDepthWrite;
-        this.squareInlayMat.needsUpdate = true;
+      if (hideSquares) {
+        this.squareInlayMat.opacity = 0.0;
+      } else {
+        const nextDepthWrite = !translucent;
+        if (
+          this.squareInlayMat.transparent !== translucent ||
+          this.squareInlayMat.depthWrite !== nextDepthWrite
+        ) {
+          this.squareInlayMat.transparent = translucent;
+          this.squareInlayMat.depthWrite = nextDepthWrite;
+          this.squareInlayMat.needsUpdate = true;
+        }
+        this.squareInlayMat.opacity = translucent ? Math.min(1.0, opacity * 1.6) : 1.0;
       }
-      this.squareInlayMat.opacity = translucent ? Math.min(1.0, opacity * 1.6) : 1.0;
     }
   }
 
