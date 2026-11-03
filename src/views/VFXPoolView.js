@@ -2244,7 +2244,7 @@ export class VFXPoolView {
         return Math.max(0.30, Math.min(2.4, Number(q)));
       }
     }
-    return Number.isFinite(this.combatHeroScale) ? this.combatHeroScale : 1.52;
+    return Number.isFinite(this.combatHeroScale) ? this.combatHeroScale : 0.88;
   }
 
   getFighterCombatAlpha() {
@@ -2254,7 +2254,7 @@ export class VFXPoolView {
         return Math.max(0.05, Math.min(1.0, Number(q)));
       }
     }
-    return Number.isFinite(this.combatFighterAlpha) ? this.combatFighterAlpha : 0.28;
+    return Number.isFinite(this.combatFighterAlpha) ? this.combatFighterAlpha : 0.42;
   }
 
   getCombatHidePedestal() {

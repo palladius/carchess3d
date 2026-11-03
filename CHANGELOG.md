@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.104] - 2026-11-03
+
+- 🎬⚔️🎯 **Combat Fighter Calibration: Higher Visibility (Opacity 0.42) & Compact Scale (0.88x) (`src/views/VFXPoolView.js`, `tests/combat.test.mjs`)**:
+  - Decreased fighter translucency from 72% down to 58% (`opacity = 0.42`, up from `0.28`), bringing out sharp character textures, expressions, and weapon details while keeping the 16:9 movie completely visible.
+  - Reduced default hero combat scale from `1.52x` to a compact `0.88x`, creating a sleek pocket-stage in the lower foreground that avoids blocking key background action.
+  - Updated combat integration tests and added comparison triptych asset (`article/assets/before_after/combat_transparency_tuned_triptych.png`).
+
 ## [0.3.103] - 2026-11-02
 
 - 🎬⚔️✨ **Holographic Combat Cinema & Viewport Maximization (`src/views/VeoCinemaView.js`, `src/views/VFXPoolView.js`, `src/views/ZurichSwampView.js`, `scripts/critic_combat_transparency.py`)**:

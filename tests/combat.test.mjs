@@ -319,14 +319,14 @@ test('VFXPoolView: auto-zooms camera tightly onto the 2 fighting pieces, hides o
   const camDist = camera.position.distanceTo(controls.target);
   assert.ok(camDist > 4.0 && camDist < 5.5, `Expected ~5x5 half-board camera distance 4.0m..5.5m, got ${camDist.toFixed(2)}m`);
 
-  // 3. Static board pieces on d4 & e5 are temporarily hidden (replaced by 1.52x hero fighters),
+  // 3. Static board pieces on d4 & e5 are temporarily hidden (replaced by compact ~0.88x hero fighters),
   //    while neighboring piece c4 remains visible, dilated outward, and scaled down non-linearly!
   assert.equal(clashFromPiece.visible, false, 'Static piece on d4 hidden during clash');
   assert.equal(clashToPiece.visible, false, 'Static piece on e5 hidden during clash');
   assert.equal(neighborPiece.visible, true, 'Neighboring piece on c4 remains visible around the clash');
   assert.ok(vfxView.attackerFighter?.visible, 'Animated 3D attacker fighter is visible');
   assert.ok(vfxView.defenderFighter?.visible, 'Animated 3D defender fighter is visible');
-  assert.ok(vfxView.attackerFighter.scale.x > 1.45, `Expected 1.52x hero scale on attacker, got ${vfxView.attackerFighter.scale.x.toFixed(2)}`);
+  assert.ok(vfxView.attackerFighter.scale.x >= 0.80 && vfxView.attackerFighter.scale.x <= 1.15, `Expected compact hero scale ~0.88x on attacker, got ${vfxView.attackerFighter.scale.x.toFixed(2)}`);
 
   const neighborMovedDist = Math.hypot(
     neighborPiece.position.x - neighborInitialX,
