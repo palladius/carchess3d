@@ -18,80 +18,79 @@
 | #5 | **`s3`** — S3 (Obsidian Contrast) | **5.25** | 6/10 | 4/10 | 6/10 | 5/10 | `137.26` | `64.8` | **`+72.46`** | `1.98x` |
 | #6 | **`off`** — Off (Baseline) | **5.00** | 5/10 | 4/10 | 7/10 | 4/10 | `115.31` | `96.61` | **`+18.71`** | `1.22x` |
 
-## 🇮🇹 Critiche Avversarie per Soluzione (`off`, `S1..S5`)
+## 🧐 Adversarial Critiques per Solution (`off`, `S1..S5`)
 
 ### 1. `s5` — S5 (Hybrid All-In) (Score: **9.50/10**)
-- **Descrizione**: Hybrid Champion: Obsidian + 3D Add-Ons + Wreath + Crest + Auto-2D Zenith
-- **Ruoli riconosciuti a 0° (Zenitale)**: `King, Queen, Rook, Bishop, Knight, Pawn`
-- **Ruoli riconosciuti a 30° (Semi-Alta)**: `King, Queen, Rook, Bishop, Knight, Pawn`
-- **Telemetria Mirror Match (`carlesso` vs `carlesso`)**:
+- **Description**: Hybrid Champion: Obsidian + 3D Add-Ons + Wreath + Crest + Auto-2D Zenith
+- **Roles recognized at 0° (Zenithal)**: `King, Queen, Rook, Bishop, Knight, Pawn`
+- **Roles recognized at 30° (Semi-High)**: `King, Queen, Rook, Bishop, Knight, Pawn`
+- **Mirror Match Telemetry (`carlesso` vs `carlesso`)**:
   - `0°`: White Luma `160.74` vs Black Luma `68.63` (Δ `92.11`, Ratio `2.13x`, 2D Discs `32`)
   - `30°`: White Luma `147.37` vs Black Luma `63.61` (Δ `83.75`, Ratio `2.1x`, 3D Add-Ons `32`, Baked GLB Add-Ons `32`, Wreaths `32`, Billboards `32`)
-- **Critica VLM (`gemini-flash-latest`)**: _La visuale a 0° con medaglioni 2D provvisti di glifi e sigle alfabetiche elimina ogni ambiguità anche nei mirror match più complessi. A 30° la combinazione di add-on 3D, ghirlande di piedistallo e stemmi fluttuanti mantiene una leggibilità eccezionale, sebbene nei settori centrali densi si percepisca una lieve saturazione visiva. Il contrasto cromatico tra bianco avorio dorato e nero ossidiana violaceo è netto, azzerando qualsiasi affaticamento cognitivo per i bambini._
+- **VLM Critique (`gemini-flash-latest`)**: _The 0° view with 2D medallions carrying glyphs and letter abbreviations removes every ambiguity, even in the most complex mirror matches. At 30° the combination of 3D add-ons, pedestal wreaths and floating crests maintains exceptional legibility, although a slight visual saturation can be perceived in the dense central sectors. The color contrast between golden ivory white and violet obsidian black is sharp, eliminating any cognitive fatigue for children._
 
 ### 2. `s1` — S1 (Zenith 2D) (Score: **8.50/10**)
-- **Descrizione**: Zenith 2D Classic B/W Medallion Icons + Obsidian Contrast
-- **Ruoli riconosciuti a 0° (Zenitale)**: `King, Queen, Rook, Bishop, Knight, Pawn`
-- **Ruoli riconosciuti a 30° (Semi-Alta)**: `King, Queen, Rook, Bishop, Knight, Pawn`
-- **Telemetria Mirror Match (`carlesso` vs `carlesso`)**:
+- **Description**: Zenith 2D Classic B/W Medallion Icons + Obsidian Contrast
+- **Roles recognized at 0° (Zenithal)**: `King, Queen, Rook, Bishop, Knight, Pawn`
+- **Roles recognized at 30° (Semi-High)**: `King, Queen, Rook, Bishop, Knight, Pawn`
+- **Mirror Match Telemetry (`carlesso` vs `carlesso`)**:
   - `0°`: White Luma `161.36` vs Black Luma `68.55` (Δ `92.81`, Ratio `2.14x`, 2D Discs `32`)
   - `30°`: White Luma `153.59` vs Black Luma `65.26` (Δ `88.33`, Ratio `2.13x`, 3D Add-Ons `0`, Baked GLB Add-Ons `0`, Wreaths `0`, Billboards `0`)
-- **Critica VLM (`gemini-flash-latest`)**: _A 0° la leggibilità è insuperabile grazie ai medaglioni 2D standardizzati con lettere e icone chiare. A 30°, tuttavia, i dischi orizzontali subiscono uno schiacciamento prospettico e parziali sovrapposizioni nelle retrovie, riducendo l'impatto tridimensionale. L'eccellente contrasto cromatico tra Bianco e Nero garantisce comunque zero ambiguità anche nelle partite speculari._
+- **VLM Critique (`gemini-flash-latest`)**: _At 0° legibility is unbeatable thanks to the standardized 2D medallions with clear letters and icons. At 30°, however, the horizontal discs suffer from perspective flattening and partial overlaps in the back ranks, reducing the three-dimensional impact. The excellent color contrast between White and Black nonetheless guarantees zero ambiguity, even in mirror games._
 
 ### 3. `s2` — S2 (3D GLB Add-Ons) (Score: **8.50/10**)
-- **Descrizione**: Universal 3D Static Role Add-Ons + Obsidian Contrast
-- **Ruoli riconosciuti a 0° (Zenitale)**: `King, Queen, Rook, Knight, Bishop, Pawn`
-- **Ruoli riconosciuti a 30° (Semi-Alta)**: `King, Queen, Rook, Knight, Bishop, Pawn`
-- **Telemetria Mirror Match (`carlesso` vs `carlesso`)**:
+- **Description**: Universal 3D Static Role Add-Ons + Obsidian Contrast
+- **Roles recognized at 0° (Zenithal)**: `King, Queen, Rook, Knight, Bishop, Pawn`
+- **Roles recognized at 30° (Semi-High)**: `King, Queen, Rook, Knight, Bishop, Pawn`
+- **Mirror Match Telemetry (`carlesso` vs `carlesso`)**:
   - `0°`: White Luma `142.96` vs Black Luma `48.34` (Δ `94.62`, Ratio `2.55x`, 2D Discs `0`)
   - `30°`: White Luma `149.03` vs Black Luma `57.22` (Δ `91.8`, Ratio `2.31x`, 3D Add-Ons `32`, Baked GLB Add-Ons `32`, Wreaths `0`, Billboards `0`)
-- **Critica VLM (`gemini-flash-latest`)**: _L'eccellente contrasto cromatico tra l'avorio dorato e l'ossidiana violacea rende immediata la distinzione delle fazioni anche nei mirror match. A 0° i simboli volumetrici apicali (croci, corone e teste equine) guidano chiaramente la lettura dei ruoli senza affaticare gli occhi. A 30° la silhouette complessiva guadagna ulteriore tridimensionalità, offrendo una leggibilità ludica ideale per un pubblico giovane._
+- **VLM Critique (`gemini-flash-latest`)**: _The excellent color contrast between golden ivory and violet obsidian makes telling the factions apart immediate, even in mirror matches. At 0° the volumetric top symbols (crosses, crowns and horse heads) clearly guide role reading without straining the eyes. At 30° the overall silhouette gains further three-dimensionality, offering playful legibility ideal for a young audience._
 
 ### 4. `s4` — S4 (Pedestal Wreath + Crest) (Score: **8.50/10**)
-- **Descrizione**: 3D Pedestal Role Wreath + Floating 2D Crest + Obsidian
-- **Ruoli riconosciuti a 0° (Zenitale)**: `King, Queen, Rook, Bishop, Knight, Pawn`
-- **Ruoli riconosciuti a 30° (Semi-Alta)**: `King, Queen, Rook, Bishop, Knight, Pawn`
-- **Telemetria Mirror Match (`carlesso` vs `carlesso`)**:
+- **Description**: 3D Pedestal Role Wreath + Floating 2D Crest + Obsidian
+- **Roles recognized at 0° (Zenithal)**: `King, Queen, Rook, Bishop, Knight, Pawn`
+- **Roles recognized at 30° (Semi-High)**: `King, Queen, Rook, Bishop, Knight, Pawn`
+- **Mirror Match Telemetry (`carlesso` vs `carlesso`)**:
   - `0°`: White Luma `132.9` vs Black Luma `57.83` (Δ `75.07`, Ratio `2.06x`, 2D Discs `0`)
   - `30°`: White Luma `145.8` vs Black Luma `63.29` (Δ `82.51`, Ratio `2.08x`, 3D Add-Ons `0`, Baked GLB Add-Ons `0`, Wreaths `32`, Billboards `32`)
-- **Critica VLM (`gemini-flash-latest`)**: _L'integrazione di badge fluttuanti con icone 2D standardizzate risolve brillantemente l'ambiguità geometrica sia a 0° che a 30°, garantendo un riconoscimento immediato anche nei mirror match. Il contrasto cromatico tra l'ossidiana profonda dei Neri e l'avorio dorato dei Bianchi è netto e senza fraintendimenti. L'unico limite risiede nel leggero affollamento visivo dei billboard nelle mischie centrali, che può affaticare la lettura spaziale della scacchiera durante partite lunghe._
+- **VLM Critique (`gemini-flash-latest`)**: _The integration of floating badges with standardized 2D icons brilliantly resolves the geometric ambiguity at both 0° and 30°, guaranteeing immediate recognition even in mirror matches. The color contrast between the deep obsidian of Black and the golden ivory of White is sharp and unmistakable. The only limitation lies in the slight visual crowding of the billboards in central melees, which can tire spatial reading of the board during long games._
 
 ### 5. `s3` — S3 (Obsidian Contrast) (Score: **5.25/10**)
-- **Descrizione**: True Obsidian Black vs Warm Ivory Contrast Only
-- **Ruoli riconosciuti a 0° (Zenitale)**: `Pawn, Rook`
-- **Ruoli riconosciuti a 30° (Semi-Alta)**: `Pawn, Knight, Bishop, Rook, King`
-- **Telemetria Mirror Match (`carlesso` vs `carlesso`)**:
+- **Description**: True Obsidian Black vs Warm Ivory Contrast Only
+- **Roles recognized at 0° (Zenithal)**: `Pawn, Rook`
+- **Roles recognized at 30° (Semi-High)**: `Pawn, Knight, Bishop, Rook, King`
+- **Mirror Match Telemetry (`carlesso` vs `carlesso`)**:
   - `0°`: White Luma `129.34` vs Black Luma `46.46` (Δ `82.88`, Ratio `2.4x`, 2D Discs `0`)
   - `30°`: White Luma `145.02` vs Black Luma `56.4` (Δ `88.62`, Ratio `2.28x`, 3D Add-Ons `0`, Baked GLB Add-Ons `0`, Wreaths `0`, Billboards `0`)
-- **Critica VLM (`gemini-flash-latest`)**: _Il contrasto cromatico tra i due schieramenti risulta sufficiente ma la vista a 0 gradi soffre per la mancanza di indicatori grafici chiari sulle teste dei pezzi. La visuale a 30 gradi migliora la lettura delle silhouette principali, pur mantenendo qualche ambiguita tra figure maggiori._
+- **VLM Critique (`gemini-flash-latest`)**: _The color contrast between the two sides is sufficient, but the 0-degree view suffers from the lack of clear graphic indicators on the pieces' heads. The 30-degree view improves the reading of the main silhouettes, while still retaining some ambiguity among the major pieces._
 
 ### 6. `off` — Off (Baseline) (Score: **5.00/10**)
-- **Descrizione**: Original 3D Models Only (Legacy Baseline)
-- **Ruoli riconosciuti a 0° (Zenitale)**: `Rook, Knight, Pawn`
-- **Ruoli riconosciuti a 30° (Semi-Alta)**: `King, Queen, Rook, Bishop, Knight, Pawn`
-- **Telemetria Mirror Match (`carlesso` vs `carlesso`)**:
+- **Description**: Original 3D Models Only (Legacy Baseline)
+- **Roles recognized at 0° (Zenithal)**: `Rook, Knight, Pawn`
+- **Roles recognized at 30° (Semi-High)**: `King, Queen, Rook, Bishop, Knight, Pawn`
+- **Mirror Match Telemetry (`carlesso` vs `carlesso`)**:
   - `0°`: White Luma `108.78` vs Black Luma `70.29` (Δ `38.49`, Ratio `1.46x`, 2D Discs `0`)
   - `30°`: White Luma `123.66` vs Black Luma `71.5` (Δ `52.16`, Ratio `1.62x`, 3D Add-Ons `0`, Baked GLB Add-Ons `0`, Wreaths `0`, Billboards `0`)
-- **Critica VLM (`gemini-flash-latest`)**: _La vista zenitale a 0° soffre fortemente per l'assenza di indicatori 2D sui dischi, rendendo Re e Regina difficilmente distinguibili dalla sola sommità del copricapo. A 30° la silhouette tridimensionale migliora la leggibilità dei singoli pezzi, ma nel Mirror Match il basso contrasto di luminanza (solo 1.3x-1.5x) e le basette simili affaticano notevolmente gli occhi di un bambino._
+- **VLM Critique (`gemini-flash-latest`)**: _The 0° zenithal view suffers heavily from the absence of 2D indicators on the discs, making King and Queen hard to distinguish from the top of the headgear alone. At 30° the three-dimensional silhouette improves the legibility of individual pieces, but in the Mirror Match the low luminance contrast (only 1.3x-1.5x) and the similar bases considerably strain a child's eyes._
 
 ---
 
 ## 👑 v0.3.74 — Human-in-the-Loop Polish: `S2` Default (Single Grounded 3D Crowns) + `📐 2D` Auto-Toggled Square-Aligned Medallions
 
-Dopo aver testato dal vivo tutte le modalità (`S1..S5`), abbiamo affinato il design unendo il meglio del 3D pulito e del 2D tattico:
+After live-testing all modes (`S1..S5`), we refined the design by combining the best of clean 3D and tactical 2D:
 
-1. **Modalità 3D Default = `👑 S2` (Corone 3D Singole Giustapposte sulla Testa + Contrasto Ossidiana vs Avorio)**:
-   - Rimossi tutti i nodi duplicati `UniversalRoleAddon_*` pre-cotti nei `.glb` che creavano una seconda corona fluttuante a mezz'aria.
-   - Sostituite le primitive cubiche (`BoxGeometry`) con **corone 3D scolpite ad alta risoluzione** (Diadema Imperiale + Croce Pattee per il Re `♚`, Tiara a 8 Punte e 8 Perle per la Regina `♛`, Mitra Liturgica Scolpita per l'Alfiere `♝`, Cimiero Corinzio + Ali Equine per il Cavallo `♞`, Corona Muraria Curva a 6 Merli per la Torre `♜`, Cerchietto Intrecciato + Finiale Staunton per il Pedone `♟`) ancorate direttamente sulla sommità del capo del personaggio (`computeGroundedHeadAnchor`).
-   - Nessun badge 2D fluttuante in 3D di default per lasciare pulita la scena cinematografica.
-2. **Pulsante `📐 2D` Auto-Toggle + Allineamento 100% Centrato sulla Casella (`ZENITH_DISC_BOARD_Y = 0.04m`)**:
-   - Premendo `📐 2D` i medaglioni 2D si attivano automaticamente a quota scacchiera (`y = 0.04m`) nascondendo il fusto 3D sottostante: **zero parallasse prospettico**, ogni medaglione cade al 100% nel centro geometrico della propria casella (`a1..h8`).
-   - **Design Semplificato a Singola Icona**: di default il medaglione mostra solo **una grande icona scacchistica classica (`♚ ♛ ♜ ♝ ♞ ♟`) perfettamente centrata e orientata a Nord (`0°`)**, senza lettere `K, Q, R, B, N, P` né doppi disegni sovrapposti (le lettere + Braille `K ⠇..P ⠏` restano attivabili nelle impostazioni di accessibilità `#hud-setup-letters-toggle` o via `?letters=1`).
+1. **Default 3D Mode = `👑 S2` (Single 3D Crowns Seated on the Head + Obsidian vs Ivory Contrast)**:
+   - Removed all duplicate `UniversalRoleAddon_*` nodes pre-baked into the `.glb` files that created a second crown floating in mid-air.
+   - Replaced the cubic primitives (`BoxGeometry`) with **high-resolution sculpted 3D crowns** (Imperial Diadem + Cross Pattée for the King `♚`, 8-Point Tiara with 8 Pearls for the Queen `♛`, Sculpted Liturgical Mitre for the Bishop `♝`, Corinthian Crest + Equine Wings for the Knight `♞`, Curved 6-Merlon Mural Crown for the Rook `♜`, Braided Circlet + Staunton Finial for the Pawn `♟`) anchored directly on the top of the character's head (`computeGroundedHeadAnchor`).
+   - No floating 2D badges in 3D by default, to keep the cinematic scene clean.
+2. **`📐 2D` Auto-Toggle Button + 100% Square-Centered Alignment (`ZENITH_DISC_BOARD_Y = 0.04m`)**:
+   - Pressing `📐 2D` automatically activates the 2D medallions at board level (`y = 0.04m`), hiding the 3D body underneath: **zero perspective parallax**, every medallion lands 100% in the geometric center of its own square (`a1..h8`).
+   - **Simplified Single-Icon Design**: by default the medallion shows only **one large classic chess icon (`♚ ♛ ♜ ♝ ♞ ♟`) perfectly centered and oriented North (`0°`)**, with no `K, Q, R, B, N, P` letters and no overlapping double drawings (letters + Braille `K ⠇..P ⠏` can still be enabled in the accessibility settings `#hud-setup-letters-toggle` or via `?letters=1`).
 
-| Vista | Screenshot |
+| View | Screenshot |
 | :--- | :--- |
-| **Close-up Re & Regina (`👑 S2`)** — Singola corona 3D scolpita giustapposta sulla testa | ![Close-up S2 Re e Regina](assets/v2_s2_closeup_king_queen.png) |
-| **Vista `📐 2D` Zenitale** — Medaglioni 100% allineati alle caselle con singola icona centrata | ![Vista 2D Allineata](assets/v2_topdown_2d_aligned.png) |
-| **Vista `👑 S2` 3D a `30°` (Default)** — Contrasto Ossidiana vs Avorio + Corone 3D sul capo | ![Vista 3D S2 30°](assets/v2_s2_3d_30deg.png) |
-
+| **King & Queen Close-up (`👑 S2`)** — Single sculpted 3D crown seated on the head | ![S2 Close-up King and Queen](assets/v2_s2_closeup_king_queen.png) |
+| **`📐 2D` Zenithal View** — Medallions 100% aligned to the squares with a single centered icon | ![Aligned 2D View](assets/v2_topdown_2d_aligned.png) |
+| **`👑 S2` 3D View at `30°` (Default)** — Obsidian vs Ivory contrast + 3D crowns on the head | ![S2 3D View 30°](assets/v2_s2_3d_30deg.png) |
 

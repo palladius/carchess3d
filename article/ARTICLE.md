@@ -1,4 +1,6 @@
-# 🏰🚽 CarChess3D: How a Fleet of Autonomous Agents Built a 3D Chess Game Starring My Family While I Celebrated My 10th Wedding Anniversary in Colmar
+# 🏰🚽 CarChess3D: How an Autonomous Agent Swarm Built a 3D Battle Chess Game While I Celebrated My 10th Wedding Anniversary in Colmar
+
+> 📰 This is the repository mirror of the article published on [ricc.rocks](https://ricc.rocks/en/posts/technology/2026-10-15-carchess3d-family-chess/). The blog post is the canonical, reviewed version; this copy is regenerated from it.
 
 *By **Riccardo "Palladius" Carlesso** — proud dad to Ale & Seby and improvised 3D game designer. Built hands-off with [**Gemini 4**](https://blog.google/technology/google-deepmind/gemini-4/) inside [**Antigravity**](https://antigravity.google/) and the [**Niccolò Game Design** skill](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md). Zurich & Colmar, October 2026.*
 
@@ -29,7 +31,7 @@ Orchestrated by **Gemini 4 Argon** inside **Antigravity**, that adversarial swar
 3. Subjecting every single mesh, texture, and video frame to a merciless multimodal **Adversarial Art Director Critic**.
 4. Writing over **121,000 lines of code**, headless unit tests, and Three.js WebGL shaders. (For the record: I write Bash and Ruby. I did not type a single line of JavaScript.)
 
-The result of that weekend? A complete, offline-first (PWA), zero-build-step 3D Battle Chess game set in the **Enchanted Swamp of Zurich (*Swamp-on-the-Limmat*)**: **[CarChess3D (🏰🚽 "Family Chess")](../index.html)**.
+The result of that weekend? A complete, offline-first (PWA), zero-build-step 3D Battle Chess game set in the **Enchanted Swamp of Zurich (*Swamp-on-the-Limmat*)**: **[CarChess3D (🏰🚽 "Family Chess")](https://github.com/palladius/carchess3d)**.
 
 ![Day-one concept art: the Enchanted Swamp chessboard in front of the Grossmünster, torches, lily pads and the floating 16:9 battle screen](assets/concept/zurich_swamp_board_concept.jpg)
 
@@ -40,7 +42,7 @@ The result of that weekend? A complete, offline-first (PWA), zero-build-step 3D 
 ## ⏱️ 2. SRE Telemetry: Proving "Built in a Weekend" Down to the Second
 
 As an old-school Site Reliability Engineer (SRE), marketing fairy tales don't impress me. I only trust hard numbers, immutable timestamps, and cryptographic git commit hashes.
-Here is the exact telemetry extracted from `git log` and the **76 CarChess3D Antigravity sessions** across **`pupurabbux`** (`article/sources/chats_list.md`, 22 3D/GPU sessions) and **`cpu-box`** (`article/sources/chats_list.md` and [`article/ANTIGRAVITY_FORENSICS.md`](ANTIGRAVITY_FORENSICS.md), 54 orchestration, Swarm, and VLM Critic sessions):
+Here is the exact telemetry extracted from `git log` and the **76 CarChess3D Antigravity sessions** across **`pupurabbux`** (`article/sources/chats_list.md`, 22 3D/GPU sessions) and **`cpu-box`** (`article/sources/chats_list.md` and [`article/ANTIGRAVITY_FORENSICS.md`](https://github.com/palladius/carchess3d/blob/main/article/ANTIGRAVITY_FORENSICS.md), 54 orchestration, Swarm, and VLM Critic sessions):
 
 ```json
 {
@@ -119,7 +121,7 @@ Instead of anonymous wooden horses and pawns, every piece in CarChess3D is an af
 | **Rook 🏰** | **Pupurabbu** | Seby's imaginary purple fluffy friend, peeking out of a stone tower. 💜 |
 | **Pawn 🐧** | **Puffin** (×16) | My wife calls me *Puffin*; the insider joke was irresistible. Swiss Guard uniform included. |
 
-Here are all six reconstructed `.glb` family figurines (**Riccardo · Kate · Ale · Seby · Pupurabbu · Puffin**, each scored `9.7/10` in `docs/qa-scores.yaml`) rotating 360° side by side at their true relative metric heights (`0.80m` → `2.50m`, rendered via [`scripts/family_turntable_6up.py`](../scripts/family_turntable_6up.py) · [1600×900 MP4](assets/gallery/family_turntable_6up.mp4)):
+Here they are, all six reconstructed `.glb` figurines (**Riccardo · Kate · Ale · Seby · Pupurabbu · Puffin**, each scored `9.7/10` by the critic) rotating 360° side by side at their true relative heights (`0.80m` → `2.50m`; [`scripts/family_turntable_6up.py`](https://github.com/palladius/carchess3d/blob/main/scripts/family_turntable_6up.py) · [MP4](assets/gallery/family_turntable_6up.mp4)):
 
 ![6-piece Carlesso family 360° turntable: Riccardo, Kate, Ale, Seby, Pupurabbu, and Puffin rotating side by side](assets/gallery/family_turntable_6up.gif)
 
@@ -204,7 +206,7 @@ Once our script (`gen_mv.py`) explicitly invoked `/lambda_1` right after `/start
 
 #### Engine 2: Local GPU Pivot on `pupurabbux` (NVIDIA RTX 5080 + TurboSebux)
 When Hugging Face ZeroGPU hit quota limits (*"Exceeded ZeroGPU quota"*), the agent didn't stall waiting for a credit card. It pivoted autonomously to my home PC's local hardware:
-- **External Samsung T7 SSD**: mounted a 600 GB ext4 loop volume at `<external-ssd>` so root `/` wouldn't fill up.
+- **External Samsung T7 SSD**: mounted a 600 GB ext4 loop volume at `/media/riccardo/TurboSebux` so root `/` wouldn't fill up.
 - **Hunyuan3D-2 Shape**: generated complete meshes locally in **32 seconds** using just **5.6 GB of VRAM** on the RTX 5080.
 - **Blackwell `sm_120` CUDA PTX JIT Fix**: Because prebuilt PyTorch/rasterizer wheels didn't yet include native binaries for NVIDIA's new Blackwell `sm_120` architecture (`cudaErrorNoKernelImageForDevice`), the agent recompiled `custom_rasterizer_kernel` with `TORCH_CUDA_ARCH_LIST="9.0+PTX"`, leveraging the NVIDIA driver's PTX JIT compiler.
 
@@ -242,36 +244,11 @@ After every 3D build, a headless script shoots a 4-camera contact sheet (`3/4 Ov
 
 If a model gets stamped `FA_CAGARE 💩`, `just shittest` fails the build and forces a modular rebuild — which is how **Bishop Ale v2** (rejected at `4.0/10` because multi-view fusion produced *"two half-dragons fused into his chest"*) was rebuilt into a clean 26-bone modular rig!
 
-### 🧪🎬 L'Agente UAT Giornaliero che Gioca a Scacchi da Solo e Apre GitHub Issue col Film della Partita ([#36](https://github.com/palladius/carchess3d/issues/36))
-
-I test unitari in Node.js e Python sono fondamentali, ma in un videogioco 3D con WebGL, shader custom, Service Worker e Web Worker AI il vero nemico è la regressione silenziosa: la telecamera che ruotando a `180°` finisce dentro un muro mostrando uno schermo nero, i pezzi bianchi e neri che guardano nella stessa direzione, o il computer che smette di rispondere dopo una cattura.
-
-Così, alle `03:29` di domenica 11 ottobre, ho dato allo Standing MAIN Merger un prompt folle:
-> *"Fai un cron GIORNALIERO che fa unit test, dà un'occhiata al codice overall e prova a fare una partita lui (integration test) e registra un video del suo UAT (max 1 minuto) facendo cose normali e cose pazze tipo cliccare 10 volte un bottone per vedere se si rompe... e genera una GHI chiamata `Gemini UAT $YYYYMMDD` col film della partita attaccato!"*
-
-Il risultato è [`scripts/daily_uat_playtest.py`](../scripts/daily_uat_playtest.py) (`just daily-uat`), che ogni mattina lancia Google Chrome in modalità WebGL, registra un video di 60 secondi mentre gioca contro `CPU Easy`, misura la luminanza e la deviazione standard dei pixel su ogni inquadratura per certificare l'assenza di black screen, carica i file `.mp4` e `.gif` su una GitHub Release taggata `uat-media-$YYYYMMDD` e pubblica un report automatico come **[GitHub Issue #36 — `Gemini UAT 20261015`](https://github.com/palladius/carchess3d/issues/36)** (e la capostipite [#18 — `Gemini UAT 20261011`](https://github.com/palladius/carchess3d/issues/18)):
-
-![Registrazione reale dell'Agente UAT Giornaliero (GitHub Issue #36) mentre ruota la camera, attiva gli scheletri 3D, tuffa i pezzi nella palude e gioca contro la CPU](assets/gallery/daily_uat_gameplay_20261015.gif)
-
-Ecco i **9 gate automatici (`9 / 9 PASS`)** eseguiti e certificati nell'Issue [#36](https://github.com/palladius/carchess3d/issues/36):
-
-| Gate / Sottosistema | Esito | Metriche Reali Misurate dall'Agente (`2026-10-15 10:27 CEST`) |
-| :--- | :---: | :--- |
-| **`engine_boot`** | ✅ PASS | `window.__CARCHESS__` inizializzato con tutti i manager e le viste 3D |
-| **`piece_orientations`** | ✅ PASS | Bianchi orientati a Nord (`3.142 rad`), Neri orientati a Sud (`0.0 rad`) faccia a faccia |
-| **`camera_flip_180`** | ✅ PASS | Luminanza media: `93.4/255`, Contrasto `stddev: 69.0` (zero black screen) |
-| **`camera_top_down`** | ✅ PASS | Luminanza media: `84.2/255`, Contrasto `stddev: 72.2` |
-| **`skeletons_toggle`** | ✅ PASS | Armature ossee 3D visibili sui pezzi vivi e nella palude |
-| **`swamp_party`** | ✅ PASS | 6 pezzi che nuotano e beccheggiano sulle ninfee del fossato |
-| **`matrix36_modal`** | ✅ PASS | Matrice interattiva `6×6` (36 combinazioni) e link `./showcase/?view=pov` verificati |
-| **`wow_mode`** | ✅ PASS | Mode 2 WOW Turntable Inspector & Arena attiva con controlli personaggio |
-| **`match_gameplay`** | ✅ PASS | 8 mosse giocate tra Agente UAT e `CPU Easy` (latenza media CPU: **`458 ms`** vs target `< 1500 ms`) |
-
 ---
 
 ## 🐝🎬👁️ 7. Inside the 8 Autonomous Antigravity Loops, Multi-Agent Swarms & Daily UAT
 
-Beyond the 3D asset factory on `pupurabbux`, **Antigravity** on the **`cpu-box`** ran **8 major autonomous loops** (full forensic dossier in [`article/ANTIGRAVITY_FORENSICS.md`](ANTIGRAVITY_FORENSICS.md)):
+Beyond the 3D asset factory on `pupurabbux`, **Antigravity** on the **`cpu-box`** ran **8 major autonomous loops** (full forensic dossier in [`article/ANTIGRAVITY_FORENSICS.md`](https://github.com/palladius/carchess3d/blob/main/article/ANTIGRAVITY_FORENSICS.md)):
 
 ```mermaid
 flowchart TD

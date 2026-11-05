@@ -1,19 +1,19 @@
-# Showcase: Alfiere Alessandro Rimasterizzato in Locale (RTX 5080)
+# Showcase: Bishop Alessandro Remastered Locally (RTX 5080)
 
-Confronto visivo tra Concept 2D, Vecchio Modello (Trellis v1) e Nuovo Modello Locale (Hunyuan3D-2 PBR a 60.000 poligoni).
+Visual comparison between the 2D Concept, the Old Model (Trellis v1) and the New Local Model (Hunyuan3D-2 PBR at 60,000 polygons).
 
-![Audit Visivo Alfiere Ale](assets/ale_visual_audit_color.png)
+![Bishop Ale Visual Audit](assets/ale_visual_audit_color.png)
 
-## Punti Salienti
+## Highlights
 
-1. **Risoluzione della somiglianza (Likeness)**:
-   - Nel vecchio modello Trellis, la texture della pelle presentava artefatti scuri sulla guancia e una definizione del viso carente.
-   - Il nuovo modello generato con Hunyuan3D-2 e texturizzato con il rasterizer custom su RTX 5080 mostra pelle pulita, occhi verdi brillanti e proporzioni fedeli al concept stile cartoon 3D per famiglie.
+1. **Likeness Resolution**:
+   - In the old Trellis model, the skin texture showed dark artifacts on the cheek and poor facial definition.
+   - The new model, generated with Hunyuan3D-2 and textured with the custom rasterizer on the RTX 5080, shows clean skin, bright green eyes and proportions faithful to the family-friendly 3D cartoon-style concept.
 
-2. **Volume e Distacco del Draghetto**:
-   - Nel modello precedente, il draghetto era parzialmente collassato nella spalla/collo del personaggio.
-   - Nel nuovo modello, il draghetto possiede corpo, ali e muso staccati e tridimensionali.
+2. **Volume and Separation of the Little Dragon**:
+   - In the previous model, the little dragon was partially collapsed into the character's shoulder/neck.
+   - In the new model, the little dragon has a detached, fully three-dimensional body, wings and snout.
 
-3. **Verifica della Decimazione (697k -> 60k)**:
-   - La forma originale raw marchata a 697.264 facce (12.5 MB) è stata decimata a 60.000 facce (1.08 MB) con Quadric Edge Collapse.
-   - Il test di differenza geometrica a 10x mostra scarti nulli sul viso, garantendo massima resa grafica con un budget compatibile per 32 pezzi su Three.js.
+3. **Decimation Verification (697k -> 60k)**:
+   - The original raw shape, marked at 697,264 faces (12.5 MB), was decimated to 60,000 faces (1.08 MB) with Quadric Edge Collapse.
+   - The 10x geometric difference test shows zero deviation on the face, guaranteeing maximum visual quality with a budget compatible with 32 pieces on Three.js.

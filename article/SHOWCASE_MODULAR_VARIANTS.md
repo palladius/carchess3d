@@ -1,61 +1,61 @@
-# 🏰 CarChess3D — Showcase: Sistema Modulare di Skin 3D & Cinema Veo 16:9
+# 🏰 CarChess3D — Showcase: Modular 3D Skin System & Veo Cinema 16:9
 
-Documento di showcase tecnico e archivio visuale per articoli su CarChess3D (`v0.3.64`).
-
----
-
-## 1. ⚔️ Le 4 Varianti d'Arma Modulari del Cavaliere Seby
-
-![Cavaliere Seby 4-Weapons Modular 3D Showcase](./assets/seby_4weapons_lineup_16x9.png)
-
-Il Cavaliere Seby (`knight`) supporta 4 varianti 3D complete intercambiabili live sia nel menu di configurazione partita (HUD Setup Modal) sia nell'ispettore 3D a 360° (Mode 2 WOW Turntable Inspector):
-
-1. **Destriero Classico (`classic`)**:
-   - Modello: `assets/models/knight-seby.glb`
-   - Descrizione: Cavaliere in armatura dorata con elmo a visiera aperta, destriero con bardatura turbo e mantello blu notte.
-   - Punteggio QA: `9.7/10` (MASTERPIECE 🌟)
-2. **Spada Laser Radiosa (`lightsaber`)**:
-   - Modello: `assets/models/knight-seby-lightsaber.glb`
-   - Descrizione: Variante fantascientifica armata con spada laser a emissione dorata e impugnatura cromata ancorata alla mano destra.
-   - Punteggio QA: `9.7/10` (MASTERPIECE 🌟)
-3. **Alabarda Cavalleresca (`halberd`)**:
-   - Modello: `assets/models/knight-seby-halberd.glb`
-   - Descrizione: Lancia lunga da torneo con stendardo araldico blu e lama d'acciaio lucente. Grounded nativo a $Y=0.0000m$.
-   - Punteggio QA: `9.6/10` (MASTERPIECE 🌟)
-4. **Sfera Aurora d’Acquario (`aurora`)**:
-   - Modello: `assets/models/knight-seby-aurora.glb`
-   - Descrizione: Sfera mistica d'acquario orbitante attorno al cavaliere con riflessi cromatici turchese e smeraldo.
-   - Punteggio QA: `9.6/10` (MASTERPIECE 🌟)
+Technical showcase document and visual archive for articles on CarChess3D (`v0.3.64`).
 
 ---
 
-## 2. 🎬 Struttura Narrativa a 3 Atti per i 36 Scontri Veo 16:9
+## 1. ⚔️ The 4 Modular Weapon Variants of Knight Seby
 
-In `src/views/VeoCinemaView.js`, la riproduzione cinematografica dei 36 video `6x6` sul maxischermo magico (8.0m x 4.5m) segue una regia dinamica in 3 atti che arricchisce la scena senza mai occludere i combattenti 3D in primo piano:
+![Knight Seby 4-Weapons Modular 3D Showcase](./assets/seby_4weapons_lineup_16x9.png)
 
-- **Atto 1 (0–1s / Pre-Padding)**:
-  - Card di Face-Off iniziale con cornice in oro e vetro scuro: `⚔️ ATTO 1 · [Attaccante] sfodera [Arma Reale]!`.
-- **Atto 2 (Progress 28%–72% / Scontro & Reazione)**:
-  - Badge di Contrattacco del Difensore nel quadrante in alto a destra con pill a fumetto animata (`CLANG!`, `WHOOSH!`, `BOING!`, `ZAP!`) e mossa difensiva specifica (`choreo.defenderCounter`).
-- **Atto 3 (Progress > 82% / K.O. Palude & Verdetto)**:
-  - Card trionfale di vittoria con esito finisher e aura pasquale speciale:
-    - **Trono d'Oro Reale ("Carlesso al Cesso" `k_x_q`)**: raggiera dorata con corone imperiali e fulmini scintillanti.
-    - **Mega Abbraccio Puffoso (`n_x_r`)**: tempesta di cuori viola e rosa `💜 🤗 ✨`.
+Knight Seby (`knight`) supports 4 complete 3D variants, hot-swappable both in the game setup menu (HUD Setup Modal) and in the 360° 3D inspector (Mode 2 WOW Turntable Inspector):
+
+1. **Classic Steed (`classic`)**:
+   - Model: `assets/models/knight-seby.glb`
+   - Description: Knight in golden armor with an open-visor helmet, steed with turbo barding and a midnight-blue cloak.
+   - QA Score: `9.7/10` (MASTERPIECE 🌟)
+2. **Radiant Lightsaber (`lightsaber`)**:
+   - Model: `assets/models/knight-seby-lightsaber.glb`
+   - Description: Sci-fi variant armed with a golden-emission lightsaber and chrome hilt anchored to the right hand.
+   - QA Score: `9.7/10` (MASTERPIECE 🌟)
+3. **Chivalric Halberd (`halberd`)**:
+   - Model: `assets/models/knight-seby-halberd.glb`
+   - Description: Long tournament lance with a blue heraldic banner and a gleaming steel blade. Natively grounded at $Y=0.0000m$.
+   - QA Score: `9.6/10` (MASTERPIECE 🌟)
+4. **Aquarium Aurora Sphere (`aurora`)**:
+   - Model: `assets/models/knight-seby-aurora.glb`
+   - Description: Mystical aquarium sphere orbiting around the knight with turquoise and emerald chromatic reflections.
+   - QA Score: `9.6/10` (MASTERPIECE 🌟)
+
+---
+
+## 2. 🎬 3-Act Narrative Structure for the 36 Veo 16:9 Clashes
+
+In `src/views/VeoCinemaView.js`, the cinematic playback of the 36 `6x6` videos on the magic big screen (8.0m x 4.5m) follows a dynamic 3-act direction that enriches the scene without ever occluding the 3D fighters in the foreground:
+
+- **Act 1 (0–1s / Pre-Padding)**:
+  - Opening Face-Off card with a gold and dark glass frame: `⚔️ ACT 1 · [Attacker] draws [Real Weapon]!`.
+- **Act 2 (Progress 28%–72% / Clash & Reaction)**:
+  - Defender's Counterattack badge in the top-right quadrant with an animated comic-book pill (`CLANG!`, `WHOOSH!`, `BOING!`, `ZAP!`) and a specific defensive move (`choreo.defenderCounter`).
+- **Act 3 (Progress > 82% / Swamp K.O. & Verdict)**:
+  - Triumphant victory card with finisher outcome and a special Easter aura:
+    - **Royal Golden Throne (CarChess3D 🚽 `k_x_q`)**: golden sunburst with imperial crowns and sparkling lightning bolts.
+    - **Mega Fluffy Hug (`n_x_r`)**: storm of purple and pink hearts `💜 🤗 ✨`.
 - **Playback Scrubber**:
-  - Linea di progresso minimale color Cinema Red (`#e50914`) con playhead luminoso sul bordo inferiore.
+  - Minimal Cinema Red (`#e50914`) progress line with a glowing playhead along the bottom edge.
 
 ---
 
-## 3. 📊 Audit Adversarial Art Director: 100% Masterpiece Tier ($\ge 9.5/10$)
+## 3. 📊 Adversarial Art Director Audit: 100% Masterpiece Tier ($\ge 9.5/10$)
 
-Tutti i 23 modelli 3D attivi sulla scacchiera sono stati verificati e catalogati in `docs/qa-scores.yaml`:
-- **Ispezione Geometrica & Altezze Canoniche Ricalibrate**:
-  - Re Riccardo: **1.86m** (Papino)
-  - Regina Kate: **1.68m** (Kate)
-  - Alfiere Ale: **1.55m** (slanciato col cappello mitria e draghetto)
-  - Cavaliere Seby: **1.92m** (Seby a cavallo su un destriero maestoso: più alto di papà, con proporzioni espanse in altezza, larghezza e lunghezza!)
-  - Torre Pupurabbu: **2.25m** (imponente fortezza di pietra con Pupurabbu affacciato dai merli, tra 2.00m e 2.50m)
-  - Pedone Puffin: **0.95m** (sentinella Guardia Svizzera)
-  - 100% watertight, $Y=0.0000m$ origin grounding, senza vincoli artificiali di raggio orizzontale.
-- **Ispezione Visiva**: Somiglianza fisionomica $\ge 9.6/10$, fedeltà degli accessori secondari $\ge 9.6/10$, coerenza a 360° sul retro $\ge 9.5/10$.
-- **`just shittest`**: 0 modelli difettosi o sotto la soglia di qualità.
+All 23 3D models active on the chessboard have been verified and catalogued in `docs/qa-scores.yaml`:
+- **Geometric Inspection & Recalibrated Canonical Heights**:
+  - King Riccardo: **1.86m** (Daddy)
+  - Queen Kate: **1.68m** (Kate)
+  - Bishop Ale: **1.55m** (slender, with the mitre hat and little dragon)
+  - Knight Seby: **1.92m** (Seby riding a majestic steed: taller than dad, with proportions expanded in height, width and length!)
+  - Rook Pupurabbu: **2.25m** (imposing stone fortress with Pupurabbu peeking out from the battlements, between 2.00m and 2.50m)
+  - Pawn Puffin: **0.95m** (Swiss Guard sentinel)
+  - 100% watertight, $Y=0.0000m$ origin grounding, with no artificial horizontal radius constraints.
+- **Visual Inspection**: Facial likeness $\ge 9.6/10$, fidelity of secondary accessories $\ge 9.6/10$, 360° back-side consistency $\ge 9.5/10$.
+- **`just shittest`**: 0 defective models or models below the quality threshold.

@@ -1,79 +1,79 @@
-# 🏰🐸 CarChess3D: Showcase Ricostruzione Modelli 3D (Prima e Dopo)
+# 🏰🐸 CarChess3D: 3D Model Reconstruction Showcase (Before and After)
 
-Confronto visivo completo della ricostruzione 3D ad alta fedeltà per le famiglie **Classic** e **Swamp** (Issue #20).
-Questo documento illustra l'evoluzione dai modelli procedurali a bassa risoluzione ai nuovi modelli mesh watertight con texturing UV ad alta fedeltà fedeli ai concept 2D originali.
-
----
-
-## 📸 Banner Cinematico 16:9 (Hero Image per l'Articolo)
-
-Uno screenshot ad alta risoluzione (1920×1080) ambientato sulla scacchiera con illuminazione cinematografica a tre punti, che riunisce tutti i 12 pezzi ricostruiti delle due fazioni contrapposte.
-
-![Banner Cinematico 16:9 per Articolo Tecnico](assets/before_after/article_hero_banner_16x9.png)
-
-> **Nota per la pubblicazione**: Questa immagine è già in formato widescreen 16:9 (1920×1080), ideale come hero image, header per il post tecnico o slide di copertina.
+A complete visual comparison of the high-fidelity 3D reconstruction for the **Classic** and **Swamp** families (Issue #20).
+This document illustrates the evolution from low-resolution procedural models to the new watertight mesh models with high-fidelity UV texturing, faithful to the original 2D concepts.
 
 ---
 
-## 👨‍👦‍👦 Il Vero UAT (*User Acceptance Testing*): Ale & Seby al Tablet
+## 📸 16:9 Cinematic Banner (Hero Image for the Article)
 
-Foto ritagliata (`1522×1620`, focalizzata sui bimbi e sul gioco) di Alessandro (🐉) e Sebastian (🏎️) mentre giocano a **CarChess3D** sul tablet, con la scacchiera 3D e le ninfee della palude ben visibili sullo schermo.
+A high-resolution screenshot (1920×1080) set on the chessboard with cinematic three-point lighting, bringing together all 12 reconstructed pieces from the two opposing factions.
 
-![Alessandro e Sebastian giocano a CarChess3D sul tablet](assets/kids_playing_carchess3d.jpg)
+![16:9 Cinematic Banner for Technical Article](assets/before_after/article_hero_banner_16x9.png)
 
-> 🕵️‍♂️ **Dossier Forensico Completo di `cpu-box`**: Vedi [`article/ANTIGRAVITY_FORENSICS.md`](ANTIGRAVITY_FORENSICS.md) per la telemetria completa delle **sessioni Antigravity (`12.868+ step`, `760M token`)**, gli **8 Loop Complessi / Swarm** e i **`/goal`** eseguiti su `cpu-box`.
+> **Publishing note**: This image is already in 16:9 widescreen format (1920×1080), ideal as a hero image, header for the technical post, or cover slide.
 
 ---
 
-## ⚔️ Confronto d'Insieme: Famiglia Classic
+## 👨‍👦‍👦 The Real UAT (*User Acceptance Testing*): Ale & Seby at the Tablet
 
-Tutti i 6 pezzi della fazione **Classic**: Re, Regina, Alfiere, Cavallo, Torre e Pedone.
-La riga superiore mostra i modelli procedurali geometrici originali (**PRIMA**); la riga inferiore mostra le nuove mesh UV-textured (**DOPO**).
+A cropped photo (`1522×1620`, focused on the kids and the game) of Alessandro (🐉) and Sebastian (🏎️) playing **CarChess3D** on the tablet, with the 3D chessboard and the swamp lily pads clearly visible on screen.
 
-![Lineup Classic: Prima vs Dopo](assets/before_after/lineup_classic_before_after.png)
+![Alessandro and Sebastian playing CarChess3D on the tablet](assets/kids_playing_carchess3d.jpg)
 
-### Schede di Dettaglio Pezzi Classic (2D Concept | Prima: Procedurale | Dopo: Ricostruito 3D)
+> 🕵️‍♂️ **Complete Forensic Dossier from `cpu-box`**: See [`article/ANTIGRAVITY_FORENSICS.md`](ANTIGRAVITY_FORENSICS.md) for the full telemetry of the **Antigravity sessions (`12,868+ steps`, `760M tokens`)**, the **8 Complex Loops / Swarms** and the **`/goal`** runs executed on `cpu-box`.
 
-| Ruolo | Scheda Comparativa |
+---
+
+## ⚔️ Lineup Comparison: Classic Family
+
+All 6 pieces of the **Classic** faction: King, Queen, Bishop, Knight, Rook and Pawn.
+The top row shows the original geometric procedural models (**BEFORE**); the bottom row shows the new UV-textured meshes (**AFTER**).
+
+![Classic Lineup: Before vs After](assets/before_after/lineup_classic_before_after.png)
+
+### Classic Piece Detail Cards (2D Concept | Before: Procedural | After: 3D Reconstructed)
+
+| Role | Comparison Card |
 | :--- | :--- |
-| **Re (King)** | ![Re Classic](assets/before_after/compare_classic_king.png) |
-| **Regina (Queen)** | ![Regina Classic](assets/before_after/compare_classic_queen.png) |
-| **Alfiere (Bishop)** | ![Alfiere Classic](assets/before_after/compare_classic_bishop.png) |
-| **Cavallo (Knight)** | ![Cavallo Classic](assets/before_after/compare_classic_knight.png) |
-| **Torre (Rook)** | ![Torre Classic](assets/before_after/compare_classic_rook.png) |
-| **Pedone (Pawn)** | ![Pedone Classic](assets/before_after/compare_classic_pawn.png) |
+| **King** | ![Classic King](assets/before_after/compare_classic_king.png) |
+| **Queen** | ![Classic Queen](assets/before_after/compare_classic_queen.png) |
+| **Bishop** | ![Classic Bishop](assets/before_after/compare_classic_bishop.png) |
+| **Knight** | ![Classic Knight](assets/before_after/compare_classic_knight.png) |
+| **Rook** | ![Classic Rook](assets/before_after/compare_classic_rook.png) |
+| **Pawn** | ![Classic Pawn](assets/before_after/compare_classic_pawn.png) |
 
 ---
 
-## 🐸 Confronto d'Insieme: Famiglia Swamp
+## 🐸 Lineup Comparison: Swamp Family
 
-Tutti i 6 pezzi della fazione **Swamp**: Orco (Re), Orchessa (Regina), Focaccina (Alfiere), Asinello (Cavallo), Draghessa (Torre) e Tappo (Pedone).
+All 6 pieces of the **Swamp** faction: Ogre (King), Ogress (Queen), Gingerbread Man (Bishop), Donkey (Knight), Dragoness (Rook) and Cork (Pawn).
 
-![Lineup Swamp: Prima vs Dopo](assets/before_after/lineup_swamp_before_after.png)
+![Swamp Lineup: Before vs After](assets/before_after/lineup_swamp_before_after.png)
 
-### Schede di Dettaglio Pezzi Swamp (2D Concept | Prima: Procedurale | Dopo: Ricostruito 3D)
+### Swamp Piece Detail Cards (2D Concept | Before: Procedural | After: 3D Reconstructed)
 
-| Ruolo | Scheda Comparativa |
+| Role | Comparison Card |
 | :--- | :--- |
-| **Orco (Re Swamp)** | ![Orco Re Swamp](assets/before_after/compare_swamp_king.png) |
-| **Orchessa (Regina Swamp)** | ![Orchessa Regina Swamp](assets/before_after/compare_swamp_queen.png) |
-| **Focaccina (Alfiere Swamp)** | ![Focaccina Alfiere Swamp](assets/before_after/compare_swamp_bishop.png) |
-| **Asinello (Cavallo Swamp)** | ![Asinello Cavallo Swamp](assets/before_after/compare_swamp_knight.png) |
-| **Draghessa (Torre Swamp)** | ![Draghessa Torre Swamp](assets/before_after/compare_swamp_rook.png) |
-| **Tappo (Pedone Swamp)** | ![Tappo Pedone Swamp](assets/before_after/compare_swamp_pawn.png) |
+| **Ogre (Swamp King)** | ![Ogre Swamp King](assets/before_after/compare_swamp_king.png) |
+| **Ogress (Swamp Queen)** | ![Ogress Swamp Queen](assets/before_after/compare_swamp_queen.png) |
+| **Gingerbread Man (Swamp Bishop)** | ![Gingerbread Man Swamp Bishop](assets/before_after/compare_swamp_bishop.png) |
+| **Donkey (Swamp Knight)** | ![Donkey Swamp Knight](assets/before_after/compare_swamp_knight.png) |
+| **Dragoness (Swamp Rook)** | ![Dragoness Swamp Rook](assets/before_after/compare_swamp_rook.png) |
+| **Cork (Swamp Pawn)** | ![Cork Swamp Pawn](assets/before_after/compare_swamp_pawn.png) |
 
 ---
 
-## 🔬 Miglioramenti Tecnici Chiave nella Pipeline 2D-to-3D
+## 🔬 Key Technical Improvements in the 2D-to-3D Pipeline
 
-1. **Riconoscimento dell'Aspect Ratio del Concept Art**:
-   - I pezzi **Classic** utilizzavano fogli di turnaround panoramici (16:9) con vista frontale e profilo affiancate.
-   - I pezzi **Swamp** utilizzano ritratti quadrati singoli (1:1). Il rilevamento automatico del ratio (`aspect > 1.35`) evita il dimezzamento accidentale dei ritratti quadrati.
-2. **Volumetria Watertight ed Envelope Convesso**:
-   - Generazione di un guscio solido continuo (`depth = 0.54 * width`) con rastremazione morbida sui bordi della silhouette (`alpha > 0.05`), eliminando artefatti a "lametta" e fori fantasma (es. tra lancia/arma e corpo).
-3. **Mappatura UV e Avvolgimento Dorsale**:
-   - Mappatura frontale piana fedele al 100% all'illustrazione, con proiezione dorsale simmetrica sfumata per mantenere una colorazione coerente da tutte le angolazioni 3D.
-4. **Contratti Scacchistici Rispettati (`_contract.json`)**:
-   - `min.y == 0.0` (perfetto ancoraggio al terreno).
-   - `center.x == 0.0`, `center.z == 0.0` (perfetta centratura sulla casella).
-   - Normalizzazione dimensionale per altezza target di ciascun ruolo (es. Re 1.90m, Pedone 1.25m, ecc.).
+1. **Concept Art Aspect Ratio Detection**:
+   - The **Classic** pieces used widescreen (16:9) turnaround sheets with front and profile views side by side.
+   - The **Swamp** pieces use single square portraits (1:1). Automatic ratio detection (`aspect > 1.35`) prevents square portraits from being accidentally split in half.
+2. **Watertight Volume and Convex Envelope**:
+   - Generation of a continuous solid shell (`depth = 0.54 * width`) with soft tapering along the silhouette edges (`alpha > 0.05`), eliminating "razor-blade" artifacts and phantom holes (e.g. between spear/weapon and body).
+3. **UV Mapping and Back Wrapping**:
+   - Flat front mapping 100% faithful to the illustration, with a blended symmetric back projection to keep coloring consistent from every 3D angle.
+4. **Chess Contracts Honored (`_contract.json`)**:
+   - `min.y == 0.0` (perfect ground anchoring).
+   - `center.x == 0.0`, `center.z == 0.0` (perfect centering on the square).
+   - Size normalization to each role's target height (e.g. King 1.90m, Pawn 1.25m, etc.).
