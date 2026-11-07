@@ -17,5 +17,13 @@
     "tests/piece_clarity.test.mjs",
     "docs/spec/SPEC.md",
     "docs/models-provenance.yaml"
-  ]
+  ],
+  "convergence": {
+    "status": "CONVERGED",
+    "pass": 1,
+    "gaps_count": 0,
+    "uat_archetype": "game_3d",
+    "uat_passed": true,
+    "checked_at": "2026-11-07T20:18:58.734551+00:00"
+  }
 }
