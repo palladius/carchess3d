@@ -1,4 +1,4 @@
-# 🏰🚽 CarChess3D: How an Autonomous Agent Swarm Built a 3D Battle Chess Game While I Celebrated My 10th Wedding Anniversary in Colmar
+# 🏰🚽 CarChess3D: How I Built a 3D Family Chess Game with Gemini 4 Argon and an Autonomous Agent Swarm While Celebrating My 10th Wedding Anniversary in Colmar
 
 > 📰 This is the repository mirror of the article published on [ricc.rocks](https://ricc.rocks/en/posts/technology/2026-10-15-carchess3d-family-chess/). The blog post is the canonical, reviewed version; this copy is regenerated from it.
 
@@ -88,6 +88,10 @@ Here is the timeline recorded in the transcript:
 * `11:13` **Phase 5 — adversarial critic loop** (65m 33s): the critic scores round 1 at `6.2/10`, catches 5 defects (including a glTF `metallicFactor` trap that made everything look like chrome), and iterates until **`9.9/10`** at `12:18`.
 
 > 💡 **SRE Verdict**: **38 minutes** to a working game, **1 hour 47 minutes** to one the critic was happy with — with zero human input in between.
+
+And because git never forgets, here is what that 38-minute game actually looked like (commit `d257880`, checked out and booted again today) next to the current build — same board, three weeks of autonomous loops apart:
+
+![Then vs now: the game 38 minutes after /goal (top) and the current build (bottom)](assets/gallery/then_vs_now_38min.png)
 
 ### ⏳ How Long Can Gemini Actually Run Unattended?
 
