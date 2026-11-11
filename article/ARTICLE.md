@@ -316,6 +316,10 @@ One of my absolute favorite engineering workflows in this project is the **fully
 
 ## 💛 8. Niccolò's Game Architecture (`niccolo-game-design`)
 
+![Pizza lunch in Naples after Gemini Day: Niccolò (right, taking the selfie) with his 3D-obsessed friends and a very hungry me in yellow](assets/niccolo_gemini_day_naples_pizza.jpg)
+
+*The pizzeria table where it all started — Niccolò is the one holding the phone; I am the one holding the pizza.*
+
 To avoid the dreaded "AI Spaghetti Monster" (a monolithic 5,000-line `game.js` tangled in `if/else` chains), CarChess3D strictly enforces the rules of the [**Niccolò Game Design** skill](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md) — Managers + Event Bus, a well-known approach Niccolò pointed me to and that is beautifully laid out in Robert Nystrom's [*Game Programming Patterns*](https://gameprogrammingpatterns.com/):
 
 1. **One Manager = One Responsibility ($\le 300$ LOC per file)**:
