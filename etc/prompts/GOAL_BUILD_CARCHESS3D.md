@@ -1,13 +1,15 @@
-# 🚀 `/goal` Prompt — CarChess3D (*Carlesso al Cesso*) Full Autonomous Build
+# 🚀 `/goal` Prompt — CarChess3D Full Autonomous Build (original, unedited)
 
 > **How to use:** Copy-paste the `/goal` block below into your Agentic IDE / Antigravity chat to launch a long-horizon autonomous build of **CarChess3D** combining **Niccolò's Managers + Event Bus Architecture** (`.agents/skills/niccolo-game-design/SKILL.md`), **Geneviève's 5 Argon 3D Workflows**, and the **Conductor SDD Plan** (`conductor/tracks/v1_carchess3d/plan.md`).
+
+> 🎓 Looking for a **clean, reusable version** without project-specific details? See [`GOAL_TEMPLATE_DIDACTIC.md`](GOAL_TEMPLATE_DIDACTIC.md) — rewritten after Geneviève Huskens' review ("it micromanages the subagents").
 
 ---
 
 ## 📋 Copy-Paste `/goal` Command
 
 ```text
-/goal Build the complete v1 of CarChess3D ("Carlesso al Cesso" / "Scacchi di Famiglia") in this git worktree by executing `conductor/tracks/v1_carchess3d/plan.md` end-to-end. Do NOT stop after a couple of rounds — iterate autonomously with parallel subagents, unit tests, and an Adversarial Art Director Critic subagent until every acceptance gate and a >= 9/10 visual rating are achieved.
+/goal Build the complete v1 of CarChess3D ("Family Chess") in this git worktree by executing `conductor/tracks/v1_carchess3d/plan.md` end-to-end. Do NOT stop after a couple of rounds — iterate autonomously with parallel subagents, unit tests, and an Adversarial Art Director Critic subagent until every acceptance gate and a >= 9/10 visual rating are achieved.
 
 STRICT GUARDRAILS:
 - Work ONLY in the current git worktree. NEVER modify files in any other worktree or touch `.env` / `.riccardo/`.

@@ -79,6 +79,8 @@ At **10:31** on Saturday morning, right before heading out into the cobbled stre
 > 1. **Start with `/grill-me`**: *"ask me questions, then when you're done give me a plan that I can review"*. Let the agent interview you until the plan is solid, instead of dumping a vague wish on it.
 > 2. **Ask for the `/goal` as a deliverable**: *"...and a `/goal` I can set to keep you running for a long time"*. The agent writes its own long-running meta-prompt — milestones, checkpoints, how to self-verify — and you fire it and walk away. That is exactly how my humongous `/goal` was born, and why I could spend the weekend in Colmar.
 
+> ✍️ **Post-review update.** When Geneviève reviewed this article she made one sharp observation about that prompt: *it micromanages the subagents* — I had told the orchestrator exactly which four agents to spawn and which files each one owned. She is right: the human should state outcomes, guardrails and exit gates, and let the planner plan. So here is a **[clean, reusable `/goal` template](https://github.com/palladius/carchess3d/blob/main/etc/prompts/GOAL_TEMPLATE_DIDACTIC.md)** with the project-specific noise removed and the subagent decomposition handed back to the agent. Steal *that* one.
+
 Here is the timeline recorded in the transcript:
 
 * `10:31` **Phase 1 — 2D blueprint & spatial metric** (9m 17s): a metric [floor plan](assets/gallery/floorplan.svg) of the board (`y = 0.00 m`) and an automatic bounding-box grounding utility, so every future 3D piece would stand exactly on its square.
