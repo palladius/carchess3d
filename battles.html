@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b0f18">
-  <meta name="description" content="CarChess3D — Matrice Interattiva 6x6 (36 Scontri 3D & Video 16:9) della Famiglia Carlesso.">
-  <title>CarChess3D · Matrice 6×6 (36 Scontri & Video 16:9) 🏰🚽🎬</title>
+  <meta name="description" content="CarChess3D — Interactive 6x6 Matrix (36 3D Clashes & 16:9 Videos) of the Carlesso Family.">
+  <title>CarChess3D · 6×6 Matrix (36 Clashes & 16:9 Videos) 🏰🚽🎬</title>
   <link rel="icon" href="./docs/logo/logo.svg" type="image/svg+xml">
   <style>
     :root {
@@ -318,25 +318,25 @@
       <div class="hero-title-group">
         <span style="font-size:36px;">🏰🚽🎬</span>
         <div>
-          <h1 class="hero-title">CarChess3D · Matrice Interattiva 6×6 (Tutti i 36 Scontri & Video 16:9)</h1>
-          <p class="hero-sub">6 Attaccanti × 6 Difensori = 36 Coreografie 3D & Video 16:9 con Armi, Contrattacchi Atto 2 ed Easter Egg di Famiglia</p>
+          <h1 class="hero-title">CarChess3D · Interactive 6×6 Matrix (All 36 Clashes & 16:9 Videos)</h1>
+          <p class="hero-sub">6 Attackers × 6 Defenders = 36 3D Choreographies & 16:9 Videos with Weapons, Act 2 Counterattacks and Family Easter Eggs</p>
         </div>
       </div>
       <div class="hero-actions">
-        <a href="./showcase/index.html?view=pov" class="btn gold">🎭 Vetrina Personaggi (POV)</a>
-        <button id="marathon-play-btn" class="btn emerald">▶️ Riproduci Tutti i 36 Scontri (Maratona 6×6)</button>
-        <a href="./index.html" class="btn">♟️ Torna alla Scacchiera 3D</a>
+        <a href="./showcase/index.html?view=pov" class="btn gold">🎭 Character Showcase (POV)</a>
+        <button id="marathon-play-btn" class="btn emerald">▶️ Play All 36 Clashes (6×6 Marathon)</button>
+        <a href="./index.html" class="btn">♟️ Back to the 3D Board</a>
       </div>
     </header>
 
     <!-- 6x6 Interactive Quick-Jump Matrix -->
-    <section class="matrix-overview-box" aria-label="Matrice 6x6 Rapida">
+    <section class="matrix-overview-box" aria-label="Quick 6x6 Matrix">
       <div id="quick-matrix-grid" class="matrix-overview-grid"></div>
     </section>
 
     <!-- Filter Tabs by Attacker -->
-    <nav class="filter-tabs" aria-label="Filtra per Attaccante">
-      <button class="filter-tab active" data-filter="all">Tutti (36)</button>
+    <nav class="filter-tabs" aria-label="Filter by Attacker">
+      <button class="filter-tab active" data-filter="all">All (36)</button>
       <button class="filter-tab" data-filter="k">♔ Riccardo (6)</button>
       <button class="filter-tab" data-filter="q">♕ Kate (6)</button>
       <button class="filter-tab" data-filter="b">♗ Ale (6)</button>
@@ -346,7 +346,7 @@
     </nav>
 
     <!-- 36 Battle Cards Container -->
-    <main id="battles-grid" class="battles-grid" aria-label="Galleria 36 Video 16:9"></main>
+    <main id="battles-grid" class="battles-grid" aria-label="36 16:9 Video Gallery"></main>
   </div>
 
   <script>
@@ -459,7 +459,7 @@
           if (marathonTimer) {
             clearInterval(marathonTimer);
             marathonTimer = null;
-            marathonBtn.textContent = '▶️ Riproduci Tutti i 36 Scontri (Maratona 6×6)';
+            marathonBtn.textContent = '▶️ Play All 36 Clashes (6×6 Marathon)';
             return;
           }
           const videos = Array.from(document.querySelectorAll('.battle-card video'));
@@ -468,14 +468,14 @@
             if (marathonIdx >= videos.length) {
               clearInterval(marathonTimer);
               marathonTimer = null;
-              marathonBtn.textContent = '▶️ Riproduci Tutti i 36 Scontri (Maratona 6×6)';
+              marathonBtn.textContent = '▶️ Play All 36 Clashes (6×6 Marathon)';
               return;
             }
             videos.forEach((v) => { try { v.pause(); } catch {} });
             const v = videos[marathonIdx];
             const card = v.closest('.battle-card');
             marathonIdx++;
-            marathonBtn.textContent = `⏹️ Ferma Maratona (${marathonIdx}/36 · ${card?.dataset?.battleId?.toUpperCase() || ''})`;
+            marathonBtn.textContent = `⏹️ Stop Marathon (${marathonIdx}/36 · ${card?.dataset?.battleId?.toUpperCase() || ''})`;
             card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             try {
               v.currentTime = 0;
@@ -522,7 +522,7 @@
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d/issues/new" target="_blank" rel="noopener noreferrer" style="color:#ffab91;text-decoration:none;font-weight:600;">🐛 Open a bug</a>
     <span>·</span>
-    <a href="index.html" style="color:#ffe082;text-decoration:none;font-weight:600;">🏰 Gioca a CarChess3D</a>
+    <a href="index.html" style="color:#ffe082;text-decoration:none;font-weight:600;">🏰 Play CarChess3D</a>
   </footer>
 </body>
 </html>

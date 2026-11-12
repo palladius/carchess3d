@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CarChess3D · Vetrina 2D & 3D · POV Personaggi & Famiglie 🏰🎬</title>
+  <title>CarChess3D · 2D & 3D Showcase · Character POV & Families 🏰🎬</title>
   <link rel="icon" href="../docs/logo/logo.svg" type="image/svg+xml">
   <!--
     🎭 SHOWCASE & POV CHARACTER HUB — CarChess3D
-    1. Modalità POV Personaggio: 3D Turntable, Soundboard Vocale e 11 Video Scontri (Attacco vs Difesa)
-    2. Modalità Confronto Famiglie: 18 Pezzi Multi-Family (Carlesso, Classici Vanilla, Palude)
+    1. Character POV Mode: 3D Turntable, Voice Soundboard and 11 Clash Videos (Attack vs Defense)
+    2. Family Comparison Mode: 18 Multi-Family Pieces (Carlesso, Vanilla Classics, Swamp)
   -->
   <script type="importmap">
     { "imports": { "three": "../vendor/three/three.module.js" } }
@@ -1123,26 +1123,26 @@
         <strong class="brand-title">CarChess3D</strong>
       </a>
       <!-- Mode Switcher: POV vs Multi-Family -->
-      <div class="btn-group compact" id="main-view-mode" role="tablist" aria-label="Modalità Vetrina">
-        <button type="button" data-mode="pov" aria-pressed="true" title="Vetrina Eroi">🎭 Eroi POV</button>
-        <button type="button" data-mode="families" aria-pressed="false" title="Confronto 18 Pezzi Multi-Family">🏛️ 18 Pezzi</button>
+      <div class="btn-group compact" id="main-view-mode" role="tablist" aria-label="Showcase Mode">
+        <button type="button" data-mode="pov" aria-pressed="true" title="Heroes Showcase">🎭 Heroes POV</button>
+        <button type="button" data-mode="families" aria-pressed="false" title="18-Piece Multi-Family Comparison">🏛️ 18 Pieces</button>
       </div>
       <!-- Family Tabs (Used when mode=families) -->
-      <div class="btn-group compact" id="family-tabs" role="tablist" aria-label="Famiglia di Scacchi" style="display: none;">
+      <div class="btn-group compact" id="family-tabs" role="tablist" aria-label="Chess Family" style="display: none;">
         <button type="button" data-family="carlesso" aria-pressed="true">👨‍👩‍👦‍👦 Carlesso</button>
-        <button type="button" data-family="classic" aria-pressed="false">♔ Classici</button>
-        <button type="button" data-family="swamp" aria-pressed="false">🐸 Palude</button>
+        <button type="button" data-family="classic" aria-pressed="false">♔ Classics</button>
+        <button type="button" data-family="swamp" aria-pressed="false">🐸 Swamp</button>
       </div>
     </div>
 
     <div class="header-right">
       <!-- Faction Colors -->
-      <div class="btn-group compact" id="faction-tabs" role="group" aria-label="Tinte 3D">
-        <button type="button" data-faction="original" aria-pressed="true" title="Materiali Originali">🎨 Orig</button>
-        <button type="button" data-faction="white" aria-pressed="false" title="Squadra Bianca">⚪ Bianco</button>
-        <button type="button" data-faction="black" aria-pressed="false" title="Squadra Nera">⚫ Nero</button>
+      <div class="btn-group compact" id="faction-tabs" role="group" aria-label="3D Tints">
+        <button type="button" data-faction="original" aria-pressed="true" title="Original Materials">🎨 Orig</button>
+        <button type="button" data-faction="white" aria-pressed="false" title="White Team">⚪ White</button>
+        <button type="button" data-faction="black" aria-pressed="false" title="Black Team">⚫ Black</button>
       </div>
-      <a href="../index.html" class="nav-btn gold compact" title="Gioca a CarChess3D">♟️ Gioca</a>
+      <a href="../index.html" class="nav-btn gold compact" title="Play CarChess3D">♟️ Play</a>
       <span id="mode-badge" style="display:none;"></span>
     </div>
   </header>
@@ -1152,7 +1152,7 @@
        ════════════════════════════════════════════════════════════════════════ -->
   <section id="pov-section" class="pov-container">
     <!-- 6 Hero Selector Chip Bar -->
-    <nav class="hero-selector" id="hero-selector" aria-label="Selettore Eroi Famiglia Carlesso"></nav>
+    <nav class="hero-selector" id="hero-selector" aria-label="Carlesso Family Hero Selector"></nav>
 
     <!-- Side-by-Side Dual Stage (Left: 3D Turntable & Soundboard | Right: Cinema Video Theater & Shelf) -->
     <div class="pov-stage-grid">
@@ -1165,12 +1165,12 @@
           <div class="pov-3d-top-strip">
             <div class="pov-hero-badge-group">
               <span id="pov-glyph" class="hero-glyph-pill">♘</span>
-              <strong id="pov-title-name" class="hero-title-text">Cavaliere Seby</strong>
-              <span id="pov-title-role" class="hero-role-pill">Cavaliere</span>
+              <strong id="pov-title-name" class="hero-title-text">Knight Seby</strong>
+              <span id="pov-title-role" class="hero-role-pill">Knight</span>
             </div>
             <div class="pov-3d-actions">
               <div class="model-variants-pills" id="pov-variants-pills"></div>
-              <button id="pov-fs-btn" class="fs-icon-btn" title="Schermo Intero 3D">⛶</button>
+              <button id="pov-fs-btn" class="fs-icon-btn" title="3D Full Screen">⛶</button>
             </div>
           </div>
 
@@ -1179,10 +1179,10 @@
           </div>
 
           <div class="pov-3d-bottom-strip">
-            <div class="pov-hint-text">🖱️ Trascina per ruotare</div>
+            <div class="pov-hint-text">🖱️ Drag to rotate</div>
             <div class="pov-stats-inline">
-              <span class="stat-pill" title="Arma">⚔️ <span id="pov-stat-weapon">Pista Turbo</span></span>
-              <span class="stat-pill" title="Contrattacco">🛡️ <span id="pov-stat-counter">Impennata</span></span>
+              <span class="stat-pill" title="Weapon">⚔️ <span id="pov-stat-weapon">Turbo Track</span></span>
+              <span class="stat-pill" title="Counterattack">🛡️ <span id="pov-stat-counter">Rearing</span></span>
             </div>
           </div>
         </div>
@@ -1194,12 +1194,12 @@
               <img id="pov-bio-avatar" src="" alt="Avatar" class="avatar-mini">
               <div class="quote-group">
                 <span id="pov-bio-catchphrase" class="catchphrase-quote">"Can you clean my bottooooom?!"</span>
-                <span id="pov-badge-easter" class="badge-mini-purple">💜 Abbraccio Puffoso</span>
+                <span id="pov-badge-easter" class="badge-mini-purple">💜 Fluffy Hug</span>
               </div>
             </div>
             <div id="sound-status-badge" class="sound-status-badge compact">
               <span class="audio-wave"><span></span><span></span><span></span></span>
-              <span id="sound-status-text">Pronto</span>
+              <span id="sound-status-text">Ready</span>
             </div>
           </div>
 
@@ -1217,23 +1217,23 @@
             <div class="theater-titles">
               <div class="theater-matchup-row compact-matchup">
                 <div class="theater-fighter">
-                  <img id="cinema-atk-icon" src="../assets/icons/chess/white/knight.svg" class="chess-medallion-icon-sm" alt="Attaccante">
+                  <img id="cinema-atk-icon" src="../assets/icons/chess/white/knight.svg" class="chess-medallion-icon-sm" alt="Attacker">
                   <span id="cinema-atk-name" class="fighter-name">Seby</span>
                 </div>
                 <span class="theater-vs-sm">VS</span>
                 <div class="theater-fighter">
-                  <img id="cinema-def-icon" src="../assets/icons/chess/black/rook.svg" class="chess-medallion-icon-sm" alt="Difensore">
+                  <img id="cinema-def-icon" src="../assets/icons/chess/black/rook.svg" class="chess-medallion-icon-sm" alt="Defender">
                   <span id="cinema-def-name" class="fighter-name">Pupurabbu</span>
                 </div>
-                <span id="cinema-episode-badge" class="badge-gold-mini">EPISODIO 1 DI 6 · ATTACCO</span>
-                <span id="cinema-easter-badge" class="badge-purple-mini" style="display:none;">🪞 Specchio</span>
+                <span id="cinema-episode-badge" class="badge-gold-mini">EPISODE 1 OF 6 · ATTACK</span>
+                <span id="cinema-easter-badge" class="badge-purple-mini" style="display:none;">🪞 Mirror</span>
               </div>
-              <h3 id="cinema-screen-title" class="theater-title-sm">Cavaliere Seby vs Torre Pupurabbu</h3>
+              <h3 id="cinema-screen-title" class="theater-title-sm">Knight Seby vs Rook Pupurabbu</h3>
             </div>
 
             <div class="theater-nav-controls">
-              <button id="cinema-prev-btn" class="nav-btn-icon" title="Episodio precedente">⏮️</button>
-              <button id="cinema-next-btn" class="nav-btn-icon gold" title="Prossimo episodio">⏭️</button>
+              <button id="cinema-prev-btn" class="nav-btn-icon" title="Previous episode">⏮️</button>
+              <button id="cinema-next-btn" class="nav-btn-icon gold" title="Next episode">⏭️</button>
             </div>
           </div>
 
@@ -1244,11 +1244,11 @@
             <div id="cinema-screen-target-badge" class="cinema-screen-target-badge badge-attack">
               <img id="cinema-screen-target-icon" src="../assets/icons/chess/black/queen.svg" class="screen-target-icon" alt="Target Piece">
               <div class="screen-target-meta">
-                <span id="cinema-screen-target-mode" class="screen-target-mode text-red">🎲🔴 ATTACCO</span>
-                <strong id="cinema-screen-target-title" class="screen-target-title">vs ♛ REGINA (Kate)</strong>
+                <span id="cinema-screen-target-mode" class="screen-target-mode text-red">🎲🔴 ATTACK</span>
+                <strong id="cinema-screen-target-title" class="screen-target-title">vs ♛ QUEEN (Kate)</strong>
               </div>
             </div>
-            <button type="button" id="cinema-aspect-toggle" class="cinema-aspect-btn" title="Alterna formato video tra 16:9 Cinema e 4:3 Classico">
+            <button type="button" id="cinema-aspect-toggle" class="cinema-aspect-btn" title="Toggle video format between 16:9 Cinema and 4:3 Classic">
               <span id="cinema-screen-watermark">16:9 CINEMA</span> 📐
             </button>
           </div>
@@ -1256,11 +1256,11 @@
           <!-- Screen Actions & Details -->
           <div class="cinema-screen-meta-row">
             <div class="cinema-acts-compact">
-              <span class="act-line">⚔️ <strong id="cinema-act1-text">Pista Loop Turbo</strong></span>
+              <span class="act-line">⚔️ <strong id="cinema-act1-text">Turbo Loop Track</strong></span>
               <span>·</span>
-              <span class="act-line">🛡️ <strong id="cinema-act2-text">Rimbalzo</strong></span>
+              <span class="act-line">🛡️ <strong id="cinema-act2-text">Bounce</strong></span>
             </div>
-            <a id="cinema-clash-3d-btn" href="../index.html?clash=n_r" class="btn-clash-3d-compact">🥊 Scontro 3D</a>
+            <a id="cinema-clash-3d-btn" href="../index.html?clash=n_r" class="btn-clash-3d-compact">🥊 3D Clash</a>
           </div>
 
           <!-- Hidden elements preserved for safety -->
@@ -1277,10 +1277,10 @@
               <div class="risiko-shelf-header attack-header">
                 <div class="risiko-shelf-title-group">
                   <span class="risiko-dice-icon dice-red">🎲🔴</span>
-                  <strong class="risiko-shelf-title">ATTACCO (Dadi Rossi Risiko) · Le 6 Vittorie di <span id="risiko-hero-name-atk">Seby</span></strong>
-                  <span class="risiko-shelf-hint">Clicca il pezzo target che vuoi mangiare</span>
+                  <strong class="risiko-shelf-title">ATTACK (Red Risk Dice) · The 6 Victories of <span id="risiko-hero-name-atk">Seby</span></strong>
+                  <span class="risiko-shelf-hint">Click the target piece you want to capture</span>
                 </div>
-                <span class="risiko-shelf-badge badge-red">6 Scontri in Uscita</span>
+                <span class="risiko-shelf-badge badge-red">6 Outgoing Clashes</span>
               </div>
               <div class="risiko-cards-grid attack-grid" id="attacks-cards-grid"></div>
             </div>
@@ -1290,10 +1290,10 @@
               <div class="risiko-shelf-header defense-header">
                 <div class="risiko-shelf-title-group">
                   <span class="risiko-dice-icon dice-blue">🎲🔵</span>
-                  <strong class="risiko-shelf-title">DIFESA (Dadi Blu Risiko) · I 6 Contrattacchi di <span id="risiko-hero-name-def">Seby</span></strong>
-                  <span class="risiko-shelf-hint">Clicca il pezzo da cui vuoi difenderti</span>
+                  <strong class="risiko-shelf-title">DEFENSE (Blue Risk Dice) · The 6 Counterattacks of <span id="risiko-hero-name-def">Seby</span></strong>
+                  <span class="risiko-shelf-hint">Click the piece you want to defend against</span>
                 </div>
-                <span class="risiko-shelf-badge badge-blue">6 Scontri in Entrata</span>
+                <span class="risiko-shelf-badge badge-blue">6 Incoming Clashes</span>
               </div>
               <div class="risiko-cards-grid defense-grid" id="defenses-cards-grid"></div>
             </div>
@@ -1312,13 +1312,13 @@
   <section id="families-section" style="display: none;">
     <section class="family-banner" id="family-banner">
       <div>
-        <h2 id="banner-title">👨‍👩‍👦‍👦 Famiglia Carlesso — Cast Principale (6 Pezzi)</h2>
-        <p id="banner-desc">Riccardo, Kate, Ale (con drago rosso riggato a 26 ossa), Seby, Pupurabbu e la Guardia Svizzera Puffin.</p>
+        <h2 id="banner-title">👨‍👩‍👦‍👦 Carlesso Family — Main Cast (6 Pieces)</h2>
+        <p id="banner-desc">Riccardo, Kate, Ale (with a 26-bone rigged red dragon), Seby, Pupurabbu and Swiss Guard Puffin.</p>
       </div>
       <div class="family-links">
-        <a href="audio.html">🎻 Soundtrack & Voci Player</a>
-        <a href="../tools/model-pipeline/classic/classic_contact_sheet.png" target="_blank">📸 Contact Sheet Classici Vanilla (6×4)</a>
-        <a href="../tools/model-pipeline/swamp/swamp_contact_sheet.png" target="_blank">📸 Contact Sheet Palude (6×4)</a>
+        <a href="audio.html">🎻 Soundtrack & Voices Player</a>
+        <a href="../tools/model-pipeline/classic/classic_contact_sheet.png" target="_blank">📸 Vanilla Classics Contact Sheet (6×4)</a>
+        <a href="../tools/model-pipeline/swamp/swamp_contact_sheet.png" target="_blank">📸 Swamp Contact Sheet (6×4)</a>
         <a href="../docs/qa-scores.classic.yaml" target="_blank">📋 QA Scores Classic</a>
         <a href="../docs/qa-scores.swamp.yaml" target="_blank">📋 QA Scores Swamp</a>
       </div>
@@ -1583,15 +1583,15 @@
               <span class="label">2D Nano Banana 2.1</span>
               <img src="${c.front}" alt="${c.name} — 2D fronte" loading="lazy" data-img="${i}">
               <div class="tabs">
-                <button aria-pressed="true" data-side="front" data-card="${i}">Fronte</button>
-                ${c.back ? `<button aria-pressed="false" data-side="back" data-card="${i}">Retro</button>` : ''}
+                <button aria-pressed="true" data-side="front" data-card="${i}">Front</button>
+                ${c.back ? `<button aria-pressed="false" data-side="back" data-card="${i}">Back</button>` : ''}
               </div>
             </div>
             <div class="pane" data-3d="${i}">
               <span class="label">3D GLB</span>
-              ${models.length ? `<button class="fs" data-fs="${i}" title="Schermo intero (o click sul 3D)">⛶</button>` : ''}
-              ${models.length ? '<div class="placeholder">⏳ carico il GLB…</div>'
-                              : '<div class="placeholder">3D Carlesso in generazione sull’altro PC ⏳</div>'}
+              ${models.length ? `<button class="fs" data-fs="${i}" title="Full screen (or click the 3D)">⛶</button>` : ''}
+              ${models.length ? '<div class="placeholder">⏳ loading the GLB…</div>'
+                              : '<div class="placeholder">3D Carlesso being generated on the other PC ⏳</div>'}
               ${models.length > 1 ? `<div class="captions">${models.map((m) =>
                 `<span><b>${m.label}</b></span>`).join('')}</div>` : ''}
             </div>
@@ -2169,12 +2169,12 @@ if (uDragonCoilMode > 0.5) {
       if (label) {
         label.textContent = is4by3 ? '4:3 CLASSIC' : '16:9 CINEMA';
       }
-      cinemaAspectBtn.title = is4by3 ? 'Formato 4:3 Classico (clicca per 16:9 Cinema)' : 'Formato 16:9 Cinema (clicca per 4:3 Classico)';
+      cinemaAspectBtn.title = is4by3 ? '4:3 Classic format (click for 16:9 Cinema)' : '16:9 Cinema format (click for 4:3 Classic)';
     });
 
     function createEpisodeCardHTML(b, idx, isAttack, isActive) {
       const modeKey = isAttack ? 'attack' : 'defense';
-      const targetName = b.targetPieceName || 'PEZZO';
+      const targetName = b.targetPieceName || 'PIECE';
       const targetGlyph = b.targetPieceGlyph || '♟';
       const heroName = b.targetHero?.heroName || b.targetKey;
       return `
@@ -2183,21 +2183,21 @@ if (uDragonCoilMode > 0.5) {
              data-battle-idx="${idx}"
              tabindex="0"
              role="button"
-             aria-label="${isAttack ? 'Attacco contro' : 'Difesa da'} ${targetName} (${heroName})">
+             aria-label="${isAttack ? 'Attack against' : 'Defense from'} ${targetName} (${heroName})">
           <div class="episode-thumb-wrap">
             <img src="${b.poster}" alt="${b.title}" loading="lazy">
             <div class="film-target-overlay ${isAttack ? 'target-red' : 'target-blue'}">
-              <div class="target-medallion-circle" title="Pezzo Target: ${targetName}">
+              <div class="target-medallion-circle" title="Target Piece: ${targetName}">
                 <img src="${b.targetMedallion}" class="target-medallion-icon" alt="${targetName}">
               </div>
               <span class="target-piece-pill">${isAttack ? '' : '🛡️ '}${targetGlyph} ${targetName}</span>
             </div>
-            <span class="episode-duration-pill">${b.isMirror ? '🪞 Specchio' : isAttack ? '⚔️ Vittoria' : '🛡️ Difesa'}</span>
-            ${isActive ? '<span class="episode-playing-pill">IN ONDA</span>' : ''}
+            <span class="episode-duration-pill">${b.isMirror ? '🪞 Mirror' : isAttack ? '⚔️ Victory' : '🛡️ Defense'}</span>
+            ${isActive ? '<span class="episode-playing-pill">ON AIR</span>' : ''}
           </div>
           <div class="episode-info">
             <div class="episode-target-heading ${isAttack ? 'text-red' : 'text-blue'}">
-              ${isAttack ? '⚔️ vs' : '🛡️ da'} <strong>${targetName}</strong>
+              ${isAttack ? '⚔️ vs' : '🛡️ from'} <strong>${targetName}</strong>
               <small>(${heroName})</small>
             </div>
             <div class="episode-subaction" title="${isAttack ? b.weapon : b.counter}">
@@ -2247,13 +2247,13 @@ if (uDragonCoilMode > 0.5) {
         const isAttack = mode === 'attack';
 
         if (cinemaEpisodeBadge) {
-          const viewLabel = isAttack ? 'ATTACCO (Dadi Rossi)' : 'DIFESA (Dadi Blu)';
-          cinemaEpisodeBadge.textContent = `EPISODIO ${currentActiveIndex + 1} DI 6 · ${viewLabel}`;
+          const viewLabel = isAttack ? 'ATTACK (Red Dice)' : 'DEFENSE (Blue Dice)';
+          cinemaEpisodeBadge.textContent = `EPISODE ${currentActiveIndex + 1} OF 6 · ${viewLabel}`;
         }
         if (cinemaEasterBadge) {
           if (b.isMirror) {
             cinemaEasterBadge.style.display = 'inline-flex';
-            cinemaEasterBadge.textContent = '🪞 Scontro Specchio';
+            cinemaEasterBadge.textContent = '🪞 Mirror Clash';
           } else if (b.easterEgg) {
             cinemaEasterBadge.style.display = 'inline-flex';
             cinemaEasterBadge.textContent = b.easterEgg;
@@ -2272,7 +2272,7 @@ if (uDragonCoilMode > 0.5) {
         if (cinemaAct2Text) cinemaAct2Text.textContent = `${b.counter} (${b.counterSfx})`;
         if (cinemaClash3dBtn) {
           cinemaClash3dBtn.href = `../index.html?clash=${b.pairId}`;
-          cinemaClash3dBtn.textContent = `🥊 Gioca questo Scontro in 3D nella Scacchiera (${b.pairId.toUpperCase()})`;
+          cinemaClash3dBtn.textContent = `🥊 Play this Clash in 3D on the Board (${b.pairId.toUpperCase()})`;
         }
 
         // Update Target Screen Badge floating directly on the main cinema screen
@@ -2280,8 +2280,8 @@ if (uDragonCoilMode > 0.5) {
           cinemaTargetBadge.className = `cinema-screen-target-badge ${isAttack ? 'badge-attack' : 'badge-defense'}`;
           cinemaTargetIcon.src = b.targetMedallion;
           cinemaTargetMode.className = `screen-target-mode ${isAttack ? 'text-red' : 'text-blue'}`;
-          cinemaTargetMode.textContent = isAttack ? '🎲🔴 ATTACCO' : '🎲🔵 DIFESA';
-          cinemaTargetTitle.textContent = `${isAttack ? 'vs' : 'da'} ${b.targetPieceGlyph} ${b.targetPieceName} (${b.targetHero?.heroName || b.targetKey})`;
+          cinemaTargetMode.textContent = isAttack ? '🎲🔴 ATTACK' : '🎲🔵 DEFENSE';
+          cinemaTargetTitle.textContent = `${isAttack ? 'vs' : 'from'} ${b.targetPieceGlyph} ${b.targetPieceName} (${b.targetHero?.heroName || b.targetKey})`;
         }
 
         if (cinemaVideo) {
@@ -2397,8 +2397,8 @@ if (uDragonCoilMode > 0.5) {
       const badge = document.getElementById('mode-badge');
       if (badge) {
         badge.textContent = isPov
-          ? '⭐ Modalità Eroi: 6 Pezzi della Famiglia Carlesso (3D + Voci + Scontri)'
-          : '🧪 Modalità Confronto: 18 Pezzi su 3 Famiglie con Art Critic';
+          ? '⭐ Heroes Mode: 6 Carlesso Family Pieces (3D + Voices + Clashes)'
+          : '🧪 Comparison Mode: 18 Pieces across 3 Families with Art Critic';
       }
 
       if (!isPov) {
@@ -2469,7 +2469,7 @@ if (uDragonCoilMode > 0.5) {
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d/issues/22" target="_blank" rel="noopener noreferrer" style="color:#ffab91;text-decoration:none;font-weight:600;">🎭 Issue #22 Showcase POV</a>
     <span>·</span>
-    <a href="../index.html" style="color:#ffe082;text-decoration:none;font-weight:600;">🏰 Gioca a CarChess3D</a>
+    <a href="../index.html" style="color:#ffe082;text-decoration:none;font-weight:600;">🏰 Play CarChess3D</a>
   </footer>
 </body>
 </html>

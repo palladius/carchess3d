@@ -1,14 +1,14 @@
 # 🏰🚽 CarChess3D ♟️
 
-> ### 🌐🚀 **[GIOCA SUBITO LIVE SU GITHUB PAGES → `https://palladius.github.io/carchess3d/`](https://palladius.github.io/carchess3d/)**
-> - 🎮 **Partita 3D & Scazzottata**: [https://palladius.github.io/carchess3d/](https://palladius.github.io/carchess3d/)
-> - 🎬 **Matrice Interattiva 6×6 (Tutti i 36 Scontri & Video 16:9)**: [https://palladius.github.io/carchess3d/battles.html](https://palladius.github.io/carchess3d/battles.html)
+> ### 🌐🚀 **[PLAY IT LIVE NOW ON GITHUB PAGES → `https://palladius.github.io/carchess3d/`](https://palladius.github.io/carchess3d/)**
+> - 🎮 **3D Game & Brawl**: [https://palladius.github.io/carchess3d/](https://palladius.github.io/carchess3d/)
+> - 🎬 **Interactive 6×6 Matrix (All 36 Clashes & 16:9 Videos)**: [https://palladius.github.io/carchess3d/battles.html](https://palladius.github.io/carchess3d/battles.html)
 > - 🌟 **WOW Mode & Arena 6×6**: [https://palladius.github.io/carchess3d/?mode=wow](https://palladius.github.io/carchess3d/?mode=wow)
-> - 🥊 **Demo Scazzottata 3D + Video 16:9 (Ale vs Seby)**: [https://palladius.github.io/carchess3d/?clash=b_n](https://palladius.github.io/carchess3d/?clash=b_n)
-> - 🐸 **Demo Palude Incantata (Pezzi Catturati)**: [https://palladius.github.io/carchess3d/?swamp_party=1](https://palladius.github.io/carchess3d/?swamp_party=1)
-> - 🏛️ **Showcase 3 Famiglie (18 Pezzi 3D `.glb`)**: [https://palladius.github.io/carchess3d/showcase/](https://palladius.github.io/carchess3d/showcase/)
+> - 🥊 **3D Brawl + 16:9 Video Demo (Ale vs Seby)**: [https://palladius.github.io/carchess3d/?clash=b_n](https://palladius.github.io/carchess3d/?clash=b_n)
+> - 🐸 **Enchanted Swamp Demo (Captured Pieces)**: [https://palladius.github.io/carchess3d/?swamp_party=1](https://palladius.github.io/carchess3d/?swamp_party=1)
+> - 🏛️ **3-Family Showcase (18 3D `.glb` Pieces)**: [https://palladius.github.io/carchess3d/showcase/](https://palladius.github.io/carchess3d/showcase/)
 > - 📸 **Visual Progress & Critic Gallery**: [https://palladius.github.io/carchess3d/progress.html](https://palladius.github.io/carchess3d/progress.html)
-> - ✍️ **Articolo ("Come ho generato CarChess3D in 2 giorni")**: [`docs/ARTICLE.md`](docs/ARTICLE.md)
+> - ✍️ **Article ("How I generated CarChess3D in 2 days")**: [`docs/ARTICLE.md`](docs/ARTICLE.md)
 
 <p align="center">
   <img src="docs/logo/logo.png" alt="CarChess3D: a cartoon chess king on a golden toilet-throne" width="320">
