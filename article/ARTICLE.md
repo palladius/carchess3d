@@ -2,7 +2,7 @@
 
 > 📰 This is the repository mirror of the article published on [ricc.rocks](https://ricc.rocks/en/posts/technology/2026-10-15-carchess3d-family-chess/). The blog post is the canonical, reviewed version; this copy is regenerated from it.
 
-*By **Riccardo "Palladius" Carlesso** — proud dad to Ale & Seby and improvised 3D game designer. Built hands-off with [**Gemini 4**](https://blog.google/technology/google-deepmind/gemini-4/) inside [**Antigravity**](https://antigravity.google/) and the [**Niccolò Game Design** skill](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md). Zurich & Colmar, October 2026.*
+*By **Riccardo "Palladius" Carlesso** — proud dad to Ale & Seby and improvised 3D game designer. Built hands-off with [**Gemini 4**](https://deepmind.google/models/gemini/) inside [**Antigravity**](https://antigravity.google/) and the [**Niccolò Game Design** skill](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md). Zurich & Colmar, October 2026.*
 
 ![CarChess3D: a 12-second camera orbit around the Carlesso family — Seby, Ale, Dad, Mum — on the 3D board](assets/gallery/family_orbit_hero.gif)
 
@@ -16,7 +16,7 @@ Over a steaming *pizza bufalina*, **Niccolò and his friends** let me in on thei
 
 Little did I know back at that pizzeria table that, just a few weeks later, I would:
 1. **Distill Niccolò's game-design wisdom into an agent skill** ([`niccolo-game-design`](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md)), and
-2. **Use [Gemini 4](https://blog.google/technology/google-deepmind/gemini-4/) to generate a next-generation 3D Battle Chess game completely HANDS-OFF!**
+2. **Use [Gemini 4](https://deepmind.google/models/gemini/) to generate a next-generation 3D Battle Chess game completely HANDS-OFF!**
 
 How? **... keep reading! :)**
 
@@ -232,7 +232,7 @@ When Hugging Face ZeroGPU hit quota limits (*"Exceeded ZeroGPU quota"*), the age
 - **Blackwell `sm_120` CUDA PTX JIT Fix**: Because prebuilt PyTorch/rasterizer wheels didn't yet include native binaries for NVIDIA's new Blackwell `sm_120` architecture (`cudaErrorNoKernelImageForDevice`), the agent recompiled `custom_rasterizer_kernel` with `TORCH_CUDA_ARCH_LIST="9.0+PTX"`, leveraging the NVIDIA driver's PTX JIT compiler.
 
 #### Engine 3: Slimming Down 10× with Quadric Edge Collapse 📐
-A raw mesh out of Hunyuan3D-2 has **~700,000 triangles (12.5 MB)** per piece: with 32 pieces on the board that is 22 million polygons, and any tablet browser gives up. [Quadric Edge Collapse](https://en.wikipedia.org/wiki/Mesh_simplification) (Garland & Heckbert, 1997) merges the edges that matter least first, so we went from **697k to 60k faces (12.5 MB → 1.0 MB) in under 10 seconds** while keeping faces, crowns and noses intact.
+A raw mesh out of Hunyuan3D-2 has **~700,000 triangles (12.5 MB)** per piece: with 32 pieces on the board that is 22 million polygons, and any tablet browser gives up. [Quadric Edge Collapse](https://en.wikipedia.org/wiki/Level_of_detail_(computer_graphics)) (Garland & Heckbert, 1997) merges the edges that matter least first, so we went from **697k to 60k faces (12.5 MB → 1.0 MB) in under 10 seconds** while keeping faces, crowns and noses intact.
 
 #### Engine 4: Mode B Biometric Face-Grafting ($2048 \times 1024$ Dual-Chart WebP Atlas)
 My initial King mesh looked like a generic, clean-shaven doll. When I complained (*"Better, but it still doesn't look like me! Build an adversarial likeness critic using my 5 reference photos!"*), the agent built a **Biometric Likeness Critic (`riccardo-likeness-critic`)** scoring **8 facial landmarks** (hooded smiling brown eyes, vertical glabellar crease, white tuft on the left eyebrow, rounded nose tip, wide grin, 2-day salt-and-pepper stubble, silver temples, no glasses) and implemented **Mode B Planar Face-Grafting**:
@@ -357,7 +357,7 @@ Or play directly online on GitHub Pages:
 
 Two years ago, building a custom 3D video game starring your own family — complete with watertight textured meshes, skeletal rigging, event-driven architecture, a Web Worker chess AI, 36 AI battle cutscenes, baroque string music, and bilingual voice acting — would have taken an indie studio four months and tens of thousands of euros.
 
-Today, combining frontier models like [**Gemini 4**](https://blog.google/technology/google-deepmind/gemini-4/), [**Antigravity**](https://antigravity.google/)'s multi-agent orchestration, solid SRE guardrails, and ruthless adversarial critics, the entire universe came together over **a single anniversary weekend** while the human was clinking Riesling glasses in Colmar.
+Today, combining frontier models like [**Gemini 4**](https://deepmind.google/models/gemini/), [**Antigravity**](https://antigravity.google/)'s multi-agent orchestration, solid SRE guardrails, and ruthless adversarial critics, the entire universe came together over **a single anniversary weekend** while the human was clinking Riesling glasses in Colmar.
 
 ![Riccardo and Kate toasting with Alsatian Riesling in a Colmar wine bar](assets/colmar_riesling_toast.jpg)
 
