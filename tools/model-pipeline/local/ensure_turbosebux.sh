@@ -5,6 +5,9 @@ set -euo pipefail
 
 TURBOSEBY_MOUNT="/media/riccardo/TurboSeby"
 TURBOSEBUX_MOUNT="/media/riccardo/TurboSebux"
+if mountpoint -q "/run/media/riccardo/TurboSebux"; then
+  TURBOSEBUX_MOUNT="/run/media/riccardo/TurboSebux"
+fi
 LOOP_FILE="$TURBOSEBY_MOUNT/tmp/data/TurboSebux.ext4"
 
 echo "🔍 Checking TurboSebux status on $(hostname)..."

@@ -25,7 +25,8 @@ showcase port="8000":
     python3 -m http.server {{port}}
 
 # local image->3D root (ext4 loop image on the external SSD in Riccardo's setup); override with LOCAL3D_ROOT
-local3d_root := env_var_or_default("LOCAL3D_ROOT", "/media/riccardo/TurboSebux/carchess3d")
+home_dir := env_var_or_default("HOME", "")
+local3d_root := env_var_or_default("LOCAL3D_ROOT", if path_exists("/media/riccardo/TurboSebux/carchess3d") == "true" { "/media/riccardo/TurboSebux/carchess3d" } else { home_dir + "/TurboSebux/carchess3d" })
 
 # check or mount TurboSebux (600 GB ext4 volume on Samsung T7)
 turbosebux:
@@ -65,6 +66,10 @@ blender glb:
 critic glb concept:
     UV_INDEX_URL=https://pypi.org/simple UV_CACHE_DIR=/tmp/uv-cache UV_LINK_MODE=copy uv run tools/model-pipeline/critic/critic_vlm.py --glb {{glb}} --concept {{concept}}
 
+# run literature-grounded 3D evaluation & +30% pairwise improvement gate (GPTEval3D / T3Bench / Anti-Butterato)
+eval3d candidate *args:
+    python3 tools/model-pipeline/critic/eval3d_benchmark.py --candidate {{candidate}} {{args}}
+
 # show 3D model QA scoreboard
 scores:
     python3 tools/model-pipeline/critic/scoreboard.py
@@ -89,3 +94,7 @@ daily-uat:
 # run automated Audio QA Critic on voice lines (signal processing + optional Gemini 3.8 Flash LLM)
 audio-critic *args:
     python3 tools/model-pipeline/critic/critic_audio.py {{args}}
+
+# build and publish slim runtime-only gh-pages branch (excludes tools/, article/, docs/, archives)
+publish-pages *args:
+    python3 scripts/publish_pages.py {{args}}

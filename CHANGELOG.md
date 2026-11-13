@@ -1,5 +1,50 @@
 # Changelog
 
+## [0.3.108] - 2026-11-13
+
+- 🏛️👑✨ **Milestone 7 — Classic & Carlesso 6-Piece Adversarial 3D Remaster (`assets/models/classic/*.glb`, `assets/models/*.glb`, `docs/models-provenance.yaml`, `article/SHOWCASE_SWAMP_3D_REMASTER.md`)**:
+  - Audited all Classic and Carlesso pieces via `3d-eval-critic` (`just eval3d`), reconstructed all 6 pieces that scored `< 8.5/10` using single-figure cropped front views + `Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC (~59.3k faces)`, and promoted all 6 (+ `-10k.glb` / `-50k.glb` LOD tiers) after Critic approval:
+    - **Classic Knight (`knight-classic-cavallo.glb`)**: `4.82 -> 8.79/10` (**`+82.4%`**, replaced Mode A 2.5D SDF potato blob & snout UV seam with carved 3D marble warhorse).
+    - **Classic Rook (`rook-classic-torre.glb`)**: `5.60 -> 8.67/10` (**`+54.8%`**, `+82.5%` geometric sculpt; replaced melted marshmallow blob with 3D Ghibelline merlons, recessed windows, and cupola lantern).
+    - **Carlesso Bishop (`bishop-ale-1.glb`)**: `5.76 -> 8.54/10` (**`+48.3%`**, eliminated forehead and left-cheek black mesh craters, `-53.1%` high-frequency blotch energy).
+    - **Classic Pawn (`pawn-classic-pedone.glb`)**: `5.95 -> 8.55/10` (**`+43.7%`**, crisp radially symmetric marble sphere, double-ringed gold collar, and tiered base).
+    - **Carlesso Pawn (`pawn-puffin.glb`)**: `6.78 -> 8.59/10` (**`+26.7%`**, `10.0/10` geometric sculpt; upgraded coarse 13.2k faceted mesh to 59.3k smooth plush feathers & steel morion helmet).
+    - **Carlesso Rook (`rook-pupurabbu.glb`)**: `7.61 -> 8.52/10` (**`+12.0%`**, eliminated black non-manifold chest fur holes and reduced `93.7k -> 59.3k` faces).
+
+## [0.3.107] - 2026-11-13
+
+- 🐸🏰✨ **Swamp Family 6/6 Adversarial 3D Remaster (`assets/models/swamp/*.glb`, `docs/models-provenance.yaml`, `docs/qa-scores.swamp.yaml`, `article/SHOWCASE_SWAMP_3D_REMASTER.md`)**:
+  - Reconstructed all 6 canonical Swamp Parody pieces via local **Hunyuan3D-2.0 (`Shape + Paint`) + Blender 4.0 QEC (~58k faces)** + `-10k.glb` LOD tiers, audited and approved by the read-only `3d-eval-critic` under the `+30%` GPTEval3D / T3Bench gate:
+    - **Knight (`knight-swamp-asinello.glb`)**: `5.68 -> 8.70/10` (**`+53.2%`**, front-facing 40-teeth grin & tournament saddle).
+    - **Rook (`rook-swamp-draghessa.glb`)**: `5.73 -> 8.66/10` (**`+51.1%`**, coiled ruby dragon on crenellated swamp tower).
+    - **Pawn (`pawn-swamp-tappo.glb`)**: `5.84 -> 8.77/10` (**`+50.2%`**, short herald on royal decree books).
+    - **Bishop (`bishop-swamp-focaccina.glb`)**: `5.83 -> 8.63/10` (**`+48.0%`**, gingerbread/focaccia swashbuckler).
+    - **King (`king-swamp-orco.glb`)**: `5.90 -> 8.55/10` (**`+44.9%`**, olive-green ogre King with crown & tunic).
+    - **Queen (`queen-swamp-orchessa.glb`)**: `6.33 -> 8.69/10` (**`+37.3%`**, `+57.2%` geometric sculpt; eliminated legacy 2.5D mirrored-back face artifact).
+- 🐛🎨 **Lesson Learnt #2 — Opaque-JPEG `dehighlight_utils.py` Blue-Channel Collapse Fix (`tools/model-pipeline/local/hunyuan_paint.py`, `tools/model-pipeline/swamp/conform_swamp_contract.py`)**:
+  - Diagnosed and fixed a critical color-shift bug in Tencent's `Hunyuan3D-2` texture pipeline where passing opaque RGB JPEGs with dark studio backgrounds bypassed `recenter_image()` and caused `Light_Shadow_Remover` + `recorrect_rgb()` to crush the Blue channel (`mean B ≈ 7.8`). Running `BackgroundRemover()` (`rembg`) before `Hunyuan3DPaintPipeline` converts inputs to transparent `RGBA`, restoring true albedo colors.
+
+## [0.3.106] - 2026-11-13
+
+- 🪶📦 **Slim GitHub Pages Publish & Lighter Battle Assets (`scripts/publish_pages.py`, `scripts/check.py`, `justfile`, `assets/battles/`, closes #27 size risk)**:
+  - Added [`scripts/publish_pages.py`](scripts/publish_pages.py) (`just publish-pages`) to publish a runtime-only `gh-pages` tree (excluding `tools/model-pipeline/`, `article/`, `docs/`, tests, and `assets/*/archive/`, `assets/battles/refs/`), shrinking the published GitHub Pages site from **1028.8 MB** (over GitHub's 1 GB cap) down to **320.1 MB**.
+  - Added an automated Pages runtime size budget check (`<= 650 MB`) to `scripts/check.py` (`just test`).
+  - Optimized all 71 battle keyframe poster PNGs (`100.5 MB → 15.2 MB`) and re-encoded oversized MP4 battle videos (`107.7 MB → 81.3 MB`, 720p H.264 `+faststart` with audio preserved) for faster loading for all players.
+- 🎥👨‍👩‍👦‍👦 **Family Orbit v3.1 Re-render on RTX 5080 (`article/assets/gallery/family_orbit*`, closes #49)**:
+  - Re-rendered `scripts/family_orbit_video.py` (v3.1 asymmetric opening portrait `2406b27`) with the promoted clean 60k PBR King Riccardo (`v0.3.105`): t=0–2s frames **Seby · Ale · Riccardo · Kate** (one of each family member, zero duplicate Ale) followed by a smooth 360° zoom-out to the Zurich skyline.
+  - Updated `article/assets/gallery/family_orbit.{mp4,gif}`, `family_orbit_hero.gif` (6.3 MB ≤ 8 MB), and `family_orbit_poster.jpg`.
+
+## [0.3.105] - 2026-11-13
+
+- 👑✨ **Clean Stylized PBR King Riccardo Promotion (`assets/models/king-riccardo*.glb`, `docs/models-provenance.yaml`)**:
+  - Replaced the legacy blotchy photo-grafted King Riccardo mesh with the 60,000-face clean stylized PBR model baked via Hunyuan3D-2 Paint on the local RTX 5080 (`MD5: a48abe4c2b334640c01d9ce2dee6fc7d`, 3.9 MB), along with regenerated `-10k.glb` and `-50k.glb` LOD tiers.
+  - Eliminated the three root causes of the "faccia butterata" bug (`xatlas` frontal shell UV seam tearing, `bmesh.ops.remove_doubles` collapsing UV seam vertices, and high-frequency photographic skin noise clashing with Three.js lighting), achieving **+83.6% improvement in facial skin smoothness** (`2.86 -> 5.25/10`) and **-52.6% reduction in high-frequency blotch energy** (`0.0344 -> 0.0163`).
+- 🧪⚖️ **Literature-Grounded 3D Evaluation Benchmark & Autonomous Swarm `/goal` (`tools/model-pipeline/critic/eval3d_benchmark.py`, `etc/prompts/GOAL_ADVERSARIAL_3D_SWARM.md`, `justfile`)**:
+  - Added `just eval3d` (`eval3d_benchmark.py`), combining objective photometric/geometric metrics (T³Bench multi-view coherence, Garland & Heckbert polygon budget hygiene, and the new Clay-Subtracted Laplacian *"Anti-Butterato"* Face Smoothness metric on 6-panel forensic renders) with GPTEval3D-style Gemini Multimodal pairwise A/B judgment and an automated `+30%` improvement gate.
+  - Added `etc/prompts/GOAL_ADVERSARIAL_3D_SWARM.md` for full-day unattended Builder-vs-Critic 3D reconstruction swarms.
+- 📝📸 **Article Lesson Learnt Dossier & `TODO(2026-11-13)` (`article/ARTICLE.md`, `article/LESSON_LEARNT_FACE_GRAFTING.md`, `article/assets/riccardo_clean_*`)**:
+  - Added `article/LESSON_LEARNT_FACE_GRAFTING.md` with forensic comparison boards (`riccardo_clean_vs_broken_comparison.png`, `riccardo_face_forensics.png`, `riccardo_clean_turntable.gif`) and `TODO(2026-11-13)` in `article/ARTICLE.md`.
+
 ## [0.3.104] - 2026-11-03
 
 - 🎬⚔️🎯 **Combat Fighter Calibration: Higher Visibility (Opacity 0.42) & Compact Scale (0.88x) (`src/views/VFXPoolView.js`, `tests/combat.test.mjs`)**:
