@@ -220,9 +220,24 @@ for p in committable_files():
 if ip_hits > 30:
     failures.append(f"... and {ip_hits - 30} more IP denylist hits")
 
+# --- GitHub Pages runtime size budget (Issue #27) --------------------------
+from publish_pages import PAGES_BUDGET_MB, is_pages_runtime_path
+
+pages_bytes = sum(
+    p.stat().st_size
+    for p in committable_files()
+    if p.is_file() and is_pages_runtime_path(p.relative_to(ROOT).as_posix())
+)
+pages_mb = pages_bytes / (1024 * 1024)
+if pages_mb > PAGES_BUDGET_MB:
+    failures.append(
+        f"GitHub Pages runtime size {pages_mb:.1f} MB exceeds {PAGES_BUDGET_MB} MB budget (issue #27)"
+    )
+
 print(
     f"🧪 {len(glbs)} GLB, {len(chars)} character images, {prov_count} provenance models, "
-    f"floorplan.svg, manifest.yaml, {len(test_files)} Node test suites, {len(ip_rules)} IP denylist terms checked"
+    f"floorplan.svg, manifest.yaml, {len(test_files)} Node test suites, {len(ip_rules)} IP denylist terms, "
+    f"Pages budget {pages_mb:.1f}/{PAGES_BUDGET_MB} MB checked"
 )
 if failures:
     print("❌ " + "\n❌ ".join(failures))
