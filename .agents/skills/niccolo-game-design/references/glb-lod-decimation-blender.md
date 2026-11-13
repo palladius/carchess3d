@@ -195,3 +195,22 @@ Always verify LOD resolution with automated tests:
 2. **Variant Preservation**: Selecting a variant (e.g., `astrolabe`) at `low` tier must return the decimated variant model (`*-10k.glb`), not the base character model.
 3. **Graceful Fallback**: Unknown or unset tiers must return the canonical high-fidelity model without errors.
 4. **GLB Header Verification**: Ensure every generated `-10k.glb` and `-50k.glb` file passes glTF 2.0 validation (valid magic header, length byte match, and `VEC3` min/max bounds for ground alignment).
+
+---
+
+## 6. Measure, Don't Guess (benchmark-driven Auto)
+
+A user-agent / screen-size heuristic is a fine **first guess**, but the defaults must be justified by numbers.
+
+1. **Micro-benchmark on first run (~2 s)**: load the `medium` test GLB and render 60 frames →
+   `{ loadMs, p50FrameMs }`. Combine with hints (`deviceMemory`, `hardwareConcurrency`, GPU string).
+2. **Pick from a data table**: highest tier whose budget fits (`p50FrameMs ≤ 16.7` for 60 fps,
+   `loadMs` within the cold-start budget). No `if (isMobile)` ladders.
+3. **Cache** `{ tier, benchVersion }` in `localStorage`; re-bench only when `benchVersion` or the assets change.
+4. **User override always wins** (⚙️ `Auto/Alta/Media/Bassa`), stored separately from the auto result.
+5. **One owner, many listeners**: the tier owner emits `QUALITY_TIER_CHANGED { tier, source: 'auto'|'user' }`;
+   piece views, shadows, bloom and particles all *react*. Views never sniff the device themselves.
+6. **Runtime downgrade** (optional): sustained `p50FrameMs > 25` for 5 s → step down one tier
+   (`source: 'auto'`), never when the user forced a tier.
+7. **Acceptance**: `docs/benchmarks/lod.md` lists cold-start time and steady fps per tier on ≥ 3 device
+   classes (cheap phone, tablet, strong desktop). The heuristic's thresholds are tuned from this table.

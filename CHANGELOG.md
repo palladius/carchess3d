@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.109] - 2026-11-13
+
+- 📏⚙️ **Skill `niccolo-game-design` v0.3.0 — "Measure, don't guess"**: `QualityManager` in the canonical manager set, §6 benchmark-driven Auto in `references/glb-lod-decimation-blender.md`, 2 review-checklist items + 1 anti-pattern (device sniffing in Views). Skill only, no game code changed.
+
 ## [0.3.108] - 2026-11-13
 
 - 🏛️👑✨ **Milestone 7 — Classic & Carlesso 6-Piece Adversarial 3D Remaster (`assets/models/classic/*.glb`, `assets/models/*.glb`, `docs/models-provenance.yaml`, `article/SHOWCASE_SWAMP_3D_REMASTER.md`)**:

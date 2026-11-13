@@ -3,7 +3,7 @@ name: niccolo-game-design
 description: (💛) Game-architecture skill based on Managers + Event Bus, distilled from Niccolò's code-review feedback and Robert Nystrom's "Game Programming Patterns". Use when designing, reviewing, or refactoring game code (TypeScript/Three.js, Godot, Unity…) that has a god-object game loop, too many singletons, scattered win/lose logic, ad-hoc loot, multi-tier GLB LOD decimation, or 2D-to-3D GLB asset pipelines. Covers EnemyManager, PlayerManager, MapManager (owns Game Over / Victory), DropManager (pity-timer luck meter), GameFlow state machine, object pools, headless Blender QEC LOD tiers (10k/50k), local 2D-to-3D SDF + UV baking / face-grafting, and a strangler-fig refactor recipe.
 compatibility: Gemini CLI, Antigravity, Claude Code
 metadata:
-  version: "0.2.2"
+  version: "0.3.0"
 ---
 
 # 💛 Niccolò Game Design — Managers, Events, and Rules That Own Themselves
@@ -59,6 +59,7 @@ Activate when ANY of these is true:
 | `ProjectileManager` | Projectiles with an **object pool** | `PROJECTILE_HIT` | `active()` |
 | `PickupManager` | Collectibles on the map + effect registry | `PICKUP_COLLECTED` | `nearby(pos)` |
 | `DropManager` | Loot rolls with **pity/luck meter** | `DROP_SPAWNED`, `LUCK_CHANGED`, `LUCK_RESET` | `luck()` |
+| `QualityManager` | Render quality tier (LOD, shadows, bloom, particles): **measured** auto pick + user override | `QUALITY_TIER_CHANGED` | `tier()`, `isForced()` |
 | Listeners | `AudioListener`, `ScoreListener`, `HudListener`, `TelemetryListener` | — (consume only) | — |
 
 Not every game needs all of them. Start with the ones your god-loop already contains.
@@ -141,6 +142,8 @@ Combat → Pickups → Drops → Map (rules) → GameFlow.
 - [ ] Is randomness seeded (deterministic tests, replays, server parity)?
 - [ ] Is update order still declared in exactly one place?
 - [ ] Top loop still boring? (no gameplay `if`s)
+- [ ] Any `isMobile` / `isTablet` branch inside a View deciding asset size or effects? → read the quality tier instead.
+- [ ] Are auto-quality defaults backed by a benchmark table (cold-start + fps per tier, ≥ 3 device classes)?
 
 ## Anti-patterns to call out in review
 
@@ -154,6 +157,7 @@ Combat → Pickups → Drops → Map (rules) → GameFlow.
 | `new Projectile()` per shot | `ProjectileManager` pool |
 | `Math.random() < 0.1` loot | `DropManager` with luck meter + seeded RNG |
 | `EverythingManager` | Split by owned data |
+| One 5 MB `.glb` for every device, or `if (isMobile) shadowRes = 1024` in views | Quality tier table + `QUALITY_TIER_CHANGED` listeners + measured benchmark |
 
 ## References
 

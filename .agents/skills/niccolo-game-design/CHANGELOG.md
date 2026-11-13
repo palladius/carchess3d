@@ -1,5 +1,13 @@
 # Changelog — niccolo-game-design
 
+## [0.3.0] - 2026-11-13
+
+- 📏⚙️ **Measure, don't guess** (idea by Niccolò): `QualityManager` row in the canonical manager set,
+  §6 in [references/glb-lod-decimation-blender.md](references/glb-lod-decimation-blender.md)
+  (first-run micro-benchmark, tier data table, cache, user override wins, single `QUALITY_TIER_CHANGED`
+  owner, optional runtime downgrade, `docs/benchmarks/lod.md` acceptance), plus 2 review-checklist
+  items and 1 anti-pattern (device sniffing inside Views).
+
 ## [0.2.2] - 2026-11-02
 
 - 📱⚡ Added [references/glb-lod-decimation-blender.md](references/glb-lod-decimation-blender.md):
