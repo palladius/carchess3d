@@ -51,3 +51,21 @@ The fix is not surgical photo-grafting onto fragmented UV islands, but a cohesiv
 | **Eyes** | Hollow, dark, distorted sockets | Expressive, well-defined cartoon eyes |
 | **Royal Crown** | Solid bucket or UV-stretched | Open perforated imperial arches |
 | **Polygon Budget** | 96k faces (fragmented UV islands) | **60,000 faces** (optimal WebGL budget) |
+
+---
+
+## 4. Lesson Learnt #2: The Opaque-JPEG `dehighlight_utils.py` Blue-Channel Collapse Bug (`v0.3.107`)
+
+When scaling the autonomous **Builder vs. Critic (`just eval3d`)** swarm to the 6 Swamp Family pieces, the Adversarial Critic rejected 3 Round-1 candidates (`asinello`, `orco`, `orchessa`) because their `2048x2048` PBR textures had shifted into crimson-red and mustard-yellow (`mean B ≈ 7.8 / 255`), even though their 60k clay geometry scored `9.2/10`.
+
+- **Root Cause**: Inside Tencent's `Hunyuan3D-2` texture pipeline (`hy3dgen/texgen/pipelines.py` & `utils/dehighlight_utils.py`), `recenter_image()` returns early without foreground segmentation whenever `image.mode == 'RGB'`. When fed an opaque RGB JPEG with a dark studio slate background (`[18, 23, 27]`), `Light_Shadow_Remover` runs `StableDiffusionInstructPix2Pix` (trained on white `255` backgrounds) with `alpha = 1.0` everywhere, and `recorrect_rgb()` crushes the Blue channel across the whole image.
+- **Fix (`tools/model-pipeline/local/hunyuan_paint.py`)**: Always run `BackgroundRemover()` (`rembg`) on opaque RGB concept images before passing them to `Hunyuan3DPaintPipeline`. Converting the input to a transparent-background `RGBA` image triggers white-canvas recentering and foreground-masked delighting, restoring natural olive-green and warm-grey colors (`+37.3%` to `+53.2%` `eval3d` improvement across all 6 Swamp pieces; see [`SHOWCASE_SWAMP_3D_REMASTER.md`](SHOWCASE_SWAMP_3D_REMASTER.md)).
+
+---
+
+## 5. Lesson Learnt #3: 2-Up Turnaround Split-Sheet Cropping (`v0.3.108`)
+
+During **Milestone 7**, the Adversarial Critic audited the Classic and Carlesso families and flagged 3 legacy Mode A 2.5D SDF blobs (`knight-classic-cavallo` `4.82`, `rook-classic-torre` `5.60`, `pawn-classic-pedone` `5.95`) and 3 Carlesso pieces (`bishop-ale-1` `5.76`, `pawn-puffin` `6.78`, `rook-pupurabbu` `7.61`).
+- Several legacy character sheets in `assets/characters/` are **2-up side-by-side split images** (Front view + 3/4 view, plus `"FRONT VIEW"` caption bars).
+- Cropping tightly to the single front-facing figure and stripping bottom typography before running `BackgroundRemover()` + `Hunyuan3D-2 Shape + Paint` produced clean, radially symmetric 60k sculptures on Round 1 (`+43.7%` to `+82.4%` improvement).
+

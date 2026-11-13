@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.108] - 2026-11-13
+
+- 🏛️👑✨ **Milestone 7 — Classic & Carlesso 6-Piece Adversarial 3D Remaster (`assets/models/classic/*.glb`, `assets/models/*.glb`, `docs/models-provenance.yaml`, `article/SHOWCASE_SWAMP_3D_REMASTER.md`)**:
+  - Audited all Classic and Carlesso pieces via `3d-eval-critic` (`just eval3d`), reconstructed all 6 pieces that scored `< 8.5/10` using single-figure cropped front views + `Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC (~59.3k faces)`, and promoted all 6 (+ `-10k.glb` / `-50k.glb` LOD tiers) after Critic approval:
+    - **Classic Knight (`knight-classic-cavallo.glb`)**: `4.82 -> 8.79/10` (**`+82.4%`**, replaced Mode A 2.5D SDF potato blob & snout UV seam with carved 3D marble warhorse).
+    - **Classic Rook (`rook-classic-torre.glb`)**: `5.60 -> 8.67/10` (**`+54.8%`**, `+82.5%` geometric sculpt; replaced melted marshmallow blob with 3D Ghibelline merlons, recessed windows, and cupola lantern).
+    - **Carlesso Bishop (`bishop-ale-1.glb`)**: `5.76 -> 8.54/10` (**`+48.3%`**, eliminated forehead and left-cheek black mesh craters, `-53.1%` high-frequency blotch energy).
+    - **Classic Pawn (`pawn-classic-pedone.glb`)**: `5.95 -> 8.55/10` (**`+43.7%`**, crisp radially symmetric marble sphere, double-ringed gold collar, and tiered base).
+    - **Carlesso Pawn (`pawn-puffin.glb`)**: `6.78 -> 8.59/10` (**`+26.7%`**, `10.0/10` geometric sculpt; upgraded coarse 13.2k faceted mesh to 59.3k smooth plush feathers & steel morion helmet).
+    - **Carlesso Rook (`rook-pupurabbu.glb`)**: `7.61 -> 8.52/10` (**`+12.0%`**, eliminated black non-manifold chest fur holes and reduced `93.7k -> 59.3k` faces).
+
 ## [0.3.107] - 2026-11-13
 
 - 🐸🏰✨ **Swamp Family 6/6 Adversarial 3D Remaster (`assets/models/swamp/*.glb`, `docs/models-provenance.yaml`, `docs/qa-scores.swamp.yaml`, `article/SHOWCASE_SWAMP_3D_REMASTER.md`)**:

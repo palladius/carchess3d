@@ -7,14 +7,17 @@ models:
   character: Alessandro
   status: CANONICAL
   target_path: assets/models/bishop-ale-1.glb
-  size_bytes: 1804572
-  md5: d2b5e2a4ccd8cfb28623c5991ae51f37
+  size_bytes: 6537260
+  md5: 21b46bb3498e5bb26c86815028ca426e
   pipeline:
-    tool: TRELLIS
-    space: trellis-community/TRELLIS
-    script: tools/model-pipeline/ale/gen_textured.py
-    seed: 42
-    multi_image: true
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
+    texture_size: 1024
+    eval3d_composite: 8.54
+    eval3d_objective: 7.49
+    eval3d_vlm: 9.4
+    eval3d_improvement: +48.3%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/bishop-ale-1.jpg
@@ -83,20 +86,25 @@ models:
   concept_sources:
   - role: base_character
     path: assets/models/bishop-ale-1.glb
-    md5: d2b5e2a4ccd8cfb28623c5991ae51f37
+    md5: 21b46bb3498e5bb26c86815028ca426e
+    size_bytes: 6537260
 - id: pawn-puffin
   name: Puffin Swiss Guard
   piece: pawn
   character: Puffin
   status: CANONICAL
   target_path: assets/models/pawn-puffin.glb
-  size_bytes: 1717180
-  md5: 08bb110a6f50da36280cef7fd73e8d10
+  size_bytes: 6613812
+  md5: eb2b7699f921f6254679afad4cd15e06
   pipeline:
-    tool: TRELLIS
-    space: trellis-community/TRELLIS
-    script: tools/model-pipeline/nbviews/gen_mv.py
-    seed: 42
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
+    texture_size: 1024
+    eval3d_composite: 8.59
+    eval3d_objective: 7.96
+    eval3d_vlm: 9.1
+    eval3d_improvement: +26.7%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/pawn-puffin.jpg
@@ -359,16 +367,17 @@ models:
   character: Pupurabbu
   status: CANONICAL
   target_path: assets/models/rook-pupurabbu.glb
-  size_bytes: 3864356
-  md5: 1e51533876fb0f9de6a49d1e260f7862
+  size_bytes: 6566612
+  md5: eadae0d0d20aad2cd2885a6e7a8e3885
   pipeline:
-    tool: TRELLIS.2
-    space: microsoft/TRELLIS.2
-    script: tools/model-pipeline/rook/gen_trellis2.py
-    seed: 42
-    resolution: 1024
-    decimation_target: 100000
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
     texture_size: 1024
+    eval3d_composite: 8.52
+    eval3d_objective: 7.39
+    eval3d_vlm: 9.45
+    eval3d_improvement: +12.0%
   concept_sources:
   - role: concept_reference
     path: assets/characters/rook-pupurabbu.jpg
@@ -463,13 +472,17 @@ models:
   character: Destriero Classico
   status: CANONICAL
   target_path: assets/models/classic/knight-classic-cavallo.glb
-  size_bytes: 2895728
-  md5: ce7410c948e593735050bb8e30f55e5b
+  size_bytes: 6552052
+  md5: ef217abb5227c039e5e7a1fd646a532a
   pipeline:
-    tool: Mode A Dual-Orthographic 3D SDF + Seamless UV Baking
-    script: tools/model-pipeline/classic/reconstruct_knight_3d.py
-    resolution: 1024
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
     texture_size: 1024
+    eval3d_composite: 8.79
+    eval3d_objective: 8.17
+    eval3d_vlm: 9.3
+    eval3d_improvement: +82.4%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/knight-classic-cavallo.jpg
@@ -482,13 +495,17 @@ models:
   character: Torre Matildea
   status: CANONICAL
   target_path: assets/models/classic/rook-classic-torre.glb
-  size_bytes: 2803544
-  md5: 1c492956ae5b3cd7d2cb6eac47ccef74
+  size_bytes: 6623872
+  md5: 90d0385a621e96c368c954be5f2c4994
   pipeline:
-    tool: Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking
-    script: tools/model-pipeline/reconstruct_mode_a_batch.py
-    resolution: 1024
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
     texture_size: 1024
+    eval3d_composite: 8.67
+    eval3d_objective: 7.77
+    eval3d_vlm: 9.4
+    eval3d_improvement: +54.8%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/rook-classic-torre.jpg
@@ -501,13 +518,17 @@ models:
   character: Pedone Classico
   status: CANONICAL
   target_path: assets/models/classic/pawn-classic-pedone.glb
-  size_bytes: 1871968
-  md5: 682abba3dc15a7994bf4a9786d7174eb
+  size_bytes: 6493744
+  md5: 512dd5256439938a12b8f866dc615862
   pipeline:
-    tool: Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking
-    script: tools/model-pipeline/reconstruct_mode_a_batch.py
-    resolution: 1024
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
     texture_size: 1024
+    eval3d_composite: 8.55
+    eval3d_objective: 7.39
+    eval3d_vlm: 9.5
+    eval3d_improvement: +43.7%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/pawn-classic-pedone.jpg
