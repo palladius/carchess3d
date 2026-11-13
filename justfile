@@ -94,3 +94,7 @@ daily-uat:
 # run automated Audio QA Critic on voice lines (signal processing + optional Gemini 3.8 Flash LLM)
 audio-critic *args:
     python3 tools/model-pipeline/critic/critic_audio.py {{args}}
+
+# build and publish slim runtime-only gh-pages branch (excludes tools/, article/, docs/, archives)
+publish-pages *args:
+    python3 scripts/publish_pages.py {{args}}

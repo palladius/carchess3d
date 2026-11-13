@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.106] - 2026-11-13
+
+- 🪶📦 **Slim GitHub Pages Publish & Lighter Battle Assets (`scripts/publish_pages.py`, `scripts/check.py`, `justfile`, `assets/battles/`, closes #27 size risk)**:
+  - Added [`scripts/publish_pages.py`](scripts/publish_pages.py) (`just publish-pages`) to publish a runtime-only `gh-pages` tree (excluding `tools/model-pipeline/`, `article/`, `docs/`, tests, and `assets/*/archive/`, `assets/battles/refs/`), shrinking the published GitHub Pages site from **1028.8 MB** (over GitHub's 1 GB cap) down to **320.1 MB**.
+  - Added an automated Pages runtime size budget check (`<= 650 MB`) to `scripts/check.py` (`just test`).
+  - Optimized all 71 battle keyframe poster PNGs (`100.5 MB → 15.2 MB`) and re-encoded oversized MP4 battle videos (`107.7 MB → 81.3 MB`, 720p H.264 `+faststart` with audio preserved) for faster loading for all players.
+- 🎥👨‍👩‍👦‍👦 **Family Orbit v3.1 Re-render on RTX 5080 (`article/assets/gallery/family_orbit*`, closes #49)**:
+  - Re-rendered `scripts/family_orbit_video.py` (v3.1 asymmetric opening portrait `2406b27`) with the promoted clean 60k PBR King Riccardo (`v0.3.105`): t=0–2s frames **Seby · Ale · Riccardo · Kate** (one of each family member, zero duplicate Ale) followed by a smooth 360° zoom-out to the Zurich skyline.
+  - Updated `article/assets/gallery/family_orbit.{mp4,gif}`, `family_orbit_hero.gif` (6.3 MB ≤ 8 MB), and `family_orbit_poster.jpg`.
+
 ## [0.3.105] - 2026-11-13
 
 - 👑✨ **Clean Stylized PBR King Riccardo Promotion (`assets/models/king-riccardo*.glb`, `docs/models-provenance.yaml`)**:
