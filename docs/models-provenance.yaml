@@ -107,20 +107,20 @@ models:
     size_bytes: 295184
     md5: 88610244971d8949a2e7d9890a03574c
 - id: king-riccardo
-  name: King Riccardo (Adversarial Biometric Mode B 2048x1024 Face-Grafted)
+  name: King Riccardo (Clean Stylized PBR 60k — Hunyuan3D-2 Paint on Local RTX 5080)
   piece: king
   character: Riccardo
   status: CANONICAL
   target_path: assets/models/king-riccardo.glb
-  size_bytes: 4266572
-  md5: 81271989d981bdb8d55872640ebf5fea
+  size_bytes: 3932508
+  md5: a48abe4c2b334640c01d9ce2dee6fc7d
   pipeline:
-    tool: TRELLIS.2 + Adversarial Biometric Mode B Dual-Chart 2048x1024 UV Face-Grafting
+    tool: TRELLIS.2 Geometry + Hunyuan3D-2 Paint Clean Stylized PBR Baking (60k QEC)
     space: microsoft/TRELLIS.2
-    script: tools/model-pipeline/king/adversarial_riccardo_likeness.py
+    script: tools/model-pipeline/local/hunyuan_paint.py
     seed: 42
     resolution: 1024
-    decimation_target: 100000
+    decimation_target: 60000
     texture_size: 2048
   concept_sources:
   - role: concept_reference
@@ -140,21 +140,20 @@ models:
     size_bytes: 955543
     md5: afb263618bc824edc7169dfffe4aaf70
 - id: king-riccardo-remastered
-  name: King Riccardo (Royal Robe & Cross Polish / Remastered)
+  name: King Riccardo (Clean Stylized PBR 60k / Remastered)
   piece: king
   character: Riccardo
   status: REMASTERED
   target_path: assets/models/king-riccardo-remastered.glb
-  size_bytes: 4188420
-  md5: 5f468ce3ca80b83fbfc1f086aed4fae9
+  size_bytes: 3932508
+  md5: a48abe4c2b334640c01d9ce2dee6fc7d
   pipeline:
-    tool: Blender 4.0 Headless Surface Polish & Cross Sharpening
-    script: tools/model-pipeline/king/clean_king_riccardo.py
+    tool: Hunyuan3D-2 Paint Clean Stylized PBR Baking (60k QEC)
+    script: tools/model-pipeline/local/hunyuan_paint.py
     features:
-    - Watertight UV seam welding and stray crumb pruning
-    - Ermine fur collar undercut with volume shadow crease
-    - Selective surface smoothing on cloak/robe preserving hard finials
-    - Floor grounded at Z=0.0
+    - Continuous UV atlas without Frankenstein photo-graft seams
+    - Smooth stylized cartoon skin and open perforated imperial crown arches
+    - 60,000-face Quadric Edge Collapse mesh grounded at Z=0.0
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/king-riccardo-1.jpg

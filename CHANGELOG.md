@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.105] - 2026-11-13
+
+- 👑✨ **Clean Stylized PBR King Riccardo Promotion (`assets/models/king-riccardo*.glb`, `docs/models-provenance.yaml`)**:
+  - Replaced the legacy blotchy photo-grafted King Riccardo mesh with the 60,000-face clean stylized PBR model baked via Hunyuan3D-2 Paint on the local RTX 5080 (`MD5: a48abe4c2b334640c01d9ce2dee6fc7d`, 3.9 MB), along with regenerated `-10k.glb` and `-50k.glb` LOD tiers.
+  - Eliminated the three root causes of the "faccia butterata" bug (`xatlas` frontal shell UV seam tearing, `bmesh.ops.remove_doubles` collapsing UV seam vertices, and high-frequency photographic skin noise clashing with Three.js lighting), achieving **+83.6% improvement in facial skin smoothness** (`2.86 -> 5.25/10`) and **-52.6% reduction in high-frequency blotch energy** (`0.0344 -> 0.0163`).
+- 🧪⚖️ **Literature-Grounded 3D Evaluation Benchmark & Autonomous Swarm `/goal` (`tools/model-pipeline/critic/eval3d_benchmark.py`, `etc/prompts/GOAL_ADVERSARIAL_3D_SWARM.md`, `justfile`)**:
+  - Added `just eval3d` (`eval3d_benchmark.py`), combining objective photometric/geometric metrics (T³Bench multi-view coherence, Garland & Heckbert polygon budget hygiene, and the new Clay-Subtracted Laplacian *"Anti-Butterato"* Face Smoothness metric on 6-panel forensic renders) with GPTEval3D-style Gemini Multimodal pairwise A/B judgment and an automated `+30%` improvement gate.
+  - Added `etc/prompts/GOAL_ADVERSARIAL_3D_SWARM.md` for full-day unattended Builder-vs-Critic 3D reconstruction swarms.
+- 📝📸 **Article Lesson Learnt Dossier & `TODO(2026-11-13)` (`article/ARTICLE.md`, `article/LESSON_LEARNT_FACE_GRAFTING.md`, `article/assets/riccardo_clean_*`)**:
+  - Added `article/LESSON_LEARNT_FACE_GRAFTING.md` with forensic comparison boards (`riccardo_clean_vs_broken_comparison.png`, `riccardo_face_forensics.png`, `riccardo_clean_turntable.gif`) and `TODO(2026-11-13)` in `article/ARTICLE.md`.
+
 ## [0.3.104] - 2026-11-03
 
 - 🎬⚔️🎯 **Combat Fighter Calibration: Higher Visibility (Opacity 0.42) & Compact Scale (0.88x) (`src/views/VFXPoolView.js`, `tests/combat.test.mjs`)**:

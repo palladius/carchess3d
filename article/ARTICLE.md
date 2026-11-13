@@ -1,6 +1,8 @@
 # 🏰🚽 CarChess3D: How I Built a 3D Family Chess Game with Gemini 4 Argon and an Autonomous Agent Swarm While Celebrating My 10th Wedding Anniversary in Colmar
 
 > 📰 This is the repository mirror of the article published on [ricc.rocks](https://ricc.rocks/en/posts/technology/2026-10-15-carchess3d-family-chess/). The blog post is the canonical, reviewed version; this copy is regenerated from it.
+>
+> 📌 **`TODO(2026-11-13)` — IMPORTANT**: Integrate the "Lesson Learnt" from [`article/LESSON_LEARNT_FACE_GRAFTING.md`](LESSON_LEARNT_FACE_GRAFTING.md) into Section 5 (*Engine 4: Mode B Biometric Face-Grafting*) explaining why raw photographic face-grafting produced a blotchy/broken face (*faccia butterata*: `xatlas` UV fragmentation, `bmesh.ops.remove_doubles` collapsing UV seam vertices, and high-frequency photo skin noise vs. stylized 3D lighting) and how switching to the clean cartoon 2D concept + continuous Hunyuan3D-2 PBR baking at 60k polygons solved it (with [`riccardo_clean_vs_broken_comparison.png`](assets/riccardo_clean_vs_broken_comparison.png) and [`riccardo_clean_turntable.gif`](assets/riccardo_clean_turntable.gif)).
 
 *By **Riccardo "Palladius" Carlesso** — proud dad to Ale & Seby and improvised 3D game designer. Built hands-off with [**Gemini 4**](https://blog.google/technology/google-deepmind/gemini-4/) inside [**Antigravity**](https://antigravity.google/) and the [**Niccolò Game Design** skill](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md). Zurich & Colmar, October 2026.*
 
@@ -237,6 +239,13 @@ A raw mesh out of Hunyuan3D-2 has **~700,000 triangles (12.5 MB)** per piece: wi
 #### Engine 4: Mode B Biometric Face-Grafting ($2048 \times 1024$ Dual-Chart WebP Atlas)
 My initial King mesh looked like a generic, clean-shaven doll. When I complained (*"Better, but it still doesn't look like me! Build an adversarial likeness critic using my 5 reference photos!"*), the agent built a **Biometric Likeness Critic (`riccardo-likeness-critic`)** scoring **8 facial landmarks** (hooded smiling brown eyes, vertical glabellar crease, white tuft on the left eyebrow, rounded nose tip, wide grin, 2-day salt-and-pepper stubble, silver temples, no glasses) and implemented **Mode B Planar Face-Grafting**:
 - Expanded the UV atlas to $2048 \times 1024$: the left half ($u \in [0, 0.5]$) keeps the original 3D robe/crown texture, while the right half ($u \in [0.5, 1.0]$) projects my real South Africa photo onto the 1,483 facial triangles with multi-band Laplacian skin harmonization ($\sigma = 26.0$).
+
+> ⚠️ **`TODO(2026-11-13)` — Add Lesson Learnt from [`article/LESSON_LEARNT_FACE_GRAFTING.md`](LESSON_LEARNT_FACE_GRAFTING.md)**:
+> Why Mode B photo face-grafting ultimately failed in-game (causing a blotchy, pockmarked *"faccia butterata"*):
+> 1. **Fragmented `xatlas` UV islands ("Frankenstein seams")**: projecting a photo onto a frontal triangle subset (`tri_in_shell`) left saw-toothed borders against surrounding triangles.
+> 2. **The `bmesh.ops.remove_doubles` UV seam collapse bug**: welding coincident 3D vertices destroyed distinct `(u, v)` seam coordinates, dragging dark crown/pedestal textures across the cheeks and nose.
+> 3. **High-frequency photographic noise vs. stylized 3D lighting**: real skin pores and static baked photo shadows look like craters under dynamic Three.js lighting.
+> - **The Fix**: Clean cartoon 2D concept ([`king_riccardo_clean_2d.png`](assets/king_riccardo_clean_2d.png)) + continuous UV unwrap + multi-view Hunyuan3D-2 PBR baking on the 60k-face mesh ([`riccardo_clean_vs_broken_comparison.png`](assets/riccardo_clean_vs_broken_comparison.png), [`riccardo_clean_turntable.gif`](assets/riccardo_clean_turntable.gif)).
 
 ### 📸 Three-Stage Visual Evolution: The Classic King (Issue #20)
 
