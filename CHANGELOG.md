@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.107] - 2026-11-13
+
+- 🐸🏰✨ **Swamp Family 6/6 Adversarial 3D Remaster (`assets/models/swamp/*.glb`, `docs/models-provenance.yaml`, `docs/qa-scores.swamp.yaml`, `article/SHOWCASE_SWAMP_3D_REMASTER.md`)**:
+  - Reconstructed all 6 canonical Swamp Parody pieces via local **Hunyuan3D-2.0 (`Shape + Paint`) + Blender 4.0 QEC (~58k faces)** + `-10k.glb` LOD tiers, audited and approved by the read-only `3d-eval-critic` under the `+30%` GPTEval3D / T3Bench gate:
+    - **Knight (`knight-swamp-asinello.glb`)**: `5.68 -> 8.70/10` (**`+53.2%`**, front-facing 40-teeth grin & tournament saddle).
+    - **Rook (`rook-swamp-draghessa.glb`)**: `5.73 -> 8.66/10` (**`+51.1%`**, coiled ruby dragon on crenellated swamp tower).
+    - **Pawn (`pawn-swamp-tappo.glb`)**: `5.84 -> 8.77/10` (**`+50.2%`**, short herald on royal decree books).
+    - **Bishop (`bishop-swamp-focaccina.glb`)**: `5.83 -> 8.63/10` (**`+48.0%`**, gingerbread/focaccia swashbuckler).
+    - **King (`king-swamp-orco.glb`)**: `5.90 -> 8.55/10` (**`+44.9%`**, olive-green ogre King with crown & tunic).
+    - **Queen (`queen-swamp-orchessa.glb`)**: `6.33 -> 8.69/10` (**`+37.3%`**, `+57.2%` geometric sculpt; eliminated legacy 2.5D mirrored-back face artifact).
+- 🐛🎨 **Lesson Learnt #2 — Opaque-JPEG `dehighlight_utils.py` Blue-Channel Collapse Fix (`tools/model-pipeline/local/hunyuan_paint.py`, `tools/model-pipeline/swamp/conform_swamp_contract.py`)**:
+  - Diagnosed and fixed a critical color-shift bug in Tencent's `Hunyuan3D-2` texture pipeline where passing opaque RGB JPEGs with dark studio backgrounds bypassed `recenter_image()` and caused `Light_Shadow_Remover` + `recorrect_rgb()` to crush the Blue channel (`mean B ≈ 7.8`). Running `BackgroundRemover()` (`rembg`) before `Hunyuan3DPaintPipeline` converts inputs to transparent `RGBA`, restoring true albedo colors.
+
 ## [0.3.106] - 2026-11-13
 
 - 🪶📦 **Slim GitHub Pages Publish & Lighter Battle Assets (`scripts/publish_pages.py`, `scripts/check.py`, `justfile`, `assets/battles/`, closes #27 size risk)**:

@@ -16,6 +16,7 @@ import torch
 import trimesh
 from PIL import Image
 
+from hy3dgen.rembg import BackgroundRemover
 from hy3dgen.shapegen import FaceReducer
 from hy3dgen.texgen import Hunyuan3DPaintPipeline
 
@@ -47,7 +48,10 @@ if args.max_faces and len(mesh.faces) > args.max_faces:
     print(f"   Decimated mesh has {len(mesh.faces):,} faces")
 
 print(f"🖼️ Loading image {args.image}...")
-image = Image.open(args.image)
+image = Image.open(args.image).convert("RGBA")
+if image.getextrema()[3][0] == 255:
+    print("✂️ Removing opaque background with BackgroundRemover for clean RGBA delighting & recentering...")
+    image = BackgroundRemover()(image.convert("RGB"))
 
 print(f"🎨 Initializing Hunyuan3DPaintPipeline ({args.subfolder})...")
 t1 = time.time()

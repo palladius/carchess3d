@@ -1,7 +1,3 @@
-# CarChess3D — 3D Models Provenance & Checksum Registry
-# Tracks exact concept sources, multi-view turnaround inputs, pipelines, and MD5 checksums.
-# Tested automatically via `python3 scripts/test_provenance.py` (and `just test`).
-
 version: 1.0.0
 updated_at: '2026-10-14'
 models:
@@ -524,13 +520,17 @@ models:
   character: Orco Brontolo
   status: CANONICAL
   target_path: assets/models/swamp/king-swamp-orco.glb
-  size_bytes: 645488
-  md5: 5de6950ca8411ad977db2fe5b55e968c
+  size_bytes: 6647536
+  md5: 91d00bd3804782eb1f714b651178c267
   pipeline:
-    tool: Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting
-    script: tools/model-pipeline/swamp/build_swamp_models.py
-    resolution: 1024
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
     texture_size: 1024
+    eval3d_composite: 8.55
+    eval3d_objective: 7.87
+    eval3d_vlm: 9.1
+    eval3d_improvement: +44.9%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/king-swamp-orco.jpg
@@ -543,13 +543,17 @@ models:
   character: Principessa Orchessa
   status: CANONICAL
   target_path: assets/models/swamp/queen-swamp-orchessa.glb
-  size_bytes: 3332972
-  md5: c8b4c91bb2951685a9761bb5ad7164fe
+  size_bytes: 6609904
+  md5: dfc1dbf7909507f416744eaa2d59296f
   pipeline:
-    tool: Mode A 2D-to-3D SDF Visual-Hull + Seamless UV Baking
-    script: tools/model-pipeline/reconstruct_mode_a_batch.py
-    resolution: 1024
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
     texture_size: 1024
+    eval3d_composite: 8.69
+    eval3d_objective: 7.95
+    eval3d_vlm: 9.3
+    eval3d_improvement: +37.3%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/queen-swamp-orchessa.jpg
@@ -562,13 +566,17 @@ models:
   character: Don Gatto Spadaccino-Vescovo
   status: CANONICAL
   target_path: assets/models/swamp/bishop-swamp-focaccina.glb
-  size_bytes: 580120
-  md5: 818011e6c59a0584cb2ba0d107593fa1
+  size_bytes: 6601060
+  md5: 06b11654917ed3c8f5f73a9cd0c090cd
   pipeline:
-    tool: Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting
-    script: tools/model-pipeline/swamp/build_swamp_models.py
-    resolution: 1024
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
     texture_size: 1024
+    eval3d_composite: 8.63
+    eval3d_objective: 7.68
+    eval3d_vlm: 9.4
+    eval3d_improvement: +48.0%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/bishop-swamp-focaccina.jpg
@@ -581,13 +589,17 @@ models:
   character: Asinello Chiacchierone
   status: CANONICAL
   target_path: assets/models/swamp/knight-swamp-asinello.glb
-  size_bytes: 490340
-  md5: ec43652c9a24a04d18991c48dba9f954
+  size_bytes: 6577120
+  md5: 66d61e469eac97394aded6768c17f35a
   pipeline:
-    tool: Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting
-    script: tools/model-pipeline/swamp/build_swamp_models.py
-    resolution: 1024
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
     texture_size: 1024
+    eval3d_composite: 8.7
+    eval3d_objective: 7.84
+    eval3d_vlm: 9.4
+    eval3d_improvement: +53.2%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/knight-swamp-asinello.jpg
@@ -600,13 +612,17 @@ models:
   character: Draghessa della Palude
   status: CANONICAL
   target_path: assets/models/swamp/rook-swamp-draghessa.glb
-  size_bytes: 555740
-  md5: 8c389056ef78845b81abe04552ebb5e1
+  size_bytes: 6660460
+  md5: 74d28de0d09244f1295221b0f6aa5a79
   pipeline:
-    tool: Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting
-    script: tools/model-pipeline/swamp/build_swamp_models.py
-    resolution: 1024
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
     texture_size: 1024
+    eval3d_composite: 8.66
+    eval3d_objective: 7.87
+    eval3d_vlm: 9.3
+    eval3d_improvement: +51.1%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/rook-swamp-draghessa.jpg
@@ -619,13 +635,17 @@ models:
   character: Zenzy Pan di Zenzero & Focaccina
   status: CANONICAL
   target_path: assets/models/swamp/pawn-swamp-tappo.glb
-  size_bytes: 456892
-  md5: 4a55e5e968d606cf86c82c4da73ec57b
+  size_bytes: 6640868
+  md5: 628ae3b19861addef579f2532c5f8ce5
   pipeline:
-    tool: Procedural Chibi 3D Lathe & Watertight Volumetric Sculpting
-    script: tools/model-pipeline/swamp/build_swamp_models.py
-    resolution: 1024
+    tool: Hunyuan3D-2.0 (Shape + Paint RGBA Delighting) + Blender 4.0 QEC 60k
+    script: tools/model-pipeline/swamp/conform_swamp_contract.py
+    decimation_target: 58000
     texture_size: 1024
+    eval3d_composite: 8.77
+    eval3d_objective: 8.24
+    eval3d_vlm: 9.2
+    eval3d_improvement: +50.2%
   concept_sources:
   - role: concept_turnaround_sheet
     path: assets/characters/pawn-swamp-tappo.jpg

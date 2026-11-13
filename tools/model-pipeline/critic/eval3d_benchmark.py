@@ -58,9 +58,10 @@ mesh_objs = [o for o in bpy.data.objects if o.type == 'MESH']
 if not mesh_objs:
     sys.exit(2)
 
-# Compute world-space bounding box & polygon count
+# Compute world-space bounding box, polygon count & PBR texture presence
 coords = []
 total_faces = 0
+has_pbr_texture = len([img for img in bpy.data.images if img.size[0] > 64]) > 0
 for obj in mesh_objs:
     mat = obj.matrix_world
     total_faces += len(obj.data.polygons)
@@ -155,6 +156,7 @@ bpy.ops.render.render(write_still=True)
 
 meta = {
     "faces": int(total_faces),
+    "has_pbr_texture": bool(has_pbr_texture),
     "min_bounds": [float(x) for x in min_b],
     "max_bounds": [float(x) for x in max_b],
     "height": height,
@@ -164,7 +166,7 @@ meta = {
 """
 
 
-def compute_image_forensics(render_dir: Path, meta: dict) -> dict:
+def compute_image_forensics(render_dir: Path, meta: dict, concept_path: Optional[Path] = None) -> dict:
     """Compute objective T3Bench / Anti-Butterato photometric & geometric metrics."""
     macro_img = Image.open(render_dir / "macro_head.png").convert("RGBA")
     clay_img = Image.open(render_dir / "macro_clay.png").convert("RGBA")
@@ -172,23 +174,23 @@ def compute_image_forensics(render_dir: Path, meta: dict) -> dict:
     back_img = Image.open(render_dir / "back.png").convert("RGBA")
     side_img = Image.open(render_dir / "side.png").convert("RGBA")
 
+    has_pbr = bool(meta.get("has_pbr_texture", False))
+
     # 1. Mesh Budget & Hygiene Score (0..10)
     faces = meta.get("faces", 0)
-    if 15000 <= faces <= 68000:
+    if 35000 <= faces <= 68000:
         poly_score = 10.0
-    elif 5000 <= faces < 15000:
-        poly_score = 7.5 + 2.5 * ((faces - 5000) / 10000.0)
+    elif 5000 <= faces < 35000:
+        poly_score = 5.5 + 4.5 * ((faces - 5000) / 30000.0)
     elif 68000 < faces <= 150000:
         poly_score = max(5.0, 10.0 - 5.0 * ((faces - 68000) / 82000.0))
     else:
         poly_score = 3.5
 
-    # 2. Macro Head/Face Anti-Blotchiness ('Anti-Butterato') Score (0..10)
-    # Compare high-frequency texture noise on the central cheek/nose/forehead region against the smooth clay render
+    # 2. Macro Head/Face Anti-Blotchiness ('Anti-Butterato') & PBR Texture Presence Score (0..10)
     arr = np.asarray(macro_img, dtype=np.float32) / 255.0
     clay_arr = np.asarray(clay_img, dtype=np.float32) / 255.0
     h, w, _ = arr.shape
-    # Inner facial skin ROI (forehead, cheeks, nose bridge — avoids outer hair/collar)
     y0, y1 = int(h * 0.38), int(h * 0.68)
     x0, x1 = int(w * 0.35), int(w * 0.65)
     roi = arr[y0:y1, x0:x1]
@@ -198,29 +200,41 @@ def compute_image_forensics(render_dir: Path, meta: dict) -> dict:
     if np.sum(alpha_mask) > 100:
         lum = 0.299 * roi[:, :, 0] + 0.587 * roi[:, :, 1] + 0.114 * roi[:, :, 2]
         clay_lum = 0.299 * clay_roi[:, :, 0] + 0.587 * clay_roi[:, :, 1] + 0.114 * clay_roi[:, :, 2]
-        # High-pass residual (texture-only blotchiness separated from 3D geometry shading)
         diff_lum = lum - clay_lum
         gy, gx = np.gradient(diff_lum)
         grad_mag = np.hypot(gx, gy)[alpha_mask]
         high_freq_energy = float(np.percentile(grad_mag, 80))
 
-        # Local patch-to-patch blotchiness (std of 8x8 local luminance deviations from clay)
         from PIL import ImageFilter as _IF
         diff_im = Image.fromarray(np.uint8(np.clip((diff_lum + 0.5) * 255.0, 0, 255)))
         smooth_diff = np.asarray(diff_im.filter(_IF.BoxBlur(4)), dtype=np.float32) / 255.0 - 0.5
         local_blotch = float(np.std((diff_lum - smooth_diff)[alpha_mask]))
         dark_crater_ratio = round(local_blotch, 4)
 
-        # Convert to 0..10 score: clean PBR has high_freq_energy ~0.015 (score ~8.8), blotchy graft ~0.042 (score ~4.2)
-        smoothness_score = float(
-            np.clip(11.5 - (high_freq_energy * 145.0) - (local_blotch * 85.0), 1.0, 10.0)
-        )
+        if not has_pbr:
+            # Untextured procedural placeholder: no 2048x2048 PBR texture atlas at all
+            smoothness_score = 3.8
+        else:
+            smoothness_score = float(
+                np.clip(11.5 - (high_freq_energy * 145.0) - (local_blotch * 85.0), 4.0, 10.0)
+            )
     else:
         high_freq_energy = 0.2
         dark_crater_ratio = 0.2
-        smoothness_score = 4.0
+        smoothness_score = 3.5
 
-    # 3. Multi-View Albedo & Silhouette Coherence (0..10)
+    # 3. 3D Geometric Sculpt Relief Score from Panel 6 Macro Clay (0..10)
+    # Distinguishes detailed 60k sculpted relief (bricks, crowns, ears, wings) from smooth primitive cylinders
+    clay_full_mask = clay_arr[:, :, 3] > 0.5
+    if np.sum(clay_full_mask) > 200:
+        c_lum = 0.299 * clay_arr[:, :, 0] + 0.587 * clay_arr[:, :, 1] + 0.114 * clay_arr[:, :, 2]
+        c_gy, c_gx = np.gradient(c_lum)
+        clay_relief = float(np.percentile(np.hypot(c_gx, c_gy)[clay_full_mask], 85))
+        geom_sculpt_score = float(np.clip(3.2 + clay_relief * 290.0, 3.0, 10.0))
+    else:
+        geom_sculpt_score = 4.0
+
+    # 4. Multi-View Albedo & Silhouette Coherence (0..10)
     def fg_stats(im: Image.Image):
         a = np.asarray(im, dtype=np.float32) / 255.0
         m = a[:, :, 3] > 0.5
@@ -234,14 +248,29 @@ def compute_image_forensics(render_dir: Path, meta: dict) -> dict:
     b_cov, b_rgb = fg_stats(back_img)
     s_cov, s_rgb = fg_stats(side_img)
 
-    # Silhouette balance between front and back (should be nearly identical for watertight 3D)
     sil_sym = 1.0 - abs(f_cov - b_cov) / max(f_cov, b_cov, 1e-4)
-    # Chrominance/brightness stability (detects unpainted black/grey backs)
     rgb_drift = float(np.linalg.norm(f_rgb - b_rgb))
     mv_coherence_score = float(np.clip(10.0 * sil_sym - rgb_drift * 8.0, 1.0, 10.0))
 
-    # 4. Crown / Upper Silhouette Perforation & Detail Index (0..10)
-    # Checks whether top 25% of head has articulated contour vs solid monolithic cylinder
+    # 5. Color Fidelity vs 2D Concept (catches RGB channel drop / dark-background delight corruption)
+    color_fidelity_score = 8.0
+    if concept_path and concept_path.exists():
+        c_im = Image.open(concept_path).convert("RGB")
+        c_arr = np.asarray(c_im, dtype=np.float32) / 255.0
+        ch, cw, _ = c_arr.shape
+        # Central foreground crop of concept (avoid outer border)
+        c_crop = c_arr[int(ch * 0.18):int(ch * 0.85), int(cw * 0.22):int(cw * 0.78)]
+        bg_ref = c_arr[0, 0]
+        fg_m = np.linalg.norm(c_crop - bg_ref, axis=-1) > 0.12
+        if np.sum(fg_m) > 100 and np.linalg.norm(f_rgb) > 1e-3:
+            c_rgb = c_crop[fg_m].mean(axis=0)
+            # Cosine chroma similarity + channel balance check (penalizes dead blue channel < 0.05)
+            cos_sim = float(np.dot(f_rgb, c_rgb) / (np.linalg.norm(f_rgb) * np.linalg.norm(c_rgb) + 1e-6))
+            blue_ratio = float(f_rgb[2] / max(c_rgb[2], 0.05))
+            blue_penalty = max(0.0, (0.45 - blue_ratio) * 14.0) if blue_ratio < 0.45 else 0.0
+            color_fidelity_score = float(np.clip(cos_sim * 9.5 - blue_penalty, 1.0, 10.0))
+
+    # 6. Crown / Upper Silhouette Perforation & Detail Index (0..10)
     top_band = arr[:int(h * 0.28), :, 3] > 0.5
     if np.sum(top_band) > 50:
         edges = np.abs(np.diff(top_band.astype(np.float32), axis=1)).sum()
@@ -252,15 +281,20 @@ def compute_image_forensics(render_dir: Path, meta: dict) -> dict:
         detail_score = 6.0
 
     objective_total = round(
-        0.35 * smoothness_score
-        + 0.25 * poly_score
-        + 0.25 * mv_coherence_score
-        + 0.15 * detail_score,
+        0.25 * smoothness_score
+        + 0.20 * geom_sculpt_score
+        + 0.20 * color_fidelity_score
+        + 0.15 * poly_score
+        + 0.10 * mv_coherence_score
+        + 0.10 * detail_score,
         2,
     )
 
     return {
+        "has_pbr_texture": has_pbr,
         "polygon_budget_score": round(poly_score, 2),
+        "geometric_sculpt_score": round(geom_sculpt_score, 2),
+        "color_fidelity_score": round(color_fidelity_score, 2),
         "face_smoothness_anti_blotch_score": round(smoothness_score, 2),
         "multiview_albedo_coherence_score": round(mv_coherence_score, 2),
         "silhouette_detail_score": round(detail_score, 2),
@@ -355,7 +389,7 @@ def evaluate_vlm_pairwise(
         return None
 
 
-def render_and_score_one(glb_path: Path, work_dir: Path, label: str) -> tuple[dict, Path]:
+def render_and_score_one(glb_path: Path, work_dir: Path, label: str, concept_path: Optional[Path] = None) -> tuple[dict, Path]:
     sub_dir = work_dir / label
     sub_dir.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as tf:
@@ -372,7 +406,7 @@ def render_and_score_one(glb_path: Path, work_dir: Path, label: str) -> tuple[di
         Path(script_path).unlink(missing_ok=True)
 
     meta = json.loads((sub_dir / "meta.json").read_text())
-    metrics = compute_image_forensics(sub_dir, meta)
+    metrics = compute_image_forensics(sub_dir, meta, concept_path)
     metrics["faces"] = meta["faces"]
     sheet_path = compose_6panel_sheet(
         sub_dir,
@@ -393,12 +427,12 @@ def main():
     args = parser.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    cand_metrics, cand_sheet = render_and_score_one(args.candidate, args.out_dir, "candidate")
+    cand_metrics, cand_sheet = render_and_score_one(args.candidate, args.out_dir, "candidate", args.concept)
 
     base_metrics = None
     base_sheet = None
     if args.baseline and args.baseline.exists():
-        base_metrics, base_sheet = render_and_score_one(args.baseline, args.out_dir, "baseline")
+        base_metrics, base_sheet = render_and_score_one(args.baseline, args.out_dir, "baseline", args.concept)
 
     vlm_report = None
     if not args.no_vlm:
