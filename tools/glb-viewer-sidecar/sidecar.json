@@ -1,0 +1,19 @@
+{
+  "command": "node",
+  "args": ["main.mjs"],
+  "restart_policy": "always",
+  "display_name": "GLB 3D Viewer 🧊",
+  "description": "Visualizzatore 3D interattivo per file .glb/.gltf in auto-rotazione 360° (stile GIF animata) nel pannello laterale di Antigravity (v0.2.1).",
+  "has_web_ui": true,
+  "ui_config": {
+    "display_name": "GLB 3D Viewer 🧊",
+    "views": [
+      {
+        "entrypoint": "SIDECAR_UI_ENTRYPOINT_AUX_PANE",
+        "path": "/view.html",
+        "title": "GLB 3D Viewer 🧊",
+        "file_extensions": [".glb", ".gltf"]
+      }
+    ]
+  }
+}

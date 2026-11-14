@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.105] - 2026-11-13
+
+- 🧊🔄 **Antigravity GLB 3D Turntable Viewer Sidecar (`tools/glb-viewer-sidecar/`)**:
+  - Added an interactive 3D Turntable UI Sidecar for Antigravity (`file_extensions: [".glb", ".gltf"]`), modeled after `antigravity-pdf-viewer`.
+  - Automatically intercepts `.glb` and `.gltf` links in the right-hand Aux Pane and renders them in 60 FPS continuous 360° auto-rotation (`🔄 GIF 360°`) like an animated GIF.
+  - Includes giant `◀ Prev` / `▶ Next` sibling model navigation across the active directory, speed presets (`1x`, `2x`, `4x`, `0.5x`, `-1x`), wireframe topology overlay (`🕸️ Wire`), skeletal animation playback (`🎬 Anim`), glTF binary header telemetry drawer (`📊 Info`), 1-click PNG clipboard snapshot (`📸 PNG`), and chat context injection (`💬 In Chat`).
+  - Added full 3D GLB roster visual audit (`article/SHOWCASE_GLB_VIEWER_AUDIT.md`, `article/assets/gallery/audit_*.jpg`, GHI #71) documenting UV-seam decimation defects in `-10k.glb` models, `graft_papino_face_3d.py` blotches on King Riccardo, and duplicate-dragon issues on Bishop Ale modular variants.
+
 ## [0.3.104] - 2026-11-03
 
 - 🎬⚔️🎯 **Combat Fighter Calibration: Higher Visibility (Opacity 0.42) & Compact Scale (0.88x) (`src/views/VFXPoolView.js`, `tests/combat.test.mjs`)**:
