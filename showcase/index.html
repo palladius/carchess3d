@@ -1361,37 +1361,37 @@
     const CHARACTERS = [
       // ── 1. FAMIGLIA CARLESSO ──
       {
-        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
+        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso', criticScore: '🟢 eval3d 8.54 (+48.3%)',
         glyph: '♗', piece: 'Bishop (1.45m)', name: 'Alfiere Alessandro', winner: true, defaultConfirmed: true,
-        tagline: 'Il Vincitore Designato per la scacchiera',
+        tagline: 'Il Vincitore Designato per la scacchiera · Remastered 60k PBR vs Vecchio 20k',
         front: '../assets/characters/bishop-ale-1.jpg',
         back: '../tools/model-pipeline/ale/experiments_back/back_nb_2.1.png',
         backGrid: '../tools/model-pipeline/ale/experiments_back/ale_hat_back_comparison_grid.jpg',
         models: [
-          { label: 'v1 · Mitria (Canonico 🏆)', url: '../assets/models/bishop-ale-1.glb',
-            note: 'v1 (canonico scacchiera): Con mitria vescovile e draghetto, TRELLIS da sola vista frontale.' },
+          { label: '✨ Dopo (Hunyuan3D-2 60k 🏆)', url: '../assets/models/bishop-ale-1.glb?v=0.3.108',
+            note: 'Remaster v0.3.108 (8.54/10, +48.3%): 59k facce Hunyuan3D-2 Shape+Paint, zero crateri neri su fronte/guancia!' },
+          { label: '🦴 Prima (Vecchio 20k 🔴)', url: '../assets/models/archive/before_v03104/bishop-ale-1-before.glb',
+            note: 'Baseline v0.3.104 (5.76/10): vecchia mesh 20k con buchi/crateri neri su fronte e guancia.' },
           { label: 'v2 · Astrolabio Remaster 🟢', url: '../assets/models/bishop-ale-2-remastered.glb',
-            note: 'v2 Remaster Modulare: Ruota celeste a 8 raggi in ottone, draghetto rubino separato sulla spalla, zero mezzi draghi!' },
-          { label: 'v3 · Astrolabio Vecchio 🔴', url: '../assets/models/bishop-ale-2.glb',
-            note: 'v3 Vecchio monolitico: astrolabio informe fuso con la manica e due mezzi draghi compenetrati sul retro.' },
+            note: 'v2 Remaster Modulare: Ruota celeste a 8 raggi in ottone, draghetto rubino separato sulla spalla.' },
           { label: 'v4 · Mitria Rigged 🐉', url: '../assets/models/bishop-ale-rigged.glb',
             note: 'Assemblaggio modulare con drago 3D pulito e rig a 26 ossa (Idle + Click_Fire_Breath).' },
         ],
-        details: 'Alfiere Ale in tutte le sue incarnazioni: il canonico con mitria (v1), il nuovo remaster modulare con astrolabio e draghetto pulito (v2), la vecchia versione monolitica (v3) e la versione con armatura a 26 ossa (v4).',
+        details: 'Alfiere Ale a confronto diretto: il nuovo remaster Hunyuan3D-2 pulito (sinistra) vs la vecchia mesh 20k bucata (seconda) e le varianti modulari.',
       },
       {
-        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
+        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso', criticScore: '🟢 eval3d 8.65 (+83.6% face)',
         glyph: '♔', piece: 'King (1.80m)', name: 'Re Riccardo', winner: true, defaultConfirmed: true,
-        tagline: 'Re della famiglia Carlesso',
+        tagline: 'Re della famiglia Carlesso · Clean 60k PBR vs Faccia Butterata',
         front: '../assets/characters/king-riccardo-1.jpg',
         back: '../tools/model-pipeline/king/back.png',
         models: [
-          { label: 'v1 · Biometrico (Canonico 🏆)', url: '../assets/models/king-riccardo.glb',
-            note: 'v1 Canonico: TRELLIS.2 + Adversarial Biometric Likeness Loop (9.1/10) + Mode B 2048×1024 Face-Grafting.' },
-          { label: 'v2 · Mantello & Croci Remaster 🟢', url: '../assets/models/king-riccardo-remastered.glb',
-            note: 'v2 Remaster: Sottosquadro d\'ermellino sul colletto, drappeggio verticale del mantello, scettro e croce maltese affilati.' },
+          { label: '✨ Dopo (Clean PBR 60k 🏆)', url: '../assets/models/king-riccardo.glb?v=0.3.105',
+            note: 'Remaster v0.3.105 (+83.6% smoothness): 60k facce Hunyuan3D-2 Paint pulito, zero cuciture xatlas!' },
+          { label: '🦴 Prima (Face-Grafted 🔴)', url: '../assets/models/archive/before_v03104/king-riccardo-before.glb',
+            note: 'Baseline v0.3.104 (Face 2.86/10): effetto "faccia butterata" da face-grafting fotografico + seam xatlas.' },
         ],
-        details: 'Re con corona imperiale ad archi, mantello blu con bordi d\'ermellino, globo crucigero nella mano sinistra e scettro d\'oro nella destra.',
+        details: 'Confronto Prima/Dopo di Re Riccardo: il nuovo bake stylized PBR continuo (sinistra) vs la vecchia versione con photo face-grafting (destra).',
       },
       {
         family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
@@ -1430,136 +1430,180 @@
         details: 'Cavaliere su destriero con armatura dorata completa, mantello blu reale, occhi azzurri vispi, pugno alzato equipaggiato con armi modulari.',
       },
       {
-        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
+        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso', criticScore: '🟢 eval3d 8.52 (+12.0%)',
         glyph: '♖', piece: 'Rook (1.30m)', name: 'Torre Pupurabbu', winner: true, defaultConfirmed: true,
-        tagline: 'Torre guardiana della famiglia Carlesso',
+        tagline: 'Torre guardiana · Remastered 59k Watertight vs Vecchio 93k con buchi sul petto',
         front: '../assets/characters/rook-pupurabbu.jpg',
         back: '../tools/model-pipeline/rook/back.png',
-        model: '../assets/models/rook-pupurabbu.glb',
-        details: 'Simpatica creatura pelosa viola affacciata con sorriso dentato dai merli di una torre scacchistica in pietra porpora.',
-        modelNote: 'TRELLIS.2: 100k triangoli, texture 1024x1024, torre merlata e mostriciattolo peloso.',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 59k 🏆)', url: '../assets/models/rook-pupurabbu.glb?v=0.3.108',
+            note: 'Remaster v0.3.108 (8.52/10): 59k facce watertight, pelliccia petto chiusa senza fori neri.' },
+          { label: '🦴 Prima (Vecchio 93k 🔴)', url: '../assets/models/archive/before_v03104/rook-pupurabbu-before.glb',
+            note: 'Baseline v0.3.104 (7.61/10): 93.7k facce con strappi non-manifold neri sul petto.' },
+        ],
+        details: 'Confronto Prima/Dopo di Torre Pupurabbu: pelliccia chiusa senza fori e muratura scolpita vs la vecchia mesh 93k.',
       },
       {
-        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso',
-        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Puffin Swiss Guard', defaultConfirmed: true,
+        family: 'carlesso', familyBadge: '👨‍👩‍👦‍👦 Carlesso', criticScore: '🟢 eval3d 8.59 (+26.7%)',
+        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Puffin Swiss Guard', winner: true, defaultConfirmed: true,
+        tagline: 'Guardia Svizzera · Remastered 59k vs Vecchio 13k Low-Poly',
         front: '../assets/characters/pawn-puffin.jpg',
         back: '../tools/model-pipeline/nbviews/gemini-nano-banana-2.1/back.png',
-        model: '../assets/models/pawn-puffin.glb',
-        details: 'Pulcinella di mare in uniforme da Guardia Svizzera, elmo morione con piuma rossa e alabarda.',
-        modelNote: 'TRELLIS v2 watertight (13,142 facce).',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 59k 🏆)', url: '../assets/models/pawn-puffin.glb?v=0.3.108',
+            note: 'Remaster v0.3.108 (8.59/10): 59k facce, piume morbide ed elmo morione lucido.' },
+          { label: '🦴 Prima (Low-Poly 13k 🔴)', url: '../assets/models/archive/before_v03104/pawn-puffin-before.glb',
+            note: 'Baseline v0.3.104 (6.78/10): mesh 13.2k visibly sfaccettata sulle guance.' },
+        ],
+        details: 'Confronto Prima/Dopo di Puffin Swiss Guard: da 13k facce spigolose a 59k facce levigate.',
       },
 
       // ── 2. SCACCHI CLASSICI VANILLA ──
       {
-        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.0 · 🟢 3D 8.9',
+        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 eval3d 8.62',
         glyph: '♔', piece: 'King (1.80m)', name: 'Re Classico (king-classic-re)', defaultConfirmed: true,
         tagline: 'Re Staunton tradizionale con corona a 8 punte su cuscino cremisi e Croce Reale in oro',
         front: '../assets/characters/king-classic-re.jpg',
         model: '../assets/models/classic/king-classic-re.glb',
-        modelNote: '17,072 tris · watertight · min.y = 0.0 · 1.80m · attacco: royal_cross_decree',
+        modelNote: 'eval3d 8.62/10 · watertight · min.y = 0.0 · 1.80m · attacco: royal_cross_decree',
         details: 'Re Staunton vanilla scolpito in marmo d’avorio scanalato con anelli d’oro, corona reale su velluto cremisi e Croce Pattee d’oro.',
       },
       {
-        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.1 · 🟢 3D 8.9',
+        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 eval3d 8.81',
         glyph: '♕', piece: 'Queen (1.65m)', name: 'Regina Classica (queen-classic-regina)', defaultConfirmed: true,
         tagline: 'Regina Staunton tradizionale con coronet d’oro a 8 punte e perle d’avorio',
         front: '../assets/characters/queen-classic-regina.jpg',
         model: '../assets/models/classic/queen-classic-regina.glb',
-        modelNote: '14,832 tris · watertight · min.y = 0.0 · 1.65m · attacco: imperial_coronet_wave',
+        modelNote: 'eval3d 8.81/10 · watertight · min.y = 0.0 · 1.65m · attacco: imperial_coronet_wave',
         details: 'Regina Staunton vanilla con colonna scanalata in marmo d’avorio, triplo collare d’oro, corona a 8 punte con perle e globo centrale.',
       },
       {
-        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.3 · 🟢 3D 9.0',
+        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.3 · 🟢 3D 8.25',
         glyph: '♗', piece: 'Bishop (1.45m)', name: 'San Gennaro (bishop-classic-vescovo)', winner: true, defaultConfirmed: true,
         tagline: 'Busto reliquiario barocco di San Gennaro con Ampolla del Sangue rubino, mitria gemmata e pastorale d’oro',
         front: '../assets/characters/bishop-classic-vescovo.jpg',
         model: '../assets/models/classic/bishop-classic-vescovo.glb',
-        modelNote: '19,744 tris · watertight · min.y = 0.0 · 1.45m · attacco: crosier_blessing_beam',
+        modelNote: '97,089 tris · watertight · min.y = 0.0 · 1.45m · attacco: crosier_blessing_beam',
         details: 'Alfiere ispirato al Busto del Tesoro di San Gennaro: piviale rosso e oro, medaglione con la Sacra Ampolla del Sangue sul petto, mitria tempestata di rubini/smeraldi/perle e pastorale.',
       },
       {
-        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.2 · 🟢 3D 9.5',
+        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 eval3d 8.79 (+82.4%)',
         glyph: '♘', piece: 'Knight (1.35m)', name: 'Destriero Classico (knight-classic-cavallo)', winner: true, defaultConfirmed: true,
-        tagline: 'Nobile destriero Staunton in marmo d’avorio con criniera scolpita e briglie dorate (Ricostruzione 3D UV-Textured 1024×1024)',
+        tagline: 'Remaster Hunyuan3D-2 59k vs Vecchio Mode A 2.5D SDF (+82.4%!)',
         front: '../assets/characters/knight-classic-cavallo.jpg',
-        model: '../assets/models/classic/knight-classic-cavallo.glb?v=0.3.20',
-        modelNote: '22,080 tris · 1024×1024 UV Texture · min.y = 0.0 · 1.35m · attacco: warhorse_cavalry_charge',
-        details: 'Cavallo Staunton tradizionale scolpito in marmo d’avorio con collo arcuato, criniera fluente e briglie medievali in oro spazzolato.',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 59k 🏆)', url: '../assets/models/classic/knight-classic-cavallo.glb?v=0.3.108',
+            note: 'Remaster v0.3.108 (8.79/10, +82.4%): marmo scolpito a 360°, briglie 3D e zero UV seam sul muso.' },
+          { label: '🥔 Prima (Mode A SDF Blob 🔴)', url: '../assets/models/archive/before_v03104/knight-classic-cavallo-before.glb',
+            note: 'Baseline v0.3.104 (4.82/10): patata SDF liscia con cucitura a dente di sega sul muso e retro vuoto.' },
+        ],
+        details: 'Confronto Prima/Dopo del Destriero Classico: da un blob 2.5D con cucitura frontale rotta a una scultura Staunton scolpita a 360°.',
       },
       {
-        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 2D 9.4 · 🟢 3D 9.1',
+        family: 'classic', familyBadge: '♔🏛️ Classico', criticScore: '🟢 eval3d 8.67 (+54.8%)',
         glyph: '♖', piece: 'Rook (1.30m)', name: 'Torre Matildea (rook-classic-torre)', winner: true, defaultConfirmed: true,
-        tagline: 'Torre Matildea / Rocca Estense dei Lidi Ferraresi in cotto rosso, bugnato d’avorio, beccatelli e lanterna',
+        tagline: 'Remaster Hunyuan3D-2 59k vs Vecchio Mode A 2.5D SDF (+54.8%!)',
         front: '../assets/characters/rook-classic-torre.jpg',
-        model: '../assets/models/classic/rook-classic-torre.glb',
-        modelNote: '20,784 tris · watertight · min.y = 0.0 · 1.30m · attacco: fortress_slam',
-        details: 'Torre ispirata alla Torre Matildea e al Castello Estense di Ferrara: fusto in mattoni di cotto, cantonali in marmo d’avorio, caditoie su beccatelli, merli e torretta ottagonale.',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 59k 🏆)', url: '../assets/models/classic/rook-classic-torre.glb?v=0.3.108',
+            note: 'Remaster v0.3.108 (8.67/10, +54.8%): merli ghibellini, archetti, finestre incassate e lanterna 3D.' },
+          { label: '🥔 Prima (Mode A SDF Blob 🔴)', url: '../assets/models/archive/before_v03104/rook-classic-torre-before.glb',
+            note: 'Baseline v0.3.104 (5.60/10): marshmallow fuso senza merli con foto 2D proiettata.' },
+        ],
+        details: 'Confronto Prima/Dopo della Torre Matildea: geometria architettonica nitida a 360° contro il vecchio blob Mode A.',
       },
       {
-        family: 'classic', familyBadge: '♔🏛️ Vanilla', criticScore: '🟢 2D 9.1 · 🟢 3D 9.0',
-        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Pedone Classico (pawn-classic-pedone)', defaultConfirmed: true,
-        tagline: 'Iconico pedone Staunton tornito con collare d’oro e sfera liscia in marmo d’avorio',
+        family: 'classic', familyBadge: '♔🏛️ Vanilla', criticScore: '🟢 eval3d 8.55 (+43.7%)',
+        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Pedone Classico (pawn-classic-pedone)', winner: true, defaultConfirmed: true,
+        tagline: 'Remaster Hunyuan3D-2 59k vs Vecchio Mode A 2.5D SDF (+43.7%!)',
         front: '../assets/characters/pawn-classic-pedone.jpg',
-        model: '../assets/models/classic/pawn-classic-pedone.glb',
-        modelNote: '9,648 tris · watertight · min.y = 0.0 · 0.95m · attacco: staunton_march_strike',
-        details: 'Pedone Staunton tradizionale puro: base a gradini, fusto concavo tornito, doppio collare d’oro e testa sferica liscia in marmo d’avorio.',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 59k 🏆)', url: '../assets/models/classic/pawn-classic-pedone.glb?v=0.3.108',
+            note: 'Remaster v0.3.108 (8.55/10, +43.7%): sfera Staunton tornita simmetrica, doppio collare oro pulito.' },
+          { label: '🥔 Prima (Mode A SDF Blob 🔴)', url: '../assets/models/archive/before_v03104/pawn-classic-pedone-before.glb',
+            note: 'Baseline v0.3.104 (5.95/10): mesh asimmetrica grumosa con buco nero sul retro.' },
+        ],
+        details: 'Confronto Prima/Dopo del Pedone Classico Staunton.',
       },
 
       // ── 3. FAMIGLIA DELLA PALUDE ──
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 8.9 · 🟡 3D 7.5',
-        glyph: '♔', piece: 'King (1.80m)', name: 'Orco Brontolo (king-swamp-orco)', defaultConfirmed: true,
-        tagline: 'Re orco con corona di radici di quercia, spallacci in corteccia e scettro-cipolla d’oro',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 eval3d 8.55 (+44.9%)',
+        glyph: '♔', piece: 'King (1.80m)', name: 'Orco Brontolo (king-swamp-orco)', winner: true, defaultConfirmed: true,
+        tagline: 'Remaster Hunyuan3D-2 + RGBA Delighting vs Vecchio Procedurale (+44.9%)',
         front: '../assets/characters/king-swamp-orco.jpg',
-        model: '../assets/models/swamp/king-swamp-orco.glb?v=0.3.20',
-        modelNote: '24,180 tris · watertight · min.y = 0.0 · 1.80m · attacco: swamp_onion_burp',
-        details: 'Orco della palude con orecchie cadenti da cinghiale, farsetto reale prugna e muschio, mantello e scettro-cipolla germogliata.',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 58k 🏆)', url: '../assets/models/swamp/king-swamp-orco.glb?v=0.3.107',
+            note: 'Remaster v0.3.107 (8.55/10, +44.9%): scultura neurale 58k + fix RGBA delighting verde oliva naturale.' },
+          { label: '🪵 Prima (Procedurale 24k 🔴)', url: '../assets/models/archive/before_v03104/king-swamp-orco-before.glb',
+            note: 'Baseline v0.3.104 (5.90/10): vecchia scultura procedurale a primitive.' },
+        ],
+        details: 'Confronto Prima/Dopo di Orco Brontolo a 360°.',
       },
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 8.6 · 🟡 3D 7.3',
-        glyph: '♕', piece: 'Queen (1.65m)', name: 'Principessa Orchessa (queen-swamp-orchessa)', defaultConfirmed: true,
-        tagline: 'Regina orchessa guerriera con chignon alto ramato, abito bordeaux/oro e posa Kung-Fu',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 eval3d 8.69 (+37.3%)',
+        glyph: '♕', piece: 'Queen (1.65m)', name: 'Principessa Orchessa (queen-swamp-orchessa)', winner: true, defaultConfirmed: true,
+        tagline: 'Remaster Hunyuan3D-2 58k vs Vecchio 2.5D Faccia Specchiata (+37.3%)',
         front: '../assets/characters/queen-swamp-orchessa.jpg',
-        model: '../assets/models/swamp/queen-swamp-orchessa.glb?v=0.3.20',
-        modelNote: '22,216 tris · watertight · min.y = 0.0 · 1.65m · attacco: kungfu_slowmo_kick',
-        details: 'Principessa guerriera della palude con tiara dorata a punte, chignon alto con anello d’oro e abito rinascimentale bordeaux e senape.',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 58k 🏆)', url: '../assets/models/swamp/queen-swamp-orchessa.glb?v=0.3.107',
+            note: 'Remaster v0.3.107 (8.69/10, +57.2% scultura): retro con chignon vero e abito chiuso a 360°.' },
+          { label: '🪵 Prima (2.5D Retro Specchiato 🔴)', url: '../assets/models/archive/before_v03104/queen-swamp-orchessa-before.glb',
+            note: 'Baseline v0.3.104 (6.33/10): bug storico della seconda faccia stampata dietro la nuca!' },
+        ],
+        details: 'Confronto Prima/Dopo della Principessa Orchessa: eliminato per sempre il bug della doppia faccia posteriore.',
       },
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.4 · 🟢 3D 8.8',
-        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Don Gatto Spadaccino — Vescovo Mascherato (bishop-swamp-gatto)', winner: true, defaultConfirmed: true,
-        tagline: 'Un gatto spadaccino mascherato in versione Vescovo: mascherina nera, mitra vescovile nera/oro con piuma gialla, mantello ricamato e stocco d’oro',
-        front: '../assets/characters/bishop-swamp-gatto.jpg',
-        model: '../assets/models/swamp/bishop-swamp-focaccina.glb?v=0.3.20',
-        modelNote: 'TRELLIS.2 / 3D mesh · min.y = 0.0 · 1.45m · attacco: focaccina_crumb_bonk',
-        details: 'Mix comico tra un gatto moschettiere, uno spadaccino mascherato e un Vescovo solenne: mascherina da bandito sugli occhioni verdi, mitra papale nera e oro con croce rubino e piuma di struzzo gialla, mantello nero con medaglione Z, stivaloni e spada-pastorale.',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 eval3d 8.63 (+48.0%)',
+        glyph: '♗', piece: 'Bishop (1.45m)', name: 'Don Gatto / Focaccina (bishop-swamp-focaccina)', winner: true, defaultConfirmed: true,
+        tagline: 'Remaster Hunyuan3D-2 58k vs Vecchio Procedurale (+48.0%)',
+        front: '../assets/characters/bishop-swamp-focaccina.jpg',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 58k 🏆)', url: '../assets/models/swamp/bishop-swamp-focaccina.glb?v=0.3.107',
+            note: 'Remaster v0.3.107 (8.63/10, +48.0%): 58k facce PBR con dettagli croccanti e mantello.' },
+          { label: '🪵 Prima (Procedurale 16k 🔴)', url: '../assets/models/archive/before_v03104/bishop-swamp-focaccina-before.glb',
+            note: 'Baseline v0.3.104 (5.83/10): vecchia mesh procedurale.' },
+        ],
+        details: 'Confronto Prima/Dopo dell\'Alfiere della Palude.',
       },
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.5 · 🟢 3D 9.4',
-        glyph: '♘', piece: 'Knight (1.35m)', name: 'Asinello Chiacchierone — Sorrisone a 40 Denti! (knight-swamp-asinello)', winner: true, defaultConfirmed: true,
-        tagline: 'Asinello comico stile Eddie Murphy con SORRISONE ASSURDO A 40 DENTI che ti conquista, sopracciglio alzato e gualdrappa da torneo (Mode A 3D UV 1024×1024)',
-        front: '../assets/characters/knight-swamp-asinello.jpg?v=0.3.20',
-        model: '../assets/models/swamp/knight-swamp-asinello.glb?v=0.3.20',
-        modelNote: '16,508 tris · 1024×1024 UV Mode A Reconstruction · min.y = 0.0 · 1.35m · attacco: asinello_back_kick',
-        details: 'Asinello parlante carismatico con un sorrisone smagliante a 40 denti bianchi in rilievo 3D, orecchie lunghe dritte, medaglione cipolla d’oro e criniera dorsale.',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 eval3d 8.70 (+53.2%)',
+        glyph: '♘', piece: 'Knight (1.35m)', name: 'Asinello Chiacchierone — 40 Denti! (knight-swamp-asinello)', winner: true, defaultConfirmed: true,
+        tagline: 'Remaster Hunyuan3D-2 58k vs Vecchio Procedurale (+53.2%!)',
+        front: '../assets/characters/knight-swamp-asinello.jpg',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 58k 🏆)', url: '../assets/models/swamp/knight-swamp-asinello.glb?v=0.3.107',
+            note: 'Remaster v0.3.107 (8.70/10, +53.2%): posa eretta frontale con sorrisone 40 denti e gualdrappa.' },
+          { label: '🪵 Prima (Procedurale 16k 🔴)', url: '../assets/models/archive/before_v03104/knight-swamp-asinello-before.glb',
+            note: 'Baseline v0.3.104 (5.68/10): vecchio somarello procedurale.' },
+        ],
+        details: 'Confronto Prima/Dopo dell\'Asinello Chiacchierone: sorrisone iconico a 40 denti scolpito in 3D.',
       },
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.2 · 🟢 3D Animato',
-        glyph: '♖', piece: 'Rook (1.30m)', name: 'Draghessa della Palude — Spire Inesorabili (rook-swamp-draghessa)', winner: true, defaultConfirmed: true,
-        tagline: 'Torre muschiosa a 6 merli con la Draghessa rubino/smeraldo in PERENNE MOVIMENTO LENTO E INESORABILE attorno alla torre!',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 eval3d 8.66 (+51.1%)',
+        glyph: '♖', piece: 'Rook (1.30m)', name: 'Draghessa della Palude (rook-swamp-draghessa)', winner: true, defaultConfirmed: true,
+        tagline: 'Remaster Hunyuan3D-2 58k vs Vecchio Procedurale (+51.1%)',
         front: '../assets/characters/rook-swamp-draghessa.jpg',
-        model: '../assets/models/swamp/rook-swamp-draghessa.glb?v=0.3.20',
-        modelNote: '20,824 tris · Spire 3D animate in movimento perpetuo · min.y = 0.0 · 1.30m · attacco: dragon_heart_smoke',
-        details: 'Torre di guardia in pietra muschiosa avvolta da una draghessa rubino che striscia e si attorciglia lentamente ma inesorabilmente attorno alla torre.',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 58k 🏆)', url: '../assets/models/swamp/rook-swamp-draghessa.glb?v=0.3.107',
+            note: 'Remaster v0.3.107 (8.66/10, +51.1%): draghessa rubino avvolta sulla torre con spire animate.' },
+          { label: '🪵 Prima (Procedurale 20k 🔴)', url: '../assets/models/archive/before_v03104/rook-swamp-draghessa-before.glb',
+            note: 'Baseline v0.3.104 (5.73/10): vecchia torre procedurale a primitive.' },
+        ],
+        details: 'Confronto Prima/Dopo della Torre Draghessa della Palude.',
       },
       {
-        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 2D 9.5 · 🟢 3D 8.6',
-        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Zenzy Pan di Zenzero & Focaccina all’Italiana (pawn-swamp-zenzy)', winner: true, defaultConfirmed: true,
-        tagline: 'Pedone omino di pan di zenzero e focaccina con elmo morione al rosmarino, bottoni gommosi viola e alabarda bastoncino di zucchero/grissino!',
-        front: '../assets/characters/pawn-swamp-zenzy.jpg',
-        back: '../assets/characters/pawn-swamp-focaccina.jpg',
-        model: '../assets/models/swamp/pawn-swamp-tappo.glb?v=0.3.20',
-        modelNote: 'min.y = 0.0 · 0.95m · attacco: decree_scroll_flatten',
-        details: 'Scelto da Riccardo (Variante C): Zenzy Pan di Zenzero & Focaccina all’Italiana con glassa reale bianca, bottoni gommosi viola, elmo di crosta dorata con piuma di rosmarino e oliva taggiasca, e alabarda candy-cane!',
+        family: 'swamp', familyBadge: '🐸🧅 Palude', criticScore: '🟢 eval3d 8.77 (+50.2%)',
+        glyph: '♙', piece: 'Pawn (0.95m)', name: 'Tappo & Zenzy (pawn-swamp-tappo)', winner: true, defaultConfirmed: true,
+        tagline: 'Remaster Hunyuan3D-2 58k vs Vecchio Procedurale (+50.2%)',
+        front: '../assets/characters/pawn-swamp-tappo.jpg',
+        models: [
+          { label: '✨ Dopo (Hunyuan3D-2 58k 🏆)', url: '../assets/models/swamp/pawn-swamp-tappo.glb?v=0.3.107',
+            note: 'Remaster v0.3.107 (8.77/10, +50.2%): araldo su pila di tomi reali a 58k facce PBR.' },
+          { label: '🪵 Prima (Procedurale 16k 🔴)', url: '../assets/models/archive/before_v03104/pawn-swamp-tappo-before.glb',
+            note: 'Baseline v0.3.104 (5.84/10): vecchia scultura procedurale 16k.' },
+        ],
+        details: 'Confronto Prima/Dopo del Pedone Tappo della Palude.',
       },
     ];
 
@@ -1678,7 +1722,7 @@
         return g;
       });
       const view = {
-        pane, canvas, ctx, scene, camera, slots, n: models.length, radii: [], maxR: MAX_RADIUS, angle: 0,
+        pane, canvas, ctx, scene, camera, slots, n: models.length, loaded: models.map(() => false), radii: [], maxR: MAX_RADIUS, angle: 0,
         w: 0, h: 0, visible: false, dragging: false, lastX: 0, downX: 0, idleAt: 0, factionMaterials: [],
         uDragonTime: { value: 0 }, hasDragonCoil: false,
       };
@@ -1775,6 +1819,7 @@ if (uDragonCoilMode > 0.5) {
         holder.scale.setScalar(scale);
         holder.add(obj);
         slots[k].add(holder);
+        view.loaded[k] = true;
         view.radii[k] = radius * scale;
         layout(view);
         if (!canvas.isConnected) {
@@ -1783,6 +1828,12 @@ if (uDragonCoilMode > 0.5) {
           resize(view);
         }
       }, undefined, (err) => {
+        if (String(m.url || '').includes('archive/')) {
+          const cap = pane.querySelectorAll('.captions span')[k];
+          if (cap) cap.remove();
+          layout(view);
+          return;
+        }
         const ph = pane.querySelector('.placeholder');
         if (ph) ph.textContent = `❌ ${m.label}: ${err.message}`;
       }));
@@ -1805,8 +1856,17 @@ if (uDragonCoilMode > 0.5) {
 
     function layout(v) {
       v.maxR = Math.max(...v.radii.filter(Boolean), 0.3);
+      const activeIdx = v.slots.map((_, k) => k).filter((k) => v.loaded[k]);
+      const count = activeIdx.length || v.n;
       const spacing = 2 * v.maxR * 1.05;
-      v.slots.forEach((g, k) => { g.position.x = (k - (v.n - 1) / 2) * spacing; });
+      if (activeIdx.length) {
+        activeIdx.forEach((slotIdx, pos) => {
+          v.slots[slotIdx].position.x = (pos - (activeIdx.length - 1) / 2) * spacing;
+        });
+      } else {
+        v.slots.forEach((g, k) => { g.position.x = (k - (v.n - 1) / 2) * spacing; });
+      }
+      v.activeCount = count;
       v.spacing = spacing;
       resize(v);
     }
@@ -1825,7 +1885,8 @@ if (uDragonCoilMode > 0.5) {
       v.h = h;
       v.camera.aspect = w / h;
       const t = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
-      const needH = MODEL_H * MARGIN, needW = ((v.n - 1) * (v.spacing ?? 0) + 2 * v.maxR) * MARGIN;
+      const count = v.activeCount || v.n;
+      const needH = MODEL_H * MARGIN, needW = ((count - 1) * (v.spacing ?? 0) + 2 * v.maxR) * MARGIN;
       const dist = Math.max(needH / 2 / t, needW / 2 / (t * v.camera.aspect)) + v.maxR;
       v.camera.position.set(0, 0.25, dist);
       v.camera.lookAt(0, 0, 0);
@@ -2463,7 +2524,7 @@ if (uDragonCoilMode > 0.5) {
   </script>
 
   <footer style="text-align:center;padding:24px 16px 40px;color:#90a4ae;font-size:12px;border-top:1px solid rgba(255,213,79,0.2);margin-top:40px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
-    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.64</span>
+    <span style="font-family:ui-monospace,monospace;color:#ffe082;background:rgba(255,224,130,0.12);border:1px solid rgba(255,224,130,0.35);padding:2px 8px;border-radius:6px;font-weight:700;">v0.3.110</span>
     <span>·</span>
     <a href="https://github.com/palladius/carchess3d" target="_blank" rel="noopener noreferrer" style="color:#9be7c4;text-decoration:none;font-weight:600;">🐙 GitHub Code</a>
     <span>·</span>

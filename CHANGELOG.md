@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.110] - 2026-11-14
+
+- 🔄⚖️ **Interactive Localhost Before/After 3D Turntable Showcase (`showcase/index.html`, `assets/models/archive/before_v03104/*.glb`)**:
+  - Restored all 13 legacy pre-remaster `"Before"` `.glb` meshes under `assets/models/archive/before_v03104/` (automatically excluded from `gh-pages` runtime builds by `scripts/publish_pages.py`) and updated `showcase/?view=families` (`#carlesso`, `#classic`, `#swamp`) so each remastered piece spins interactively side-by-side next to its `"Before"` baseline in localhost (while centering gracefully if `archive/` is absent on GitHub Pages).
+- 📝✨ **Article Integration & 3 Lessons Learnt (`article/ARTICLE.md`)**:
+  - Resolved `TODO(2026-11-13)` in `article/ARTICLE.md`: integrated the `"Faccia Butterata"` Mode B photo-grafting forensic postmortem (Lesson Learnt #1), the `+30%` Adversarial `3d-builder` vs `3d-eval-critic` Swarm remaster results across 13 pieces, the `dehighlight_utils.py` opaque-JPEG blue-channel collapse fix (Lesson Learnt #2), and 2-up split-sheet cropping (Lesson Learnt #3), along with Before/After comparison boards and 360° turntable GIFs.
+- 🧹 **`PieceManager.js` LOC Hygiene (`src/managers/PieceManager.js`)**: Trimmed 3 redundant blank lines (`302 -> 299` LOC) to comply with Niccolò's `<= 300` LOC manager cap.
+
 ## [0.3.109] - 2026-11-13
 
 - 📏⚙️ **Skill `niccolo-game-design` v0.3.0 — "Measure, don't guess"**: `QualityManager` in the canonical manager set, §6 benchmark-driven Auto in `references/glb-lod-decimation-blender.md`, 2 review-checklist items + 1 anti-pattern (device sniffing in Views). Skill only, no game code changed.

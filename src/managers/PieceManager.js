@@ -16,7 +16,6 @@ export const CLIP_ALIASES = Object.freeze({
 });
 
 export class PieceManager {
-
   constructor() {
     this.ctx = null;
     /** @type {'carlesso'|'swamp'|'classic'} */
@@ -68,7 +67,6 @@ export class PieceManager {
     );
   }
 
-
   resolveDescriptor(raw) {
     const type = String(raw.type || 'p').toLowerCase();
     const color = raw.color === 'b' ? 'b' : 'w';
@@ -90,6 +88,11 @@ export class PieceManager {
         glbUrl = KNIGHT_GLB_VARIANTS[this.knightVariant] || meta.glbUrl;
       } else {
         glbUrl = meta.glbUrl || null;
+      }
+      if (this.effectiveLod === 'low' && meta.lodGlbUrls?.low) {
+        glbUrl = meta.lodGlbUrls.low;
+      } else if (this.effectiveLod === 'medium' && meta.lodGlbUrls?.medium) {
+        glbUrl = meta.lodGlbUrls.medium;
       }
     }
 
@@ -220,7 +223,6 @@ export class PieceManager {
     this.rivalSetMode = norm;
     this._applySetChange('rival_set_changed');
   }
-
 
   setBishopVariant(v) {
     const norm = ['hat', 'astrolabe', 'rigged'].includes(v) ? v : 'hat';

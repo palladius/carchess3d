@@ -1,8 +1,6 @@
 # 🏰🚽 CarChess3D: How I Built a 3D Family Chess Game with Gemini 4 Argon and an Autonomous Agent Swarm While Celebrating My 10th Wedding Anniversary in Colmar
 
 > 📰 This is the repository mirror of the article published on [ricc.rocks](https://ricc.rocks/en/posts/technology/2026-10-15-carchess3d-family-chess/). The blog post is the canonical, reviewed version; this copy is regenerated from it.
->
-> 📌 **`TODO(2026-11-13)` — IMPORTANT**: Integrate the "Lesson Learnt" from [`article/LESSON_LEARNT_FACE_GRAFTING.md`](LESSON_LEARNT_FACE_GRAFTING.md) into Section 5 (*Engine 4: Mode B Biometric Face-Grafting*) explaining why raw photographic face-grafting produced a blotchy/broken face (*faccia butterata*: `xatlas` UV fragmentation, `bmesh.ops.remove_doubles` collapsing UV seam vertices, and high-frequency photo skin noise vs. stylized 3D lighting) and how switching to the clean cartoon 2D concept + continuous Hunyuan3D-2 PBR baking at 60k polygons solved it (with [`riccardo_clean_vs_broken_comparison.png`](assets/riccardo_clean_vs_broken_comparison.png) and [`riccardo_clean_turntable.gif`](assets/riccardo_clean_turntable.gif)).
 
 *By **Riccardo "Palladius" Carlesso** — proud dad to Ale & Seby and improvised 3D game designer. Built hands-off with [**Gemini 4**](https://deepmind.google/models/gemini/) inside [**Antigravity**](https://antigravity.google/) and the [**Niccolò Game Design** skill](https://github.com/palladius/gemini-cli-palladius-public-goodies/blob/main/skills/niccolo-game-design/SKILL.md). Zurich & Colmar, October 2026.*
 
@@ -236,16 +234,23 @@ When Hugging Face ZeroGPU hit quota limits (*"Exceeded ZeroGPU quota"*), the age
 #### Engine 3: Slimming Down 10× with Quadric Edge Collapse 📐
 A raw mesh out of Hunyuan3D-2 has **~700,000 triangles (12.5 MB)** per piece: with 32 pieces on the board that is 22 million polygons, and any tablet browser gives up. [Quadric Edge Collapse](https://en.wikipedia.org/wiki/Level_of_detail_(computer_graphics)) (Garland & Heckbert, 1997) merges the edges that matter least first, so we went from **697k to 60k faces (12.5 MB → 1.0 MB) in under 10 seconds** while keeping faces, crowns and noses intact.
 
-#### Engine 4: Mode B Biometric Face-Grafting ($2048 \times 1024$ Dual-Chart WebP Atlas)
-My initial King mesh looked like a generic, clean-shaven doll. When I complained (*"Better, but it still doesn't look like me! Build an adversarial likeness critic using my 5 reference photos!"*), the agent built a **Biometric Likeness Critic (`riccardo-likeness-critic`)** scoring **8 facial landmarks** (hooded smiling brown eyes, vertical glabellar crease, white tuft on the left eyebrow, rounded nose tip, wide grin, 2-day salt-and-pepper stubble, silver temples, no glasses) and implemented **Mode B Planar Face-Grafting**:
-- Expanded the UV atlas to $2048 \times 1024$: the left half ($u \in [0, 0.5]$) keeps the original 3D robe/crown texture, while the right half ($u \in [0.5, 1.0]$) projects my real South Africa photo onto the 1,483 facial triangles with multi-band Laplacian skin harmonization ($\sigma = 26.0$).
+#### Engine 4 & Lesson Learnt #1: Why Raw Photo Face-Grafting Looked Like "Faccia Butterata" in Three.js
+Initially, my King mesh looked like a generic, clean-shaven doll. When I complained (*"It doesn't look like me!"*), the agent built a **Biometric Likeness Critic (`riccardo-likeness-critic`)** scoring 8 facial landmarks and implemented **Mode B Planar Face-Grafting** — projecting a real photo of my face onto 1,483 facial triangles in a $2048 \times 1024$ dual-chart atlas.
 
-> ⚠️ **`TODO(2026-11-13)` — Add Lesson Learnt from [`article/LESSON_LEARNT_FACE_GRAFTING.md`](LESSON_LEARNT_FACE_GRAFTING.md)**:
-> Why Mode B photo face-grafting ultimately failed in-game (causing a blotchy, pockmarked *"faccia butterata"*):
-> 1. **Fragmented `xatlas` UV islands ("Frankenstein seams")**: projecting a photo onto a frontal triangle subset (`tri_in_shell`) left saw-toothed borders against surrounding triangles.
-> 2. **The `bmesh.ops.remove_doubles` UV seam collapse bug**: welding coincident 3D vertices destroyed distinct `(u, v)` seam coordinates, dragging dark crown/pedestal textures across the cheeks and nose.
-> 3. **High-frequency photographic noise vs. stylized 3D lighting**: real skin pores and static baked photo shadows look like craters under dynamic Three.js lighting.
-> - **The Fix**: Clean cartoon 2D concept ([`king_riccardo_clean_2d.png`](assets/king_riccardo_clean_2d.png)) + continuous UV unwrap + multi-view Hunyuan3D-2 PBR baking on the 60k-face mesh ([`riccardo_clean_vs_broken_comparison.png`](assets/riccardo_clean_vs_broken_comparison.png), [`riccardo_clean_turntable.gif`](assets/riccardo_clean_turntable.gif)).
+**Plot twist: in static 2D previews it looked recognizable, but spinning live inside Three.js my face looked totally broken and pockmarked (*"faccia butterata"*)!**
+
+Asking the agent to put itself into forensic mode uncovered three compounding bugs ([`LESSON_LEARNT_FACE_GRAFTING.md`](https://github.com/palladius/carchess3d/blob/main/article/LESSON_LEARNT_FACE_GRAFTING.md)):
+1. **Fragmented `xatlas` UV islands ("Frankenstein seams")**: re-baking UV charts onto a frontal face subset left saw-toothed borders along the cheeks and nose bridge.
+2. **The `bmesh.ops.remove_doubles` UV seam collapse bug**: welding coincident 3D vertices accidentally collapsed distinct `(u, v)` texture coordinates across UV islands, dragging dark crown/pedestal pixels straight across my skin.
+3. **High-frequency photographic noise vs. PBR lighting**: skin pores and baked shadows from the real photograph summed destructively with dynamic Three.js directional lights.
+
+**The Fix**: We threw away raw photo-grafting completely, generated a **clean stylized 2D cartoon concept** preserving my salt-and-pepper hair/beard, and baked a **single continuous UV atlas at 60,000 faces** natively inside **Hunyuan3D-2 Paint** — boosting measured facial skin smoothness by **`+83.6%`** and cutting high-frequency blotch energy by **`-52.6%`**:
+
+![Before vs After King Riccardo: blotchy face-grafting ("faccia butterata") vs clean 60k stylized PBR](assets/riccardo_clean_vs_broken_comparison.png)
+
+| Clean Stylized 2D Ground Truth | Clean 60k PBR Turntable (360°) |
+| :---: | :---: |
+| ![Clean cartoon 2D concept for King Riccardo](assets/king_riccardo_clean_2d.png) | ![Clean 60k PBR King Riccardo 360° turntable](assets/riccardo_clean_turntable.gif) |
 
 ### 📸 Three-Stage Visual Evolution: The Classic King (Issue #20)
 
@@ -273,6 +278,44 @@ After every 3D build, a headless script shoots a 4-camera contact sheet (`3/4 Ov
 - **`FA_CAGARE 💩`** ($< 6.0/10$ — literally *"it sucks"* in Italian)
 
 If a model gets stamped `FA_CAGARE 💩`, `just shittest` fails the build and forces a modular rebuild — which is how **Bishop Ale v2** (rejected at `4.0/10` because multi-view fusion produced *"two half-dragons fused into his chest"*) was rebuilt into a clean 26-bone modular rig!
+
+### ⚖️ Taking the Human Out of the Loop: The Literature-Grounded `+30%` Adversarial 3D Swarm (`v0.3.105` → `v0.3.108`)
+
+Catching ugly 3D models only when a human notices *"my face looks pockmarked!"* doesn't scale. So I gave the agents an unattended full-day **`/goal`** ([`GOAL_ADVERSARIAL_3D_SWARM.md`](https://github.com/palladius/carchess3d/blob/main/etc/prompts/GOAL_ADVERSARIAL_3D_SWARM.md)): build a benchmark grounded in 3D quality literature, pair a **`3d-builder`** with a read-only **`3d-eval-critic`**, and refuse to promote any `.glb` unless it beats the current in-game model by at least **`+30%`** (or scores **`≥ 8.5/10`** composite with zero mesh craters or UV seams).
+
+We built **`just eval3d`** ([`tools/model-pipeline/critic/eval3d_benchmark.py`](https://github.com/palladius/carchess3d/blob/main/tools/model-pipeline/critic/eval3d_benchmark.py)) rendering a deterministic **6-Panel Forensic Sheet** (`Front`, `3/4`, `Profile 90°`, `Back 180°`, `Macro Face`, `Macro Clay`) and combining:
+1. **Objective metrics (`45%`)**: **T³Bench** multi-view albedo coherence, **Garland & Heckbert** 60k polygon budget hygiene, upper crown/ear silhouette articulation, and our **Clay-Subtracted Laplacian "Anti-Butterato" Face Smoothness** metric (separating real sculpted 3D anatomy from UV/skin blotches).
+2. **Subjective Multimodal Critic (`55%`)**: **GPTEval3D**-style pairwise A/B judgment by Gemini VLM directly inspecting the 6-panel sheets against the 2D concept art.
+
+Without touching the keyboard, the two-agent swarm reconstructed, audited, fixed, and promoted **13 `.glb` models across all 3 families** (`+12%` to **`+83.6%`** improvement):
+
+![Swamp Parody Family 6/6 Before vs After Remaster (+37.3% to +53.2% eval3d)](assets/swamp_family_before_after_comparison.png)
+
+![Milestone 7 Classic & Carlesso Before vs After Remaster (up to +82.4% eval3d)](assets/classic_carlesso_m7_before_after_comparison.png)
+
+| Family | Piece | Before (`eval3d`) | After (`eval3d`) | Delta (`%`) | What the Swarm Fixed |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **Carlesso** | **King Riccardo** | `2.86` *(Face)* | **`8.65 / 10`** | **`+83.6%`** *(Face)* | Eliminated `xatlas` seams & photo skin noise (*"faccia butterata"*) |
+| **Classic** | **Knight (`cavallo`)** | `4.82` | **`8.79 / 10`** | **`+82.4%`** | Replaced featureless 2.5D Mode A potato blob & snout seam |
+| **Classic** | **Rook (`torre`)** | `5.60` | **`8.67 / 10`** | **`+54.8%`** | Replaced melted 2.5D blob with carved 3D Ghibelline merlons & lantern |
+| **Swamp** | **Knight (`asinello`)** | `5.68` | **`8.70 / 10`** | **`+53.2%`** | Upright 40-teeth grin chess-knight sculpt + tournament saddle |
+| **Swamp** | **Rook (`draghessa`)** | `5.73` | **`8.66 / 10`** | **`+51.1%`** | Neural 58k watchtower & coiled ruby dragon replacing primitives |
+| **Swamp** | **Pawn (`tappo`)** | `5.84` | **`8.77 / 10`** | **`+50.2%`** | Detailed herald on royal decree books (`8.24` objective) |
+| **Carlesso** | **Bishop (`ale-1`)** | `5.76` | **`8.54 / 10`** | **`+48.3%`** | Eliminated 3 black missing-polygon craters on forehead & cheek |
+| **Swamp** | **Bishop (`focaccina`)** | `5.83` | **`8.63 / 10`** | **`+48.0%`** | Crisp 58k PBR sculpt & cape |
+| **Swamp** | **King (`orco`)** | `5.90` | **`8.55 / 10`** | **`+44.9%`** | Full 360° olive ogre King + RGBA delighting fix |
+| **Classic** | **Pawn (`pedone`)** | `5.95` | **`8.55 / 10`** | **`+43.7%`** | Radially symmetric lathe marble sphere & clean gold collar |
+| **Swamp** | **Queen (`orchessa`)** | `6.33` | **`8.69 / 10`** | **`+37.3%`** | Eliminated 2.5D bug that stamped a second face on the back of her head |
+| **Carlesso** | **Pawn (`puffin`)** | `6.78` | **`8.59 / 10`** | **`+26.7%`** *(`≥8.5`)* | Upgraded faceted 13k mesh to smooth 59k feathers & steel morion |
+| **Carlesso** | **Rook (`pupurabbu`)** | `7.61` | **`8.52 / 10`** | **`+12.0%`** *(`≥8.5`)* | Sealed black non-manifold chest fur holes (`93.7k → 59.3k` faces) |
+
+| Classic Knight (`+82.4%`) | Bishop Ale (`+48.3%`) | Swamp Asinello (`+53.2%`) | Swamp Orchessa (`+37.3%`) |
+| :---: | :---: | :---: | :---: |
+| ![Classic Knight 360° turntable](assets/classic_cavallo_turntable.gif) | ![Bishop Ale 360° turntable](assets/carlesso_ale_turntable.gif) | ![Swamp Asinello 360° turntable](assets/swamp_asinello_turntable.gif) | ![Swamp Orchessa 360° turntable](assets/swamp_orchessa_turntable.gif) |
+
+Even better, the Adversarial Critic caught **two subtle pipeline bugs** completely autonomously ([`SHOWCASE_SWAMP_3D_REMASTER.md`](https://github.com/palladius/carchess3d/blob/main/article/SHOWCASE_SWAMP_3D_REMASTER.md)):
+- **Lesson Learnt #2 — The Opaque-JPEG `dehighlight_utils.py` Blue-Channel Collapse**: During Round 1 of the Swamp family, `3d-eval-critic` rejected `asinello`, `orco`, and `orchessa` even though their 60k clay geometry scored `9.2/10` — their textures had turned crimson/mustard (`mean B ≈ 7.8 / 255`)! Digging into Tencent's `Hunyuan3D-2` code revealed that `recenter_image()` returns early when `image.mode == 'RGB'`, leaving the dark slate studio background untouched so `Light_Shadow_Remover` (trained on white backgrounds) crushed the Blue channel in `recorrect_rgb()`. Running `BackgroundRemover()` (`rembg`) before painting immediately restored true olive-green and warm-grey colors on Round 2.
+- **Lesson Learnt #3 — 2-Up Split-Sheet Cropping**: Legacy concept images containing side-by-side Front + 3/4 views (and `"FRONT VIEW"` caption bars) confused single-view 3D DiT models. Auto-cropping to the single front figure before `Hunyuan3D-2` produced clean, radially symmetric sculptures on Round 1 (`+43.7%` to `+82.4%`).
 
 ---
 
@@ -349,7 +392,7 @@ To avoid the dreaded "AI Spaghetti Monster" (a monolithic 5,000-line `game.js` t
 Zero heavy installs, zero bundlers, zero Webpack or Vite:
 
 ```bash
-# Clone the repo and start the static server
+# Clone the repo and start the static server (game on :8000, rotating 3D models & Before/After on :8000/showcase/?view=families)
 just serve
 ```
 
@@ -358,6 +401,7 @@ Or play directly online on GitHub Pages:
 - 🐸 **Swamp Party with Captured Pieces**: [`https://palladius.github.io/carchess3d/?swamp_party=1`](https://palladius.github.io/carchess3d/?swamp_party=1)
 - 🟢 **Legal Move Dots & Capture Reticles**: [`https://palladius.github.io/carchess3d/?demo_moves=1`](https://palladius.github.io/carchess3d/?demo_moves=1)
 - 🎬 **Heroes POV Cinema & Family Soundboard**: [`https://palladius.github.io/carchess3d/showcase/?view=pov`](https://palladius.github.io/carchess3d/showcase/?view=pov)
+- 🏛️ **18-Piece Rotating 3D Showcase (`Carlesso · Classic · Swamp`)**: [`https://palladius.github.io/carchess3d/showcase/?view=families`](https://palladius.github.io/carchess3d/showcase/?view=families)
 - 📸 **Visual Progress Gallery (Round 1 → Round 4)**: [`https://palladius.github.io/carchess3d/progress.html`](https://palladius.github.io/carchess3d/progress.html)
 
 ---
