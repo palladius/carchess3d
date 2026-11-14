@@ -48,8 +48,12 @@ import { ProfileStorageListener } from './listeners/ProfileStorageListener.js';
 
 function bootstrapCarChess3D() {
   const urlParams = new URLSearchParams(window.location.search);
-  const isMobilePhone = isMobilePhoneViewport();
-  const isMobileOrTablet = isMobileOrTabletDevice();
+  const isLiteMode =
+    urlParams.get('lite') === '1' ||
+    urlParams.get('lite3d') === '1' ||
+    urlParams.get('quality') === 'low';
+  const isMobilePhone = isMobilePhoneViewport() || isLiteMode;
+  const isMobileOrTablet = isMobileOrTabletDevice() || isLiteMode;
   const canvas = document.getElementById('game-canvas');
   if (canvas) {
     canvas.style.backgroundColor = '#0b1528';
@@ -75,10 +79,12 @@ function bootstrapCarChess3D() {
 
   renderer.setClearColor(0x0b1528, 1.0);
   renderer.setPixelRatio(
-    Math.min(
-      window.devicePixelRatio || 1,
-      isMobilePhone ? 1.25 : isMobileOrTablet ? 1.5 : 2,
-    ),
+    isLiteMode
+      ? 0.75
+      : Math.min(
+          window.devicePixelRatio || 1,
+          isMobilePhone ? 1.25 : isMobileOrTablet ? 1.5 : 2,
+        ),
   );
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = !isMobilePhone;
@@ -246,6 +252,10 @@ function bootstrapCarChess3D() {
       : ['family', 'swamp', 'classic', 'stone'].includes(blackParam)
         ? blackParam
         : 'classic';
+  if (isLiteMode) {
+    pieces.qualityTier = 'low';
+    pieces.effectiveLod = 'low';
+  }
 
   // 3. Shared GameContext (Service Locator / Dependency Injection)
   const ctx = {

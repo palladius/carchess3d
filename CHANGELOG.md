@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.111] - 2026-11-14
+
+- 📱⚡ **Lite 3D Performance URL Flag (`src/main.js`)**:
+  - Committed the `?lite=1` / `?lite3d=1` / `?quality=low` mode in `src/main.js` (forces `pixelRatio = 0.75`, disables real-time shadow maps, and locks `effectiveLod = 'low'` 10k GLBs).
+
 ## [0.3.110] - 2026-11-14
 
 - 🔄⚖️ **Interactive Localhost Before/After 3D Turntable Showcase (`showcase/index.html`, `assets/models/archive/before_v03104/*.glb`)**:
