@@ -53,9 +53,13 @@ import { ProfileStorageListener } from './listeners/ProfileStorageListener.js';
 
 function bootstrapCarChess3D() {
   const urlParams = new URLSearchParams(window.location.search);
-  const isMobilePhone = isMobilePhoneViewport();
-  const isMobileOrTablet = isMobileOrTabletDevice();
-  const isRpiTurbo = detectRpiTurboMode();
+  const isLiteMode =
+    urlParams.get('lite') === '1' ||
+    urlParams.get('lite3d') === '1' ||
+    urlParams.get('quality') === 'low';
+  const isMobilePhone = isMobilePhoneViewport() || isLiteMode;
+  const isMobileOrTablet = isMobileOrTabletDevice() || isLiteMode;
+  const isRpiTurbo = detectRpiTurboMode() || isLiteMode;
   if (typeof window !== 'undefined') {
     window._rpiTurboMode = isRpiTurbo;
     document.documentElement?.classList?.toggle('rpi-mode', isRpiTurbo);
@@ -276,6 +280,10 @@ function bootstrapCarChess3D() {
       : ['family', 'swamp', 'classic', 'stone'].includes(blackParam)
         ? blackParam
         : 'classic';
+  if (isLiteMode) {
+    pieces.qualityTier = 'low';
+    pieces.effectiveLod = 'low';
+  }
 
   // Pre-seed LOD quality BEFORE pieceView.init() so low-power / RPi Turbo mode NEVER
   // triggers a duplicate download storm of 12 giant high-poly GLBs before HudListener boots.
