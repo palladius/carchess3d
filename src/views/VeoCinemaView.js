@@ -23,9 +23,10 @@ export class VeoCinemaView {
    * @param {THREE.Scene} scene
    * @param {import('../core/EventBus.js').GameEventBus} [bus]
    */
-  constructor(scene, bus = null) {
+  constructor(scene, bus = null, opts = {}) {
     this.scene = scene;
     this.bus = bus;
+    this.rpiTurboMode = Boolean(opts.rpiTurboMode);
     this.time = 0;
 
     /** @type {'idle' | 'battle' | 'checkmate'} */
@@ -59,6 +60,7 @@ export class VeoCinemaView {
     this.battlePos = new THREE.Vector3(0, 2.15, -this.baseBattleDist);
     this.battleScale = 0.75;
     this.idleQuat = new THREE.Quaternion();
+    this._upAxis = new THREE.Vector3(0, 1, 0);
     this.root.userData.idlePos = this.idlePos.clone();
     this.root.userData.idleScale = this.idleScale;
     this.root.userData.idleQuat = this.idleQuat.clone();
@@ -74,7 +76,9 @@ export class VeoCinemaView {
 
     this.initCanvasAndVideo();
     this.buildMirrorMeshAndOrnateFrame();
-    this.preloadCharacterPortraits();
+    if (!this.rpiTurboMode) {
+      this.preloadCharacterPortraits();
+    }
     this.bindEvents();
     this.drawCanvasFrame();
   }
@@ -106,7 +110,7 @@ export class VeoCinemaView {
       this.videoEl.playsInline = true;
       this.videoEl.loop = false;
       this.videoEl.crossOrigin = 'anonymous';
-      this.videoEl.preload = 'auto';
+      this.videoEl.preload = this.rpiTurboMode ? 'none' : 'auto';
     }
   }
 
@@ -1117,11 +1121,11 @@ export class VeoCinemaView {
 
     this.idlePos.set(-sinY * idleDist, 3.65, -cosY * idleDist);
     this.battlePos.set(-sinY * battleDist, 2.15, -cosY * battleDist);
-    this.idleQuat.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.horizonYaw);
+    this.idleQuat.setFromAxisAngle(this._upAxis, this.horizonYaw);
 
     if (this.root) {
-      this.root.userData.idlePos = this.idlePos.clone();
-      this.root.userData.idleQuat = this.idleQuat.clone();
+      this.root.userData.idlePos.copy(this.idlePos);
+      this.root.userData.idleQuat.copy(this.idleQuat);
 
       const isExpanded = this.mode === 'battle' || this.mode === 'checkmate';
       if (!this.root.userData.vfxControlled) {

@@ -18,6 +18,17 @@ export class GameEventBus {
     /** @type {Array<object>} */
     this.history = [];
     this.maxHistory = 200;
+    /** @type {((event: object) => void) | null} */
+    this._onEmit = null;
+  }
+
+  /**
+   * Registers an optional hook fired synchronously whenever an event is enqueued
+   * (used by on-demand render loops to wake up from 0% CPU idle).
+   * @param {((event: object) => void) | null} fn
+   */
+  setOnEmit(fn) {
+    this._onEmit = typeof fn === 'function' ? fn : null;
   }
 
   /**
@@ -50,6 +61,7 @@ export class GameEventBus {
       throw new Error('GameEventBus.emit requires an event object with a string `type`');
     }
     this.queue.push(event);
+    this._onEmit?.(event);
   }
 
   /**

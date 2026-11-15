@@ -258,10 +258,7 @@ export class PieceManager {
       meta.animations?.idle ||
       'Idle_Track';
 
-    this.ctx?.bus?.emit({
-      type: 'PIECE_ANIM_REQUESTED', animType: 'clip',
-      square: payload.square || null, pieceType, clipKey: rawKey, resolvedClip,
-    });
+    this.ctx?.bus?.emit({ type: 'PIECE_ANIM_REQUESTED', animType: 'clip', square: payload.square || null, pieceType, clipKey: rawKey, resolvedClip });
     return resolvedClip;
   }
 
@@ -276,8 +273,10 @@ export class PieceManager {
   }
 
   setQualityTier(tier, effectiveLod = null) {
-    this.qualityTier = tier || 'auto';
-    this.effectiveLod = effectiveLod || (this.qualityTier === 'auto' ? 'high' : this.qualityTier);
+    const nextTier = tier || 'auto';
+    const nextLod = effectiveLod || (nextTier === 'auto' ? 'high' : nextTier);
+    if (this.qualityTier === nextTier && this.effectiveLod === nextLod) return;
+    this.qualityTier = nextTier; this.effectiveLod = nextLod;
     this.emitPiecesSynced('quality_tier_changed');
   }
 

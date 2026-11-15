@@ -158,6 +158,13 @@ export class VFXPoolView {
     this.lastCinemaMirrorScale = 1.53;
     this.lastCinemaMirrorQuat = new THREE.Quaternion();
     this._idleMirrorQuat = new THREE.Quaternion(0, 0, 0, 1);
+    this._tmpDesiredPos = new THREE.Vector3();
+    this._tmpDesiredTarget = new THREE.Vector3();
+    this._upVec = new THREE.Vector3(0, 1, 0);
+    this._tmpLookMat = new THREE.Matrix4();
+    this._tmpCamFwd = new THREE.Vector3();
+    this._tmpLookTgt = new THREE.Vector3();
+    this._defaultIdlePos = new THREE.Vector3(0, 3.65, -10.8);
     this.hiddenBoardNodes = [];
     this.offs = [];
 
@@ -3195,12 +3202,12 @@ export class VFXPoolView {
     const dirZ = Math.cos(orbitAngle);
     const targetY = 1.48;
 
-    const desiredPos = new THREE.Vector3(
+    const desiredPos = this._tmpDesiredPos.set(
       focusX + dirX * dist + shakeX,
       camY + shakeY,
       focusZ + dirZ * dist,
     );
-    const desiredTarget = new THREE.Vector3(
+    const desiredTarget = this._tmpDesiredTarget.set(
       focusX + shakeX * 0.3,
       targetY + shakeY * 0.3,
       focusZ,
@@ -3236,9 +3243,8 @@ export class VFXPoolView {
    * so the 16:9 screen fills ~93% of the entire viewport (`videoBoost = 2.38`) with almost zero black bars!
    */
   _computeCinemaMirrorPose(camPos, camTgt, fov = 45, fallbackDist = 4.65) {
-    const upVec = new THREE.Vector3(0, 1, 0);
-    const lookMat = new THREE.Matrix4().lookAt(camPos, camTgt, upVec);
-    this.lastCinemaMirrorQuat.setFromRotationMatrix(lookMat);
+    this._tmpLookMat.lookAt(camPos, camTgt, this._upVec);
+    this.lastCinemaMirrorQuat.setFromRotationMatrix(this._tmpLookMat);
 
     const camDx = camPos.x - camTgt.x;
     const camDz = camPos.z - camTgt.z;
@@ -3257,7 +3263,7 @@ export class VFXPoolView {
     const halfTan = Math.tan((fov * 0.5 * Math.PI) / 180);
     const hHalf = dMirror * halfTan;
 
-    const camFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(this.lastCinemaMirrorQuat).normalize();
+    const camFwd = this._tmpCamFwd.set(0, 0, -1).applyQuaternion(this.lastCinemaMirrorQuat).normalize();
 
     const isLegacy =
       typeof window !== 'undefined' &&
@@ -3414,14 +3420,14 @@ export class VFXPoolView {
         this.controls.target.lerpVectors(savedTarget, this.lastCombatDesiredTarget, b);
         this.controls.update?.();
       } else {
-        const lookTgt = new THREE.Vector3().lerpVectors(savedTarget, this.lastCombatDesiredTarget, b);
+        const lookTgt = this._tmpLookTgt.lerpVectors(savedTarget, this.lastCombatDesiredTarget, b);
         this.camera.lookAt(lookTgt);
       }
     }
 
     const mirrorRoot = this.scene?.getObjectByName?.('VeoMagicCinemaMirror');
     if (mirrorRoot) {
-      const idlePos = mirrorRoot.userData?.idlePos || new THREE.Vector3(0, 3.65, -10.8);
+      const idlePos = mirrorRoot.userData?.idlePos || this._defaultIdlePos;
       const idleScale = mirrorRoot.userData?.idleScale || 0.65;
       const idleQuat = mirrorRoot.userData?.idleQuat || this._idleMirrorQuat;
 

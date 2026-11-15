@@ -80,11 +80,17 @@ export class ZurichSwampView {
   /**
    * @param {THREE.Scene} scene
    * @param {import('../core/EventBus.js').GameEventBus} [bus]
+   * @param {{ rpiTurboMode?: boolean, onAssetLoaded?: () => void }} [opts]
    */
-  constructor(scene, bus = null) {
+  constructor(scene, bus = null, opts = {}) {
     this.scene = scene;
     this.bus = bus;
     this.time = 0;
+    this.rpiTurboMode = Boolean(
+      opts?.rpiTurboMode ?? (typeof window !== 'undefined' && window._rpiTurboMode),
+    );
+    this.onAssetLoaded = typeof opts?.onAssetLoaded === 'function' ? opts.onAssetLoaded : null;
+    this._tmpWarmColor = new THREE.Color();
 
     this.root = new THREE.Group();
     this.root.name = 'ZurichSwampDiorama';
@@ -193,7 +199,7 @@ export class ZurichSwampView {
     const isMobileOrTablet = isMobileOrTabletDevice();
     this.sunLight = new THREE.DirectionalLight(0xeef6ff, Math.max(2.15, this.debugConfig.sunIntensity));
     this.sunLight.position.set(8.5, 16.0, 9.5);
-    this.sunLight.castShadow = !isPhone;
+    this.sunLight.castShadow = !isPhone && !this.rpiTurboMode;
     const shadowRes = isMobileOrTablet ? 1024 : 2048;
     this.sunLight.shadow.mapSize.set(shadowRes, shadowRes);
     this.sunLight.shadow.camera.near = 2.0;
@@ -1346,7 +1352,9 @@ export class ZurichSwampView {
     const spec = ENVIRONMENT_PANORAMAS[key] || ENVIRONMENT_PANORAMAS.zurich;
     try {
       const loader = new THREE.TextureLoader();
-      const tex = loader.load(spec.url);
+      const tex = loader.load(spec.url, () => {
+        this.onAssetLoaded?.();
+      });
       if (tex) {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
@@ -1368,6 +1376,9 @@ export class ZurichSwampView {
    */
   setEnvironmentMode(mode = 'zurich') {
     const normalized = normalizeEnvironmentMode(mode) || 'zurich';
+    if (this.environmentMode === normalized && this.panoMaterial?.map) {
+      return normalized;
+    }
     this.environmentMode = normalized;
     const spec = ENVIRONMENT_PANORAMAS[normalized] || ENVIRONMENT_PANORAMAS.zurich;
     this._zurichBgColor.setHex(spec.bgColor);
@@ -1928,14 +1939,14 @@ export class ZurichSwampView {
     }
     if (params.brazierWarmth !== undefined && params.brazierWarmth !== null) {
       this.debugConfig.brazierWarmth = params.brazierWarmth;
-      let warmColor;
+      let warmColor = null;
       if (typeof params.brazierWarmth === 'string') {
-        warmColor = new THREE.Color(params.brazierWarmth);
+        warmColor = this._tmpWarmColor.set(params.brazierWarmth);
       } else if (typeof params.brazierWarmth === 'number' && params.brazierWarmth > 1) {
-        warmColor = new THREE.Color(params.brazierWarmth);
+        warmColor = this._tmpWarmColor.setHex(params.brazierWarmth);
       } else if (typeof params.brazierWarmth === 'number') {
         const w = Math.max(0, Math.min(1, params.brazierWarmth));
-        warmColor = new THREE.Color().setHSL(0.06 + (1 - w) * 0.06, 0.95, 0.56);
+        warmColor = this._tmpWarmColor.setHSL(0.06 + (1 - w) * 0.06, 0.95, 0.56);
       }
       if (warmColor) {
         for (const light of this.brazierLights) {
@@ -1946,6 +1957,17 @@ export class ZurichSwampView {
     if (typeof params.waterRoughness === 'number' && this.waterMaterial) {
       this.debugConfig.waterRoughness = params.waterRoughness;
       this.waterMaterial.roughness = Math.max(0.02, Math.min(1, params.waterRoughness));
+    }
+  }
+
+  /**
+   * Toggles Raspberry Pi Turbo mode on the environment (shadow casting & dynamic wave updates).
+   * @param {boolean} enabled
+   */
+  setRpiTurboMode(enabled) {
+    this.rpiTurboMode = Boolean(enabled);
+    if (this.sunLight) {
+      this.sunLight.castShadow = !this.rpiTurboMode && !isMobilePhoneViewport();
     }
   }
 
@@ -2015,6 +2037,10 @@ export class ZurichSwampView {
 
     if (camera) {
       this.updateHorizonParallax(camera, target);
+    }
+
+    if (this.rpiTurboMode) {
+      return;
     }
 
     // 1. Animate 4 Corner Braziers (flame cones, embers, warm PointLight flicker)

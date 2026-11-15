@@ -83,6 +83,10 @@ export class PieceView {
     this.pieceBySquare = new Map();
     /** @type {Map<string, Promise<any>>} url -> GLTF load promise */
     this.gltfCache = new Map();
+    /** @type {Set<string>} Active uncached GLB fetches */
+    this._pendingGltfUrls = new Set();
+    this._totalGltfQueued = 0;
+    this._loadedGltfCount = 0;
     /** @type {Map<string, THREE.Texture>} url -> Texture */
     this.textureCache = new Map();
     /** @type {Set<{ mixer: THREE.AnimationMixer, clips: Map<string, THREE.AnimationClip>, root: THREE.Object3D }>} */
@@ -111,6 +115,9 @@ export class PieceView {
     );
     this.isMobileOrTablet = isMobileOrTabletDevice();
     this.mobileLite3D = shouldUseMobileLite3D();
+    this.rpiTurboMode = Boolean(
+      this.ctx?.rpiTurboMode ?? (typeof window !== 'undefined' && window._rpiTurboMode),
+    );
     this.forceMobileShaders = Boolean(
       searchParams &&
         (searchParams.get('shaders') === '1' || searchParams.get('shaders') === 'true'),
@@ -1329,8 +1336,8 @@ export class PieceView {
             bakedGlbAddons.push(child);
           }
           if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
+            child.castShadow = !this.rpiTurboMode;
+            child.receiveShadow = !this.rpiTurboMode;
             if (child.material) {
               const mats = Array.isArray(child.material)
                 ? child.material.map((m) => m.clone())
@@ -1358,7 +1365,7 @@ export class PieceView {
                     dragonCoilMode = 2.0; // UV-mapped TRELLIS.2 single-mesh: outer radial dragon coils around inner stone tower!
                   }
                 }
-                if (!this.isMobileOrTablet || this.forceMobileShaders) {
+                if ((!this.isMobileOrTablet && !this.rpiTurboMode) || this.forceMobileShaders) {
                   this.injectLocomotionShader(
                     mat,
                     desc.type,
@@ -1428,6 +1435,7 @@ export class PieceView {
         }
 
         this._tagRaycastHierarchy(pieceGroup);
+        this.ctx?.requestRender?.();
       })
       .catch(() => {
         // Keep luxury double-sided medallion fallback if GLB fails to load
@@ -1662,11 +1670,30 @@ if (uIsBlackObsidian > 0.5) {
     }
   }
 
+  _emitAssetLoadingProgress(url = '') {
+    const bus = this.ctx?.bus;
+    if (!bus?.emit) return;
+    bus.emit({
+      type: 'ASSET_LOADING_PROGRESS',
+      pending: this._pendingGltfUrls.size,
+      loaded: this._loadedGltfCount,
+      total: Math.max(this._totalGltfQueued, this._pendingGltfUrls.size + this._loadedGltfCount),
+      currentUrl: url,
+    });
+  }
+
   loadGltfCached(url) {
     if (!url) return Promise.reject(new Error('No GLB URL'));
     if (this.gltfCache.has(url)) {
       return this.gltfCache.get(url);
     }
+    this._pendingGltfUrls.add(url);
+    this._totalGltfQueued = Math.max(
+      this._totalGltfQueued,
+      this._pendingGltfUrls.size + this._loadedGltfCount,
+    );
+    this._emitAssetLoadingProgress(url);
+
     const promise = new Promise((resolve, reject) => {
       this.gltfLoader.load(
         url,
@@ -1674,6 +1701,16 @@ if (uIsBlackObsidian > 0.5) {
         undefined,
         (err) => reject(err),
       );
+    }).finally(() => {
+      this._pendingGltfUrls.delete(url);
+      this._loadedGltfCount += 1;
+      this._emitAssetLoadingProgress(url);
+      this.ctx?.bus?.flush?.();
+      if (this._pendingGltfUrls.size === 0) {
+        this._totalGltfQueued = 0;
+        this._loadedGltfCount = 0;
+      }
+      this.ctx?.requestRender?.();
     });
     this.gltfCache.set(url, promise);
     return promise;
@@ -1757,6 +1794,7 @@ if (uIsBlackObsidian > 0.5) {
 
         c.restore();
         tex.needsUpdate = true;
+        this.ctx?.requestRender?.();
       };
       img.src = url;
     }
@@ -2203,6 +2241,20 @@ if (uIsBlackObsidian > 0.5) {
   }
 
   /**
+   * Enables or disables Raspberry Pi Turbo optimizations on 3D piece meshes.
+   * @param {boolean} enabled
+   */
+  setRpiTurboMode(enabled) {
+    this.rpiTurboMode = Boolean(enabled);
+    this.rootGroup?.traverse?.((obj) => {
+      if (obj.isMesh) {
+        obj.castShadow = !this.rpiTurboMode;
+        obj.receiveShadow = !this.rpiTurboMode;
+      }
+    });
+  }
+
+  /**
    * Advances all `AnimationMixer` instances, living idle animations for all 32 board pieces,
    * footstep trails, swamp swimmers, and active character locomotion tweens.
    * @param {number} dt - Delta time in seconds
@@ -2210,8 +2262,10 @@ if (uIsBlackObsidian > 0.5) {
   update(dt = 1 / 60) {
     this.updateClarityVisibilities();
 
-    for (const entry of this.activeMixers) {
-      entry.mixer.update(dt);
+    if (!this.rpiTurboMode) {
+      for (const entry of this.activeMixers) {
+        entry.mixer.update(dt);
+      }
     }
 
     this.swampTime += dt;
@@ -2231,9 +2285,9 @@ if (uIsBlackObsidian > 0.5) {
     }
 
     // 2. Continuous Living Idle Animations for all 32 pieces on the board!
-    //    (Knight horse stepping in place, Puffin fluid body sway & tail wag,
-    //     Ale dragon wing-flap, Pupurabbu squishy bounce, Riccardo & Kate royal breathing)
-    for (const group of this.pieceBySquare.values()) {
+    //    (Skipped in RPi Turbo mode so stationary scenes reach 0% idle CPU)
+    if (!this.rpiTurboMode) {
+      for (const group of this.pieceBySquare.values()) {
       if (group.userData?.turntableStatic) continue;
       const isTweening = this.activeTweens.some(
         (tw) => tw.group === group || tw.kingGroup === group || tw.rookGroup === group,
@@ -2321,63 +2375,64 @@ if (uIsBlackObsidian > 0.5) {
       }
 
       const rig = group.userData?.skeletonRig;
-      if (rig) {
-        rig.userData.alwaysVisible = this.skeletonsVisible;
-        updateSkeletonRigPose(rig, pType, {
-          idlePhase: tIdle * 2.2,
-          idleAmp: 0.45 * ampMult,
-          skeletonsVisible: this.skeletonsVisible,
-        });
+        if (rig) {
+          rig.userData.alwaysVisible = this.skeletonsVisible;
+          updateSkeletonRigPose(rig, pType, {
+            idlePhase: tIdle * 2.2,
+            idleAmp: 0.45 * ampMult,
+            skeletonsVisible: this.skeletonsVisible,
+          });
+        }
       }
-    }
 
-    // 3. Animate captured ("dead") pieces splashing happily on 3D lily-pads in the Ogre's Swamp!
-    if (this.trayGroup.children.length > 0) {
-      for (let i = 0; i < this.trayGroup.children.length; i++) {
-        const swimmer = this.trayGroup.children[i];
-        if (swimmer.userData.isDivingToSwamp) continue;
-        const phase = swimmer.userData.swampPhase ?? i * 1.3;
-        const baseY = swimmer.userData.baseSwampY ?? -0.28;
-        const baseYaw = swimmer.userData.baseSwampYaw ?? 0;
+      // 3. Animate captured ("dead") pieces splashing happily on 3D lily-pads in the Ogre's Swamp!
+      if (this.trayGroup.children.length > 0) {
+        for (let i = 0; i < this.trayGroup.children.length; i++) {
+          const swimmer = this.trayGroup.children[i];
+          if (swimmer.userData.isDivingToSwamp) continue;
+          const phase = swimmer.userData.swampPhase ?? i * 1.3;
+          const baseY = swimmer.userData.baseSwampY ?? -0.28;
+          const baseYaw = swimmer.userData.baseSwampYaw ?? 0;
 
-        // Playful bobbing up & down + side-to-side paddling ("sguazzano!")
-        swimmer.position.y = baseY + Math.sin(this.swampTime * 3.4 + phase) * 0.085;
-        swimmer.rotation.z = Math.sin(this.swampTime * 2.7 + phase) * 0.16;
-        swimmer.rotation.x = Math.cos(this.swampTime * 2.1 + phase * 0.8) * 0.11;
-        swimmer.rotation.y = baseYaw + Math.sin(this.swampTime * 1.5 + phase) * 0.42;
+          // Playful bobbing up & down + side-to-side paddling ("sguazzano!")
+          swimmer.position.y = baseY + Math.sin(this.swampTime * 3.4 + phase) * 0.085;
+          swimmer.rotation.z = Math.sin(this.swampTime * 2.7 + phase) * 0.16;
+          swimmer.rotation.x = Math.cos(this.swampTime * 2.1 + phase * 0.8) * 0.11;
+          swimmer.rotation.y = baseYaw + Math.sin(this.swampTime * 1.5 + phase) * 0.42;
 
-        const splash = swimmer.userData.swampSplash?.userData;
-        if (splash) {
-          const p1 = (this.swampTime * 0.85 + phase * 0.3) % 1;
-          const p2 = (this.swampTime * 0.85 + phase * 0.3 + 0.5) % 1;
-          if (splash.ripple1) {
-            splash.ripple1.scale.setScalar(0.85 + p1 * 0.75);
-            splash.ripple1.material.opacity = Math.max(0.15, (1 - p1) * 0.85);
-          }
-          if (splash.ripple2) {
-            splash.ripple2.scale.setScalar(0.85 + p2 * 0.85);
-            splash.ripple2.material.opacity = Math.max(0.12, (1 - p2) * 0.75);
-          }
-          if (splash.lotusFlower) {
-            splash.lotusFlower.rotation.y = this.swampTime * 0.9 + phase;
-          }
-          if (splash.celebrationRing && swimmer.userData.celebrationSplashTimer > 0) {
-            swimmer.userData.celebrationSplashTimer = Math.max(
-              0,
-              swimmer.userData.celebrationSplashTimer - dt,
-            );
-            const cProg = 1 - swimmer.userData.celebrationSplashTimer / 1.1;
-            splash.celebrationRing.scale.setScalar(0.8 + cProg * 1.85);
-            splash.celebrationRing.material.opacity = Math.max(0, (1 - cProg) * 0.92);
-          }
-          if (Array.isArray(splash.bubbles)) {
-            for (const b of splash.bubbles) {
-              const bp = (this.swampTime * 1.4 + b.userData.phaseOffset) % 1;
-              const ang =
-                b.userData.angle + Math.sin(this.swampTime * 2 + b.userData.phaseOffset) * 0.3;
-              const rad = b.userData.rad + bp * 0.12;
-              b.position.set(Math.cos(ang) * rad, 0.25 + bp * 0.55, Math.sin(ang) * rad);
-              b.scale.setScalar(0.6 + Math.sin(bp * Math.PI) * 0.65);
+          const splash = swimmer.userData.swampSplash?.userData;
+          if (splash) {
+            const p1 = (this.swampTime * 0.85 + phase * 0.3) % 1;
+            const p2 = (this.swampTime * 0.85 + phase * 0.3 + 0.5) % 1;
+            if (splash.ripple1) {
+              splash.ripple1.scale.setScalar(0.85 + p1 * 0.75);
+              splash.ripple1.material.opacity = Math.max(0.15, (1 - p1) * 0.85);
+            }
+            if (splash.ripple2) {
+              splash.ripple2.scale.setScalar(0.85 + p2 * 0.85);
+              splash.ripple2.material.opacity = Math.max(0.12, (1 - p2) * 0.75);
+            }
+            if (splash.lotusFlower) {
+              splash.lotusFlower.rotation.y = this.swampTime * 0.9 + phase;
+            }
+            if (splash.celebrationRing && swimmer.userData.celebrationSplashTimer > 0) {
+              swimmer.userData.celebrationSplashTimer = Math.max(
+                0,
+                swimmer.userData.celebrationSplashTimer - dt,
+              );
+              const cProg = 1 - swimmer.userData.celebrationSplashTimer / 1.1;
+              splash.celebrationRing.scale.setScalar(0.8 + cProg * 1.85);
+              splash.celebrationRing.material.opacity = Math.max(0, (1 - cProg) * 0.92);
+            }
+            if (Array.isArray(splash.bubbles)) {
+              for (const b of splash.bubbles) {
+                const bp = (this.swampTime * 1.4 + b.userData.phaseOffset) % 1;
+                const ang =
+                  b.userData.angle + Math.sin(this.swampTime * 2 + b.userData.phaseOffset) * 0.3;
+                const rad = b.userData.rad + bp * 0.12;
+                b.position.set(Math.cos(ang) * rad, 0.25 + bp * 0.55, Math.sin(ang) * rad);
+                b.scale.setScalar(0.6 + Math.sin(bp * Math.PI) * 0.65);
+              }
             }
           }
         }

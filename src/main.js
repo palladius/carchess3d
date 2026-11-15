@@ -26,6 +26,11 @@ import {
   isMobileOrTabletDevice,
   applyWheelZoomOrOrbit,
 } from './core/Registry.js';
+import {
+  detectRpiTurboMode,
+  detectHardwareTier,
+  resolveModelLod,
+} from './core/DeviceCapabilityHelper.js';
 
 import { GameFlowManager, FLOW_STATES } from './managers/GameFlowManager.js';
 import { BoardMapManager } from './managers/BoardMapManager.js';
@@ -50,6 +55,11 @@ function bootstrapCarChess3D() {
   const urlParams = new URLSearchParams(window.location.search);
   const isMobilePhone = isMobilePhoneViewport();
   const isMobileOrTablet = isMobileOrTabletDevice();
+  const isRpiTurbo = detectRpiTurboMode();
+  if (typeof window !== 'undefined') {
+    window._rpiTurboMode = isRpiTurbo;
+    document.documentElement?.classList?.toggle('rpi-mode', isRpiTurbo);
+  }
   const canvas = document.getElementById('game-canvas');
   if (canvas) {
     canvas.style.backgroundColor = '#0b1528';
@@ -60,8 +70,8 @@ function bootstrapCarChess3D() {
     renderer = new THREE.WebGLRenderer({
       canvas,
       alpha: false,
-      antialias: !isMobilePhone,
-      powerPreference: isMobileOrTablet ? 'default' : 'high-performance',
+      antialias: !isMobilePhone && !isRpiTurbo,
+      powerPreference: isMobileOrTablet || isRpiTurbo ? 'default' : 'high-performance',
       preserveDrawingBuffer: true, // Enables clean screenshot capture for 4-angle Critic & UAT
     });
   } catch {
@@ -73,15 +83,18 @@ function bootstrapCarChess3D() {
     });
   }
 
+  const getTargetPixelRatio = (turbo = isRpiTurbo) =>
+    turbo
+      ? 0.75
+      : Math.min(
+          window.devicePixelRatio || 1,
+          isMobilePhone ? 1.25 : isMobileOrTablet ? 1.5 : 2,
+        );
+
   renderer.setClearColor(0x0b1528, 1.0);
-  renderer.setPixelRatio(
-    Math.min(
-      window.devicePixelRatio || 1,
-      isMobilePhone ? 1.25 : isMobileOrTablet ? 1.5 : 2,
-    ),
-  );
+  renderer.setPixelRatio(getTargetPixelRatio(isRpiTurbo));
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = !isMobilePhone;
+  renderer.shadowMap.enabled = !isMobilePhone && !isRpiTurbo;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = isMobileOrTablet ? 1.12 : 1.24;
@@ -182,40 +195,57 @@ function bootstrapCarChess3D() {
   // bypass the 13 HalfFloatType (RGBA16F) FBOs of EffectComposer + UnrealBloomPass by default
   // to prevent HalfFloatType shader overflow (solid white screen) and mobile GPU OOM context loss!
   const bloomParam = (urlParams.get('bloom') || '').toLowerCase();
-  const useBloom =
-    bloomParam === '1' || bloomParam === 'true'
-      ? true
-      : bloomParam === '0' || bloomParam === 'false'
-        ? false
-        : !isMobileOrTablet;
+  const bloomExplicitOn = bloomParam === '1' || bloomParam === 'true';
+  const bloomExplicitOff = bloomParam === '0' || bloomParam === 'false';
 
-  let composer;
-  let bloomPass;
-  if (useBloom) {
-    composer = new EffectComposer(renderer);
-    const renderPass = new RenderPass(scene, camera);
-    bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.36, // strength
-      0.45, // radius
-      0.80, // threshold
-    );
-    const outputPass = new OutputPass();
-    composer.addPass(renderPass);
-    composer.addPass(bloomPass);
-    composer.addPass(outputPass);
-    composer.useBloom = true;
-  } else {
-    bloomPass = { strength: 0, radius: 0, threshold: 1, enabled: false };
-    composer = {
-      passes: [],
-      useBloom: false,
-      render() {
+  let bloomPass = { strength: 0.36, radius: 0.45, threshold: 0.80, enabled: false };
+  let realComposer = null;
+  const composer = {
+    passes: [],
+    useBloom: false,
+    render() {
+      if (this.useBloom && realComposer) {
+        realComposer.render();
+      } else {
         renderer.render(scene, camera);
-      },
-      setSize() {},
-    };
+      }
+    },
+    setSize(w, h) {
+      if (realComposer) realComposer.setSize(w, h);
+    },
+  };
+
+  function syncBloomPipeline(turboEnabled) {
+    const shouldBloom = bloomExplicitOn
+      ? true
+      : bloomExplicitOff
+        ? false
+        : !isMobileOrTablet && !turboEnabled;
+    if (shouldBloom && !realComposer) {
+      realComposer = new EffectComposer(renderer);
+      const renderPass = new RenderPass(scene, camera);
+      const realBloom = new UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        bloomPass.strength ?? 0.36,
+        bloomPass.radius ?? 0.45,
+        bloomPass.threshold ?? 0.80,
+      );
+      const outputPass = new OutputPass();
+      realComposer.addPass(renderPass);
+      realComposer.addPass(realBloom);
+      realComposer.addPass(outputPass);
+      bloomPass = realBloom;
+      composer.passes = realComposer.passes;
+    }
+    composer.useBloom = Boolean(shouldBloom && realComposer);
+    if (bloomPass) {
+      bloomPass.enabled = composer.useBloom;
+    }
   }
+  syncBloomPipeline(isRpiTurbo);
+
+  let requestRenderFn = () => {};
+  const requestRender = (graceFrames = 4) => requestRenderFn(graceFrames);
 
   // 1. Core Event Bus & Seeded PRNG
   const bus = new GameEventBus();
@@ -247,6 +277,19 @@ function bootstrapCarChess3D() {
         ? blackParam
         : 'classic';
 
+  // Pre-seed LOD quality BEFORE pieceView.init() so low-power / RPi Turbo mode NEVER
+  // triggers a duplicate download storm of 12 giant high-poly GLBs before HudListener boots.
+  let storedQuality = null;
+  try {
+    storedQuality = typeof localStorage !== 'undefined' ? localStorage.getItem('carchess_quality') : null;
+  } catch {}
+  const initialQuality = urlParams.get('quality') || storedQuality || 'auto';
+  const initialHardwareTier = detectHardwareTier({ rpiTurboMode: isRpiTurbo });
+  pieces.qualityTier = ['auto', 'low', 'medium', 'high'].includes(initialQuality)
+    ? initialQuality
+    : 'auto';
+  pieces.effectiveLod = resolveModelLod(pieces.qualityTier, initialHardwareTier);
+
   // 3. Shared GameContext (Service Locator / Dependency Injection)
   const ctx = {
     bus,
@@ -264,6 +307,8 @@ function bootstrapCarChess3D() {
     renderer,
     isMobilePhone,
     isMobileOrTablet,
+    rpiTurboMode: isRpiTurbo,
+    requestRender,
     webglContextLost: false,
   };
 
@@ -275,8 +320,11 @@ function bootstrapCarChess3D() {
   ai.init(ctx);
 
   // 4. 3D Views
-  const swampView = new ZurichSwampView(scene, bus);
-  const cinemaView = new VeoCinemaView(scene, bus);
+  const swampView = new ZurichSwampView(scene, bus, {
+    rpiTurboMode: isRpiTurbo,
+    onAssetLoaded: () => requestRender(2),
+  });
+  const cinemaView = new VeoCinemaView(scene, bus, { rpiTurboMode: isRpiTurbo });
   const pieceView = new PieceView(scene, ctx);
   pieceView.init(scene, ctx);
 
@@ -384,6 +432,7 @@ function bootstrapCarChess3D() {
     camera,
     controls,
     scene,
+    requestRender,
   });
   debugPanel.init();
 
@@ -598,13 +647,14 @@ function bootstrapCarChess3D() {
       }
       const w = window.innerWidth;
       const h = window.innerHeight;
-      const proj = new THREE.Vector3(item.x, -0.09, item.z + 0.42).project(camera);
+      const proj = _tmpTurntableProj.set(item.x, -0.09, item.z + 0.42).project(camera);
       const sx = (proj.x * 0.5 + 0.5) * w;
       const sy = (-proj.y * 0.5 + 0.5) * h;
       item.badge.style.left = `${sx.toFixed(1)}px`;
       item.badge.style.top = `${sy.toFixed(1)}px`;
     }
   }
+  const _tmpTurntableProj = new THREE.Vector3();
 
   // 8. Ordered Manager & View Lifecycle List for the Fixed-Timestep Loop
   const orderedUnits = [
@@ -637,15 +687,124 @@ function bootstrapCarChess3D() {
 
   const gameLoop = new GameLoop(orderedUnits, bus, 1 / 30);
 
+  function applyRpiTurboMode(enabled) {
+    const turbo = Boolean(enabled);
+    ctx.rpiTurboMode = turbo;
+    if (typeof window !== 'undefined') {
+      window._rpiTurboMode = turbo;
+      document.documentElement?.classList?.toggle('rpi-mode', turbo);
+    }
+    renderer.setPixelRatio(getTargetPixelRatio(turbo));
+    renderer.setSize(window.innerWidth, Math.max(1, window.innerHeight));
+    renderer.shadowMap.enabled = !isMobilePhone && !turbo;
+    renderer.shadowMap.needsUpdate = true;
+    syncBloomPipeline(turbo);
+    composer.setSize(window.innerWidth, Math.max(1, window.innerHeight));
+    swampView.setRpiTurboMode?.(turbo);
+    pieceView.setRpiTurboMode?.(turbo);
+    debugPanel.setRpiTurboMode?.(turbo);
+    requestRender(6);
+  }
+  ctx.applyRpiTurboMode = applyRpiTurboMode;
+
   // Window Resize Handler
   window.addEventListener('resize', () => {
     const w = window.innerWidth;
     const h = Math.max(1, window.innerHeight);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    renderer.setPixelRatio(getTargetPixelRatio(ctx.rpiTurboMode));
     renderer.setSize(w, h);
     composer.setSize(w, h);
+    requestRender(4);
   });
+
+  const _prevCamPos = new THREE.Vector3().copy(camera.position);
+  const _prevCamTarget = new THREE.Vector3().copy(controls.target);
+  let rafId = null;
+  let lastTime = performance.now();
+  let renderRequested = true;
+  let idleGraceFrames = 14;
+  let pointerActive = false;
+
+  requestRenderFn = (graceFrames = 4) => {
+    renderRequested = true;
+    idleGraceFrames = Math.max(idleGraceFrames, graceFrames);
+    if (rafId === null) {
+      lastTime = performance.now();
+      rafId = requestAnimationFrame(animate);
+    }
+  };
+
+  function isSceneAnimating(cameraMoved = false) {
+    if (!ctx.rpiTurboMode) return true;
+    if (renderRequested || idleGraceFrames > 0 || pointerActive || cameraMoved) return true;
+    if (bus.queue.length > 0 || turntableActive) return true;
+    if (pieceView.activeTweens.length > 0) return true;
+    if (pieceView.footstepPool?.some((s) => s.active)) return true;
+    if (pieceView.trayGroup?.children?.some((s) => s.userData?.isDivingToSwamp)) return true;
+    if (combat.activeBattle) return true;
+    if (
+      vfxView.clashActive ||
+      vfxView.camRestoreTimer > 0 ||
+      vfxView.activeD20Roll ||
+      (vfxView.activeParticles && vfxView.activeParticles.length > 0)
+    ) {
+      return true;
+    }
+    if (cinemaView.usingVideoTexture && cinemaView.videoEl && !cinemaView.videoEl.paused) {
+      return true;
+    }
+    if (
+      wowView.active &&
+      ((wowView.subMode === 'inspector' && wowView.autoRotate && !wowView.dragging) ||
+        (wowView.emoteState &&
+          wowView.emoteState.type !== 'idle' &&
+          wowView.emoteState.elapsed < wowView.emoteState.duration))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  bus.setOnEmit(() => requestRender(6));
+  controls.addEventListener('start', () => {
+    pointerActive = true;
+    requestRender(6);
+  });
+  controls.addEventListener('change', () => requestRender(4));
+  controls.addEventListener('end', () => {
+    pointerActive = false;
+    requestRender(8);
+  });
+  if (renderer?.domElement) {
+    renderer.domElement.addEventListener(
+      'pointerdown',
+      () => {
+        pointerActive = true;
+        requestRender(6);
+      },
+      { passive: true },
+    );
+    renderer.domElement.addEventListener('wheel', () => requestRender(6), { passive: true });
+    renderer.domElement.addEventListener(
+      'touchstart',
+      () => {
+        pointerActive = true;
+        requestRender(6);
+      },
+      { passive: true },
+    );
+  }
+  window.addEventListener(
+    'pointerup',
+    () => {
+      pointerActive = false;
+      requestRender(4);
+    },
+    { passive: true },
+  );
+  window.addEventListener('keydown', () => requestRender(4));
 
   // Expose handle for automated Playwright/Chromium 4-angle Critic & UAT inspection
   window.__CARCHESS__ = {
@@ -673,16 +832,23 @@ function bootstrapCarChess3D() {
     audio,
     profileStorage,
     gameLoop,
+    requestRender,
+    applyRpiTurboMode,
+    isAnimating: () => rafId !== null,
     setTurntableAngle(rad) {
       turntableManualAngle = typeof rad === 'number' ? rad : null;
       updateTurntable6Up(0);
+      requestRender(2);
     },
   };
 
-  let lastTime = performance.now();
   function animate(now) {
-    const frameDt = (now - lastTime) / 1000;
+    rafId = null;
+    const frameDt = Math.min(0.1, Math.max(0, (now - lastTime) / 1000));
     lastTime = now;
+    renderRequested = false;
+    if (idleGraceFrames > 0) idleGraceFrames -= 1;
+
     gameLoop.frame(frameDt, () => {
       if (debugPanel.state.wireframe) {
         renderer.render(scene, camera);
@@ -690,9 +856,18 @@ function bootstrapCarChess3D() {
         composer.render();
       }
     });
-    requestAnimationFrame(animate);
+
+    const camMoved =
+      camera.position.distanceToSquared(_prevCamPos) > 1e-8 ||
+      controls.target.distanceToSquared(_prevCamTarget) > 1e-8;
+    _prevCamPos.copy(camera.position);
+    _prevCamTarget.copy(controls.target);
+
+    if (isSceneAnimating(camMoved)) {
+      rafId = requestAnimationFrame(animate);
+    }
   }
-  requestAnimationFrame(animate);
+  requestRender(14);
 }
 
 bootstrapCarChess3D();

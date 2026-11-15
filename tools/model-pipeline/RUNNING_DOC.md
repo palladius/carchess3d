@@ -631,4 +631,23 @@ mesh were left out; the `*_frames.png` strips and `.mp4` previews remain.
   - Stores pre-addon buffer/array slice offsets in `asset.extras.universal_role_addon` so repeated runs are 100% byte-for-byte deterministic and idempotent.
   - Automatically syncs all 22 `.glb` MD5 checksums and byte sizes in `docs/models-provenance.yaml` (`python3 scripts/test_provenance.py` and `python3 scripts/check.py` pass with 0 errors).
 
+---
+
+## 30. 2026-11-15 — Watertight Welded-Vertex LOD Regeneration & WebP Texture Downscale (`tools/model-pipeline/lod/generate_lod_tiers.py`)
+
+- **Problem**: Previous `-10k.glb` / `-50k.glb` decimation ran Blender `DECIMATE (COLLAPSE)` directly on unwelded triangle-soup meshes (`v ≈ 3 * tris`), tearing holes across hero models (`rook-pupurabbu-10k.glb`, `bishop-ale-1-10k.glb`, `pawn-puffin-10k.glb`, classic & swamp `-10k.glb`), while leaving uncompressed textures up to 2.3 MB inside `-10k.glb` files (~6.4 MB per low-tier rook).
+- **Script & Command**:
+  ```bash
+  python3 tools/model-pipeline/lod/generate_lod_tiers.py
+  ```
+- **Pipeline Changes**:
+  - Added `bmesh.ops.remove_doubles(..., dist=0.0005)` vertex welding and smooth shading on heavy sub-meshes (`> 200` polygons) prior to `DECIMATE (COLLAPSE)`.
+  - Preserved small pedestals and role rings (`<= 400` polygons) from destructive starvation during proportional polygon budget allocation.
+  - Downscaled embedded textures to `<= 512px` for `10k` (`<= 15k` faces) and `<= 1024px` for `50k`, exporting as `WEBP` (`quality=80` for `10k`, `88` for `50k`).
+- **Results**:
+  - 30/30 LOD `.glb` files regenerated cleanly (`-10k.glb` and `-50k.glb`).
+  - `rook-pupurabbu-10k.glb`: `6412.7 KB -> 343.2 KB` (`-94.6%`).
+  - `king-riccardo-10k.glb`: `3840.3 KB -> 532.4 KB` (`-86.1%`).
+
+
 

@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.110';
+export const APP_VERSION = '0.3.111';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -1464,6 +1464,14 @@ export const I18N = Object.freeze({
     qualityHigh: '💻 Alta (~1000k poly / PC potente)',
     qualityMedium: '📱 Media (~50k poly / iPad & tablet)',
     qualityLow: '🔋 Bassa (~10k poly / smartphone o risparmio batteria)',
+    rpiTurboBtn: '🍓 RPi Turbo',
+    rpiTurboBtnOn: '🍓 RPi Turbo: ON',
+    rpiTurboBtnOff: '🍓 RPi Turbo: OFF',
+    rpiTurboTooltip: 'Ottimizzazione Raspberry Pi 400: DPR 0.75, niente ombre/bloom/blur, modelli 10k e 0% CPU in idle',
+    rpiTurboEnabledToast: '🍓 RPi Turbo ATTIVO: pixelRatio 0.75, ombre/bloom/blur off, LOD 10k e 0% CPU in idle.',
+    rpiTurboDisabledToast: '🍓 RPi Turbo DISATTIVATO: qualità grafica standard ripristinata.',
+    loadingAssetsTitle: '⏳ Caricamento asset 3D...',
+    loadingAssetsDone: '✨ Asset 3D pronti!',
   },
   en: {
 
@@ -1626,6 +1634,14 @@ export const I18N = Object.freeze({
     qualityHigh: '💻 High (~1000k poly / powerful desktop)',
     qualityMedium: '📱 Medium (~50k poly / iPad & tablet)',
     qualityLow: '🔋 Low (~10k poly / phone or battery saver)',
+    rpiTurboBtn: '🍓 RPi Turbo',
+    rpiTurboBtnOn: '🍓 RPi Turbo: ON',
+    rpiTurboBtnOff: '🍓 RPi Turbo: OFF',
+    rpiTurboTooltip: 'Raspberry Pi 400 optimization: DPR 0.75, no shadows/bloom/blur, 10k GLBs, 0% idle CPU',
+    rpiTurboEnabledToast: '🍓 RPi Turbo ENABLED: pixelRatio 0.75, shadows/bloom/blur off, 10k LOD & 0% idle CPU.',
+    rpiTurboDisabledToast: '🍓 RPi Turbo DISABLED: standard graphics quality restored.',
+    loadingAssetsTitle: '⏳ Loading 3D assets...',
+    loadingAssetsDone: '✨ 3D assets ready!',
   },
 });
 
@@ -1853,13 +1869,19 @@ export function resolvePieceGlbForLod(pieceKey, lodTier = 'high', opts = {}) {
     }
     if (bVar && BISHOP_GLB_VARIANTS[bVar]) {
       canonicalPath = BISHOP_GLB_VARIANTS[bVar];
-      if (bVar !== 'hat') return canonicalPath;
+      if (bVar !== 'hat') {
+        if (lodTier === 'low' && def.lodGlbUrls?.low) return def.lodGlbUrls.low;
+        return canonicalPath;
+      }
     }
   } else if (familyId === 'carlesso' && pieceKey === 'q') {
     const qVar = opts.queenVariant || 'young';
     if (qVar && QUEEN_GLB_VARIANTS[qVar]) {
       canonicalPath = QUEEN_GLB_VARIANTS[qVar];
-      if (qVar !== 'young') return canonicalPath;
+      if (qVar !== 'young') {
+        if (lodTier === 'low' && def.lodGlbUrls?.low) return def.lodGlbUrls.low;
+        return canonicalPath;
+      }
     }
   }
 

@@ -2,9 +2,11 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   detectHardwareTier,
+  detectRpiTurboMode,
   resolveModelLod,
   QUALITY_TIERS,
 } from '../src/core/DeviceCapabilityHelper.js';
+import { resolvePieceGlbForLod } from '../src/core/Registry.js';
 
 describe('DeviceCapabilityHelper', () => {
   it('defines valid QUALITY_TIERS', () => {
@@ -51,5 +53,63 @@ describe('DeviceCapabilityHelper', () => {
     assert.equal(resolveModelLod('auto', 'medium'), 'medium');
     assert.equal(resolveModelLod('auto', 'low'), 'low');
     assert.equal(resolveModelLod(null, 'medium'), 'medium');
+  });
+
+  it('detects Raspberry Pi Linux aarch64, DPR <= 0.85 runner, and query overrides', () => {
+    assert.equal(
+      detectRpiTurboMode({
+        userAgent: 'Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 Chrome/130.0.0.0',
+      }),
+      true,
+    );
+    assert.equal(
+      detectHardwareTier({
+        userAgent: 'Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36',
+        screenWidth: 1920,
+        screenHeight: 1080,
+      }),
+      'low',
+    );
+    assert.equal(
+      detectRpiTurboMode({
+        userAgent: 'Mozilla/5.0 (X11; Linux x86_64)',
+        devicePixelRatio: 0.75,
+      }),
+      true,
+    );
+    assert.equal(
+      detectRpiTurboMode({
+        userAgent: 'Mozilla/5.0 (X11; Linux x86_64)',
+        search: '?rpi=1',
+      }),
+      true,
+    );
+    assert.equal(
+      detectRpiTurboMode({
+        userAgent: 'Mozilla/5.0 (X11; Linux aarch64)',
+        search: '?rpi=0',
+      }),
+      false,
+    );
+    assert.equal(
+      detectRpiTurboMode({
+        userAgent: 'Mozilla/5.0 (X11; Linux x86_64)',
+        devicePixelRatio: 1,
+      }),
+      false,
+    );
+  });
+
+  it('resolves -10k.glb low-poly models across factions in low LOD tier', () => {
+    for (const family of ['carlesso', 'classic', 'swamp']) {
+      for (const pieceKey of ['k', 'q', 'b', 'n', 'r', 'p']) {
+        const url = resolvePieceGlbForLod(pieceKey, 'low', { family });
+        assert.ok(url.endsWith('-10k.glb'), `expected -10k.glb for ${family}/${pieceKey}, got ${url}`);
+      }
+    }
+    assert.equal(
+      resolvePieceGlbForLod('q', 'low', { family: 'carlesso', queenVariant: 'wedding' }).endsWith('-10k.glb'),
+      true,
+    );
   });
 });

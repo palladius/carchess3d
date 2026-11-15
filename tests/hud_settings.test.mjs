@@ -20,4 +20,31 @@ describe('HudListener Quality Controls', () => {
     bus.flush();
     assert.deepEqual(received, { type: 'QUALITY_TIER_CHANGED', tier: 'high', effectiveLod: 'high' });
   });
+
+  it('toggles RPi Turbo mode and updates auto LOD tier + callback cleanly', () => {
+    const bus = new GameEventBus();
+    const applied = [];
+    let pieceTier = null;
+    const hud = new HudListener();
+    hud.init({
+      bus,
+      applyRpiTurboMode: (v) => applied.push(v),
+      pieces: {
+        setQualityTier: (tier, lod) => {
+          pieceTier = { tier, lod };
+        },
+      },
+    });
+
+    hud.setRpiTurboMode(true, { silent: true });
+    assert.equal(hud.rpiTurboMode, true);
+    assert.equal(hud.detectedHardwareTier, 'low');
+    assert.equal(hud.effectiveLod, 'low');
+    assert.deepEqual(pieceTier, { tier: 'auto', lod: 'low' });
+    assert.deepEqual(applied, [true]);
+
+    hud.setRpiTurboMode(false, { silent: true });
+    assert.equal(hud.rpiTurboMode, false);
+    assert.deepEqual(applied, [true, false]);
+  });
 });

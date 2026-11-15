@@ -32,6 +32,7 @@ import {
 import { BATTLE_MATRIX_36 } from '../core/BattleMatrix36.js';
 import {
   detectHardwareTier,
+  detectRpiTurboMode,
   resolveModelLod,
   QUALITY_TIERS,
 } from '../core/DeviceCapabilityHelper.js';
@@ -205,7 +206,8 @@ export class HudListener {
     this.matrixMarathonIndex = 0;
     this.battleMatrix36 = BATTLE_MATRIX_36 || null;
 
-    this.detectedHardwareTier = detectHardwareTier();
+    this.rpiTurboMode = detectRpiTurboMode();
+    this.detectedHardwareTier = detectHardwareTier({ rpiTurboMode: this.rpiTurboMode });
     const urlQuality =
       typeof window !== 'undefined'
         ? new URLSearchParams(window.location.search).get('quality')
@@ -255,6 +257,15 @@ export class HudListener {
         this.mobileAwaitingFirstAttack3D = true;
         this.topbarVisible = false;
       }
+    }
+    if (typeof ctx.rpiTurboMode === 'boolean' && ctx.rpiTurboMode !== this.rpiTurboMode) {
+      this.rpiTurboMode = ctx.rpiTurboMode;
+      this.detectedHardwareTier = detectHardwareTier({ rpiTurboMode: this.rpiTurboMode });
+      this.effectiveLod = resolveModelLod(this.qualityTier, this.detectedHardwareTier);
+    }
+    const pm = ctx.pieces || ctx.pieceManager;
+    if (pm?.setQualityTier) {
+      pm.setQualityTier(this.qualityTier, this.effectiveLod);
     }
     const bus = ctx.bus;
 
@@ -314,6 +325,7 @@ export class HudListener {
         bus.on('CLARITY_MODE_CHANGED', (e) => this.onClarityModeChanged(e)),
         bus.on('AI_THINKING', (e) => this.onAiThinking(e)),
         bus.on('AI_MOVE_READY', (e) => this.onAiMoveReady(e)),
+        bus.on('ASSET_LOADING_PROGRESS', (e) => this.onAssetLoadingProgress(e)),
       );
     }
 
@@ -586,6 +598,56 @@ export class HudListener {
         box-shadow: 0 6px 22px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 236, 179, 0.15);
         backdrop-filter: blur(8px);
         border-radius: 12px;
+      }
+      html.rpi-mode .hud-glass {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(14, 18, 27, 0.94);
+      }
+      html.rpi-mode .hud-modal-backdrop,
+      html.rpi-mode .hud-quake-console,
+      html.rpi-mode .hud-rotate-overlay {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+      .hud-rpi-btn.active {
+        border-color: #69f0ae !important;
+        background: rgba(16, 68, 42, 0.92) !important;
+        color: #b9f6ca !important;
+      }
+      .hud-asset-loading-pill {
+        position: fixed;
+        top: 62px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 900;
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 240px;
+        max-width: min(420px, 88vw);
+        padding: 9px 14px;
+        border-radius: 12px;
+        background: rgba(12, 16, 26, 0.94);
+        border: 1.5px solid rgba(255, 213, 79, 0.72);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+        color: #fff3c4;
+        font-size: 12.5px;
+        font-weight: 700;
+        pointer-events: none;
+      }
+      .hud-asset-loading-bar-bg {
+        width: 100%;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        overflow: hidden;
+      }
+      .hud-asset-loading-bar-fill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #ffd54f, #69f0ae);
+        transition: width 0.14s ease-out;
       }
       .hud-topbar {
         position: absolute;
@@ -2018,6 +2080,8 @@ export class HudListener {
             <option value="positano" ${this.environmentMode === 'positano' ? 'selected' : ''}>${this.t('envShortPositano')}</option>
           </select>
 
+          <button type="button" id="hud-top-rpi-btn" class="hud-btn hud-rpi-btn ${this.rpiTurboMode ? 'active' : ''}" title="${this.t('rpiTurboTooltip')}" aria-pressed="${this.rpiTurboMode ? 'true' : 'false'}">${this.rpiTurboMode ? this.t('rpiTurboBtnOn') : this.t('rpiTurboBtn')}</button>
+
           <div id="hud-lang-btn" style="display:inline-flex;gap:4px;align-items:center;" role="group" aria-label="Language / Lingua">
             <button type="button" id="hud-top-flag-en" class="hud-btn ${this.lang === 'en' ? 'active' : ''}" data-set-lang="en" title="English 🇬🇧">🇬🇧 EN</button>
             <button type="button" id="hud-top-flag-it" class="hud-btn ${this.lang === 'it' ? 'active' : ''}" data-set-lang="it" title="Italiano 🇮🇹">🇮🇹 IT</button>
@@ -2033,6 +2097,14 @@ export class HudListener {
 
       <!-- HINT & STICKER TOAST -->
       <div id="hud-toast" class="hud-toast"></div>
+
+      <!-- REMOTE / LOCAL 3D ASSET LOADING PILL (auto-hides on completion) -->
+      <div id="hud-asset-loading-pill" class="hud-asset-loading-pill" role="status" aria-live="polite">
+        <div id="hud-asset-loading-text">${this.t('loadingAssetsTitle')}</div>
+        <div class="hud-asset-loading-bar-bg">
+          <div id="hud-asset-loading-bar" class="hud-asset-loading-bar-fill"></div>
+        </div>
+      </div>
 
       <!-- LYRIA THEME KARAOKE CAPTION -->
       <div id="hud-lyria-caption" class="hud-lyria-caption"></div>
@@ -2221,6 +2293,7 @@ export class HudListener {
               <a id="hud-setup-desktop-pov-link" href="./showcase/?view=pov" class="hud-btn gold" style="font-size:11px;padding:4px 10px;text-decoration:none;" title="Heroes POV Cinema">
                 ${this.t('galleryBtn')}
               </a>
+              <button type="button" id="hud-setup-rpi-btn" class="hud-btn hud-rpi-btn ${this.rpiTurboMode ? 'active' : ''}" style="font-size:11px;padding:4px 10px;" title="${this.t('rpiTurboTooltip')}" aria-pressed="${this.rpiTurboMode ? 'true' : 'false'}">${this.rpiTurboMode ? this.t('rpiTurboBtnOn') : this.t('rpiTurboBtn')}</button>
               <a href="./nocache.html" class="hud-btn" style="font-size:11px;padding:4px 10px;text-decoration:none;color:#ffd54f;">🧹 No-Cache</a>
               <span class="hud-version-pill" style="font-size:10.5px;">⚡ ${this.appVersion}</span>
             </div>
@@ -2513,6 +2586,7 @@ export class HudListener {
           <button type="button" id="hud-console-btn" class="hud-btn hud-icon-btn" title="Quake Console (~ or \\)" aria-label="Quake Console">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 14H4V8h16v10zm-2-1h-6v-2h6v2zM7.5 17l-1.41-1.41L8.67 13l-2.59-2.59L7.5 9l4 4-4 4z"/></svg>
           </button>
+          <button type="button" id="hud-rpi-btn" class="hud-btn hud-rpi-btn ${this.rpiTurboMode ? 'active' : ''}" title="${this.t('rpiTurboTooltip')}" aria-pressed="${this.rpiTurboMode ? 'true' : 'false'}" style="font-size:11.5px;padding:5px 9px;">${this.rpiTurboMode ? this.t('rpiTurboBtnOn') : this.t('rpiTurboBtn')}</button>
           <button type="button" id="hud-help-btn" class="hud-btn hud-icon-btn" title="${this.t('helpBtn')}" aria-label="${this.t('helpBtn')}">
             <svg class="hud-svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
           </button>
@@ -3290,6 +3364,11 @@ export class HudListener {
 
     // Topbar Toggle
     q('#hud-toggle-topbar-btn')?.addEventListener('click', () => this.toggleTopbar());
+
+    // 🍓 RPi Turbo Toggle (Topbar, Setup Modal, and Bottom Dock)
+    ['#hud-top-rpi-btn', '#hud-setup-rpi-btn', '#hud-rpi-btn'].forEach((sel) => {
+      q(sel)?.addEventListener('click', () => this.toggleRpiTurboMode());
+    });
 
     // Help & Shortcuts Modal ('h' / '?')
     q('#hud-help-btn')?.addEventListener('click', () => this.toggleHelpModal());
@@ -4911,6 +4990,7 @@ export class HudListener {
   setQualityTier(tier = 'auto', opts = {}) {
     const norm = QUALITY_TIERS.includes(tier) ? tier : 'auto';
     this.qualityTier = norm;
+    this.detectedHardwareTier = detectHardwareTier({ rpiTurboMode: this.rpiTurboMode });
     this.effectiveLod = resolveModelLod(norm, this.detectedHardwareTier);
 
     if (typeof localStorage !== 'undefined') {
@@ -4940,6 +5020,101 @@ export class HudListener {
       }
     }
     return this.qualityTier;
+  }
+
+  /**
+   * Synchronizes all `🍓 RPi Turbo` UI toggle buttons with the active state & language.
+   */
+  _syncRpiTurboUi() {
+    if (!this.rootEl) return;
+    const label = this.rpiTurboMode ? this.t('rpiTurboBtnOn') : this.t('rpiTurboBtn');
+    const tip = this.t('rpiTurboTooltip');
+    ['#hud-top-rpi-btn', '#hud-setup-rpi-btn', '#hud-rpi-btn'].forEach((sel) => {
+      const btn = this.rootEl.querySelector(sel);
+      if (!btn) return;
+      btn.textContent = label;
+      btn.title = tip;
+      btn.classList.toggle('active', this.rpiTurboMode);
+      btn.setAttribute('aria-pressed', this.rpiTurboMode ? 'true' : 'false');
+    });
+  }
+
+  /**
+   * Enables or disables Raspberry Pi 400 Turbo optimizations (DPR 0.75, no shadows/bloom/blur,
+   * 10k poly GLBs in auto mode, 0% idle CPU loop).
+   * @param {boolean} enabled
+   * @param {{ silent?: boolean }} [opts]
+   */
+  setRpiTurboMode(enabled, opts = {}) {
+    this.rpiTurboMode = Boolean(enabled);
+    if (typeof window !== 'undefined') {
+      window._rpiTurboMode = this.rpiTurboMode;
+    }
+    if (typeof document !== 'undefined' && document.documentElement) {
+      document.documentElement.classList.toggle('rpi-mode', this.rpiTurboMode);
+    }
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('carchess3d_rpi_turbo', this.rpiTurboMode ? '1' : '0');
+      } catch {}
+    }
+
+    this.ctx?.applyRpiTurboMode?.(this.rpiTurboMode);
+    this.setQualityTier(this.qualityTier, { silent: Boolean(opts.silent) });
+    this._syncRpiTurboUi();
+    this.ctx?.requestRender?.();
+
+    if (!opts.silent) {
+      this.showToast(
+        this.t(this.rpiTurboMode ? 'rpiTurboEnabledToast' : 'rpiTurboDisabledToast'),
+        3200,
+      );
+    }
+    return this.rpiTurboMode;
+  }
+
+  toggleRpiTurboMode() {
+    return this.setRpiTurboMode(!this.rpiTurboMode);
+  }
+
+  /**
+   * Displays non-blocking 3D asset loading feedback (especially visible on slow links / RPi storage)
+   * and disappears automatically ("puff!") once all pending GLBs have mounted.
+   * @param {{ pending?: number, loaded?: number, total?: number, currentUrl?: string }} [e]
+   */
+  onAssetLoadingProgress(e = {}) {
+    if (!this.rootEl) return;
+    const pill = this.rootEl.querySelector('#hud-asset-loading-pill');
+    const txt = this.rootEl.querySelector('#hud-asset-loading-text');
+    const bar = this.rootEl.querySelector('#hud-asset-loading-bar');
+    if (!pill || !txt || !bar) return;
+
+    const pending = Number(e.pending) || 0;
+    const loaded = Number(e.loaded) || 0;
+    const total = Math.max(1, Number(e.total) || loaded + pending || 1);
+    if (this._assetHideTimer) {
+      clearTimeout(this._assetHideTimer);
+      this._assetHideTimer = null;
+    }
+
+    if (pending > 0) {
+      const pct = Math.min(98, Math.max(8, Math.round((loaded / total) * 100)));
+      const filePart = e.currentUrl ? String(e.currentUrl).split('/').pop() : '';
+      const suffix = filePart ? ` (${loaded}/${total} · ${filePart})` : ` (${loaded}/${total})`;
+      txt.textContent = `${this.t('loadingAssetsTitle')}${suffix}`;
+      bar.style.width = `${pct}%`;
+      pill.style.display = 'flex';
+    } else {
+      txt.textContent = this.t('loadingAssetsDone');
+      bar.style.width = '100%';
+      pill.style.display = 'flex';
+      this._assetHideTimer = setTimeout(() => {
+        if (this.rootEl) {
+          const p = this.rootEl.querySelector('#hud-asset-loading-pill');
+          if (p) p.style.display = 'none';
+        }
+      }, 350);
+    }
   }
 
 
@@ -5057,6 +5232,7 @@ export class HudListener {
         this.logToQuake('INFO', '  pov / cinema     - Open Heroes POV Cinema (./showcase/?view=pov)');
         this.logToQuake('INFO', '  swamp            - Splash pieces in the swamp');
         this.logToQuake('INFO', '  skeletons        - Toggle 3D skeletons');
+        this.logToQuake('INFO', '  rpi [on|off]     - Toggle Raspberry Pi Turbo mode');
         this.logToQuake('INFO', '  clear            - Clear console');
         this.logToQuake('INFO', '  close / exit     - Close Quake console');
         break;
@@ -5128,6 +5304,15 @@ export class HudListener {
       case 'skeletons':
         this.rootEl?.querySelector('#hud-skeletons-btn')?.click();
         break;
+
+      case 'rpi':
+      case 'turbo':
+      case 'sguisatazzo': {
+        const next = arg1 === 'on' || arg1 === '1' ? true : arg1 === 'off' || arg1 === '0' ? false : !this.rpiTurboMode;
+        this.setRpiTurboMode(next);
+        this.logToQuake('RPI', `RPi Turbo mode: ${this.rpiTurboMode ? 'ON' : 'OFF'}`, 'gold');
+        break;
+      }
 
       case 'clear':
         this.clearQuakeLogs();
@@ -5927,6 +6112,7 @@ export class HudListener {
     this.rootEl.querySelectorAll('button[data-set-lang]').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.setLang === this.lang);
     });
+    this._syncRpiTurboUi();
 
     // Topbar & Opponent/Set dropdowns
     setTxt('#hud-title', 'title');

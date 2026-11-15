@@ -48,6 +48,7 @@ MODELS_TO_LOD = [
 
 BLENDER_SCRIPT = """
 import bpy
+import bmesh
 import sys
 
 in_path = sys.argv[-2]
@@ -58,16 +59,47 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=in_path)
 
 mesh_objs = [o for o in bpy.data.objects if o.type == 'MESH']
-total_faces = sum(len(o.data.polygons) for o in mesh_objs)
+for o in mesh_objs:
+    # Weld split/unwelded triangle-soup vertices cleanly while preserving UV loops
+    # so Collapse Decimate simplifies continuous geometry with zero missing-triangle holes.
+    if len(o.data.polygons) > 200:
+        bm = bmesh.new()
+        bm.from_mesh(o.data)
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.0005)
+        bm.to_mesh(o.data)
+        bm.free()
+        for poly in o.data.polygons:
+            poly.use_smooth = True
+        o.data.update()
 
-if total_faces > target_faces:
-    ratio = max(0.01, min(1.0, target_faces / total_faces))
-    for o in mesh_objs:
+heavy_objs = [o for o in mesh_objs if len(o.data.polygons) > 400]
+light_faces = sum(len(o.data.polygons) for o in mesh_objs if o not in heavy_objs)
+heavy_faces = sum(len(o.data.polygons) for o in heavy_objs)
+budget_heavy = max(500, target_faces - light_faces)
+
+if heavy_faces > budget_heavy:
+    ratio = max(0.01, min(1.0, budget_heavy / heavy_faces))
+    for o in heavy_objs:
         mod = o.modifiers.new(name='Decimate', type='DECIMATE')
         mod.decimate_type = 'COLLAPSE'
         mod.ratio = ratio
+        mod.use_collapse_triangulate = True
 
-bpy.ops.export_scene.gltf(filepath=out_path, export_format='GLB', export_apply=True)
+max_tex = 512 if target_faces <= 15000 else 1024
+webp_quality = 80 if target_faces <= 15000 else 88
+for img in bpy.data.images:
+    w, h = img.size[0], img.size[1]
+    if max(w, h) > max_tex:
+        scale = float(max_tex) / float(max(w, h))
+        img.scale(max(1, int(w * scale)), max(1, int(h * scale)))
+
+bpy.ops.export_scene.gltf(
+    filepath=out_path,
+    export_format='GLB',
+    export_apply=True,
+    export_image_format='WEBP',
+    export_image_quality=webp_quality,
+)
 """
 
 

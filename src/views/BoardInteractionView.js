@@ -954,6 +954,12 @@ export class BoardInteractionView {
    * @param {number} dt
    */
   update(dt = 1 / 60) {
+    const isRpiTurbo = Boolean(
+      this.ctx?.rpiTurboMode ?? (typeof window !== 'undefined' && window._rpiTurboMode),
+    );
+    if (isRpiTurbo) {
+      return;
+    }
     this.elapsedTime += dt;
     const t = this.elapsedTime;
 

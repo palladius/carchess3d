@@ -72,7 +72,7 @@ export class DebugPanelView {
       font: 12px/1.4 system-ui, -apple-system, sans-serif;
       z-index: 950;
       box-shadow: 0 12px 32px rgba(0,0,0,0.65);
-      backdrop-filter: blur(10px);
+      backdrop-filter: ${typeof window !== 'undefined' && window._rpiTurboMode ? 'none' : 'blur(10px)'};
       display: ${visibleByDefault ? 'block' : 'none'};
     `;
 
@@ -198,6 +198,7 @@ export class DebugPanelView {
       brazierWarmth: this.state.brazierWarmth,
       waterRoughness: this.state.waterRoughness,
     });
+    this.deps.requestRender?.();
   }
 
   setWireframe(enabled) {
@@ -213,6 +214,13 @@ export class DebugPanelView {
         }
       }
     });
+    this.deps.requestRender?.();
+  }
+
+  setRpiTurboMode(enabled) {
+    if (!this.container) return;
+    this.container.style.backdropFilter = enabled ? 'none' : 'blur(10px)';
+    this.container.style.webkitBackdropFilter = enabled ? 'none' : 'blur(10px)';
   }
 
   /**
@@ -252,6 +260,7 @@ export class DebugPanelView {
     }
     cam.updateProjectionMatrix();
     ctrl.update();
+    this.deps.requestRender?.();
   }
 
   toggle() {

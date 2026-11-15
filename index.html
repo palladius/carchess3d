@@ -11,6 +11,32 @@
   <title>CarChess3D · Family Wizard Chess 🏰🚽</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./docs/logo/logo.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var sp = new URLSearchParams(window.location.search || '');
+        var rpiParam = sp.get('rpi');
+        var forceOn = rpiParam === '1' || rpiParam === 'true' ||
+          sp.get('sguisatazzo') === '1' || sp.get('sguisatazzo') === 'true' ||
+          sp.get('lowperf') === '1' || sp.get('lowperf') === 'true' ||
+          sp.get('lite') === '1' || sp.get('lite') === 'true';
+        var forceOff = rpiParam === '0' || rpiParam === 'false' ||
+          sp.get('highperf') === '1' || sp.get('highperf') === 'true';
+        var stored = null;
+        try { stored = window.localStorage ? window.localStorage.getItem('carchess3d_rpi_turbo') : null; } catch (_) {}
+        var ua = (navigator.userAgent || '') + ' ' + (navigator.platform || '');
+        var isLinuxArm = /Linux/i.test(ua) && /(aarch64|arm64|armv7|armv8|raspbian|crKey)/i.test(ua);
+        var isRunnerScale = typeof window.devicePixelRatio === 'number' && window.devicePixelRatio > 0 && window.devicePixelRatio <= 0.85;
+        var active = forceOff ? false : (forceOn || stored === '1' || (stored !== '0' && (isLinuxArm || isRunnerScale)));
+        window._rpiTurboMode = Boolean(active);
+        if (window._rpiTurboMode) {
+          document.documentElement.classList.add('rpi-mode');
+        }
+      } catch (_) {
+        window._rpiTurboMode = false;
+      }
+    })();
+  </script>
   <script type="importmap">
     {
       "imports": {
@@ -56,6 +82,16 @@
       clip: rect(0, 0, 0, 0);
       white-space: nowrap;
       border: 0;
+    }
+    html.rpi-mode *,
+    html.rpi-mode *::before,
+    html.rpi-mode *::after {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    html.rpi-mode .hud-play-now-cta,
+    html.rpi-mode .hud-asset-loading-pill {
+      animation: none !important;
     }
   </style>
 </head>
