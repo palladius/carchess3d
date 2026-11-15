@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.105] - 2026-11-15
+
+- 👑♕♗ **Model Swaps & LOD Tiers: Clean Queen Kate Wedding/50k LOD & Bishop Ale hy2 Default (#71)** (`src/core/Registry.js`):
+  - **Queen Kate Wedding Swaps**: Swapped `QUEEN_GLB_VARIANTS.wedding` and `CHARACTER_REGISTRY.q.altGlbUrl` from `queen-kate-wedding2016-remastered.glb` (affected by UV-seam scars) to the clean canonical `assets/models/queen-kate-wedding2016.glb`.
+  - **Queen Kate Low LOD**: Pointed `CHARACTER_REGISTRY.q.lodGlbUrls.low` to `assets/models/queen-kate-50k.glb` instead of the defective `-10k.glb` mesh.
+  - **Bishop Ale Default**: Promoted `assets/models/bishop-ale-hy2.glb` as the canonical default mesh (`glbUrl`) for Bishop Ale in `CHARACTER_REGISTRY.b`.
+
 ## [0.3.104] - 2026-11-03
 
 - 🎬⚔️🎯 **Combat Fighter Calibration: Higher Visibility (Opacity 0.42) & Compact Scale (0.88x) (`src/views/VFXPoolView.js`, `tests/combat.test.mjs`)**:

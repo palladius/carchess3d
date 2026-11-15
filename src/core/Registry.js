@@ -13,7 +13,7 @@
 
 import { CANONICAL_PIECE_HEIGHTS } from '../utils/glbGrounding.js';
 
-export const APP_VERSION = '0.3.104';
+export const APP_VERSION = '0.3.105';
 export const GITHUB_REPO_URL = 'https://github.com/palladius/carchess3d';
 export const GITHUB_NEW_ISSUE_URL = 'https://github.com/palladius/carchess3d/issues/new';
 
@@ -488,7 +488,7 @@ export const KNIGHT_GLB_VARIANTS = Object.freeze({
 
 export const QUEEN_GLB_VARIANTS = Object.freeze({
   young: 'assets/models/queen-kate.glb',
-  wedding: 'assets/models/queen-kate-wedding2016-remastered.glb',
+  wedding: 'assets/models/queen-kate-wedding2016.glb',
 });
 
 export const BISHOP_GLB_VARIANTS = Object.freeze({
@@ -543,9 +543,9 @@ export const CHARACTER_REGISTRY = Object.freeze({
     altPortrait: 'assets/characters/queen-kate-1.jpg',
     backPortrait: 'assets/characters/queen-kate-2.jpg',
     glbUrl: 'assets/models/queen-kate.glb',
-    altGlbUrl: 'assets/models/queen-kate-wedding2016-remastered.glb',
+    altGlbUrl: 'assets/models/queen-kate-wedding2016.glb',
     lodGlbUrls: {
-      low: 'assets/models/queen-kate-10k.glb',
+      low: 'assets/models/queen-kate-50k.glb',
       medium: 'assets/models/queen-kate-50k.glb',
       high: 'assets/models/queen-kate.glb',
     },
@@ -574,7 +574,7 @@ export const CHARACTER_REGISTRY = Object.freeze({
     frontPortrait: 'assets/characters/bishop-ale-1.jpg',
     altPortrait: 'assets/characters/bishop-ale-2.jpg',
     backPortrait: 'tools/model-pipeline/ale/experiments_back/back_nb_2.1.png',
-    glbUrl: 'assets/models/bishop-ale-1.glb',
+    glbUrl: 'assets/models/bishop-ale-hy2.glb',
     altGlbUrl: 'assets/models/bishop-ale-rigged.glb',
     lodGlbUrls: {
       low: 'assets/models/bishop-ale-1-10k.glb',
